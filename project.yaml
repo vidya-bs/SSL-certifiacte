@@ -1,0 +1,41 @@
+testApp: false
+deployApp: true
+
+build:
+  name: cloud-itorix-app
+  type: core  #type can be core, mock or testsuite
+  version: 1.0
+  gitURL: git@github.com:itorix/cloud-itorix-app.git
+
+deploy:
+- env: local
+  branch: feature
+  org: itorix
+  approval: false
+  host: 3.128.86.36
+  pem: itorix-dev.pem
+  configBranch: master
+
+- env: development
+  branch: develop
+  org: itorix
+  approval: false
+  host: 3.128.86.36
+  pem: itorix-dev.pem
+  configBranch: develop
+
+- env: demo
+  branch: master
+  org: itorix
+  approval: true
+  host: 18.219.52.93
+  pem: itorix-demo.pem
+  configBranch: release
+
+- env: production
+  branch: release
+  org: itorix
+  approval: true
+  host: 18.219.52.93
+  pem: itorix-prod.pem
+  configBranch: release
