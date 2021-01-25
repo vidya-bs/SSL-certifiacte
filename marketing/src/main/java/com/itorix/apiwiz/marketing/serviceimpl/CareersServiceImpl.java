@@ -65,13 +65,13 @@ public class CareersServiceImpl implements CareersService {
 		if(category != null){
 			categoryList = Arrays.asList(category.split(","));
 		}
-		if(category != null){
+		if(location != null){
 			locationList = Arrays.asList(location.split(","));
 		}
-		if(category != null){
+		if(roll != null){
 			rollList = Arrays.asList(roll.split(","));
 		}
-		return new ResponseEntity<>(careersDao.getAllPostings(), HttpStatus.OK);
+		return new ResponseEntity<>(careersDao.getAllPostings(categoryList, locationList, rollList), HttpStatus.OK);
 	}
 
 	@Override

@@ -109,7 +109,7 @@ public class MongoConnection {
 		String reader =null;
 		try {
 			DB db = getDB();
-			DBCollection collection = db.getCollection("Connectors.Apigee.Build.Templates.Folder1");
+			DBCollection collection = db.getCollection("Connectors.Apigee.Build.Templates.Folder");
 			BasicDBObject document = new BasicDBObject();
 			document.put("content", content);
 			BasicDBObject updateDocument = new BasicDBObject();
@@ -136,7 +136,7 @@ public class MongoConnection {
 		String reader =null;
 		try {
 			DB db = getDB();
-			DBCollection collection = db.getCollection("Connectors.Apigee.Build.Templates.Folder1");
+			DBCollection collection = db.getCollection("Connectors.Apigee.Build.Templates.Folder");
 			DBCursor cursor = collection.find();
 			DBObject content = cursor.next();
 			reader = (String) content.get("content");
