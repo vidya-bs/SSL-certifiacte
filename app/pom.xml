@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.itorix.hyggee.cloud</groupId>
+	<artifactId>cloud-app</artifactId>
+	<packaging>jar</packaging>
+	<name>cloud-app</name>
+	<description>cloud-app</description>
+
+	<parent>
+		<groupId>com.itorix.hyggee.cloud</groupId>
+		<artifactId>cloud</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<properties>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>com.itorix.hyggee.cloud</groupId>
+			<artifactId>cloud-hyggee-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.itorix.hyggee.cloud</groupId>
+			<artifactId>cloud-identity-management</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.itorix.hyggee.cloud</groupId>
+			<artifactId>cloud-design-studio</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.itorix.hyggee.cloud</groupId>
+			<artifactId>cloud-data-dictionary</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>cloud-collaboration</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>api-virtualization</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>third-party-integrations</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>api-test</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>cloud-config-management</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>api-developer-portal</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>data-management</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>PerformanceAndCoverge</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>developer-studio</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>service-request</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>project-management</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>service-registry</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>ci-cd</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>analytics</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>api-portfolio</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>api-monitor</artifactId>
+		</dependency>
+		<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>marketing</artifactId>
+		</dependency>
+		<!-- <dependency>
+			<groupId>net.logstash.logback</groupId>
+			<artifactId>logstash-logback-encoder</artifactId>
+			<version>4.11</version>
+		</dependency> -->
+	</dependencies>
+
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.slf4j</groupId>
+							<artifactId>slf4j-simple</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
