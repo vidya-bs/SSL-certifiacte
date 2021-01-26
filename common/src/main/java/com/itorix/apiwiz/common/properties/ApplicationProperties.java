@@ -137,16 +137,20 @@ public class ApplicationProperties {
 	@Value("${itorix.core.mail.smtp.hostname}")
 	private String smtphostName;
 
-	@Value("${app.mailutil.serviceRequest.subject}")
+	//@Value("${app.mailutil.serviceRequest.subject}")
+	@Value("${itorix.core.apigee.service.request.notification.subject}")
 	private String serviceRequestSubject;
 
-	@Value("${app.mailutil.serviceRequestReview.body}")
+	//@Value("${app.mailutil.serviceRequestReview.body}")
+	@Value("${itorix.core.apigee.service.request.notification.email.body}")
 	private String serviceRequestReviewBody;
 
-	@Value("${app.mailutil.serviceRequestApprove.body}")
+	//@Value("${app.mailutil.serviceRequestApprove.body}")
+	@Value("${itorix.core.apigee.service.request.notification.approve.email.body}")
 	private String serviceRequestApproveBody;
 
-	@Value("${app.mailutil.serviceRequestReject.body}")
+	//@Value("${app.mailutil.serviceRequestReject.body}")
+	@Value("${itorix.core.apigee.service.request.notification.reject.email.body}")
 	private String serviceRequestRejecteBody;
 
 	@Value("${itorix.core.swagger.notification.status.subject}")
