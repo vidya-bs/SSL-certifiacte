@@ -53,6 +53,7 @@ import com.itorix.apiwiz.monitor.agent.executor.validators.XmlValidator;
 import com.itorix.apiwiz.monitor.agent.logging.LoggerService;
 import com.itorix.apiwiz.monitor.agent.util.RSAEncryption;
 import com.itorix.apiwiz.monitor.model.ExecutionContext;
+import com.itorix.apiwiz.monitor.model.NotificationDetails;
 import com.itorix.apiwiz.monitor.model.Variables;
 import com.itorix.apiwiz.monitor.model.collection.MonitorCollections;
 import com.itorix.apiwiz.monitor.model.collection.Notifications;
@@ -65,9 +66,14 @@ import com.itorix.apiwiz.monitor.model.request.QueryParam;
 import com.itorix.apiwiz.monitor.model.request.Response;
 import com.itorix.apiwiz.monitor.model.request.Variable;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+
 @SuppressWarnings("unused")
 @Component
-
+@Slf4j
+@FieldDefaults(level=AccessLevel.PRIVATE)
 public class MonitorAgentRunner {
 
 	private final static Logger logger = LoggerFactory.getLogger(MonitorAgentRunner.class);
@@ -85,12 +91,28 @@ public class MonitorAgentRunner {
 
 	@Autowired
 	LoggerService loggerService;
-	
-	
 
 	RestTemplate restTemplate = new RestTemplate();
 
 	RSAEncryption rsaEncryption;
+
+	@Value("${itorix.notification.agent:null}")
+	private String notificationAgentPath;
+
+	@Value("${itorix.notification.agent.contextPath:null}")
+	private String notificationContextPath;
+
+	@Value("${itorix.app.monitor.error.report.email.subject}")
+	private String subject;
+
+	@Value("${itorix.notification.failed.mail.body:null}")
+	private String body;
+
+	@Value("${itorix.app.monitor.summary.report.email.body}")
+	private String emailBody;
+
+	@Value("${itorix.core.security.apikey:null}")
+	private String apiKey;
 
 	@PostConstruct
 	private void setRSAKey(){
@@ -100,21 +122,6 @@ public class MonitorAgentRunner {
 			logger.error("error creating rsaEncryption", e);
 		}
 	}
-
-	@Value("${itorix.notification.agent:null}")
-	private String notificationAgentPath;
-
-	@Value("${itorix.notification.agent.contextPath:null}")
-	private String notificationContextPath;
-
-	@Value("${itorix.notification.failed.mail.subject:null}")
-	private String subject;
-	
-	@Value("${itorix.notification.failed.mail.body:null}")
-	private String body;
-
-	@Value("${itorix.core.security.apikey:null}")
-	private String apiKey;
 
 	private static final String NOTIFICATION_AGENT_NOTIFY = "/v1/notification";
 	private static final String API_KEY_NAME = "x-apikey";
@@ -205,8 +212,12 @@ public class MonitorAgentRunner {
 
 			} catch (Exception ex) {
 				logger.error("Error executing {}", monitorRequest.getName(), ex);
-				String mailBody = MessageFormat.format(body, collection.getName(),  vars.getName(), monitorRequest.getName());
-				invokeNotificationAgent(collection.getNotifications(), mailBody);
+				result.setStatus("Failed");
+				List<NotificationDetails> notificationDetails = dao.getNotificationDetails(context.getTenant(),
+						context.getCollectionId());
+				for (NotificationDetails notificationDetail : notificationDetails) {
+					invokeNotificationAgent(notificationDetail,"Failed",monitorRequest.getName());
+				}
 			} finally {
 
 				BeanUtils.copyProperties(monitorRequest, result);
@@ -225,8 +236,11 @@ public class MonitorAgentRunner {
 					result.setStatus("Success");
 				} else if (!StringUtils.hasText(result.getStatus())) {
 					result.setStatus("Failed");
-					String mailBody = MessageFormat.format(body, collection.getName(),  vars.getName(), monitorRequest.getName());
-					invokeNotificationAgent(collection.getNotifications(), mailBody);
+					List<NotificationDetails> notificationDetails = dao.getNotificationDetails(context.getTenant(),
+							context.getCollectionId());
+					for (NotificationDetails notificationDetail : notificationDetails) {
+						invokeNotificationAgent(notificationDetail,"Failed",monitorRequest.getName());
+					}
 				}
 				replaceResponseVariables(result, monitorRequest, response);
 				dao.createExecutionResult(result);
@@ -414,7 +428,7 @@ public class MonitorAgentRunner {
 					try {
 						validator = new XmlValidator(response.getBody().getData());
 					} catch (ParserConfigurationException | SAXException | IOException e) {
-						e.printStackTrace();
+						logger.error("error when replace ResponseVariables in monitor agent", e);
 					}
 				}
 			}
@@ -432,7 +446,7 @@ public class MonitorAgentRunner {
 							if (validator != null)
 								variable.setRunTimevalue(validator.getAttributeValue(variable.getValue()).toString());
 						} catch (Exception e) {
-							e.printStackTrace();
+							logger.error("error when getting Attribute Value", e);
 						}
 					}
 					if (variable.getReference().equalsIgnoreCase("status")) {
@@ -444,22 +458,39 @@ public class MonitorAgentRunner {
 				}
 			}
 		}
+
 	}
 
-	private void invokeNotificationAgent(List<Notifications> notifications, String body) {
+	private void invokeNotificationAgent(NotificationDetails notificationDetail, String status, String resource) {
+
 		if (!StringUtils.hasText(notificationAgentPath)) {
-			logger.error("Maintain notificationAgentPath in property file");
+			log.error("Maintain notificationAgentPath in property file");
 			return;
 		}
-		for (Notifications notification : notifications) {
+
+		if (CollectionUtils.isEmpty(notificationDetail.getNotifications())) {
+			return;
+		}
+		for (Notifications notification : notificationDetail.getNotifications()) {
 			RequestModel requestModel = new RequestModel();
 			try {
-				EmailTemplate emailTemplate = new EmailTemplate();
-				emailTemplate.setBody(body);
-				emailTemplate.setToMailId(notification.getEmails());
-				emailTemplate.setSubject(subject);
-				requestModel.setEmailContent(emailTemplate);
-				requestModel.setType(RequestModel.Type.email);
+				if (!CollectionUtils.isEmpty(notification.getEmails())) {
+					String mailBody = MessageFormat.format(emailBody, notificationDetail.getWorkspaceName(),
+							notificationDetail.getCollectionname(), notificationDetail.getEnvironmentName(),
+							notificationDetail.getDate(), status, resource, notificationDetail.getDailyUptime(),
+							notificationDetail.getDailyLatency(), notificationDetail.getAvgUptime(),
+							notificationDetail.getAvgLatency(), notificationDetail.getSchedulerId());
+
+					EmailTemplate emailTemplate = new EmailTemplate();
+					emailTemplate.setBody(mailBody);
+					emailTemplate.setToMailId(notification.getEmails());
+					String mailSubject = MessageFormat.format(subject, notificationDetail.getWorkspaceName(),
+							notificationDetail.getCollectionname(), notificationDetail.getEnvironmentName());
+					emailTemplate.setSubject(mailSubject);
+					requestModel.setEmailContent(emailTemplate);
+					requestModel.setType(RequestModel.Type.email);
+				}
+
 				HttpHeaders headers = new HttpHeaders();
 				headers.set(TENANT_ID, TenantContext.getCurrentTenant());
 				headers.set(API_KEY_NAME, rsaEncryption.decryptText(apiKey));
@@ -469,10 +500,10 @@ public class MonitorAgentRunner {
 				String monitorUrl = notificationAgentPath + notificationContextPath + NOTIFICATION_AGENT_NOTIFY;
 				ResponseEntity<String> result = restTemplate.postForEntity(monitorUrl, httpEntity, String.class);
 				if (!result.getStatusCode().is2xxSuccessful()) {
-					logger.error("error returned from monitor agent", result.getBody());
+					log.error("error returned from monitor agent", result.getBody());
 				}
 			} catch (Exception e) {
-				logger.error("error returned from monitor agent", e);
+				log.error("error returned from monitor agent", e);
 			}
 		}
 	}

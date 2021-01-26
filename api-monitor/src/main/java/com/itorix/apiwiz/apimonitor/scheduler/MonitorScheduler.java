@@ -2,6 +2,7 @@ package com.itorix.apiwiz.apimonitor.scheduler;
 
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +10,6 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.NoSuchPaddingException;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -35,8 +35,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.apimonitor.dao.ApiMonitorDAO;
 import com.itorix.apiwiz.apimonitor.model.NotificationDetails;
 import com.itorix.apiwiz.apimonitor.model.RequestModel;
@@ -54,10 +52,13 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCursor;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @Slf4j
+@FieldDefaults(level=AccessLevel.PRIVATE)
 public class MonitorScheduler {
 
 	private static final String MONITOR_AGENT_EXECUTE = "/v1/execute";
@@ -87,12 +88,14 @@ public class MonitorScheduler {
 	@Value("${server.ssl.key-password:null}")
 	private String keypassword;
 
-	@Value("${itorix.notification.mail.subject:null}")
+	@Value("${itorix.app.monitor.summary.report.email.subject:null}")
 	private String subject;
-
 
 	@Value("${server.ssl.key-store:null}")
 	private String keyStoreFilePath;
+
+	@Value("${itorix.app.monitor.summary.report.email.body:null}")
+	private String emailBody;
 
 	@Autowired
 	private ApplicationProperties applicationProperties;
@@ -100,17 +103,10 @@ public class MonitorScheduler {
 	@Autowired
 	private ResourceLoader resourceLoader;
 
-	@Autowired
-	HttpServletRequest request;
-
 	RSAEncryption rsaEncryption;
-
-	ObjectMapper mapper = new ObjectMapper();
 
 	@Autowired
 	private MongoProperties mongoProperties;
-	private String newLine = System.getProperty("line.separator");
-	private String keyValueSeparator = " : ";
 	private static final String API_KEY_NAME = "x-apikey";
 	private static final String TENANT_ID = "tenantId";
 
@@ -178,8 +174,6 @@ public class MonitorScheduler {
 
 	private void invokeMonitorAgent(String collectionId, String schedulerId) {
 
-		// User user = commonServices.getUserDetailsFromSessionID();
-
 		try {
 			if (!StringUtils.hasText(monitorSuitAgentPath)) {
 				throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-2"), "Monitor-Api-2");
@@ -188,7 +182,6 @@ public class MonitorScheduler {
 			RestTemplate restTemplate = getRestTemplate();
 
 			HttpHeaders headers = new HttpHeaders();
-			// headers.set("JSESSIONID", jsessionId);
 			headers.set(TENANT_ID, TenantContext.getCurrentTenant());
 			headers.set(API_KEY_NAME, rsaEncryption.decryptText(applicationProperties.getApiKey()));
 			headers.setContentType(MediaType.APPLICATION_JSON);
@@ -238,17 +231,18 @@ public class MonitorScheduler {
 		for (Notifications notification : notificationDetail.getNotifications()) {
 			RequestModel requestModel = new RequestModel();
 			try {
-				StringBuilder stringBuilder = new StringBuilder();
 				if (!CollectionUtils.isEmpty(notification.getEmails())) {
-					mapper.convertValue(notificationDetail, new TypeReference<Map<String, Object>>() {
-					}).forEach((k, v) -> {
-						stringBuilder.append(k).append(keyValueSeparator).append(v).append(newLine);
-					});
-					;
+					String mailBody = MessageFormat.format(emailBody , notificationDetail.getWorkspaceName(),
+							notificationDetail.getCollectionname(),notificationDetail.getEnvironmentName() , notificationDetail.getDate(),
+							notificationDetail.getDailyUptime(),notificationDetail.getDailyLatency(),notificationDetail.getAvgUptime(),notificationDetail.getAvgLatency()
+							,notificationDetail.getSchedulerId());
+
 					EmailTemplate emailTemplate = new EmailTemplate();
-					emailTemplate.setBody(stringBuilder.toString());
+					emailTemplate.setBody(mailBody);
 					emailTemplate.setToMailId(notification.getEmails());
-					emailTemplate.setSubject(subject);
+					String mailSubject = MessageFormat.format(subject , notificationDetail.getWorkspaceName(),
+							notificationDetail.getCollectionname(),notificationDetail.getEnvironmentName());
+					emailTemplate.setSubject(mailSubject);
 					requestModel.setEmailContent(emailTemplate);
 					requestModel.setType(Type.email);
 				}
