@@ -100,6 +100,11 @@ public class ApiMonitorDAO {
 		Query query = new Query().addCriteria(Criteria.where("id").is(id));
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
 
+		monitorCollections.getSchedulers().stream().forEach(s -> {
+			if (!StringUtils.hasText(s.getId()))
+				s.setId(new ObjectId().toString());
+		});
+
 		Update update = new Update();
 		update.set("name", monitorCollections.getName());
 		update.set("summary", monitorCollections.getSummary());
