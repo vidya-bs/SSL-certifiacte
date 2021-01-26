@@ -60,20 +60,24 @@ public class ServiceMonitor extends LoggerAspect {
 	@Qualifier("masterMongoTemplate")
 	@Autowired
 	private MongoTemplate masterMongoTemplate;
-	
+
 	@Autowired
 	private RSAEncryption rsaEncryption;
 
 	@Around("execution(* com.itorix.apiwiz..*.service..*(..))  || execution(* com.itorix.apiwiz..*.serviceImpl..*(..))")
 	public Object doAccessCheck(ProceedingJoinPoint thisJoinPoint) throws Throwable {
 		Object ob = null;
-		//System.out.println(Arrays.toString(thisJoinPoint.getArgs()));
 		try {
 			if (isSecureCall(thisJoinPoint)) {
 				secureCallValidations(thisJoinPoint);
 			} else {
 				if (!ignoreUnSecuredValidation(thisJoinPoint)) {
-					unSecureCallValidations(thisJoinPoint);
+					if(useUpdateKey(thisJoinPoint)){
+						unSecureUpdateCallValidations(thisJoinPoint);
+					}
+					else{
+						unSecureCallValidations(thisJoinPoint);
+					}
 				}
 			}
 			ServiceRequestContextHolder.getContext().setRequestId(this.createRequestId());
@@ -82,9 +86,7 @@ public class ServiceMonitor extends LoggerAspect {
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Throwable ex) {
-			System.out.println(ex.getMessage());
 			ex.printStackTrace();
-			System.out.println("START+1");
 			if (response.getStatus() == 403) {
 				ErrorObj error = new ErrorObj();
 				error.setErrorMessage(ErrorCodes.errorMessage.get("USER_010"), "USER_010");
@@ -139,6 +141,11 @@ public class ServiceMonitor extends LoggerAspect {
 		return signature.getMethod().getAnnotation(UnSecure.class) != null && signature.getMethod().getAnnotation(UnSecure.class).ignoreValidation();
 	}
 
+	private boolean useUpdateKey(JoinPoint thisJoinPoint){
+		MethodSignature signature = (MethodSignature) thisJoinPoint.getSignature();
+		return signature.getMethod().getAnnotation(UnSecure.class) != null && signature.getMethod().getAnnotation(UnSecure.class).useUpdateKey();
+	}
+	
 	private RequestId createRequestId() {
 		return new RequestId();
 	}
@@ -159,14 +166,14 @@ public class ServiceMonitor extends LoggerAspect {
 		} else {
 			if (System.currentTimeMillis() - userSessionToken.getLoginTimestamp() <= MILLIS_PER_DAY) {
 				//if(userSessionToken.getStatus().equalsIgnoreCase("active")){
-					User user = masterMongoTemplate.findById(userSessionToken.getUserId(), User.class);
-					userSessionToken.setUser(user);
-					ServiceRequestContext ctx = ServiceRequestContextHolder.getContext();
-					ctx.setUserSessionToken(userSessionToken);
-//				}else{
-//					response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-//					throw new ItorixException(ErrorCodes.errorMessage.get("Session_01"), "Session_01");
-//				}
+				User user = masterMongoTemplate.findById(userSessionToken.getUserId(), User.class);
+				userSessionToken.setUser(user);
+				ServiceRequestContext ctx = ServiceRequestContextHolder.getContext();
+				ctx.setUserSessionToken(userSessionToken);
+				//				}else{
+				//					response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+				//					throw new ItorixException(ErrorCodes.errorMessage.get("Session_01"), "Session_01");
+				//				}
 			} else {
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				throw new ItorixException(ErrorCodes.errorMessage.get("Session_01"), "Session_01");
@@ -177,7 +184,6 @@ public class ServiceMonitor extends LoggerAspect {
 	// Unsecure Call Validations
 	private void unSecureCallValidations(JoinPoint thisJoinPoint)
 			throws Exception {
-		String sessionId = null;
 		String apiKey = getSessionAPIKey(thisJoinPoint);
 		apiKey = this.rsaEncryption.decryptText(apiKey);
 		if(apiKey == null){
@@ -185,19 +191,27 @@ public class ServiceMonitor extends LoggerAspect {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Session_02"), "Session_02");
 		}else{
 			if(apiKey.equals(rsaEncryption.decryptText(applicationProperties.getApiKey()))){
-				if (sessionId == null) {
 					ServiceRequestContextHolder.setContext(getSystemContext());
-				} else {
-					UserSession userSessionToken = findUserSession(sessionId);
-					if (userSessionToken == null) {
-						ServiceRequestContextHolder.setContext(getSystemContext());
-					} else {
-						User user = baseRepository.findById(userSessionToken.getUserId(), User.class);
-						userSessionToken.setUser(user);
-						ServiceRequestContext ctx = ServiceRequestContextHolder.getContext();
-						ctx.setUserSessionToken(userSessionToken);
-					}
-				}
+			}else{
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				throw new ItorixException(ErrorCodes.errorMessage.get("Session_03"), "Session_03");
+			}
+		}
+	}
+
+
+	private void unSecureUpdateCallValidations(JoinPoint thisJoinPoint) throws Exception {
+		String apiKey = getSessionAPIKey(thisJoinPoint);
+		apiKey = this.rsaEncryption.decryptText(apiKey);
+		if(apiKey == null){
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			throw new ItorixException(ErrorCodes.errorMessage.get("Session_02"), "Session_02");
+		}else{
+			String key = applicationProperties.getUpdateApiKey();
+			if(key == null)
+				key = applicationProperties.getApiKey();
+			if(apiKey.equals(rsaEncryption.decryptText(key))){
+				ServiceRequestContextHolder.setContext(getSystemContext());
 			}else{
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				throw new ItorixException(ErrorCodes.errorMessage.get("Session_03"), "Session_03");
@@ -237,7 +251,7 @@ public class ServiceMonitor extends LoggerAspect {
 		// try to get value of session token from headers
 		if (apiKey == null) {
 			apiKey = request.getHeader(BaseController.API_KEY_NAME);
-			
+
 		}
 		// try to get value of session token from cookies if not found in
 		// headers

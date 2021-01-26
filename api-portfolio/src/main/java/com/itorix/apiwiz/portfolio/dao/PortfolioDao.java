@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.portfolio.dao;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -938,10 +939,11 @@ public class PortfolioDao {
 				}
 			}
 		}
-		throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-14"), "Portfolio-14");
+		//throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-14"), "Portfolio-14");
 
 //		return portfolio.get(0).getProjects().get(0).getProxies().stream().filter(s -> s.getId().equals(proxyId))
 //				.findFirst().get();
+		return new ArrayList<Pipelines>();
 	}
 
 	public void deletePipeline(String id, String projectId, String proxyId, String pipelineId, String jsessionid)

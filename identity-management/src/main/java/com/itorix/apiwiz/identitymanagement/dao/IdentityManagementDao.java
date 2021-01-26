@@ -1598,6 +1598,8 @@ public class IdentityManagementDao {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1011"),"IDENTITY-1011");
 		} else {
+			Query query  = new Query().addCriteria(new Criteria().orOperator(Criteria.where("id").is(jsessionid)));
+			//masterMongoTemplate.remove(query, UserSession.class);
 			masterMongoTemplate.remove(userSessionToken);
 		}
 		return "";

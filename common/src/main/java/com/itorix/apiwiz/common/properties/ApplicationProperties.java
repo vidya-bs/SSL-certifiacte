@@ -45,6 +45,17 @@ public class ApplicationProperties {
 	public void setApiKey(String apiKey) {
 		this.apiKey = apiKey;
 	}
+	
+	@Value("${itorix.core.security.apikey.update:null}")
+	private String updateApiKey;
+
+	public String getUpdateApiKey() {
+		return updateApiKey;
+	}
+
+	public void setUpdateApiKey(String updateApiKey) {
+		this.updateApiKey = updateApiKey;
+	}
 
 	//@Value("${app.sourcefiles.dir}")
 	private String fileDir;

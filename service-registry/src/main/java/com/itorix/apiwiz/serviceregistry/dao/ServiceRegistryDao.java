@@ -24,6 +24,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.SearchItem;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
+import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistry;
 import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryColumns;
 import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryList;
@@ -39,6 +41,9 @@ public class ServiceRegistryDao {
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
+	
+	@Autowired
+	private BaseRepository baseRepository;
 
 	public ServiceRegistryColumns getServiceRegistryColumns() {
 		List<ServiceRegistryColumns> findAll = mongoTemplate.findAll(ServiceRegistryColumns.class);
@@ -68,7 +73,7 @@ public class ServiceRegistryDao {
 
 	public ServiceRegistryList createServiceRegistry(ServiceRegistryList serviceRegistry) throws ItorixException {
 		try {
-			return mongoTemplate.save(serviceRegistry);
+			return baseRepository.save(serviceRegistry);
 		} catch (DuplicateKeyException e) {
 			log.error("DuplicateKeyException entry found", e);
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ServiceRegistry-1001"), String.join(",", serviceRegistry.getName(),
@@ -78,6 +83,13 @@ public class ServiceRegistryDao {
 
 	public void updateServiceRegistry(String serviceRegistryId, ServiceRegistryList serviceRegistry)
 			throws ItorixException {
+		UserSession userSession  = UserSession.getCurrentSessionToken();
+		String userId = userSession.getUserId();
+		String username = userSession.getUsername();
+		serviceRegistry.setModifiedBy(userId);
+		serviceRegistry.setModifiedUserName(username);
+		long mts = System.currentTimeMillis();
+		serviceRegistry.setMts(mts);
 		updateDocument(serviceRegistry, serviceRegistryId);
 	}
 
