@@ -34,7 +34,7 @@ public class SecurityConfig {
 		protected void configure(HttpSecurity http) throws Exception {
 
 			// @formatter:off
-			http.csrf().disable().authorizeRequests().anyRequest().authenticated().and().exceptionHandling()
+			http.csrf().disable().authorizeRequests().antMatchers("/actuator/**").permitAll().anyRequest().authenticated().and().exceptionHandling()
 					.authenticationEntryPoint(authenticationEntryPointImpl).accessDeniedHandler(accessDeniedHandler)
 					.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 			http.addFilterBefore(jsessionAuthFilter, UsernamePasswordAuthenticationFilter.class);

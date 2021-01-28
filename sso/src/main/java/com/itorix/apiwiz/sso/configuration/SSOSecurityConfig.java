@@ -81,8 +81,8 @@ public class SSOSecurityConfig {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 
-			String metadataUrl = new StringBuilder(protocol +"://").append(host).append(":").append(ssoPort).append(contextPath)
-					.append("/saml/idpMetadata").toString();
+			String metadataUrl = new StringBuilder(protocol + "://").append(host).append(":").append(ssoPort)
+					.append(contextPath).append("/saml/idpMetadata").toString();
 			//
 			if (!validateSelfSignCertificate) {
 				ProtocolSocketFactory socketFactory = null;
@@ -117,12 +117,27 @@ public class SSOSecurityConfig {
 
 			// @formatter:off
 
-			http.csrf().disable().antMatcher("/v1/**").authorizeRequests().anyRequest().authenticated().and().exceptionHandling()
-					.authenticationEntryPoint(authenticationEntryPointImpl).accessDeniedHandler(accessDeniedHandler)
-					.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+			http.csrf().disable().antMatcher("/v1/**").authorizeRequests().anyRequest().authenticated().and()
+					.exceptionHandling().authenticationEntryPoint(authenticationEntryPointImpl)
+					.accessDeniedHandler(accessDeniedHandler).and().sessionManagement()
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 			http.addFilterBefore(jsessionAuthFilter, UsernamePasswordAuthenticationFilter.class);
 		}
 
+	}
+
+	@Configuration
+	@Order(2)
+	public class ActuatorSebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+
+			// @formatter:off
+			http.csrf().disable().antMatcher("/actuator/**").authorizeRequests().anyRequest().permitAll();
+			http.sessionManagement()
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+			// @formatter:on
+		}
 	}
 }

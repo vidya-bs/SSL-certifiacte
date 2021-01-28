@@ -40,6 +40,7 @@
 		<module>api-monitor-agent</module>
 		<module>marketing</module>
 		<module>notification-agent</module>
+		<module>api-mock-server</module>
 	</modules>
 	<name>Itorix Hyggee Core Project</name>
 	<!-- <parent> -->
