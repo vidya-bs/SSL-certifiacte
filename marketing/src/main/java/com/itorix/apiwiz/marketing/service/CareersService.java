@@ -18,7 +18,7 @@ import com.itorix.apiwiz.marketing.careers.model.JobPosting;
 @RestController
 public interface CareersService {
 
-	@UnSecure(ignoreValidation=true)
+	@UnSecure(useUpdateKey=true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/marketing/careers")
 	public ResponseEntity<?> createJobPosting(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -26,7 +26,7 @@ public interface CareersService {
 			@RequestHeader(value="x-apikey")String apikey,
 			@RequestBody JobPosting jobPosting) throws Exception;
 	
-	@UnSecure(ignoreValidation=true)
+	@UnSecure(useUpdateKey=true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/marketing/careers/{jobId}")
 	public ResponseEntity<?> updateJobPosting(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -35,7 +35,7 @@ public interface CareersService {
 			@PathVariable("jobId") String jobId,
 			@RequestBody JobPosting jobPosting) throws Exception;
 	
-	@UnSecure(ignoreValidation=true)
+	@UnSecure(useUpdateKey=true)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/marketing/careers/{jobId}")
 	public ResponseEntity<?> deleteJobPosting(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,

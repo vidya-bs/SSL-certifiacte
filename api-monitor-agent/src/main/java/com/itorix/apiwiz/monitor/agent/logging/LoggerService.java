@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -38,11 +37,16 @@ public class LoggerService {
 	@Value("${itorix.aws.admin.url}")
 	private String awsURL;
 
+	@Value("${torix.core.aws.pod.url:null}")
+	private String awsPodURL;
+	
 	@Autowired
 	private Tracer tracer;
 
 	private String region;
 	private String availabilityZone;
+	private String privateIp;
+	private String podHostName= null;
 
 	private static final String MONITOR_AGENT_RUNNER_CLASS = "MonitorAgentRunner.class";
 
@@ -69,11 +73,28 @@ public class LoggerService {
 			JsonNode json = new ObjectMapper().readTree(response.getBody());
 			region = json.get("region").asText();
 			availabilityZone = json.get("availabilityZone").asText();
+			privateIp = json.get("privateIp").asText();
+			getPodHost();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			e.printStackTrace();
 		}
 	}
+	
+	private  void getPodHost() {
+		if(awsPodURL != null){
+			HttpHeaders headers = new HttpHeaders();
+			headers.set("Accept", "application/json");
+			RestTemplate restTemplate = new RestTemplate();
+			HttpEntity<Object> requestEntity = new HttpEntity<>( headers);
+			try {
+				ResponseEntity<String> response = restTemplate.exchange(awsPodURL, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<String>() {});
+				podHostName = response.getBody();
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			} 
+		}
+	}
+
 
 	public void logMethod(Map<String, String> logMessage) {
 		try {
@@ -97,6 +118,8 @@ public class LoggerService {
 			logMessage.put("guid", String.valueOf(Long.toHexString(span.traceId())));
 			logMessage.put("regionCode", region);
 			logMessage.put("availabilityZone", availabilityZone);
+			logMessage.put("privateIp", privateIp);
+			logMessage.put("podHost", podHostName);
 			logMessage.put("applicationName", MONITOR_AGENT);
 			logMessage.put("serviceClassName", MONITOR_AGENT_RUNNER_CLASS);
 			LoggingContext.setLogMap(logMessage);

@@ -18,7 +18,7 @@
 		<File>${itorix.monitorAgent.log.location}/itorix-monitor-console.log</File>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 
-			<FileNamePattern>${itorix.monitorAgent.log.location}/itorix-monitor-console.%d{yyyy-MM-dd}.%i.log
+			<FileNamePattern>${itorix.monitor.log.location}/itorix-monitor-console.%d{yyyy-MM-dd}.%i.log
 			</FileNamePattern>
 
 			<maxHistory>30</maxHistory>

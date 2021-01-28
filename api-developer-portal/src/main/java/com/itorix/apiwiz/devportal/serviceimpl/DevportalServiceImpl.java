@@ -69,10 +69,11 @@ public class DevportalServiceImpl implements DevportalService  {
 			@RequestHeader(value = "type", required = false) String type,
 			@PathVariable("org") String org,
 			@PathVariable("email") String email,
+			@PathVariable("appName") String appName,
 			@RequestBody String body) throws Exception{
 		if(body !=null)
 		{
-			String URL =  apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/"+org+"/developers/"+email+"/apps";
+			String URL =  apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/"+org+"/developers/"+email+"/apps/"+appName;
 			HTTPUtil httpConn = new HTTPUtil(body, URL, getEncodedCredentials(org, type));
 			return  devportaldao.proxyService(httpConn, "PUT");
 		}

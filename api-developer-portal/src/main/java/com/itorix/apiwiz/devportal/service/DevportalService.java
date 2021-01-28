@@ -31,13 +31,14 @@ public interface DevportalService {
 			@PathVariable("email") String email,
 			@RequestBody String body) throws Exception;
 	
-	@RequestMapping(method = RequestMethod.PUT, value = "/v1/organizations/{org}/developers/{email:.+}/apps")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/organizations/{org}/developers/{email:.+}/apps/{appName}")
 	public org.springframework.http.ResponseEntity<String> updateApp(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "type", required = false) String type,
 			@PathVariable("org") String org,
 			@PathVariable("email") String email,
+			@PathVariable("appName") String appName,
 			@RequestBody String body) throws Exception;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/organizations/{org}/apiproducts")

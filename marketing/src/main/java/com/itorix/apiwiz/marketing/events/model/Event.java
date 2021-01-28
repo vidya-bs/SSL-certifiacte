@@ -20,16 +20,18 @@ public class Event {
 	private String summary;
 	private String description;
 	private String image;
+	private String bannerImage;
 	public Event(){
 		super();
 	}
-	public Event(String name, Date eventDate, String location, String category, String summary, String description) {
+	public Event(String name, Date eventDate, String location, String category, String summary, String description, String bannerImage) {
 		super();
 		this.name = name;
 		this.eventDate = eventDate;
 		this.location = location;
 		this.category = category;
 		this.summary = summary;
+		this.description = description;
 	}
 	public String getId() {
 		return id;
@@ -88,5 +90,11 @@ public class Event {
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	public String getBannerImage() {
+		return bannerImage;
+	}
+	public void setBannerImage(String bannerImage) {
+		this.bannerImage = bannerImage;
 	}
 }

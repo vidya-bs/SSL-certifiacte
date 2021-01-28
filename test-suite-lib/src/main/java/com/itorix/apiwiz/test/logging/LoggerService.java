@@ -38,6 +38,9 @@ public class LoggerService {
 
 	@Value("${itorix.aws.admin.url}")
 	private String awsURL;
+	
+	@Value("${torix.core.aws.pod.url:null}")
+	private String awsPodURL;
 
 	@Autowired
 	Tracer tracer;
@@ -47,6 +50,8 @@ public class LoggerService {
 
 	private String region;
 	private String availabilityZone;
+	private String privateIp;
+	private String podHostName= null;
 
 	private static final String TEST_RUNNER_CLASS = "TestRunner.class";
 
@@ -73,11 +78,29 @@ public class LoggerService {
 			JsonNode json = new ObjectMapper().readTree(response.getBody());
 			region = json.get("region").asText();
 			availabilityZone = json.get("availabilityZone").asText();
+			privateIp = json.get("privateIp").asText();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			e.printStackTrace();
 		}
+		getPodHost();
 	}
+	
+	private  void getPodHost() {
+		if(awsPodURL != null){
+			HttpHeaders headers = new HttpHeaders();
+			headers.set("Accept", "application/json");
+			RestTemplate restTemplate = new RestTemplate();
+			HttpEntity<Object> requestEntity = new HttpEntity<>( headers);
+			try {
+				ResponseEntity<String> response = restTemplate.exchange(awsPodURL, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<String>() {});
+				podHostName = response.getBody();
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			} 
+		}
+	}
+
 
 	public void logMethod(Map<String, String> logMessage) {
 		try {
@@ -103,6 +126,8 @@ public class LoggerService {
 			//logMessage.put("guid", UUID.randomUUID().toString());
 			logMessage.put("regionCode", region);
 			logMessage.put("availabilityZone", availabilityZone);
+			logMessage.put("privateIp", privateIp);
+			logMessage.put("podHost", podHostName);
 			logMessage.put("applicationName", TEST_SUITE_AGENT);
 			logMessage.put("serviceClassName", TEST_RUNNER_CLASS);
 			LoggingContext.setLogMap(logMessage);

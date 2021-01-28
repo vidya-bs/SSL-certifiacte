@@ -28,7 +28,7 @@ public class ApplicationProperties {
 	@Value("${itorix.core.app.html.dir}")
 	private String htmlDir;
 
-	@Value("${apigee.host}")
+	@Value("${apigee.host:null}")
 	private String apigeeHost;
 
 	@Value("${spring.data.mongodb.uri}")
@@ -136,16 +136,16 @@ public class ApplicationProperties {
 	@Value("${itorix.core.jfrog.password}")
 	private String jfrogPassword;
 
-	@Value("${itorix.core.mail.smtp.port}")
+	@Value("${itorix.core.mail.smtp.port:null}")
 	private String smtpPort;
 
-	@Value("${itorix.core.mail.smtp.auth}")
+	@Value("${itorix.core.mail.smtp.auth:null}")
 	private String smtpAuth;
 
-	@Value("${itorix.core.mail.smtp.starttls.enable}")
+	@Value("${itorix.core.mail.smtp.starttls.enable:null}")
 	private String smtpStartttls;
 
-	@Value("${itorix.core.mail.smtp.hostname}")
+	@Value("${itorix.core.mail.smtp.hostname:null}")
 	private String smtphostName;
 
 	//@Value("${app.mailutil.serviceRequest.subject}")
@@ -170,10 +170,10 @@ public class ApplicationProperties {
 	@Value("${itorix.core.swagger.notification.status.body}")
 	private String swaggerChangeStatusBody;
 
-	@Value("${app.mailutil.monitoring.uptime.subject}")
+	@Value("${app.mailutil.monitoring.uptime.subject:null}")
 	private String monitoringUptimeSubject;
 
-	@Value("${app.mailutil.monitoring.uptime.body}")
+	@Value("${app.mailutil.monitoring.uptime.body:null}")
 	private String monitoringUptimeBody;
 
 	@Value("${itorix.core.mail.smtp.port}")

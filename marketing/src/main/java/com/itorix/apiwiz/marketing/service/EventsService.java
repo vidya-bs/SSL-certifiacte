@@ -19,7 +19,7 @@ import com.itorix.apiwiz.marketing.events.model.EventRegistration;
 @RestController
 public interface EventsService {
 	
-	@UnSecure(ignoreValidation=true)
+	@UnSecure(useUpdateKey=true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/marketing/events", 
 			produces = {MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<?> createEvent(
@@ -32,9 +32,10 @@ public interface EventsService {
 			@RequestParam("location") String location,
 			@RequestParam("category") String category, 
 			@RequestParam("summary") String summary,
-			@RequestParam("description") String description) throws Exception;
+			@RequestParam("description") String description,
+			@RequestParam("bannerImage") String bannerImage) throws Exception;
 	
-	@UnSecure(ignoreValidation=true)
+	@UnSecure(useUpdateKey=true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/marketing/events/{eventId}")
 	public ResponseEntity<?> updateEvent(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -47,6 +48,7 @@ public interface EventsService {
 			@RequestParam("category") String category, 
 			@RequestParam("summary") String summary,
 			@RequestParam("description") String description,
+			@RequestParam("bannerImage") String bannerImage,
 			@PathVariable("eventId") String eventId) throws Exception;
 	
 	@UnSecure(ignoreValidation=true)
@@ -66,7 +68,7 @@ public interface EventsService {
 			@PathVariable("eventId") String eventId)
 			throws Exception ;
 	
-	@UnSecure(ignoreValidation=true)
+	@UnSecure(useUpdateKey=true)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/marketing/events/{eventId}")
 	public ResponseEntity<?> deleteEvent(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,

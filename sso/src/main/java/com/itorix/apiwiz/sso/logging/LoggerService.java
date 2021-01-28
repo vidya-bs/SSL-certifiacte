@@ -38,11 +38,16 @@ public class LoggerService {
 	@Value("${itorix.aws.admin.url}")
 	private String awsURL;
 
+	@Value("${torix.core.aws.pod.url:null}")
+	private String awsPodURL;
+	
 	@Autowired
 	private SpanAccessor spanAccessor;
 
 	private String region;
 	private String availabilityZone;
+	private String privateIp;
+	private String podHostName= null;;
 
 	private static final String MONITOR_AGENT_RUNNER_CLASS = "SSOService.class";
 
@@ -69,9 +74,26 @@ public class LoggerService {
 			JsonNode json = new ObjectMapper().readTree(response.getBody());
 			region = json.get("region").asText();
 			availabilityZone = json.get("availabilityZone").asText();
+			privateIp = json.get("privateIp").asText();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			e.printStackTrace();
+		}
+		getPodHost();
+	}
+	
+	private  void getPodHost() {
+		if(awsPodURL != null){
+			HttpHeaders headers = new HttpHeaders();
+			headers.set("Accept", "application/json");
+			RestTemplate restTemplate = new RestTemplate();
+			HttpEntity<Object> requestEntity = new HttpEntity<>( headers);
+			try {
+				ResponseEntity<String> response = restTemplate.exchange(awsPodURL, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<String>() {});
+				podHostName = response.getBody();
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			} 
 		}
 	}
 
@@ -99,7 +121,6 @@ public class LoggerService {
 			logMessage.put("availabilityZone", availabilityZone);
 			logMessage.put("applicationName", MONITOR_AGENT);
 			LoggingContext.setLogMap(logMessage);
-
 		} catch (Exception e) {
 			log.error("Error occured while logging Service Request");
 		}

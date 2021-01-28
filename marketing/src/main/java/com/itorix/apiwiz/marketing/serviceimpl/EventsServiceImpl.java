@@ -26,7 +26,7 @@ public class EventsServiceImpl implements EventsService {
 	@Override
 	@UnSecure(ignoreValidation=true)
 	public ResponseEntity<?> createEvent(String interactionid, String jsessionid, String apikey, MultipartFile image, String name,
-			String eventDate, String location, String category, String summary, String description) throws Exception {
+			String eventDate, String location, String category, String summary, String description, String bannerImage) throws Exception {
 		String filePath = null;
 		if(image != null){
 			byte[] bytes = image.getBytes();
@@ -34,7 +34,7 @@ public class EventsServiceImpl implements EventsService {
 			filePath = eventsDao.updateEventFile(name, filename, bytes);
 		}
 		Date date=new SimpleDateFormat("MM/dd/yyyy").parse(eventDate); 
-		Event event = new Event(name, date, location, category, summary,description);
+		Event event = new Event(name, date, location, category, summary,description, bannerImage);
 		event.setImage(filePath);
 		eventsDao.createUpdateEvent(event);
 		return new ResponseEntity<>(HttpStatus.CREATED);
@@ -43,7 +43,7 @@ public class EventsServiceImpl implements EventsService {
 	@Override
 	@UnSecure(ignoreValidation=true)
 	public ResponseEntity<?> updateEvent(String interactionid, String jsessionid, String apikey, MultipartFile image, String name,
-			String eventDate, String location, String category, String summary, String description, String eventId) throws Exception {
+			String eventDate, String location, String category, String summary, String description, String bannerImage, String eventId) throws Exception {
 		String filePath = null;
 		if(image != null){
 			byte[] bytes = image.getBytes();
@@ -51,7 +51,7 @@ public class EventsServiceImpl implements EventsService {
 			filePath = eventsDao.updateEventFile(name, filename, bytes);
 		}
 		Date date=new SimpleDateFormat("MM/dd/yyyy").parse(eventDate); 
-		Event event = new Event(name, date, location, category, summary, description);
+		Event event = new Event(name, date, location, category, summary, description, bannerImage);
 		event.setImage(filePath);
 		event.setId(eventId);
 		eventsDao.createUpdateEvent(event);
