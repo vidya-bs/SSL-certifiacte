@@ -67,45 +67,45 @@ public class MailUtil {
 	}
 
 
-	public void sendEmail1(EmailTemplate emailTemplate) throws MessagingException {
-
-		try{
-			mailServerProperties = System.getProperties();
-
-			mailServerProperties.put("mail.smtp.port", applicationProperties.getSmtpPort());
-			mailServerProperties.put("mail.smtp.auth", applicationProperties.getSmtpAuth());
-			mailServerProperties.put("mail.smtp.starttls.enable", applicationProperties.getSmtpStartttls());
-
-			List<String> toMailId = emailTemplate.getToMailId();
-			InternetAddress[] internetAddress = new InternetAddress[toMailId.size()];
-			int i=0;
-			for (String tomail : toMailId) {
-				internetAddress[i] = new InternetAddress(tomail);
-				i++;
-			}
-			getMailSession = Session.getDefaultInstance(mailServerProperties, null);
-			generateMailMessage = new MimeMessage(getMailSession);
-			generateMailMessage.addRecipients(Message.RecipientType.TO, internetAddress);
-
-			if(emailTemplate.getSubject()!=null){
-				generateMailMessage.setSubject(emailTemplate.getSubject());
-			}else{
-				generateMailMessage.setSubject(applicationProperties.getMailSubject());
-			}
-			generateMailMessage.setContent(emailTemplate.getBody(), "text/html; charset=utf-8");
-			Transport transport = getMailSession.getTransport("smtp");
-
-			// if you have 2FA enabled then provide App Specific Password
-			String password = applicationProperties.getPassWord();
-			transport.connect(applicationProperties.getSmtphostName(), applicationProperties.getUserName(), applicationProperties.getPassWord());
-			transport.sendMessage(generateMailMessage, generateMailMessage.getAllRecipients());
-			transport.close();
-		}catch (Exception e) {
-			e.printStackTrace();
-			//e.printStackTrace();
-			logger.error(e);
-		}
-	}
+//	public void sendEmail1(EmailTemplate emailTemplate) throws MessagingException {
+//
+//		try{
+//			mailServerProperties = System.getProperties();
+//
+//			mailServerProperties.put("mail.smtp.port", applicationProperties.getSmtpPort());
+//			mailServerProperties.put("mail.smtp.auth", applicationProperties.getSmtpAuth());
+//			mailServerProperties.put("mail.smtp.starttls.enable", applicationProperties.getSmtpStartttls());
+//
+//			List<String> toMailId = emailTemplate.getToMailId();
+//			InternetAddress[] internetAddress = new InternetAddress[toMailId.size()];
+//			int i=0;
+//			for (String tomail : toMailId) {
+//				internetAddress[i] = new InternetAddress(tomail);
+//				i++;
+//			}
+//			getMailSession = Session.getDefaultInstance(mailServerProperties, null);
+//			generateMailMessage = new MimeMessage(getMailSession);
+//			generateMailMessage.addRecipients(Message.RecipientType.TO, internetAddress);
+//
+//			if(emailTemplate.getSubject()!=null){
+//				generateMailMessage.setSubject(emailTemplate.getSubject());
+//			}else{
+//				generateMailMessage.setSubject(applicationProperties.getMailSubject());
+//			}
+//			generateMailMessage.setContent(emailTemplate.getBody(), "text/html; charset=utf-8");
+//			Transport transport = getMailSession.getTransport("smtp");
+//
+//			// if you have 2FA enabled then provide App Specific Password
+//			String password = applicationProperties.getPassWord();
+//			transport.connect(applicationProperties.getSmtphostName(), applicationProperties.getUserName(), applicationProperties.getPassWord());
+//			transport.sendMessage(generateMailMessage, generateMailMessage.getAllRecipients());
+//			transport.close();
+//		}catch (Exception e) {
+//			e.printStackTrace();
+//			//e.printStackTrace();
+//			logger.error(e);
+//		}
+//	}
 
 
 	public void sendEmailWithAttachments(EmailTemplate emailTemplate) throws MessagingException, IOException {
@@ -144,8 +144,8 @@ public class MailUtil {
 		Transport transport = getMailSession.getTransport("smtp");
 
 		// if you have 2FA enabled then provide App Specific Password
-		transport.connect(applicationProperties.getSmtphostName(), applicationProperties.getCicdUserName(), applicationProperties.getCicdPassWord());
-		transport.sendMessage(generateMailMessage, generateMailMessage.getAllRecipients());
+//		transport.connect(applicationProperties.getSmtphostName(), applicationProperties.getCicdUserName(), applicationProperties.getCicdPassWord());
+//		transport.sendMessage(generateMailMessage, generateMailMessage.getAllRecipients());
 		transport.close();
 	}
 

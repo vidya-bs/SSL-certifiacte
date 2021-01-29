@@ -36,7 +36,7 @@ public class LoggerService {
 
 	private Logger logger = LoggerFactory.getLogger(LoggingContext.class);
 
-	@Value("${itorix.aws.admin.url}")
+	@Value("${itorix.core.aws.admin.url:null}")
 	private String awsURL;
 	
 	@Value("${torix.core.aws.pod.url:null}")
@@ -48,9 +48,9 @@ public class LoggerService {
 	@Autowired
 	private SpanAccessor spanAccessor;
 
-	private String region;
-	private String availabilityZone;
-	private String privateIp;
+	private String region= null;
+	private String availabilityZone= null;
+	private String privateIp= null;
 	private String podHostName= null;
 
 	private static final String TEST_RUNNER_CLASS = "TestRunner.class";

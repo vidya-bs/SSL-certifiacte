@@ -88,10 +88,10 @@ public class ApplicationProperties {
 	@Value("${server.contextPath}")
 	private String VerificationLinkPort;
 
-	@Value("${itorix.core.mail.smtp.username}")
+	@Value("${spring.mail.username}")
 	private String userName;
 
-	@Value("${itorix.core.mail.smtp.password}")
+	@Value("${spring.mail.password}")
 	private String passWord;
 
 //	@Value("${app.resetpassword.redirection.url}")
@@ -136,17 +136,17 @@ public class ApplicationProperties {
 	@Value("${itorix.core.jfrog.password}")
 	private String jfrogPassword;
 
-	@Value("${itorix.core.mail.smtp.port:null}")
-	private String smtpPort;
-
-	@Value("${itorix.core.mail.smtp.auth:null}")
-	private String smtpAuth;
-
-	@Value("${itorix.core.mail.smtp.starttls.enable:null}")
-	private String smtpStartttls;
-
-	@Value("${itorix.core.mail.smtp.hostname:null}")
-	private String smtphostName;
+//	@Value("${itorix.core.mail.smtp.port:null}")
+//	private String smtpPort;
+//
+//	@Value("${itorix.core.mail.smtp.auth:null}")
+//	private String smtpAuth;
+//
+//	@Value("${itorix.core.mail.smtp.starttls.enable:null}")
+//	private String smtpStartttls;
+//
+//	@Value("${itorix.core.mail.smtp.hostname:null}")
+//	private String smtphostName;
 
 	//@Value("${app.mailutil.serviceRequest.subject}")
 	@Value("${itorix.core.apigee.service.request.notification.subject}")
@@ -176,22 +176,22 @@ public class ApplicationProperties {
 	@Value("${app.mailutil.monitoring.uptime.body:null}")
 	private String monitoringUptimeBody;
 
-	@Value("${itorix.core.mail.smtp.port}")
+	@Value("${spring.mail.port}")
 	private String cicdSmtpPort;
 
-	@Value("${itorix.core.mail.smtp.auth}")
+	@Value("${spring.mail.properties.mail.smtp.auth}")
 	private String cicdSmtpAuth;
 
-	@Value("${itorix.core.mail.smtp.starttls.enable}")
+	@Value("${spring.mail.properties.mail.smtp.starttls.enable}")
 	private String cicdSmtpStartttls;
 
-	@Value("${itorix.core.mail.smtp.hostname}")
+	@Value("${spring.mail.host}")
 	private String cicdSmtphostName;
 
-	@Value("${itorix.core.mail.smtp.username}")
+	@Value("${spring.mail.username}")
 	private String cicdUserName;
 
-	@Value("${itorix.core.mail.smtp.password}")
+	@Value("${spring.mail.password}")
 	private String cicdPassWord;
 	
 	@Value("${itorix.core.application.url}")
@@ -505,14 +505,7 @@ public class ApplicationProperties {
 	}
 
 	public String getCicdPassWord() {
-		String decryptedPassword = "";
-		try {
-			RSAEncryption rSAEncryption = new RSAEncryption();
-			decryptedPassword = rSAEncryption.decryptText(this.cicdPassWord);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return decryptedPassword;
+		return this.cicdPassWord;
 	}
 
 	public void setCicdPassWord(String cicdPassWord) {
@@ -599,37 +592,37 @@ public class ApplicationProperties {
 		this.swageerGenDir = swageerGenDir;
 	}
 
-	public String getSmtphostName() {
-		return smtphostName;
-	}
-
-	public void setSmtphostName(String smtphostName) {
-		this.smtphostName = smtphostName;
-	}
-
-	public String getSmtpPort() {
-		return smtpPort;
-	}
-
-	public void setSmtpPort(String smtpPort) {
-		this.smtpPort = smtpPort;
-	}
-
-	public String getSmtpAuth() {
-		return smtpAuth;
-	}
-
-	public void setSmtpAuth(String smtpAuth) {
-		this.smtpAuth = smtpAuth;
-	}
-
-	public String getSmtpStartttls() {
-		return smtpStartttls;
-	}
-
-	public void setSmtpStartttls(String smtpStartttls) {
-		this.smtpStartttls = smtpStartttls;
-	}
+//	public String getSmtphostName() {
+//		return smtphostName;
+//	}
+//
+//	public void setSmtphostName(String smtphostName) {
+//		this.smtphostName = smtphostName;
+//	}
+//
+//	public String getSmtpPort() {
+//		return smtpPort;
+//	}
+//
+//	public void setSmtpPort(String smtpPort) {
+//		this.smtpPort = smtpPort;
+//	}
+//
+//	public String getSmtpAuth() {
+//		return smtpAuth;
+//	}
+//
+//	public void setSmtpAuth(String smtpAuth) {
+//		this.smtpAuth = smtpAuth;
+//	}
+//
+//	public String getSmtpStartttls() {
+//		return smtpStartttls;
+//	}
+//
+//	public void setSmtpStartttls(String smtpStartttls) {
+//		this.smtpStartttls = smtpStartttls;
+//	}
 
 	public String getResendVerificationRedirectionLink() {
 		return resendVerificationRedirectionLink;
@@ -689,14 +682,7 @@ public class ApplicationProperties {
 	}
 
 	public String getPassWord() {
-		String decryptedPassword = "";
-		try {
-			RSAEncryption rSAEncryption = new RSAEncryption();
-			decryptedPassword = rSAEncryption.decryptText(this.passWord);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return decryptedPassword;
+		return this.passWord;
 	}
 
 	public String getApigeeServiceUsername() {

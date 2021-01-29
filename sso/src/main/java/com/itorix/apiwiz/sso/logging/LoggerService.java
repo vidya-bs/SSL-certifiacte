@@ -35,7 +35,7 @@ public class LoggerService {
 
 	private Logger logger = LoggerFactory.getLogger(LoggingContext.class);
 
-	@Value("${itorix.aws.admin.url}")
+	@Value("${itorix.core.aws.admin.url:null}")
 	private String awsURL;
 
 	@Value("${torix.core.aws.pod.url:null}")
@@ -44,10 +44,10 @@ public class LoggerService {
 	@Autowired
 	private SpanAccessor spanAccessor;
 
-	private String region;
-	private String availabilityZone;
-	private String privateIp;
-	private String podHostName= null;;
+	private String region= null;
+	private String availabilityZone= null;
+	private String privateIp= null;
+	private String podHostName= null;
 
 	private static final String MONITOR_AGENT_RUNNER_CLASS = "SSOService.class";
 
@@ -119,6 +119,8 @@ public class LoggerService {
 			logMessage.put("guid", String.valueOf(Span.idToHex(span.getTraceId())));
 			logMessage.put("regionCode", region);
 			logMessage.put("availabilityZone", availabilityZone);
+			logMessage.put("privateIp", privateIp);
+			logMessage.put("podHost", podHostName);
 			logMessage.put("applicationName", MONITOR_AGENT);
 			LoggingContext.setLogMap(logMessage);
 		} catch (Exception e) {

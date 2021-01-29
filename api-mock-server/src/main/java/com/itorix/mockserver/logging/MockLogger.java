@@ -36,7 +36,7 @@ public class MockLogger {
 	@Autowired
 	private SpanAccessor spanAccessor;
 
-	@Value("${itorix.aws.admin.url}")
+	@Value("${itorix.core.aws.admin.ur:null}")
 	private String awsURL;
 
 	@Value("${torix.core.aws.pod.url:null}")

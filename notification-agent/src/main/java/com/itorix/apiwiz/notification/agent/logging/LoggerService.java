@@ -33,7 +33,7 @@ public class LoggerService {
 
 	private Logger logger = LoggerFactory.getLogger(LoggingContext.class);
 
-	@Value("${itorix.aws.admin.url}")
+	@Value("${itorix.core.aws.admin.ur:null}")
 	private String awsURL;
 	
 	@Value("${torix.core.aws.pod.url:null}")
@@ -42,9 +42,9 @@ public class LoggerService {
 	@Autowired
 	private Tracer tracer;
 
-	private String region;
-	private String availabilityZone;
-	private String privateIp;
+	private String region = null;
+	private String availabilityZone = null;
+	private String privateIp = null;
 	private String podHostName= null;
 
 	private static final String MONITOR_AGENT_RUNNER_CLASS = "MonitorAgentRunner.class";

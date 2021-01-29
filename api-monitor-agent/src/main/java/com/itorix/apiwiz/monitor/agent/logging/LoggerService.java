@@ -34,7 +34,7 @@ public class LoggerService {
 
 	private Logger logger = LoggerFactory.getLogger(LoggingContext.class);
 
-	@Value("${itorix.aws.admin.url}")
+	@Value("${itorix.core.aws.admin.url}")
 	private String awsURL;
 
 	@Value("${torix.core.aws.pod.url:null}")
