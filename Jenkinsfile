@@ -1,6 +1,6 @@
-def gitCloneURL = 'git@github.com:itorix/itorix-app-jenkins-build.git'
-def gitBranch = 'feature-1'
-def gitCred =  'github-core'
+def gitCloneURL = 'git@github.com:itorix/apiwiz-release-pipeline.git'
+def gitBranch = 'main'
+def gitCred =  'github-apiwiz'
 def commonFunctions
 
 node {
