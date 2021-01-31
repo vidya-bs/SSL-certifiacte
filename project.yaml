@@ -1,42 +1,314 @@
-LocalDeploy: true
-
 build:
   name: apiwiz-core-platform-api
-  gitURL: git@github.com:itorix/apiwiz-core-platform-api.git
-
+  gitURL: 'git@github.com:itorix/apiwiz-core-platform-api.git'
 deployment:
-  type: core  #type can be core, mock or testsuite or sso or notification or monitor
-
-deployLocal:
-- env: local
-  branch: feature
-  approval: false
-  host: 3.128.86.36
-  pem: itorix-dev.pem
-  configBranch: main
-  configRepo: git@github.com:itorix/itorix-core-config.git
-
-deployContainer:
-- env: development
-  branch: feature
-  approval: false
-  host: NA
-  pem: NA
-  configBranch: development
-  configRepo: git@github.com:itorix/apiwiz-config-repo.git
-
-- env: stage
-  branch: develop
-  approval: true
-  host: NA
-  pem: NA
-  configBranch: stage
-  configRepo: git@github.com:itorix/apiwiz-config-repo.git
-
-- env: production
-  branch: main
-  approval: false
-  host: NA
-  pem: NA
-  configBranch: main
-  configRepo: git@github.com:itorix/apiwiz-config-repo.git
+  - appName: core
+    deployFlag: true
+    buildImageFlag: true
+    environments:
+      - env: local
+        branch: feature
+        approval: false
+        host: 3.128.86.36
+        pem: itorix-dev.pem
+        configBranch: main
+        configRepo: 'git@github.com:itorix/itorix-core-config.git'
+        container: false
+        jarName: cloud-app-0.0.1-SNAPSHOT.jar
+        jarLocation: /app/target
+        spaceName: ''
+        awsCredProfile: NA
+      - env: development
+        branch: feature
+        approval: false
+        host: NA
+        pem: NA
+        configBranch: development
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        container: true
+        spaceName: ''
+        awsCredProfile: dev
+        jarName: cloud-app-0.0.1-SNAPSHOT.jar
+        jarLocation: /app/target
+      - env: stage
+        branch: develop
+        approval: true
+        host: NA
+        pem: NA
+        configBranch: stage
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        container: true
+        spaceName: ''
+        awsCredProfile: dev
+        jarName: cloud-app-0.0.1-SNAPSHOT.jar
+        jarLocation: /app/target
+      - env: production
+        branch: main
+        approval: true
+        host: NA
+        pem: NA
+        configBranch: main
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        container: true
+        spaceName: 'apiwiz-system'
+        awsCredProfile: default
+        jarName: cloud-app-0.0.1-SNAPSHOT.jar
+        jarLocation: /app/target
+  - appName: mock
+    deployFlag: true
+    buildImageFlag: true
+    environments:
+      - env: local
+        branch: feature
+        container: false
+        approval: false
+        host: 3.128.86.36
+        pem: itorix-dev.pem
+        configBranch: main
+        configRepo: 'git@github.com:itorix/itorix-core-config.git'
+        jarName: api-mock-server-0.0.1-SNAPSHOT.jar
+        jarLocation: /api-mock-server/target
+        spaceName: ''
+        awsCredProfile: NA
+      - env: development
+        branch: feature
+        container: true
+        spaceName: ''
+        awsCredProfile: dev
+        approval: false
+        host: NA
+        pem: NA
+        configBranch: development
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        jarName: api-mock-server-0.0.1-SNAPSHOT.jar
+        jarLocation: /api-mock-server/target
+      - env: stage
+        branch: develop
+        container: true
+        spaceName: ''
+        awsCredProfile: dev
+        approval: true
+        host: NA
+        pem: NA
+        configBranch: stage
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        jarName: api-mock-server-0.0.1-SNAPSHOT.jar
+        jarLocation: /api-mock-server/target
+      - env: production
+        branch: main
+        container: true
+        spaceName: ''
+        awsCredProfile: default
+        approval: true
+        host: NA
+        pem: NA
+        configBranch: main
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        jarName: api-mock-server-0.0.1-SNAPSHOT.jar
+        jarLocation: /api-mock-server/target
+  - appName: testsuite
+    deployFlag: true
+    buildImageFlag: true
+    environments:
+      - env: local
+        branch: feature
+        container: false
+        approval: false
+        host: 3.128.86.36
+        pem: itorix-dev.pem
+        configBranch: main
+        configRepo: 'git@github.com:itorix/itorix-core-config.git'
+        spaceName: ''
+        awsCredProfile: NA
+        jarName: test-suite-lib-1.5.10.RELEASE.jar
+        jarLocation: /test-suite-lib/target
+      - env: development
+        branch: feature
+        container: true
+        spaceName: ''
+        awsCredProfile: dev
+        approval: false
+        host: NA
+        pem: NA
+        configBranch: development
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        jarName: test-suite-lib-1.5.10.RELEASE.jar
+        jarLocation: /test-suite-lib/target
+      - env: stage
+        branch: develop
+        container: true
+        spaceName: ''
+        awsCredProfile: dev
+        approval: true
+        host: NA
+        pem: NA
+        configBranch: stage
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        jarName: test-suite-lib-1.5.10.RELEASE.jar
+        jarLocation: /test-suite-lib/target
+      - env: production
+        branch: main
+        container: true
+        spaceName: ''
+        awsCredProfile: default
+        approval: true
+        host: NA
+        pem: NA
+        configBranch: main
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        jarName: test-suite-lib-1.5.10.RELEASE.jar
+        jarLocation: /test-suite-lib/target
+  - appName: sso
+    deployFlag: true
+    buildImageFlag: true
+    environments:
+      - env: local
+        branch: feature
+        container: false
+        approval: false
+        host: 3.128.86.36
+        pem: itorix-dev.pem
+        configBranch: main
+        configRepo: 'git@github.com:itorix/itorix-core-config.git'
+        jarName: sso-0.0.1-SNAPSHOT.jar
+        jarLocation: /sso/target
+      - env: development
+        branch: feature
+        container: true
+        spaceName: ''
+        awsCredProfile: dev
+        approval: false
+        host: NA
+        pem: NA
+        configBranch: development
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        jarName: sso-0.0.1-SNAPSHOT.jar
+        jarLocation: /sso/target
+      - env: stage
+        branch: develop
+        container: true
+        spaceName: ''
+        awsCredProfile: dev
+        approval: true
+        host: NA
+        pem: NA
+        configBranch: stage
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        jarName: sso-0.0.1-SNAPSHOT.jar
+        jarLocation: /sso/target
+      - env: production
+        branch: main
+        container: true
+        spaceName: ''
+        awsCredProfile: default
+        approval: true
+        host: NA
+        pem: NA
+        configBranch: main
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        jarName: sso-0.0.1-SNAPSHOT.jar
+        jarLocation: /sso/target
+  - appName: notification
+    deployFlag: true
+    buildImageFlag: true
+    environments:
+      - env: local
+        branch: feature
+        container: false
+        approval: false
+        host: 3.128.86.36
+        pem: itorix-dev.pem
+        configBranch: main
+        configRepo: 'git@github.com:itorix/itorix-core-config.git'
+        spaceName: ''
+        awsCredProfile: NA
+        jarName: notification-agent-0.0.1.jar
+        jarLocation: /notification-agent/target
+      - env: development
+        branch: feature
+        container: true
+        spaceName: ''
+        awsCredProfile: dev
+        approval: false
+        host: NA
+        pem: NA
+        configBranch: development
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        jarName: notification-agent-0.0.1.jar
+        jarLocation: /notification-agent/target
+      - env: stage
+        branch: develop
+        container: true
+        spaceName: ''
+        awsCredProfile: dev
+        approval: true
+        host: NA
+        pem: NA
+        configBranch: stage
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        jarName: notification-agent-0.0.1.jar
+        jarLocation: /notification-agent/target
+      - env: production
+        branch: main
+        container: true
+        spaceName: ''
+        awsCredProfile: default
+        approval: true
+        host: NA
+        pem: NA
+        configBranch: main
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        jarName: notification-agent-0.0.1.jar
+        jarLocation: /notification-agent/target
+  - appName: monitor
+    deployFlag: true
+    buildImageFlag: true
+    environments:
+      - env: local
+        branch: feature
+        container: false
+        approval: false
+        host: 3.128.86.36
+        pem: itorix-dev.pem
+        configBranch: main
+        configRepo: 'git@github.com:itorix/itorix-core-config.git'
+        spaceName: ''
+        awsCredProfile: NA
+        jarName: api-monitor-agent-0.0.1.jar
+        jarLocation: /api-monitor-agent/target
+      - env: development
+        branch: feature
+        container: true
+        spaceName: ''
+        awsCredProfile: dev
+        approval: false
+        host: NA
+        pem: NA
+        configBranch: development
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        jarName: api-monitor-agent-0.0.1.jar
+        jarLocation: /api-monitor-agent/target
+      - env: stage
+        branch: develop
+        container: true
+        spaceName: ''
+        awsCredProfile: dev
+        approval: true
+        host: NA
+        pem: NA
+        configBranch: stage
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        jarName: api-monitor-agent-0.0.1.jar
+        jarLocation: /api-monitor-agent/target
+      - env: production
+        branch: main
+        container: true
+        spaceName: ''
+        awsCredProfile: default
+        approval: true
+        host: NA
+        pem: NA
+        configBranch: main
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        jarName: api-monitor-agent-0.0.1.jar
+        jarLocation: /api-monitor-agent/target
