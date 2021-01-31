@@ -1,4 +1,4 @@
-skipLocalDeploy: false
+LocalDeploy: true
 
 build:
   name: apiwiz-core-platform-api
