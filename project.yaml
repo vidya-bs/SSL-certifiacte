@@ -3,7 +3,7 @@ build:
   gitURL: 'git@github.com:itorix/apiwiz-core-platform-api.git'
 deployment:
   - appName: coreapi
-    buildImageFlag: true
+    buildImage: enable
     jarName: cloud-app-0.0.1-SNAPSHOT.jar
     jarLocation: /app/target
     environments:
@@ -52,7 +52,7 @@ deployment:
         spaceName: apiwiz-system
         awsCredProfile: default
   - appName: apimock
-    buildImageFlag: true
+    buildImage: enable
     jarLocation: /api-mock-server/target
     jarName: api-mock-server-0.0.1-SNAPSHOT.jar
     environments:
@@ -101,7 +101,7 @@ deployment:
         configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
   - appName: testsuite
-    buildImageFlag: true
+    buildImage: enable
     jarLocation: /test-suite-lib/target
     jarName: test-suite-lib-1.5.10.RELEASE.jar
     environments:
@@ -150,7 +150,7 @@ deployment:
         configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
   - appName: sso
-    buildImageFlag: true
+    buildImage: enable
     jarName: sso-0.0.1-SNAPSHOT.jar
     jarLocation: /sso/target
     environments:
@@ -199,7 +199,7 @@ deployment:
         configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
   - appName: notification
-    buildImageFlag: false
+    buildImage: disable
     jarName: notification-agent-0.0.1.jar
     jarLocation: /notification-agent/target
     environments:
@@ -248,7 +248,7 @@ deployment:
         configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
   - appName: apimonitor
-    buildImageFlag: true
+    buildImage: enable
     jarName: api-monitor-agent-0.0.1.jar
     jarLocation: /api-monitor-agent/target
     environments:
