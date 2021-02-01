@@ -1,0 +1,136 @@
+---
+name: CI-CDPipelines
+description: Testcases for CICD Pipelines
+id: 
+date: '2018-07-03T15:20:50.298'
+status: PASS
+vars:
+  JsessionId: 5b3bf6ca1b8a033d89350ce0
+  kvm: CORSDomainMapping
+  scheme: http
+  port: '9001'
+  host: dev.itorix.com
+  Content-Type: application/json
+scenarios:
+- name: Customer Login
+  description: Login using customer credentials to get session id
+  status: PASS
+  testCases:
+  - name: getJSession
+    description: get customer sessionId
+    host: "{{host}}"
+    port: "{{port}}"
+    schemes: http
+    path: http://dev.itorix.com:9001/UserManagement/v1/user/login?
+    verb: POST
+    request:
+      queryParams: 
+      headers:
+      - name: Content-Type
+        description: Description
+        value: "{{Content-Type}}"
+      body:
+        type: JSON
+        data: '{"loginId": "darshan.shivashankar", "password": "7481fdaa1dc262513277ae09be95592e"}'
+      formParams: 
+    response:
+      description: Description
+      body:
+        type: json
+        data: ''
+      variables:
+      - name: JsessionId
+        reference: body
+        value: id
+      assertions:
+        status:
+          code: 200
+          message: created
+          status: PASS
+        headers:
+        - name: Content-Type
+          value: application/json;charset=UTF-8
+          condition: equalTO
+          status: PASS
+        body:
+        - path: oauthResp.clientName
+          value: 
+          condition: absent
+          status: PASS
+          additionalProperties: {}
+        - path: oauthResp.token
+          value: 
+          condition: absent
+          status: PASS
+          additionalProperties: {}
+        - path: username
+          value: Darshan Shivashankar
+          condition: equalTO
+          status: PASS
+          additionalProperties: {}
+        - path: id
+          value: 
+          condition: absent
+          status: FAIL
+          additionalProperties: {}
+      headers: 
+    status: PASS
+- name: getProxydetails
+  description: getProxydetails
+  status: PASS
+  testCases:
+  - name: getProxydetails
+    description: get customer sessionId
+    host: "{{host}}"
+    port: "{{port}}"
+    schemes: http
+    path: http://dev.itorix.com:9001/UserManagement/v1/buildconfig/proxies/StoreLocator_v1/details?
+    verb: GET
+    request:
+      queryParams: 
+      headers:
+      - name: Accept
+        description: Description
+        value: "{{Content-Type}}"
+      - name: Jsessionid
+        description: Description
+        value: "{{JsessionId}}"
+      body: 
+      formParams: 
+    response:
+      description: Description
+      body:
+        type: json
+        data: ''
+      variables:
+      - name: kvm
+        reference: body
+        value: proxyArtifacts.kvm[0]
+      assertions:
+        status:
+          code: 200
+          message: success
+          status: PASS
+        headers:
+        - name: Content-Type
+          value: application/json;charset=UTF-8
+          condition: equalTO
+          status: PASS
+        body:
+        - path: oauthResp.clientName
+          value: 
+          condition: absent
+          status: PASS
+          additionalProperties: {}
+        - path: oauthResp.token
+          value: 
+          condition: absent
+          status: PASS
+          additionalProperties: {}
+        - path: id
+          value: 
+          condition: absent
+          status: PASS
+          additionalProperties: {}
+      headers: 
+    status: PASS

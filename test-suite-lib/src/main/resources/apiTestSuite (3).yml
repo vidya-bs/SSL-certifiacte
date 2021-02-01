@@ -1,0 +1,137 @@
+#
+#   API Scenario Based Test Suite configuration
+#   description: This tag is allowed in all levels to add descripton / comments
+#
+#  Varible is identied as $(variableName) - FreeMarkar Template style
+#
+testSuite:
+  name: "Order_Proxy" # no spaces or any special chars allowed chars [a..z, A..Z, 0..9]
+                      # Should be uniqueue
+  description: "Short description"
+  variables:   # Global aariables
+    - name: "global.varString"
+      value: "Value"
+      type: "String"
+    - name: "global.varInteger"
+      value: 12
+      type: "Integer"
+    - name: "global.varArray"
+      value: [1,2,3,4]
+      type: "Array"
+    - name: "global.paymentRefId"
+      value: "ORD_001"
+      type: "String"
+  scenarios:
+    - name: createOrderFlow # no spaces or any special chars allowed chars [a..z, A..Z, 0..9]
+                            # Should be uniqueue
+      description: "Short description of scenario, same will be used in reesults"
+      host: "order.mydomain.com"
+      port: 80
+      testCases:
+        - name: "createOrder" # no spaces or any special chars allowed chars [a..z, A..Z, 0..9]
+                              # Should be uniqueue, same will be used for storing response e.g. createOrder.resp
+          description: "Description about test case"
+          continueOnFail: false
+          host: "order.mydomain.com"                # optional
+          port: 80                                  # optional
+          path: "/v1/order"
+          httpVerb: "POST"                              # Allowed valus POST / PUT / PATCH / DELETE / GET / OPTIONS
+          request:
+            queryParams:                           # Optional
+              - name: "search"
+                description: "Description"
+                value: "OMS"
+              - name: "token"
+                description: "Description"
+                value: "asdasldkld-5745-dfklfsd"
+            headers:                               # Optional
+              - name: "senderID"
+                description: "Description"
+                value: "ITORIX_TEST_APP"
+            body:
+              type: "JSON"      # XML / JSON / NONE : This will decide the Accept and Content-Type
+                                # header of request, if not specied in headers section
+              data: >           # Mandetory for post, it can be FreeMarker templates
+                {
+
+                }
+          response:
+            description: "Description"
+            body:
+              type: "JSON"    # XML / JSON / NONE: This will decide the accept header
+                              # for Content-Type header assertion for ** contains ** json or xml
+            variables:
+              - name: "order.orderId"
+                reference: "BODY"  # Possible values BODY / HEADER / STATUS_MSG / STATUS_CODE 
+                value: "createOrderResponse.order.orderId"    # if body is XML dots (.) will be replased by slash ("/")
+                                                              # to make it XPATH. Same will be refered from here onwards
+              - name: "order.statusMessage"
+                reference: "STATUS_MSG"  # Possible values BODY / HEADER / STATUS_MSG / STATUS_CODE
+
+              - name: "order.location"
+                reference: "HEADER"  # Possible values BODY / HEADER / STATUS_MSG / STATUS_CODE
+                value: "Location"
+            assertions:     # Optional
+              status:       # Optional
+                code: 201
+                message: "created"
+              headers:      # Optional
+                - name: "Content-Type"
+                  value: "application/xml"            # optional for condition absent/present
+                  condition: "equalTO"                # equalTO, present, absent, doesNotMatch, matches, contains
+              body:   # Optional
+                - path: "oauthResp.clientName"
+                  value: null             # optional for condition absent/present
+                  condition: "absent"     # equalTO, present, absent, doesNotMatch, matches, contains
+                - path: "oauthResp.token"
+                  value: null             # optional for condition absent/present
+                  condition: absent"      # equalTO, present, absent, doesNotMatch, matches, contains
+        - name: "getOrder" # no spaces or any special chars allowed chars [a..z, A..Z, 0..9]
+                              # Should be uniqueue, same will be used for storing response e.g. createOrder.resp
+          description: "Description about test case"
+          continueOnFail: true      # Even if this case is failed test case will proceed
+          host: "order.mydomain.com"                # optional
+          port: 80                                  # optional
+          path: "/v1/order/${orderID}"
+          httpVerb: "GET"                              # Allowed valus POST / PUT / PATCH / DELETE / GET / OPTIONS
+          request:
+            pathParams:                             # Optional
+              - name: "orderID"
+                description: "Description"
+                value: "order.orderId"         # ${orderID} will be searched in path and replaced with "global.orderID" value
+            queryParams:                           # Optional
+              - name: "src"
+                description: "Description"
+                value: "OMS"
+              - name: "token"
+                description: "Description"
+                value: "asdasldkld-5745-dfklfsd"
+            headers:                               # Optional
+              - name: "Sender-Id"
+                description: "Description"
+                value: "ITORIX_TEST_APP"
+                type: "FIXED_VALUE"                # VARIABLE, FIXED_VALUE
+              - name: "Accept"
+                description: "Description"
+                value: "test/xml"
+            body:
+              type: "NONE"      # XML / JSON / NONE : This will decide the Accept and Content-Type
+                                # header of request, if not specied in headers section
+          response:
+            description: "Description"
+            body:
+              type: "XML"    # XML / JSON / NONE: This will decide the accept header
+                              # for Content-Type header assertion for ** contains ** json or xml
+            assertions:     # Optional
+              status:       # Optional
+                code: 200
+                message: "OK"
+              headers:      # Optional
+                - name: "Content-Type"
+                  value: "application/xml"            # optional for condition absent/present
+                  condition: "equalTO"                # equalTO, present, absent, doesNotMatch, matches, contains
+              body:   # Optional
+                - path: "getOrderResponse.order.qty"  # if body is XML dots (.) will be replased by slash ("/")
+                                                      # to make it XPATH. Same will be refered from here onwards
+                  value: "10"             # optional for condition absent/present
+                  condition: "equalTO"     # equalTO, present, absent, doesNotMatch, matches, contains

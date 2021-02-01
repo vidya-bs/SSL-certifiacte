@@ -1,0 +1,36 @@
+ui_services:
+
+  - name: getUIMetadata
+    description: Retrive app meta data
+    verb: GET
+    path: /testsuite/uimetadata
+    response: <<TBD>>
+    # e.g. ["ORDER_PROXY", "PAYMENT", "CUSTOMER", "CART"]
+
+  - name: getTestSuites
+    description: Retrive all Test Suites
+    verb: GET
+    path: /testsuites
+    queryParam: name
+    response: array of test suite names
+    # e.g. ["ORDER_PROXY", "PAYMENT", "CUSTOMER", "CART"]
+  
+  - name: getTestSuite
+    description: Retrieve Test Suite details (/testsuite?name=ORDER_PROXY)
+    verb: GET
+    path: /testsuites/{name}
+    parhParam: name
+    response: same as apiTestSuite.yml
+  
+  - name: createTestSuite
+    description: Create complete test suite
+    path: /testsuites
+    verb: POST
+    request: same as apiTestSuite.yml
+  
+  - name: updateTestSuite
+    description: update complete test suite
+    path: /testsuites/{name}
+    pathParam: name
+    verb: PUT
+    request: same as apiTestSuite.yml
