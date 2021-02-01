@@ -1,0 +1,41 @@
+{
+	"name": "itorix",
+	"id": "1",
+	"variables": [
+		{
+			"name": "Content-Type",
+			"description": "Description",
+			"value": "application/json"
+		},
+		{
+			"name": "host",
+			"description": "Description",
+			"value": "dev.itorix.com"
+		},
+		{
+			"name": "scheme",
+			"description": "Description",
+			"value": "http"
+		},
+		{
+			"name": "version",
+			"description": "Version of the APIs",
+			"value": "v1"
+		},
+		{
+			"name": "port",
+			"description": "Description",
+			"value": "9001"
+		},
+		{
+			"name": "password",
+			"description": "Password",
+			"value": "ACdt2DbaepauB4oLMfPF+/XRjPBbyAP8TlWHFb5x+DdUmQOae2zDwjLZg5DKc8mGE6L1cqNBEIa/DYvZmB7LdQ=="
+		},
+		{
+			"name": "username",
+			"description": "User Name",
+			"value": "darshan.shivashankar"
+		}
+	]
+}

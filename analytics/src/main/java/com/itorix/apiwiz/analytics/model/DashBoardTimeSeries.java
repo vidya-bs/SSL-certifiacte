@@ -1,0 +1,69 @@
+package com.itorix.apiwiz.analytics.model;
+
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.stereotype.Component;
+
+@Component("DashBoardTimeSeries")
+@Document(collection = "Apigee.TimeSeries")
+public class DashBoardTimeSeries {
+
+	public static final String FUNCTION_NAME = "timeSeries";
+	public static final String LABEL_DASH_BOARD_FUNCTIONNAME = "dashBoradFunctionName";
+	public static final String LABEL_DASH_BOARD_ENVIROMENT = "environment";
+	public static final String LABEL_DASH_BOARD_ORGANISATION = "organisation";
+	public static final String LABEL_DASH_BOARD_TYPE="type";
+	
+	
+	private Object timeSeriesResponse;
+
+	private String dashBoradFunctionName;
+
+	private String environment;
+
+	private String organisation;
+
+	
+	private String type;
+	
+	
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getEnvironment() {
+		return environment;
+	}
+
+	public void setEnvironment(String environment) {
+		this.environment = environment;
+	}
+
+	public String getOrganisation() {
+		return organisation;
+	}
+
+	public void setOrganisation(String organisation) {
+		this.organisation = organisation;
+	}
+
+	public String getDashBoradFunctionName() {
+		return dashBoradFunctionName;
+	}
+
+	public void setDashBoradFunctionName(String dashBoradFunctionName) {
+		this.dashBoradFunctionName = dashBoradFunctionName;
+	}
+
+	public Object getTimeSeriesResponse() {
+		return timeSeriesResponse;
+	}
+
+	public void setTimeSeriesResponse(Object timeSeriesResponse) {
+		this.timeSeriesResponse = timeSeriesResponse;
+	}
+
+}

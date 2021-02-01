@@ -1,0 +1,16 @@
+{
+    "title": "template varables",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "reference": {
+            "type": "string"
+        },
+        "value": {
+            "type": "string"
+        }
+    }
+}

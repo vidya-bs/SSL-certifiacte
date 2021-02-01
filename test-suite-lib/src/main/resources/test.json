@@ -1,0 +1,258 @@
+{
+	"id": "5c9b10551b8a030146e037c8",
+	"createdBy": "Sudhakar Alaparthi",
+	"modifiedBy": "Sudhakar Alaparthi",
+	"name": "SwaggerTeam",
+	"description": "Swagger teams Module Itorix",
+	"scenarios": [
+		{
+			"id": "ae7895e2-d588-4b58-a18b-fc4ae333a239",
+			"name": "User Login",
+			"description": "Login using customer credentials to get session id",
+			"testCases": [
+				{
+					"id": "a70fd998-9f65-4e6d-9aa3-7817d1a6e4af",
+					"name": "getJSession",
+					"description": "get User sessionId",
+					"host": "{{host}}",
+					"port": "{{port}}",
+					"schemes": "{{{scheme}}}",
+					"path": "/UserManagement/v1/user/login",
+					"verb": "POST",
+					"request": {
+						"headers": [
+							{
+								"name": "Content-Type",
+								"description": "Description",
+								"value": "{{Content-Type}}"
+							}
+						],
+						"body": {
+							"type": "JSON",
+							"data": "{\"loginId\": \"{{{username}}}\", \"password\": \"{{{password}}}\"}"
+						}
+					},
+					"response": {
+						"description": "Description",
+						"statusCode": 0,
+						"body": {
+							"type": "json"
+						},
+						"variables": [
+							{
+								"name": "JsessionId",
+								"reference": "body",
+								"value": "id"
+							}
+						],
+						"assertions": {
+							"status": [
+								{
+									"name": "code",
+									"value": "200",
+									"condition": "equalTo",
+									"status": "Did not Execute",
+									"continueOnError": true
+								},
+								{
+									"name": "message",
+									"value": "OK",
+									"condition": "equalTO",
+									"status": "Did not Execute",
+									"continueOnError": true
+								}
+							]
+						}
+					},
+					"monitored": false
+				}
+			]
+		},
+		{
+			"id": "c684ec12-c91a-41b9-bc6a-974e68b8c1e6",
+			"name": "Teams",
+			"description": "teams",
+			"testCases": [
+				{
+					"id": "cb960e89-fee9-4ce0-b52f-937549852f89",
+					"name": "getTeamsList",
+					"description": "get teams List",
+					"host": "{{host}}",
+					"port": "9001",
+					"schemes": "http",
+					"path": "/UserManagement/v1/swaggers/teamnames",
+					"verb": "GET",
+					"request": {
+						"headers": [
+							{
+								"name": "JSESSIONID",
+								"description": "jsessionID for login",
+								"value": "{{JsessionId}}"
+							}
+						]
+					},
+					"response": {
+						"description": "Description",
+						"statusCode": 0,
+						"body": {
+							"type": "json"
+						},
+						"variables": [
+							{
+								"name": "teamName",
+								"reference": "body",
+								"value": "[0]"
+							}
+						],
+						"assertions": {
+							"status": [
+								{
+									"name": "code",
+									"value": "200",
+									"condition": "equalTo",
+									"status": "Did not Execute",
+									"continueOnError": true
+								},
+								{
+									"name": "code",
+									"value": "not null",
+									"condition": "is",
+									"status": "Did Not Execute",
+									"continueOnError": true
+								},
+								{
+									"name": "message",
+									"value": "OK",
+									"condition": "equalTO",
+									"status": "Did not Execute",
+									"continueOnError": true
+								}
+							],
+							"body": [
+								{
+									"path": "*",
+									"value": "not null",
+									"condition": "is",
+									"status": "Did Not Execute",
+									"continueOnError": true
+								},
+								{
+									"path": "*",
+									"value": "{{{teamName}}}",
+									"condition": "contains",
+									"status": "Did Not Execute",
+									"continueOnError": true
+								}
+							]
+						}
+					},
+					"monitored": false
+				},
+				{
+					"id": "ebaf4803-02e3-427d-b46f-a6a61a6e8830",
+					"name": "createTeam",
+					"description": "create Team ",
+					"host": "{{host}}",
+					"port": "9001",
+					"schemes": "{{{scheme}}}",
+					"path": "/UserManagement/v1/swaggers/teams",
+					"verb": "POST",
+					"request": {
+						"headers": [
+							{
+								"name": "Content-Type",
+								"description": "Description",
+								"value": "{{Content-Type}}"
+							},
+							{
+								"name": "JSESSIONID",
+								"description": "Description",
+								"value": "{{JsessionId}}"
+							}
+						],
+						"body": {
+							"type": "JSON",
+							"data": "{\"name\":\"Test123\",\"displayName\":\"test123\",\"description\":\"team created for testsuit testing\",\"contacts\":[{\"name\":\"Darshan Shivashankar\",\"email\":\"darshan@itorix.com\",\"role\":[\"Admin\",\"Read\",\"Write\"]}],\"swaggers\":[\"ProductCatalog\"],\"projects\":[\"TestSuiteTesting3\"]}"
+						}
+					},
+					"response": {
+						"description": "Description",
+						"statusCode": 0,
+						"body": {
+							"type": "json"
+						},
+						"assertions": {
+							"status": [
+								{
+									"name": "code",
+									"value": "201",
+									"condition": "equalTo",
+									"status": "Did not Execute",
+									"continueOnError": true
+								}
+							]
+						}
+					},
+					"monitored": false
+				},
+				{
+					"id": "9ac00d00-4520-497f-a78b-fed5152cbea9",
+					"name": "deleteTeam",
+					"description": "Delete Team ",
+					"host": "{{host}}",
+					"port": "9001",
+					"schemes": "{{{scheme}}}",
+					"path": "/UserManagement/v1/swaggers/teams/Test123",
+					"verb": "DELETE",
+					"request": {
+						"headers": [
+							{
+								"name": "Content-Type",
+								"description": "Description",
+								"value": "{{Content-Type}}"
+							},
+							{
+								"name": "JSESSIONID",
+								"description": "Description",
+								"value": "{{JsessionId}}"
+							}
+						],
+						"body": {
+							"type": "None",
+							"data": ""
+						}
+					},
+					"response": {
+						"description": "Description",
+						"statusCode": 0,
+						"body": {
+							"type": "json"
+						},
+						"assertions": {
+							"status": [
+								{
+									"name": "code",
+									"value": "204",
+									"condition": "equalTo",
+									"status": "Did not Execute",
+									"continueOnError": true
+								}
+							],
+							"body": [
+								{
+									"path": "*",
+									"value": "null",
+									"condition": "is",
+									"status": "Did Not Execute",
+									"continueOnError": false
+								}
+							]
+						}
+					},
+					"monitored": false
+				}
+			]
+		}
+	],
+	"isActive": true
+}

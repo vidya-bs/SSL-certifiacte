@@ -1,0 +1,516 @@
+{
+	"id": "5d66807107c63b1d424769d0",
+	"name": "Petstore",
+	"description": "Petstore operations",
+	"scenarios": [
+		{
+			"name": "Pets",
+			"description": "operations for pets",
+			"testCases": [
+				{
+					"name": "addPet",
+					"description": "",
+					"host": "{{{host}}}",
+					"port": "{{{port}}}",
+					"schemes": "http",
+					"path": "/v2/pet",
+					"verb": "POST",
+					"request": {
+						"headers": [
+							{
+								"name": "Authorization",
+								"description": "",
+								"value": "{{{AccessToken}}}"
+							},
+							{
+								"name": "Content-Type",
+								"description": "",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"type": "JSON",
+							"data": "{\n    \"id\": 0,\n    \"category\": {\n        \"id\": 0,\n        \"name\": \"doggie\"\n    },\n    \"name\": \"doggie\",\n    \"photoUrls\": [\n        \"string\"\n    ],\n    \"tags\": [\n        {\n            \"id\": 0,\n            \"name\": \"string\"\n        }\n    ],\n    \"status\": \"available\"\n}"
+						}
+					},
+					"response": {
+						"description": "",
+						"statusCode": 0,
+						"body": {
+							
+						},
+						"assertions": {
+							"status": [
+								{
+									"name": "code",
+									"value": "200",
+									"condition": "equalTo",
+									"status": "Did not Execute",
+									"continueOnError": true
+								}
+							],
+							"headers": [
+								{
+									"name": "",
+									"value": "",
+									"status": "Did not Execute",
+									"continueOnError": false
+								}
+							],
+							"body": [
+								{
+									"path": "",
+									"value": "",
+									"condition": null,
+									"status": "Did Not Execute",
+									"errorMessage": null,
+									"continueOnError": false
+								}
+							]
+						}
+					},
+					"monitored": false
+				},
+				{
+					"name": "updatePet",
+					"description": "",
+					"host": "{{{host}}}",
+					"port": "{{{port}}}",
+					"schemes": "http",
+					"path": "/v2/pet",
+					"verb": "PUT",
+					"request": {
+						"headers": [
+							{
+								"name": "Authorization",
+								"description": "",
+								"value": "{{{AccessToken}}}"
+							},
+							{
+								"name": "Content-Type",
+								"description": "",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"type": "JSON",
+							"data": "{\n    \"id\": 0,\n    \"category\": {\n        \"id\": 0,\n        \"name\": \"doggie\"\n    },\n    \"name\": \"doggie\",\n    \"photoUrls\": [\n        \"string\"\n    ],\n    \"tags\": [\n        {\n            \"id\": 0,\n            \"name\": \"string\"\n        }\n    ],\n    \"status\": \"available\"\n}"
+						}
+					},
+					"response": {
+						"description": "",
+						"statusCode": 0,
+						"body": {
+							
+						},
+						"assertions": {
+							"status": [
+								{
+									"name": "code",
+									"value": "200",
+									"condition": "equalTo",
+									"status": "Did not Execute",
+									"continueOnError": true
+								}
+							],
+							"headers": [
+								{
+									"name": "",
+									"value": "",
+									"status": "Did not Execute",
+									"continueOnError": false
+								}
+							],
+							"body": [
+								{
+									"path": "",
+									"value": "",
+									"condition": null,
+									"status": "Did Not Execute",
+									"errorMessage": null,
+									"continueOnError": false
+								}
+							]
+						}
+					},
+					"monitored": false
+				},
+				{
+					"name": "fiindPetbyStatus",
+					"description": "",
+					"host": "{{{host}}}",
+					"port": "{{{port}}}",
+					"schemes": "http",
+					"path": "/v2/pet/findByStatus",
+					"verb": "GET",
+					"request": {
+						"queryParams": [
+							{
+								"name": "status",
+								"description": "",
+								"value": "available"
+							}
+						],
+						"headers": [
+							{
+								"name": "Authorization",
+								"description": "",
+								"value": "{{{AccessToken}}}"
+							}
+						]
+					},
+					"response": {
+						"description": "",
+						"statusCode": 0,
+						"body": {
+							
+						},
+						"assertions": {
+							"status": [
+								{
+									"name": "code",
+									"value": "200",
+									"condition": "equalTo",
+									"status": "Did not Execute",
+									"continueOnError": true
+								}
+							],
+							"headers": [
+								{
+									"name": "",
+									"value": "",
+									"status": "Did not Execute",
+									"continueOnError": false
+								}
+							],
+							"body": [
+								{
+									"path": "",
+									"value": "",
+									"condition": null,
+									"status": "Did Not Execute",
+									"errorMessage": null,
+									"continueOnError": false
+								}
+							]
+						}
+					},
+					"monitored": false
+				},
+				{
+					"name": "findPetbyTag",
+					"description": "",
+					"host": "{{{host}}}",
+					"port": "{{{port}}}",
+					"schemes": "http",
+					"path": "/v2/pet/findByTags",
+					"verb": "GET",
+					"request": {
+						"queryParams": [
+							{
+								"name": "tags",
+								"description": "",
+								"value": "0"
+							}
+						],
+						"headers": [
+							{
+								"name": "Authorization",
+								"description": "",
+								"value": "{{{AccessToken}}}"
+							}
+						]
+					},
+					"response": {
+						"description": "",
+						"statusCode": 0,
+						"body": {
+							
+						},
+						"assertions": {
+							"status": [
+								{
+									"name": "code",
+									"value": "200",
+									"condition": "equalTo",
+									"status": "Did not Execute",
+									"continueOnError": true
+								}
+							],
+							"headers": [
+								{
+									"name": "",
+									"value": "",
+									"status": "Did not Execute",
+									"continueOnError": false
+								}
+							],
+							"body": [
+								{
+									"path": "",
+									"value": "",
+									"condition": null,
+									"status": "Did Not Execute",
+									"errorMessage": null,
+									"continueOnError": false
+								}
+							]
+						}
+					},
+					"monitored": false
+				},
+				{
+					"name": "findPetbyId",
+					"description": "",
+					"host": "{{{host}}}",
+					"port": "{{{port}}}",
+					"schemes": "http",
+					"path": "/v2/pet/0",
+					"request": {
+						"headers": [
+							{
+								"name": "Authorization",
+								"description": "",
+								"value": "{{{AccessToken}}}"
+							}
+						],
+						"body": {
+							"type": "None",
+							"data": ""
+						}
+					},
+					"response": {
+						"description": "",
+						"statusCode": 0,
+						"body": {
+							
+						},
+						"assertions": {
+							"status": [
+								{
+									"name": "code",
+									"value": "200",
+									"condition": "equalTo",
+									"status": "Did not Execute",
+									"continueOnError": false
+								}
+							],
+							"headers": [
+								{
+									"name": "",
+									"value": "",
+									"status": "Did not Execute",
+									"continueOnError": false
+								}
+							],
+							"body": [
+								{
+									"path": "",
+									"value": "",
+									"condition": null,
+									"status": "Did Not Execute",
+									"errorMessage": null,
+									"continueOnError": false
+								}
+							]
+						}
+					},
+					"monitored": false
+				},
+				{
+					"name": "updatePetForm",
+					"description": "",
+					"host": "{{{host}}}",
+					"port": "{{{port}}}",
+					"schemes": "http",
+					"path": "/v2/pet/0",
+					"verb": "POST",
+					"request": {
+						"headers": [
+							{
+								"name": "Authorization",
+								"description": "",
+								"value": "{{{AccessToken}}}"
+							},
+							{
+								"name": "Content-Type",
+								"description": "",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"type": "Formparam",
+							"data": "[{\"key\":\"\",\"value\":\"0\",\"name\":\"petId\"},{\"key\":\"\",\"value\":\"available\",\"name\":\"status\"}]"
+						}
+					},
+					"response": {
+						"description": "",
+						"statusCode": 0,
+						"body": {
+							
+						},
+						"assertions": {
+							"status": [
+								{
+									"name": "code",
+									"value": "200",
+									"condition": "equalTo",
+									"status": "Did not Execute",
+									"continueOnError": true
+								}
+							],
+							"headers": [
+								{
+									"name": "",
+									"value": "",
+									"status": "Did not Execute",
+									"continueOnError": false
+								}
+							],
+							"body": [
+								{
+									"path": "",
+									"value": "",
+									"condition": null,
+									"status": "Did Not Execute",
+									"errorMessage": null,
+									"continueOnError": false
+								}
+							]
+						}
+					},
+					"monitored": false
+				},
+				{
+					"name": "deletePet",
+					"description": "",
+					"host": "{{{host}}}",
+					"port": "{{{port}}}",
+					"schemes": "http",
+					"path": "/v2/pet/0",
+					"verb": "DELETE",
+					"request": {
+						"headers": [
+							{
+								"name": "Authorization",
+								"description": "",
+								"value": "{{{AccessToken}}}"
+							}
+						],
+						"body": {
+							"type": "None",
+							"data": ""
+						}
+					},
+					"response": {
+						"description": "",
+						"statusCode": 0,
+						"body": {
+							
+						},
+						"assertions": {
+							"status": [
+								{
+									"name": "code",
+									"value": "204",
+									"condition": "equalTo",
+									"status": "Did not Execute",
+									"continueOnError": false
+								}
+							],
+							"headers": [
+								{
+									"name": "",
+									"value": "",
+									"status": "Did not Execute",
+									"continueOnError": false
+								}
+							],
+							"body": [
+								{
+									"path": "",
+									"value": "",
+									"condition": null,
+									"status": "Did Not Execute",
+									"errorMessage": null,
+									"continueOnError": false
+								}
+							]
+						}
+					},
+					"monitored": false
+				}
+			],
+			"duration": 0
+		},
+		{
+			"name": "Store",
+			"description": "Store Operations",
+			"testCases": [
+				{
+					"name": "",
+					"description": "",
+					"host": "{{{host}}}",
+					"port": "{{{port}}}",
+					"schemes": "http",
+					"path": "/v2/store/inventory",
+					"verb": "GET",
+					"request": {
+						"headers": [
+							{
+								"name": "Authorization",
+								"description": "",
+								"value": "{{{AccessToken}}}"
+							}
+						]
+					},
+					"response": {
+						"description": "",
+						"statusCode": 0,
+						"body": {
+							
+						},
+						"assertions": {
+							"status": [
+								{
+									"name": "code",
+									"value": "200",
+									"condition": "equalTo",
+									"status": "Did not Execute",
+									"continueOnError": true
+								}
+							],
+							"headers": [
+								{
+									"name": "",
+									"value": "",
+									"status": "Did not Execute",
+									"continueOnError": false
+								}
+							],
+							"body": [
+								{
+									"path": "",
+									"value": "",
+									"condition": null,
+									"status": "Did Not Execute",
+									"errorMessage": null,
+									"continueOnError": false
+								}
+							]
+						}
+					},
+					"monitored": false
+				}
+			],
+			"duration": 0
+		},
+		{
+			"name": "Users",
+			"description": "",
+			"testCases": [],
+			"duration": 0
+		}
+	],
+	"isActive": true
+}

@@ -1,0 +1,154 @@
+{
+	"name": "CI-CDPipelines",
+	"description": "Testcases for CICD Pipelines",
+	"scenarios": [
+		{
+			"name": "Customer Login",
+			"description": "Login using customer credentials to get session id",
+			"testCases": [
+				{
+					"name": "getJSession",
+					"description": "get customer sessionId",
+					"host": "{{host}}",
+					"schemes": "http",
+					"port": "{{port}}",
+					"path": "/UserManagement/v1/user/login",
+					"verb": "POST",
+					"request": {
+						"headers": [
+							{
+								"name": "Content-Type",
+								"description": "Description",
+								"value": "{{Content-Type}}"
+							}
+						],
+						"body": {
+							"type": "JSON",
+							"data": "{\"loginId\": \"darshan.shivashankar\", \"password\": \"7481fdaa1dc262513277ae09be95592e\"}"
+						}
+					},
+					"response": {
+						"description": "Description",
+						"body": {
+							"type": "json"
+						},
+						"variables": [
+							{
+								"name": "JsessionId",
+								"reference": "body",
+								"value": "id"
+							}
+						],
+						"assertions": {
+							"status": {
+								"code": 200,
+								"message": "created"
+							},
+							"headers": [
+								{
+									"name": "Content-Type",
+									"value": "application/json;charset=UTF-8",
+									"condition": "equalTO"
+								}
+							],
+							"body": [
+								{
+									"path": "oauthResp.clientName",
+									"value": null,
+									"condition": "absent"
+								},
+								{
+									"path": "oauthResp.token",
+									"value": null,
+									"condition": "absent"
+								},
+								{
+									"path": "username",
+									"value": "Darshan Shivashankar",
+									"condition": "equalTO"
+								},
+								{
+									"path": "id",
+									"condition": "absent"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "getProxydetails",
+			"description": "getProxydetails",
+			"testCases": [
+				{
+					"name": "getProxydetails",
+					"description": "get customer sessionId",
+					"host": "{{host}}",
+					"schemes": "http",
+					"port": "{{port}}",
+					"path": "/UserManagement/v1/buildconfig/proxies/StoreLocator_v1/details",
+					"verb": "GET",
+					"request": {
+						"headers": [
+							{
+								"name": "Accept",
+								"description": "Description",
+								"value": "{{Content-Type}}"
+							},
+							{
+								"name": "Jsessionid",
+								"description": "Description",
+								"value": "{{JsessionId}}"
+							}
+							
+						]
+						
+					},
+					"response": {
+						"description": "Description",
+						"body": {
+							"type": "json"
+						},
+						"variables": [
+							{
+								"name": "kvm",
+								"reference": "body",
+								"value": "proxyArtifacts.kvm[0]"
+							}
+						],
+						"assertions": {
+							"status": {
+								"code": 200,
+								"message": "success"
+							},
+							"headers": [
+								{
+									"name": "Content-Type",
+									"value": "application/json;charset=UTF-8",
+									"condition": "equalTO"
+								}
+							],
+							"body": [
+								{
+									"path": "oauthResp.clientName",
+									"value": null,
+									"condition": "absent"
+								},
+								{
+									"path": "oauthResp.token",
+									"value": null,
+									"condition": "absent"
+								},
+								{
+									"path": "id",
+									"condition": "absent"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}

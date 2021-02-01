@@ -1,0 +1,49 @@
+metadata:
+  standardHeaders: # used for auto complete on UI
+    - Accept
+    - Accept-Charset
+    - Accept-Encoding
+    - Accept-Language
+    - Authorization
+    - Cache-Control
+    - Connection
+    - Content-Type
+    - User-Agent
+  variableTypes:
+    - String
+    - Integer
+    - Float
+    - Boolean
+    - Array
+  httpVerb:
+    - POST
+    - GET
+    - PUT
+    - DELETE
+    - OPTIONS
+    - PATCH
+  requestBodyType:
+    - JSON
+    - XML
+    - NONE
+  responseBodyType:
+    - JSON
+    - XML
+    - NONE
+  reference:
+    - BODY
+    - HEADER
+    - STATUS_MSG
+    - STATUS_CODE
+  assertionConditions:
+    - equalTO
+    - present
+    - absent
+    - doesNotMatch
+    - contains
+    - regex
+    - is        # value sillw be NULL or NOT NULL or true or false
+    - boolean
+  continueOnError: # Check box om UI
+    - true
+    - false

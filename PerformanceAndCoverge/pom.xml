@@ -1,0 +1,174 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.itorix.hyggee.cloud</groupId>
+	<artifactId>PerformanceAndCoverge</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<name>PerformanceAndCoverge</name>
+	<parent>
+		<groupId>com.itorix.hyggee.cloud</groupId>
+		<artifactId>cloud</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+
+	<properties>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.itorix.hyggee.cloud</groupId>
+			<artifactId>cloud-hyggee-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.itorix.hyggee.cloud</groupId>
+			<artifactId>cloud-identity-management</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.itorix.hyggee.cloud</groupId>
+			<artifactId>api-test</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.itorix</groupId>
+			<artifactId>test-executor</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>xml-apis</groupId>
+			<artifactId>xml-apis</artifactId>
+			<version>1.4.01</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.smartbear.soapui</groupId>
+			<artifactId>soapui-pro-maven-plugin</artifactId>
+			<version>5.1.2</version>
+			<!-- <scope>test</scope> -->
+			<exclusions>
+				<exclusion>
+					<groupId>rhino</groupId>
+					<artifactId>js</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.fifesoft</groupId>
+			<artifactId>rsyntaxtextarea</artifactId>
+			<version>1.4.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+			<version>LATEST</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.github.spullara.mustache.java</groupId>
+			<artifactId>compiler</artifactId>
+			<version>0.9.5</version>
+		</dependency>
+
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>smartbear</id>
+			<name>smartbear repository</name>
+			<!-- <url>http://smartbearsoftware.com/repository/maven2</url> -->
+			<!-- <url>https://downloads.smartbear.com/repository/maven2</url> -->
+			<url>https://rapi.tools.ops.smartbear.io/nexus/content/groups/public</url>
+		</repository>
+	</repositories>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<configuration>
+					<downloadSources>true</downloadSources>
+					<downloadJavadocs>false</downloadJavadocs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<!-- <plugin> <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-maven-plugin</artifactId> 
+				<configuration> <fork>true</fork> <mainClass>com.itorix.hyggee.identitymanagement.IdentityManagementApplication</mainClass> 
+				</configuration> <executions> <execution> <goals> <goal>repackage</goal> 
+				</goals> </execution> </executions> </plugin> -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>com.itorix.hyggee.performance.coverge.PerformanceAndCovergeApplication</mainClass>
+						</manifest>
+					</archive>
+					<excludes>
+						<exclude>**/*.zip</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<profiles>
+		<profile>
+			<id>execute</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.springframework.boot</groupId>
+						<artifactId>spring-boot-maven-plugin</artifactId>
+						<configuration>
+							<fork>true</fork>
+							<mainClass>com.itorix.hyggee.performance.coverge.PerformanceAndCovergeApplication</mainClass>
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<goal>repackage</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>
