@@ -198,55 +198,6 @@ deployment:
         pem: NA
         configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
-  - appName: notification
-    buildImage: disable
-    jarName: notification-agent-0.0.1.jar
-    jarLocation: /notification-agent/target
-    environments:
-      - env: local
-        branch: feature
-        container: disable
-        deployFlag: enable
-        approval: disable
-        host: 3.128.86.36
-        pem: itorix-dev.pem
-        configBranch: main
-        configRepo: 'git@github.com:itorix/itorix-core-config.git'
-        spaceName: NA
-        awsCredProfile: NA
-      - env: development
-        branch: feature
-        deployFlag: enable
-        container: enable
-        spaceName: ''
-        awsCredProfile: devuser
-        approval: disable
-        host: NA
-        pem: NA
-        configBranch: development
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
-      - env: stage
-        branch: develop
-        deployFlag: disable
-        container: enable
-        spaceName: ''
-        awsCredProfile: devuser
-        approval: enable
-        host: NA
-        pem: NA
-        configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
-      - env: production
-        deployFlag: enable
-        branch: main
-        container: enable
-        spaceName: apiwiz-system
-        awsCredProfile: default
-        approval: enable
-        host: NA
-        pem: NA
-        configBranch: main
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
   - appName: apimonitor
     buildImage: enable
     jarName: api-monitor-agent-0.0.1.jar
@@ -288,6 +239,55 @@ deployment:
       - env: production
         branch: main
         deployFlag: enable
+        container: enable
+        spaceName: apiwiz-system
+        awsCredProfile: default
+        approval: enable
+        host: NA
+        pem: NA
+        configBranch: main
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+  - appName: notification
+    buildImage: disable
+    jarName: notification-agent-0.0.1.jar
+    jarLocation: /notification-agent/target
+    environments:
+      - env: local
+        branch: feature
+        container: disable
+        deployFlag: enable
+        approval: disable
+        host: 3.128.86.36
+        pem: itorix-dev.pem
+        configBranch: main
+        configRepo: 'git@github.com:itorix/itorix-core-config.git'
+        spaceName: NA
+        awsCredProfile: NA
+      - env: development
+        branch: feature
+        deployFlag: enable
+        container: enable
+        spaceName: ''
+        awsCredProfile: devuser
+        approval: disable
+        host: NA
+        pem: NA
+        configBranch: development
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+      - env: stage
+        branch: develop
+        deployFlag: disable
+        container: enable
+        spaceName: ''
+        awsCredProfile: devuser
+        approval: enable
+        host: NA
+        pem: NA
+        configBranch: stage
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+      - env: production
+        deployFlag: enable
+        branch: main
         container: enable
         spaceName: apiwiz-system
         awsCredProfile: default
