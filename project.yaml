@@ -10,12 +10,12 @@ deployment:
       - env: local
         branch: feature
         deployFlag: enbale
-        approval: false
+        approval: disable
         host: 3.128.86.36
         pem: itorix-dev.pem
         configBranch: main
         configRepo: 'git@github.com:itorix/itorix-core-config.git'
-        container: No
+        container: disable
         spaceName: NA
         awsCredProfile: NA
       - env: development
