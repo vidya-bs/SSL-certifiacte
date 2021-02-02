@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.itorix.apiwiz.marketing.contactus.model.ContactUsNotification;
 import com.itorix.apiwiz.marketing.dao.ContactUsDao;
 import com.itorix.apiwiz.marketing.service.CantactUsService;
@@ -18,6 +19,7 @@ public class CantactUsServiceImpl implements CantactUsService {
 	private ContactUsDao contactUsDao;
 	
 	@Override
+	@UnSecure(ignoreValidation=true)
 	public ResponseEntity<?> createJobPosting(String interactionid, String apikey,
 			ContactUsNotification contactUsNotification) throws Exception {
 		contactUsDao.invokeNotificationAgent(contactUsNotification);
