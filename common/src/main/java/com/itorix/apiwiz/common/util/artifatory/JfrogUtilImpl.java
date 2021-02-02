@@ -120,9 +120,9 @@ public class JfrogUtilImpl{
 	private  String replaceHost(String URL){
 		try{
 			String[] tokens = URL.split("/");
-			String newHost = applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort();
+			//String newHost = applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort();
 			StringBuilder newUrl = new StringBuilder();
-			newUrl.append( newHost + "/");
+			newUrl.append( artifactoryHost + "/");
 			for (int x=3; x<tokens.length; x++)
 				if(x==tokens.length-1)
 					newUrl.append(tokens[x]);
