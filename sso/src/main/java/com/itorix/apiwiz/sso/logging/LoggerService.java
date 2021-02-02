@@ -38,9 +38,9 @@ public class LoggerService {
 	@Value("${itorix.core.aws.admin.url:null}")
 	private String awsURL;
 
-	@Value("${torix.core.aws.pod.url:null}")
+	@Value("${itorix.core.aws.pod.url:null}")
 	private String awsPodURL;
-	
+
 	@Autowired
 	private SpanAccessor spanAccessor;
 
@@ -81,7 +81,7 @@ public class LoggerService {
 		}
 		getPodHost();
 	}
-	
+
 	private  void getPodHost() {
 		if(awsPodURL != null){
 			HttpHeaders headers = new HttpHeaders();
@@ -93,7 +93,7 @@ public class LoggerService {
 				podHostName = response.getBody();
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
-			} 
+			}
 		}
 	}
 

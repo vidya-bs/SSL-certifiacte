@@ -33,10 +33,10 @@ public class LoggerService {
 
 	private Logger logger = LoggerFactory.getLogger(LoggingContext.class);
 
-	@Value("${itorix.core.aws.admin.ur:null}")
+	@Value("${itorix.core.aws.admin.url:null}")
 	private String awsURL;
-	
-	@Value("${torix.core.aws.pod.url:null}")
+
+	@Value("${itorix.core.aws.pod.url:null}")
 	private String awsPodURL;
 
 	@Autowired
@@ -47,11 +47,11 @@ public class LoggerService {
 	private String privateIp = null;
 	private String podHostName= null;
 
-	private static final String MONITOR_AGENT_RUNNER_CLASS = "MonitorAgentRunner.class";
+	private static final String NOTIFICATION_AGENT_RUNNER_CLASS = "MonitorAgentRunner.class";
 
 	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-	private static final String MONITOR_AGENT = "monitorAgent";
+	private static final String NOTIFICATION_AGENT = "notificationAgent";
 
 	@Autowired
 	ObjectMapper objectmapper;
@@ -79,7 +79,7 @@ public class LoggerService {
 		}
 		getPodHost();
 	}
-	
+
 	private  void getPodHost() {
 		if(awsPodURL != null){
 			HttpHeaders headers = new HttpHeaders();
@@ -91,7 +91,7 @@ public class LoggerService {
 				podHostName = response.getBody();
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
-			} 
+			}
 		}
 	}
 
@@ -119,8 +119,8 @@ public class LoggerService {
 			logMessage.put("availabilityZone", availabilityZone);
 			logMessage.put("privateIp", privateIp);
 			logMessage.put("podHost", podHostName);
-			logMessage.put("applicationName", MONITOR_AGENT);
-			logMessage.put("serviceClassName", MONITOR_AGENT_RUNNER_CLASS);
+			logMessage.put("applicationName", NOTIFICATION_AGENT);
+			logMessage.put("serviceClassName", NOTIFICATION_AGENT_RUNNER_CLASS);
 			LoggingContext.setLogMap(logMessage);
 
 		} catch (Exception e) {
