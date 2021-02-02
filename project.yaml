@@ -248,7 +248,7 @@ deployment:
         configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
   - appName: notification
-    buildImage: disable
+    buildImage: enable
     jarName: notification-agent-0.0.1.jar
     jarLocation: /notification-agent/target
     environments:
