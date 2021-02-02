@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,19 +51,11 @@ public class EventsDao {
 		else{
 			if(status.equalsIgnoreCase("active")){
 				List<Event> events = masterMongoTemplate.findAll(Event.class);
-				for(Event event :events){
-					if(!event.getStatus().equalsIgnoreCase("active")){
-						events.remove(event);
-					}
-				}
+				CollectionUtils.filter(events, o -> ((Event) o).getStatus().equalsIgnoreCase("active"));
 				return events;
 			}else if(status.equalsIgnoreCase("expired")){
 				List<Event> events = masterMongoTemplate.findAll(Event.class);
-				for(Event event :events){
-					if(!event.getStatus().equalsIgnoreCase("expired")){
-						events.remove(event);
-					}
-				}
+				CollectionUtils.filter(events, o -> ((Event) o).getStatus().equalsIgnoreCase("expired"));
 				return events;
 			}else
 				return masterMongoTemplate.findAll(Event.class);
