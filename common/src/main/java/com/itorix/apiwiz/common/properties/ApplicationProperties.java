@@ -124,7 +124,7 @@ public class ApplicationProperties {
 	@Value("${itorix.core.user.management.recoverworkspace.notification.email.subject}")
 	private String recoverWorkspaceSubject;
 
-	@Value("${itorix.core.jfrog.port}")
+	@Value("${itorix.core.jfrog.port:null}")
 	private String jfrogPort;
 
 	@Value("${itorix.core.jfrog.host}")
