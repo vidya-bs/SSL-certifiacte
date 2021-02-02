@@ -9,46 +9,46 @@ deployment:
     environments:
       - env: local
         branch: feature
-        deployFlag: true
-        approval: false
+        deployFlag: enable
+        approval: disable
         host: 3.128.86.36
         pem: itorix-dev.pem
         configBranch: main
         configRepo: 'git@github.com:itorix/itorix-core-config.git'
-        container: false
+        container: disable
         spaceName: NA
         awsCredProfile: NA
       - env: development
         branch: feature
-        deployFlag: true
-        approval: false
+        deployFlag: enable
+        approval: disable
         host: NA
         pem: NA
         configBranch: development
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
-        container: true
+        container: enable
         spaceName: dev
         awsCredProfile: devuser
       - env: stage
         branch: develop
-        deployFlag: false
-        approval: true
+        deployFlag: disable
+        approval: enable
         host: NA
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
-        container: true
+        container: enable
         spaceName: NA
         awsCredProfile: devuser
       - env: production
         branch: main
-        deployFlag: true
-        approval: true
+        deployFlag: enable
+        approval: enable
         host: NA
         pem: NA
         configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
-        container: true
+        container: enable
         spaceName: apiwiz-system
         awsCredProfile: default
   - appName: apimock
@@ -58,9 +58,9 @@ deployment:
     environments:
       - env: local
         branch: feature
-        container: false
-        deployFlag: true
-        approval: false
+        container: disable
+        deployFlag: enable
+        approval: disable
         host: 3.128.86.36
         pem: itorix-dev.pem
         configBranch: main
@@ -69,33 +69,33 @@ deployment:
         awsCredProfile: NA
       - env: development
         branch: feature
-        deployFlag: true
-        container: true
+        deployFlag: enable
+        container: enable
         spaceName: dev
         awsCredProfile: devuser
-        approval: false
+        approval: disable
         host: NA
         pem: NA
         configBranch: development
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
       - env: stage
         branch: develop
-        deployFlag: false
-        container: true
+        deployFlag: disable
+        container: enable
         spaceName: ''
         awsCredProfile: devuser
-        approval: true
+        approval: enable
         host: NA
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
       - env: production
-        deployFlag: true
+        deployFlag: enable
         branch: main
-        container: true
+        container: enable
         spaceName: apiwiz-system
         awsCredProfile: default
-        approval: true
+        approval: enable
         host: NA
         pem: NA
         configBranch: main
@@ -107,9 +107,9 @@ deployment:
     environments:
       - env: local
         branch: feature
-        deployFlag: true
-        container: false
-        approval: false
+        deployFlag: enable
+        container: disable
+        approval: disable
         host: 3.128.86.36
         pem: itorix-dev.pem
         configBranch: main
@@ -118,33 +118,33 @@ deployment:
         awsCredProfile: NA
       - env: development
         branch: feature
-        deployFlag: true
-        container: true
+        deployFlag: enable
+        container: enable
         spaceName: dev
         awsCredProfile: devuser
-        approval: false
+        approval: disable
         host: NA
         pem: NA
         configBranch: development
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
       - env: stage
         branch: develop
-        deployFlag: false
-        container: true
+        deployFlag: disable
+        container: enable
         spaceName: ''
         awsCredProfile: devuser
-        approval: true
+        approval: enable
         host: NA
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
       - env: production
         branch: main
-        deployFlag: true
-        container: true
+        deployFlag: enable
+        container: enable
         spaceName: apiwiz-system
         awsCredProfile: default
-        approval: true
+        approval: enable
         host: NA
         pem: NA
         configBranch: main
@@ -156,93 +156,44 @@ deployment:
     environments:
       - env: local
         branch: feature
-        deployFlag: true
+        deployFlag: enable
         spaceName: NA
-        container: false
-        approval: false
+        container: disable
+        approval: disable
         host: 3.128.86.36
         pem: itorix-dev.pem
         configBranch: main
         awsCredProfile: NA
         configRepo: 'git@github.com:itorix/itorix-core-config.git'
       - env: development
-        deployFlag: true
+        deployFlag: enable
         branch: feature
-        container: true
+        container: enable
         spaceName: ''
         awsCredProfile: devuser
-        approval: false
+        approval: disable
         host: NA
         pem: NA
         configBranch: development
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
       - env: stage
         branch: develop
-        deployFlag: false
-        container: true
+        deployFlag: disable
+        container: enable
         spaceName: ''
         awsCredProfile: devuser
-        approval: true
+        approval: enable
         host: NA
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
       - env: production
         branch: main
-        deployFlag: true
-        container: true
+        deployFlag: enable
+        container: enable
         spaceName: apiwiz-system
         awsCredProfile: default
-        approval: true
-        host: NA
-        pem: NA
-        configBranch: main
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
-  - appName: notification
-    buildImage: disable
-    jarName: notification-agent-0.0.1.jar
-    jarLocation: /notification-agent/target
-    environments:
-      - env: local
-        branch: feature
-        container: false
-        deployFlag: true
-        approval: false
-        host: 3.128.86.36
-        pem: itorix-dev.pem
-        configBranch: main
-        configRepo: 'git@github.com:itorix/itorix-core-config.git'
-        spaceName: NA
-        awsCredProfile: NA
-      - env: development
-        branch: feature
-        deployFlag: true
-        container: true
-        spaceName: ''
-        awsCredProfile: devuser
-        approval: false
-        host: NA
-        pem: NA
-        configBranch: development
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
-      - env: stage
-        branch: develop
-        deployFlag: false
-        container: true
-        spaceName: ''
-        awsCredProfile: devuser
-        approval: true
-        host: NA
-        pem: NA
-        configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
-      - env: production
-        deployFlag: true
-        branch: main
-        container: true
-        spaceName: apiwiz-system
-        awsCredProfile: default
-        approval: true
+        approval: enable
         host: NA
         pem: NA
         configBranch: main
@@ -254,9 +205,9 @@ deployment:
     environments:
       - env: local
         branch: feature
-        deployFlag: true
-        container: false
-        approval: false
+        deployFlag: enable
+        container: disable
+        approval: disable
         host: 3.128.86.36
         pem: itorix-dev.pem
         configBranch: main
@@ -265,33 +216,82 @@ deployment:
         awsCredProfile: NA
       - env: development
         branch: feature
-        deployFlag: true
-        container: true
+        deployFlag: enable
+        container: enable
         spaceName: dev
         awsCredProfile: devuser
-        approval: false
+        approval: disable
         host: NA
         pem: NA
         configBranch: development
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
       - env: stage
         branch: develop
-        deployFlag: false
-        container: true
+        deployFlag: disable
+        container: enable
         spaceName: ''
         awsCredProfile: devuser
-        approval: true
+        approval: enable
         host: NA
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
       - env: production
         branch: main
-        deployFlag: true
-        container: true
+        deployFlag: enable
+        container: enable
         spaceName: apiwiz-system
         awsCredProfile: default
-        approval: true
+        approval: enable
+        host: NA
+        pem: NA
+        configBranch: main
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+  - appName: notification
+    buildImage: disable
+    jarName: notification-agent-0.0.1.jar
+    jarLocation: /notification-agent/target
+    environments:
+      - env: local
+        branch: feature
+        container: disable
+        deployFlag: enable
+        approval: disable
+        host: 3.128.86.36
+        pem: itorix-dev.pem
+        configBranch: main
+        configRepo: 'git@github.com:itorix/itorix-core-config.git'
+        spaceName: NA
+        awsCredProfile: NA
+      - env: development
+        branch: feature
+        deployFlag: enable
+        container: enable
+        spaceName: ''
+        awsCredProfile: devuser
+        approval: disable
+        host: NA
+        pem: NA
+        configBranch: development
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+      - env: stage
+        branch: develop
+        deployFlag: disable
+        container: enable
+        spaceName: ''
+        awsCredProfile: devuser
+        approval: enable
+        host: NA
+        pem: NA
+        configBranch: stage
+        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+      - env: production
+        deployFlag: enable
+        branch: main
+        container: enable
+        spaceName: apiwiz-system
+        awsCredProfile: default
+        approval: enable
         host: NA
         pem: NA
         configBranch: main
