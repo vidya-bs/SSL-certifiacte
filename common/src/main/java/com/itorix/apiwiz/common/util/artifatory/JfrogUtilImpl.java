@@ -48,7 +48,8 @@ public class JfrogUtilImpl{
 	private void initValues(){
 		StringBuilder host = new StringBuilder();
 		host.append(applicationProperties.getJfrogHost());
-		if(applicationProperties.getJfrogPort() != null)
+		System.out.println();
+		if(applicationProperties.getJfrogPort() != null && !applicationProperties.getJfrogPort().equals("0"))
 			host.append(":" + applicationProperties.getJfrogPort());
 		host.append("/artifactory/");
 		
