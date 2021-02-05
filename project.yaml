@@ -169,7 +169,7 @@ deployment:
         deployFlag: enable
         branch: feature
         container: enable
-        spaceName: ''
+        spaceName: dev
         awsCredProfile: devuser
         approval: disable
         host: NA
@@ -180,7 +180,7 @@ deployment:
         branch: develop
         deployFlag: disable
         container: enable
-        spaceName: ''
+        spaceName: 'stage'
         awsCredProfile: devuser
         approval: enable
         host: NA
@@ -229,7 +229,7 @@ deployment:
         branch: develop
         deployFlag: disable
         container: enable
-        spaceName: ''
+        spaceName: 'stage'
         awsCredProfile: devuser
         approval: enable
         host: NA
@@ -248,7 +248,7 @@ deployment:
         configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
   - appName: notification
-    buildImage: disable
+    buildImage: enable
     jarName: notification-agent-0.0.1.jar
     jarLocation: /notification-agent/target
     environments:
@@ -267,7 +267,7 @@ deployment:
         branch: feature
         deployFlag: enable
         container: enable
-        spaceName: ''
+        spaceName: dev
         awsCredProfile: devuser
         approval: disable
         host: NA
@@ -278,7 +278,7 @@ deployment:
         branch: develop
         deployFlag: disable
         container: enable
-        spaceName: ''
+        spaceName: 'stage'
         awsCredProfile: devuser
         approval: enable
         host: NA

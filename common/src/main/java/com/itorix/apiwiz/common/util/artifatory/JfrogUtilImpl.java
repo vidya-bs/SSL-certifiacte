@@ -46,7 +46,14 @@ public class JfrogUtilImpl{
 
 	@PostConstruct
 	private void initValues(){
-		artifactoryHost = applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort() + "/artifactory/";
+		StringBuilder host = new StringBuilder();
+		host.append(applicationProperties.getJfrogHost());
+		System.out.println();
+		if(applicationProperties.getJfrogPort() != null && !applicationProperties.getJfrogPort().equals("0"))
+			host.append(":" + applicationProperties.getJfrogPort());
+		host.append("/artifactory/");
+		
+		artifactoryHost = host.toString();
 		artifactoryName = applicationProperties.getArtifactoryName();
 		username = applicationProperties.getJfrogUserName();
 		userpassword = applicationProperties.getJfrogPassword();
@@ -112,10 +119,15 @@ public class JfrogUtilImpl{
 
 	private  String replaceHost(String URL){
 		try{
+			
+			StringBuilder host = new StringBuilder();
+			host.append(applicationProperties.getJfrogHost());
+			if(applicationProperties.getJfrogPort() != null && !applicationProperties.getJfrogPort().equals("0"))
+				host.append(":" + applicationProperties.getJfrogPort());
 			String[] tokens = URL.split("/");
-			String newHost = applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort();
+			//String newHost = applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort();
 			StringBuilder newUrl = new StringBuilder();
-			newUrl.append( newHost + "/");
+			newUrl.append( host.toString() + "/");
 			for (int x=3; x<tokens.length; x++)
 				if(x==tokens.length-1)
 					newUrl.append(tokens[x]);
@@ -130,6 +142,10 @@ public class JfrogUtilImpl{
 
 	public JSONObject uploadFiles(InputStream file, String artifactoryResourcePath) throws Exception {
 		JSONObject obj = new JSONObject();
+		System.out.println("artifactoryHost : "+ artifactoryHost);
+		System.out.println("artifactoryResourcePath : "+ artifactoryResourcePath);
+		System.out.println("artifactoryName : "+ artifactoryName);
+		
 		obj = uploadFiles(file, artifactoryName, artifactoryHost,artifactoryResourcePath, username, userpassword);
 		return obj;
 	}
@@ -149,6 +165,7 @@ public class JfrogUtilImpl{
 				obj.put("md5", result.getChecksums().getMd5());
 				return obj;
 			} catch (Exception e) {
+				e.printStackTrace();
 				obj.put("logtrail", "Unable to Upload file.");
 				throw (e);
 			}

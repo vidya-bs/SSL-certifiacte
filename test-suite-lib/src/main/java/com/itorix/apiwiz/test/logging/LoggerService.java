@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.sleuth.Span;
-import org.springframework.cloud.sleuth.SpanAccessor;
 import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -38,15 +37,12 @@ public class LoggerService {
 
 	@Value("${itorix.core.aws.admin.url:null}")
 	private String awsURL;
-	
-	@Value("${torix.core.aws.pod.url:null}")
+
+	@Value("${itorix.core.aws.pod.url:null}")
 	private String awsPodURL;
 
 	@Autowired
 	Tracer tracer;
-
-	@Autowired
-	private SpanAccessor spanAccessor;
 
 	private String region= null;
 	private String availabilityZone= null;
@@ -85,7 +81,7 @@ public class LoggerService {
 		}
 		getPodHost();
 	}
-	
+
 	private  void getPodHost() {
 		if(awsPodURL != null){
 			HttpHeaders headers = new HttpHeaders();
@@ -97,7 +93,7 @@ public class LoggerService {
 				podHostName = response.getBody();
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
-			} 
+			}
 		}
 	}
 

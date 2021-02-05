@@ -37,16 +37,16 @@ public class LoggerService {
 	@Value("${itorix.core.aws.admin.url}")
 	private String awsURL;
 
-	@Value("${torix.core.aws.pod.url:null}")
+	@Value("${itorix.core.aws.pod.url:null}")
 	private String awsPodURL;
-	
+
 	@Autowired
 	private Tracer tracer;
 
 	private String region;
 	private String availabilityZone;
 	private String privateIp;
-	private String podHostName= null;
+	private String podHostName = null;
 
 	private static final String MONITOR_AGENT_RUNNER_CLASS = "MonitorAgentRunner.class";
 
@@ -79,26 +79,28 @@ public class LoggerService {
 			logger.error(e.getMessage(), e);
 		}
 	}
-	
-	private  void getPodHost() {
-		if(awsPodURL != null){
+
+	private void getPodHost() {
+		if (awsPodURL != null) {
 			HttpHeaders headers = new HttpHeaders();
 			headers.set("Accept", "application/json");
 			RestTemplate restTemplate = new RestTemplate();
-			HttpEntity<Object> requestEntity = new HttpEntity<>( headers);
+			HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
 			try {
-				ResponseEntity<String> response = restTemplate.exchange(awsPodURL, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<String>() {});
+				ResponseEntity<String> response = restTemplate.exchange(awsPodURL, HttpMethod.GET, requestEntity,
+						new ParameterizedTypeReference<String>() {
+						});
 				podHostName = response.getBody();
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
-			} 
+			}
 		}
 	}
 
-
 	public void logMethod(Map<String, String> logMessage) {
 		try {
-			String message = logMessage.entrySet().stream().map(v -> v.getKey() + "=" + v.getValue()).collect(Collectors.joining("||"));
+			String message = logMessage.entrySet().stream().map(v -> v.getKey() + "=" + v.getValue())
+					.collect(Collectors.joining("||"));
 			log.info(message);
 		} catch (Exception e) {
 			log.error("Error occured while Service request/response");
@@ -114,7 +116,8 @@ public class LoggerService {
 			Map<String, String> logMessage = new HashMap<String, String>();
 			logMessage.put("timestamp", String.valueOf(System.currentTimeMillis()));
 			logMessage.put("date", df.format(date));
-			//logMessage.put("guid", String.valueOf(Span.idToHex(span.getTraceId())));
+			// logMessage.put("guid",
+			// String.valueOf(Span.idToHex(span.getTraceId())));
 			logMessage.put("guid", String.valueOf(Long.toHexString(span.traceId())));
 			logMessage.put("regionCode", region);
 			logMessage.put("availabilityZone", availabilityZone);
