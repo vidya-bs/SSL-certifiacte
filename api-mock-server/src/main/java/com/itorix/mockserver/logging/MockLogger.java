@@ -36,17 +36,17 @@ public class MockLogger {
 	@Autowired
 	private SpanAccessor spanAccessor;
 
-	@Value("${itorix.core.aws.admin.ur:null}")
+	@Value("${itorix.core.aws.admin.url:null}")
 	private String awsURL;
 
-	@Value("${torix.core.aws.pod.url:null}")
+	@Value("${itorix.core.aws.pod.url:null}")
 	private String awsPodURL;
-	
+
 	private String region= null;
 	private String availabilityZone= null;
 	private String privateIp= null;
 	private String podHostName= null;
-	
+
 	@PostConstruct
 	public void initLoggingDetails() {
 		HttpHeaders headers = new HttpHeaders();
@@ -66,7 +66,7 @@ public class MockLogger {
 			log.error(e.getMessage(), e);
 		}
 	}
-	
+
 	private  void getPodHost() {
 		if(awsPodURL != null){
 			HttpHeaders headers = new HttpHeaders();
@@ -78,11 +78,11 @@ public class MockLogger {
 				podHostName = response.getBody();
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
-			} 
+			}
 		}
 	}
-	
-	
+
+
 	@SuppressWarnings("rawtypes")
 	public void info(Map logMap) {
 		StringBuffer logString = new StringBuffer();
@@ -102,8 +102,8 @@ public class MockLogger {
 		logMap.remove("logMessage");
 		log.info(logString.toString());
 	}
-	
-	
+
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getLogData(MockLog mockLog) {
 		Map logMap = new HashMap();
