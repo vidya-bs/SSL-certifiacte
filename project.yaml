@@ -22,24 +22,24 @@ deployment:
         branch: feature
         deployFlag: enable
         approval: disable
-        host: NA
+        host: 44.225.245.153
         pem: NA
         configBranch: development
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
         container: enable
         spaceName: dev
-        awsCredProfile: devuser
+        awsCredProfile: produser
       - env: stage
         branch: develop
         deployFlag: disable
         approval: enable
-        host: NA
+        host: 44.225.245.153
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
         container: enable
         spaceName: NA
-        awsCredProfile: devuser
+        awsCredProfile: produser
       - env: production
         branch: main
         deployFlag: enable
@@ -72,9 +72,9 @@ deployment:
         deployFlag: enable
         container: enable
         spaceName: dev
-        awsCredProfile: devuser
+        awsCredProfile: produser
         approval: disable
-        host: NA
+        host: 44.225.245.153
         pem: NA
         configBranch: development
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
@@ -82,10 +82,10 @@ deployment:
         branch: develop
         deployFlag: disable
         container: enable
-        spaceName: ''
-        awsCredProfile: devuser
+        spaceName: stage
+        awsCredProfile: produser
         approval: enable
-        host: NA
+        host: 44.225.245.153
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
@@ -121,9 +121,9 @@ deployment:
         deployFlag: enable
         container: enable
         spaceName: dev
-        awsCredProfile: devuser
+        awsCredProfile: produser
         approval: disable
-        host: NA
+        host: 44.225.245.153
         pem: NA
         configBranch: development
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
@@ -131,10 +131,10 @@ deployment:
         branch: develop
         deployFlag: disable
         container: enable
-        spaceName: ''
-        awsCredProfile: devuser
+        spaceName: stage
+        awsCredProfile: produser
         approval: enable
-        host: NA
+        host: 44.225.245.153
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
@@ -170,9 +170,9 @@ deployment:
         branch: feature
         container: enable
         spaceName: dev
-        awsCredProfile: devuser
+        awsCredProfile: produser
         approval: disable
-        host: NA
+        host: 44.225.245.153
         pem: NA
         configBranch: development
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
@@ -180,10 +180,10 @@ deployment:
         branch: develop
         deployFlag: disable
         container: enable
-        spaceName: 'stage'
-        awsCredProfile: devuser
+        spaceName: stage
+        awsCredProfile: produser
         approval: enable
-        host: NA
+        host: 44.225.245.153
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
@@ -219,9 +219,9 @@ deployment:
         deployFlag: enable
         container: enable
         spaceName: dev
-        awsCredProfile: devuser
+        awsCredProfile: produser
         approval: disable
-        host: NA
+        host: 44.225.245.153
         pem: NA
         configBranch: development
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
@@ -229,10 +229,10 @@ deployment:
         branch: develop
         deployFlag: disable
         container: enable
-        spaceName: 'stage'
-        awsCredProfile: devuser
+        spaceName: stage
+        awsCredProfile: produser
         approval: enable
-        host: NA
+        host: 44.225.245.153
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
@@ -268,9 +268,9 @@ deployment:
         deployFlag: enable
         container: enable
         spaceName: dev
-        awsCredProfile: devuser
+        awsCredProfile: produser
         approval: disable
-        host: NA
+        host: 44.225.245.153
         pem: NA
         configBranch: development
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
@@ -278,10 +278,10 @@ deployment:
         branch: develop
         deployFlag: disable
         container: enable
-        spaceName: 'stage'
-        awsCredProfile: devuser
+        spaceName: stage
+        awsCredProfile: produser
         approval: enable
-        host: NA
+        host: 44.225.245.153
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
