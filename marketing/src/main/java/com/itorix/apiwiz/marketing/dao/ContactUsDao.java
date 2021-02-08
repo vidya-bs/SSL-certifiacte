@@ -54,7 +54,7 @@ public class ContactUsDao {
 		try{
 			RequestModel requestModel = new RequestModel();
 			EmailTemplate emailTemplate = new EmailTemplate();
-			emailTemplate.setBody(contactUsNotification.getEmailContent().getBody().toString());
+			emailTemplate.setBody(contactUsNotification.getEmailContent().getBody().toHTML());
 			emailTemplate.setToMailId(contactUsNotification.getEmailContent().getToMailId());
 			emailTemplate.setSubject(contactUsNotification.getEmailContent().getSubject());
 			requestModel.setEmailContent(emailTemplate);

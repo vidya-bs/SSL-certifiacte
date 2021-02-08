@@ -55,4 +55,14 @@ public class EmailBody {
 				+ ",\n message=" + message + "]";
 	}
     
+	public String toHTML() {
+		String html = "<table style='border-collapse: collapse; width: 60%;' border='1'><tbody>"
+				+ "<tr><td style='width: 30%;'><p class='p1'>name</p></td><td style='width: 70%;'>"+name+"</td></tr>"
+				+ "<tr><td style='width: 30%;'><p class='p1'>email</p></td><td style='width: 70%;'>"+email+"</td></tr>"
+				+ "<tr><td style='width: 30%;'><p class='p1'>company</p></td><td style='width: 70%;'>"+company+"</td></tr>"
+				+ "<tr><td style='width: 30%;'><p class='p1'>jobTitle</p></td><td style='width: 70%;'>"+jobTitle+"</td></tr>"
+				+ "<tr><td style='width: 30%;'><p class='p1'>message</p></td><td style='width: 70%;'>"+message+"</td></tr>"
+				+ "</tbody></table>";
+		return html;
+	}
 }

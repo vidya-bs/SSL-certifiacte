@@ -170,7 +170,7 @@ public class MongoConnection {
 	public boolean insertFile(InputStream inStream, String fileName) throws IOException{
 		try {
 			DB db = getDB();
-			GridFS gfs = new GridFS(db, "Files1");
+			GridFS gfs = new GridFS(db, "Files");
 			GridFSDBFile dbFile = gfs.findOne(fileName);
 			if(dbFile!=null){
 				gfs.remove(fileName);

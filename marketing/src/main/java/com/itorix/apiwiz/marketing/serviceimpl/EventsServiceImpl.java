@@ -1,7 +1,9 @@
 package com.itorix.apiwiz.marketing.serviceimpl;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -60,8 +62,13 @@ public class EventsServiceImpl implements EventsService {
 
 	@Override
 	@UnSecure(ignoreValidation=true)
-	public ResponseEntity<?> getAllEvents(String interactionid, String jsessionid, String apikey, String status) throws Exception {
-		return new ResponseEntity<>(eventsDao.getAllEvents(status), HttpStatus.OK);
+	public ResponseEntity<?> getAllEvents(String interactionid, String jsessionid, String apikey, 
+			String status, String category) throws Exception {
+		List<String> categoryList = null;
+		if(category != null){
+			categoryList = Arrays.asList(category.split(","));
+		}
+		return new ResponseEntity<>(eventsDao.getAllEvents(status, categoryList), HttpStatus.OK);
 	}
 
 	@Override

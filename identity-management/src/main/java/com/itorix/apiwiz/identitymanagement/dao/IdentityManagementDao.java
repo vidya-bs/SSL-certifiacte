@@ -738,14 +738,6 @@ public class IdentityManagementDao {
 					e.printStackTrace();
 				}
 			}
-			//			try {
-			//				jfrogUtilImpl.createNewRepository(workspace.getName(),
-			//						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort() + "/artifactory/",
-			//						applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
-			//			} catch (Exception e) {
-			//				logger.error(e.getMessage(), e);
-			//				e.printStackTrace();
-			//			}
 			masterMongoTemplate.save(workspace);
 			return workspace;
 		}else{

@@ -19,7 +19,6 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.marketing.careers.model.JobApplication;
 import com.itorix.apiwiz.marketing.careers.model.JobPosting;
-import com.itorix.apiwiz.marketing.events.model.Event;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
