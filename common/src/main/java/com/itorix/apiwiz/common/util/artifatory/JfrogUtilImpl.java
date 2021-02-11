@@ -80,7 +80,7 @@ public class JfrogUtilImpl{
 		JSONArray arr = new JSONArray();
 		JSONObject files_list = new JSONObject();
 		for (int i = 0; i < fileArr.length; i++) {
-			JSONObject obj = uploadFiles(fileArr[i], repoName, artifactoryBasePath,artifactoryResourcePath, username, password);
+			JSONObject obj = uploadFiles(fileArr[i], repoName, artifactoryHost,artifactoryResourcePath, username, password);
 			arr.put(obj);
 		}
 		files_list.put("files", arr);
@@ -93,7 +93,7 @@ public class JfrogUtilImpl{
 		try {
 
 			File files;
-			Artifactory artifactory = ArtifactoryClient.create(artifactoryBasePath, userName, password);
+			Artifactory artifactory = ArtifactoryClient.create(artifactoryHost, userName, password);
 			files= new File(file);
 			String newFilePath = artifactoryResourcePath + "/" + files.getName();
 			org.jfrog.artifactory.client.model.File result = artifactory.repository(repoName)
