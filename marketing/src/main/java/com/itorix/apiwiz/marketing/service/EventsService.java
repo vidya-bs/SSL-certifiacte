@@ -57,7 +57,8 @@ public interface EventsService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID", required=false) String jsessionid,
 			@RequestHeader(value="x-apikey")String apikey,
-			@RequestParam(value = "status", required = false) String status) throws Exception ;
+			@RequestParam(value = "status", required = false) String status,
+			@RequestParam(value = "category", required = false) String category) throws Exception ;
 	
 	@UnSecure(ignoreValidation=true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/marketing/events/{eventId}")

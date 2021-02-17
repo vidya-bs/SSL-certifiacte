@@ -35,7 +35,6 @@
 		<module>app</module>
 		<module>sso</module>
 		<module>api-portfolio</module>
-		<module>api-virtualization-server</module>
 		<module>api-monitor</module>
 		<module>api-monitor-agent</module>
 		<module>marketing</module>

@@ -11,6 +11,7 @@ public class SubscriptionItem {
 	private String id;
 	private String label;
 	private boolean enabled;
+	private String info;
 	private List<SubscriptionItem> items;
 	private Limit limit;
 	
@@ -50,5 +51,10 @@ public class SubscriptionItem {
 	public void setComingSoon(boolean comingSoon) {
 		this.comingSoon = comingSoon;
 	}
-
+	public String getInfo() {
+		return info;
+	}
+	public void setInfo(String info) {
+		this.info = info;
+	}
 }
