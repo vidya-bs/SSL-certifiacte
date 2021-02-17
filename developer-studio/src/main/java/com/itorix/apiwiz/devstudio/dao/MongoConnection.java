@@ -130,6 +130,25 @@ public class MongoConnection {
 		}
 		return reader;
 	}
+	
+	private String updateDocument(){
+		String reader ="{\"name\":\"API\",\"folder\":true}";
+		try {
+			DB db = getDB();
+			DBCollection collection = db.getCollection("Connectors.Apigee.Build.Templates.Folder");
+			BasicDBObject updateDocument = new BasicDBObject();
+			updateDocument.put("content", reader);
+			collection.insert(updateDocument);
+		} catch (MongoException e) {
+			e.printStackTrace();
+			logger.error("MongoConnection::updateDocument "+e.getMessage());
+		}
+		finally{
+			if(mongo!=null)
+				mongo.close();
+		}
+		return reader;
+	}
 
 
 	public String getFolder(){
@@ -141,6 +160,7 @@ public class MongoConnection {
 			DBObject content = cursor.next();
 			reader = (String) content.get("content");
 		} catch (Exception e) {
+			reader = updateDocument();
 			e.printStackTrace();
 			logger.error("MongoConnection::getFolder " + e.getMessage());
 		}
@@ -170,7 +190,7 @@ public class MongoConnection {
 	public boolean insertFile(InputStream inStream, String fileName) throws IOException{
 		try {
 			DB db = getDB();
-			GridFS gfs = new GridFS(db, "Files1");
+			GridFS gfs = new GridFS(db, "Files");
 			GridFSDBFile dbFile = gfs.findOne(fileName);
 			if(dbFile!=null){
 				gfs.remove(fileName);

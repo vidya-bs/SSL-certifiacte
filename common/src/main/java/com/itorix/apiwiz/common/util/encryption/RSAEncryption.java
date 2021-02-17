@@ -112,8 +112,8 @@ public class RSAEncryption {
 
 	public static void main(String[] args) throws Exception {
 		RSAEncryption ac = new RSAEncryption();
-		System.out.println(ac.decryptText("M/fhYm3aLjTaPs70Hqs01O7VGwBjJDm8vWPj7UbWJbrwo98u71AapDeKx+4++eOaknbtGMRMp1s3tfYpIl/3XA=="));
-		String msg = "ebi5Yoo)d";
+		System.out.println(ac.decryptText("XeX0u28Ya1a3CBm5tihMQFteeA6fZTy8avUIsJ0WnNOaEAM90Hcv9G2xo5z5hI4WMyHffxTAbP2LcXK4u6n5Pw=="));
+		String msg = "Passw0rd";
 		String encrypted_msg = ac.encryptText(msg);
 		String decrypted_msg = ac.decryptText(encrypted_msg);
 		System.out.println("Original Message: " + msg + "\nEncrypted Message: " + encrypted_msg + "\nDecrypted Message: " + decrypted_msg);

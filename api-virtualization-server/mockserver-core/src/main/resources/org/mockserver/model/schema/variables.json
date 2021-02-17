@@ -1,8 +1,0 @@
-{
-    "title": "variables",
-    "type": "array",
-    "additionalProperties": false,
-    "items": {
-        "$ref": "#/definitions/variable"
-    }
-}

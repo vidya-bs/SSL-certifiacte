@@ -8,6 +8,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -45,12 +47,20 @@ public class EventsDao {
 		return masterMongoTemplate.findAll(Event.class);
 	}
 	
-	public List<Event> getAllEvents(String status){
-		if(status == null)
-			return masterMongoTemplate.findAll(Event.class);
+	public List<Event> getAllEvents(String status, List<String> categoryList){
+		if(status == null){
+			Query query = new Query();
+			if(categoryList != null)
+				query.addCriteria(Criteria.where("category").in(categoryList));
+			return masterMongoTemplate.find(query,Event.class);
+		}
 		else{
 			if(status.equalsIgnoreCase("active")){
-				List<Event> events = masterMongoTemplate.findAll(Event.class);
+				Query query = new Query();
+				if(categoryList != null)
+					query.addCriteria(Criteria.where("category").in(categoryList));
+				query.with(Sort.by(Direction.DESC, "eventDate"));
+				List<Event> events = masterMongoTemplate.find(query,Event.class);
 				CollectionUtils.filter(events, o -> ((Event) o).getStatus().equalsIgnoreCase("active"));
 				return events;
 			}else if(status.equalsIgnoreCase("expired")){
