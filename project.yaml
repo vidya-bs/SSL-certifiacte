@@ -13,8 +13,8 @@ deployment:
         approval: disable
         host: 3.128.86.36
         pem: itorix-dev.pem
-        configBranch: main
-        configRepo: 'git@github.com:itorix/itorix-core-config.git'
+        configBranch: local
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         container: disable
         spaceName: NA
         awsCredProfile: NA
@@ -25,7 +25,7 @@ deployment:
         host: 44.225.245.153
         pem: NA
         configBranch: development
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         container: enable
         spaceName: dev
         awsCredProfile: produser
@@ -36,7 +36,7 @@ deployment:
         host: 44.225.245.153
         pem: NA
         configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
         container: enable
         spaceName: NA
         awsCredProfile: produser
@@ -47,7 +47,7 @@ deployment:
         host: NA
         pem: NA
         configBranch: main
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
         container: enable
         spaceName: apiwiz-system
         awsCredProfile: default
@@ -63,8 +63,8 @@ deployment:
         approval: disable
         host: 3.128.86.36
         pem: itorix-dev.pem
-        configBranch: main
-        configRepo: 'git@github.com:itorix/itorix-core-config.git'
+        configBranch: local
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         spaceName: NA
         awsCredProfile: NA
       - env: development
@@ -77,7 +77,7 @@ deployment:
         host: 44.225.245.153
         pem: NA
         configBranch: development
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
       - env: stage
         branch: develop
         deployFlag: disable
@@ -88,7 +88,7 @@ deployment:
         host: 44.225.245.153
         pem: NA
         configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
       - env: production
         deployFlag: enable
         branch: main
@@ -99,7 +99,7 @@ deployment:
         host: NA
         pem: NA
         configBranch: main
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
   - appName: testsuite
     buildImage: enable
     jarLocation: /test-suite-lib/target
@@ -112,8 +112,8 @@ deployment:
         approval: disable
         host: 3.128.86.36
         pem: itorix-dev.pem
-        configBranch: main
-        configRepo: 'git@github.com:itorix/itorix-core-config.git'
+        configBranch: local
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         spaceName: NA
         awsCredProfile: NA
       - env: development
@@ -126,7 +126,7 @@ deployment:
         host: 44.225.245.153
         pem: NA
         configBranch: development
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
       - env: stage
         branch: develop
         deployFlag: disable
@@ -137,7 +137,7 @@ deployment:
         host: 44.225.245.153
         pem: NA
         configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
       - env: production
         branch: main
         deployFlag: enable
@@ -148,7 +148,7 @@ deployment:
         host: NA
         pem: NA
         configBranch: main
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
   - appName: sso
     buildImage: enable
     jarName: sso-0.0.1-SNAPSHOT.jar
@@ -162,9 +162,9 @@ deployment:
         approval: disable
         host: 3.128.86.36
         pem: itorix-dev.pem
-        configBranch: main
+        configBranch: local
         awsCredProfile: NA
-        configRepo: 'git@github.com:itorix/itorix-core-config.git'
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
       - env: development
         deployFlag: enable
         branch: feature
@@ -175,7 +175,7 @@ deployment:
         host: 44.225.245.153
         pem: NA
         configBranch: development
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
       - env: stage
         branch: develop
         deployFlag: disable
@@ -186,7 +186,7 @@ deployment:
         host: 44.225.245.153
         pem: NA
         configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
       - env: production
         branch: main
         deployFlag: enable
@@ -197,7 +197,7 @@ deployment:
         host: NA
         pem: NA
         configBranch: main
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
   - appName: apimonitor
     buildImage: enable
     jarName: api-monitor-agent-0.0.1.jar
@@ -210,8 +210,8 @@ deployment:
         approval: disable
         host: 3.128.86.36
         pem: itorix-dev.pem
-        configBranch: main
-        configRepo: 'git@github.com:itorix/itorix-core-config.git'
+        configBranch: local
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         spaceName: NA
         awsCredProfile: NA
       - env: development
@@ -224,7 +224,7 @@ deployment:
         host: 44.225.245.153
         pem: NA
         configBranch: development
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
       - env: stage
         branch: develop
         deployFlag: disable
@@ -235,7 +235,7 @@ deployment:
         host: 44.225.245.153
         pem: NA
         configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
       - env: production
         branch: main
         deployFlag: enable
@@ -246,7 +246,7 @@ deployment:
         host: NA
         pem: NA
         configBranch: main
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
   - appName: notification
     buildImage: enable
     jarName: notification-agent-0.0.1.jar
@@ -259,8 +259,8 @@ deployment:
         approval: disable
         host: 3.128.86.36
         pem: itorix-dev.pem
-        configBranch: main
-        configRepo: 'git@github.com:itorix/itorix-core-config.git'
+        configBranch: local
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         spaceName: NA
         awsCredProfile: NA
       - env: development
@@ -273,7 +273,7 @@ deployment:
         host: 44.225.245.153
         pem: NA
         configBranch: development
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
       - env: stage
         branch: develop
         deployFlag: disable
@@ -284,7 +284,7 @@ deployment:
         host: 44.225.245.153
         pem: NA
         configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
       - env: production
         deployFlag: enable
         branch: main
@@ -295,4 +295,4 @@ deployment:
         host: NA
         pem: NA
         configBranch: main
-        configRepo: 'git@github.com:itorix/apiwiz-config-repo.git'
+        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
