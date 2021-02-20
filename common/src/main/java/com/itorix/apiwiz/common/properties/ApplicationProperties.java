@@ -157,11 +157,11 @@ public class ApplicationProperties {
 	private String serviceRequestReviewBody;
 
 	//@Value("${app.mailutil.serviceRequestApprove.body}")
-	@Value("${itorix.core.apigee.service.request.notification.approve.email.body}")
+	@Value("${itorix.core.apigee.service.request.notification.approve.email.body:@null}")
 	private String serviceRequestApproveBody;
 
 	//@Value("${app.mailutil.serviceRequestReject.body}")
-	@Value("${itorix.core.apigee.service.request.notification.reject.email.body}")
+	@Value("${itorix.core.apigee.service.request.notification.reject.email.body:@null}")
 	private String serviceRequestRejecteBody;
 
 	@Value("${itorix.core.swagger.notification.status.subject}")
