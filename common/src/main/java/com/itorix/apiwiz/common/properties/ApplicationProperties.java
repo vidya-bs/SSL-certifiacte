@@ -219,10 +219,10 @@ public class ApplicationProperties {
 	//@Value("${itorix.service.password}")
 	private String servicePassword;
 
-	@Value("${itorix.core.apigee.edge.default.serviceaccount.username}")
+	@Value("${itorix.core.apigee.edge.default.serviceaccount.username:@null}")
 	private String apigeeServiceUsername;
 
-	@Value("${itorix.core.apigee.edge.default.serviceaccount.password}")
+	@Value("${itorix.core.apigee.edge.default.serviceaccount.password:@null}")
 	private String apigeeServicePassword;
 
 	//@Value("${itorix.testsuite.triggerscript.location}")
@@ -694,12 +694,12 @@ public class ApplicationProperties {
 	}
 
 	public String getApigeeServicePassword() {
-		String decryptedPassword = "";
+		String decryptedPassword = null;
 		try {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.apigeeServicePassword);
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return decryptedPassword;
 	}

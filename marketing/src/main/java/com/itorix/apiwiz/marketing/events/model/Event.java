@@ -1,16 +1,18 @@
 package com.itorix.apiwiz.marketing.events.model;
 
+import java.util.Comparator;
 import java.util.Date;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @Document(collection = "Marketing.Events.List")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Event {
+public class Event implements Comparable<Event>{
 	@Id
 	private String id;
 	private String name;
@@ -44,6 +46,10 @@ public class Event {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	@JsonIgnore
+	public Date getEventDateOn() {
+		return eventDate;
 	}
 	public String getEventDate() {
 		if(eventDate != null)
@@ -96,5 +102,12 @@ public class Event {
 	}
 	public void setBannerImage(String bannerImage) {
 		this.bannerImage = bannerImage;
+	}
+	@Override
+	public int compareTo(Event o) {
+		if (getEventDateOn() == null || o.getEventDateOn() == null) {
+			return 0;
+		}
+		return getEventDateOn().compareTo(o.getEventDateOn());
 	}
 }
