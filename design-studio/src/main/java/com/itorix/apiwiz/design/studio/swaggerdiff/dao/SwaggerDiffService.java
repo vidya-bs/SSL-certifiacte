@@ -189,8 +189,11 @@ public class SwaggerDiffService {
 			baseRepository.save(swaggerChangeLog);
 		}
 		else
+		{
+			System.out.println("no swagger");
 			throw new ItorixException(
 					String.format(ErrorCodes.errorMessage.get("Swagger-1001")),"Swagger-1001");
+		}
 	}
 
 

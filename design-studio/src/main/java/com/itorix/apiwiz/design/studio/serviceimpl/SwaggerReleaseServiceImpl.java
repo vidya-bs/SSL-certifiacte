@@ -60,15 +60,15 @@ public class SwaggerReleaseServiceImpl implements SwaggerReleaseService{
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
 			@RequestParam(value = "text", required = false) String text,
-			@PathVariable(value = "swaggerid", required = false) String swaggerid,
 			@RequestParam(value = "oldRevision", required = false) String oldRevision,
 			@RequestParam(value = "newRevision", required = false) String newRevision,
-			@RequestParam(value = "summary", required = false) String summary) throws Exception{
+			@RequestParam(value = "summary", required = false) String summary,
+			@PathVariable(value = "swaggerid") String swaggerid) throws Exception{
 		List<String> missingFields = new ArrayList<>();
 		if(text == null || text.trim() == "")
 			missingFields.add("text");
 		if(swaggerid == null || swaggerid.trim() == "")
-			missingFields.add("swaggerId");
+			missingFields.add("swaggerid");
 		if(oldRevision == null || oldRevision.trim() == "")
 			missingFields.add("oldRevision");
 		if(newRevision == null || newRevision.trim() == "")
@@ -127,10 +127,10 @@ public class SwaggerReleaseServiceImpl implements SwaggerReleaseService{
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
-			@PathVariable(value = "swaggerid" , required = false) String swaggerid,
-			@PathVariable(value = "id" , required = false) String id,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-			@RequestParam(value = "timeRange", required = false) String timeRange) throws Exception{
+			@RequestParam(value = "timeRange", required = false) String timeRange,
+			@PathVariable(value = "swaggerid" , required = false) String swaggerid,
+			@PathVariable(value = "id" , required = false) String id) throws Exception{
 		if(id != null)
 			return new ResponseEntity<Object>(swaggerDiffService.getSwaggerChangeLog(id), HttpStatus.OK);
 		return new ResponseEntity<Object>(swaggerDiffService.getSwaggerIdReleaseNotes(timeRange, oas, swaggerid, offset), HttpStatus.OK);
