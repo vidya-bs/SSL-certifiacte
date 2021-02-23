@@ -318,6 +318,7 @@ public class IdentityManagementDao {
 					workspace.setActive(true);
 				}
 			user = saveUser(user);
+			sendActivationEmail(user);
 		}
 		return "";
 	}
