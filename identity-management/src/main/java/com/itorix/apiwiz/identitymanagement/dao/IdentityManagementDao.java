@@ -758,7 +758,7 @@ public class IdentityManagementDao {
 			index ++;
 		}
 		try {
-			String bodyText = MessageFormat.format(applicationProperties.getRecoverWorkspaceBody(), user.getFirstName() +" "+user.getLastName(), workspacesStr);
+			String bodyText = MessageFormat.format(applicationProperties.getRecoverWorkspaceBody(), user.getFirstName() +" "+user.getLastName(), workspacesStr, applicationProperties.getAppURL());
 			ArrayList<String> toRecipients =new ArrayList<String>();
 			toRecipients.add(user.getEmail());
 			String subject = applicationProperties.getRecoverWorkspaceSubject();
@@ -890,7 +890,7 @@ public class IdentityManagementDao {
 			//					+ "/v1/users/tokens/"+ token.getId();
 
 			String link = applicationProperties.getAppURL() + "/user-invited/" + token.getId() ;
-			String bodyText = MessageFormat.format(applicationProperties.getInviteWorkspaceUserBody(), user.getFirstName() +" "+user.getLastName(), userName, token.getWorkspaceId(), link);
+			String bodyText = MessageFormat.format(applicationProperties.getInviteWorkspaceUserBody(), user.getFirstName() +" "+user.getLastName(), userName, token.getWorkspaceId(), link, link);
 			ArrayList<String> toRecipients =new ArrayList<String>();
 			toRecipients.add(user.getEmail());
 			String subject = applicationProperties.getInviteWorkspaceUserSubject();
