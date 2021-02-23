@@ -582,7 +582,7 @@ public class IdentityManagementDao {
 			template.setSubject(applicationProperties.getUserActivationMailSubject());
 			toMailId.add(user.getEmail());
 			template.setToMailId(toMailId);
-			String messageBody=	MessageFormat.format(applicationProperties.getUserActivationMailBody(),user.getFirstName() +" "+user.getLastName());
+			String messageBody=	MessageFormat.format(applicationProperties.getUserActivationMailBody(),user.getFirstName() +" "+user.getLastName(), applicationProperties.getAppURL());
 			template.setBody(messageBody);
 			mailUtil.sendEmail(template);
 		} catch(Exception e){
