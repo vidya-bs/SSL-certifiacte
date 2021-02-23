@@ -1638,7 +1638,7 @@ public class ApigeeUtil {
 			type = "saas";
 		ApigeeServiceUser serviceUser = null;
 		try {
-			Query query = new Query( Criteria.where("orgName").is(org).and("type").is(type) );
+			Query query = new Query( Criteria.where("orgname").is(org).and("type").is(type) );
 			ApigeeConfigurationVO apigeeConfigurationVO = mongoTemplate.findOne(query, ApigeeConfigurationVO.class);
 			if (apigeeConfigurationVO == null) {
 				serviceUser = new ApigeeServiceUser();
