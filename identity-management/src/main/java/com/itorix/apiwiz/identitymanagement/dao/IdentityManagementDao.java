@@ -566,11 +566,27 @@ public class IdentityManagementDao {
 				workspaces.add(userWorkspace);
 				user.setWorkspaces(workspaces);
 				user = saveUser(user);
+				sendActivationEmail(user);
 			}else{
 				throw new ItorixException("user email is not verified","USER_005");
 			}
 		}
 		return "";
+	}
+	
+	private void sendActivationEmail(User user){
+		try{
+			List<String> toMailId =new ArrayList<>();
+			EmailTemplate template =new EmailTemplate();
+			template.setSubject(applicationProperties.getUserActivationMailSubject());
+			toMailId.add(user.getEmail());
+			template.setToMailId(toMailId);
+			String messageBody=	MessageFormat.format(applicationProperties.getUserActivationMailBody(),user.getFirstName() +" "+user.getLastName());
+			template.setBody(messageBody);
+			mailUtil.sendEmail(template);
+		} catch(Exception e){
+			
+		}
 	}
 
 	public VerificationToken password(User user) throws ItorixException {
@@ -590,7 +606,7 @@ public class IdentityManagementDao {
 			User userByEmail = findByEmail(user.getEmail());
 			if (userByEmail != null) {
 				userByEmail.setPassword(user.getPassword());
-				userByEmail.setUserStatus("");
+				userByEmail.setUserStatus("active"); 
 				userByEmail = saveUser(userByEmail);
 				token.setUsed(true);
 				saveVerificationToken(token);
