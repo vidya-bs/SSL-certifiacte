@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -105,6 +106,19 @@ public class IdentityManagementDao {
 	JfrogUtilImpl jfrogUtilImpl;
 	@Autowired
 	private WorkspaceDao workspaceDao;
+	
+	@Value("${itorix.core.user.management.redirection.user.add:https://{0}/user/{1}")
+	private String addUserURL;
+	
+	@Value("${itorix.core.user.management.redirection.user.invite:https://{0}/user-invited/{1}")
+	private String inviteUserURL;
+	
+	@Value("${itorix.core.user.management.redirection.password.reset:https://{0}/reset-password/{1}")
+	private String resetPasswordURL;
+	
+	@Value("${itorix.core.user.management.redirection.user.register:https://{0}/register/{1}/verify}")
+	private String registerUserURL;
+	
 
 	@PostConstruct
 	private void initDBProperties(){
