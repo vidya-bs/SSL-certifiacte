@@ -100,7 +100,7 @@ public class ApplicationProperties {
 //	@Value("${app.resendVerification.redirection.url}")
 	private String resendVerificationRedirectionLink;
 
-	@Value("${itorix.core.user.management.redirection.activation}")
+	@Value("${itorix.core.user.management.redirection.activation:null}")
 	private String userActivationRedirectionLink;
 
 	//@Value("${app.blockUser.redirection.url}")
@@ -201,7 +201,7 @@ public class ApplicationProperties {
 	@Value("${server.contextPath}")
 	private String appDomain;
 
-	@Value("${itorix.core.user.management.redirection.activation}")
+	@Value("${itorix.core.user.management.redirection.activation:null}")
 	private String userVerifiedRedirectionLink;
 
 	@Value("${itorix.core.user.management.activation.notification.email.subject}")
