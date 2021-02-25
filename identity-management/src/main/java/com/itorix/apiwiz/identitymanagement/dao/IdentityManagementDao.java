@@ -649,10 +649,14 @@ public class IdentityManagementDao {
 				List<UserWorkspace> workspaces = user.getWorkspaces();
 				for(UserWorkspace workspace : workspaces)
 					if(workspace.getWorkspace().getName().equals(workspaceId)){
-						workspaces.remove(workspace);
-						if( workspaces.size() == 1){
+						if( workspaces.size() == 0){
 							removeUser(user);
 							removeUnusedTokens(user);
+						}
+						else{
+							workspaces.remove(workspace);
+							user.setWorkspaces(workspaces);
+							saveUser(user);
 						}
 						break;
 					}

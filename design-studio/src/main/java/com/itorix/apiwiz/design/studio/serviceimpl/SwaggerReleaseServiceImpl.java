@@ -51,7 +51,7 @@ public class SwaggerReleaseServiceImpl implements SwaggerReleaseService{
 		headers.add("X-Swagger-oldVersion", diff.getOldRevision() + "");
 		headers.add("X-Swagger-newVersion", diff.getNewRevision() + "");
 		headers.add("X-Swagger-id", diff.getSwaggerName());
-		return new ResponseEntity<Object>(swaggerDiffService.getDiff(diff.getSwaggerName(), diff.getOldRevision(), diff.getOldRevision(), oas), headers, HttpStatus.OK);
+		return new ResponseEntity<Object>(swaggerDiffService.getDiff(diff.getSwaggerName(), diff.getOldRevision(), diff.getNewRevision(), oas), headers, HttpStatus.OK);
 	}
 	
 	@Override
