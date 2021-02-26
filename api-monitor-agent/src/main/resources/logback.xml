@@ -15,7 +15,7 @@
 	
 	<appender name="FILE-DEBUG"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>${itorix.monitorAgent.log.location}/itorix-monitor-console.log</File>
+		<File>${itorix.monitor.log.location}/itorix-monitor-console.log</File>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 
 			<FileNamePattern>${itorix.monitor.log.location}/itorix-monitor-console.%d{yyyy-MM-dd}.%i.log
