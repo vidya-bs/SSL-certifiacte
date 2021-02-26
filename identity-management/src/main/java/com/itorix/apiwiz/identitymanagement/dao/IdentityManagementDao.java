@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.mail.MessagingException;
@@ -64,6 +65,8 @@ import com.itorix.apiwiz.identitymanagement.model.Plan;
 import com.itorix.apiwiz.identitymanagement.model.ResetUserToken;
 import com.itorix.apiwiz.identitymanagement.model.Roles;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
+import com.itorix.apiwiz.identitymanagement.model.Subscription;
+import com.itorix.apiwiz.identitymanagement.model.SubscriptionPrice;
 import com.itorix.apiwiz.identitymanagement.model.UIMetadata;
 import com.itorix.apiwiz.identitymanagement.model.User;
 import com.itorix.apiwiz.identitymanagement.model.UserDetails;
@@ -803,6 +806,19 @@ public class IdentityManagementDao {
 			e.printStackTrace();
 		}
 	}
+	
+	private long getRemainingSeats(Workspace workspace){
+		Subscription subscription = workspaceDao.getSubscription(workspace.getPlanId());
+		List<SubscriptionPrice> prices = subscription.getSubscriptionPrices();
+		if(workspace.getPaymentSchedule().equalsIgnoreCase("month")){
+			SubscriptionPrice price = prices.stream().filter(o -> o.getPeriod().equalsIgnoreCase("MONTHLY")).collect(Collectors.toList()).get(0);
+			return workspace.getSeats() - Long.parseLong(price.getMinimumUnits());
+		}
+		else{
+			SubscriptionPrice price = prices.stream().filter(o -> o.getPeriod().equalsIgnoreCase("YEARLY")).collect(Collectors.toList()).get(0);
+			return workspace.getSeats() - Long.parseLong(price.getMinimumUnits());
+		}
+	}
 
 	public Map<String, Object> validateWorkspace(String workspaceId){
 		Workspace workspace = getWorkspace(workspaceId);
@@ -810,14 +826,15 @@ public class IdentityManagementDao {
 		if(workspace!=null){
 			long usedSeats= workspaceDao.getUsedSeats(workspaceId);
 			boolean allowDowngrade = false;
-			allowDowngrade = usedSeats <  workspace.getSeats()?true:false;
+			long remainingSeats = getRemainingSeats(workspace);
+			allowDowngrade = usedSeats <  (workspace.getSeats() - remainingSeats)?true:false;
 			response.put("status", "false");
 			response.put("planId", workspace.getPlanId());
 			response.put("allotedSeats", workspace.getSeats());
 			response.put("currentSeats", usedSeats);
 			response.put("allowDowngrade", allowDowngrade);
 			response.put("inviteUser", allowDowngrade);
-			response.put("remainingSeats", (workspace.getSeats() - usedSeats));
+			response.put("remainingSeats", (remainingSeats - usedSeats) > 0 ? (remainingSeats - usedSeats):0);
 			response.put("ssoEnabled", workspace.getSsoEnabled());
 			if(workspace.getSsoEnabled() == true){
 				response.put("ssoHost", workspace.getSsoHost());

@@ -296,10 +296,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 						SwaggerImport swagger = new SwaggerImport();
 						swagger.setLoaded(false);
 						swagger.setName(swaggerName);
-						swagger.setPath(file.getAbsolutePath());
+						//swagger.setPath(file.getAbsolutePath());
 						try{
 							saveSwagger(swaggerVO);
 							swagger.setLoaded(true);
+							reason = "swagger loadeds" ;
 						}catch (ItorixException e){
 							if(e.errorCode.equals("Swagger-1003")){
 								reason = "swagger with same name exists" ;
@@ -339,6 +340,10 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					}
 				}
 			} catch (Exception e) {
+				SwaggerImport swagger = new SwaggerImport();
+				swagger.setLoaded(false);
+				swagger.setName(file.getName());
+				swagger.setReason("invalid JSON file") ;
 				e.printStackTrace();
 			}
 		}
@@ -346,20 +351,24 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	private String getVersion(JsonNode node) {
-		if (node == null) {
-			return null;
-		}
-		JsonNode version = node.get("openapi");
-		if (version != null) {
-			return version.toString();
-		}
-		version = node.get("swagger");
-		if (version != null) {
-			return version.toString();
-		}
-		version = node.get("swaggerVersion");
-		if (version != null) {
-			return version.toString();
+		try{
+			if (node == null) {
+				return null;
+			}
+			JsonNode version = node.get("openapi");
+			if (version != null) {
+				return version.toString();
+			}
+			version = node.get("swagger");
+			if (version != null) {
+				return version.toString();
+			}
+			version = node.get("swaggerVersion");
+			if (version != null) {
+				return version.toString();
+			}
+		}catch(Exception ex){
+			
 		}
 		return null;
 	}
@@ -767,7 +776,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				swagger = swaggervo.getName();
 				names.add(swaggervo.getName());
 			}else{
-				swagger = "";
+				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1001"),"Swagger-1001");
+				//swagger = "";
 			}
 		}
 		if (isAdmin) {
@@ -950,6 +960,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				names.add(swaggervo.getName());
 			}else{
 				swagger = "";
+				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1001"),"Swagger-1001");
 			}
 		}
 
@@ -1787,6 +1798,16 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return "Draft";
 	}
 
+	private List<SwaggerTeam> getTeamsBySwaggerName(String swaggerName, String oas){
+		Query query = new Query();
+		if (oas.equals("2.0"))
+			query.addCriteria(Criteria.where("swaggers").is(swaggerName));
+		else if (oas.equals("3.0"))
+			query.addCriteria(Criteria.where("swagger3").is(swaggerName));
+		List<SwaggerTeam> teamlist = baseRepository.find(query, SwaggerTeam.class);
+		return teamlist;
+	}
+	
 	/**
 	 * sendEmails
 	 * 
@@ -1806,9 +1827,10 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				previousStatus,  getSwaggerCountbyStatus(previousStatus), 
 				userName, getSwaggerCountbyUser(userName),
 				vo.getRevision(), getSwaggerRevisionCount(vo.getName()));
-		if (vo.getTeams() != null && vo.getTeams().size() > 0) {
-			for (String teamName : vo.getTeams()) {
-				SwaggerTeam team = baseRepository.findOne("name", teamName, SwaggerTeam.class);
+		List<SwaggerTeam> teams = getTeamsBySwaggerName(vo.getName(), "2.0");
+		if (teams!= null) {
+			for (SwaggerTeam team : teams) {
+//				SwaggerTeam team = baseRepository.findOne("name", teamName, SwaggerTeam.class);
 				if (team != null) {
 					EmailTemplate emailTemplate = new EmailTemplate();
 					emailTemplate.setToMailId(getCOntactForTeam(team));
@@ -1902,15 +1924,15 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			userName = user.getFirstName() + " " + user.getLastName();
 		}
 		//String body = MessageFormat.format(applicationProperties.getSwaggerChangeStatusBody(), status, vo.getStatus(), userName);
-		
 		String body = MessageFormat.format(applicationProperties.getSwaggerChangeStatusBody(), 
 				vo.getName(), status, getSwagger3CountbyStatus(status), 
 				previousStatus,  getSwagger3CountbyStatus(previousStatus), 
 				userName, getSwagger3CountbyUser(userName),
 				vo.getRevision(), getSwagger3RevisionCount(vo.getName()));
-		if (vo.getTeams() != null && vo.getTeams().size() > 0) {
-			for (String teamName : vo.getTeams()) {
-				SwaggerTeam team = baseRepository.findOne("name", teamName, SwaggerTeam.class);
+		List<SwaggerTeam> teams = getTeamsBySwaggerName(vo.getName(), "3.0");
+		if (teams!= null) {
+			for (SwaggerTeam team : teams) {
+//				SwaggerTeam team = baseRepository.findOne("name", teamName, SwaggerTeam.class);
 				if (team != null) {
 					EmailTemplate emailTemplate = new EmailTemplate();
 					emailTemplate.setToMailId(getCOntactForTeam(team));
@@ -2107,7 +2129,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			String swaggerString = mapper.writeValueAsString(swagger);
 			swaggerVO.setSwagger(swaggerString);
 		} else {
-			swaggerVO = baseRepository.findOne("name", swaggerVO.getName(), "", revision, SwaggerVO.class);
+			swaggerVO = baseRepository.findOne("name", swaggerVO.getName(), "revision", revision, SwaggerVO.class);
 			if (swaggerVO != null) {
 				Swagger s = new SwaggerParser().parse(swaggerVO.getSwagger().toString());
 				Map<String, Model> m = s.getDefinitions();
@@ -2121,7 +2143,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		SwaggerVO details = baseRepository.save(swaggerVO);
 		log("genarateSwaggerDefinations", swaggerVO.getInteractionid(), details);
 		return details;
-
 	}
 
 	/**

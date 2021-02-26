@@ -1282,8 +1282,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (sheetName == null || sheetName.trim().length() <= 0) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1007"), "Swagger-1007");
 		}
-		SwaggerVO swaggerVO = new SwaggerVO();
-		swaggerVO.setName(swaggername);
+		swaggerBusiness.getSwagger(swaggername, interactionid);
+		SwaggerVO swaggerVO = swaggerBusiness.getSwagger(swaggername, interactionid);
 		swaggerVO.setInteractionid(interactionid);
 		SwaggerVO swagger = swaggerBusiness.genarateSwaggerDefinations(swaggerVO, xpathFile, sheetName, revision);
 		HttpHeaders headers = new HttpHeaders();
