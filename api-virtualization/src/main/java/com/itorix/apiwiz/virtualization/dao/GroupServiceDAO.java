@@ -47,6 +47,7 @@ public class GroupServiceDAO {
 	private String mockPort;
 	@Value("${itorix.testsuit.agent}")
 	private String mockHost;
+	
 
 
 	private final String MOCK_URL = "http://#URL#-mock.apiwiz.io";
