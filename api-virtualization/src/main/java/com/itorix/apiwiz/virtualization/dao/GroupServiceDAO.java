@@ -45,6 +45,8 @@ public class GroupServiceDAO {
 
 	@Value("${itorix.core.mock.port:9002}")
 	private String mockPort;
+	@Value("${itorix.testsuit.agent}")
+	private String mockHost;
 
 
 	private final String MOCK_URL = "http://#URL#-mock.apiwiz.io";
@@ -63,11 +65,11 @@ public class GroupServiceDAO {
 			UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 			Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
 			String tenantId = workspace.getKey();
-			String mockURL = MOCK_URL.replaceAll("#URL#", userSessionToken.getWorkspaceId());
-			mockURL = mockURL + ":" + mockPort;
+			//String mockURL = MOCK_URL.replaceAll("#URL#", userSessionToken.getWorkspaceId());
+			//mockURL = mockURL + ":" + mockPort;
 			for(GroupVO vo : listVO){
 				vo.setTenantId(tenantId);
-				vo.setMockURL(mockURL);
+				vo.setMockURL(mockHost);
 			}
 			if(listVO.size()>0){
 				GroupHistoryResponse response = new GroupHistoryResponse();
@@ -144,7 +146,7 @@ public class GroupServiceDAO {
 				String mockURL = MOCK_URL.replaceAll("#URL#", userSessionToken.getWorkspaceId());
 				mockURL = mockURL + ":" + mockPort;
 				vo.setTenantId(tenantId);
-				vo.setMockURL(mockURL);
+				vo.setMockURL(mockHost);
 				return vo;
 			}
 			else
@@ -167,7 +169,7 @@ public class GroupServiceDAO {
 				mockURL = mockURL + ":" + mockPort;
 				GroupVO vo = mongoTemplate.findOne(query, GroupVO.class);
 				vo.setTenantId(tenantId);
-				vo.setMockURL(mockURL);
+				vo.setMockURL(mockHost);
 				return vo;
 			}
 		} catch (Exception ex) {
