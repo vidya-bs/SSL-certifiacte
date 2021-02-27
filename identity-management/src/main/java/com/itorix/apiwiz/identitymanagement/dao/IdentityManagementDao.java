@@ -807,16 +807,16 @@ public class IdentityManagementDao {
 		}
 	}
 	
-	private long getRemainingSeats(Workspace workspace){
+	private long getMinimumSeats(Workspace workspace){
 		Subscription subscription = workspaceDao.getSubscription(workspace.getPlanId());
 		List<SubscriptionPrice> prices = subscription.getSubscriptionPrices();
 		if(workspace.getPaymentSchedule().equalsIgnoreCase("month")){
 			SubscriptionPrice price = prices.stream().filter(o -> o.getPeriod().equalsIgnoreCase("MONTHLY")).collect(Collectors.toList()).get(0);
-			return workspace.getSeats() - Long.parseLong(price.getMinimumUnits());
+			return  Long.parseLong(price.getMinimumUnits());
 		}
 		else{
 			SubscriptionPrice price = prices.stream().filter(o -> o.getPeriod().equalsIgnoreCase("YEARLY")).collect(Collectors.toList()).get(0);
-			return workspace.getSeats() - Long.parseLong(price.getMinimumUnits());
+			return Long.parseLong(price.getMinimumUnits());
 		}
 	}
 
@@ -826,15 +826,17 @@ public class IdentityManagementDao {
 		if(workspace!=null){
 			long usedSeats= workspaceDao.getUsedSeats(workspaceId);
 			boolean allowDowngrade = false;
-			long remainingSeats = getRemainingSeats(workspace);
-			allowDowngrade = usedSeats <  (workspace.getSeats() - remainingSeats)?true:false;
+			long minimumSeats = getMinimumSeats(workspace);
+			long seats = usedSeats < minimumSeats ? workspace.getSeats() - minimumSeats : workspace.getSeats() - usedSeats;
+			allowDowngrade = seats >  0 ? true:false;
+			boolean inviteUser = workspace.getSeats() - usedSeats > 0 ? true : false;
 			response.put("status", "false");
 			response.put("planId", workspace.getPlanId());
 			response.put("allotedSeats", workspace.getSeats());
 			response.put("currentSeats", usedSeats);
 			response.put("allowDowngrade", allowDowngrade);
-			response.put("inviteUser", allowDowngrade);
-			response.put("remainingSeats", (remainingSeats - usedSeats) > 0 ? (remainingSeats - usedSeats):0);
+			response.put("inviteUser", inviteUser);
+			response.put("remainingSeats", seats);
 			response.put("ssoEnabled", workspace.getSsoEnabled());
 			if(workspace.getSsoEnabled() == true){
 				response.put("ssoHost", workspace.getSsoHost());
