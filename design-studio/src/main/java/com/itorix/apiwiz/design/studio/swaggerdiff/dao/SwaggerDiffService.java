@@ -90,9 +90,7 @@ public class SwaggerDiffService {
 		if(oas.equals("3.0")){
 			return new Swagger3MarkdownRender(OpenAPIDiff.compare(getSwagger(name, oldRevision, oas),getSwagger(name, newRevision,oas))).render();
 		}
-//		JsonNode oldSwagger = getSwagger(name, oldRevision, oas);
-//		JsonNode newSwagger = getSwagger(name, newRevision, oas);
-		return new MarkdownRender(SwaggerDiff.compareV2(getSwagger(name, oldRevision, oas),getSwagger(name, newRevision,oas))).render();
+		return new MarkdownRender(SwaggerDiff.compareV2Raw(getSwagger(name, oldRevision, oas),getSwagger(name, newRevision,oas))).render();
 	};
 
 	/**
