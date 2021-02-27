@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.mail.MessagingException;
 
@@ -771,13 +772,16 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				names =  trimList(getList(mongoTemplate.getCollection(mongoTemplate.getCollectionName(SwaggerVO.class)).distinct("name", new Query(new Criteria("status").is(status)).getQueryObject(), String.class)),offset, pageSize);
 			}
 		}else{
-			SwaggerVO swaggervo = getSwagger(swagger, interactionid);
-			if(swaggervo != null){
-				swagger = swaggervo.getName();
-				names.add(swaggervo.getName());
-			}else{
+			try{
+				SwaggerVO swaggervo = getSwagger(swagger, interactionid);
+				if(swaggervo != null){
+					swagger = swaggervo.getName();
+					names.add(swaggervo.getName());
+				}else{
+					throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1001"),"Swagger-1001");
+				}
+			}catch(Exception e){
 				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1001"),"Swagger-1001");
-				//swagger = "";
 			}
 		}
 		if (isAdmin) {
@@ -954,12 +958,16 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				names =  trimList(getList(mongoTemplate.getCollection(mongoTemplate.getCollectionName(SwaggerVO.class)).distinct("name", new Query(new Criteria("status").is(status)).getQueryObject(), String.class)),offset, pageSize);
 			}
 		}else{
+			try{
 			Swagger3VO swaggervo = getSwagger3(swagger, interactionid);
 			if(swaggervo != null){
 				swagger = swaggervo.getName();
 				names.add(swaggervo.getName());
 			}else{
 				swagger = "";
+				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1001"),"Swagger-1001");
+			}
+			}catch(Exception e){
 				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1001"),"Swagger-1001");
 			}
 		}
@@ -2660,10 +2668,10 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	 * @return
 	 */
 	private List<String> getCOntactForTeam(SwaggerTeam team) {
-		List<String> contactList = new ArrayList<>();
-		for (SwaggerContacts contact : team.getContacts()) {
-			contactList.add(contact.getEmail());
-		}
+		List<String> contactList = team.getContacts().stream().filter(o -> !o.getEmail().isEmpty()).map(o -> o.getEmail()).collect(Collectors.toList());
+//		for (SwaggerContacts contact : team.getContacts()) {
+//			contactList.add(contact.getEmail());
+//		}
 		return contactList;
 	}
 

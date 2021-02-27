@@ -366,7 +366,17 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 		metadata.setTeams(teamSet);
 		mongoTemplate.save(metadata);
 	}
-
+	
+	public List<SwaggerTeam> getTeamsBySwaggerName(String swaggerName, String oas){
+		Query query = new Query();
+		if (oas.equals("2.0"))
+			query.addCriteria(Criteria.where("swaggers").is(swaggerName));
+		else if (oas.equals("3.0"))
+			query.addCriteria(Criteria.where("swagger3").is(swaggerName));
+		List<SwaggerTeam> teamlist = baseRepository.find(query, SwaggerTeam.class);
+		return teamlist;
+	}
+	
 	/**
 	 * findSwaggerTeames
 	 * 
