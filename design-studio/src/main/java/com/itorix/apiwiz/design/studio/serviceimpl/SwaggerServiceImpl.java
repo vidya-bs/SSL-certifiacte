@@ -384,13 +384,13 @@ public class SwaggerServiceImpl implements SwaggerService {
 						integrations.getScm_url(), integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
 			}
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
-		}
+		} 
 		return new ResponseEntity<Void>(headers, HttpStatus.NO_CONTENT);
 	}
 	
 	private File createSwaggerFile(String swaggerName, String swagger, String folder, int revision) throws IOException{
 		String separatorChar = String.valueOf(File.separatorChar);
-		String revStr = separatorChar + "revisions" + separatorChar + String.valueOf(revision);
+		String revStr = separatorChar + "swagger" + separatorChar + swaggerName + separatorChar +String.valueOf(revision);
 		folder = folder != null && !folder.isEmpty()? folder + revStr: "Swagger" + revStr;
 		String location = applicationProperties.getTempDir() + System.currentTimeMillis();
 		String fileLocation = location + separatorChar + folder + separatorChar + swaggerName + ".json";
