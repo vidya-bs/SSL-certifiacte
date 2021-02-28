@@ -35,45 +35,49 @@ public class ZIPUtil {
 
 	public void unzip(String file, String outputFolder) throws FileNotFoundException, IOException, ArchiveException {
 		File inputFile = new File(file);
-		 
-        InputStream is = new FileInputStream(inputFile);
-        ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream("zip", is);
-        ZipEntry entry = null;
- 
-        while ((entry = (ZipArchiveEntry) ais.getNextEntry()) != null) {
- 
-            if (entry.getName().endsWith("/")) {
-                File dir = new File(outputFolder + File.separator + entry.getName());
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
-                continue;
-            }
- 
-            File outFile = new File(outputFolder + File.separator + entry.getName());
- 
-            if (outFile.isDirectory()) {
-                continue;
-            }
- 
-            if (outFile.exists()) {
-                continue;
-            }
- 
-            FileOutputStream out = new FileOutputStream(outFile);
-            byte[] buffer = new byte[1024];
-            int length = 0;
-            while ((length = ais.read(buffer)) > 0) {
-                out.write(buffer, 0, length);
-                out.flush();
-            }
-            out.close();
- 
-        }
-        is.close();
-    }
-	
-	
+
+		InputStream is = new FileInputStream(inputFile);
+		ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream("zip", is);
+		ZipEntry entry = null;
+
+		while ((entry = (ZipArchiveEntry) ais.getNextEntry()) != null) {
+			try{
+				if (entry.getName().endsWith("/")) {
+					File dir = new File(outputFolder + File.separator + entry.getName());
+					if (!dir.exists()) {
+						dir.mkdirs();
+					}
+					continue;
+				}
+
+				File outFile = new File(outputFolder + File.separator + entry.getName());
+
+				if (outFile.isDirectory()) {
+					continue;
+				}
+
+				if (outFile.exists()) {
+					continue;
+				}
+
+				FileOutputStream out = new FileOutputStream(outFile);
+				byte[] buffer = new byte[1024];
+				int length = 0;
+				while ((length = ais.read(buffer)) > 0) {
+					out.write(buffer, 0, length);
+					out.flush();
+				}
+				out.close();
+
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}
+		}
+		is.close();
+
+	}
+
+
 	public void unZipIt(String zipFile, String outputFolder) {
 
 		byte[] buffer = new byte[1024];
@@ -122,7 +126,7 @@ public class ZIPUtil {
 			ex.printStackTrace();
 		}
 	}
-	
+
 	public  List<File> getJsonFiles(String folder){
 		List<File> files = new ArrayList<File>();
 		getFiles(folder, ".json", files);
