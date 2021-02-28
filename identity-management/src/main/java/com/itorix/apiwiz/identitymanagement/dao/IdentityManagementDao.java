@@ -312,6 +312,7 @@ public class IdentityManagementDao {
 			user.setWorkPhone(userInfo.getWorkPhone());
 			user.setCompany(userInfo.getCompany());
 			user.setSubscribeNewsLetter(userInfo.getSubscribeNewsLetter());
+			user.setUserStatus("active");
 			if(userInfo.getMetadata() != null)
 				user.setMetadata(userInfo.getMetadata());
 			for(UserWorkspace workspace : user.getWorkspaces())
@@ -660,11 +661,10 @@ public class IdentityManagementDao {
 							workspaces.remove(workspace);
 							user.setWorkspaces(workspaces);
 							saveUser(user);
+							removeUnusedTokens(user);
 						}
 						break;
 					}
-				user.setWorkspaces(workspaces);
-				saveUser(user);
 			}else{
 				throw new ItorixException(ErrorCodes.errorMessage.get("USER_023"),"USER_023");
 			}
@@ -1247,7 +1247,8 @@ public class IdentityManagementDao {
 			requiredDetails.setFirstName(user.getFirstName());
 			requiredDetails.setLastName(user.getLastName());
 			requiredDetails.setEmail(user.getEmail());
-			requiredDetails.setStatus(user.getUserStatus());
+			//requiredDetails.setStatus(user.getUserStatus());
+			requiredDetails.setStatus(user.getUserWorkspace(workspaceId).getActive()?"active":"locked");
 			requiredDetails.setCts(user.getCts());
 			requiredDetails.setCreatedUserName(user.getCreatedUserName());
 			List<UserWorkspace> workspaces = user.getWorkspaces();
@@ -1277,19 +1278,32 @@ public class IdentityManagementDao {
 
 	}
 	
-	public void lockUser(String userId){
+	public void lockUser(String userId) throws ItorixException{
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		String workspaceId = userSessionToken.getWorkspaceId();
+		User loginUser = findUserById(userSessionToken.getUserId());
+		if(!loginUser.isWorkspaceAdmin(workspaceId)){
+			throw new ItorixException(ErrorCodes.errorMessage.get("USER_023"),"USER_023");
+		}
 		User user = findUserById(userId);
-		if(user != null){
-			user.setUserStatus("Locked");
+		if(user.getUserWorkspace(workspaceId)!= null){
+			user.getUserWorkspace(workspaceId).setActive(false);
 			saveUser(user);
 		}
 	}
 	
-	public void unLockUser(String userId){
+	public void unLockUser(String userId) throws ItorixException{
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		String workspaceId = userSessionToken.getWorkspaceId();
+		User loginUser = findUserById(userSessionToken.getUserId());
+		if(!loginUser.isWorkspaceAdmin(workspaceId)){
+			throw new ItorixException(ErrorCodes.errorMessage.get("USER_023"),"USER_023");
+		}
 		User user = findUserById(userId);
-		if(user != null){
+		if(user.getUserWorkspace(workspaceId)!= null){
 			user.setUserStatus("active");
 			user.setUserCount(0);
+			user.getUserWorkspace(workspaceId).setActive(false);
 			saveUser(user);
 		}
 	}
