@@ -322,6 +322,8 @@ public class IdentityManagementDao {
 					workspace.setActive(true);
 				}
 			user = saveUser(user);
+			token.setUsed(true);
+			saveVerificationToken(token);
 			sendActivationEmail(user);
 		}
 		return "";
@@ -653,7 +655,7 @@ public class IdentityManagementDao {
 				List<UserWorkspace> workspaces = user.getWorkspaces();
 				for(UserWorkspace workspace : workspaces)
 					if(workspace.getWorkspace().getName().equals(workspaceId)){
-						if( workspaces.size() == 0){
+						if( workspaces.size() == 1){
 							removeUser(user);
 							removeUnusedTokens(user);
 						}
@@ -1303,7 +1305,7 @@ public class IdentityManagementDao {
 		if(user.getUserWorkspace(workspaceId)!= null){
 			user.setUserStatus("active");
 			user.setUserCount(0);
-			user.getUserWorkspace(workspaceId).setActive(false);
+			user.getUserWorkspace(workspaceId).setActive(true);
 			saveUser(user);
 		}
 	}
