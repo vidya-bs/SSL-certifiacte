@@ -189,6 +189,10 @@ public class IdentityManagementDao {
 				throw new ItorixException(ErrorCodes.errorMessage.get("USER_022"),"USER_022");
 			}
 			UserWorkspace userWorkspace = user.getUserWorkspace(userInfo.getWorkspaceId());
+			if(userWorkspace == null ||( userWorkspace.getActive() != true  && userWorkspace.getAcceptInvite() == true)){ //(!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
+				throw new ItorixException(ErrorCodes.errorMessage.get("USER_030"),"USER_030");
+			}
+
 			if(userWorkspace == null || userWorkspace.getActive() != true){ //(!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
 				throw new ItorixException(ErrorCodes.errorMessage.get("USER_022"),"USER_022");
 			}
@@ -1147,6 +1151,8 @@ public class IdentityManagementDao {
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		User loginUser = findUserById(userSessionToken.getUserId());
 		if(loginUser.isWorkspaceAdmin(subscription.getWorkspaceId())){
+			subscription.setUserName(userSessionToken.getUsername());
+			subscription.setUserEmail(userSessionToken.getEmail());
 			masterMongoTemplate.save(subscription);
 			Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
 			workspace.setStatus("suspended");
