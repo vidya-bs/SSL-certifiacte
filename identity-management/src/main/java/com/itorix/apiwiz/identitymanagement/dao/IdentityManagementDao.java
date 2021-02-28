@@ -884,9 +884,6 @@ public class IdentityManagementDao {
 			String randomUUIDString = uuid.toString();
 			user.setVerificationToken(randomUUIDString);
 			user.setTokenValidUpto(DateUtils.addDays(new Date(), 1));
-			//			String link = applicationProperties.getVerificationLinkHostName() 
-			//					+ applicationProperties.getVerificationLinkPort() + "/v1/user/activate?verificationToken="
-			//					+ randomUUIDString + "&email=" + user.getEmail() + "";
 			String link = applicationProperties.getAppUrl() + "/register/" + randomUUIDString + "/verify";
 			EmailTemplate emailTemplate =new EmailTemplate();
 			String bodyText = MessageFormat.format(applicationProperties.getRegistermailBody(), link,user.getFirstName() +" "+user.getLastName());
@@ -905,9 +902,6 @@ public class IdentityManagementDao {
 
 	public void sendPassWordResetEmail(VerificationToken token, User user){
 		try {
-			//			String link = applicationProperties.getVerificationLinkHostName() 
-			//					+ applicationProperties.getVerificationLinkPort()
-			//					+ "/v1/users/tokens/"+ token.getId();
 			String link = applicationProperties.getAppURL() + "/reset-password/" + token.getId() ;
 			String bodyText = MessageFormat.format(applicationProperties.getResetMailBody(), user.getFirstName() +" "+user.getLastName(), link);
 			ArrayList<String> toRecipients =new ArrayList<String>();
@@ -922,10 +916,6 @@ public class IdentityManagementDao {
 
 	public void sendAddUserEmail(VerificationToken token, User user, String userName){
 		try {
-			//			String link = applicationProperties.getVerificationLinkHostName() 
-			//					+ applicationProperties.getVerificationLinkPort()
-			//					+ "/v1/users/tokens/"+ token.getId();
-
 			String link = applicationProperties.getAppURL() + "/user/" + token.getId() ;
 			String bodyText = MessageFormat.format(applicationProperties.getAddWorkspaceUserBody(), userName, token.getWorkspaceId(), link);
 			ArrayList<String> toRecipients =new ArrayList<String>();
@@ -939,10 +929,6 @@ public class IdentityManagementDao {
 
 	public void sendInviteUserEmail(VerificationToken token, User user, String userName){
 		try {
-			//			String link = applicationProperties.getVerificationLinkHostName() 
-			//					+ applicationProperties.getVerificationLinkPort()
-			//					+ "/v1/users/tokens/"+ token.getId();
-
 			String link = applicationProperties.getAppURL() + "/user-invited/" + token.getId() ;
 			String bodyText = MessageFormat.format(applicationProperties.getInviteWorkspaceUserBody(), user.getFirstName() +" "+user.getLastName(), userName, token.getWorkspaceId(), link, link);
 			ArrayList<String> toRecipients =new ArrayList<String>();
@@ -959,9 +945,6 @@ public class IdentityManagementDao {
 		try {
 
 			String link = applicationProperties.getAppURL() + "/register/" + token.getId() + "/verify";
-			//			String link =  applicationProperties.getVerificationLinkHostName() 
-			//					+ applicationProperties.getVerificationLinkPort()
-			//					+ "/v1/users/tokens/"+ token.getId();
 			String bodyText = MessageFormat.format(applicationProperties.getRegistermailBody(), user.getEmail(),  link);
 			ArrayList<String> toRecipients =new ArrayList<String>();
 			toRecipients.add(user.getEmail());
@@ -1074,18 +1057,17 @@ public class IdentityManagementDao {
 		Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
 		boolean isNewUser = false;
 		User user = findByUserEmail(userInfo.getEmail());
-		if(user == null){}
 		if(user.getLoginId() == null){
 			isNewUser = true;
 		}
 		VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail());
-		token.setWorkspaceId(userInfo.getWorkspaceId());
+		token.setWorkspaceId(workspace.getName());
 		token.setUserType(User.LABEL_MEMBER);
 		saveVerificationToken(token);
 		if(isNewUser)
-			sendAddUserEmail(token, user, user.getFirstName() + " " + user.getLastName());
+			sendAddUserEmail(token, user, userSessionToken.getUsername());
 		else
-			sendInviteUserEmail(token, user, user.getFirstName() + " " + user.getLastName());
+			sendInviteUserEmail(token, user, userSessionToken.getUsername());
 	}
 	
 	private String activateEmail(VerificationToken token){
