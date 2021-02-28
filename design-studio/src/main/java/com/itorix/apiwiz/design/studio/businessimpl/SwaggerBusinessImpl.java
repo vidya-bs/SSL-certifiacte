@@ -2669,9 +2669,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	 */
 	private List<String> getCOntactForTeam(SwaggerTeam team) {
 		List<String> contactList = team.getContacts().stream().filter(o -> !o.getEmail().isEmpty()).map(o -> o.getEmail()).collect(Collectors.toList());
-//		for (SwaggerContacts contact : team.getContacts()) {
-//			contactList.add(contact.getEmail());
-//		}
+//		for (SwaggerContacts contact : team.getContacts()) contactList.add(contact.getEmail());
 		return contactList;
 	}
 

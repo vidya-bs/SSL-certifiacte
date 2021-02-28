@@ -203,7 +203,7 @@ public class CollaborationServiceImpl implements CollaborationService {
 		}
 		else if( oas.equals("3.0") ){
 			Swagger3VO vo = collaborationBusiness.findSwagger3(swaggername, interactionid);
-			if (vo == null) {
+			if (vo != null) {
 				SwaggerMetadata metadata = collaborationBusiness.getSwaggerMetadata(vo.getName(), oas);
 				if(metadata!= null)
 					responseSet = metadata.getTeams();
