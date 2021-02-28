@@ -1201,7 +1201,7 @@ public class IdentityManagementDao {
 				requiredDetails.setFirstName(user.getFirstName());
 				requiredDetails.setLastName(user.getLastName());
 				requiredDetails.setEmail(user.getEmail());
-				requiredDetails.setStatus(user.getUserStatus());
+				requiredDetails.setStatus(user.getUserWorkspace(workspaceId).getActive()?"active":"locked");
 				List<UserWorkspace> workspaces = user.getWorkspaces();
 				if(workspaces != null){
 					List<UserInfo> userworkspaces = new ArrayList<>();
