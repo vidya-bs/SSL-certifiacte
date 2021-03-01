@@ -1150,12 +1150,12 @@ public class IdentityManagementDao {
 	public void cancelSubscription(CancelSubscriptions subscription) throws ItorixException{
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		User loginUser = findUserById(userSessionToken.getUserId());
-		if(loginUser.isWorkspaceAdmin(subscription.getWorkspaceId())){
+		if(loginUser.isWorkspaceAdmin(userSessionToken.getWorkspaceId())){
 			subscription.setUserName(userSessionToken.getUsername());
 			subscription.setUserEmail(userSessionToken.getEmail());
 			masterMongoTemplate.save(subscription);
 			Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
-			workspace.setStatus("suspended");
+			workspace.setStatus("cancel");
 			masterMongoTemplate.save(workspace);
 		} else{
 			throw new ItorixException(ErrorCodes.errorMessage.get("USER_029"),"USER_029");
