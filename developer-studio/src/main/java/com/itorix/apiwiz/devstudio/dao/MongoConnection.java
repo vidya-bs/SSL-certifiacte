@@ -452,7 +452,18 @@ public class MongoConnection {
 	public boolean updateArtifacts(String proxy, ProxyArtifacts proxyArtifacts) throws ItorixException{
 		try {
 			ProxyData data = getProxyHistory(proxy);
-			data.setProxyArtifacts(proxyArtifacts);
+			ProxyArtifacts dataArtifacts = data.getProxyArtifacts();
+			if(dataArtifacts != null){
+				if(proxyArtifacts.getCaches() != null)
+					dataArtifacts.setCaches(proxyArtifacts.getCaches());
+				if(proxyArtifacts.getKvm() != null)
+					dataArtifacts.setKvm(proxyArtifacts.getKvm());
+				if(proxyArtifacts.getTargetServers() != null)
+					dataArtifacts.setTargetServers(proxyArtifacts.getTargetServers());
+				data.setProxyArtifacts(dataArtifacts);
+			}else{
+				data.setProxyArtifacts(proxyArtifacts);
+			}
 			return saveProxyHistory(data);
 		} catch (JsonParseException e) {
 			e.printStackTrace();
