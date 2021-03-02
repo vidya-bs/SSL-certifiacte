@@ -307,7 +307,7 @@ public class CodeGenService {
 
 	private ProxyGenResponse populateProxyArtifacts(ProxyArtifacts proxyArtifacts) throws ItorixException{
 		ProxyGenResponse response = new ProxyGenResponse();
-		List<String> kvms = proxyArtifacts.getKvm();
+		List<String> kvms = proxyArtifacts.getKvms();
 		if(kvms != null){
 			List<Artifact> configKVMS = new ArrayList<>();
 			response.setKvms(configKVMS);

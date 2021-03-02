@@ -6,17 +6,17 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ProxyArtifacts {
-	private List<String> kvm;// = Arrays.asList("ABF_KVM", "ErrorCodes_KVM");
+	private List<String> kvms;// = Arrays.asList("ABF_KVM", "ErrorCodes_KVM");
 	private List<String> caches;// = Arrays.asList("ABF_cache", "Stores_cache");
 	private List<String> targetServers;// = Arrays.asList("PaymentWSIL_Target", "PaymentDetails_Target");
 	private List<String> sharedflows;
 	private List<ProxyEndpoint> proxyEndpoints;
 	
-	public List<String> getKvm() {
-		return kvm;
+	public List<String> getKvms() {
+		return kvms;
 	}
-	public void setKvm(List<String> kvm) {
-		this.kvm = kvm;
+	public void setKvms(List<String> kvms) {
+		this.kvms = kvms;
 	}
 	public List<String> getCaches() {
 		return caches;

@@ -456,8 +456,8 @@ public class MongoConnection {
 			if(dataArtifacts != null){
 				if(proxyArtifacts.getCaches() != null)
 					dataArtifacts.setCaches(proxyArtifacts.getCaches());
-				if(proxyArtifacts.getKvm() != null)
-					dataArtifacts.setKvm(proxyArtifacts.getKvm());
+				if(proxyArtifacts.getKvms() != null)
+					dataArtifacts.setKvms(proxyArtifacts.getKvms());
 				if(proxyArtifacts.getTargetServers() != null)
 					dataArtifacts.setTargetServers(proxyArtifacts.getTargetServers());
 				data.setProxyArtifacts(dataArtifacts);
