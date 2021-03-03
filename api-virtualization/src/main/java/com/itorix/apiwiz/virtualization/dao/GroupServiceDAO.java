@@ -45,7 +45,7 @@ public class GroupServiceDAO {
 
 	@Value("${itorix.core.mock.port:9002}")
 	private String mockPort;
-	@Value("${itorix.testsuit.agent}")
+	@Value("${itorix.mock.agent}")
 	private String mockHost;
 	
 

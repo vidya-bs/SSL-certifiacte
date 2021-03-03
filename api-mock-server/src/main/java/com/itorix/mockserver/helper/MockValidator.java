@@ -6,11 +6,14 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -55,7 +58,16 @@ import net.logstash.logback.encoder.org.apache.commons.lang.StringEscapeUtils;
 @Controller
 @Slf4j
 public class MockValidator {
+	
+	private static Map<String,SpecVersion.VersionFlag> schemaVersions = new HashMap<>();
 
+	@PostConstruct
+	void setJsonSchemaVersions(){
+		schemaVersions.put("http://json-schema.org/draft-04/schema#",  SpecVersion.VersionFlag.V4);
+		schemaVersions.put("http://json-schema.org/draft-06/schema#", SpecVersion.VersionFlag.V6);
+		schemaVersions.put("http://json-schema.org/draft-07/schema#", SpecVersion.VersionFlag.V7);
+		schemaVersions.put("http://json-schema.org/draft/2019-09/schema#", SpecVersion.VersionFlag.V201909);
+	}
 
 	public boolean checkBody(Expectation expectation, String body,
 			MultiValueMap<String, String> formParams, MultiValueMap<String, String> urlEncodedParam) {
@@ -337,7 +349,9 @@ public class MockValidator {
 	private static boolean validateJSONSchema(String jsonSchema , String json) {
 
 		ObjectMapper objectMapper = new ObjectMapper();
-		JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+		DocumentContext context = JsonPath.parse(jsonSchema);
+		
+		JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(schemaVersions.get(context.read("$.$schema")));
 
 		try (InputStream jsonStream = new ByteArrayInputStream(json.getBytes());
 				InputStream schemaStream = new ByteArrayInputStream(jsonSchema.getBytes());) {
