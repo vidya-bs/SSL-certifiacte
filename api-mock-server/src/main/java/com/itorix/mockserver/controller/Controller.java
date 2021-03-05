@@ -312,11 +312,10 @@ public class Controller {
 					mockLog.setExpectationName(matchedExpectation.getName());
 					mockLog.setGroupId(matchedExpectation.getGroupId());
 					mockLog.setGroupName(mockServerDao.getGroupName(matchedExpectation.getGroupId()));
-					mockLog.setHttpResponse(objectMapper.writeValueAsString(new MockResponse(responseHeaders,
-							responseBody, matchedExpectation.getResponse().getStatusCode(),
-							matchedExpectation.getResponse().getStatusMessage())));
 				}
-
+				mockLog.setHttpResponse(objectMapper.writeValueAsString(new MockResponse(responseHeaders,
+						responseBody, matchedExpectation.getResponse().getStatusCode(),
+						matchedExpectation.getResponse().getStatusMessage())));
 				mockLog.setLoggedTime(System.currentTimeMillis());
 
 				MockRequest mockRequest = new MockRequest();
@@ -325,6 +324,8 @@ public class Controller {
 				mockRequest.setRequestParams(requestParams);
 				mockRequest.setMethod(httpServletRequest.getMethod());
 				mockRequest.setPath(path);
+				mockRequest.setBody(requestBody);
+				
 				mockLog.setHttpRequest(objectMapper.writeValueAsString(mockRequest));
 
 				mockLogger.info(mockLogger.getLogData(mockLog));

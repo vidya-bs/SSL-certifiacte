@@ -128,11 +128,13 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		// Save Pipeline Details in DB
+		String pipelineName = pipelineDao.getPipelineName(pipelineGroups);
+		String displayName = pipelineGroups.getPipelines().get(0).getDisplayName();
 		pipelineGroups.getPipelines().get(0).setStatus("Active");
 		pipelineGroups = pipelineDao.createOrEditPipeline(pipelineGroups, commonServices.getUserDetailsFromSessionID(jsessionId));
 		HttpHeaders headers = new HttpHeaders();
-		headers.add("x-displayname", pipelineGroups.getPipelines().get(0).getDisplayName());
-		headers.add("x-pipelinename", pipelineGroups.getPipelines().get(0).getName());
+		headers.add("x-displayname", displayName);
+		headers.add("x-pipelinename", pipelineName);
 		headers.add("Access-Control-Expose-Headers", "x-displayname, x-pipelinename");
 		return new ResponseEntity<>(headers,status);
 	}

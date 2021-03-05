@@ -19,4 +19,5 @@ String method;
 MultiValueMap<String, String> headers;
 MultiValueMap<String, String> requestParams;
 Cookie[] cookie;
+String body;
 }
