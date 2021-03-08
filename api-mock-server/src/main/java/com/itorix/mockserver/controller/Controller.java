@@ -313,17 +313,21 @@ public class Controller {
 					mockLog.setGroupId(matchedExpectation.getGroupId());
 					mockLog.setGroupName(mockServerDao.getGroupName(matchedExpectation.getGroupId()));
 				}
-				if(matchedExpectation != null){
-					mockLog.setHttpResponse(objectMapper.writeValueAsString(new MockResponse(responseHeaders,
-							responseBody, matchedExpectation.getResponse().getStatusCode(),
-							matchedExpectation.getResponse().getStatusMessage())));
-					mockLog.setLoggedTime(System.currentTimeMillis());
-				}
-				else{
-					String responseBodyStr= objectMapper.writeValueAsString(expectationResponsePathFound);
-					mockLog.setHttpResponse(objectMapper.writeValueAsString(new MockResponse(responseHeaders,
-							responseBodyStr, HttpStatus.NOT_FOUND.value(), "notfound")));
-					mockLog.setLoggedTime(System.currentTimeMillis());
+				try{
+					if(matchedExpectation != null){
+						mockLog.setHttpResponse(objectMapper.writeValueAsString(new MockResponse(responseHeaders,
+								responseBody, matchedExpectation.getResponse().getStatusCode(),
+								matchedExpectation.getResponse().getStatusMessage())));
+						mockLog.setLoggedTime(System.currentTimeMillis());
+					}
+					else{
+						String responseBodyStr= objectMapper.writeValueAsString(expectationResponsePathFound);
+						mockLog.setHttpResponse(objectMapper.writeValueAsString(new MockResponse(responseHeaders,
+								responseBodyStr, HttpStatus.NOT_FOUND.value(), "notfound")));
+						mockLog.setLoggedTime(System.currentTimeMillis());
+					}
+				}catch(Exception ex){
+				
 				}
 				MockRequest mockRequest = new MockRequest();
 				mockRequest.setCookie(httpServletRequest.getCookies());
@@ -332,7 +336,6 @@ public class Controller {
 				mockRequest.setMethod(httpServletRequest.getMethod());
 				mockRequest.setPath(path);
 				mockRequest.setBody(requestBody);
-
 				mockLog.setHttpRequest(objectMapper.writeValueAsString(mockRequest));
 
 				mockLogger.info(mockLogger.getLogData(mockLog));
