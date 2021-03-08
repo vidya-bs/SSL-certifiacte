@@ -79,7 +79,8 @@ public interface ProxyStudio {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) throws Exception;
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
+			@RequestParam(value = "proxy", required = false) String proxy) throws Exception;
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/proxies", produces = {
 	"application/json" })

@@ -142,15 +142,13 @@ public class VirtualizationServiceImpl implements VirtualizationService {
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable(value="logId",required=false) String logId){
-		if(logId != null && logId !=""){
+		
 			MockLog logEntry = scenarioService.getLogEntrie(logId);
-			if(logEntry != null)
-				return new org.springframework.http.ResponseEntity<Object>(logEntry,HttpStatus.OK);
-			else
-				return new org.springframework.http.ResponseEntity<Object>(new ErrorObj("no logentry found.","MOCK-LOG404"),HttpStatus.NOT_FOUND);
-		}
-		else
-			return new org.springframework.http.ResponseEntity<Object>(scenarioService.getLogEntries(null),HttpStatus.OK);
+//			if(logEntry != null)
+				return new org.springframework.http.ResponseEntity<MockLog>(logEntry,HttpStatus.OK);
+//			else
+//				return new org.springframework.http.ResponseEntity<Object>(new ErrorObj("no logentry found.","MOCK-LOG404"),HttpStatus.NOT_FOUND);
+		
 	}
 
 

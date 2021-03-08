@@ -462,9 +462,9 @@ public class CodeGenService {
 	}
 
 	@SuppressWarnings("unchecked")
-	public ProxyHistoryResponse getHistory(int offset, int pageSize) throws Exception{
-		//		change
-		ProxyHistoryResponse response = mongoConnection.getProxyHistory(offset, pageSize);
+	public ProxyHistoryResponse getHistory(int offset, int pageSize, String proxy) throws Exception{
+		
+		ProxyHistoryResponse response = mongoConnection.getProxyHistory(offset, pageSize, proxy);
 		List<ProxyData>stringData = (List<ProxyData>) response.getData();
 		List<Map<String,String>> listData = new ArrayList<Map<String,String>>();
 		if(stringData == null){

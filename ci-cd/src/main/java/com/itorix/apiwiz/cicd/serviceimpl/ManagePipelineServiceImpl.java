@@ -320,7 +320,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 					stageCounter, artifactName);
 		} catch (Exception ex) {
 			log.error("Error while retrieving build and test artifacts", ex.getCause());
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.OK);
 		}
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + artifactName) 
