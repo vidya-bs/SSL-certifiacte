@@ -878,6 +878,7 @@ public class CiCdIntegrationAPI {
 		GoCDIntegration goCDIntegration = getGocdIntegration();
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Confirm", "true");
+		headers.set("Accept", "application/vnd.go.cd.v1+json");
 		if(CiCdIntegrationHelper.getConfirmHeader(goCDIntegration.getVersion()) != null)
 			headers.set(CiCdIntegrationHelper.getConfirmHeader(goCDIntegration.getVersion()), "true");
 		RestTemplate restTemplate = new RestTemplate();

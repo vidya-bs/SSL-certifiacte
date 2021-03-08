@@ -79,6 +79,19 @@ public class SwaggerDiffService {
 		}
 		return null;
 	}
+	
+	private JsonNode getSwagger3(String name, int revision, String oas) {
+		try {
+			JsonNode swagger ;
+				Swagger3VO vo = swaggerService.getSwagger3(name, null);
+				Swagger3VO swagger3VO = swaggerService.getSwagger3WithVersionNumber(vo.getName(), revision, null);
+				swagger = mapper.readValue(swagger3VO.getSwagger(), JsonNode.class);
+				return swagger;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	/**
 	 * @param name
@@ -88,7 +101,7 @@ public class SwaggerDiffService {
 	 */
 	public String getDiff(String name, int oldRevision, int newRevision, String oas) {
 		if(oas.equals("3.0")){
-			return new Swagger3MarkdownRender(OpenAPIDiff.compare(getSwagger(name, oldRevision, oas),getSwagger(name, newRevision,oas))).render();
+			return new Swagger3MarkdownRender(OpenAPIDiff.compare(getSwagger3(name, oldRevision, oas),getSwagger3(name, newRevision,oas))).render();
 		}
 		return new MarkdownRender(SwaggerDiff.compareV2Raw(getSwagger(name, oldRevision, oas),getSwagger(name, newRevision,oas))).render();
 	};

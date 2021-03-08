@@ -195,107 +195,107 @@ public class Controller {
 		try {
 			path = httpServletRequest.getPathInfo() != null && httpServletRequest.getContextPath() != null
 					? httpServletRequest.getPathInfo()
-					: java.net.URLDecoder.decode(httpServletRequest.getRequestURI(), "UTF-8");
+							: java.net.URLDecoder.decode(httpServletRequest.getRequestURI(), "UTF-8");
 
-			List<Criteria> listOfOr = new ArrayList<>();
-			String[] pathSplit = Arrays.stream(path.split("/")).filter(s -> !StringUtils.isEmpty(s))
-					.toArray(String[]::new);
-			;
+					List<Criteria> listOfOr = new ArrayList<>();
+					String[] pathSplit = Arrays.stream(path.split("/")).filter(s -> !StringUtils.isEmpty(s))
+							.toArray(String[]::new);
+					;
 
-			for (int i = 0; i < pathSplit.length; i++) {
-				if (StringUtils.isEmpty(pathSplit[i])) {
-					continue;
-				}
-				listOfOr.add(new Criteria().orOperator(Criteria.where("pathArray." + i).is(pathSplit[i]),
-						Criteria.where("pathArray." + i).is("*"), Criteria.where("pathArray." + i).exists(false)));
-			}
-
-			Criteria criteria = new Criteria().andOperator(listOfOr.toArray(new Criteria[listOfOr.size()]));
-			Query query = new Query(criteria);
-
-			log.debug("connected to db {}", mongoTemplate.getDb().getName());
-			log.debug("query formed {}", query.toString());
-			List<Expectation> expectations = mongoTemplate.find(query, Expectation.class);
-			List<Expectation> orderedExpectation = getExpectationByPriority(expectations, path);
-
-			log.debug("matched expectation count {}", orderedExpectation.size());
-
-			for (Expectation expectation : orderedExpectation) {
-				List<String> errorResponse = new ArrayList<>();
-				boolean matchFound = true;
-				if (mockValidator.chechPath(expectation, path)) {
-
-					if (!mockValidator.checkMethod(expectation, httpServletRequest.getMethod())) {
-						matchFound = false;
-						errorResponse.add("method didn't match");
-					} else {
-						errorResponse.add("method matched");
+					for (int i = 0; i < pathSplit.length; i++) {
+						if (StringUtils.isEmpty(pathSplit[i])) {
+							continue;
+						}
+						listOfOr.add(new Criteria().orOperator(Criteria.where("pathArray." + i).is(pathSplit[i]),
+								Criteria.where("pathArray." + i).is("*"), Criteria.where("pathArray." + i).exists(false)));
 					}
 
-					if (!mockValidator.checkQueryString(expectation, requestParams)) {
-						matchFound = false;
-						errorResponse.add("query didn't match");
-					} else {
-						errorResponse.add("query matched");
+					Criteria criteria = new Criteria().andOperator(listOfOr.toArray(new Criteria[listOfOr.size()]));
+					Query query = new Query(criteria);
+
+					log.debug("connected to db {}", mongoTemplate.getDb().getName());
+					log.debug("query formed {}", query.toString());
+					List<Expectation> expectations = mongoTemplate.find(query, Expectation.class);
+					List<Expectation> orderedExpectation = getExpectationByPriority(expectations, path);
+
+					log.debug("matched expectation count {}", orderedExpectation.size());
+
+					for (Expectation expectation : orderedExpectation) {
+						List<String> errorResponse = new ArrayList<>();
+						boolean matchFound = true;
+						if (mockValidator.chechPath(expectation, path)) {
+
+							if (!mockValidator.checkMethod(expectation, httpServletRequest.getMethod())) {
+								matchFound = false;
+								errorResponse.add("method didn't match");
+							} else {
+								errorResponse.add("method matched");
+							}
+
+							if (!mockValidator.checkQueryString(expectation, requestParams)) {
+								matchFound = false;
+								errorResponse.add("query didn't match");
+							} else {
+								errorResponse.add("query matched");
+							}
+
+							if (!mockValidator.checkHeader(expectation, headerVariables)) {
+								matchFound = false;
+								errorResponse.add("header didn't match");
+							} else {
+								errorResponse.add("header matched");
+							}
+
+							if (!mockValidator.checkCookie(expectation, httpServletRequest.getCookies())) {
+								matchFound = false;
+								errorResponse.add("cookie didn't match");
+							} else {
+								errorResponse.add("cookie matched");
+							}
+
+							if (!mockValidator.checkBody(expectation, requestBody, formParam,urlEncodedParam)) {
+								matchFound = false;
+								errorResponse.add("body didn't match");
+							} else {
+								errorResponse.add("body matched");
+							}
+
+							if (matchFound) {
+								matchedExpectation = expectation;
+								break;
+							} else {
+								ExpectationResponsePathFound mismatchExp = new ExpectationResponsePathFound();
+								mismatchExp.setExpectationId(expectation.getId());
+								mismatchExp.setExpectationName(expectation.getName());
+								mismatchExp.setGroupName(mockServerDao.getGroupName(expectation.getGroupId()));
+								mismatchExp.setReason(String.join(",", errorResponse));
+								expectationResponsePathFound.add(mismatchExp);
+							}
+
+						}
 					}
 
-					if (!mockValidator.checkHeader(expectation, headerVariables)) {
-						matchFound = false;
-						errorResponse.add("header didn't match");
-					} else {
-						errorResponse.add("header matched");
+					// collect variables
+					if (matchedExpectation != null) {
+						List<Variable> variables = matchedExpectation.getRequest().getVariables();
+						Map<String, String> variableExtract = extractVariables(requestBody, headerVariables, requestParams,
+								matchedExpectation, path, variables, formParam);
+
+						responseBody = fillTemplate(matchedExpectation.getResponse().getBody(), variableExtract);
+
+						matchedExpectation.getResponse().getHeaders().forEach((k, v) -> {
+							responseHeaders.add(fillTemplate(k, variableExtract), fillTemplate(v, variableExtract));
+						});
+
+						if (StringUtils.hasText(matchedExpectation.getResponse().getCookies())) {
+							responseHeaders.add("Set-Cookie", matchedExpectation.getResponse().getCookies());
+						}
+
+						response = ResponseEntity.status(matchedExpectation.getResponse().getStatusCode())
+								.headers(responseHeaders).body(responseBody);
+
+						return response;
 					}
-
-					if (!mockValidator.checkCookie(expectation, httpServletRequest.getCookies())) {
-						matchFound = false;
-						errorResponse.add("cookie didn't match");
-					} else {
-						errorResponse.add("cookie matched");
-					}
-
-					if (!mockValidator.checkBody(expectation, requestBody, formParam,urlEncodedParam)) {
-						matchFound = false;
-						errorResponse.add("body didn't match");
-					} else {
-						errorResponse.add("body matched");
-					}
-
-					if (matchFound) {
-						matchedExpectation = expectation;
-						break;
-					} else {
-						ExpectationResponsePathFound mismatchExp = new ExpectationResponsePathFound();
-						mismatchExp.setExpectationId(expectation.getId());
-						mismatchExp.setExpectationName(expectation.getName());
-						mismatchExp.setGroupName(mockServerDao.getGroupName(expectation.getGroupId()));
-						mismatchExp.setReason(String.join(",", errorResponse));
-						expectationResponsePathFound.add(mismatchExp);
-					}
-
-				}
-			}
-
-			// collect variables
-			if (matchedExpectation != null) {
-				List<Variable> variables = matchedExpectation.getRequest().getVariables();
-				Map<String, String> variableExtract = extractVariables(requestBody, headerVariables, requestParams,
-						matchedExpectation, path, variables, formParam);
-
-				responseBody = fillTemplate(matchedExpectation.getResponse().getBody(), variableExtract);
-
-				matchedExpectation.getResponse().getHeaders().forEach((k, v) -> {
-					responseHeaders.add(fillTemplate(k, variableExtract), fillTemplate(v, variableExtract));
-				});
-
-				if (StringUtils.hasText(matchedExpectation.getResponse().getCookies())) {
-					responseHeaders.add("Set-Cookie", matchedExpectation.getResponse().getCookies());
-				}
-
-				response = ResponseEntity.status(matchedExpectation.getResponse().getStatusCode())
-						.headers(responseHeaders).body(responseBody);
-
-				return response;
-			}
 
 		} catch (UnsupportedEncodingException e) {
 			log.error("error thrown when getting the path", e);
@@ -313,11 +313,18 @@ public class Controller {
 					mockLog.setGroupId(matchedExpectation.getGroupId());
 					mockLog.setGroupName(mockServerDao.getGroupName(matchedExpectation.getGroupId()));
 				}
-				mockLog.setHttpResponse(objectMapper.writeValueAsString(new MockResponse(responseHeaders,
-						responseBody, matchedExpectation.getResponse().getStatusCode(),
-						matchedExpectation.getResponse().getStatusMessage())));
-				mockLog.setLoggedTime(System.currentTimeMillis());
-
+				if(matchedExpectation != null){
+					mockLog.setHttpResponse(objectMapper.writeValueAsString(new MockResponse(responseHeaders,
+							responseBody, matchedExpectation.getResponse().getStatusCode(),
+							matchedExpectation.getResponse().getStatusMessage())));
+					mockLog.setLoggedTime(System.currentTimeMillis());
+				}
+				else{
+					String responseBodyStr= objectMapper.writeValueAsString(expectationResponsePathFound);
+					mockLog.setHttpResponse(objectMapper.writeValueAsString(new MockResponse(responseHeaders,
+							responseBodyStr, HttpStatus.NOT_FOUND.value(), "notfound")));
+					mockLog.setLoggedTime(System.currentTimeMillis());
+				}
 				MockRequest mockRequest = new MockRequest();
 				mockRequest.setCookie(httpServletRequest.getCookies());
 				mockRequest.setHeaders(headerVariables);
@@ -325,7 +332,7 @@ public class Controller {
 				mockRequest.setMethod(httpServletRequest.getMethod());
 				mockRequest.setPath(path);
 				mockRequest.setBody(requestBody);
-				
+
 				mockLog.setHttpRequest(objectMapper.writeValueAsString(mockRequest));
 
 				mockLogger.info(mockLogger.getLogData(mockLog));
@@ -360,17 +367,17 @@ public class Controller {
 					String expectationPath = matchedExpectation.getRequest().getPath().getValue();
 					expectationPath = expectationPath.endsWith("/")
 							? expectationPath.substring(0, expectationPath.length() - 1) : expectationPath;
-					String actualPath = path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
+							String actualPath = path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
 
-					Map<String, String> extractUriTemplateVariables = new AntPathMatcher()
-							.extractUriTemplateVariables(expectationPath, actualPath);
-					if (extractUriTemplateVariables.containsKey(variable.getPath())) {
-						variableExtract.put(variable.getName(), extractUriTemplateVariables.get(variable.getPath()));
-					} else if (extractUriTemplateVariables.containsKey("{" + variable.getPath() + "}")) {
-						variableExtract.put(variable.getName(), extractUriTemplateVariables.get("{" + variable.getPath() + "}"));
-					} else if (extractUriTemplateVariables.containsKey("{{" + variable.getPath() + "}}")) {
-						variableExtract.put(variable.getName(), extractUriTemplateVariables.get("{{" + variable.getPath() + "}}"));
-					}
+							Map<String, String> extractUriTemplateVariables = new AntPathMatcher()
+									.extractUriTemplateVariables(expectationPath, actualPath);
+							if (extractUriTemplateVariables.containsKey(variable.getPath())) {
+								variableExtract.put(variable.getName(), extractUriTemplateVariables.get(variable.getPath()));
+							} else if (extractUriTemplateVariables.containsKey("{" + variable.getPath() + "}")) {
+								variableExtract.put(variable.getName(), extractUriTemplateVariables.get("{" + variable.getPath() + "}"));
+							} else if (extractUriTemplateVariables.containsKey("{{" + variable.getPath() + "}}")) {
+								variableExtract.put(variable.getName(), extractUriTemplateVariables.get("{{" + variable.getPath() + "}}"));
+							}
 
 				} else if (variable.getRef().equals(Variable.Ref.queryParams)) {
 					List<String> variableValueList = requestParams.get(variable.getPath());

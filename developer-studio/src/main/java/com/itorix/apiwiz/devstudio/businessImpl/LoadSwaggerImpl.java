@@ -106,6 +106,7 @@ public class LoadSwaggerImpl implements LoadSwagger{
 			flow.setPath(path);
 			flow.setVerb("GET");
 			flow.setDescription(get.getSummary());
+			if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 			flowList.add(flow);
 		}
 		if(put != null){
@@ -115,6 +116,7 @@ public class LoadSwaggerImpl implements LoadSwagger{
 			flow.setPath(path);
 			flow.setVerb("PUT");
 			flow.setDescription(put.getSummary());
+			if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 			flowList.add(flow);
 		}
 		if(post != null){
@@ -124,6 +126,7 @@ public class LoadSwaggerImpl implements LoadSwagger{
 			flow.setPath(path);
 			flow.setVerb("POST");
 			flow.setDescription(post.getSummary());
+			if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 			flowList.add(flow);
 		}
 		if(delete != null){
@@ -133,6 +136,7 @@ public class LoadSwaggerImpl implements LoadSwagger{
 			flow.setPath(path);
 			flow.setVerb("DELETE");
 			flow.setDescription(delete.getSummary());
+			if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 			flowList.add(flow);
 		}
 		if(patch != null){
@@ -142,6 +146,7 @@ public class LoadSwaggerImpl implements LoadSwagger{
 			flow.setPath(path);
 			flow.setVerb("PATCH");
 			flow.setDescription(delete.getSummary());
+			if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 			flowList.add(flow);
 		}
 		return flowList;
