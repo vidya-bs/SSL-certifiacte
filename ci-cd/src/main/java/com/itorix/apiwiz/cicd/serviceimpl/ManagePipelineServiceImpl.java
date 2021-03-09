@@ -292,9 +292,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 					stageCounter, jobName);
 		} catch (Exception ex) {
 			log.error("Error while retrieving build and test artifacts", ex.getCause());
-			return new ResponseEntity<>(
-					new ErrorObj("Error while retrieving build and test artifacts", "CI-CD-GBTA500"),
-					HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.OK);
 		}
 		return new ResponseEntity<>(new JSONParser().parse(response), HttpStatus.OK);
 	}

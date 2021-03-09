@@ -200,7 +200,11 @@ public class ScenarioServiceDAO {
 				}
 			else if(path != null )
 				if(match != null){
-					query = new Query(Criteria.where("path").is(path).and("match").is(match)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+					if(match.equalsIgnoreCase("true"))
+						query = new Query(Criteria.where("path").is(path).and("wasMatched").is(true)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+					else
+						query = new Query(Criteria.where("path").is(path).and("wasMatched").is(false)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+	
 				}else{
 					query = new Query(Criteria.where("path").is(path)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 				}
