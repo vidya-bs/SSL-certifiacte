@@ -58,7 +58,7 @@ import net.logstash.logback.encoder.org.apache.commons.lang.StringEscapeUtils;
 @Controller
 @Slf4j
 public class MockValidator {
-	
+
 	private static Map<String,SpecVersion.VersionFlag> schemaVersions = new HashMap<>();
 
 	@PostConstruct
@@ -90,7 +90,7 @@ public class MockValidator {
 					DocumentContext context = JsonPath.parse(body);
 					List<Data> dataList = expectation.getRequest().getBody().getData();
 					for (Data data : dataList) {
-						if (!checkAssertionString(context.read(data.getPath()), data.getValue(),
+						if (!checkAssertionString(""+context.read(data.getPath()), data.getValue(),
 								data.getCondition().name())) {
 							return false;
 						}
@@ -310,7 +310,7 @@ public class MockValidator {
 			} else if (condition.equalsIgnoreCase("notEqualTo")) {
 				Assert.assertNotEquals(actualValue, expectedValue);
 			} else if (condition.equalsIgnoreCase("contains")) {
-				Assert.assertTrue(actualValue.containsAll(expectedValue));
+				Assert.assertTrue(expectedValue.containsAll(actualValue));
 
 			} else if (condition.equalsIgnoreCase("regex")) {
 				Assert.assertTrue(regexMatcher(expectedValue.get(0), actualValue.get(0)));
@@ -350,7 +350,7 @@ public class MockValidator {
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		DocumentContext context = JsonPath.parse(jsonSchema);
-		
+
 		JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(schemaVersions.get(context.read("$.$schema")));
 
 		try (InputStream jsonStream = new ByteArrayInputStream(json.getBytes());
