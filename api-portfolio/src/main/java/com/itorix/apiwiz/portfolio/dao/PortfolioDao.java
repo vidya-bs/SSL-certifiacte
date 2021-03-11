@@ -269,7 +269,7 @@ public class PortfolioDao {
 		List<Portfolio> portfolios = mongoTemplate.find(new Query().with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
 				.limit(pageSize), Portfolio.class);
 		if (!CollectionUtils.isEmpty(portfolios)) {
-			Long counter = mongoTemplate.count(query, Portfolio.class);
+			Long counter = mongoTemplate.count(new Query(), Portfolio.class);
 			Pagination pagination = new Pagination();
 			pagination.setOffset(offset);
 			pagination.setTotal(counter);

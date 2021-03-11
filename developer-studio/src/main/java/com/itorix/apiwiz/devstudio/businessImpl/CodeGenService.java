@@ -1181,17 +1181,17 @@ public class CodeGenService {
 			throws ItorixException, JsonProcessingException {
 		BasicQuery query = new BasicQuery("{\"proxyName\": {$regex : '" + name + "', $options: 'i'}}");
 		query.limit(limit > 0 ? limit : 10);
-		List<BuildProxy> allProxys = mongoTemplate.find(query, BuildProxy.class);
+		List<ProxyData> allProxys = mongoTemplate.find(query, ProxyData.class);
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode response = mapper.createObjectNode();
 		ArrayNode responseFields = mapper.createArrayNode();
-		for (BuildProxy vo : allProxys) {
+		for (ProxyData vo : allProxys) {
 			SearchItem item = new SearchItem();
 			item.setId(vo.getId());
 			item.setName(vo.getProxyName());
 			responseFields.addPOJO(item);
 		}
-		response.set("Proxys", responseFields);
+		response.set("proxies", responseFields);
 		return response;
 
 	}

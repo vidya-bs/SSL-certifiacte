@@ -14,11 +14,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.itorix.apiwiz.common.model.SearchItem;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
@@ -239,6 +244,24 @@ public class GroupServiceDAO {
 			metadata = new Metadata(metadata2.getCreatedBy(), metadata2.getCts(), username, Instant.now().toEpochMilli());
 		}
 		return metadata;
+	}
+	
+	public Object search(String name, int limit) throws ItorixException
+	{
+		BasicQuery query = new BasicQuery("{\"packageName\": {$regex : '" + name + "', $options: 'i'}}");
+		query.limit(limit > 0 ? limit : 10);
+		List<GroupVO> groups = mongoTemplate.find(query, GroupVO.class);
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode response = mapper.createObjectNode();
+		ArrayNode responseFields = mapper.createArrayNode();
+		for (GroupVO vo : groups) {
+			SearchItem searchItem = new SearchItem();
+			searchItem.setId(vo.getId());
+			searchItem.setName(vo.getName());
+			responseFields.addPOJO(searchItem);
+		}
+		response.set("groups", responseFields);
+		return response;	
 	}
 
 }

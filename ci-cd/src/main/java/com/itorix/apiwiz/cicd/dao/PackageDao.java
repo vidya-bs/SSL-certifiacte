@@ -600,7 +600,7 @@ public class PackageDao {
 
 	public Object searchPackage(String name, int limit) throws ItorixException
 	{
-		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
+		BasicQuery query = new BasicQuery("{\"packageName\": {$regex : '" + name + "', $options: 'i'}}");
 		query.limit(limit > 0 ? limit : 10);
 		List<Package> packages = mongoTemplate.find(query, Package.class);
 		ObjectMapper mapper = new ObjectMapper();
@@ -612,7 +612,7 @@ public class PackageDao {
 			searchItem.setName(vo.getPackageName());
 			responseFields.addPOJO(searchItem);
 		}
-		response.set("TestSuite", responseFields);
+		response.set("packages", responseFields);
 		return response;	
 	}
 

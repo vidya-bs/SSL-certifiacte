@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -227,5 +229,13 @@ public class VirtualizationServiceImpl implements VirtualizationService {
 		ExpectationResponse expectations = scenarioService.getScenarios(groupId, offset, pageSize);
 		return new ResponseEntity<>(expectations, HttpStatus.OK);
 	}
-
+	
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/mock/search", produces = "application/json")
+	public org.springframework.http.ResponseEntity<?> searchGroup(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception{
+		return new ResponseEntity<>(groupService.search(name, limit), HttpStatus.OK);
+	}
 }
