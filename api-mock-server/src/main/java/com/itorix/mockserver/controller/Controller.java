@@ -133,8 +133,12 @@ public class Controller {
 	}
 
 	private MultiValueMap<String, String> getQueryParams(HttpServletRequest httpServletRequest) {
-		MultiValueMap<String, String> queryParamsForLog = new LinkedMultiValueMap<String, String>();
 
+		if(StringUtils.isEmpty(httpServletRequest.getQueryString())) {
+			return null;
+		}
+
+		MultiValueMap<String, String> queryParamsForLog = new LinkedMultiValueMap<String, String>();
 		final String[] splitQuery = httpServletRequest.getQueryString().split("&");
 		for (final String query : splitQuery) {
 
