@@ -353,12 +353,12 @@ public class Controller {
 						mockLog.setLoggedTime(System.currentTimeMillis());
 					}
 				} catch (Exception ex) {
-
+					log.error("exception in mock server", ex);
 				}
 				MockRequest mockRequest = new MockRequest();
 				mockRequest.setCookie(httpServletRequest.getCookies());
 				mockRequest.setHeaders(headerVariables);
-				if (queryParamsForLog != null) {
+				if (formParam != null) {
 					mockRequest.setRequestParams(queryParamsForLog);
 					mockRequest.setFormParams(formParam);
 				} else {
