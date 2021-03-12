@@ -248,7 +248,7 @@ public class GroupServiceDAO {
 	
 	public Object search(String name, int limit) throws ItorixException
 	{
-		BasicQuery query = new BasicQuery("{\"packageName\": {$regex : '" + name + "', $options: 'i'}}");
+		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
 		query.limit(limit > 0 ? limit : 10);
 		List<GroupVO> groups = mongoTemplate.find(query, GroupVO.class);
 		ObjectMapper mapper = new ObjectMapper();
