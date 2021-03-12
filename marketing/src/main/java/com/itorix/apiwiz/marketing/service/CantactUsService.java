@@ -34,7 +34,7 @@ public interface CantactUsService {
 			@RequestBody List<NotificatoinEvent> notificatoinEvents) throws Exception;
 	
 	@UnSecure(ignoreValidation=true)
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/notifications/config")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/notifications/events")
 	public ResponseEntity<?> getNotificatonConfig(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value="x-apikey")String apikey) throws Exception;
