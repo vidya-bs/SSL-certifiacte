@@ -425,12 +425,13 @@ public class PackageDao {
 	private PackageProxy getProxyData(String proxyName){
 		PackageProxy packageProxy = new PackageProxy();
 		packageProxy.setName(proxyName);
-		Query query = new Query(Criteria.where("name").is(proxyName));
+		Query query = new Query(Criteria.where("proxyName").is(proxyName));
 		List<ProxyData> proxies = mongoTemplate.find(query, ProxyData.class);
 
 		if (proxies != null && proxies.size() > 0) {
 			ProxyData proxyData = proxies.get(0);
 			ProxyApigeeDetails proxyApigeeDetails = proxyData.getProxyApigeeDetails();
+			try{
 			if(proxyApigeeDetails != null){
 				List<Deployments> deployments = proxyApigeeDetails.getDeployments();
 				Set<String> devapps = new HashSet<>();
@@ -445,6 +446,9 @@ public class PackageDao {
 					}
 				packageProxy.setProducts(productList);
 				packageProxy.setDevapps(devapps);
+			}
+			}catch(Exception e){
+				e.printStackTrace();
 			}
 			ProxyArtifacts proxyArtifacts = proxyData.getProxyArtifacts();
 			if(proxyArtifacts != null){
