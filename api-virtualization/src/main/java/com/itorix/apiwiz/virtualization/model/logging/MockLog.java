@@ -1,11 +1,11 @@
 package com.itorix.apiwiz.virtualization.model.logging;
 
 import com.itorix.hyggee.mockserver.client.serialization.ObjectMapperFactory;
-import com.itorix.hyggee.mockserver.model.HttpRequest;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
@@ -73,31 +73,46 @@ public class MockLog {
 	public void setTraceId(long traceId) {
 		this.traceId = traceId;
 	}
-	public HttpRequest getHttpRequest() {
+	/*public MockRequest getHttpRequest() {
 		ObjectMapper objectMapper = ObjectMapperFactory.createObjectMapper();
 		try {
-			return objectMapper.readValue(httpRequest, HttpRequest.class);
+			return objectMapper.readValue(httpRequest, MockRequest.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
+	}*/
+	public JsonNode getHttpRequest(){
+		ObjectMapper objectMapper = ObjectMapperFactory.createObjectMapper();
+		try {
+			return objectMapper.readTree(httpRequest);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		//return httpRequest;
 	}
 	public void setHttpRequest(String httpRequest) {
 		this.httpRequest = httpRequest;
 	}
-	public HttpResponse getHttpResponse() {
+	/*public MockResponse getHttpResponse() {
 		ObjectMapper objectMapper = ObjectMapperFactory.createObjectMapper();
-		//ObjectMapper objectMapper = new ObjectMapper();
 		try {
-			
-//			JSONObject obj = new JSONObject(httpResponse);
-			HttpResponse response = objectMapper.readValue(httpResponse, HttpResponse.class);
+			MockResponse response = objectMapper.readValue(httpResponse, MockResponse.class);
 			return response;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
-//		return httpResponse;
+	}*/
+	public JsonNode getHttpResponse(){
+		ObjectMapper objectMapper = ObjectMapperFactory.createObjectMapper();
+		try {
+			return objectMapper.readTree(httpResponse);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	public void setHttpResponse(String httpResponse) {
 		this.httpResponse = httpResponse;

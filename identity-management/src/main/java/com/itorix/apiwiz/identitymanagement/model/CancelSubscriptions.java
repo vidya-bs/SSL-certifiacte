@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 
-@Document(collection = "Users.Workspace.Cancle.List")
+@Document(collection = "Users.Workspace.Cancel.List")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CancelSubscriptions {
 	
@@ -21,6 +21,10 @@ public class CancelSubscriptions {
 	private String feedback;
 	private String details;
 	private String userId;
+	private String userName;
+	private String userEmail;
+	private String status;
+	
 	public String getWorkspaceId() {
 		return workspaceId;
 	}
@@ -75,6 +79,24 @@ public class CancelSubscriptions {
 		} catch (JsonProcessingException e) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("USER_016"),"USER_016");
 		}
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	public String getUserEmail() {
+		return userEmail;
+	}
+	public void setUserEmail(String userEmail) {
+		this.userEmail = userEmail;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
 	}
 	
 }

@@ -2,6 +2,7 @@ package com.itorix.apiwiz.marketing.dao;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -62,10 +63,14 @@ public class EventsDao {
 				query.with(Sort.by(Direction.DESC, "eventDate"));
 				List<Event> events = masterMongoTemplate.find(query,Event.class);
 				CollectionUtils.filter(events, o -> ((Event) o).getStatus().equalsIgnoreCase("active"));
+				Collections.sort(events);
+				Collections.reverse(events);
 				return events;
 			}else if(status.equalsIgnoreCase("expired")){
 				List<Event> events = masterMongoTemplate.findAll(Event.class);
 				CollectionUtils.filter(events, o -> ((Event) o).getStatus().equalsIgnoreCase("expired"));
+				Collections.sort(events);
+				Collections.reverse(events);
 				return events;
 			}else
 				return masterMongoTemplate.findAll(Event.class);

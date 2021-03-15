@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -366,7 +365,17 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 		metadata.setTeams(teamSet);
 		mongoTemplate.save(metadata);
 	}
-
+	
+	public List<SwaggerTeam> getTeamsBySwaggerName(String swaggerName, String oas){
+		Query query = new Query();
+		if (oas.equals("2.0"))
+			query.addCriteria(Criteria.where("swaggers").is(swaggerName));
+		else if (oas.equals("3.0"))
+			query.addCriteria(Criteria.where("swagger3").is(swaggerName));
+		List<SwaggerTeam> teamlist = baseRepository.find(query, SwaggerTeam.class);
+		return teamlist;
+	}
+	
 	/**
 	 * findSwaggerTeames
 	 * 
@@ -374,7 +383,7 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 	 * @param interactionid
 	 * @return
 	 */
-	public TeamsHistoryResponse findSwaggerTeames(String jsessionid, String interactionid, int offset, int pageSize) {
+	public TeamsHistoryResponse findSwaggerTeames(String jsessionid, String interactionid, int offset, int pageSize, String name) {
 		log("findSwaggerTeames", interactionid);
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		User user = getUserDetailsFromSessionID(jsessionid);
@@ -383,14 +392,24 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 		TeamsHistoryResponse historyResponse = new TeamsHistoryResponse();
 		List<SwaggerTeam> swaggerTeams = new ArrayList<SwaggerTeam>();
 		if (isAdmin) {
-			Query query = new Query().with(Sort.by(Direction.DESC, "_id"))
+			Query query;
+			if(name != null)
+				query = new Query(Criteria.where("name").is(name)).with(Sort.by(Direction.DESC, "_id"))
 					.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+			else
+				query = new Query().with(Sort.by(Direction.DESC, "_id"))
+				.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 			swaggerTeams = baseRepository.find(query, SwaggerTeam.class);
 		} else {
-			Query query = new Query(Criteria.where("contacts.email").is(user.getEmail()))
+			Query query;
+			if(name != null)
+			query = new Query(Criteria.where("contacts.email").is(user.getEmail()).and("name").is(name))
 					.with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
 					.limit(pageSize);
-			//query.addCriteria(Criteria.where("contacts.email").is(user.getEmail()));
+			else
+				query = new Query(Criteria.where("contacts.email").is(user.getEmail()))
+				.with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+				.limit(pageSize);
 			swaggerTeams = baseRepository.find(query, SwaggerTeam.class);
 		}
 		if (swaggerTeams != null) {

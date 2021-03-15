@@ -106,6 +106,7 @@ public enum ErrorCodes {
 			put("USER_024", "workspace used is not active");
 			put("USER_028", "No permissions associated to the plan associated");
 			put("USER_029", "No permissions to perform the action");
+			put("USER_030", "Looks like your account is locked, Please contact workspace admin.");
 
 			put("IDENTITY-1008", "Sorry! The username entered already exists. Please try registering with a new loginid and email or login with the existing credentials.");
 			put("IDENTITY-1010", "Sorry! Insufficeint permissions to perform this activity.");
@@ -340,6 +341,7 @@ public enum ErrorCodes {
 			put("USER_010",403);
 			put("USER_028",400);
 			put("USER_029",401);
+			put("USER_030",403);
 
 			put("PROJECT_PLAN_TRACK_001", 400);
 			put("ProjectPlan-1001", 400);

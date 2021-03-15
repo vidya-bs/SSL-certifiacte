@@ -145,7 +145,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 			HttpServletResponse response) {
 		return "I am in Live :)";
 	}
-
+	
+	private final String COMMIT_MESSAGE = "Pushed latest changes from Apiwiz platform";
 	public ResponseEntity<Object> importSwaggers(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
@@ -260,12 +261,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 				scmUtilImpl.pushFilesToSCM(file, integrations.getScm_repository(),
 						rsaEncryption.decryptText(integrations.getScm_username()),
 						rsaEncryption.decryptText(integrations.getScm_password()), integrations.getScm_url(),
-						integrations.getScm_type(), integrations.getScm_branch(), null);
+						integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
 			} else if (integrations != null && integrations.getScm_authorizationType() != null) {
 				File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(), swaggerVO.getRevision());
 				scmUtilImpl.pushFilesToSCMBase64(file, integrations.getScm_repository(),
 						integrations.getScm_authorizationType(), rsaEncryption.decryptText(integrations.getScm_token()),
-						integrations.getScm_url(), integrations.getScm_type(), integrations.getScm_branch(), null);
+						integrations.getScm_url(), integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
 			}
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
 			headers.add("X-Swagger-id", swaggerVO.getSwaggerId());
@@ -282,12 +283,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 						rsaEncryption.decryptText(integrations.getScm_username()),
 						rsaEncryption.decryptText(integrations.getScm_password()), 
 						integrations.getScm_url(),
-						integrations.getScm_type(), integrations.getScm_branch(), null);
+						integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
 			} else if (integrations != null && integrations.getScm_authorizationType() != null) {
 				File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(), swaggerVO.getRevision());
 				scmUtilImpl.pushFilesToSCMBase64(file, integrations.getScm_repository(),
 						integrations.getScm_authorizationType(), rsaEncryption.decryptText(integrations.getScm_token()),
-						integrations.getScm_url(), integrations.getScm_type(), integrations.getScm_branch(), null);
+						integrations.getScm_url(), integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
 			}
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
 			headers.add("X-Swagger-id", swaggerVO.getSwaggerId());
@@ -345,12 +346,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 				scmUtilImpl.pushFilesToSCM(file, integrations.getScm_repository(),
 						rsaEncryption.decryptText(integrations.getScm_username()),
 						rsaEncryption.decryptText(integrations.getScm_password()), integrations.getScm_url(), 
-						integrations.getScm_type(), integrations.getScm_branch(), null);
+						integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
 			} else if (integrations != null && integrations.getScm_authorizationType() != null) {
 				File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(), swaggerVO.getRevision());
 				scmUtilImpl.pushFilesToSCMBase64(file, integrations.getScm_repository(),
 						integrations.getScm_authorizationType(), rsaEncryption.decryptText(integrations.getScm_token()), 
-						integrations.getScm_url(), integrations.getScm_type(), integrations.getScm_branch(), null);
+						integrations.getScm_url(), integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
 			}
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
 		} else if (oas.equals("3.0")) {
@@ -375,21 +376,21 @@ public class SwaggerServiceImpl implements SwaggerService {
 				scmUtilImpl.pushFilesToSCM(file, integrations.getScm_repository(),
 						rsaEncryption.decryptText(integrations.getScm_username()),
 						rsaEncryption.decryptText(integrations.getScm_password()), integrations.getScm_url(), integrations.getScm_type(),
-						integrations.getScm_branch(), null);
+						integrations.getScm_branch(), COMMIT_MESSAGE);
 			} else if (integrations != null && vo.getScm_authorizationType() != null) {
 				File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(), swaggerVO.getRevision());
 				scmUtilImpl.pushFilesToSCMBase64(file, integrations.getScm_repository(),
 						integrations.getScm_authorizationType(), rsaEncryption.decryptText(integrations.getScm_token()), 
-						integrations.getScm_url(), integrations.getScm_type(), integrations.getScm_branch(), null);
+						integrations.getScm_url(), integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
 			}
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
-		}
+		} 
 		return new ResponseEntity<Void>(headers, HttpStatus.NO_CONTENT);
 	}
 	
 	private File createSwaggerFile(String swaggerName, String swagger, String folder, int revision) throws IOException{
 		String separatorChar = String.valueOf(File.separatorChar);
-		String revStr = separatorChar + "revisions" + separatorChar + String.valueOf(revision);
+		String revStr = separatorChar + "swagger" + separatorChar + swaggerName + separatorChar +String.valueOf(revision);
 		folder = folder != null && !folder.isEmpty()? folder + revStr: "Swagger" + revStr;
 		String location = applicationProperties.getTempDir() + System.currentTimeMillis();
 		String fileLocation = location + separatorChar + folder + separatorChar + swaggerName + ".json";
@@ -1281,8 +1282,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (sheetName == null || sheetName.trim().length() <= 0) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1007"), "Swagger-1007");
 		}
-		SwaggerVO swaggerVO = new SwaggerVO();
-		swaggerVO.setName(swaggername);
+		swaggerBusiness.getSwagger(swaggername, interactionid);
+		SwaggerVO swaggerVO = swaggerBusiness.getSwagger(swaggername, interactionid);
 		swaggerVO.setInteractionid(interactionid);
 		SwaggerVO swagger = swaggerBusiness.genarateSwaggerDefinations(swaggerVO, xpathFile, sheetName, revision);
 		HttpHeaders headers = new HttpHeaders();

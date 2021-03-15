@@ -7,7 +7,10 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.mail.MessagingException;
 
@@ -30,7 +33,6 @@ import com.itorix.apiwiz.cicd.beans.PackageMetadata;
 import com.itorix.apiwiz.cicd.beans.PackagePipelineData;
 import com.itorix.apiwiz.cicd.beans.PackageProjectData;
 import com.itorix.apiwiz.cicd.beans.PackageProxy;
-import com.itorix.apiwiz.cicd.beans.PackageProxyData;
 import com.itorix.apiwiz.cicd.beans.PackageReviewComents;
 import com.itorix.apiwiz.cicd.beans.Pipeline;
 import com.itorix.apiwiz.cicd.beans.PipelineGroups;
@@ -39,16 +41,17 @@ import com.itorix.apiwiz.cicd.beans.Stage;
 import com.itorix.apiwiz.cicd.gocd.integrations.CiCdIntegrationAPI;
 import com.itorix.apiwiz.common.model.SearchItem;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.model.projectmanagement.Project;
-import com.itorix.apiwiz.common.model.projectmanagement.Proxies;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyArtifacts;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyData;
+import com.itorix.apiwiz.common.model.proxystudio.apigeeassociations.Deployments;
+import com.itorix.apiwiz.common.model.proxystudio.apigeeassociations.Product;
+import com.itorix.apiwiz.common.model.proxystudio.apigeeassociations.ProxyApigeeDetails;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.mail.EmailTemplate;
 import com.itorix.apiwiz.common.util.mail.MailUtil;
-import com.itorix.apiwiz.devstudio.businessImpl.CodeGenService;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.User;
-import com.itorix.apiwiz.testsuite.model.TestSuite;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -66,9 +69,6 @@ public class PackageDao {
 
 	@Autowired
 	CiCdIntegrationAPI cicdIntegrationApi;
-
-	@Autowired
-	private CodeGenService codeGenService;
 
 	@Autowired
 	ApplicationProperties applicationProperties;
@@ -425,15 +425,36 @@ public class PackageDao {
 	private PackageProxy getProxyData(String proxyName){
 		PackageProxy packageProxy = new PackageProxy();
 		packageProxy.setName(proxyName);
-		Query query = new Query(Criteria.where("name").is(proxyName));
-		List<PackageProxyData> proxies = mongoTemplate.find(query, PackageProxyData.class);
+		Query query = new Query(Criteria.where("proxyName").is(proxyName));
+		List<ProxyData> proxies = mongoTemplate.find(query, ProxyData.class);
+
 		if (proxies != null && proxies.size() > 0) {
-			for(PackageProxyData proxyElement: proxies){
-				packageProxy.setProducts(proxyElement.getProducts());
-				packageProxy.setDevapps(proxyElement.getDevapps());
-				packageProxy.setCaches(proxyElement.getCaches());
-				packageProxy.setKvm(proxyElement.getKvm());
-				packageProxy.setTargetServers(proxyElement.getTargetServers());
+			ProxyData proxyData = proxies.get(0);
+			ProxyApigeeDetails proxyApigeeDetails = proxyData.getProxyApigeeDetails();
+			try{
+			if(proxyApigeeDetails != null){
+				List<Deployments> deployments = proxyApigeeDetails.getDeployments();
+				Set<String> devapps = new HashSet<>();
+				Set<String> productList= null;
+				Deployments deployment = deployments.get(0);
+					if(deployment.getProxies().get(0).getProducts() != null){
+						List<Product> products = deployment.getProxies().get(0).getProducts();
+						productList = products.stream().map(o -> o.getName()).collect(Collectors.toSet());
+						for(Product product : products){
+							devapps.addAll(product.getDevApps().stream().map(o -> o.getName()).collect(Collectors.toSet()));
+						}
+					}
+				packageProxy.setProducts(productList);
+				packageProxy.setDevapps(devapps);
+			}
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			ProxyArtifacts proxyArtifacts = proxyData.getProxyArtifacts();
+			if(proxyArtifacts != null){
+				packageProxy.setCaches(proxyArtifacts.getCaches());
+				packageProxy.setKvm(proxyArtifacts.getKvms());
+				packageProxy.setTargetServers(proxyArtifacts.getTargetServers());
 			}
 		}
 		return packageProxy;
@@ -583,7 +604,7 @@ public class PackageDao {
 
 	public Object searchPackage(String name, int limit) throws ItorixException
 	{
-		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
+		BasicQuery query = new BasicQuery("{\"packageName\": {$regex : '" + name + "', $options: 'i'}}");
 		query.limit(limit > 0 ? limit : 10);
 		List<Package> packages = mongoTemplate.find(query, Package.class);
 		ObjectMapper mapper = new ObjectMapper();
@@ -595,7 +616,7 @@ public class PackageDao {
 			searchItem.setName(vo.getPackageName());
 			responseFields.addPOJO(searchItem);
 		}
-		response.set("TestSuite", responseFields);
+		response.set("packages", responseFields);
 		return response;	
 	}
 

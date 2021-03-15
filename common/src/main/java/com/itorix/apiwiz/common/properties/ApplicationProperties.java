@@ -100,7 +100,7 @@ public class ApplicationProperties {
 //	@Value("${app.resendVerification.redirection.url}")
 	private String resendVerificationRedirectionLink;
 
-	@Value("${itorix.core.user.management.redirection.activation}")
+	@Value("${itorix.core.user.management.redirection.activation:null}")
 	private String userActivationRedirectionLink;
 
 	//@Value("${app.blockUser.redirection.url}")
@@ -157,11 +157,11 @@ public class ApplicationProperties {
 	private String serviceRequestReviewBody;
 
 	//@Value("${app.mailutil.serviceRequestApprove.body}")
-	@Value("${itorix.core.apigee.service.request.notification.approve.email.body}")
+	@Value("${itorix.core.apigee.service.request.notification.approve.email.body:@null}")
 	private String serviceRequestApproveBody;
 
 	//@Value("${app.mailutil.serviceRequestReject.body}")
-	@Value("${itorix.core.apigee.service.request.notification.reject.email.body}")
+	@Value("${itorix.core.apigee.service.request.notification.reject.email.body:@null}")
 	private String serviceRequestRejecteBody;
 
 	@Value("${itorix.core.swagger.notification.status.subject}")
@@ -201,7 +201,7 @@ public class ApplicationProperties {
 	@Value("${server.contextPath}")
 	private String appDomain;
 
-	@Value("${itorix.core.user.management.redirection.activation}")
+	@Value("${itorix.core.user.management.redirection.activation:null}")
 	private String userVerifiedRedirectionLink;
 
 	@Value("${itorix.core.user.management.activation.notification.email.subject}")
@@ -219,10 +219,10 @@ public class ApplicationProperties {
 	//@Value("${itorix.service.password}")
 	private String servicePassword;
 
-	@Value("${itorix.core.apigee.edge.default.serviceaccount.username}")
+	@Value("${itorix.core.apigee.edge.default.serviceaccount.username:@null}")
 	private String apigeeServiceUsername;
 
-	@Value("${itorix.core.apigee.edge.default.serviceaccount.password}")
+	@Value("${itorix.core.apigee.edge.default.serviceaccount.password:@null}")
 	private String apigeeServicePassword;
 
 	//@Value("${itorix.testsuite.triggerscript.location}")
@@ -694,12 +694,12 @@ public class ApplicationProperties {
 	}
 
 	public String getApigeeServicePassword() {
-		String decryptedPassword = "";
+		String decryptedPassword = null;
 		try {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.apigeeServicePassword);
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return decryptedPassword;
 	}

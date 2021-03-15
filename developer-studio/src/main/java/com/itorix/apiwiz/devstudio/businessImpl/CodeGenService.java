@@ -307,7 +307,7 @@ public class CodeGenService {
 
 	private ProxyGenResponse populateProxyArtifacts(ProxyArtifacts proxyArtifacts) throws ItorixException{
 		ProxyGenResponse response = new ProxyGenResponse();
-		List<String> kvms = proxyArtifacts.getKvm();
+		List<String> kvms = proxyArtifacts.getKvms();
 		if(kvms != null){
 			List<Artifact> configKVMS = new ArrayList<>();
 			response.setKvms(configKVMS);
@@ -462,9 +462,9 @@ public class CodeGenService {
 	}
 
 	@SuppressWarnings("unchecked")
-	public ProxyHistoryResponse getHistory(int offset, int pageSize) throws Exception{
-		//		change
-		ProxyHistoryResponse response = mongoConnection.getProxyHistory(offset, pageSize);
+	public ProxyHistoryResponse getHistory(int offset, int pageSize, String proxy) throws Exception{
+		
+		ProxyHistoryResponse response = mongoConnection.getProxyHistory(offset, pageSize, proxy);
 		List<ProxyData>stringData = (List<ProxyData>) response.getData();
 		List<Map<String,String>> listData = new ArrayList<Map<String,String>>();
 		if(stringData == null){
@@ -1181,17 +1181,17 @@ public class CodeGenService {
 			throws ItorixException, JsonProcessingException {
 		BasicQuery query = new BasicQuery("{\"proxyName\": {$regex : '" + name + "', $options: 'i'}}");
 		query.limit(limit > 0 ? limit : 10);
-		List<BuildProxy> allProxys = mongoTemplate.find(query, BuildProxy.class);
+		List<ProxyData> allProxys = mongoTemplate.find(query, ProxyData.class);
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode response = mapper.createObjectNode();
 		ArrayNode responseFields = mapper.createArrayNode();
-		for (BuildProxy vo : allProxys) {
+		for (ProxyData vo : allProxys) {
 			SearchItem item = new SearchItem();
 			item.setId(vo.getId());
 			item.setName(vo.getProxyName());
 			responseFields.addPOJO(item);
 		}
-		response.set("Proxys", responseFields);
+		response.set("proxies", responseFields);
 		return response;
 
 	}

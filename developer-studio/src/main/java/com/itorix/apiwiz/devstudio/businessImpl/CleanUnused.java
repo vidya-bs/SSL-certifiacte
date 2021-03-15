@@ -65,7 +65,7 @@ public class CleanUnused {
 		} catch (IOException e) {
 		}
 		ProxyArtifacts data = new ProxyArtifacts();
-		data.setKvm((List)Arrays.asList(kvmResources.toArray()));
+		data.setKvms((List)Arrays.asList(kvmResources.toArray()));
 		data.setCaches((List)Arrays.asList(cacheResources.toArray()));
 		data.setTargetServers(targets);
 		data.setSharedflows(sharedflows);

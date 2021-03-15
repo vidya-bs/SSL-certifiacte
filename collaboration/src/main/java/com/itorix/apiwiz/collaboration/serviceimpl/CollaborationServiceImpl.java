@@ -203,7 +203,7 @@ public class CollaborationServiceImpl implements CollaborationService {
 		}
 		else if( oas.equals("3.0") ){
 			Swagger3VO vo = collaborationBusiness.findSwagger3(swaggername, interactionid);
-			if (vo == null) {
+			if (vo != null) {
 				SwaggerMetadata metadata = collaborationBusiness.getSwaggerMetadata(vo.getName(), oas);
 				if(metadata!= null)
 					responseSet = metadata.getTeams();
@@ -254,8 +254,9 @@ public class CollaborationServiceImpl implements CollaborationService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) throws Exception {
-		TeamsHistoryResponse list = collaborationBusiness.findSwaggerTeames(jsessionid, interactionid, offset, pageSize);
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
+			@RequestParam(value = "name", required = false) String name) throws Exception {
+		TeamsHistoryResponse list = collaborationBusiness.findSwaggerTeames(jsessionid, interactionid, offset, pageSize, name);
 		return new ResponseEntity<TeamsHistoryResponse>(list, HttpStatus.OK);
 	}
 

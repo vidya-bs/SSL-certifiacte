@@ -58,7 +58,6 @@ public class PortfolioServiceImpl implements PortfolioService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
-
 		portfolioRequest.setCreatedBy(user.getFirstName() + " " + user.getLastName());
 		portfolioRequest.setCts(System.currentTimeMillis());
 		portfolioRequest.setMts(System.currentTimeMillis());

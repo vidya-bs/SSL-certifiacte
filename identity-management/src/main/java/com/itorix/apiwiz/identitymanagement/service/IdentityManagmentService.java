@@ -416,7 +416,7 @@ public interface IdentityManagmentService {
 	public @ResponseBody ResponseEntity<Void> cancelSubscription(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value="interactionid",required=false) String interactionid,
-			@RequestBody UserInfo userInfo) throws Exception;
+			@RequestBody CancelSubscriptions subscription) throws Exception;
 	
 	
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/workspace")
