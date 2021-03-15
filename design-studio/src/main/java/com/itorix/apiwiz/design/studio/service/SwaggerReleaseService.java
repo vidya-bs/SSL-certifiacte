@@ -28,11 +28,11 @@ public interface SwaggerReleaseService {
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
-			@PathVariable(value = "swaggerid", required = false) String swaggerid,
 			@RequestParam(value = "text", required = false) String text,
 			@RequestParam(value = "oldRevision", required = false) String oldRevision,
 			@RequestParam(value = "newRevision", required = false) String newRevision,
-			@RequestParam(value = "summary", required = false) String summary) throws Exception;
+			@RequestParam(value = "summary", required = false) String summary,
+			@PathVariable(value = "swaggerid") String swaggerid) throws Exception;
 	
 	@RequestMapping(method = RequestMethod.POST, value = {"/v1/swaggers/{swaggerid}/change-log/{id}"})
 	public ResponseEntity<Object> updateDifference(
@@ -62,8 +62,8 @@ public interface SwaggerReleaseService {
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
-			@PathVariable(value = "swaggerid" , required = false) String swaggerid,
-			@PathVariable(value = "id" , required = false) String id,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-			@RequestParam(value = "timeRange", required = false) String timeRange) throws Exception;
+			@RequestParam(value = "timeRange", required = false) String timeRange,
+			@PathVariable(value = "swaggerid" , required = false) String swaggerid,
+			@PathVariable(value = "id" , required = false) String id) throws Exception;
 }

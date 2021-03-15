@@ -6,11 +6,14 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -56,6 +59,15 @@ import net.logstash.logback.encoder.org.apache.commons.lang.StringEscapeUtils;
 @Slf4j
 public class MockValidator {
 
+	private static Map<String,SpecVersion.VersionFlag> schemaVersions = new HashMap<>();
+
+	@PostConstruct
+	void setJsonSchemaVersions(){
+		schemaVersions.put("http://json-schema.org/draft-04/schema#",  SpecVersion.VersionFlag.V4);
+		schemaVersions.put("http://json-schema.org/draft-06/schema#", SpecVersion.VersionFlag.V6);
+		schemaVersions.put("http://json-schema.org/draft-07/schema#", SpecVersion.VersionFlag.V7);
+		schemaVersions.put("http://json-schema.org/draft/2019-09/schema#", SpecVersion.VersionFlag.V201909);
+	}
 
 	public boolean checkBody(Expectation expectation, String body,
 			MultiValueMap<String, String> formParams, MultiValueMap<String, String> urlEncodedParam) {
@@ -78,7 +90,7 @@ public class MockValidator {
 					DocumentContext context = JsonPath.parse(body);
 					List<Data> dataList = expectation.getRequest().getBody().getData();
 					for (Data data : dataList) {
-						if (!checkAssertionString(context.read(data.getPath()), data.getValue(),
+						if (!checkAssertionString(""+context.read(data.getPath()), data.getValue(),
 								data.getCondition().name())) {
 							return false;
 						}
@@ -298,7 +310,7 @@ public class MockValidator {
 			} else if (condition.equalsIgnoreCase("notEqualTo")) {
 				Assert.assertNotEquals(actualValue, expectedValue);
 			} else if (condition.equalsIgnoreCase("contains")) {
-				Assert.assertTrue(actualValue.containsAll(expectedValue));
+				Assert.assertTrue(expectedValue.containsAll(actualValue));
 
 			} else if (condition.equalsIgnoreCase("regex")) {
 				Assert.assertTrue(regexMatcher(expectedValue.get(0), actualValue.get(0)));
@@ -337,7 +349,9 @@ public class MockValidator {
 	private static boolean validateJSONSchema(String jsonSchema , String json) {
 
 		ObjectMapper objectMapper = new ObjectMapper();
-		JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+		DocumentContext context = JsonPath.parse(jsonSchema);
+
+		JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(schemaVersions.get(context.read("$.$schema")));
 
 		try (InputStream jsonStream = new ByteArrayInputStream(json.getBytes());
 				InputStream schemaStream = new ByteArrayInputStream(jsonSchema.getBytes());) {

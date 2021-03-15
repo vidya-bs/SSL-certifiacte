@@ -152,8 +152,9 @@ public class ProxyStudioImpl implements ProxyStudio {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) throws Exception {
-		return new ResponseEntity<> (codeGenService.getHistory(offset, pageSize) , HttpStatus.OK);
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
+			@RequestParam(value = "proxy", required = false) String proxy) throws Exception {
+		return new ResponseEntity<> (codeGenService.getHistory(offset, pageSize, proxy) , HttpStatus.OK);
 	}
 
 	@Override
@@ -212,7 +213,6 @@ public class ProxyStudioImpl implements ProxyStudio {
 			@RequestParam(value = "type", required=false) String type,
 			@RequestParam(value = "refresh",required=false) boolean refresh)
 					throws Exception {
-		operations.setUser(commonServices.getUserDetailsFromSessionID(jsessionid));
 		return new ResponseEntity<>( codeGenService.getApigeeDetails(proxy, refresh, type),HttpStatus.OK);
 	}
 

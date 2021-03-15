@@ -19,6 +19,7 @@ import javax.mail.MessagingException;
 import org.apache.commons.lang.StringUtils;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -46,7 +47,9 @@ import com.itorix.apiwiz.configmanagement.dao.ConfigManagementDao;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
+import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 import com.itorix.apiwiz.identitymanagement.model.User;
+import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.servicerequest.model.ServiceRequest;
 import com.itorix.apiwiz.servicerequest.model.ServiceRequestComments;
 import com.itorix.apiwiz.servicerequest.model.ServiceRequestHistoryResponse;
@@ -62,6 +65,10 @@ import com.mongodb.client.result.UpdateResult;
 @Component
 public class ServiceRequestDao {
 
+	@Qualifier("masterMongoTemplate")
+	@Autowired
+	private MongoTemplate masterMongoTemplate;
+	
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
@@ -231,28 +238,20 @@ public class ServiceRequestDao {
 
 	private void sendEmailTo(ServiceRequest config) throws MessagingException {
 		try {
-			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-			Date date = new Date();
-			String formatedDate = dateFormat.format(date);
 			EmailTemplate emailTemplate = new EmailTemplate();
 			ArrayList<String> toMailId = new ArrayList<String>();
-			String body = null;
+			String body = getMailBody(config);
 			if (config.getStatus().equalsIgnoreCase("Review")) {
-				List<String> allUsers =  new ArrayList<String>();//identityManagementDao.getAllUsersWithRoleDevOPS();
+				List<String> allUsers =  new ArrayList<String>();
+				allUsers = identityManagementDao.getAllUsersWithRoleDevOPS();
 				toMailId.addAll(allUsers);
-				body = MessageFormat.format(applicationProperties.getServiceRequestReviewBody(), config.getName(),
-						config.getType(), formatedDate, config.getModifiedUser());
 			} else if (config.getStatus().equalsIgnoreCase("Approved")) {
 				toMailId.add(config.getCreatedUserEmailId());
 				if (config.getModifiedUserEmailId() != null) {
 					toMailId.add(config.getModifiedUserEmailId());
 				}
-				body = MessageFormat.format(applicationProperties.getServiceRequestApproveBody(), config.getName(),
-						config.getType(), config.getModifiedUser(), formatedDate, config.getApprovedBy());
 			} else {
 				toMailId.add(config.getCreatedUserEmailId());
-				body = MessageFormat.format(applicationProperties.getServiceRequestRejecteBody(), config.getName(),
-						config.getType(), config.getModifiedUser(), formatedDate);
 			}
 			emailTemplate.setToMailId(toMailId);
 			emailTemplate.setBody(body);
@@ -260,10 +259,65 @@ public class ServiceRequestDao {
 					MessageFormat.format(applicationProperties.getServiceRequestSubject(), config.getName()));
 			mailUtil.sendEmail(emailTemplate);
 		} catch (Exception e) {
+			
 			e.printStackTrace();
 		}
 	}
+	
+	private String getMailBody(ServiceRequest config){
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		User user = masterMongoTemplate.findById(userSessionToken.getUserId(),User.class);
+		String userName = user.getFirstName() + " " + user.getLastName();
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date date = new Date();
+		String formatedDate = dateFormat.format(date);
+		return MessageFormat.format(applicationProperties.getServiceRequestReviewBody(),
+				formatedDate, config.getName(), getRequestCount(),
+				config.getType(), getCountbyType(config.getType()),
+				config.getStatus(), getCountbyStatus(config.getStatus()),
+				userName, getCountbyuserId(userName));
+	}
 
+	private long getRequestCount(){
+		try{
+			Query query = new Query(Criteria.where("activeFlag").is(true));
+			return mongoTemplate.getCollection(mongoTemplate.getCollectionName(ServiceRequest.class)).countDocuments(query.getQueryObject());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	private long getCountbyType(String type){
+		try{
+			Query query = new Query(Criteria.where("activeFlag").is(true).and("type").is(type));
+			return mongoTemplate.getCollection(mongoTemplate.getCollectionName(ServiceRequest.class)).countDocuments(query.getQueryObject());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	private long getCountbyStatus(String status){
+		try{
+			Query query = new Query(Criteria.where("activeFlag").is(true).and("status").is(status));
+			return mongoTemplate.getCollection(mongoTemplate.getCollectionName(ServiceRequest.class)).countDocuments(query.getQueryObject());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	private long getCountbyuserId(String userId){
+		try{
+			Query query = new Query(Criteria.where("activeFlag").is(true).and("createdUser").is(userId));
+			return mongoTemplate.getCollection(mongoTemplate.getCollectionName(ServiceRequest.class)).countDocuments(query.getQueryObject());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public boolean updateServiceRequest(ServiceRequest serviceRequest) throws ItorixException {
 		try {

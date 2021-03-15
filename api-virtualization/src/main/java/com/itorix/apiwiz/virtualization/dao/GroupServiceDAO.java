@@ -14,11 +14,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.itorix.apiwiz.common.model.SearchItem;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
@@ -45,6 +50,9 @@ public class GroupServiceDAO {
 
 	@Value("${itorix.core.mock.port:9002}")
 	private String mockPort;
+	@Value("${itorix.mock.agent}")
+	private String mockHost;
+	
 
 
 	private final String MOCK_URL = "http://#URL#-mock.apiwiz.io";
@@ -63,11 +71,11 @@ public class GroupServiceDAO {
 			UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 			Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
 			String tenantId = workspace.getKey();
-			String mockURL = MOCK_URL.replaceAll("#URL#", userSessionToken.getWorkspaceId());
-			mockURL = mockURL + ":" + mockPort;
+			//String mockURL = MOCK_URL.replaceAll("#URL#", userSessionToken.getWorkspaceId());
+			//mockURL = mockURL + ":" + mockPort;
 			for(GroupVO vo : listVO){
 				vo.setTenantId(tenantId);
-				vo.setMockURL(mockURL);
+				vo.setMockURL(mockHost);
 			}
 			if(listVO.size()>0){
 				GroupHistoryResponse response = new GroupHistoryResponse();
@@ -144,7 +152,7 @@ public class GroupServiceDAO {
 				String mockURL = MOCK_URL.replaceAll("#URL#", userSessionToken.getWorkspaceId());
 				mockURL = mockURL + ":" + mockPort;
 				vo.setTenantId(tenantId);
-				vo.setMockURL(mockURL);
+				vo.setMockURL(mockHost);
 				return vo;
 			}
 			else
@@ -167,7 +175,7 @@ public class GroupServiceDAO {
 				mockURL = mockURL + ":" + mockPort;
 				GroupVO vo = mongoTemplate.findOne(query, GroupVO.class);
 				vo.setTenantId(tenantId);
-				vo.setMockURL(mockURL);
+				vo.setMockURL(mockHost);
 				return vo;
 			}
 		} catch (Exception ex) {
@@ -236,6 +244,24 @@ public class GroupServiceDAO {
 			metadata = new Metadata(metadata2.getCreatedBy(), metadata2.getCts(), username, Instant.now().toEpochMilli());
 		}
 		return metadata;
+	}
+	
+	public Object search(String name, int limit) throws ItorixException
+	{
+		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
+		query.limit(limit > 0 ? limit : 10);
+		List<GroupVO> groups = mongoTemplate.find(query, GroupVO.class);
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode response = mapper.createObjectNode();
+		ArrayNode responseFields = mapper.createArrayNode();
+		for (GroupVO vo : groups) {
+			SearchItem searchItem = new SearchItem();
+			searchItem.setId(vo.getId());
+			searchItem.setName(vo.getName());
+			responseFields.addPOJO(searchItem);
+		}
+		response.set("groups", responseFields);
+		return response;	
 	}
 
 }

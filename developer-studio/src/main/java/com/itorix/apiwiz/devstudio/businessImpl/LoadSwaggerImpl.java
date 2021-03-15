@@ -106,6 +106,7 @@ public class LoadSwaggerImpl implements LoadSwagger{
 			flow.setPath(path);
 			flow.setVerb("GET");
 			flow.setDescription(get.getSummary());
+			if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 			flowList.add(flow);
 		}
 		if(put != null){
@@ -115,6 +116,7 @@ public class LoadSwaggerImpl implements LoadSwagger{
 			flow.setPath(path);
 			flow.setVerb("PUT");
 			flow.setDescription(put.getSummary());
+			if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 			flowList.add(flow);
 		}
 		if(post != null){
@@ -124,6 +126,7 @@ public class LoadSwaggerImpl implements LoadSwagger{
 			flow.setPath(path);
 			flow.setVerb("POST");
 			flow.setDescription(post.getSummary());
+			if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 			flowList.add(flow);
 		}
 		if(delete != null){
@@ -133,6 +136,7 @@ public class LoadSwaggerImpl implements LoadSwagger{
 			flow.setPath(path);
 			flow.setVerb("DELETE");
 			flow.setDescription(delete.getSummary());
+			if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 			flowList.add(flow);
 		}
 		if(patch != null){
@@ -142,6 +146,7 @@ public class LoadSwaggerImpl implements LoadSwagger{
 			flow.setPath(path);
 			flow.setVerb("PATCH");
 			flow.setDescription(delete.getSummary());
+			if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 			flowList.add(flow);
 		}
 		return flowList;
@@ -186,7 +191,7 @@ public class LoadSwaggerImpl implements LoadSwagger{
 					if(!operationJsonValue.equals(null))
 					{
 						Flow flow = new Flow();
-						flowList.add(flow);
+						//flowList.add(flow);
 						try{
 							net.sf.json.JSONObject js = (net.sf.json.JSONObject)operationJsonValue;
 							try{
@@ -201,6 +206,9 @@ public class LoadSwaggerImpl implements LoadSwagger{
 							if(summary!=null)
 								flow.setDescription(summary);
 						}catch(Exception e){}
+						if(flow.getPath() != null && flow.getVerb() != null)
+						if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
+							flowList.add(flow);
 					}
 				}
 			}
@@ -280,9 +288,8 @@ public class LoadSwaggerImpl implements LoadSwagger{
 					Object operationJsonValue = operation.get(methodType);
 					if(!operationJsonValue.equals(null))
 					{
+						Flow flow = new Flow();
 						try{
-							Flow flow = new Flow();
-							flowList.add(flow);
 							net.sf.json.JSONObject js = (net.sf.json.JSONObject)operationJsonValue;
 							try{
 								flow.setName((js.get("operationId").toString()).replaceAll("\\s",""));
@@ -298,7 +305,10 @@ public class LoadSwaggerImpl implements LoadSwagger{
 								}catch(Exception ex){}
 							}
 							flow.setDescription(description);
-						}catch (Exception e){}	
+						}catch (Exception e){}
+						if(flow.getPath() != null && flow.getVerb() != null)
+						if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
+							flowList.add(flow);
 					}
 				}
 			}

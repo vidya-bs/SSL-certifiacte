@@ -60,7 +60,8 @@ public interface PortfolioService {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/portfolios", produces = { "application/json" })
 	public ResponseEntity<Object> getListOfPortfolio(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset, @RequestParam(value = "pagesize" , defaultValue= "10" ) int pageSize) throws Exception;
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset, 
+			@RequestParam(value = "pagesize" , defaultValue= "10" ) int pageSize) throws Exception;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/portfolios/list", produces = { "application/json" })
 	public ResponseEntity<Object> getListOfPortfolioList(

@@ -5,6 +5,7 @@ import java.util.List;
 
 public class EmailContent {
 	private List<String> toMailId;
+	private String event;
 	private String subject;
 	private EmailBody body;
 	
@@ -27,5 +28,11 @@ public class EmailContent {
 	}
 	public void setBody(EmailBody body) {
 		this.body = body;
+	}
+	public String getEvent() {
+		return event;
+	}
+	public void setEvent(String event) {
+		this.event = event;
 	}
 }

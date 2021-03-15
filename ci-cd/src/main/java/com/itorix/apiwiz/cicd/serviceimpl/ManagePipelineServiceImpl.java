@@ -128,11 +128,13 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		// Save Pipeline Details in DB
+		String pipelineName = pipelineDao.getPipelineName(pipelineGroups);
+		String displayName = pipelineGroups.getPipelines().get(0).getDisplayName();
 		pipelineGroups.getPipelines().get(0).setStatus("Active");
 		pipelineGroups = pipelineDao.createOrEditPipeline(pipelineGroups, commonServices.getUserDetailsFromSessionID(jsessionId));
 		HttpHeaders headers = new HttpHeaders();
-		headers.add("x-displayname", pipelineGroups.getPipelines().get(0).getDisplayName());
-		headers.add("x-pipelinename", pipelineGroups.getPipelines().get(0).getName());
+		headers.add("x-displayname", displayName);
+		headers.add("x-pipelinename", pipelineName);
 		headers.add("Access-Control-Expose-Headers", "x-displayname, x-pipelinename");
 		return new ResponseEntity<>(headers,status);
 	}
@@ -290,9 +292,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 					stageCounter, jobName);
 		} catch (Exception ex) {
 			log.error("Error while retrieving build and test artifacts", ex.getCause());
-			return new ResponseEntity<>(
-					new ErrorObj("Error while retrieving build and test artifacts", "CI-CD-GBTA500"),
-					HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.OK);
 		}
 		return new ResponseEntity<>(new JSONParser().parse(response), HttpStatus.OK);
 	}
@@ -318,7 +318,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 					stageCounter, artifactName);
 		} catch (Exception ex) {
 			log.error("Error while retrieving build and test artifacts", ex.getCause());
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(HttpStatus.OK);
 		}
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + artifactName) 

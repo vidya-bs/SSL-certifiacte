@@ -33,10 +33,11 @@ public class CareersDao {
 	JfrogUtilImpl jfrogUtilImpl;
 
 	public String createUpdatePosting(JobPosting jobPosting){
-		Query query = new Query().addCriteria(Criteria.where("name").is(jobPosting.getName()));
+		Query query = new Query().addCriteria(Criteria.where("name").is(jobPosting.getName()).and("location").is(jobPosting.getLocation()));
 		JobPosting dbJobPosting = masterMongoTemplate.findOne(query, JobPosting.class);
 		if(dbJobPosting != null){
 			jobPosting.setId(dbJobPosting.getId());
+			masterMongoTemplate.save(jobPosting);
 		}
 		else{
 			masterMongoTemplate.save(jobPosting);

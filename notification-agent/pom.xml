@@ -147,6 +147,32 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>com.coderplus.maven.plugins</groupId>
+				<artifactId>copy-rename-maven-plugin</artifactId>
+				<version>1.0</version>
+				<executions>
+					<execution>
+						<id>copy-file</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<fileSets>
+								<fileSet>
+									<sourceFile>${sourceDIR}/private_key_pkcs8.pem</sourceFile>
+									<destinationFile>src/main/resources/private_key_pkcs8.pem</destinationFile>
+								</fileSet>
+								<fileSet>
+									<sourceFile>${sourceDIR}/public_key.pem</sourceFile>
+									<destinationFile>src/main/resources/public_key.pem</destinationFile>
+								</fileSet>
+							</fileSets>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>

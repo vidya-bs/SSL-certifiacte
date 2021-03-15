@@ -69,7 +69,7 @@ public interface CollaborationBusiness {
 	 * @param interactionid
 	 * @return
 	 */
-	public TeamsHistoryResponse findSwaggerTeames(String jsessionid, String interactionid, int offset, int pageSize);
+	public TeamsHistoryResponse findSwaggerTeames(String jsessionid, String interactionid, int offset, int pageSize, String name);
 
 	/**
 	 * findSwaggerTeameNames

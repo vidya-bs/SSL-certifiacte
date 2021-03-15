@@ -160,6 +160,12 @@ public interface VirtualizationService {
 			@RequestParam(value="groupId",required=false) String groupId,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "pagesize", defaultValue = "10") int pageSize) throws Exception;
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/mock/search", produces = "application/json")
+	public org.springframework.http.ResponseEntity<?> searchGroup(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception;
 
 
 }

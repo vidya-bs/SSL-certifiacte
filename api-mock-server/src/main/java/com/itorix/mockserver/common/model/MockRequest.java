@@ -11,12 +11,14 @@ import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
-@FieldDefaults(level=AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class MockRequest {
 
-String path;
-String method;
-MultiValueMap<String, String> headers;
-MultiValueMap<String, String> requestParams;
-Cookie[] cookie;
+	String path;
+	String method;
+	MultiValueMap<String, String> headers;
+	MultiValueMap<String, String> requestParams;
+	MultiValueMap<String, String> formParams;
+	Cookie[] cookie;
+	String body;
 }

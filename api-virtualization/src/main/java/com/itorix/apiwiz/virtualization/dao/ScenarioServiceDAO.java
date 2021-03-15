@@ -191,13 +191,20 @@ public class ScenarioServiceDAO {
 			Query query ;
 			if(expectationName !=null)
 				if(match != null){
-					query = new Query(Criteria.where("expectationName").is(expectationName).and("match").is(match)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+					if(match.equalsIgnoreCase("true"))
+						query = new Query(Criteria.where("expectationName").is(expectationName).and("wasMatched").is(true)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+					else
+						query = new Query(Criteria.where("expectationName").is(expectationName).and("wasMatched").is(false)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 				}else{
 					query = new Query(Criteria.where("expectationName").is(expectationName)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 				}
 			else if(path != null )
 				if(match != null){
-					query = new Query(Criteria.where("path").is(path).and("match").is(match)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+					if(match.equalsIgnoreCase("true"))
+						query = new Query(Criteria.where("path").is(path).and("wasMatched").is(true)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+					else
+						query = new Query(Criteria.where("path").is(path).and("wasMatched").is(false)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+	
 				}else{
 					query = new Query(Criteria.where("path").is(path)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 				}
@@ -214,8 +221,6 @@ public class ScenarioServiceDAO {
 				response.setData( logentries);
 				Pagination pagination = new Pagination();
 				long total = mongoTemplate.count(query,MockLog.class);
-//				long count = total/pageSize;
-//				count = total % pageSize > 0 ? count + 1: count;
 				pagination.setOffset(offset);
 				pagination.setTotal(total);
 				pagination.setPageSize(pageSize);

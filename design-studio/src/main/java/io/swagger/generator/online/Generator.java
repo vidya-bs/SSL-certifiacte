@@ -1,6 +1,9 @@
 package io.swagger.generator.online;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.swagger.codegen.*;
 import io.swagger.generator.exception.ApiException;
 import io.swagger.generator.exception.BadRequestException;
@@ -73,7 +76,7 @@ public class Generator {
             LOGGER.debug("ignoring empty spec");
             node = null;
         }
-        Swagger swagger;
+        Swagger swagger= null;
         if (node == null) {
             if (opts.getSwaggerUrl() != null) {
                 if (opts.getAuthorizationValue() != null) {
@@ -95,7 +98,14 @@ public class Generator {
             authorizationValues.add(opts.getAuthorizationValue());
             swagger = new SwaggerParser().read(node, authorizationValues, true);
         } else {
-            swagger = new SwaggerParser().read(node, true);
+//            swagger = new SwaggerParser().read(node, true);
+        	ObjectMapper mapper = new ObjectMapper();
+        	try {
+				swagger = new SwaggerParser().parse(mapper.writeValueAsString(node));
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
         if (swagger == null) {
             throw new BadRequestException("The swagger specification supplied was not valid");

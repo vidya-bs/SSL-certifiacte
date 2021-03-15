@@ -302,22 +302,18 @@ public class MongoConnection {
 		return history;
 	}
 	
-	public ProxyHistoryResponse getProxyHistory(int offset, int pageSize){
+	public ProxyHistoryResponse getProxyHistory(int offset, int pageSize, String proxy){
 		ProxyHistoryResponse response = new ProxyHistoryResponse();
 		long totalRecords = 0;
 		List<ProxyData> dbProxyData = null;
 		try {
-			Query query = new Query().with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
-			dbProxyData = mongoTemplate.find(query, ProxyData.class);
+			Query query;
+			if(proxy != null)
+				query = new Query().addCriteria(Criteria.where("_id").is(proxy));
+			else 
+				query = new Query().with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 			
-//			DB db = getDB();
-//			BasicDBObject query = new BasicDBObject();
-//			DBCollection collection = db.getCollection("Build.Proxy");
-//			DBCursor cursor = collection.find(query).sort(new BasicDBObject("_id", OrderBy.DESC.getIntRepresentation())).skip(offset > 0 ? ((offset - 1) * 10) : 0).limit(10);
-//			while(cursor.hasNext()) {
-//				DBObject content = cursor.next();
-//				history.add((String) content.get("ProxyData"));
-//			}
+			dbProxyData = mongoTemplate.find(query, ProxyData.class);
 			totalRecords = mongoTemplate.count(new Query(), ProxyData.class);
 		} catch (MongoException e) {
 			e.printStackTrace();
@@ -452,7 +448,18 @@ public class MongoConnection {
 	public boolean updateArtifacts(String proxy, ProxyArtifacts proxyArtifacts) throws ItorixException{
 		try {
 			ProxyData data = getProxyHistory(proxy);
-			data.setProxyArtifacts(proxyArtifacts);
+			ProxyArtifacts dataArtifacts = data.getProxyArtifacts();
+			if(dataArtifacts != null){
+				if(proxyArtifacts.getCaches() != null)
+					dataArtifacts.setCaches(proxyArtifacts.getCaches());
+				if(proxyArtifacts.getKvms() != null)
+					dataArtifacts.setKvms(proxyArtifacts.getKvms());
+				if(proxyArtifacts.getTargetServers() != null)
+					dataArtifacts.setTargetServers(proxyArtifacts.getTargetServers());
+				data.setProxyArtifacts(dataArtifacts);
+			}else{
+				data.setProxyArtifacts(proxyArtifacts);
+			}
 			return saveProxyHistory(data);
 		} catch (JsonParseException e) {
 			e.printStackTrace();

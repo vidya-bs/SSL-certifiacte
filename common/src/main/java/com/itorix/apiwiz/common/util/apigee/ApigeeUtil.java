@@ -1638,14 +1638,14 @@ public class ApigeeUtil {
 			type = "saas";
 		ApigeeServiceUser serviceUser = null;
 		try {
-			Query query = new Query( Criteria.where("orgName").is(org).and("type").is(type) );
+			Query query = new Query( Criteria.where("orgname").is(org).and("type").is(type) );
 			ApigeeConfigurationVO apigeeConfigurationVO = mongoTemplate.findOne(query, ApigeeConfigurationVO.class);
 			if (apigeeConfigurationVO == null) {
 				serviceUser = new ApigeeServiceUser();
 				serviceUser.setOrgName(org);
 				serviceUser.setType(type);
-				serviceUser.setUserName(applicationProperties.getApigeeServiceUsername());
-				serviceUser.setPassword(new RSAEncryption().encryptText(applicationProperties.getApigeeServicePassword()));
+//				serviceUser.setUserName(applicationProperties.getApigeeServiceUsername());
+//				serviceUser.setPassword(new RSAEncryption().encryptText(applicationProperties.getApigeeServicePassword()));
 			}
 			else
 				serviceUser = apigeeConfigurationVO.getApigeeServiceUser();
@@ -1653,9 +1653,9 @@ public class ApigeeUtil {
 			serviceUser = new ApigeeServiceUser();
 			serviceUser.setOrgName(org);
 			serviceUser.setType(type);
-			serviceUser.setUserName(applicationProperties.getApigeeServiceUsername());
+//			serviceUser.setUserName(applicationProperties.getApigeeServiceUsername());
 			try {
-				serviceUser.setPassword(new RSAEncryption().encryptText(applicationProperties.getApigeeServicePassword()));
+//				serviceUser.setPassword(new RSAEncryption().encryptText(applicationProperties.getApigeeServicePassword()));
 			} catch(Exception ex)  {
 				ex.printStackTrace();
 			} 
@@ -1663,6 +1663,7 @@ public class ApigeeUtil {
 		return serviceUser;
 	}
 	
+	/*
 	public ApigeeServiceUser getApigeeServiceAccount(String id, String org, String type){
 		if(type == null)
 			type = "saas";
@@ -1693,7 +1694,7 @@ public class ApigeeUtil {
 			} 
 		}
 		return serviceUser;
-	}
+	} */
 
 	public String getApigeeAuth(String org, String type){
 		if(type == null)

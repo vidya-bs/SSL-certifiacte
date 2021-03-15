@@ -189,7 +189,8 @@ public class TestSuiteDAO {
 			for (Header header : headerVariables) {
 				if (header.isEncryption()) {
 					Header dbHeader = getVariable(dbVariables.getVariables(), header.getName());
-					if((dbHeader == null) || (dbHeader != null && !dbHeader.getValue().equals(header.getValue()))){
+					if((dbHeader == null) || !dbHeader.isEncryption() ||
+							(dbHeader != null && !dbHeader.getValue().equals(header.getValue()))){
 						try {
 							header.setValue(new RSAEncryption().encryptText(header.getValue()));
 						} catch (Exception e) {
