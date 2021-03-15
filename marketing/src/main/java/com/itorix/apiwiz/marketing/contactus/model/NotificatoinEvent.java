@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-@Document(collection = "Marketing.Career.List")
+@Document(collection = "Marketing.Contactus.Events")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class NotificatoinEvent {
 	@Id
