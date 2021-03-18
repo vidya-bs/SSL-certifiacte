@@ -60,7 +60,12 @@ public class MailUtil {
 			}
 			helper.setText(emailTemplate.getBody(), true);
 			javaMailSender.send(msg);
-		}catch (Exception e) {
+		}catch (MessagingException e) {
+			e.printStackTrace();
+			logger.error(e.getMessage(),e);
+			throw e;
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage(),e);
 		}
