@@ -538,8 +538,10 @@ public class IdentityManagementDao {
 				VerificationToken token = createVerificationToken("registerUser", user.getEmail());
 				token.setWorkspaceId(userInfo.getWorkspaceId());
 				saveVerificationToken(token);
-				sendRegistrationEmail(token, user);
-				user = saveUser(user);
+				if(sendRegistrationEmail(token, user))
+					user = saveUser(user);
+				else
+					throw new ItorixException(ErrorCodes.errorMessage.get("USER_031"),"USER_031");
 			} else {
 				throw new ItorixException(ErrorCodes.errorMessage.get("USER_005"),"USER_005");
 			}
@@ -947,7 +949,7 @@ public class IdentityManagementDao {
 		}
 	}
 
-	public void sendRegistrationEmail(VerificationToken token, User user){
+	public boolean sendRegistrationEmail(VerificationToken token, User user){
 		try {
 
 			String link = applicationProperties.getAppURL() + "/register/" + token.getId() + "/verify";
@@ -956,11 +958,12 @@ public class IdentityManagementDao {
 			toRecipients.add(user.getEmail());
 			String subject = applicationProperties.getRegisterSubject();
 			sendMail(subject, bodyText,toRecipients);
-
+			return true;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			e.printStackTrace();
 		}
+		return false;
 	}
 
 	private void sendMail(String subject, String body, ArrayList<String> toRecipients){
