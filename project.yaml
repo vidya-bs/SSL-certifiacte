@@ -20,7 +20,7 @@ deployment:
         awsCredProfile: NA
       - env: development
         branch: feature
-        deployFlag: disable
+        deployFlag: enable
         approval: disable
         host: 34.218.209.105
         pem: NA
