@@ -14,32 +14,32 @@ deployment:
         host: 3.128.86.36
         pem: itorix-dev.pem
         configBranch: local
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
         container: disable
         spaceName: NA
         awsCredProfile: NA
       - env: development
         branch: feature
-        deployFlag: enable
+        deployFlag: disable
         approval: disable
-        host: 44.225.245.153
+        host: 34.218.209.105
         pem: NA
-        configBranch: development
+        configBranch: dev
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         container: enable
         spaceName: dev
-        awsCredProfile: produser
+        awsCredProfile: nonprod
       - env: stage
         branch: develop
         deployFlag: disable
         approval: enable
-        host: 44.225.245.153
+        host: 34.218.209.105
         pem: NA
         configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         container: enable
         spaceName: NA
-        awsCredProfile: produser
+        awsCredProfile: nonprod
       - env: production
         branch: main
         deployFlag: enable
@@ -64,31 +64,31 @@ deployment:
         host: 3.128.86.36
         pem: itorix-dev.pem
         configBranch: local
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
         spaceName: NA
         awsCredProfile: NA
       - env: development
         branch: feature
-        deployFlag: enable
+        deployFlag: disable
         container: enable
         spaceName: dev
-        awsCredProfile: produser
+        awsCredProfile: nonprod
         approval: disable
-        host: 44.225.245.153
+        host: 34.218.209.105
         pem: NA
-        configBranch: development
+        configBranch: dev
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
       - env: stage
         branch: develop
         deployFlag: disable
         container: enable
         spaceName: stage
-        awsCredProfile: produser
+        awsCredProfile: nonprod
         approval: enable
-        host: 44.225.245.153
+        host: 34.218.209.105
         pem: NA
         configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
       - env: production
         deployFlag: enable
         branch: main
@@ -113,31 +113,31 @@ deployment:
         host: 3.128.86.36
         pem: itorix-dev.pem
         configBranch: local
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
         spaceName: NA
         awsCredProfile: NA
       - env: development
         branch: feature
-        deployFlag: enable
+        deployFlag: disable
         container: enable
         spaceName: dev
-        awsCredProfile: produser
+        awsCredProfile: nonprod
         approval: disable
-        host: 44.225.245.153
+        host: 34.218.209.105
         pem: NA
-        configBranch: development
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        configBranch: dev
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
       - env: stage
         branch: develop
         deployFlag: disable
         container: enable
         spaceName: stage
-        awsCredProfile: produser
+        awsCredProfile: nonprod
         approval: enable
-        host: 44.225.245.153
+        host: 34.218.209.105
         pem: NA
         configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
       - env: production
         branch: main
         deployFlag: enable
@@ -164,29 +164,29 @@ deployment:
         pem: itorix-dev.pem
         configBranch: local
         awsCredProfile: NA
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
       - env: development
-        deployFlag: enable
+        deployFlag: disable
         branch: feature
         container: enable
         spaceName: dev
-        awsCredProfile: produser
+        awsCredProfile: nonprod
         approval: disable
-        host: 44.225.245.153
+        host: 34.218.209.105
         pem: NA
-        configBranch: development
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        configBranch: dev
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
       - env: stage
         branch: develop
         deployFlag: disable
         container: enable
         spaceName: stage
-        awsCredProfile: produser
+        awsCredProfile: nonprod
         approval: enable
-        host: 44.225.245.153
+        host: 34.218.209.105
         pem: NA
         configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
       - env: production
         branch: main
         deployFlag: enable
@@ -211,31 +211,31 @@ deployment:
         host: 3.128.86.36
         pem: itorix-dev.pem
         configBranch: local
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
         spaceName: NA
         awsCredProfile: NA
       - env: development
         branch: feature
-        deployFlag: enable
+        deployFlag: disable
         container: enable
         spaceName: dev
-        awsCredProfile: produser
+        awsCredProfile: nonprod
         approval: disable
-        host: 44.225.245.153
+        host: 34.218.209.105
         pem: NA
-        configBranch: development
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        configBranch: dev
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
       - env: stage
         branch: develop
         deployFlag: disable
         container: enable
         spaceName: stage
-        awsCredProfile: produser
+        awsCredProfile: nonprod
         approval: enable
-        host: 44.225.245.153
+        host: 34.218.209.105
         pem: NA
         configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
       - env: production
         branch: main
         deployFlag: enable
@@ -260,31 +260,31 @@ deployment:
         host: 3.128.86.36
         pem: itorix-dev.pem
         configBranch: local
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
         spaceName: NA
         awsCredProfile: NA
-      - env: development
+      - env: dev
         branch: feature
         deployFlag: enable
         container: enable
         spaceName: dev
-        awsCredProfile: produser
+        awsCredProfile: nonprod
         approval: disable
-        host: 44.225.245.153
+        host: 34.218.209.105
         pem: NA
-        configBranch: development
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        configBranch: dev
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
       - env: stage
         branch: develop
         deployFlag: disable
         container: enable
         spaceName: stage
-        awsCredProfile: produser
+        awsCredProfile: nonprod
         approval: enable
-        host: 44.225.245.153
+        host: 34.218.209.105
         pem: NA
         configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
       - env: production
         deployFlag: enable
         branch: main
