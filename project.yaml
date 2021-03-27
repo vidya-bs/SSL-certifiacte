@@ -69,7 +69,7 @@ deployment:
         awsCredProfile: NA
       - env: development
         branch: feature
-        deployFlag: disable
+        deployFlag: enable
         container: enable
         spaceName: dev
         awsCredProfile: nonprod
@@ -118,7 +118,7 @@ deployment:
         awsCredProfile: NA
       - env: development
         branch: feature
-        deployFlag: disable
+        deployFlag: enable
         container: enable
         spaceName: dev
         awsCredProfile: nonprod
@@ -166,7 +166,7 @@ deployment:
         awsCredProfile: NA
         configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
       - env: development
-        deployFlag: disable
+        deployFlag: enable
         branch: feature
         container: enable
         spaceName: dev
@@ -216,7 +216,7 @@ deployment:
         awsCredProfile: NA
       - env: development
         branch: feature
-        deployFlag: disable
+        deployFlag: enable
         container: enable
         spaceName: dev
         awsCredProfile: nonprod
@@ -263,7 +263,7 @@ deployment:
         configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
         spaceName: NA
         awsCredProfile: NA
-      - env: dev
+      - env: development
         branch: feature
         deployFlag: enable
         container: enable
