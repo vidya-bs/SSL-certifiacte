@@ -6,12 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONObject;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,7 +31,6 @@ import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.dao.WorkspaceDao;
 import com.itorix.apiwiz.identitymanagement.model.CancelSubscriptions;
 import com.itorix.apiwiz.identitymanagement.model.DBConfig;
-import com.itorix.apiwiz.identitymanagement.model.Permission;
 import com.itorix.apiwiz.identitymanagement.model.Plan;
 import com.itorix.apiwiz.identitymanagement.model.ResetUserToken;
 import com.itorix.apiwiz.identitymanagement.model.Subscription;
@@ -49,7 +44,6 @@ import com.itorix.apiwiz.identitymanagement.model.VerificationToken;
 import com.itorix.apiwiz.identitymanagement.model.Workspace;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.itorix.apiwiz.identitymanagement.service.IdentityManagmentService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @CrossOrigin//(exposedHeaders = "*")
 @RestController
@@ -210,7 +204,6 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
-	
 	@Override
 	@UnSecure(ignoreValidation=true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/tokens/{token}")
@@ -222,17 +215,6 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		VerificationToken dbToken = identityManagementDao.getVerificationToken(token);
 		if(dbToken == null)
 			throw new ItorixException(ErrorCodes.errorMessage.get("USER_020"),"USER_020");
-//		String status = identityManagementDao.VerifyToken(dbToken);
-//		response.setStatus(302);
-//		if (status.equals("WorkspaceAdded")) {
-//			response.setHeader("Location", applicationProperties.getResendVerificationRedirectionLink());
-//		} else if (status.equals("resetPassword")) {
-//			response.setHeader("Location", applicationProperties.getResendVerificationRedirectionLink());
-//		}  else if (status.equals("registrationRequired")){
-//			response.setHeader("Location", applicationProperties.getUserBlockingRedirectionLink());
-//		} else if(status.equals("activated")){
-//			response.setHeader("Location", applicationProperties.getUserActivationRedirectionLink());
-//		}
 		return new ResponseEntity<Object>(dbToken ,HttpStatus.OK);
 	}
 	
@@ -322,7 +304,6 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		return new ResponseEntity<Object>(identityManagementDao.getUserDomains(),HttpStatus.OK);
 	}
 
-
 	@Override
 	@UnSecure
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/user/resend-token", consumes = {
@@ -335,7 +316,6 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		identityManagementDao.resendUserToken(userToken);
 		return new ResponseEntity<Object>(HttpStatus.CREATED);
 	}
-
 
 	@Override
 	@UnSecure
@@ -374,7 +354,6 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		return new ResponseEntity<String>(status,HttpStatus.FOUND);
 	}
 
-
 	@Override
 	@UnSecure
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/{emailId:.+}/reset-password", produces = { "application/json" })
@@ -393,9 +372,6 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1004") ,"IDENTITY-1004");
 		}
 	}
-
-
-
 
 	@Override
 	@UnSecure
@@ -774,7 +750,6 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	
 	@Override
 	@UnSecure
-//	@RequestMapping(method = RequestMethod.PUT, value = "/v1/config-property", consumes = "application/json")
 	public ResponseEntity<Void> createOrUpdateDBProperties(
 			@RequestHeader(value="x-apikey")String apikey,
 			@RequestBody DBConfig dbConfig) throws Exception{
@@ -784,7 +759,6 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 
 	@Override
 	@UnSecure
-//	@RequestMapping(method = RequestMethod.GET, value = "/v1/config-property")
 	public ResponseEntity<Object> getDBProperties(
 			@RequestHeader(value="x-apikey")String apikey) throws Exception{
 		return new ResponseEntity<Object>(identityManagementDao.getDBProperties(), HttpStatus.OK);

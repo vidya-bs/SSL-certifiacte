@@ -1,7 +1,5 @@
 package com.itorix.apiwiz.serviceregistry.service;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,13 +21,12 @@ import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryResponse
 @RestController
 public interface ServiceRegistryService {
 
-
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/service-registry/columns")
-	public ResponseEntity<ServiceRegistryColumns> getServiceRegistryColumns(@RequestHeader(value = "JSESSIONID") String jsessionid);
+	public ResponseEntity<ServiceRegistryColumns> getServiceRegistryColumns(@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException;
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/service-registry/columns")
 	public ResponseEntity<?> createOrUpdateServRegColumns(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody ServiceRegistryColumns registryColumns);
+			@RequestBody ServiceRegistryColumns registryColumns) throws ItorixException;
 
 	//// service registry ///////
 	// https://itorix.atlassian.net/browse/IE-166
@@ -48,21 +45,12 @@ public interface ServiceRegistryService {
 	public ResponseEntity<?> deleteServiceRegistry(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("service-registry-id") String serviceRegistryId) throws ItorixException;
 
-
 	//https://itorix.atlassian.net/browse/IE-164
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/service-registry")
 	public ResponseEntity<ServiceRegistryResponse> getServiceRegistry(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize);
-
-	//https://itorix.atlassian.net/browse/IE-168
-//	@RequestMapping(method = RequestMethod.GET, value = "/v1/service-registry")
-//	public ResponseEntity<ServiceRegistryResponseDto> getServiceRegistries(
-//			@RequestHeader(value = "JSESSIONID") String jsessionid);
-	
-	////////////////////////////////////////////////////////// ServiceRegistryEntriesResponsesDto
-	////////////////////////////////////////////////////////// ServiceRegistriesResponseDto
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) throws ItorixException;
 
 	//https://itorix.atlassian.net/browse/IE-161
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/service-registry/{service-registry-id}/rows")
