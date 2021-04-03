@@ -35,14 +35,14 @@ public class ServiceRegistryServiceImpl implements ServiceRegistryService {
 	ServiceRegistryDao serviceRegistryDao;
 
 	@Override
-	public ResponseEntity<ServiceRegistryColumns> getServiceRegistryColumns(@RequestHeader(value = "JSESSIONID") String jsessionid) {
+	public ResponseEntity<ServiceRegistryColumns> getServiceRegistryColumns(@RequestHeader(value = "JSESSIONID") String jsessionid)  throws ItorixException {
 		ServiceRegistryColumns serviceRegistryColumns = serviceRegistryDao.getServiceRegistryColumns();
 		return new ResponseEntity<ServiceRegistryColumns>(serviceRegistryColumns, HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseEntity<?> createOrUpdateServRegColumns(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody ServiceRegistryColumns registryColumns) {
+			@RequestBody ServiceRegistryColumns registryColumns)  throws ItorixException {
 		serviceRegistryDao.createOrUpdateSRColumns(registryColumns);
 		return new ResponseEntity<ServiceRegistryColumns>(HttpStatus.OK);
 	}
@@ -76,7 +76,7 @@ public class ServiceRegistryServiceImpl implements ServiceRegistryService {
 	public ResponseEntity<ServiceRegistryResponse> getServiceRegistry(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) {
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) throws ItorixException {
 		ServiceRegistryResponse serviceRegistryList = serviceRegistryDao.getServiceaRegistry(offset, pageSize);
 		return new ResponseEntity<>(serviceRegistryList, HttpStatus.OK);
 	}
