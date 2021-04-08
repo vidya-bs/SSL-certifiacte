@@ -44,7 +44,7 @@ public class WorkspaceDao {
 	@Autowired
 	private MongoTemplate masterMongoTemplate;
 	
-	@Value("${itorix.core.accounts.url}")
+	@Value("${itorix.core.accounts.api}")
 	private String url;
 	@Value("${itorix.core.hmac.password}")
 	private String password;
