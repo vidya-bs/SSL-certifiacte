@@ -1,70 +1,22 @@
 <configuration>
 	<property file="${config.properties}" />
-	<!-- <appender name="STASH"
-		class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-		<destination>${itorix.core.logstash.host}:${itorix.core.logstash.port}
-		</destination>
-		<encoder
-			class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-			<providers>
-				<mdc />
-				<context />
-				<version />
-				<logLevel />
-				<loggerName />
-				<pattern>
-					<pattern>
-						{
-						"appName": "itorix-app",
-						"appVersion": "1.0"
-						}
-					</pattern>
-				</pattern>
-				<threadName />
-				<message />
-				<logstashMarkers />
-				<arguments />
-				<stackTrace />
-			</providers>
-		</encoder>
-	</appender> -->
 	<appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<Pattern>
-				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [%thread] %-5level %logger{35} - %msg %n
+				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [${app.name}] [%thread] %-5level %logger{35} - %msg %n
 			</Pattern>
 		</encoder>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
 			<level>ERROR</level>
 		</filter>
 	</appender>
-	<!-- <appender name="dailyRollingFileAppender"
-		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>${itorix.core.log.location}/itorix-console.log</File>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			daily rollover
-			<FileNamePattern>${itorix.core.log.location}/itorix-console.%d{yyyy-MM-dd}.%i.log
-			</FileNamePattern>
-			keep 30 days' worth of history
-			<maxHistory>30</maxHistory>
-			<timeBasedFileNamingAndTriggeringPolicy
-				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-				<maxFileSize>10MB</maxFileSize>
-			</timeBasedFileNamingAndTriggeringPolicy>
-		</rollingPolicy>
-		<encoder>
-			<Pattern>
-				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [%thread] %-5level %logger{35} - %msg %n
-			</Pattern>
-		</encoder>
-	</appender> -->
 	
 	<appender name="FILE-DEBUG"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<File>${itorix.core.log.location}/itorix-console.log</File>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-
-			<FileNamePattern>${itorix.core.log.location}/itorix-console.%d{yyyy-MM-dd}.%i.log
+			<FileNamePattern>
+				${itorix.core.log.location}/itorix-console.%d{yyyy-MM-dd}.%i.log
 			</FileNamePattern>
 
 			<maxHistory>30</maxHistory>
@@ -75,7 +27,7 @@
 		</rollingPolicy>
 		<encoder>
 			<Pattern>
-				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [%thread] %-5level %logger{35} - %msg %n
+				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [${app.name}] [%thread] %-5level %logger{35} - %msg %n
 			</Pattern>
 		</encoder>
 		<filter class="ch.qos.logback.classic.filter.LevelFilter">
@@ -92,7 +44,8 @@
 		<File>${itorix.core.log.location}/itorix-app.log</File>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 
-			<FileNamePattern>${itorix.core.log.location}/itorix-app.%d{yyyy-MM-dd}.%i.log
+			<FileNamePattern>
+				${itorix.core.log.location}/itorix-app.%d{yyyy-MM-dd}.%i.log
 			</FileNamePattern>
 
 			<maxHistory>30</maxHistory>
@@ -103,7 +56,7 @@
 		</rollingPolicy>
 		<encoder>
 			<Pattern>
-				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [%thread] %-5level %logger{35} - %msg %n
+				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [${app.name}] [%thread] %-5level %logger{35} - %msg %n
 			</Pattern>
 		</encoder>
 		<filter class="ch.qos.logback.classic.filter.LevelFilter">
@@ -120,7 +73,7 @@
 		<File>${itorix.core.log.location}/itorix-error.log</File>
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
 			<Pattern>
-				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [%thread] %-5level %logger{35} - %msg %n
+				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [${app.name}] [%thread] %-5level %logger{35} - %msg %n
 			</Pattern>
 		</encoder>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
