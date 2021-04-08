@@ -81,7 +81,7 @@ public class ApplicationProperties {
 	@Value("${itorix.core.application.url}")
 	private String VerificationLinkHostName;
 	
-	@Value("${itorix.core.app.url}")
+	@Value("${itorix.core.accounts.ui}")
 	private String appURL;
 
 	//@Value("${app.mailutil.activationLink.port}")

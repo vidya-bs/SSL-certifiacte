@@ -1,35 +1,10 @@
 <configuration>
 	<property file="${config.properties}" />
-	 <!-- <appender name="STASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-		<destination>${itorix.logstash.host}:${itorix.logstash.port}</destination>
-		<encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-			<providers>
-				<mdc />
-				<context />
-				<version />
-				<logLevel />
-				<loggerName />
-				<pattern>
-					<pattern>
-						{
-						"appName": "itorix-mock",
-						"appVersion": "1.0"
-						}
-					</pattern>
-				</pattern>
-				<threadName />
-				<message />
-				<logstashMarkers />
-				<arguments />
-				<stackTrace />
-			</providers>
-		</encoder>
-	</appender> -->
 	<appender name="consoleAppender"
 		class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<Pattern>
-				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [%thread] %-5level %logger{35} - %msg %n
+				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [${app.name}] [%thread] %-5level %logger{35} - %msg %n
 			</Pattern>
 		</encoder>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -53,7 +28,7 @@
 		</rollingPolicy>
 		<encoder>
 			<Pattern>
-				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [%thread] %-5level %logger{35} - %msg %n
+				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [${app.name}] [%thread] %-5level %logger{35} - %msg %n
 			</Pattern>
 		</encoder>
 		<filter class="ch.qos.logback.classic.filter.LevelFilter">
@@ -80,7 +55,7 @@
 		</rollingPolicy>
 		<encoder>
 			<Pattern>
-				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [%thread] %-5level %logger{35} - %msg %n
+				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [${app.name}] [%thread] %-5level %logger{35} - %msg %n
 			</Pattern>
 		</encoder>
 		<filter class="ch.qos.logback.classic.filter.LevelFilter">
@@ -96,7 +71,7 @@
 		<File>${itorix.mock.log.location}/itorix-mock-error.log</File>
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
 			<Pattern>
-				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [%thread] %-5level %logger{35} - %msg %n
+				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [${app.name}] [%thread] %-5level %logger{35} - %msg %n
 			</Pattern>
 		</encoder>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
