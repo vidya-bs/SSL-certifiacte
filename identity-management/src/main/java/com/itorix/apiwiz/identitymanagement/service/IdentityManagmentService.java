@@ -344,7 +344,7 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "q") String q)throws Exception ;
 	
-	@UnSecure
+	@UnSecure(useUpdateKey=true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/permissions", consumes = {"application/json" },
 			produces = { "application/json" })
 	public ResponseEntity<Void> createPlanPermissions(
@@ -358,7 +358,7 @@ public interface IdentityManagmentService {
 			@RequestHeader(value="interactionid",required=false)String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid)throws Exception ;
 	
-	@UnSecure
+	@UnSecure(useUpdateKey=true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/subscriptionplans", consumes = {"application/json" },
 			produces = { "application/json" })
 	public ResponseEntity<Void> createSubscriptionPlans(
@@ -459,27 +459,27 @@ public interface IdentityManagmentService {
 			@PathVariable(value = "source") String source,
 			@RequestBody String data) throws Exception;
 	
-	@UnSecure
+	@UnSecure(ignoreValidation=true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/static-content/{source}")
 	public @ResponseBody ResponseEntity<Object> getLandingData(
 			@RequestHeader(value="x-apikey")String apikey,
 			@PathVariable(value = "source") String source) throws Exception;
 	
-	@UnSecure
+	@UnSecure(ignoreValidation=true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/config-property", consumes = "application/json")
 	public ResponseEntity<Void> createOrUpdateDBProperties(
 			@RequestHeader(value="x-apikey")String apikey,
 			@RequestBody DBConfig dbConfig) throws Exception;
 
-	@UnSecure
+	@UnSecure(ignoreValidation=true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/config-property")
 	public ResponseEntity<Object> getDBProperties(
 			@RequestHeader(value="x-apikey")String apikey) throws Exception;
 	
-	@UnSecure
+	@UnSecure(ignoreValidation=true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/health")
 	public @ResponseBody ResponseEntity<Object> health(
-			@RequestHeader(value="x-apikey")String apikey) throws Exception; 
+			@RequestHeader(value="x-apikey", required=false) String apikey) throws Exception; 
 	
 	
 }
