@@ -552,7 +552,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		return new ResponseEntity<Object>(uIMetadata.getMetadata(),HttpStatus.OK);
 	}
 	
-	@UnSecure
+	@UnSecure(useUpdateKey=true)
 	@Override
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/permissions", consumes = {"application/json" },
 			produces = { "application/json" })
@@ -576,7 +576,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		return new ResponseEntity<Object>(identityManagementDao.getPlanPermissions(), HttpStatus.OK);
 	}
 	
-	@UnSecure
+	@UnSecure(useUpdateKey=true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/subscriptionplans", consumes = {"application/json" },
 			produces = { "application/json" })
 	public ResponseEntity<Void> createSubscriptionPlans(
@@ -654,7 +654,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	}
 	
 	@Override
-	@UnSecure
+	@UnSecure(useUpdateKey=true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/static-content/{source}")
 	public @ResponseBody ResponseEntity<Void> createLandingData(
 			@RequestHeader(value="x-apikey")String apikey,
@@ -665,7 +665,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	}
 	
 	@Override
-	@UnSecure
+	@UnSecure(ignoreValidation=true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/static-content/{source}")
 	public @ResponseBody ResponseEntity<Object> getLandingData(
 			@RequestHeader(value="x-apikey")String apikey,
@@ -749,7 +749,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	}
 	
 	@Override
-	@UnSecure
+	@UnSecure(ignoreValidation=true)
 	public ResponseEntity<Void> createOrUpdateDBProperties(
 			@RequestHeader(value="x-apikey")String apikey,
 			@RequestBody DBConfig dbConfig) throws Exception{
@@ -758,16 +758,16 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	}
 
 	@Override
-	@UnSecure
+	@UnSecure(ignoreValidation=true)
 	public ResponseEntity<Object> getDBProperties(
 			@RequestHeader(value="x-apikey")String apikey) throws Exception{
 		return new ResponseEntity<Object>(identityManagementDao.getDBProperties(), HttpStatus.OK);
 	}
 	
 	@Override
-	@UnSecure
+	@UnSecure(ignoreValidation=true)
 	public @ResponseBody ResponseEntity<Object> health(
-			@RequestHeader(value="x-apikey")String apikey) throws Exception{
+			@RequestHeader(value="x-apikey", required=false) String apikey) throws Exception{
 		return new ResponseEntity<Object>("ok",HttpStatus.OK);
 	}
 }
