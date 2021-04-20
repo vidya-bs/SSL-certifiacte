@@ -847,26 +847,29 @@ public class PortfolioDao {
 		if (proxyDetail != null) {
 			DesignArtifacts designArtifacts = proxyDetail.getApigeeConfig().getDesignArtifacts();
 			if (designArtifacts != null) {
-				designArtifacts.getWsdlFiles().stream().forEach(s -> {
-					try {
-						if (s.getWsdlLocation().contains(workspace)) {
-							deleteFileJfrogFile(s.getWsdlLocation().substring(s.getWsdlLocation().indexOf(workspace)));
+				try{
+					designArtifacts.getWsdlFiles().stream().forEach(s -> {
+						try {
+							if (s.getWsdlLocation().contains(workspace)) {
+								deleteFileJfrogFile(s.getWsdlLocation().substring(s.getWsdlLocation().indexOf(workspace)));
+							}
+						} catch (ItorixException e) {
+							log.error("error when deleting proxy files");
 						}
-					} catch (ItorixException e) {
-						log.error("error when deleting proxy files");
-					}
-				});
-				designArtifacts.getXsdFiles().stream().forEach(s -> {
-					try {
-						if (s.getXsdLocation().contains(workspace)) {
-							deleteFileJfrogFile(s.getXsdLocation().substring(s.getXsdLocation().indexOf(workspace)));
-						}
+					});
+					designArtifacts.getXsdFiles().stream().forEach(s -> {
+						try {
+							if (s.getXsdLocation().contains(workspace)) {
+								deleteFileJfrogFile(s.getXsdLocation().substring(s.getXsdLocation().indexOf(workspace)));
+							}
 
-					} catch (ItorixException e) {
-						log.error("error when deleting proxy files");
-					}
-				});
-				;
+						} catch (ItorixException e) {
+							log.error("error when deleting proxy files");
+						}
+					});
+					;
+				}catch(Exception e){
+				}
 			}
 		}
 
