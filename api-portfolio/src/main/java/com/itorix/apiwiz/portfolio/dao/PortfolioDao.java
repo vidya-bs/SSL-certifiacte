@@ -842,12 +842,11 @@ public class PortfolioDao {
 	public void deleteProxyDetail(String portfolioId, String projectId, String proxyId,String jsessionid) throws ItorixException {
 
 		String workspace = masterMongoTemplate.findById(jsessionid, UserSession.class).getWorkspaceId();
-
 		Proxies proxyDetail = getProxyDetail(portfolioId, projectId, proxyId);
 		if (proxyDetail != null) {
-			DesignArtifacts designArtifacts = proxyDetail.getApigeeConfig().getDesignArtifacts();
-			if (designArtifacts != null) {
-				try{
+			try{
+				DesignArtifacts designArtifacts = proxyDetail.getApigeeConfig().getDesignArtifacts();
+				if (designArtifacts != null) {
 					designArtifacts.getWsdlFiles().stream().forEach(s -> {
 						try {
 							if (s.getWsdlLocation().contains(workspace)) {
@@ -867,16 +866,14 @@ public class PortfolioDao {
 							log.error("error when deleting proxy files");
 						}
 					});
-					;
-				}catch(Exception e){
 				}
+			}catch(Exception e){
 			}
 		}
 
 		Query query = new Query(new Criteria().andOperator(Criteria.where("id").is(portfolioId),
 				Criteria.where("projects").elemMatch(Criteria.where("id").is(projectId)),
 				Criteria.where("projects.proxies").elemMatch(Criteria.where("id").is(proxyId))));
-
 		if (mongoTemplate
 				.updateMulti(query,
 						new Update().pull("projects.$.proxies",
@@ -885,7 +882,6 @@ public class PortfolioDao {
 				.getModifiedCount() == 0) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-11"), "Portfolio-11");
 		}
-
 	}
 
 	public String createPipeline(String id, String projectId, String proxyId, String jsessionid, Pipelines pipeline) throws ItorixException {
