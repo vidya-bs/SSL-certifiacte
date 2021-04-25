@@ -1,6 +1,8 @@
 build:
   name: apiwiz-core-platform-api
   gitURL: 'git@github.com:itorix/apiwiz-core-platform-api.git'
+  customerType: internal
+  customerName: apiwiz
 deployment:
   - appName: coreapi
     buildImage: enable
@@ -38,7 +40,7 @@ deployment:
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         container: enable
-        spaceName: NA
+        spaceName: stage
         awsCredProfile: nonprod
       - env: production
         branch: main

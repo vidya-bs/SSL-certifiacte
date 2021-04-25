@@ -990,6 +990,7 @@ public class IdentityManagementDao {
 
 	public String VerifyToken(VerificationToken token) throws ItorixException{
 		//boolean isAlive = token.isAlive();
+		try{
 		if(token.isAlive() == true){
 			if( !token.getUsed()){
 				if(token.getType().equals("registerUser")){
@@ -1009,6 +1010,12 @@ public class IdentityManagementDao {
 			resendToken(token);
 			return "tokenResent";
 		}
+		}catch(ItorixException ex){
+			throw ex;
+		}catch(Exception ex){
+			throw new ItorixException(ErrorCodes.errorMessage.get("USER_020"),"USER_020");
+		}
+		
 		return "";
 	}
 
