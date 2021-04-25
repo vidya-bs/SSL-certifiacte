@@ -101,24 +101,26 @@ public class ServiceMonitor extends LoggerAspect {
 	@After("execution(* com.itorix.apiwiz..*.service..*(..))  || execution(* com.itorix.apiwiz..*.serviceImpl..*(..))")
 	public void Activitylog(JoinPoint thisJoinPoint) {
 		try {
-			Date dateobj = new Date();
-			String sessionId = getSessionId(thisJoinPoint);
-			// check if session is valid or not
-			UserSession userSessionToken = findUserSession(sessionId);
-			User dbUser = masterMongoTemplate.findById(userSessionToken.getUserId(), User.class);
-			ActivityLog activityLog = new ActivityLog();
-			activityLog.setUserId(dbUser.getFirstName() + " " + dbUser.getLastName());
-			activityLog.setRequestURI(request.getRequestURI());
-			activityLog.setOperation(request.getMethod());
-			activityLog.setStatusCode(response.getStatus());
-			activityLog.setLast_Changed_At(dateobj.getTime());
-			activityLog.setInteractionId(request.getHeader(BaseController.INTERACTION_ID));
-			activityLog.setId_user(dbUser.getId());
-
-			if (userSessionToken != null && userSessionToken.getUserId() != null) {
-				mongoTemplate.save(activityLog);
-			} else {
-				System.out.println("NO Activity log as JsessionId is null");
+			if(!request.getRequestURI().contains("activitylog")){
+				Date dateobj = new Date();
+				String sessionId = getSessionId(thisJoinPoint);
+				// check if session is valid or not
+				UserSession userSessionToken = findUserSession(sessionId);
+				User dbUser = masterMongoTemplate.findById(userSessionToken.getUserId(), User.class);
+				ActivityLog activityLog = new ActivityLog();
+				activityLog.setUserId(dbUser.getFirstName() + " " + dbUser.getLastName());
+				activityLog.setRequestURI(request.getRequestURI());
+				activityLog.setOperation(request.getMethod());
+				activityLog.setStatusCode(response.getStatus());
+				activityLog.setLast_Changed_At(dateobj.getTime());
+				activityLog.setInteractionId(request.getHeader(BaseController.INTERACTION_ID));
+				activityLog.setId_user(dbUser.getId());
+				if (userSessionToken != null && userSessionToken.getUserId() != null) {
+					mongoTemplate.save(activityLog);
+				} 
+				//			else {
+				//				System.out.println("NO Activity log as JsessionId is null");
+				//			}
 			}
 		} catch (Throwable ex) {
 		}
@@ -145,7 +147,7 @@ public class ServiceMonitor extends LoggerAspect {
 		MethodSignature signature = (MethodSignature) thisJoinPoint.getSignature();
 		return signature.getMethod().getAnnotation(UnSecure.class) != null && signature.getMethod().getAnnotation(UnSecure.class).useUpdateKey();
 	}
-	
+
 	private RequestId createRequestId() {
 		return new RequestId();
 	}
@@ -191,7 +193,7 @@ public class ServiceMonitor extends LoggerAspect {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Session_02"), "Session_02");
 		}else{
 			if(apiKey.equals(rsaEncryption.decryptText(applicationProperties.getApiKey()))){
-					ServiceRequestContextHolder.setContext(getSystemContext());
+				ServiceRequestContextHolder.setContext(getSystemContext());
 			}else{
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				throw new ItorixException(ErrorCodes.errorMessage.get("Session_03"), "Session_03");
