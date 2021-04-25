@@ -138,7 +138,7 @@ public class MonitorScheduler {
 			restTemplate.setRequestFactory(requestFactory);
 		} catch (Exception exception) {
 			log.error("Exception Occured while creating restTemplate " + exception);
-			return null;
+			return new RestTemplate();
 		}
 		return restTemplate;
 	}

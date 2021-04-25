@@ -1,6 +1,8 @@
 build:
   name: apiwiz-core-platform-api
   gitURL: 'git@github.com:itorix/apiwiz-core-platform-api.git'
+  customerType: internal
+  customerName: apiwiz
 deployment:
   - appName: coreapi
     buildImage: enable
