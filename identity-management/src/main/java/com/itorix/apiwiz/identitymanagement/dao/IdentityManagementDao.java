@@ -109,19 +109,19 @@ public class IdentityManagementDao {
 	JfrogUtilImpl jfrogUtilImpl;
 	@Autowired
 	private WorkspaceDao workspaceDao;
-	
+
 	@Value("${itorix.core.user.management.redirection.user.add:https://{0}/user/{1}")
 	private String addUserURL;
-	
+
 	@Value("${itorix.core.user.management.redirection.user.invite:https://{0}/user-invited/{1}")
 	private String inviteUserURL;
-	
+
 	@Value("${itorix.core.user.management.redirection.password.reset:https://{0}/reset-password/{1}")
 	private String resetPasswordURL;
-	
+
 	@Value("${itorix.core.user.management.redirection.user.register:https://{0}/register/{1}/verify}")
 	private String registerUserURL;
-	
+
 
 	@PostConstruct
 	private void initDBProperties(){
@@ -175,7 +175,7 @@ public class IdentityManagementDao {
 		return populateDBApplicationProperties(map);
 	}
 
-	
+
 	public UserSession authenticate(UserInfo userInfo , boolean preAuthenticated) throws Exception {
 		logger.debug("UserService.authenticate : " + userInfo );
 		UserSession userSession = null;
@@ -368,7 +368,7 @@ public class IdentityManagementDao {
 		loginUser.setSubscribeNewsLetter(userInfo.getSubscribeNewsLetter());
 		saveUser(loginUser);
 	}
-	
+
 	public void updateNewsSubscription(UserInfo userInfo) throws ItorixException{
 		User loginUser = findByUserEmail(userInfo.getEmail());
 		if(loginUser != null)
@@ -377,7 +377,7 @@ public class IdentityManagementDao {
 			saveUser(loginUser);
 		}
 	}
-	
+
 	public Map<String, Object> getNewsSubscription(String email) throws ItorixException{
 		Map<String, Object> usernewsLetter = new HashMap<>();
 		User loginUser = findByUserEmail(email);
@@ -586,7 +586,7 @@ public class IdentityManagementDao {
 		}
 		return "";
 	}
-	
+
 	private void sendActivationEmail(User user){
 		try{
 			List<String> toMailId =new ArrayList<>();
@@ -598,7 +598,7 @@ public class IdentityManagementDao {
 			template.setBody(messageBody);
 			mailUtil.sendEmail(template);
 		} catch(Exception e){
-			
+
 		}
 	}
 
@@ -814,17 +814,22 @@ public class IdentityManagementDao {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private long getMinimumSeats(Workspace workspace){
 		Subscription subscription = workspaceDao.getSubscription(workspace.getPlanId());
 		List<SubscriptionPrice> prices = subscription.getSubscriptionPrices();
-		if(workspace.getPaymentSchedule().equalsIgnoreCase("month")){
-			SubscriptionPrice price = prices.stream().filter(o -> o.getPeriod().equalsIgnoreCase("MONTHLY")).collect(Collectors.toList()).get(0);
-			return  Long.parseLong(price.getMinimumUnits());
-		}
-		else{
-			SubscriptionPrice price = prices.stream().filter(o -> o.getPeriod().equalsIgnoreCase("YEARLY")).collect(Collectors.toList()).get(0);
-			return Long.parseLong(price.getMinimumUnits());
+		String subscriptionPrice = subscription.getPricing().replaceAll("\\$", "");
+		if(!subscriptionPrice.equalsIgnoreCase("0")){
+			if(workspace.getPaymentSchedule().equalsIgnoreCase("month") || workspace.getPaymentSchedule().equalsIgnoreCase("monthly")){
+				SubscriptionPrice price = prices.stream().filter(o -> o.getPeriod().equalsIgnoreCase("MONTHLY")).collect(Collectors.toList()).get(0);
+				return  Long.parseLong(price.getMinimumUnits());
+			}
+			else{
+				SubscriptionPrice price = prices.stream().filter(o -> o.getPeriod().equalsIgnoreCase("YEARLY")).collect(Collectors.toList()).get(0);
+				return Long.parseLong(price.getMinimumUnits());
+			}
+		}else{
+			return Long.parseLong("1");
 		}
 	}
 
@@ -850,7 +855,7 @@ public class IdentityManagementDao {
 				response.put("ssoHost", workspace.getSsoHost());
 				response.put("ssoPath", workspace.getSsoPath());
 			}
-			
+
 		}else{
 			response.put("status", "true");
 		}
@@ -991,31 +996,31 @@ public class IdentityManagementDao {
 	public String VerifyToken(VerificationToken token) throws ItorixException{
 		//boolean isAlive = token.isAlive();
 		try{
-		if(token.isAlive() == true){
-			if( !token.getUsed()){
-				if(token.getType().equals("registerUser")){
-					return activateEmail(token);
+			if(token.isAlive() == true){
+				if( !token.getUsed()){
+					if(token.getType().equals("registerUser")){
+						return activateEmail(token);
+					}
+					if(token.getType().equals("AddUserToWorkspace")){
+						return addUserToWorkspace(token);
+					}
+					if(token.getType().equals("resetPassword")){
+						return userPasswordReset(token);
+					}
 				}
-				if(token.getType().equals("AddUserToWorkspace")){
-					return addUserToWorkspace(token);
+				else{
+					throw new ItorixException(ErrorCodes.errorMessage.get("USER_020"),"USER_020");
 				}
-				if(token.getType().equals("resetPassword")){
-					return userPasswordReset(token);
-				}
+			}else{
+				resendToken(token);
+				return "tokenResent";
 			}
-			else{
-				throw new ItorixException(ErrorCodes.errorMessage.get("USER_020"),"USER_020");
-			}
-		}else{
-			resendToken(token);
-			return "tokenResent";
-		}
 		}catch(ItorixException ex){
 			throw ex;
 		}catch(Exception ex){
 			throw new ItorixException(ErrorCodes.errorMessage.get("USER_020"),"USER_020");
 		}
-		
+
 		return "";
 	}
 
@@ -1067,7 +1072,7 @@ public class IdentityManagementDao {
 			//			}
 		}
 	}
-	
+
 	public void resendInvite(UserInfo userInfo) throws ItorixException{
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
@@ -1085,7 +1090,7 @@ public class IdentityManagementDao {
 		else
 			sendInviteUserEmail(token, user, userSessionToken.getUsername());
 	}
-	
+
 	private String activateEmail(VerificationToken token){
 		User user = findByEmail(token.getUserEmail());
 		user.setUserStatus("active");
@@ -1289,13 +1294,13 @@ public class IdentityManagementDao {
 				requiredDetails.setWorkspaces(userworkspaces);
 			}
 			if(canAdd)
-			userDetails.add(requiredDetails);
+				userDetails.add(requiredDetails);
 		}
 		allUsers.setUsers(userDetails);
 		return allUsers;
 
 	}
-	
+
 	public void lockUser(String userId) throws ItorixException{
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		String workspaceId = userSessionToken.getWorkspaceId();
@@ -1309,7 +1314,7 @@ public class IdentityManagementDao {
 			saveUser(user);
 		}
 	}
-	
+
 	public void unLockUser(String userId) throws ItorixException{
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		String workspaceId = userSessionToken.getWorkspaceId();
@@ -1897,8 +1902,8 @@ public class IdentityManagementDao {
 	public List<DBConfig> getDBProperties(){
 		return masterMongoTemplate.findAll(DBConfig.class);
 	}
-	
-	
+
+
 	private ApplicationProperties populateDBApplicationProperties(Map<String,String> map){
 		applicationProperties.setApigeeHost(map.get("apigee.host"));
 		applicationProperties.setUserName(map.get("app.mailutil.userName"));
