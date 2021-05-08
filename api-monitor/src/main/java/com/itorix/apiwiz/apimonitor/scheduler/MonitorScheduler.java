@@ -131,7 +131,7 @@ public class MonitorScheduler {
 			keyStore.load(storeFile.getInputStream(), keyStorepassword.toCharArray());
 			SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
 					new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy())
-							.loadKeyMaterial(keyStore, keypassword.toCharArray()).build(),
+					.loadKeyMaterial(keyStore, keypassword.toCharArray()).build(),
 					NoopHostnameVerifier.INSTANCE);
 			HttpClient httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
 			requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
@@ -210,9 +210,12 @@ public class MonitorScheduler {
 			while (dbsCursor.hasNext()) {
 				String workSpace = dbsCursor.next();
 				TenantContext.setCurrentTenant(workSpace);
-				List<NotificationDetails> notificationDetails = apiMonitorDAO.getNotificationDetails(workSpace);
-				for (NotificationDetails notificationDetail : notificationDetails) {
-					invokeNotificationAgent(notificationDetail);
+				if(apiMonitorDAO.canExecute()){
+					apiMonitorDAO.updateExecution();
+					List<NotificationDetails> notificationDetails = apiMonitorDAO.getNotificationDetails(workSpace);
+					for (NotificationDetails notificationDetail : notificationDetails) {
+						invokeNotificationAgent(notificationDetail);
+					}
 				}
 			}
 		}

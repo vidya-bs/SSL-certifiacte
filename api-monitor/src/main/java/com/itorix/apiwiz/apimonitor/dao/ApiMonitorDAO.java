@@ -7,6 +7,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.apimonitor.model.Certificates;
 import com.itorix.apiwiz.apimonitor.model.MonitorCollectionsResponse;
 import com.itorix.apiwiz.apimonitor.model.NotificationDetails;
+import com.itorix.apiwiz.apimonitor.model.SummaryNotification;
 import com.itorix.apiwiz.apimonitor.model.Variables;
 import com.itorix.apiwiz.apimonitor.model.collection.APIMonitorResponse;
 import com.itorix.apiwiz.apimonitor.model.collection.ExecutionResult;
@@ -65,6 +67,7 @@ import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.identitymanagement.model.User;
+import com.mongodb.MongoClient;
 
 @Component
 public class ApiMonitorDAO {
@@ -712,8 +715,30 @@ public class ApiMonitorDAO {
 
 		return notificationDetails;
 	}
+	
+	public boolean canExecute(){
+		Date endDate = new Date();
+		int MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
+		java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("dd/MM/yy");
+		try {
+			String previousDate = dateFormat.format(endDate.getTime() - MILLIS_IN_DAY);
+			Date startDate = dateFormat.parse(previousDate);
+			Query query = new Query().addCriteria(Criteria.where("date").gt(startDate).lte(endDate));
+			SummaryNotification summaryNotification = mongoTemplate.findOne(query, SummaryNotification.class);
+			if(summaryNotification != null)
+				return false;
+		} catch (ParseException e) {
+			log.error(e.getMessage(), e);
+		}
+		return true;
+	}
 
-
+	public void updateExecution(){
+		Date date = new Date();
+		SummaryNotification summaryNotification = new SummaryNotification();
+		summaryNotification.setDate(date);
+		mongoTemplate.save(summaryNotification);
+	}
 
 	private void setDailyNotificationResult(NotificationDetails notificationDetails, String collectionId,
 			String schedulerId) {
