@@ -17,6 +17,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SummaryNotification {
-	@JsonProperty("name")
+	@JsonProperty("date")
 	private Date date;
 }
