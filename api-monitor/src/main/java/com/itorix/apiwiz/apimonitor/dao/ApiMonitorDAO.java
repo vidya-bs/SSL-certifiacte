@@ -129,7 +129,7 @@ public class ApiMonitorDAO {
 				.limit(pageSize);
 
 		query.fields().include("id").include("name").include("summary").include("cts").include("createdBy")
-				.include("modifiedBy").include("mts").include("schedulers").include("monitorRequest.id").include("monitorRequest.name");
+		.include("modifiedBy").include("mts").include("schedulers").include("monitorRequest.id").include("monitorRequest.name");
 		APIMonitorResponse response = new APIMonitorResponse();
 
 		List<MonitorCollections> monitorCollections = mongoTemplate.find(query, MonitorCollections.class);
@@ -267,7 +267,7 @@ public class ApiMonitorDAO {
 		Query query = new Query(new Criteria().andOperator(Criteria.where("id").is(id)));
 
 		query.fields().include("id").include("monitorRequest._id").include("monitorRequest.name")
-				.include("monitorRequest.summary");
+		.include("monitorRequest.summary");
 		MonitorCollections monitorCollection = mongoTemplate.findOne(query, MonitorCollections.class);
 		if (monitorCollection == null) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-1"), "Monitor-Api-1");
@@ -364,19 +364,19 @@ public class ApiMonitorDAO {
 
 		List<ExecutionResult> requestExecution = mongoTemplate.find(queryReqExecution, ExecutionResult.class);
 		if(!CollectionUtils.isEmpty(requestExecution)){
-		List<Long> timeSeries = requestExecution.stream().map(s -> s.getExecutedTime()).collect(Collectors.toList());
-		List<Event> events = requestExecution.stream().map(s -> {
-			Event event = new Event();
-			event.setEventID(s.getId());
-			event.setLatency(s.getLatency());
-			event.setStatus(s.getStatus());
-			event.setTimestamp(s.getExecutedTime());
-			return event;
-		}).collect(Collectors.toList());
+			List<Long> timeSeries = requestExecution.stream().map(s -> s.getExecutedTime()).collect(Collectors.toList());
+			List<Event> events = requestExecution.stream().map(s -> {
+				Event event = new Event();
+				event.setEventID(s.getId());
+				event.setLatency(s.getLatency());
+				event.setStatus(s.getStatus());
+				event.setTimestamp(s.getExecutedTime());
+				return event;
+			}).collect(Collectors.toList());
 
-		requestStats.setEvents(events);
-		requestStats.setTimeseries(timeSeries);
-		requestStats.setRequestName(requestExecution.get(0).getName());
+			requestStats.setEvents(events);
+			requestStats.setTimeseries(timeSeries);
+			requestStats.setRequestName(requestExecution.get(0).getName());
 		}
 		MonitorCollections monitorCollection = getCollection(collectionId);
 		requestStats.setCts(monitorCollection.getCts());
@@ -479,10 +479,10 @@ public class ApiMonitorDAO {
 	public Object updateVariables(Variables variables, String id, String jsessionid) throws ItorixException {
 		Query query = new Query(Criteria.where("_id").is(id));
 		Variables variable = mongoTemplate.findOne(query, Variables.class);
-//		DBObject dbDoc = new BasicDBObject();
-//		mongoTemplate.getConverter().write(variables, dbDoc);
-//		Update update = Update.fromDBObject(dbDoc, "_id");
-//		UpdateResult result = mongoTemplate.updateFirst(query, update, Variables.class);
+		//		DBObject dbDoc = new BasicDBObject();
+		//		mongoTemplate.getConverter().write(variables, dbDoc);
+		//		Update update = Update.fromDBObject(dbDoc, "_id");
+		//		UpdateResult result = mongoTemplate.updateFirst(query, update, Variables.class);
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
 		if (variable != null) {
 			variables.setCreatedBy(variable.getCreatedBy());
@@ -682,7 +682,7 @@ public class ApiMonitorDAO {
 				requestVariable.setVariables(variables);
 				collectionVariables.getRequests().add(requestVariable);
 			}
-;
+			;
 		}
 		return collectionVariables;
 	}
@@ -692,7 +692,7 @@ public class ApiMonitorDAO {
 		Query query = new Query();
 
 		query.fields().include("id").include("name").include("schedulers").include("monitorRequest.id")
-				.include("monitorRequest.name").include("notifications");
+		.include("monitorRequest.name").include("notifications");
 
 		List<MonitorCollections> monitorCollections = mongoTemplate.find(query, MonitorCollections.class);
 		List<NotificationDetails> notificationDetails = new ArrayList<>();
@@ -700,22 +700,24 @@ public class ApiMonitorDAO {
 		if (!CollectionUtils.isEmpty(monitorCollections)) {
 			for (MonitorCollections monitor : monitorCollections) {
 				for (Schedulers scheduler : monitor.getSchedulers()) {
-					NotificationDetails notificationDetail = new NotificationDetails();
-					notificationDetail.setNotifications(monitor.getNotifications());
-					notificationDetail.setEnvironmentName(scheduler.getEnvironmentName());
-					notificationDetail.setSchedulerId(scheduler.getId());
-					setDailyNotificationResult(notificationDetail, monitor.getId(), scheduler.getId());
-					setAvegareNotificationResult(notificationDetail, monitor.getId(), scheduler.getId());
-					notificationDetail.setCollectionname(monitor.getName());
-					notificationDetail.setWorkspaceName(workSpace);
-					notificationDetails.add(notificationDetail);
+					if(!scheduler.isPause()){
+						NotificationDetails notificationDetail = new NotificationDetails();
+						notificationDetail.setNotifications(monitor.getNotifications());
+						notificationDetail.setEnvironmentName(scheduler.getEnvironmentName());
+						notificationDetail.setSchedulerId(scheduler.getId());
+						setDailyNotificationResult(notificationDetail, monitor.getId(), scheduler.getId());
+						setAvegareNotificationResult(notificationDetail, monitor.getId(), scheduler.getId());
+						notificationDetail.setCollectionname(monitor.getName());
+						notificationDetail.setWorkspaceName(workSpace);
+						notificationDetails.add(notificationDetail);
+					}
 				}
 			}
 		}
 
 		return notificationDetails;
 	}
-	
+
 	public boolean canExecute(){
 		Date endDate = new Date();
 		int MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
