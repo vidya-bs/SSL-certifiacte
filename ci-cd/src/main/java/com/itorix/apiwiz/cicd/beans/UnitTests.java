@@ -13,7 +13,7 @@ public class UnitTests {
 	@JsonProperty("acceptance")
 	private Integer acceptance;
 
-	@JsonProperty("artifactType")
+	@JsonProperty("testArtifactType")
 	private ArtifactType artifactType;
 
 	@JsonProperty("testsuites")
