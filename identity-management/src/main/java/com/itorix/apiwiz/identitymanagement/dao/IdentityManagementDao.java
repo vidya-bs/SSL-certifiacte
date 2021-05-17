@@ -1734,6 +1734,9 @@ public class IdentityManagementDao {
 		Date endDate = format.parse(timeRanges[1]);
 		long StartTime =DateUtil.getStartOfDay(startDate).getTime();
 		long endDateTime =DateUtil.getEndOfDay(endDate).getTime();
+		long currentDate = DateUtil.getEndOfDay(new Date()).getTime();
+		if(endDateTime > currentDate)
+			endDateTime = currentDate;
 		Query query = new Query(Criteria.where(ActivityLog.USER_ID).is(userId)
 				.and(ActivityLog.LAST_CHANGED_AT).gte(StartTime).lte(endDateTime))
 				.with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
