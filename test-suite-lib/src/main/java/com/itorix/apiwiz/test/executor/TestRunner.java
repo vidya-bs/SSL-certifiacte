@@ -594,17 +594,17 @@ public class TestRunner {
 			ResponseValidator.isValidHeaders(actualResponse.getAllHeaders(),
 					expectedResponse.getAssertions().getHeaders(), testStatus);
 		}
-
+		
 		// Validate body
-		if (actualResponse.getHeaders("Content-Type").length > 0) {
+		if (actualResponse.getHeaders("Content-Type").length > 0 || (expectedResponse.getBody() != null && expectedResponse.getBody().getType()!= null)) {
 			if (expectedResponse.getBody() != null && expectedResponse.getBody().getData() != null
 					&& !expectedResponse.getBody().getData().isEmpty()) {
 				if (actualResponse.getHeaders("Content-Type")[0].getValue().toLowerCase()
-						.contains("application/json")) {
+						.contains("json") ||(expectedResponse.getBody() != null && expectedResponse.getBody().getType().toLowerCase().contains("json"))) {
 					new JsonValidator(expectedResponse.getBody().getData()).validate(expectedResponse.getAssertions(),
 							testStatus);
 				} else if (actualResponse.getHeaders("Content-Type")[0].getValue().toLowerCase()
-						.contains("application/xml")) {
+						.contains("xml") || (expectedResponse.getBody() != null && expectedResponse.getBody().getType().toLowerCase().contains("xml"))) {
 					new XmlValidator(expectedResponse.getBody().getData()).validate(expectedResponse.getAssertions(),
 							testStatus);
 				}
@@ -618,6 +618,7 @@ public class TestRunner {
 			}
 
 		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 			e.printStackTrace();
 		}
 

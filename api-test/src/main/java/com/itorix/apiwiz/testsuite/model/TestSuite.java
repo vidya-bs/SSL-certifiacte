@@ -70,7 +70,7 @@ public class TestSuite extends AbstractObject {
 
 	@JsonProperty("name")
 	public void setName(String name) {
-		this.name = name;
+		this.name = name.trim();
 	}
 
 	public String getExecutionStatus() {
@@ -203,6 +203,16 @@ public class TestSuite extends AbstractObject {
 
 	public void setSuccessRatio(Double successRatio) {
 		this.successRatio = successRatio;
+	}
+	
+	public Boolean hasTestCases(){
+		if(null != this.scenarios && scenarios.size() > 0){
+			for(Scenario scenario : scenarios){
+				if(scenario.hasTestCases())
+					return Boolean.TRUE;
+			}
+		}
+		return Boolean.FALSE;
 	}
 
 }

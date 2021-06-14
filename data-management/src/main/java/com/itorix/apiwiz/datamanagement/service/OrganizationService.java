@@ -1142,7 +1142,7 @@ public interface OrganizationService {
         @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/apigee/organizations/{org_name}/overview")
-	public ResponseEntity<ApigeeOrganizationalVO> apigeeOrganizationalOverView(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("org_name") String org_name,@RequestParam(value="type",required=false) String type,@RequestParam(value="refresh",required=false) boolean refresh)throws Exception;
+	public ResponseEntity<?> apigeeOrganizationalOverView(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("org_name") String org_name,@RequestParam(value="type",required=false) String type,@RequestParam(value="refresh",required=false) boolean refresh)throws Exception;
 	
 	
 	

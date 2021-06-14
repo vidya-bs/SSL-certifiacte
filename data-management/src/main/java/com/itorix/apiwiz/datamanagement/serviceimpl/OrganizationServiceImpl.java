@@ -1567,16 +1567,21 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/apigee/organizations/{org_name}/overview")
-	public ResponseEntity<ApigeeOrganizationalVO> apigeeOrganizationalOverView(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("org_name") String org_name,@RequestParam(value="type",required=false) String type,@RequestParam(value="refresh",required=false) boolean refresh)throws Exception {
-		ApigeeOrganizationalVO vo= null;
+	public ResponseEntity<?> apigeeOrganizationalOverView(
+			@RequestHeader(value="interactionid",required=false)String interactionid,
+			@RequestHeader(value="jsessionid") String jsessionid,
+			@PathVariable("org_name") String org_name,
+			@RequestParam(value="type",required=false) String type,
+			@RequestParam(value="refresh",required=false) boolean refresh)throws Exception {
+		com.itorix.apiwiz.data.management.model.overview.ApigeeOrganizationalVO vo= null;
 			CommonConfiguration cfg=new CommonConfiguration();
 			cfg.setOrganization(org_name);
 			cfg.setInteractionid(interactionid);
 			cfg.setJsessionId(jsessionid);
 			cfg.setType(type);
-			// vo= organizationBusiness.apigeeOrganizationalView(cfg,refresh);
+			vo= organizationBusiness.apigeeOrganizationalView(cfg,refresh);
 			
-		return new ResponseEntity<ApigeeOrganizationalVO>(vo, HttpStatus.OK);
+		return new ResponseEntity<>(vo, HttpStatus.OK);
 	}
 	
 	

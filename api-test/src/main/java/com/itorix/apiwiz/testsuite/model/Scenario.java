@@ -110,5 +110,9 @@ public class Scenario {
 		this.duration = duration;
 	}
 
-
+	public Boolean hasTestCases(){
+		if(this.testCases != null && this.testCases.size() > 0)
+			return Boolean.TRUE;
+		return Boolean.FALSE;
+	}
 }
