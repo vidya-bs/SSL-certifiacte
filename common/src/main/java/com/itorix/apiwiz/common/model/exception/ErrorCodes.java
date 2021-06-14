@@ -27,11 +27,11 @@ public enum ErrorCodes {
 	public static final Map<String, String> errorMessage = new HashMap<String, String>() {
 		private static final long serialVersionUID = 1L;
 		{
-			/*Api Monitoring Error codes START */
-			put("Monitoring-1000", "Invalid request data!  Missing mandatory data to process the request.");
-			put("Monitoring-1001", "Project with name %s already exists.");
+			/*Api Monitoring Error codes START 
+			put("Monitoring-1000", "Invalid request data!  Missing mandatory data to process the request..");
+			put("Monitoring-1001", "Project name %s already exists, use a different name.");
 			put("Monitoring-1002", "Invalid request data!  Missing mandatory data to process the request.");
-			put("Monitoring-1003", "Project with name %name% already exists.");
+			put("Monitoring-1003", "Project name %s already exists, use a different name.");
 			put("Monitoring-1004", "Invalid request data!  Missing mandatory data to process the request.");
 			put("Monitoring-1005", "Project  and proxy  combination does not exists.");
 			put("Monitoring-1006", "Invalid request data!  Missing mandatory data to process the request.");
@@ -39,14 +39,14 @@ public enum ErrorCodes {
 			put("Monitoring-1008", "Invalid request data!  Missing mandatory data to process the request.");
 			/*Api Monitoring Error codes END */
 
-			put("ProxyGen-1000", "Please check the request and retry again.");
+			put("ProxyGen-1000", "Invalid request data!  Missing mandatory data to process the request.");
 			put("ProxyGen-1001", "There are no flows defined in the given file.");
 			put("ProxyGen-1002", "Proxy Name not found.");
 			put("ProxyGen-1003", "Invalid apigee credentials");
-			//put("General-1000", "Internal server error. Please try after sometime.");
 			put("ProxyGen-1004", "No data found.");
 			put("ProxyGen-1005", "Record exists with same data.");
 			put("ProxyGen-1006", "Not a valid SCM source");
+			
 			put("Config-1000", "Please check the request and retry again.");
 			put("Config-1001", "There are no flows defined in the given file.");
 			put("Config-1002", "Proxy Name not found.");
@@ -65,13 +65,11 @@ public enum ErrorCodes {
 			put("ConfigMgmt-1004","Cache name %cachename does not exists.");
 			put("ConfigMgmt-1006","	Invalid request data! Missing mandatory data to process the request.");
 			put("ConfigMgmt-1007","	Invalid Apigee Credentials.");
-
 			put("ConfigMgmt-1012","KVM name %KVMName for Org %orgname and Env %env already exists.");
 			put("ConfigMgmt-1013","KVM name %KVMname for Org %orgname and Env %env does not exists.");
 			put("ConfigMgmt-1015","KVM name %KVMname does not exists.");
 			put("ConfigMgmt-1011","	Invalid request data! Missing mandatory data to process the request.");
 			put("ConfigMgmt-1016","	Invalid Apigee Credentials.");
-
 			put("ConfigMgmt-1022","Target name %TargetName for Org %orgname and Env %env already exists.");
 			put("ConfigMgmt-1023","Target name %Targetname for Org %orgname and Env %env does not exists.");
 			put("ConfigMgmt-1025","Target name %Targetname does not exists.");
@@ -85,26 +83,26 @@ public enum ErrorCodes {
 			put("CONFIG-1105","invalid approval type in the request.");
 			put("CONFIG-1106","InSufficeint Permissions to perform the operation.");
 
-			put("USER_003", "Sorry! Incorrect email ID. Please enter the correct email ID.");
+			put("USER_003", "Invalid email ID provided in the request, please use  a valid email ID.");
 			put("USER_002", "Sorry! The Account is locked due to incorrect login attempts. Contact your admin team.");
 			put("USER_004", "Sorry! The old password entered doesn't match the records.");
 			put("USER_005", "User already Exists.");
 			put("USER_008", "Sorry! Incorrect time range.");
 			put("USER_009", "Sorry! No records found for the search criteria.");
-			put("USER_010", "Sorry! Invalid login session. Please try and re-login.");
+			put("USER_010", "Sorry! Invalid login session, the session you are using got expired, relogin to continue.");
 			put("USER_011", "Sorry! The following domain %s is not allowed. Please contact the admin.");
 			put("USER_012", "Sorry! UserDomain Already Exists.");
 			put("USER_013", "Sorry! UserDomain Doesn't Exists.");
-			put("USER_014", "Sorry! Please contact admin to get account activated.");
-			put("USER_015", "Sorry! Please contact admin to get account unLocked.");
+			put("USER_014", "Contact your Org Admin to activate your account.");
+			put("USER_015", "Contact your Org Admin to get your account unlocked.");
 			put("USER_016", "Invalid request data! Missing mandatory data to process the request.");
-			put("USER_018", "Workspace Id already in use");
+			put("USER_018", "Workspace you are trying to use is already in use.");
 			put("USER_020", "Token expired or used previously");
-			put("USER_021", "email/loginId used is not available");
-			put("USER_022", "No workspace with the name provided");
-			put("USER_023", "Not an Admin to perform the operation");
-			put("USER_024", "workspace used is not active");
-			put("USER_028", "No permissions associated to the plan associated");
+			put("USER_021", "Not able to find the loginId/emailId provided, please register for login.");
+			put("USER_022", "No workspace with the name provided in the request.");
+			put("USER_023", "User does not have Admin role to perform this operation.");
+			put("USER_024", "Workspace used is not active.");
+			put("USER_028", "No permissions to perform the operation you are trying to perform.");
 			put("USER_029", "No permissions to perform the action");
 			put("USER_030", "Looks like your account is locked, Please contact workspace admin.");
 			put("USER_031", "Sorry! error occured while registring the user, please try afer sometime.");
@@ -112,27 +110,27 @@ public enum ErrorCodes {
 			put("IDENTITY-1008", "Sorry! The username entered already exists. Please try registering with a new loginid and email or login with the existing credentials.");
 			put("IDENTITY-1010", "Sorry! Insufficeint permissions to perform this activity.");
 			put("IDENTITY-1001", "Sorry! Couldn’t find the emaild provided in the request");
-			put("IDENTITY-1012", "provided UserId and password did not match");
-			put("IDENTITY-1004","Invalid request data! Missing mandatory data to process the request.");
-			put("IDENTITY-1011","Jsession provided is not available");
-			put("IDENTITY-1006","Invalid request data! Missing mandatory data to process the request.");
+			put("IDENTITY-1012", "Provided UserId and password did not match.");
+			put("IDENTITY-1004", "Invalid request data! Missing mandatory data to process the request.");
+			put("IDENTITY-1011", "Jsession provided is not available");
+			put("IDENTITY-1006", "Invalid request data! Missing mandatory data to process the request.");
 
 			put("IDENTITY-1014","Login failed! Invalid or missing JSESSIONID.");
-			put("IDENTITY-1015","you don't have enough permissions to access the resource");
+			put("IDENTITY-1015","You don't have enough permissions to access the resource.");
 			put("IDENTITY-1016","SAML configurations are incomplete/missing. Please configure before login using SAML.");
-			put("IDENTITY-1017","Login Id doesn't exist.");
+			put("IDENTITY-1017","Not able to find the loginId provided, please register before login.");
 			put("IDENTITY-1018","Invalid Session! Please login and try again");
-			put("IDENTITY-1019","metadataUrl or metadata file is mandatory.");
+			put("IDENTITY-1019","Required data metadataUrl or metadata file is missing.");
 			put("IDENTITY-1020","SAML response from metadataUrl is empty.");
-			put("IDENTITY-1021","metadataUrl is missing in SAML configuration");
-			put("IDENTITY-1022","Invalid credentials.");
+			put("IDENTITY-1021","Required data metadataUrl is missing in the SAML configuration.");
+			put("IDENTITY-1022","Provided UserId and password did not match.");
 			put("IDENTITY-1023","loginId or password is missing.");
 			put("IDENTITY-1024","LDAP configuration is incomplete/missing. Please configure before login using ldap credentials.");
 			put("IDENTITY-1025","Issue occured during session creation contact administrator.");
 			put("IDENTITY-1026","Ldap configuration is incomplete for the user. Please contact administrator");
 			put("IDENTITY-1027","Could not store configuration. Please contact administrator");
 			put("IDENTITY-1028","Could not read configuration. Please contact administrator");
-			put("IDENTITY-1029","Trial period expired. Please contact administrator");
+			put("IDENTITY-1029","Trial period expired. Please contact support to assist you further.");
 
 
 			put("PROJECT_PLAN_TRACK_001", "Project already exist");
@@ -142,13 +140,13 @@ public enum ErrorCodes {
 			put("PM_1000", "Project by name %s already exists.");
 			put("PM_1001", "Project by name %s doesn't exists.");
 			put("PM_1002", "Cobination of Project name  %s & Proxy name %s doesn't exists.");
-			put("POSTMAN_001", "Already PostMan exists");
-			put("POSTMAN_002", "Already ENV exists");
-			put("POSTMAN_003", "PostMan Not Found");
-			put("POSTMAN_004", "Environment File Not Found");
-			put("POSTMAN_005", "PostMan or Environment File Not Found");
-			put("NO_ENV_FOUND", "Environments  Not Avaliable");
-			put("CICD_001", "ProjectName Must Contain Hypen");
+			put("POSTMAN_001", "Postman file with the same name exists.");
+			put("POSTMAN_002", "Environment file with the same name exists.");
+			put("POSTMAN_003", "No Postman file found with the name provided.");
+			put("POSTMAN_004", "No Environment file found with the name provided.");
+			put("POSTMAN_005", "No data forund for the PostMan  and Environment  combination.");
+			put("NO_ENV_FOUND", "No Environment file found with the name provided.");
+			put("CICD_001", "Invalid characters found, only '-' is allowed in the project name");
 
 			put("DMB_0002", "Sorry! Scheduler exists for the selected organization and environment.");
 			put("DMB_0003", "Sorry! No records exists for the given request criteria");
@@ -163,9 +161,9 @@ public enum ErrorCodes {
 			put("Swagger-1007", "Sorry! Invalid template uploaded. Please upload a valid xpath file.");
 			put("Swagger-1008", "Sorry! Invalid xpath - %s. Please correct and try again later.");
 
-			put("Teams-1000", " Swagger Team name is already avilable");
+			put("Teams-1000", "Team name already in use");
 			put("Teams-1001", "No records found for selected swagger team name - %s.");
-			put("Teams-1002", " you don't have enough permissions on this team - %s");
+			put("Teams-1002", "You don't have enough permissions on this team - %s");
 
 			put("General-1000", "Sorry! Internal server error. Please try again later.");
 			put("General-1001", "Sorry! Invalid request. Please correct the request and try again.");
@@ -181,18 +179,15 @@ public enum ErrorCodes {
 			put("Apigee-1007", "Sorry! There is no apigee credentails defined for the logged in user.");
 
 			put("CodeCoverage-1001", "Sorry! No records found for the given record id.");
-			put("CodeCoverage-1002", "Sorry! Inavalid request. Please correct the request and try again later.");
-			put("PolicyPerformance-1001", "Sorry! No records found for the given record id.");
-			put("PolicyPerformance-1002", "Sorry! Inavalid request. Please correct the request and try again later.");
+			put("CodeCoverage-1002", "Invalid request data!  Missing mandatory data to process the request.");
+			put("PolicyPerformance-1001", "Sorry! No records found for the input data.");
+			put("PolicyPerformance-1002", "Invalid request data!  Missing mandatory data to process the request.");
 
 			put("CICD_004", "Sorry! Records all already exist for given data.");
 			put("CICD_005", "Sorry! No records found for the given data.");
 			put("CICD_006", "Invalid BackUpInterval ,Interval must be in Daily,Monthly,Weekly.");
 
-			put("Portfolio-1000", "Please check the request and retry again.");
-			put("Portfolio-1002","Sorry! No records found for the given Portfolio name  - %s.");
-			put("Portfolio-1003","Sorry! Portfolio name  - %s already exists.");
-			put("Portfolio-1004","Sorry! No records found for the given Portfolio ID  - %s.");
+			
 			put("Session_01","Invalid Session! Please login and try again");
 			put("Session_02","Unauthorized!! user");
 			put("Session_03","Invalid key provided ");
@@ -201,51 +196,55 @@ public enum ErrorCodes {
 			put("ServiceRegistry-1001", "Sorry! A record already present for input value/values %s .");
 			put("ServiceRegistry-1002", "Sorry! Record already exist for given data.");
 
-			put("Testsuite-1","Testsuite execution is already in progress! Can't trigger a new one");
+			put("Testsuite-1","Testsuite execution is already in progress! Can't trigger a new one.");
 			put("Testsuite-2","TestSuite is Paused. Unpause it to run");
 			put("Testsuite-4","TestSuite agent configuration is missing");
 			put("Testsuite-5","Internal error occured during testSuite agent call");
-			put("Testsuite-6","Testsuite doesn't exist");
-			put("Testsuite-7","Variable doesn't exist");
+			put("Testsuite-6","Sorry! No records found for the input datat");
+			put("Testsuite-7","Sorry! No records found for the input data");
 			put("Testsuite-8","There are no test suites in running status to cancel.");
-			put("Testsuite-9","variable encryption failed.Please contact admin");
-			put("Testsuite-10","Certificate is missing.");
-			put("Testsuite-11","Mandatory parameter %s is missing");
+			put("Testsuite-9","Error encrypting the data. contact support.");
+			put("Testsuite-10","No certificate found with the data provided.");
+			put("Testsuite-11","Invalid request data!  Missing mandatory data to process the request : missing %s ");
 			put("Testsuite-12","Certificate could not be stored. Possible reasons certificate is not of type jks or password is incorrect.");
 			put("Testsuite-14","Error creating SSL connection.");
-			put("Testsuite-15","Certificate does not exist.");
+			put("Testsuite-15","No certificate found with the data provided.");
 			put("Testsuite-16","Certificate can't be deleted. It is refered in testsuite(s) %s.");
-			put("Testsuite-17","variable decryption failed.Please contact admin");
+			put("Testsuite-17","Variable decryption failed.Please contact support");
+			put("Testsuite-18","No testcases peresent in the testsuite to execute.");
 
-
-			put("Portfolio-1", "Portfolio does not exist");
-			put("Portfolio-2", "Portfolio and product combination does not exist");
-			put("Portfolio-4", "Portfolio and document combination does not exist");
-			put("Portfolio-5", "Document is missing. Please upload");
-			put("Portfolio-6", "Mandatory fields %s missing");
-			put("Portfolio-7", "File couldn't be stored. Please contact admin");
-			put("Portfolio-8", "Image is missing. Please upload");
-			put("Portfolio-9", "Portfolio and service registry combination does not exist");
-			put("Portfolio-10", "Portfolio and projects combination does not exist");
-			put("Portfolio-11", "Portfolio, projects , proxy combination does not exist");
-			put("Portfolio-12", "A record already exists with the same name");
-			put("Portfolio-14", "Record does not exist");
+			put("Portfolio-1000", "Invalid request data!  Missing mandatory data to process the request.");
+			put("Portfolio-1002","Sorry! No records found for the given Portfolio name  - %s.");
+			put("Portfolio-1003","Prortfolio with the name %s already exists.");
+			put("Portfolio-1004","Sorry! No records found for the given Portfolio ID  - %s.");
+			put("Portfolio-1", "Sorry! No records found for the input data.");
+			put("Portfolio-2", "Sorry! No records found for the input data.");
+			put("Portfolio-4", "Sorry! No records found for the input data.");
+			put("Portfolio-5", "Document not available in the Request, please upload the document.");
+			put("Portfolio-6", "Invalid request data!  Missing mandatory data to process the request. %s missing");
+			put("Portfolio-7", "Error while uplading the file please contact the Support.");
+			put("Portfolio-8", "Required Image file is not available please upload the file before proceding.");
+			put("Portfolio-9", "Portfolio and service registry combination does not exist.");
+			put("Portfolio-10", "Sorry! No records found for the Portfolio and Project combination.");
+			put("Portfolio-11", "Sorry! No records found for the input data");
+			put("Portfolio-12", "Sorry! Record already exist with the Name provided.");
+			put("Portfolio-14", "Sorry! No records found for the input data");
 			put("Portfolio-15", "Error occured when deleting files related to the document. Please contact admin");
 
-			put("Monitor-Api-1", "Sorry! No records found.");
-			put("Monitor-Api-2","variable encryption failed.Please contact admin");
-			put("Monitor-Api-3","Certificate does not exist.");
-			put("Monitor-Api-4","Certificate is missing.");
+			put("Monitor-Api-1", "Sorry! No records found for the input data.");
+			put("Monitor-Api-2","Error encrypting the data. contact support.");
+			put("Monitor-Api-3","No certificate found with the data provided.");
+			put("Monitor-Api-4","No certificate found with the data provided.");
 			put("Monitor-Api-5","Certificate could not be stored. Possible reasons certificate is not of type jks or password is incorrect.");
-			put("Monitor-Api-6","Variable exists with the same name");
-			put("Monitor-Api-7","A record exists with the same name");
+			put("Monitor-Api-6","Variable exists with the same name.");
+			put("Monitor-Api-7","Sorry! Record already exist with the Name provided.");
 
 
-			put("MockServer-1", "Expectation with the condition already exists");
-			put("MockServer-2", "No record found");
-			put("MockServer-4", "Group not found");
+			put("MockServer-1", "Expectation with the condition already exists.");
+			put("MockServer-2", "Sorry! No records found for the input data.");
+			put("MockServer-4", "Sorry! No records found for the input data.");
 			
-			put("Marketing-2", "File couldn't be stored. Please contact admin");
+			put("Marketing-2", "File couldn't be stored. Please contact support.");
 		}
 	};
 
@@ -436,6 +435,7 @@ public enum ErrorCodes {
 			put("Testsuite-15",404);
 			put("Testsuite-16",400);
 			put("Testsuite-17",500);
+			put("Testsuite-18",400);
 
 
 			put("Portfolio-1",404);

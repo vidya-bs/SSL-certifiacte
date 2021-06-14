@@ -1,5 +1,4 @@
 package com.itorix.apiwiz.data.management.businessimpl;
-/*package com.itorix.service;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,9 +13,14 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import com.itorix.apigee.model.ProxyArtifacts;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyArtifacts;
+import com.itorix.apiwiz.common.util.http.HttpErrorHandler;
 
 @Service
 @SuppressWarnings("unchecked")
@@ -26,42 +30,42 @@ public class ProcessProxyArtifacts {
 	private static String host="localhost";
 	private static String port = "8092";
 	private static String uri="http://#host#:#port#/v1/buildconfig/proxies/#proxy#/proxyartifacts";
-//	private static String uri="http://#host#:#port#/UserManagement/v1/buildconfig/proxies/#proxy#/proxyartifacts";
+	//	private static String uri="http://#host#:#port#/UserManagement/v1/buildconfig/proxies/#proxy#/proxyartifacts";
 	private static String proxyPath= "";
 
-	public static void main(String[] args) {
-	host = args[0].trim();
-	port = args[1].trim();
-	String proxy = args[2].trim();
-	proxyPath = args[3].trim();
-	uri = uri.replaceAll("#proxy#", proxy);
-	uri = uri.replaceAll("#host#", host);
-	uri = uri.replaceAll("#port#", port);
-	try{
-	updateProxyArtifacts(processArtifacts(proxyPath));
-	//CleanUnused.clean(proxyPath + System.getProperty("file.separator"));
-	}
-	catch(Exception e){
-	e.printStackTrace();
-	}
-	}
+//	public static void main(String[] args) {
+//		host = args[0].trim();
+//		port = args[1].trim();
+//		String proxy = args[2].trim();
+//		proxyPath = args[3].trim();
+//		uri = uri.replaceAll("#proxy#", proxy);
+//		uri = uri.replaceAll("#host#", host);
+//		uri = uri.replaceAll("#port#", port);
+//		try{
+//			updateProxyArtifacts(processArtifacts(proxyPath));
+//			//CleanUnused.clean(proxyPath + System.getProperty("file.separator"));
+//		}
+//		catch(Exception e){
+//			e.printStackTrace();
+//		}
+//	}
 
-		private static String updateProxyArtifacts(ProxyArtifacts proxyArtifacts) {
-	RestTemplate restTemplate = new RestTemplate();
-	ResponseEntity<String> response;
-	restTemplate.setErrorHandler(new HttpErrorHandler());
-	try{
-	//response = restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<>(proxyArtifacts), String.class);
-	response = restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<>(proxyArtifacts), new ParameterizedTypeReference<String>() {});
-	}catch (Exception e){
-	throw e;
-	}
-
-	return response.toString();
-	}
+//	private static String updateProxyArtifacts(ProxyArtifacts proxyArtifacts) {
+//		RestTemplate restTemplate = new RestTemplate();
+//		ResponseEntity<String> response;
+//		restTemplate.setErrorHandler(new HttpErrorHandler());
+//		try{
+//			//response = restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<>(proxyArtifacts), String.class);
+//			response = restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<>(proxyArtifacts), new ParameterizedTypeReference<String>() {});
+//		}catch (Exception e){
+//			throw e;
+//		}
+//
+//		return response.toString();
+//	}
 
 	@SuppressWarnings("rawtypes")
-	public  ProxyArtifacts processArtifacts(String path){
+	public  static ProxyArtifacts processArtifacts(String path){
 		String policiesPath = path + System.getProperty("file.separator") + "policies";
 		String proxyPath = path + System.getProperty("file.separator") + "proxies";
 		String targetPath = path + System.getProperty("file.separator") + "targets";
@@ -86,7 +90,7 @@ public class ProcessProxyArtifacts {
 		} catch (IOException e) {
 		}
 		ProxyArtifacts data = new ProxyArtifacts();
-		data.setKvm((List)Arrays.asList(kvmResources.toArray()));
+		data.setKvms((List)Arrays.asList(kvmResources.toArray()));
 		data.setCaches((List)Arrays.asList(cacheResources.toArray()));
 		data.setTargetServers(targets);
 		return data;
@@ -137,4 +141,4 @@ public class ProcessProxyArtifacts {
 		return "";
 	}
 
-}*/
+}

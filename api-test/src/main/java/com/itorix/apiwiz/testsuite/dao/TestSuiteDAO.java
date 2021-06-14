@@ -543,10 +543,14 @@ public class TestSuiteDAO {
 		if(variables == null){
 			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-7"), "Testsuite-7");
 		}
+		
+		if(testSuite.hasTestCases()){
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-18"), "Testsuite-18");
+		}
 
 		return triggerPipeline(testSuiteId, variableId, testSuite, variables, userName, false, isCron);
-		//			createPipeline(testSuiteId, variableId, testSuite.getName(), variables.getName());
-		//			triggerPipeline(testSuiteId, variableId, testSuite, variables, userName, false);
+		//createPipeline(testSuiteId, variableId, testSuite.getName(), variables.getName());
+		//triggerPipeline(testSuiteId, variableId, testSuite, variables, userName, false);
 	}
 
 	public String triggerPipeline(String testSuiteId, String variableId, TestSuite testSuite, Variables variables,

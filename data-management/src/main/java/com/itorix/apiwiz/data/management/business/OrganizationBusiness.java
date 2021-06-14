@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.itorix.apiwiz.common.model.apigee.CommonConfiguration;
@@ -18,6 +19,7 @@ import com.itorix.apiwiz.data.management.model.OrgBackUpInfo;
 import com.itorix.apiwiz.data.management.model.ProductsBackUpInfo;
 import com.itorix.apiwiz.data.management.model.ProxyBackUpInfo;
 import com.itorix.apiwiz.data.management.model.ResourceBackUpInfo;
+import com.itorix.apiwiz.data.management.model.overview.ApigeeOrganizationalVO;
 
 @Service
 public interface OrganizationBusiness {
@@ -239,6 +241,6 @@ public interface OrganizationBusiness {
 
 	public CommonConfiguration deleteBackUp(CommonConfiguration cfg, String oid, String sys) throws IOException;
 	public JsonNode populateVoToJson(CommonConfiguration cfg) throws JsonGenerationException, JsonMappingException, IOException, ItorixException;
-	
+	public ApigeeOrganizationalVO apigeeOrganizationalView(CommonConfiguration cfg,boolean refresh) throws ItorixException, JsonProcessingException, IOException;
 
 }
