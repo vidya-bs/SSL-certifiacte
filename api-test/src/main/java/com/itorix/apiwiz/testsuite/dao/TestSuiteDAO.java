@@ -544,7 +544,7 @@ public class TestSuiteDAO {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-7"), "Testsuite-7");
 		}
 		
-		if(testSuite.hasTestCases()){
+		if(!testSuite.hasTestCases()){
 			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-18"), "Testsuite-18");
 		}
 
