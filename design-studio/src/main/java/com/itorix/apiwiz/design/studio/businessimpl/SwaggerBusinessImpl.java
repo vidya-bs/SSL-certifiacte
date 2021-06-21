@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 
 import javax.mail.MessagingException;
 
+import com.itorix.apiwiz.design.studio.model.*;
+import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.json.JSONException;
@@ -41,7 +43,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -72,31 +73,11 @@ import com.itorix.apiwiz.common.util.mail.MailUtil;
 import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.common.util.zip.ZIPUtil;
 import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
-import com.itorix.apiwiz.design.studio.model.PopulateSwaggerDefination;
-import com.itorix.apiwiz.design.studio.model.Revision;
-import com.itorix.apiwiz.design.studio.model.RowData;
-import com.itorix.apiwiz.design.studio.model.SchemaValidationError;
-import com.itorix.apiwiz.design.studio.model.Swagger2BasePath;
-import com.itorix.apiwiz.design.studio.model.Swagger3Comment;
-import com.itorix.apiwiz.design.studio.model.Swagger3ReviewComents;
-import com.itorix.apiwiz.design.studio.model.Swagger3VO;
-import com.itorix.apiwiz.design.studio.model.SwaggerComment;
-import com.itorix.apiwiz.design.studio.model.SwaggerContacts;
-import com.itorix.apiwiz.design.studio.model.SwaggerHistoryResponse;
-import com.itorix.apiwiz.design.studio.model.SwaggerImport;
-import com.itorix.apiwiz.design.studio.model.SwaggerIntegrations;
-import com.itorix.apiwiz.design.studio.model.SwaggerMetadata;
-import com.itorix.apiwiz.design.studio.model.SwaggerReview;
-import com.itorix.apiwiz.design.studio.model.SwaggerReviewComents;
-import com.itorix.apiwiz.design.studio.model.SwaggerStatus;
-import com.itorix.apiwiz.design.studio.model.SwaggerTeam;
-import com.itorix.apiwiz.design.studio.model.SwaggerVO;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 import com.itorix.apiwiz.identitymanagement.model.User;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
-import com.mongodb.DBObject;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCursor;
 
@@ -3415,4 +3396,82 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return new OpenAPIV3Parser().readContents(swagger, null, options).getOpenAPI();
 	}
 
+	@SneakyThrows
+	@Override
+	public String getSwaggerInfo(String jsessionid, String swaggerid, String oas) {
+		if (oas.equals("3.0")) {
+			Swagger3VO vo = getSwagger3(swaggerid, null);
+			return  parseSwaggerInfoNodes(vo.getSwagger());
+		} else {
+			SwaggerVO vo = getSwagger(swaggerid, null);
+			return  parseSwaggerInfoNodes(vo.getSwagger());
+		}
+	}
+
+	@SneakyThrows
+	private String parseSwaggerInfoNodes(String swaggerJson) {
+		String version = "";
+		String name = "";
+		String description = "";
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		JsonNode swaggerNode = objectMapper.readTree(swaggerJson);
+		JsonNode swaggerInfoNode = swaggerNode.get("info");
+		name = String.valueOf(swaggerInfoNode.get("title"));
+		version = String.valueOf(swaggerInfoNode.get("version"));
+		description = String.valueOf(swaggerInfoNode.get("description"));
+
+		if (name == "null" || name == "")
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
+					"Swagger-1001");
+
+		ObjectNode jsonNode = objectMapper.createObjectNode();
+		jsonNode.put("name", name);
+		jsonNode.put("description", description);
+		jsonNode.put("version", version);
+		return objectMapper.writeValueAsString(jsonNode);
+	}
+
+	@SneakyThrows
+	@Override
+	public boolean cloneSwagger(SwaggerCloneDetails swaggerCloneDetails, String oas) {
+		//find existing swagger
+		boolean isSwaggerCloneSuccess = false;
+		if("3.0".equals(oas)) {
+			//Check Swagger Already Exists with the same name of clone
+			Swagger3VO swaggerObj = getSwagger3(swaggerCloneDetails.getName(), null);
+			if(swaggerObj != null) {
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1003")),
+						"Swagger-1003");
+			}
+
+			Swagger3VO vo = getSwagger3(swaggerCloneDetails.getCurrentSwaggerID(), null);
+			if(vo != null) {
+				vo.setName(swaggerCloneDetails.getName());
+				vo.setDescription(swaggerCloneDetails.getDescription());
+				vo.setRevision(vo.getRevision() + 1);//vo.setVersion ??
+				//Vo.setPath ?? Not required as no path in V3.0
+				vo.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
+				Swagger3VO clonedSwaggerVo = baseRepository.save(vo);
+				isSwaggerCloneSuccess  = clonedSwaggerVo != null ? true : false;
+			}
+		} else {
+			//Check Swagger Already Exists with the same name of clone
+			Swagger3VO swaggerObj = getSwagger3(swaggerCloneDetails.getName(), null);
+			if(swaggerObj != null) {
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1003")),
+						"Swagger-1003");
+			}
+			SwaggerVO vo = getSwagger(swaggerCloneDetails.getCurrentSwaggerID(), null);
+			vo.setName(swaggerCloneDetails.getName());
+			vo.setDescription(swaggerCloneDetails.getDescription());
+			vo.setRevision(vo.getRevision() + 1);//vo.setVersion ??
+			//vo.setVersion ??
+			//Vo.setPath ??
+			vo.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
+			SwaggerVO clonedSwaggerVo = baseRepository.save(vo);
+			isSwaggerCloneSuccess  = clonedSwaggerVo != null ? true : false;
+		}
+		return isSwaggerCloneSuccess;
+	}
 }

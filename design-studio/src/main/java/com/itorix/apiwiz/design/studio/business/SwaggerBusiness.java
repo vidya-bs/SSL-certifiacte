@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.mail.MessagingException;
 
+import com.itorix.apiwiz.design.studio.model.*;
 import org.json.JSONException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,20 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.design.studio.model.Revision;
-import com.itorix.apiwiz.design.studio.model.RowData;
-import com.itorix.apiwiz.design.studio.model.Swagger3Comment;
-import com.itorix.apiwiz.design.studio.model.Swagger3ReviewComents;
-import com.itorix.apiwiz.design.studio.model.Swagger3VO;
-import com.itorix.apiwiz.design.studio.model.SwaggerComment;
-import com.itorix.apiwiz.design.studio.model.SwaggerHistoryResponse;
-import com.itorix.apiwiz.design.studio.model.SwaggerImport;
-import com.itorix.apiwiz.design.studio.model.SwaggerIntegrations;
-import com.itorix.apiwiz.design.studio.model.SwaggerMetadata;
-import com.itorix.apiwiz.design.studio.model.SwaggerReview;
-import com.itorix.apiwiz.design.studio.model.SwaggerReviewComents;
-import com.itorix.apiwiz.design.studio.model.SwaggerTeam;
-import com.itorix.apiwiz.design.studio.model.SwaggerVO;
 
 @Service
 public interface SwaggerBusiness {
@@ -651,4 +638,7 @@ public interface SwaggerBusiness {
 
 	public void deleteGitIntegrations(String interactionid, String jsessionid, String swaggerid, String oas) throws ItorixException;
 
+    public String getSwaggerInfo(String jsessionid, String swaggerid, String oas);
+
+	public boolean cloneSwagger(SwaggerCloneDetails swaggerCloneDetails, String oas);
 }

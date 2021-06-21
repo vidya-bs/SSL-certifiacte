@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.itorix.apiwiz.design.studio.model.*;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -55,27 +56,6 @@ import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
 import com.itorix.apiwiz.design.studio.businessimpl.Swagger3SDK;
 import com.itorix.apiwiz.design.studio.businessimpl.ValidateSchema;
 import com.itorix.apiwiz.design.studio.businessimpl.XlsUtil;
-import com.itorix.apiwiz.design.studio.model.Clients;
-import com.itorix.apiwiz.design.studio.model.GenrateClientRequest;
-import com.itorix.apiwiz.design.studio.model.Revision;
-import com.itorix.apiwiz.design.studio.model.RowData;
-import com.itorix.apiwiz.design.studio.model.Servers;
-import com.itorix.apiwiz.design.studio.model.Swagger2BasePath;
-import com.itorix.apiwiz.design.studio.model.Swagger3Comment;
-import com.itorix.apiwiz.design.studio.model.Swagger3ReviewComents;
-import com.itorix.apiwiz.design.studio.model.Swagger3VO;
-import com.itorix.apiwiz.design.studio.model.SwaggerComment;
-import com.itorix.apiwiz.design.studio.model.SwaggerDocumentationVO;
-import com.itorix.apiwiz.design.studio.model.SwaggerHistoryResponse;
-import com.itorix.apiwiz.design.studio.model.SwaggerIntegrations;
-import com.itorix.apiwiz.design.studio.model.SwaggerLockResponse;
-import com.itorix.apiwiz.design.studio.model.SwaggerMetadata;
-import com.itorix.apiwiz.design.studio.model.SwaggerReview;
-import com.itorix.apiwiz.design.studio.model.SwaggerReviewComents;
-import com.itorix.apiwiz.design.studio.model.SwaggerTeam;
-import com.itorix.apiwiz.design.studio.model.SwaggerVO;
-import com.itorix.apiwiz.design.studio.model.ValidationResponse;
-import com.itorix.apiwiz.design.studio.model.XmlSchemaVo;
 import com.itorix.apiwiz.design.studio.service.SwaggerService;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
@@ -2138,6 +2118,28 @@ public class SwaggerServiceImpl implements SwaggerService {
 			throws Exception {
 		swaggerBusiness.deleteGitIntegrations(interactionid, jsessionid, swaggerid , oas);
 		return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+	}
+
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/info", produces = { "application/json" })
+	public ResponseEntity<Object> getSwaggerInfo(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
+			@RequestParam("id") String swaggerid)
+			throws Exception {
+		String swaggerInfo = swaggerBusiness.getSwaggerInfo(jsessionid, swaggerid , oas);
+		return new ResponseEntity<Object>(swaggerInfo, HttpStatus.OK);
+	}
+
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/clone")
+	public ResponseEntity<?> validateSwagger(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = true) String oas,
+			@RequestBody SwaggerCloneDetails swaggerCloneDetails)
+			throws Exception{
+		HttpStatus httpStatus = swaggerBusiness.cloneSwagger(swaggerCloneDetails, oas) ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
+		return new ResponseEntity<Void>(httpStatus);
 	}
 	
 //	@Override
