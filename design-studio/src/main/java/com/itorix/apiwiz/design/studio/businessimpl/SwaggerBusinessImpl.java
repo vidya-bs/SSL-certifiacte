@@ -1491,10 +1491,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		for (SwaggerVO swaggerVO : swaggers) {
 			versions.add(new Revision(swaggerVO.getRevision(), swaggerVO.getStatus()));
 		}
-		Revision version = Collections.max(versions);
-		for (SwaggerVO swaggerVO : swaggers) {
-			if (swaggerVO.getRevision() == version.getRevision()) {
-				return swaggerVO;
+		if(versions.size() > 0) {
+			Revision version = Collections.max(versions);
+			for (SwaggerVO swaggerVO : swaggers) {
+				if (swaggerVO.getRevision() == version.getRevision()) {
+					return swaggerVO;
+				}
 			}
 		}
 		log("getSwagger", interactionid, vo);
@@ -1521,10 +1523,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		for (Swagger3VO swaggerVO : swaggers) {
 			versions.add(new Revision(swaggerVO.getRevision(), swaggerVO.getStatus()));
 		}
-		Revision version = Collections.max(versions);
-		for (Swagger3VO swaggerVO : swaggers) {
-			if (swaggerVO.getRevision() == version.getRevision()) {
-				return swaggerVO;
+		if(swaggers.size() > 0) {
+			Revision version = Collections.max(versions);
+			for (Swagger3VO swaggerVO : swaggers) {
+				if (swaggerVO.getRevision() == version.getRevision()) {
+					return swaggerVO;
+				}
 			}
 		}
 		log("getSwagger", interactionid, vo);
@@ -3435,6 +3439,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	@SneakyThrows
 	@Override
 	public boolean cloneSwagger(SwaggerCloneDetails swaggerCloneDetails, String oas) {
+		System.out.println("cloneSwagger" + swaggerCloneDetails);
 		//find existing swagger
 		boolean isSwaggerCloneSuccess = false;
 		if("3.0".equals(oas)) {
@@ -3451,13 +3456,15 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				vo.setDescription(swaggerCloneDetails.getDescription());
 				vo.setRevision(vo.getRevision() + 1);//vo.setVersion ??
 				//Vo.setPath ?? Not required as no path in V3.0
-				vo.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
+				String swaggerId = UUID.randomUUID().toString().replaceAll("-", "");
+				vo.setSwaggerId(swaggerId);
+				System.out.println("Cloning Swagger " + swaggerId);
 				Swagger3VO clonedSwaggerVo = baseRepository.save(vo);
 				isSwaggerCloneSuccess  = clonedSwaggerVo != null ? true : false;
 			}
 		} else {
 			//Check Swagger Already Exists with the same name of clone
-			Swagger3VO swaggerObj = getSwagger3(swaggerCloneDetails.getName(), null);
+			SwaggerVO swaggerObj = getSwagger(swaggerCloneDetails.getName(), null);
 			if(swaggerObj != null) {
 				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1003")),
 						"Swagger-1003");
@@ -3468,7 +3475,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			vo.setRevision(vo.getRevision() + 1);//vo.setVersion ??
 			//vo.setVersion ??
 			//Vo.setPath ??
-			vo.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
+			String swaggerId = UUID.randomUUID().toString().replaceAll("-", "");
+			vo.setSwaggerId(swaggerId);
+			System.out.println("Cloning Swagger for 3.0" + swaggerId);
 			SwaggerVO clonedSwaggerVo = baseRepository.save(vo);
 			isSwaggerCloneSuccess  = clonedSwaggerVo != null ? true : false;
 		}

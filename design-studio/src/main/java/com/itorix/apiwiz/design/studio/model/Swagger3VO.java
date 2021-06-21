@@ -250,6 +250,5 @@ public class Swagger3VO extends AbstractObject {
 	public void setSwaggerId(String swaggerId) {
 		this.swaggerId = swaggerId;
 	}
-	
 
 }
