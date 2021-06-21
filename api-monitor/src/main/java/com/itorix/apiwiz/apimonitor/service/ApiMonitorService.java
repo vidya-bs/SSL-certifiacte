@@ -9,6 +9,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,24 +30,27 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 @CrossOrigin
 @RestController
 public interface ApiMonitorService {
-
+	
+	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = { RequestMethod.POST }, value = "/v1/monitor/collections", consumes = {
 	"application/json" })
 	public ResponseEntity<Object> createCollection(@RequestBody MonitorCollections monitorCollections,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = { RequestMethod.PUT }, value = "/v1/monitor/collections/{id}", consumes = {
 	"application/json" })
 	public ResponseEntity<Object> updateCollection(@RequestBody MonitorCollections monitorCollections,
 			@PathVariable(value = "id") String id, @RequestHeader(value = "JSESSIONID") String jsessionid)
 					throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = { RequestMethod.GET }, value = "/v1/monitor/collections", produces = {
 	"application/json" })
 	public ResponseEntity<Object> getCollections(@RequestParam(value = "offset" , defaultValue = "1") int offset,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "pagesize", defaultValue = "10") int pageSize) throws Exception;
-
+	
 	@RequestMapping(method = { RequestMethod.GET }, value = "/v1/monitor/collections/{id}", produces = {
 	"application/json" })
 	public ResponseEntity<Object> getCollection(@PathVariable(value = "id") String id,
