@@ -6,6 +6,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.itorix.apiwiz.design.studio.model.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,16 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.design.studio.model.GenrateClientRequest;
-import com.itorix.apiwiz.design.studio.model.Revision;
-import com.itorix.apiwiz.design.studio.model.SwaggerComment;
-import com.itorix.apiwiz.design.studio.model.SwaggerDocumentationVO;
-import com.itorix.apiwiz.design.studio.model.SwaggerIntegrations;
-import com.itorix.apiwiz.design.studio.model.SwaggerReview;
-import com.itorix.apiwiz.design.studio.model.SwaggerReviewComents;
-import com.itorix.apiwiz.design.studio.model.SwaggerTeam;
-import com.itorix.apiwiz.design.studio.model.SwaggerVO;
-import com.itorix.apiwiz.design.studio.model.XmlSchemaVo;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 
 import io.swagger.annotations.ApiOperation;
@@ -1017,6 +1009,21 @@ public interface SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
 			@PathVariable("swagger-id") String swaggerid)
+			throws Exception;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/info", produces = { "application/json" })
+	public ResponseEntity<Object> getSwaggerInfo(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+			@RequestParam("id") String swaggerid)
+			throws Exception;
+
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/clone")
+	public ResponseEntity<?> validateSwagger(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = true) String oas,
+			@RequestBody SwaggerCloneDetails swaggerCloneDetails)
 			throws Exception;
 	
 //	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swagger}/revisions/{revision}/getassociatedproxy", produces = {
