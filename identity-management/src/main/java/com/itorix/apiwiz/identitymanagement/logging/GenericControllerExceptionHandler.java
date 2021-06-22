@@ -1,7 +1,7 @@
 package com.itorix.apiwiz.identitymanagement.logging;
 
 import java.io.IOException;
-import java.nio.file.AccessDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -122,9 +122,26 @@ public class GenericControllerExceptionHandler{
 		return responseEntity;
 	}
 
+//	@ExceptionHandler(AccessDeniedException.class)
+//	@ResponseBody
+//	public ResponseEntity<ErrorObj> handleAccessDeniedException(final ItorixException ex,
+//			final HttpServletResponse response, final HttpServletRequest request) throws IOException {
+//		logger.error("inside handleControllerException : {} ", ex);
+//		loggerService.logException("GenericControllerExceptionHandler", "handleControllerException",
+//				System.currentTimeMillis(), HttpStatus.valueOf(ErrorCodes.responseCode.get("IDENTITY-1015")),
+//				"General-1001", ErrorCodes.errorMessage.get("IDENTITY-1015"), response, request);
+//		ErrorObj error = new ErrorObj();
+//		error.setErrorMessage(ErrorCodes.errorMessage.get("IDENTITY-1015"), "IDENTITY-1015");
+//		response.setStatus(ErrorCodes.responseCode.get("IDENTITY-1015"));
+//		ResponseEntity<ErrorObj> responseEntity =  new ResponseEntity<ErrorObj>(error, HttpStatus.valueOf(ErrorCodes.responseCode.get("IDENTITY-1015")));
+//
+//
+//		return responseEntity;
+//	}
+	
 	@ExceptionHandler(AccessDeniedException.class)
 	@ResponseBody
-	public ResponseEntity<ErrorObj> handleAccessDeniedException(final ItorixException ex,
+	public ResponseEntity<ErrorObj> handleAccessDeniedException(final AccessDeniedException ex,
 			final HttpServletResponse response, final HttpServletRequest request) throws IOException {
 		logger.error("inside handleControllerException : {} ", ex);
 		loggerService.logException("GenericControllerExceptionHandler", "handleControllerException",
