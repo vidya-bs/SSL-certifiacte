@@ -22,7 +22,7 @@ public class KVMService {
 			return URL;
 		}
 		catch( Exception ex){
-			throw new ItorixException(ex.getMessage(),"Config-1000", ex );
+			throw new ItorixException(ex.getMessage(),"Configuration-1000", ex );
 		}
 	}
 	
@@ -34,7 +34,7 @@ public class KVMService {
 			return URL;
 		}
 		catch( Exception ex){
-			throw new ItorixException(ex.getMessage(),"Config-1000", ex );
+			throw new ItorixException(ex.getMessage(),"Configuration-1000", ex );
 		}
 	}
 	
@@ -43,7 +43,7 @@ public class KVMService {
 			return  apigeeUtil.getApigeeHost(config.getType()==null?"saas":config.getType(), config.getOrg()) +  "v1/organizations/" + config.getOrg();
 		}
 		catch( Exception ex){
-			throw new ItorixException(ex.getMessage(),"Config-1000", ex );
+			throw new ItorixException(ex.getMessage(),"Configuration-1000", ex );
 		}
 	}
 	
@@ -52,7 +52,7 @@ public class KVMService {
 			return  apigeeUtil.getApigeeHost(config.getType()==null?"saas":config.getType(), config.getOrg()) +  "v1/organizations/" + config.getOrg()+"/environments/"+ config.getEnv() +"/keyvaluemaps/" + config.getName();
 		}
 		catch( Exception ex){
-			throw new ItorixException(ex.getMessage(),"Config-1000", ex );
+			throw new ItorixException(ex.getMessage(),"Configuration-1000", ex );
 		}
 	}
 
@@ -65,7 +65,7 @@ public class KVMService {
 			return apigeeKVM;
 		}
 		catch( Exception ex){
-			throw new ItorixException(ex.getMessage(),"Config-1000", ex );
+			throw new ItorixException(ex.getMessage(),"Configuration-1000", ex );
 		}
 	}
 }

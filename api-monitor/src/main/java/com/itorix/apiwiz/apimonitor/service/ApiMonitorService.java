@@ -30,7 +30,7 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 @CrossOrigin
 @RestController
 public interface ApiMonitorService {
-	
+
 	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = { RequestMethod.POST }, value = "/v1/monitor/collections", consumes = {
 	"application/json" })
@@ -50,41 +50,48 @@ public interface ApiMonitorService {
 	public ResponseEntity<Object> getCollections(@RequestParam(value = "offset" , defaultValue = "1") int offset,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "pagesize", defaultValue = "10") int pageSize) throws Exception;
-	
+
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = { RequestMethod.GET }, value = "/v1/monitor/collections/{id}", produces = {
 	"application/json" })
 	public ResponseEntity<Object> getCollection(@PathVariable(value = "id") String id,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = { RequestMethod.DELETE }, value = "/v1/monitor/collections/{id}", produces = {
 	"application/json" })
 	public ResponseEntity<Object> deleteCollection(@PathVariable(value = "id") String id,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = { RequestMethod.POST }, value = "/v1/monitor/collections/{id}/requests", consumes = { "application/json" } ,  produces = {"application/json"})
 	public ResponseEntity<Object> createRequest(@RequestBody MonitorRequest monitorRequest,
 			@PathVariable(value = "id") String id, @RequestHeader(value = "JSESSIONID") String jsessionid)
 					throws Exception;
 
-	@RequestMapping(method = {
+		@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
+		@RequestMapping(method = {
 			RequestMethod.PUT }, value = "/v1/monitor/collections/{id}/requests/{requestId}", consumes = {
 	"application/json" })
 	public ResponseEntity<Object> updateRequest(@RequestBody MonitorRequest monitorRequest,
 			@PathVariable(value = "id") String id, @PathVariable(value = "requestId") String requestId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = { RequestMethod.GET }, value = "/v1/monitor/collections/{id}/requests", produces = {
 	"application/json" })
 	public ResponseEntity<Object> getRequests(@PathVariable(value = "id") String id,
 			@RequestParam(value = "offset" , defaultValue = "1") int offset, @RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "pagesize", defaultValue = "10") int pageSize) throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = { RequestMethod.GET }, value = "/v1/monitor/collections/{id}/requests/{requestId}", produces = {
 	"application/json" })
 	public ResponseEntity<Object> getRequest(@PathVariable(value = "id") String id,
 			@PathVariable(value = "requestId") String requestId, @RequestHeader(value = "JSESSIONID") String jsessionid)
 					throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = {
 			RequestMethod.DELETE }, value = "/v1/monitor/collections/{id}/requests/{requestId}", produces = {
 	"application/json" })
@@ -92,6 +99,7 @@ public interface ApiMonitorService {
 			@PathVariable(value = "requestId") String requestId, @RequestHeader(value = "JSESSIONID") String jsessionid)
 					throws Exception;
 
+	@PreAuthorize("hasAnyRole('hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = {
 			RequestMethod.GET }, value = "/v1/monitor/collections/{collectionId}/requests/{requestId}/schedulers/{schedulerId}", produces = {
 	"application/json" })
@@ -101,6 +109,7 @@ public interface ApiMonitorService {
 			@RequestParam("date") @DateTimeFormat(pattern = "MM-dd-yyyy") Date date,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
+	@PreAuthorize("hasAnyRole('hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = {
 			RequestMethod.GET }, value = "/v1/monitor/collections/{collectionId}/requests/{requestId}/events/{eventId}", produces = {
 	"application/json" })
@@ -110,6 +119,7 @@ public interface ApiMonitorService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
 
+	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/monitor/variables", consumes = {
 	"application/json" }, produces = { "application/json" })
 	public ResponseEntity<?> createVariables(
@@ -118,6 +128,7 @@ public interface ApiMonitorService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, HttpServletRequest request,
 			HttpServletResponse response) throws JsonProcessingException, ItorixException;
 
+	@PreAuthorize("hasAnyRole('hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/monitor/variables/{id}", produces = {
 	"application/json" })
 	public ResponseEntity<?> getVariables(
@@ -126,6 +137,7 @@ public interface ApiMonitorService {
 			@PathVariable("id") String id, HttpServletRequest request, HttpServletResponse response)
 					throws JsonProcessingException, ItorixException;
 
+	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/monitor/variables/{id}", consumes = {
 	"application/json" }, produces = { "application/json" })
 	public ResponseEntity<?> updateVariables(
@@ -134,6 +146,7 @@ public interface ApiMonitorService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
 			HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, ItorixException;
 
+	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/monitor/variables/{id}", produces = {
 	"application/json" })
 	public ResponseEntity<?> deleteVariables(
@@ -142,18 +155,21 @@ public interface ApiMonitorService {
 			HttpServletRequest request, HttpServletResponse response, @PathVariable("id") String id)
 					throws JsonProcessingException, ItorixException;
 
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/monitor/variables", produces = { "application/json" })
 	public ResponseEntity<?> getAllVariables(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid,
 			HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, ItorixException;
 
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/monitor/certificates/{name}")
 	public ResponseEntity<?> getCertificate(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable(name = "name") String name) throws ItorixException;
 
 
 
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/monitor/certificates", produces = { "application/json" })
 	public ResponseEntity<?> getCertificates(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -161,10 +177,12 @@ public interface ApiMonitorService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, HttpServletRequest request,
 			HttpServletResponse response) throws ItorixException;
 
+	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/monitor/certificates/{name}")
 	public ResponseEntity<?> deleteCertificate(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable(value = "name") String name) throws ItorixException;
 
+	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = {RequestMethod.POST}  , value = "/v1/monitor/certificates", consumes = {	"multipart/form-data" })
 	public ResponseEntity<Object> createOrUpdateCertificate(
 			@RequestPart(value = "name", required = true) String name,
@@ -174,31 +192,37 @@ public interface ApiMonitorService {
 			@RequestPart(value = "alias", required = false) String alias,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/monitor/certificates/{name}/download", produces = { "application/json" })
 	public ResponseEntity<Resource> downloadCertificate(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable(name = "name") String name) throws ItorixException;
 
 
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/monitor/collections/{collectionId}/sequence", produces = { "application/json" })
 	public ResponseEntity<Object> getRequestSequence(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable(name = "collectionId") String collectionId) throws ItorixException;
 
 
+	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/monitor/collections/{collectionId}/sequence")
 	public ResponseEntity<Object> updateRequestSequence(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable(name = "collectionId") String collectionId,
 			@RequestBody MonitorCollections monitorCollections) throws ItorixException;
 
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/monitor/collections/{collectionId}/schedulers", produces = { "application/json" })
 	public ResponseEntity<Object> getSchedulers(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable(name = "collectionId") String collectionId) throws ItorixException;
 
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/monitor/search")
 	public ResponseEntity<Object> search(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/monitor/metadata", consumes = {
 	"application/json" })
 	public ResponseEntity<?> createMetaData(
@@ -206,11 +230,13 @@ public interface ApiMonitorService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestBody String metadata) throws JsonProcessingException, ItorixException;
 
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/monitor/metadata", produces = { "application/json" })
 	public ResponseEntity<?> getMetaData(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws JsonProcessingException, ItorixException;
 
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/monitor/collections/{collectionId}/variables", produces = {
 			"application/json" })
 	public ResponseEntity<?> getCollectionsVariable(

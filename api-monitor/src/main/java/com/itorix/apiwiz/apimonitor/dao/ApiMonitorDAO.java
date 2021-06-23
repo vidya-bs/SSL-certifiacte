@@ -118,7 +118,7 @@ public class ApiMonitorDAO {
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 
 		if (mongoTemplate.updateFirst(query, update, MonitorCollections.class).getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-1"), "Monitor-Api-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1000"), "Monitor-1000");
 		}
 
 	}
@@ -208,7 +208,7 @@ public class ApiMonitorDAO {
 
 		MonitorCollections monitorCollection = mongoTemplate.findOne(query, MonitorCollections.class);
 		if (monitorCollection == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-1"), "Monitor-Api-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1000"), "Monitor-1000");
 		}
 		return monitorCollection;
 	}
@@ -217,7 +217,7 @@ public class ApiMonitorDAO {
 
 		Query query = new Query().addCriteria(Criteria.where("id").is(id));
 		if (mongoTemplate.remove(query, MonitorCollections.class).getDeletedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-1"), "Monitor-Api-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1000"), "Monitor-1000");
 		}
 	}
 
@@ -227,7 +227,7 @@ public class ApiMonitorDAO {
 				Criteria.where("monitorRequest").elemMatch(Criteria.where("name").is(monitorRequest.getName()))));
 
 		if(mongoTemplate.findOne(queryForDuplicateCheck, MonitorCollections.class) != null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-7"), "Monitor-Api-7");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1006"), "Monitor-1006");
 		}
 
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
@@ -239,7 +239,7 @@ public class ApiMonitorDAO {
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 		update.push("sequence", monitorRequest.getId());
 		if (mongoTemplate.updateFirst(query, update, MonitorCollections.class).getMatchedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-1"), "Monitor-Api-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1000"), "Monitor-1000");
 		}
 		return monitorRequest.getId();
 
@@ -258,7 +258,7 @@ public class ApiMonitorDAO {
 		update.set("mts", System.currentTimeMillis());
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 		if (mongoTemplate.updateFirst(query, update, MonitorCollections.class).getMatchedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-1"), "Monitor-Api-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1000"), "Monitor-1000");
 		}
 	}
 
@@ -270,7 +270,7 @@ public class ApiMonitorDAO {
 		.include("monitorRequest.summary");
 		MonitorCollections monitorCollection = mongoTemplate.findOne(query, MonitorCollections.class);
 		if (monitorCollection == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-1"), "Monitor-Api-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1000"), "Monitor-1000");
 		}
 		return monitorCollection;
 
@@ -315,7 +315,7 @@ public class ApiMonitorDAO {
 
 		List<MonitorCollections> find = mongoTemplate.find(query, MonitorCollections.class);
 		if (CollectionUtils.isEmpty(find)) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-1"), "Monitor-Api-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1000"), "Monitor-1000");
 		}
 		return find.get(0).getMonitorRequest().get(0);
 	}
@@ -331,7 +331,7 @@ public class ApiMonitorDAO {
 								new Query().addCriteria(Criteria.where("_id").is(requestId))),
 						MonitorCollections.class)
 				.getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-1"), "Monitor-Api-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1000"), "Monitor-1000");
 		}
 
 	}
@@ -349,7 +349,7 @@ public class ApiMonitorDAO {
 		MonitorCollections collection = mongoTemplate.findOne(query, MonitorCollections.class);
 
 		if (collection == null || CollectionUtils.isEmpty(collection.getSchedulers())) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-1"), "Monitor-Api-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1000"), "Monitor-1000");
 		}
 
 		requestStats.setCollectionID(collection.getId());
@@ -391,7 +391,7 @@ public class ApiMonitorDAO {
 		MonitorCollections collection = mongoTemplate.findOne(query, MonitorCollections.class);
 
 		if (collection == null || CollectionUtils.isEmpty(collection.getSchedulers())) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-1"), "Monitor-Api-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1000"), "Monitor-1000");
 		}
 
 		MonitorRequestLog monitorLogs = new MonitorRequestLog();
@@ -472,7 +472,7 @@ public class ApiMonitorDAO {
 		if (findByConfigName(variables.getName()) == null) {
 			mongoTemplate.save(variables);
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-6"), "Monitor-Api-6");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1005"), "Monitor-1005");
 		}
 	}
 
@@ -491,7 +491,7 @@ public class ApiMonitorDAO {
 			mongoTemplate.save(variables);
 			return true;
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-1"), "Monitor-Api-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1000"), "Monitor-1000");
 		}
 	}
 
@@ -534,7 +534,7 @@ public class ApiMonitorDAO {
 	public void deleteCertificate(String name) throws ItorixException {
 		if(mongoTemplate.remove(new Query(Criteria.where("name").is(name)),
 				Certificates.class).getDeletedCount() == 0){
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-3"), "Monitor-Api-3");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1002"), "Monitor-1002");
 		}
 	}
 
@@ -553,7 +553,7 @@ public class ApiMonitorDAO {
 				ks.load(new ByteArrayInputStream(jKSFile), password.toCharArray());
 			} catch (NoSuchAlgorithmException | CertificateException | IOException | KeyStoreException e) {
 				log.error("Issue in uploaded certificate", e);
-				throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-5"), "Monitor-Api-5");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1004"), "Monitor-1004");
 			}
 		}
 
@@ -600,7 +600,7 @@ public class ApiMonitorDAO {
 		Update update = new Update();
 		update.set("sequence", sequence);
 		if (mongoTemplate.updateFirst(query, update, MonitorCollections.class).getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-1"), "Monitor-Api-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1000"), "Monitor-1000");
 		}
 	}
 
@@ -609,7 +609,7 @@ public class ApiMonitorDAO {
 		query.fields().include("sequence");
 		MonitorCollections monitorCollection = mongoTemplate.findOne(query, MonitorCollections.class);
 		if (monitorCollection == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-1"), "Monitor-Api-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1000"), "Monitor-1000");
 		}
 		return monitorCollection;
 	}
@@ -619,7 +619,7 @@ public class ApiMonitorDAO {
 		query.fields().include("monitorRequest").include("schedulers");
 		MonitorCollections monitorCollection = mongoTemplate.findOne(query, MonitorCollections.class);
 		if (monitorCollection == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-1"), "Monitor-Api-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1000"), "Monitor-1000");
 		}
 		return monitorCollection;
 	}
@@ -666,7 +666,7 @@ public class ApiMonitorDAO {
 		Query query = new Query().addCriteria(Criteria.where("id").is(collectionId));
 		MonitorCollections monitorCollection = mongoTemplate.findOne(query, MonitorCollections.class);
 		if (monitorCollection == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-1"), "Monitor-Api-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1000"), "Monitor-1000");
 		}
 
 		CollectionVariables collectionVariables = new CollectionVariables();

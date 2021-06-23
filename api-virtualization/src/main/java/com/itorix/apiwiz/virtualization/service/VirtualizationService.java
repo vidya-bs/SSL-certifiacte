@@ -29,6 +29,7 @@ public interface VirtualizationService {
 			@ApiResponse(code = 404, message = "Requestd group does not exist.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
 	})
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = {"/v1/mock/scenarios-groups", "/v1/mock/scenarios-groups/{groupId}"})
 	public org.springframework.http.ResponseEntity<Object> getGroups(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -45,7 +46,8 @@ public interface VirtualizationService {
 			@ApiResponse(code = 400, message = "Bad request.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
 	})
-	@RequestMapping(method = RequestMethod.POST, value = "/v1/mock/scenarios-groups")
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','TEST','ANALYST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
+  @RequestMapping(method = RequestMethod.POST, value = "/v1/mock/scenarios-groups")
 	public org.springframework.http.ResponseEntity<?> createGroup(
 			@RequestBody GroupVO group,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -58,6 +60,7 @@ public interface VirtualizationService {
 			@ApiResponse(code = 404, message = "requested group does not exist.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
 	})
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','TEST','ANALYST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/mock/scenarios-groups/{groupId}")
 	public org.springframework.http.ResponseEntity<?> updateGroup(
 			@RequestBody GroupVO group,
@@ -72,6 +75,7 @@ public interface VirtualizationService {
 			@ApiResponse(code = 404, message = "requested group does not exist.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
 	})
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','TEST','ANALYST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/mock/scenarios-groups/{groupId}")
 	public org.springframework.http.ResponseEntity<?> deleteGroup(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -85,6 +89,7 @@ public interface VirtualizationService {
 			@ApiResponse(code = 404, message = "no logentry found.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
 	})
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/mock/logs", produces = "application/json")
 	public org.springframework.http.ResponseEntity<?> getLogEntries(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -97,6 +102,7 @@ public interface VirtualizationService {
 			@RequestParam(value="logId",required=false) String logId);
 
 
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/mock/logs/{logId}", produces = "application/json")
 	public org.springframework.http.ResponseEntity<?> getLogEntrie(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -110,12 +116,14 @@ public interface VirtualizationService {
 			@ApiResponse(code = 404, message = "no logentry found.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
 	})
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/mock/{expectationId}/logs", produces = "application/json")
 	public org.springframework.http.ResponseEntity<?> getExpectationLogEntries(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("expectationId") String expectationId);
 
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/mock/logs/expectation/names", produces = "application/json")
 	public org.springframework.http.ResponseEntity<?> getExpectationLogNames(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -124,6 +132,7 @@ public interface VirtualizationService {
 /////////////////////////////////////
 
 
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','TEST','ANALYST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/mock/scenarios" , produces = "application/json")
 	public org.springframework.http.ResponseEntity<?> createScenario(
 			@RequestBody Expectation  expectation,
@@ -131,6 +140,7 @@ public interface VirtualizationService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid) throws Exception;
 
 
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','TEST','ANALYST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/mock/scenarios/{scenarioId}")
 	public org.springframework.http.ResponseEntity<?> updateScenario(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -139,6 +149,7 @@ public interface VirtualizationService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid) throws Exception;
 
 
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','TEST','ANALYST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/mock/scenarios/{scenarioId}")
 	public org.springframework.http.ResponseEntity<?> deleteScenario(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -146,6 +157,7 @@ public interface VirtualizationService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid) throws Exception;
 
 
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/mock/scenarios/{scenarioId}", produces = "application/json")
 	public org.springframework.http.ResponseEntity<?> getScenario(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -153,6 +165,7 @@ public interface VirtualizationService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid) throws Exception;
 
 
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/mock/scenarios", produces = "application/json")
 	public org.springframework.http.ResponseEntity<?> getScenarios(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -160,7 +173,8 @@ public interface VirtualizationService {
 			@RequestParam(value="groupId",required=false) String groupId,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "pagesize", defaultValue = "10") int pageSize) throws Exception;
-	
+
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/mock/search", produces = "application/json")
 	public org.springframework.http.ResponseEntity<?> searchGroup(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,

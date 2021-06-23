@@ -506,7 +506,7 @@ public class MongoConnection {
 			DBCollection collection = db.getCollection("Build.Schedule");
 
 			if( getScheduler(id) == null){
-				throw new ItorixException("No scheduler found with ID "+id , "ProxyGen-1004");
+				throw new ItorixException("No scheduler found with ID "+id , "ProxyGen-1002");
 			}
 			else{
 				BasicDBObject searchQuery = new BasicDBObject().append("id", id);
@@ -679,12 +679,12 @@ public class MongoConnection {
 				List<KVMConfig> obj = mongoTemplate.find(query, KVMConfig.class);
 				return obj;
 			} else {
-				throw new ItorixException("No Record exists", "Config-1004");
+				throw new ItorixException("No Record exists", "Configuration-1003");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 	
@@ -698,12 +698,12 @@ public class MongoConnection {
 				List<ServiceRequest>requests = mongoTemplate.find(query, ServiceRequest.class);
 				return requests;
 			} else {
-				throw new ItorixException("No Record exists", "Config-1004");
+				throw new ItorixException("No Record exists", "Configuration-1003");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 	
@@ -716,12 +716,12 @@ public class MongoConnection {
 				List<ServiceRequest>requests = mongoTemplate.find(query, ServiceRequest.class);
 				return requests;
 			} else {
-				throw new ItorixException("No Record exists", "Config-1004");
+				throw new ItorixException("No Record exists", "Configuration-1003");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 	
@@ -734,12 +734,12 @@ public class MongoConnection {
 				List<ServiceRequest>requests = mongoTemplate.find(query, ServiceRequest.class);
 				return requests;
 			} else {
-				throw new ItorixException("No Record exists", "Config-1004");
+				throw new ItorixException("No Record exists", "Configuration-1003");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 	
@@ -749,12 +749,12 @@ public class MongoConnection {
 				Query query = new Query(Criteria.where("name").is(name).and("activeFlag").is(true));
 				return mongoTemplate.find(query, CacheConfig.class);
 			} else {
-				throw new ItorixException("No Record exists", "Config-1004");
+				throw new ItorixException("No Record exists", "Configuration-1003");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 	
@@ -764,12 +764,12 @@ public class MongoConnection {
 				Query query = new Query(Criteria.where("name").is(name).and("activeFlag").is(Boolean.TRUE));
 				return mongoTemplate.find(query, TargetConfig.class);
 			} else {
-				throw new ItorixException("No Record exists", "Config-1004");
+				throw new ItorixException("No Record exists", "Configuration-1003");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 

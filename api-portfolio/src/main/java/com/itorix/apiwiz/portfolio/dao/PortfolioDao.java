@@ -80,7 +80,7 @@ public class PortfolioDao {
 		Query query = new Query().addCriteria(Criteria.where("name").is(portfolioRequest.getName()));
 
 		if (mongoTemplate.count(query, Portfolio.class) != 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-12"), "Portfolio-12");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1014"), "Portfolio-1014");
 		}
 
 		BeanUtils.copyProperties(portfolioRequest, portfolio);
@@ -100,7 +100,7 @@ public class PortfolioDao {
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1"), "Portfolio-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
 		}
 	}
 
@@ -115,7 +115,7 @@ public class PortfolioDao {
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1"), "Portfolio-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
 		}
 	}
 
@@ -126,7 +126,7 @@ public class PortfolioDao {
 				Criteria.where("document").elemMatch(Criteria.where("documentName").is(document.getDocumentName()))));
 
 		if (mongoTemplate.count(queryForCount, Portfolio.class) != 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-12"), "Portfolio-12");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1014"), "Portfolio-1014");
 		}
 
 		Query query = new Query().addCriteria(Criteria.where("id").is(id));
@@ -139,7 +139,7 @@ public class PortfolioDao {
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1"), "Portfolio-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
 		}
 		return document.getId();
 	}
@@ -169,7 +169,7 @@ public class PortfolioDao {
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-4"), "Portfolio-4");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1006"), "Portfolio-1006");
 		}
 	}
 
@@ -184,7 +184,7 @@ public class PortfolioDao {
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 		update.set("document.$.document", location);
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-4"), "Portfolio-4");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1006"), "Portfolio-1006");
 		}
 	}
 
@@ -205,7 +205,7 @@ public class PortfolioDao {
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1"), "Portfolio-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
 		}
 
 	}
@@ -226,7 +226,7 @@ public class PortfolioDao {
 		String downloadURI;
 		Portfolio findById = mongoTemplate.findById(portfolioId, Portfolio.class);
 		if (findById == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1"), "Portfolio-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
 		}
 
 		String workspace = masterMongoTemplate.findById(jsession, UserSession.class).getWorkspaceId();
@@ -253,7 +253,7 @@ public class PortfolioDao {
 			}
 		}
 		if (portfolio == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1"), "Portfolio-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
 		}
 		return portfolio;
 	}
@@ -305,7 +305,7 @@ public class PortfolioDao {
 		String workspace = masterMongoTemplate.findById(jsessionid, UserSession.class).getWorkspaceId();
 		deleteFileJfrogFile("/" + workspace + "/portfolio/" + portfolioId);
 		if (mongoTemplate.remove(query, Portfolio.class).getDeletedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1"), "Portfolio-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
 		}
 	}
 
@@ -314,7 +314,7 @@ public class PortfolioDao {
 		query.fields().include("document");
 		List<Portfolio> find = mongoTemplate.find(query, Portfolio.class);
 		if (CollectionUtils.isEmpty(find)) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1"), "Portfolio-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
 		}
 		return find.get(0).getDocument();
 	}
@@ -329,7 +329,7 @@ public class PortfolioDao {
 		if (mongoTemplate.updateMulti(query,
 				new Update().pull("document", new Query().addCriteria(Criteria.where("_id").is(documentId))),
 				Portfolio.class).getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-4"), "Portfolio-4");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1006"), "Portfolio-1006");
 		}
 	}
 
@@ -340,7 +340,7 @@ public class PortfolioDao {
 				Criteria.where("products").elemMatch(Criteria.where("name").is(products.getName()))));
 
 		if (mongoTemplate.count(queryForCount, Portfolio.class) != 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-12"), "Portfolio-12");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1014"), "Portfolio-1014");
 		}
 
 		Products product = new Products();
@@ -353,7 +353,7 @@ public class PortfolioDao {
 		update.set("mts", System.currentTimeMillis());
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getMatchedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-2"), "Portfolio-2");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1005"), "Portfolio-1005");
 		}
 
 		return product.getId();
@@ -382,7 +382,7 @@ public class PortfolioDao {
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-2"), "Portfolio-2");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1005"), "Portfolio-1005");
 		}
 	}
 
@@ -397,7 +397,7 @@ public class PortfolioDao {
 		if (mongoTemplate.updateMulti(query,
 				new Update().pull("products", new Query().addCriteria(Criteria.where("_id").is(productId))),
 				Portfolio.class).getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-2"), "Portfolio-2");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1005"), "Portfolio-1005");
 		}
 	}
 
@@ -452,7 +452,7 @@ public class PortfolioDao {
 
 		List<Portfolio> find = mongoTemplate.find(query, Portfolio.class);
 		if (CollectionUtils.isEmpty(find)) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-2"), "Portfolio-2");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1005"), "Portfolio-1005");
 		}
 		return find.get(0).getProducts().get(0);
 	}
@@ -469,7 +469,7 @@ public class PortfolioDao {
 		update.set("mts", System.currentTimeMillis());
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getMatchedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-2"), "Portfolio-2");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1005"), "Portfolio-1005");
 		}
 	}
 
@@ -484,7 +484,7 @@ public class PortfolioDao {
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 		update.set("products.$.productServices", productServices);
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getMatchedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-2"), "Portfolio-2");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1005"), "Portfolio-1005");
 		}
 
 	}
@@ -496,7 +496,7 @@ public class PortfolioDao {
 				Criteria.where("serviceRegistry").elemMatch(Criteria.where("name").is(serviceRegistry.getName()))));
 
 		if (mongoTemplate.count(queryForCount, Portfolio.class) != 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-12"), "Portfolio-12");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1014"), "Portfolio-1014");
 		}
 
 		serviceRegistry.setId(new ObjectId().toString());
@@ -507,7 +507,7 @@ public class PortfolioDao {
 		update.set("mts", System.currentTimeMillis());
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getMatchedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1"), "Portfolio-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
 		}
 
 		return serviceRegistry.getId();
@@ -526,7 +526,7 @@ public class PortfolioDao {
 		update.set("mts", System.currentTimeMillis());
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getMatchedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-9"), "Portfolio-9");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1011"), "Portfolio-1011");
 		}
 	}
 
@@ -572,7 +572,7 @@ public class PortfolioDao {
 
 		List<Portfolio> find = mongoTemplate.find(query, Portfolio.class);
 		if (CollectionUtils.isEmpty(find)) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-9"), "Portfolio-9");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1011"), "Portfolio-1011");
 		}
 		return find.get(0).getServiceRegistry().get(0);
 	}
@@ -586,7 +586,7 @@ public class PortfolioDao {
 		String downloadURI;
 
 		if (mongoTemplate.count(query, Portfolio.class) == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-2"), "Portfolio-2");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1005"), "Portfolio-1005");
 		}
 
 		String workspace = masterMongoTemplate.findById(jsessionid, UserSession.class).getWorkspaceId();
@@ -595,7 +595,7 @@ public class PortfolioDao {
 		try {
 			downloadURI = updateToJfrog(portfolioId + "/" + productId + "/" + fileName, bytes, jsessionid);
 		} catch (Exception e) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-7"), "Portfolio-7");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1009"), "Portfolio-1009");
 		}
 		updateProductPicture(portfolioId, productId, downloadURI, jsessionid);
 		return downloadURI;
@@ -630,7 +630,7 @@ public class PortfolioDao {
 			JSONObject uploadFiles = jfrogUtilImpl.uploadFiles(new ByteArrayInputStream(bytes), "/" + workspace + "/portfolio/" + folderPath);
 			return uploadFiles.getString("downloadURI");
 		} catch (Exception e) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-7"), "Portfolio-7");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1009"), "Portfolio-1009");
 		}
 	}
 
@@ -638,7 +638,7 @@ public class PortfolioDao {
 		try {
 			jfrogUtilImpl.deleteFileIgnore404(folderPath);
 		} catch (Exception e) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-15"), "Portfolio-15");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1016"), "Portfolio-1016");
 		}
 	}
 
@@ -653,7 +653,7 @@ public class PortfolioDao {
 								new Query().addCriteria(Criteria.where("_id").is(servRegistryId))),
 						Portfolio.class)
 				.getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-9"), "Portfolio-9");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1011"), "Portfolio-1011");
 		}
 	}
 
@@ -663,7 +663,7 @@ public class PortfolioDao {
 				Criteria.where("projects").elemMatch(Criteria.where("name").is(project.getName()))));
 
 		if (mongoTemplate.count(queryForCount, Portfolio.class) != 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-12"), "Portfolio-12");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1014"), "Portfolio-1014");
 		}
 
 		project.setId(new ObjectId().toString());
@@ -674,7 +674,7 @@ public class PortfolioDao {
 		update.set("mts", System.currentTimeMillis());
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getMatchedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1"), "Portfolio-1");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
 		}
 
 		return project.getId();
@@ -693,7 +693,7 @@ public class PortfolioDao {
 		update.set("mts", System.currentTimeMillis());
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getMatchedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-10"), "Portfolio-10");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1012"), "Portfolio-1012");
 		}
 	}
 
@@ -736,7 +736,7 @@ public class PortfolioDao {
 
 		List<Portfolio> portfolios = mongoTemplate.find(query, Portfolio.class);
 		if (CollectionUtils.isEmpty(portfolios)) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-10"), "Portfolio-10");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1012"), "Portfolio-1012");
 		}
 		return portfolios.get(0).getProjects().get(0);
 	}
@@ -749,7 +749,7 @@ public class PortfolioDao {
 		if (mongoTemplate.updateMulti(query,
 				new Update().pull("projects", new Query().addCriteria(Criteria.where("_id").is(projectId))),
 				Portfolio.class).getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-10"), "Portfolio-10");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1012"), "Portfolio-1012");
 		}
 	}
 
@@ -767,7 +767,7 @@ public class PortfolioDao {
 		update.set("mts", System.currentTimeMillis());
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getMatchedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-11"), "Portfolio-11");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1013"), "Portfolio-1013");
 		}
 
 		return proxy.getId();
@@ -785,7 +785,7 @@ public class PortfolioDao {
 		.filterArray("proxy._id", new ObjectId(proxyId));
 
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-11"), "Portfolio-11");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1013"), "Portfolio-1013");
 		}
 	}
 
@@ -832,7 +832,7 @@ public class PortfolioDao {
 		query.fields().include("projects.proxies.$");
 		List<Portfolio> portfolio = mongoTemplate.find(query, Portfolio.class);
 		if (CollectionUtils.isEmpty(portfolio)) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-11"), "Portfolio-11");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1013"), "Portfolio-1013");
 		}
 
 		return portfolio.get(0).getProjects().get(0).getProxies().stream().filter(s -> s.getId().equals(proxyId))
@@ -880,7 +880,7 @@ public class PortfolioDao {
 								new Query().addCriteria(Criteria.where("id").is(proxyId))),
 						Portfolio.class)
 				.getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-11"), "Portfolio-11");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1013"), "Portfolio-1013");
 		}
 	}
 
@@ -902,7 +902,7 @@ public class PortfolioDao {
 		update.set("mts", System.currentTimeMillis());
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getMatchedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-14"), "Portfolio-14");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1015"), "Portfolio-1015");
 		}
 
 		return pipeline.getId();
@@ -927,7 +927,7 @@ public class PortfolioDao {
 		update.set("mts", System.currentTimeMillis());
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-14"), "Portfolio-14");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1015"), "Portfolio-1015");
 		}
 	}
 
@@ -953,7 +953,7 @@ public class PortfolioDao {
 				}
 			}
 		}
-		//throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-14"), "Portfolio-14");
+		//throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1015"), "Portfolio-1015");
 
 		//		return portfolio.get(0).getProjects().get(0).getProxies().stream().filter(s -> s.getId().equals(proxyId))
 		//				.findFirst().get();
@@ -978,7 +978,7 @@ public class PortfolioDao {
 				);
 
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-14"), "Portfolio-14");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1015"), "Portfolio-1015");
 		}
 
 		update = new Update();

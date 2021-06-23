@@ -85,7 +85,7 @@ public interface  PolicyPerformanceService {
 	 */
 	@ApiOperation(value = "Get Code Policy Performance ForId", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = PolicyPerformanceBackUpInfo.class),
-			@ApiResponse(code = 404, message = "Sorry! No records found for the given record id.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Please check the request and retry again.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/policyperformance/{id}", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
@@ -110,7 +110,7 @@ public interface  PolicyPerformanceService {
 	 */
 	@ApiOperation(value = "Delete PolicyPerformance On Id", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content", response = Void.class),
-			@ApiResponse(code = 404, message = "Sorry! No records found for the given record id.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Please check the request and retry again.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/buildconfig/policyperformance/{id}")
 	public ResponseEntity<Void> deletePolicyPerformanceOnId(

@@ -260,7 +260,7 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 				try {
 					header.setValue(new RSAEncryption().encryptText(header.getValue()));
 				} catch (Exception e) {
-					throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-9"), "Testsuite-9");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100807"), "Testsuite-100807");
 				}
 			}
 		}
@@ -387,7 +387,7 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 
 		try {
 			if (!StringUtils.hasText(testSuitAgentPath)) {
-				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-4"), "Testsuite-4");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100802"), "Testsuite-100802");
 			}
 			RestTemplate restTemplate = getRestTemplate();
 
@@ -416,19 +416,19 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 			if (!result.getStatusCode().is2xxSuccessful()) {
 				dao.deleteTestSuiteResponse(testSuitRespId);
 				logger.error("error returned from test suit agent", result.getBody());
-				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-5"), "Testsuite-5");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100803"), "Testsuite-100803");
 			}
 		} catch (HttpServerErrorException e) {
 			dao.deleteTestSuiteResponse(testSuitRespId);
 			logger.error("error executing test suit agent " +  e.getResponseBodyAsString());
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-5"), "Testsuite-5");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100803"), "Testsuite-100803");
 		} catch (Exception e) {
 			logger.error("error executing test suit agent ",  e);
 			dao.deleteTestSuiteResponse(testSuitRespId);
 			if(e instanceof ItorixException){
 				throw (ItorixException)e;
 			}
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-5"), "Testsuite-5");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100803"), "Testsuite-100803");
 		}
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
@@ -440,7 +440,7 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 		List<TestSuiteResponse> cancelTestSuite = dao.getTestSuiteEligibleForCancel(testSuiteId,
 				variableId);
 		if (cancelTestSuite.isEmpty()) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-8"), "Testsuite-8");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100806"), "Testsuite-100806");
 		}
 		RestTemplate restTemplate = getRestTemplate();
 		for (TestSuiteResponse testSuite : cancelTestSuite) {
@@ -459,11 +459,11 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 				result = restTemplate.postForEntity(url, httpEntity, String.class);
 				if (!result.getStatusCode().is2xxSuccessful()) {
 					logger.error("error returned from test suit agent url {} ,  {} ", url, result.getBody());
-					throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-5"), "Testsuite-5");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100803"), "Testsuite-100803");
 				}
 			} catch (Exception e) {
 				logger.error("error executing cancel test suit agent {} , {} ", url, e);
-				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-5"), "Testsuite-5");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100803"), "Testsuite-100803");
 			}
 		}
 
@@ -648,7 +648,7 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 		List<TestSuite> certificateReferences = dao.getCertificateReference(name);
 		if(!CollectionUtils.isEmpty(certificateReferences)){
 			String testSuites = certificateReferences.stream().map(s->s.getName()).collect(Collectors.joining(","));
-			throw new ItorixException((String.format(ErrorCodes.errorMessage.get("Testsuite-16"),testSuites)), "Testsuite-16");
+			throw new ItorixException((String.format(ErrorCodes.errorMessage.get("Testsuite-1008006"),testSuites)), "Testsuite-1008006");
 		}
 
 		dao.deleteCertificate(name);
@@ -661,7 +661,7 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 
 		Certificates certificate = dao.getCertificate(name);
 		if (certificate == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-15"), "Testsuite-15");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1008005"), "Testsuite-1008005");
 		}
 
 		String url = request.getRequestURL().toString();
@@ -682,13 +682,13 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 			@RequestPart(value = "alias", required = false) String alias,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		if (jksFile == null) {
-			throw new ItorixException((String.format(ErrorCodes.errorMessage.get("Testsuite-10"), "JKSFile")),
-					"Testsuite-10");
+			throw new ItorixException((String.format(ErrorCodes.errorMessage.get("Testsuite-1008000"), "JKSFile")),
+					"Testsuite-1008000");
 		}
 		byte[] bytes = jksFile.getBytes();
 		if (bytes == null || bytes.length == 0) {
-			throw new ItorixException((String.format(ErrorCodes.errorMessage.get("Testsuite-10"), "JKSFile")),
-					"Testsuite-10");
+			throw new ItorixException((String.format(ErrorCodes.errorMessage.get("Testsuite-1008000"), "JKSFile")),
+					"Testsuite-1008000");
 		}
 		dao.createOrUpdateCertificate(name, bytes, description, password, alias, jsessionid);
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -714,7 +714,7 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 
 		byte[] content = dao.downloadCertificate(name);
 		if(content == null || content.length == 0){
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-15"), "Testsuite-15");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1008005"), "Testsuite-1008005");
 		}
 
 		ByteArrayResource resource = new ByteArrayResource(content);

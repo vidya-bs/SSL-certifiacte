@@ -49,7 +49,7 @@ public class PostManService {
 			PostManEnvFileInfo postManEnvFiledbInfo = findByOrgEnvProxy(org, env, proxy,type,false);
 			if (postManEnvFiledbInfo != null && postManEnvFiledbInfo.getPostManFileContent() != null) {
 
-				throw new ItorixException(new Throwable().getMessage(), "POSTMAN_001", new Throwable());
+				throw new ItorixException(new Throwable().getMessage(), "Connector-1000", new Throwable());
 			} else {
 				GridFSFile gridFSFile = gridFsRepository.store(
 						new GridFsData(postmanFile.getInputStream(), org + "-" + env + "-" + proxy + "_postManFile"));
@@ -184,7 +184,7 @@ public class PostManService {
 					postManEnvFileInfo = baseRepository.save(postManEnvFileInfo);
 				}
 			} else {
-				throw new ItorixException(new Throwable().getMessage(), "POSTMAN_002", new Throwable());
+				throw new ItorixException(new Throwable().getMessage(), "Connector-1001", new Throwable());
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -255,7 +255,7 @@ public class PostManService {
 			log("getSoapUiInfoFile",interactionid,str);
 			return str;
 		} else {
-			throw new ItorixException(new Throwable().getMessage(), "POSTMAN_003", new Throwable());
+			throw new ItorixException(new Throwable().getMessage(), "Connector-1002", new Throwable());
 		}
 	}
 
@@ -271,7 +271,7 @@ public class PostManService {
 			log("getPostMan",interactionid,str);
 			return str;
 		} else {
-			throw new ItorixException(new Throwable().getMessage(), "POSTMAN_003", new Throwable());
+			throw new ItorixException(new Throwable().getMessage(), "Connector-1002", new Throwable());
 		}
 	}
 
@@ -290,7 +290,7 @@ public class PostManService {
 			 * file1;
 			 */
 		} else {
-			throw new ItorixException(new Throwable().getMessage(), "POSTMAN_004", new Throwable());
+			throw new ItorixException(new Throwable().getMessage(), "Connector-1003", new Throwable());
 		}
 	}
 
@@ -303,7 +303,7 @@ public class PostManService {
 				baseRepository.delete(postManEnvFiledbInfo.getId(), PostManEnvFileInfo.class);
 				
 			}else{
-				throw new ItorixException(new Throwable().getMessage(), "POSTMAN_005", new Throwable());
+				throw new ItorixException(new Throwable().getMessage(), "Connector-1004", new Throwable());
 			}
 			
 		}else if(recordtype!=null &&  recordtype.equalsIgnoreCase("postman")){
@@ -311,7 +311,7 @@ public class PostManService {
 			if (postManFiledbInfo != null) {
 				baseRepository.delete(postManFiledbInfo.getId(), PostManFileInfo.class);
 			}else{
-				throw new ItorixException(new Throwable().getMessage(), "POSTMAN_005", new Throwable());
+				throw new ItorixException(new Throwable().getMessage(), "Connector-1004", new Throwable());
 			}
 		}
 		

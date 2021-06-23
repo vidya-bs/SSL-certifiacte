@@ -79,7 +79,7 @@ public class CollaborationServiceImpl implements CollaborationService {
 	 */
 	@ApiOperation(value = "Update Team", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger team name - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected team name - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/teams/{teamname}")
 	public ResponseEntity<Void> updateTeam(
@@ -104,7 +104,7 @@ public class CollaborationServiceImpl implements CollaborationService {
 	 */
 	@ApiOperation(value = "get Team", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Team", response = SwaggerTeam.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger team name - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected team name - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams/{teamname}")
 	public ResponseEntity<SwaggerTeam> getTeam(
@@ -127,7 +127,7 @@ public class CollaborationServiceImpl implements CollaborationService {
 	 */
 	@ApiOperation(value = "Delete Team", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger team name - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected team name - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/teams/{teamname}")
 	public ResponseEntity<Void> deleteTeam(

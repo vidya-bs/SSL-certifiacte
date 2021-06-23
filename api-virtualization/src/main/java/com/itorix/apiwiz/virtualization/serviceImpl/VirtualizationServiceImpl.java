@@ -187,7 +187,7 @@ public class VirtualizationServiceImpl implements VirtualizationService {
 					HttpStatus.CREATED);
 			return response;
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-4"), "MockServer-4");
+			throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-1002"), "MockServer-1002");
 		}
 	}
 

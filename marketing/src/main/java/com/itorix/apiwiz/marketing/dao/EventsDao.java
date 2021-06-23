@@ -114,7 +114,7 @@ public class EventsDao {
 			return uploadFiles.getString("downloadURI");
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ItorixException(ErrorCodes.errorMessage.get("Marketing-2"), "Marketing-2");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Marketing-1000"), "Marketing-1000");
 		}
 	}
 
@@ -122,7 +122,7 @@ public class EventsDao {
 		try {
 			jfrogUtilImpl.deleteFileIgnore404(folderPath);
 		} catch (Exception e) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Marketing-2"), "Marketing-2");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Marketing-1000"), "Marketing-1000");
 		}
 	}
 

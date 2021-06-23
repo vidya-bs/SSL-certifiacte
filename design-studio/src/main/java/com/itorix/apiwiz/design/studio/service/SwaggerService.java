@@ -68,10 +68,10 @@ public interface SwaggerService {
 			@RequestParam(value = "password", required = false) String password,
 			@RequestParam(value = "personalToken", required = false) String personalToken
 			) throws Exception;
-	
+
 	/**
 	 * This method is used to create the swagger.
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param swaggername
@@ -93,7 +93,7 @@ public interface SwaggerService {
 
 	/**
 	 * Using this we can update are change the swagger version.
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param create
@@ -117,7 +117,7 @@ public interface SwaggerService {
 
 	/**
 	 * Using this we can update the swagger version.
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param swaggername
@@ -134,14 +134,14 @@ public interface SwaggerService {
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}")
 	public ResponseEntity<Void> updateSwagger(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision, @RequestBody String json) throws Exception;
 
 	/**
 	 * Using this we will get all the list of version's.
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param swaggername
@@ -158,7 +158,7 @@ public interface SwaggerService {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<List<Revision>> getListOfRevisions(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@PathVariable("swaggername") String swaggername)
 			throws Exception;
@@ -243,7 +243,7 @@ public interface SwaggerService {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getSwagger(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@PathVariable("swaggername") String swaggername)
 			throws Exception;
@@ -267,7 +267,7 @@ public interface SwaggerService {
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggername}")
 	public ResponseEntity<Void> deleteSwagger(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@PathVariable("swaggername") String swaggername)
 			throws Exception;
@@ -287,15 +287,15 @@ public interface SwaggerService {
 	@ApiOperation(value = "delete Swagger based on Revison", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Swagger deleted sucessfully", response = Void.class),
 			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggername}/revisions/{revision}")
 	public ResponseEntity<Void> deleteSwaggerVersion(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@PathVariable("swaggername") String swaggername,
-			@PathVariable("revision") Integer revision, 
+			@PathVariable("revision") Integer revision,
 			HttpServletRequest request, HttpServletResponse response)
 			throws ItorixException;
 
@@ -312,13 +312,13 @@ public interface SwaggerService {
 	@ApiOperation(value = "Get Swagger With revision", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class),
 			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/revisions/{revision}", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getSwaggerWithrevision(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision) throws Exception;
@@ -338,16 +338,16 @@ public interface SwaggerService {
 	@ApiOperation(value = "Update Status", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Swagger Updated sucessfully", response = Void.class),
 			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/status")
 	public ResponseEntity<Void> updateStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision, @RequestBody String json) throws Exception;
-	
+
 	/**
 	 * get roles.
 	 *
@@ -360,7 +360,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "get roles", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Roles associate with user", response = List.class),
 			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/roles")
 	public ResponseEntity<Object> getRoles(
@@ -383,7 +383,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "Update Comment", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Swagger Updated sucessfully", response = Void.class),
 			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/comment")
 	public ResponseEntity<Void> updateComment(
@@ -408,13 +408,13 @@ public interface SwaggerService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Swagger Updated sucessfully", response = SwaggerComment.class, responseContainer = "list"),
 			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/revisions/{revision}/comments/history", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getSwaggerComments(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision) throws Exception;
@@ -435,12 +435,12 @@ public interface SwaggerService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 204, message = "Swagger Lock Updated sucessfully", response = Void.class),
 			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/lockstatus")
 	public ResponseEntity<Void> updateLockStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision, @RequestBody SwaggerVO swaggerVO) throws Exception;
@@ -461,12 +461,12 @@ public interface SwaggerService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Swagger Updated sucessfully", response = SwaggerVO.class),
 			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/deprecate")
 	public ResponseEntity<Object> deprecate(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision, @RequestBody SwaggerVO swaggerVO) throws Exception;
@@ -486,7 +486,7 @@ public interface SwaggerService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 204, message = "Swagger Proxies Updated sucessfully", response = Void.class),
 			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/proxies")
 	public ResponseEntity<Void> updateProxies(
@@ -508,7 +508,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "Get LockStatus", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = Boolean.class),
 			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/revisions/{revision}/lockstatus", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
@@ -592,7 +592,7 @@ public interface SwaggerService {
 			@PathVariable("swaggername") String swaggername, @RequestParam("revision") Integer revision,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestHeader(value = "oas", required = false) String oas) throws Exception;
 
-	
+
 	/**
 	 * Using this we can create the review.
 	 *
@@ -608,12 +608,12 @@ public interface SwaggerService {
 	@ApiOperation(value = "Create Review", notes = "", code = 201)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
 			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/revisions/{revision}/review")
 	public ResponseEntity<Void> createReview(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision, @RequestBody SwaggerReview swaggerReview) throws Exception;
@@ -697,12 +697,12 @@ public interface SwaggerService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerReviewComents.class, responseContainer = "List"),
 			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/revisions/{revision}/reviews")
 	public ResponseEntity<Object> getReviewComment(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision) throws Exception;
@@ -738,7 +738,7 @@ public interface SwaggerService {
 
 	/**
 	 * Using this we will get the swagger name along with version and state.
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param request
@@ -798,7 +798,7 @@ public interface SwaggerService {
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/associate-products")
 	public ResponseEntity<Void> assoiateProduct(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@PathVariable("swaggername") String swaggername,
 			@RequestBody SwaggerVO swaggerVO) throws Exception;
@@ -911,18 +911,18 @@ public interface SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swaggername") String swaggername)
 			throws Exception;
-	
-	
+
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/validate")
 	public ResponseEntity<?> validateSwagger(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@RequestBody String swaggerStr)
 			throws Exception;
-	
+
 	/**
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param name
@@ -942,7 +942,7 @@ public interface SwaggerService {
 	 *
 	 * @param interactionid
 	 * @param jsessionid
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @return
@@ -958,13 +958,13 @@ public interface SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas)
 			throws Exception;
-	
+
 	/**
 	 * Create or update git Integration.
 	 *
 	 * @param interactionid
 	 * @param jsessionid
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @return
@@ -982,7 +982,7 @@ public interface SwaggerService {
 			@PathVariable("swagger-id") String swaggerid,
 			@RequestBody SwaggerIntegrations swaggerIntegrations)
 			throws Exception;
-	
+
 	@ApiOperation(value = "Get git Integrations", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
@@ -994,7 +994,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
 			@PathVariable("swagger-id") String swaggerid)
 					throws Exception;
-	
+
 	/**
 	 * If we pass particular swagger name if it exist in the system it will
 	 * delete.
@@ -1018,7 +1018,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
 			@PathVariable("swagger-id") String swaggerid)
 			throws Exception;
-	
+
 //	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swagger}/revisions/{revision}/getassociatedproxy", produces = {
 //	"application/json" })
 //	public ResponseEntity<?> getProxies(
@@ -1028,5 +1028,5 @@ public interface SwaggerService {
 //			@RequestHeader(value = "JSESSIONID") String jsessionid,
 //			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas) throws Exception;
 
-	
+
 }
