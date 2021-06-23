@@ -48,7 +48,7 @@ public interface IdentityManagmentService {
         @ApiResponse(code = 200, message = "Login Sucessful", response = UserSession.class),
         @ApiResponse(code = 400, message = "Sorry! The username and password entered didn't match.", response = ErrorObj.class),
         @ApiResponse(code = 400, message = "User account validation failed. The account is locked due to incorrect login attempts. Please contact your workspace admin.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@UnSecure
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/login", consumes = {

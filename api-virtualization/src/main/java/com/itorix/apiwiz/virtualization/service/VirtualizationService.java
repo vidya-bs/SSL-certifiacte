@@ -27,7 +27,7 @@ public interface VirtualizationService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "list of available groups", response = GroupVO.class),
 			@ApiResponse(code = 404, message = "Requestd group does not exist.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = {"/v1/mock/scenarios-groups", "/v1/mock/scenarios-groups/{groupId}"})
@@ -44,7 +44,7 @@ public interface VirtualizationService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = "Group Created sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad request.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','TEST','ANALYST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
   @RequestMapping(method = RequestMethod.POST, value = "/v1/mock/scenarios-groups")
@@ -58,7 +58,7 @@ public interface VirtualizationService {
 			@ApiResponse(code = 201, message = "Group updated sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad request.", response = ErrorObj.class),
 			@ApiResponse(code = 404, message = "requested group does not exist.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','TEST','ANALYST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/mock/scenarios-groups/{groupId}")
@@ -73,7 +73,7 @@ public interface VirtualizationService {
 			@ApiResponse(code = 201, message = "Group deleted sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad request.", response = ErrorObj.class),
 			@ApiResponse(code = 404, message = "requested group does not exist.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','TEST','ANALYST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/mock/scenarios-groups/{groupId}")
@@ -87,7 +87,7 @@ public interface VirtualizationService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "get list of logentries", response = MockLog.class),
 			@ApiResponse(code = 404, message = "no logentry found.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/mock/logs", produces = "application/json")
@@ -114,7 +114,7 @@ public interface VirtualizationService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "get list of logentries", response = MockLog.class),
 			@ApiResponse(code = 404, message = "no logentry found.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/mock/{expectationId}/logs", produces = "application/json")

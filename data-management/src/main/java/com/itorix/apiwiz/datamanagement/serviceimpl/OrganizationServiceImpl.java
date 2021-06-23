@@ -81,7 +81,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/organizations/{organization}/environments", produces={MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<List<String>> getEnvListForOrganizations(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)throws Exception{
@@ -110,7 +110,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/organizations/{organization}/apis")
 	public ResponseEntity<List<String>> listAPIProxies(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)throws Exception{
@@ -141,7 +141,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/apigee/organizations/{organization}/proxies")
 	public ResponseEntity<Map<String,List<String>>> listOfDeployedAPIProxies(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestBody String json,@RequestParam(value="type",required=false) String type) throws Exception{
@@ -183,7 +183,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/organizations/{organization}/backupapiproxy")
 	public ResponseEntity<BackupInfo> backUpApiProxies(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="isDepoyedOnly") boolean isDepoyedOnly,@RequestParam(value="type",required=false) String type)throws Exception {
@@ -222,7 +222,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "/v1/api/apigee/organizations/{organization}/cleanupapiproxy")
 	public ResponseEntity<BackupInfo> cleanUpApiProxies(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="isDepoyedOnly") boolean isDepoyedOnly,@RequestParam(value="type",required=false) String type)throws Exception
@@ -263,7 +263,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/restoreapiproxies")
 	public ResponseEntity<Void> restoreApiProxies(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestBody CommonConfiguration cfg,@RequestParam(value="type",required=false) String type)throws Exception
@@ -297,7 +297,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/organizations/{organization}/backupsharedflow")
 	public ResponseEntity<BackupInfo> backupSharedflows(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="isDepoyedOnly") boolean isDepoyedOnly,@RequestParam(value="type",required=false) String type)throws Exception {
@@ -337,7 +337,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "/v1/api/apigee/organizations/{organization}/cleanupsharedflow")
 	public ResponseEntity<BackupInfo> cleanUpSharedflows(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="isDepoyedOnly") boolean isDepoyedOnly,@RequestParam(value="type",required=false) String type)throws Exception
@@ -376,7 +376,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/restoresharedflows")
 	public ResponseEntity<Void> restoreShareflow(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestBody CommonConfiguration cfg,@RequestParam(value="type",required=false) String type)throws Exception
@@ -406,7 +406,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 	@ApiOperation(value = "Get Api Proxies Backup History", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = ProxyBackUpInfo.class,responseContainer="List"),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/getapiproxiesbackuphistory")
 	public ResponseEntity<List<ProxyBackUpInfo>> getApiProxiesBackupHistory(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid)throws Exception {
@@ -435,7 +435,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/organizations/{organization}/backupapps")
 	public ResponseEntity<BackupInfo> backUpApps(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)
@@ -470,7 +470,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "/v1/api/apigee/organizations/{organization}/cleanupapps")
 	public ResponseEntity<BackupInfo> cleanUpApps(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)throws Exception
@@ -504,7 +504,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/restoreapps")
 	public ResponseEntity<Void> restoreApps(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestBody CommonConfiguration cfg,@RequestParam(value="type",required=false) String type)throws Exception
@@ -534,7 +534,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 	@ApiOperation(value = "Get Apps Backup History", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = AppBackUpInfo.class,responseContainer="List"),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/getappsbackuphistory")
 	public ResponseEntity<List<AppBackUpInfo>> getAppsBackupHistory(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid)throws Exception {
@@ -564,7 +564,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/organizations/{organization}/backupproducts")
 	public ResponseEntity<BackupInfo> backUpProducts(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)throws Exception{
@@ -599,7 +599,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "/v1/api/apigee/organizations/{organization}/cleanupproducts")
 	public ResponseEntity<BackupInfo> cleanUpProducts(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)throws Exception
@@ -636,7 +636,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/restoreappproducts")
 	public ResponseEntity<Void> restoreAppProducts(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestBody CommonConfiguration cfg,@RequestParam(value="type",required=false) String type)throws Exception
@@ -667,7 +667,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 	@ApiOperation(value = "Get Products Backup History", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = ProductsBackUpInfo.class,responseContainer="List"),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/getproductsbackuphistory")
 	public ResponseEntity<List<ProductsBackUpInfo>> getproductsBackupHistory(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid)throws Exception {
@@ -696,7 +696,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/organizations/{organization}/backupdevelopers")
 	public ResponseEntity<BackupInfo> backUpDevelopers(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)throws Exception
@@ -731,7 +731,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "/v1/api/apigee/organizations/{organization}/cleanupdevelopers")
 	public ResponseEntity<BackupInfo> cleanUpDevelopers(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)throws Exception
@@ -767,7 +767,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/restoreappdevelopers")
 	public ResponseEntity<Void> restoreAppDevelopers(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestBody CommonConfiguration cfg,@RequestParam(value="type",required=false) String type)throws Exception
@@ -797,7 +797,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 	@ApiOperation(value = "Get Developers Backup History", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = DeveloperBackUpInfo.class,responseContainer="List"),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/getdevelopersbackuphistory")
 	public ResponseEntity<List<DeveloperBackUpInfo>> getDevelopersBackupHistory(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid)throws Exception {
@@ -825,7 +825,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/organizations/{organization}/backupresoruces")
 	public ResponseEntity<BackupInfo> backUpResources(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)throws Exception
@@ -861,7 +861,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "/v1/api/apigee/organizations/{organization}/cleanupresoruces")
 	public ResponseEntity<BackupInfo> cleanUpResources(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)throws Exception
@@ -899,7 +899,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/restoreresources")
 	public ResponseEntity<Void> restoreResources(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestBody CommonConfiguration cfg,@RequestParam(value="type",required=false) String type)throws Exception
@@ -928,7 +928,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 	@ApiOperation(value = "Get Resources Backup History", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = ResourceBackUpInfo.class,responseContainer="List"),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/getresourcesbackuphistory")
 	public ResponseEntity<List<ResourceBackUpInfo>> getResourcesBackupHistory(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid)throws Exception {
@@ -958,7 +958,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/organizations/{organization}/backuporganization")
 	public ResponseEntity<BackupInfo> backUpOrganization(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="isDepoyedOnly") boolean isDepoyedOnly,@RequestParam(value="type",required=false) String type)throws Exception
@@ -999,7 +999,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "/v1/api/apigee/organizations/{organization}/cleanuporganization")
 	public ResponseEntity<BackupInfo> cleanUpOrganization(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)throws Exception
@@ -1041,7 +1041,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/restoreorganization")
 	public ResponseEntity<Void> restoreOrganization(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestBody CommonConfiguration cfg,@RequestParam(value="type",required=false) String type)throws Exception
@@ -1074,7 +1074,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/migrate")
 	public ResponseEntity<Void> restoreOrganization(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@RequestBody CommonConfiguration cfg,@RequestParam(value="type",required=false) String type)throws Exception
@@ -1105,7 +1105,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 	@ApiOperation(value = "Get Organization Backup History", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = ResourceBackUpInfo.class,responseContainer="List"),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/getorganizationbackuphistory")
 	public ResponseEntity<List<OrgBackUpInfo>> getOrganizationBackupHistory(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid) throws Exception {
@@ -1133,7 +1133,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/organizations/{organization}/backupcaches")
 	public ResponseEntity<BackupInfo> backUpCaches(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)throws Exception
@@ -1170,7 +1170,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "/v1/api/apigee/organizations/{organization}/cleanupcaches")
 	public ResponseEntity<BackupInfo> cleanUpCaches(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)throws Exception
@@ -1207,7 +1207,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/restorecaches")
 	public ResponseEntity<Void> restoreCaches(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestBody CommonConfiguration cfg,@RequestParam(value="type",required=false) String type)throws Exception
@@ -1238,7 +1238,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 	@ApiOperation(value = "Get Caches Backup History", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = ResourceBackUpInfo.class,responseContainer="List"),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/getcachesbackuphistory")
 	public ResponseEntity<List<ResourceBackUpInfo>> getCachesBackupHistory(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid) throws Exception {
@@ -1266,7 +1266,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/organizations/{organization}/backupkvm")
 	public ResponseEntity<BackupInfo> backUpKVM(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)throws Exception
@@ -1304,7 +1304,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "/v1/api/apigee/organizations/{organization}/cleanupkvm")
 	public ResponseEntity<BackupInfo> cleanUpKVM(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)throws Exception
@@ -1342,7 +1342,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/restorekvm")
 	public ResponseEntity<Void> restoreKVM(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestBody CommonConfiguration cfg,@RequestParam(value="type",required=false) String type)throws Exception
@@ -1373,7 +1373,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 	@ApiOperation(value = "Get KVM Backup History", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = ResourceBackUpInfo.class,responseContainer="List"),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/getkvmbackuphistory")
 	public ResponseEntity<List<ResourceBackUpInfo>> getKVMBackupHistory(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid) throws Exception {
@@ -1402,7 +1402,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/organizations/{organization}/backuptaretservers")
 	public ResponseEntity<BackupInfo> backUpTargetServers(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)throws Exception
@@ -1439,7 +1439,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "/v1/api/apigee/organizations/{organization}/cleanuptargetservers")
 	public ResponseEntity<BackupInfo> cleanUpTargetServers(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestParam(value="type",required=false) String type)throws Exception
@@ -1476,7 +1476,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         @ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
         @ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
         @ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/restoretargetservers")
 	public ResponseEntity<Void> restoreTargetServers(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("organization") String organization,@RequestBody CommonConfiguration cfg,@RequestParam(value="type",required=false) String type)throws Exception
@@ -1506,7 +1506,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 	@ApiOperation(value = "Get Target Servers Backup History", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = ResourceBackUpInfo.class,responseContainer="List"),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/gettargetserversbackuphistory")
 	public ResponseEntity<List<ResourceBackUpInfo>> getTargetServersBackupHistory(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid) throws Exception {
@@ -1533,8 +1533,8 @@ public class OrganizationServiceImpl implements OrganizationService {
 	@ApiOperation(value = "Get Swagger Revison's", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = Object.class,responseContainer = "List"),
-        @ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/getorgbackuphistory")
 	public ResponseEntity<List<Object>> getOrgBackUpHistory1(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid, @RequestParam(value = "sys") String sys,
@@ -1548,7 +1548,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 	@ApiOperation(value = "Get apigee Organizational View", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = ApigeeOrganizationalVO.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/apigee/organizations/{org_name}/summary")
 	public ResponseEntity<JsonNode> apigeeOrganizationalView(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="jsessionid") String jsessionid,@PathVariable("org_name") String org_name,@RequestParam(value="type",required=false) String type)throws Exception {
@@ -1564,7 +1564,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 	@ApiOperation(value = "Get apigee Organizational View", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = ApigeeOrganizationalVO.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/apigee/organizations/{org_name}/overview")
 	public ResponseEntity<?> apigeeOrganizationalOverView(

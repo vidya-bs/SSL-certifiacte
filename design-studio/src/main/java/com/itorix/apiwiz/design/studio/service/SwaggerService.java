@@ -144,8 +144,8 @@ public interface SwaggerService {
 	@ApiOperation(value = "Get Swagger Revison's", notes = "")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = Revision.class, responseContainer = "List"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/revisions", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<List<Revision>> getListOfRevisions(
@@ -168,7 +168,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "Get List Of Swagger Names", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getListOfSwaggerNames(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -184,7 +184,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "Get List Of Swagger Details", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/history", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getListOfSwaggerDetails(
@@ -206,7 +206,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "Get List Of Published Swagger Details", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerDocumentationVO.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/documentation", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getListOfPublishedSwaggerDetails(
@@ -229,8 +229,8 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "Get Swagger", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = Swagger.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getSwagger(
@@ -254,8 +254,8 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "Delete Swagger", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Ok", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggername}")
 	public ResponseEntity<Void> deleteSwagger(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -278,9 +278,9 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "delete Swagger based on Revison", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Swagger deleted sucessfully", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggername}/revisions/{revision}")
 	public ResponseEntity<Void> deleteSwaggerVersion(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -303,9 +303,9 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "Get Swagger With revision", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/revisions/{revision}", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getSwaggerWithrevision(
@@ -329,9 +329,9 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "Update Status", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Swagger Updated sucessfully", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/status")
 	public ResponseEntity<Void> updateStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -351,9 +351,9 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "get roles", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Roles associate with user", response = List.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/roles")
 	public ResponseEntity<Object> getRoles(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -374,9 +374,9 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "Update Comment", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Swagger Updated sucessfully", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/comment")
 	public ResponseEntity<Void> updateComment(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -399,9 +399,9 @@ public interface SwaggerService {
 	@ApiOperation(value = "Get Swagger Comments", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Swagger Updated sucessfully", response = SwaggerComment.class, responseContainer = "list"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/revisions/{revision}/comments/history", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getSwaggerComments(
@@ -426,9 +426,9 @@ public interface SwaggerService {
 	@ApiOperation(value = "Update Lock Status", notes = "", code = 204)
 	@ApiResponses(value = {
 			@ApiResponse(code = 204, message = "Swagger Lock Updated sucessfully", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/lockstatus")
 	public ResponseEntity<Void> updateLockStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -452,9 +452,9 @@ public interface SwaggerService {
 	@ApiOperation(value = "Deprecate Swagger", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Swagger Updated sucessfully", response = SwaggerVO.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/deprecate")
 	public ResponseEntity<Object> deprecate(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -477,9 +477,9 @@ public interface SwaggerService {
 	@ApiOperation(value = "Update Proxies", notes = "", code = 204)
 	@ApiResponses(value = {
 			@ApiResponse(code = 204, message = "Swagger Proxies Updated sucessfully", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/proxies")
 	public ResponseEntity<Void> updateProxies(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -499,9 +499,9 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "Get LockStatus", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = Boolean.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/revisions/{revision}/lockstatus", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getLockStatus(
@@ -527,7 +527,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "Genarate Xpath", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = XmlSchemaVo.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/genaratexpath", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> genarateXpath(
@@ -551,7 +551,7 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "GenarateSwaggerDefinations", notes = "", code = 201)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/definitions", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> genarateSwaggerDefinations(
@@ -575,8 +575,8 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "Genarate Swagger Json Definations", notes = "", code = 201)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/jsondefinitions", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> genarateSwaggerJsonDefinations(
@@ -599,9 +599,9 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "Create Review", notes = "", code = 201)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/revisions/{revision}/review")
 	public ResponseEntity<Void> createReview(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -622,8 +622,8 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "Create Review Comment", notes = "", code = 201)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/reviews")
 	public ResponseEntity<Void> createReviewComment(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -643,7 +643,7 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "Update Review Comment", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content", response = Void.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/reviews")
 	public ResponseEntity<Void> updateReviewComment(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -665,7 +665,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "Review Comment Replay", notes = "", code = 201)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
 			@ApiResponse(code = 404, message = "No records found for selected review id - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/reviews/{reviewid}/comment")
 	public ResponseEntity<Void> reviewCommentReplay(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -688,9 +688,9 @@ public interface SwaggerService {
 	@ApiOperation(value = "Update Swagger With new Revison", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerReviewComents.class, responseContainer = "List"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/revisions/{revision}/reviews")
 	public ResponseEntity<Object> getReviewComment(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -702,7 +702,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "Get Swagger Revison's", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/stats")
 	public ResponseEntity<Object> getSwaggerStats(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -714,7 +714,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "Get Team Stats", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams/stats")
 	public ResponseEntity<Object> getTeamStats(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -740,7 +740,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "Genrate client", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swagger-gen/clients/{framework}", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> genrateClient(
@@ -762,7 +762,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "Genrate client", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swagger-gen/servers/{framework}", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<ResponseCode> genrateServer(
@@ -785,8 +785,8 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "Assoiate Product", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/associate-products")
 	public ResponseEntity<Void> assoiateProduct(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -809,8 +809,8 @@ public interface SwaggerService {
 	@ApiOperation(value = "Get Assoiated Products", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/associated-products")
 	public ResponseEntity<Set<String>> getAssoiatedProducts(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -831,8 +831,8 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "Assoiate Projects", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/teams/{teamname}/associate-projects")
 	public ResponseEntity<Void> assoiateTeamsToProject(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -853,8 +853,8 @@ public interface SwaggerService {
 	@ApiOperation(value = "Get Assoiated Projects", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams/{teamname}/associated-projects")
 	public ResponseEntity<Set<String>> getassoiateTeamsToProjects(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -874,8 +874,8 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "Assoiate Product", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/associated-portfolio")
 	public ResponseEntity<Void> assoiatePortfolio(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -896,8 +896,8 @@ public interface SwaggerService {
 	@ApiOperation(value = "Get Assoiated Portfolios", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/associated-portfolio")
 	public ResponseEntity<Set<String>> getAssoiatedPortfolios(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -943,7 +943,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "Get Assoiated Portfolios", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/basepaths")
 	public ResponseEntity<Object> getAssoiatedBasePaths(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -978,7 +978,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "Get git Integrations", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swagger-id}/git-integrations")
 	public ResponseEntity<SwaggerIntegrations> getGitIntegrations(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1001,8 +1001,8 @@ public interface SwaggerService {
 	 */
 	@ApiOperation(value = "Delete Swagger", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Ok", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swagger-id}/git-integrations")
 	public ResponseEntity<Void> deleteGitIntegrations(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,

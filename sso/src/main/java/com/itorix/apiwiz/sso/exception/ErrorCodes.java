@@ -33,7 +33,7 @@ public enum ErrorCodes {
 			put("SSO-028", "Resource authorization validation failed. Please contact your workspace admin.");
 			put("SSO-029", "Resource authorization validation failed. Please contact your workspace admin.");
 
-			put("SSO-1008", "Sorry! The username entered already exists. Please try registering with a new loginid and email or login with the existing credentials.");
+			put("SSO-1008", "Resource validation failed. Username or login-id you are trying to register already exists.");
 			put("SSO-1010", "Resource authorization validation failed. Please contact your workspace admin.");
 			put("SSO-1001", "Resource not found. Email-Id provided in the request doesn't exist.");
 			put("SSO-1012", "User account validation failed. Invalid login credentials.");

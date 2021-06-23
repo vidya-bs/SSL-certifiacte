@@ -49,7 +49,7 @@ public interface DictionaryService {
 	@ApiOperation(value = "Create Portfolio", notes = "", code = 201, response = Void.class)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Portfolio Created sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/data-dictionary")
 	public ResponseEntity<Void> createPortfolio(
@@ -70,7 +70,7 @@ public interface DictionaryService {
 	@ApiOperation(value = "Update Portfolio", notes = "", code = 201, response = Void.class)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Portfolio updated sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/data-dictionary")
 	public ResponseEntity<Void> updatePortfolio(
@@ -91,7 +91,7 @@ public interface DictionaryService {
 	@ApiOperation(value = "Get Portfolio Overview", notes = "", code = 200, response = PortfolioVO.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PortfolioVO.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/overview")
 	public ResponseEntity<PortfolioHistoryResponse> getPortfolioOverview(
@@ -104,7 +104,7 @@ public interface DictionaryService {
 	@ApiOperation(value = "Get Portfolio Overview", notes = "", code = 200, response = PortfolioVO.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PortfolioVO.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary")
 	public ResponseEntity<List<PortfolioVO>> getPortfolios(
@@ -124,7 +124,7 @@ public interface DictionaryService {
 	@ApiOperation(value = "Get Portfolio ", notes = "", code = 200, response = PortfolioVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Portfolio updated sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/{id}")
 	public ResponseEntity<PortfolioVO> getPortfolio(
@@ -145,7 +145,7 @@ public interface DictionaryService {
 	@ApiOperation(value = "Delete Portfolio", notes = "", code = 201, response = Void.class)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Portfolio Deleted sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/data-dictionary/{id}")
 	public ResponseEntity<Void> deletePortfolio(
@@ -166,7 +166,7 @@ public interface DictionaryService {
 	@ApiOperation(value = "Update Portfolio Models", notes = "", code = 201, response = Void.class)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Portfolio updated sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/data-dictionary/{id}/schemas")
 	public ResponseEntity<Void> updatePortfolioModels(
@@ -187,7 +187,7 @@ public interface DictionaryService {
 	@ApiOperation(value = "Update Portfolio", notes = "", code = 201, response = Void.class)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Portfolio updated sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/{id}/schemas")
 	public ResponseEntity<Object> getPortfolioModelNames(
@@ -208,7 +208,7 @@ public interface DictionaryService {
 	@ApiOperation(value = "Update Portfolio", notes = "", code = 201, response = Void.class)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Portfolio updated sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/{id}/schemas/{model_name}")
 	public ResponseEntity<Object> getPortfolioModel(
@@ -233,7 +233,7 @@ public interface DictionaryService {
 	@ApiOperation(value = "Update Portfolio", notes = "", code = 201, response = Void.class)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Portfolio updated sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/data-dictionary/{id}/schemas/{model_name}")
 	public ResponseEntity<Void> deletePortfolioModelByName(

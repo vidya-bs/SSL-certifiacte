@@ -38,7 +38,7 @@ public interface OrganizationSchedulerService {
 	@ApiOperation(value = "Create Organization Schedule", notes = "", code=201)
     @ApiResponses(value = { 
         @ApiResponse(code = 201, message = "Created", response = Void.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.POST, value = "v1/api/apigee/organization/schedules")
 	public ResponseEntity<Void> createOrganizationSchedule(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestBody ScheduleModel scheduleModel,
@@ -59,7 +59,7 @@ public interface OrganizationSchedulerService {
 	@ApiOperation(value = "Update Organization Schedule", notes = "", code=204)
     @ApiResponses(value = { 
         @ApiResponse(code = 204, message = "No Content", response = Void.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.PUT, value = "v1/api/apigee/organization/schedules")
 	public ResponseEntity<Void> updateOrganizationSchedule(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestBody ScheduleModel scheduleModel,
@@ -80,7 +80,7 @@ public interface OrganizationSchedulerService {
 	@ApiOperation(value = "Delete Organization Schedule", notes = "", code=201)
     @ApiResponses(value = { 
         @ApiResponse(code = 201, message = "Success", response = Void.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "v1/api/apigee/organization/schedules")
 	public ResponseEntity<Void> deleteOrganizationSchedule(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestBody ScheduleModel scheduleModel,
@@ -101,7 +101,7 @@ public interface OrganizationSchedulerService {
 	@ApiOperation(value = "Get Organization Schedule", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = ScheduleModel.class,responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "v1/api/apigee/organization/schedules")
 	public ResponseEntity<List<ScheduleModel>> getOrganizationSchedule(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value = "jsessionid") String jsessionid) throws Exception ;

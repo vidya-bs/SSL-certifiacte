@@ -97,8 +97,8 @@ public interface ManagePackageService {
 	@ApiOperation(value = "Create Review Comment", notes = "", code=201)
     @ApiResponses(value = {
         @ApiResponse(code = 201, message = "Created", response = Void.class),
-        @ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/packages/{packageId}/reviews")
 	public ResponseEntity<Void> createReviewComment(
@@ -111,7 +111,7 @@ public interface ManagePackageService {
 	@ApiOperation(value = "Update Review Comment", notes = "", code=204)
 	@ApiResponses(value = {
 			@ApiResponse(code = 204, message = "No Content", response = Void.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@PreAuthorize("hasAnyRole('ADMIN','OPERATION','DEVELOPER','PROJECT-ADMIN') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/packages/{packageId}/reviews/{commentId}")
@@ -125,7 +125,7 @@ public interface ManagePackageService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = "Created", response = Void.class),
 			@ApiResponse(code = 404, message = "No records found for selected review id - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@PreAuthorize("hasAnyRole('ADMIN','OPERATION','DEVELOPER','PROJECT-ADMIN') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/packages/{packageId}/reviews/{commentId}")
@@ -139,9 +139,9 @@ public interface ManagePackageService {
 	@ApiOperation(value = "Update Swagger With new Revison", notes = "", code=200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerReviewComents.class,responseContainer="List"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/packages/{packageId}/reviews")

@@ -47,7 +47,7 @@ public enum ErrorCodes {
 			put("ProxyGen-1004", "Request validation failed. Resource or proxy name already exist.");
 			put("ProxyGen-1004", "Request validation failed. Source control connector info are invalid.");
 
-			put("Configuration-1000", "Please check the request and retry again.");
+			put("Configuration-1000", "Request validation failed. Please check the mandatory data fields and retry again.");
 			put("Config-1001", "There are no flows defined in the given file.");
 			put("Configuration-1001", "Request validation failed. Resource or proxy name does not exist.");
 			put("Configuration-1002", "Request validation failed. Exception connecting to apigee connector.");
@@ -79,7 +79,7 @@ public enum ErrorCodes {
 			put("Configuration-1026","Request validation failed. Resource already exist..");
 			put("Configuration-1027","Request validation failed. Value for type can be KVM, Cache or TargetServer.");
 			put("Configuration-1028","Request validation failed. Please check the mandatory data fields and retry again.");
-			put("Configuration-1029","Resource not found. Please check the request and retry again.");
+			put("Configuration-1029","Resource not found. Request validation failed. Please check the mandatory data fields and retry again.");
 			put("Configuration-1030","Request validation failed. Approval type provided doesn't match the enum type.");
 			put("Configuration-1031","Resource authorization validation failed. Please contact your workspace admin.");
 
@@ -107,7 +107,7 @@ public enum ErrorCodes {
 			put("Identity-1016", "User account validation failed. User account is locked. Please contact workspace admin.");
 			put("Identity-1017", "Internal server error. Please contact support for further instructions.");
 
-			put("Identity-1021", "Sorry! The username entered already exists. Please try registering with a new loginid and email or login with the existing credentials.");
+			put("Identity-1021", "Resource validation failed. Username or login-id you are trying to register already exists.");
 			put("Identity-1022", "Resource authorization validation failed. Please contact your workspace admin.");
 			put("Identity-1023", "Resource not found. Email-Id provided in the request doesn't exist.");
 			put("Identity-1024", "User account validation failed. Invalid login credentials..");
@@ -149,11 +149,11 @@ public enum ErrorCodes {
 			put("CICD-1000", "Invalid characters found, only '-' is allowed in the project name");
 
 			put("DataBackup-1000", "Request validation failed. Resource already exist.");
-			put("DataBackup-1001", "Resource not found. Please check the request and retry again.");
+			put("DataBackup-1001", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.");
 
 
-			put("Swagger-1000", "Resource not found. Please check the request and retry again.");
-			put("Swagger-1002", "No records found for selected swagger name - %s with following revision - %s.");
+			put("Swagger-1000", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.");
+			put("Swagger-1002", "Resource not found. No records found for selected swagger name - %s with following revision - %s.");
 			put("Swagger-1002", "Request validation failed. Swagger name - %s already exists.");
 			put("Swagger-1003", "Request validation failed. Missing XSD document.");
 			put("Swagger-1004", "Request validation failed. Missing XSD element name.");
@@ -165,7 +165,7 @@ public enum ErrorCodes {
 			put("Teams-1001", "Resource not found. No records found for selected team name - %s.");
 			put("Teams-1002", "Resource authorization validation failed. You don't have enough permissions on this team - %s.");
 
-			put("General-1000", "Sorry! Internal server error. Please try again later.");
+			put("General-1000", "Internal server error. Please contact support for further instructions.");
 			put("General-1001", "Sorry! Invalid request. Please correct the request and try again.");
 
 
@@ -174,17 +174,17 @@ public enum ErrorCodes {
 			put("Apigee-1002", "Sorry! Apigee connection timeout error.");
 			put("Apigee-1003", "Sorry! Apigee unauthorized user.");
 			put("Apigee-1004", "Request validation failed. Pipeline name already exists.");
-			put("Apigee-1005", "Resource not found. Please check the request and retry again.");
+			put("Apigee-1005", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.");
 			put("Apigee-1006", "Sorry! Insufficeint permissions to carry out this task.");
 			put("Apigee-1007", "Sorry! There is no apigee credentails defined for the logged in user.");
 
-			put("CodeCoverage-1000", "Resource not found. Please check the request and retry again.");
+			put("CodeCoverage-1000", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.");
 			put("CodeCoverage-1001", "Invalid request data!  Missing mandatory data to process the request.");
-			put("PolicyPerformance-1000", "Resource not found. Please check the request and retry again..");
+			put("PolicyPerformance-1000", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again..");
 			put("PolicyPerformance-1001", "Invalid request data!  Missing mandatory data to process the request.");
 
 			put("CICD-1001", "Request validation failed. Pipeline name already exists.");
-			put("CICD-1002", "Resource not found. Please check the request and retry again.");
+			put("CICD-1002", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.");
 			put("CICD_006", "Invalid BackUpInterval ,Interval must be in Daily,Monthly,Weekly.");
 
 
@@ -200,8 +200,8 @@ public enum ErrorCodes {
 			put("Testsuite-2","TestSuite is Paused. Unpause it to run");
 			put("Testsuite-4","TestSuite agent configuration is missing");
 			put("Testsuite-5","Internal error occured during testSuite agent call");
-			put("Testsuite-6","Resource not found. Please check the request and retry again.t");
-			put("Testsuite-7","Resource not found. Please check the request and retry again.");
+			put("Testsuite-6","Resource not found. Request validation failed. Please check the mandatory data fields and retry again.t");
+			put("Testsuite-7","Resource not found. Request validation failed. Please check the mandatory data fields and retry again.");
 			put("Testsuite-8","There are no test suites in running status to cancel.");
 			put("Testsuite-9","Error encrypting the data. contact support.");
 			put("Testsuite-10","No certificate found with the data provided.");
@@ -217,21 +217,21 @@ public enum ErrorCodes {
 			put("Portfolio-1001","Sorry! No records found for the given Portfolio name  - %s.");
 			put("Portfolio-1002","Prortfolio with the name %s already exists.");
 			put("Portfolio-1003","Sorry! No records found for the given Portfolio ID  - %s.");
-			put("Portfolio-1004", "Resource not found. Please check the request and retry again..");
-			put("Portfolio-1005", "Resource not found. Please check the request and retry again..");
-			put("Portfolio-1006", "Resource not found. Please check the request and retry again..");
+			put("Portfolio-1004", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again..");
+			put("Portfolio-1005", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again..");
+			put("Portfolio-1006", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again..");
 			put("Portfolio-1007", "Document not available in the Request, please upload the document.");
 			put("Portfolio-1008", "Invalid request data!  Missing mandatory data to process the request. %s missing");
 			put("Portfolio-1009", "Error while uplading the file please contact the Support.");
 			put("Portfolio-1010", "Required Image file is not available please upload the file before proceding.");
-			put("Portfolio-1011", "Resource not found. Please check the request and retry again..");
+			put("Portfolio-1011", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again..");
 			put("Portfolio-1012", "Sorry! No records found for the Portfolio and Project combination.");
-			put("Portfolio-1013", "Resource not found. Please check the request and retry again.");
+			put("Portfolio-1013", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.");
 			put("Portfolio-1014", "Sorry! Record already exist with the Name provided.");
-			put("Portfolio-1015", "Resource not found. Please check the request and retry again.");
+			put("Portfolio-1015", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.");
 			put("Portfolio-1016", "Internal server error. Please contact support for further instructions.");
 
-			put("Monitor-1000", "Resource not found. Please check the request and retry again..");
+			put("Monitor-1000", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again..");
 			put("Monitor-1001","Error encrypting the data. contact support.");
 			put("Monitor-1002","No certificate found with the data provided.");
 			put("Monitor-1003","No certificate found with the data provided.");
@@ -240,9 +240,9 @@ public enum ErrorCodes {
 			put("Monitor-1006","Sorry! Record already exist with the Name provided.");
 
 
-			put("MockServer-1000", "Request validation failed. Mock scenario with similar configuration already exist..");
-			put("MockServer-1001", "Resource not found. Please check the request and retry again..");
-			put("MockServer-1002", "Resource not found. Please check the request and retry again..");
+			put("MockServer-1000", "Request validation failed. Mock scenario with similar configuration already exist.");
+			put("MockServer-1001", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again..");
+			put("MockServer-1002", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again..");
 
 			put("Marketing-1000", "File couldn't be stored. Please contact support.");
 		}

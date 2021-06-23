@@ -240,7 +240,7 @@ public interface TestSuiteService {
 	@PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN', 'TEST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@ApiOperation(value = "Trigger TestSuite", notes = "", code = 202)
 	@ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted", response = Void.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/testsuites/{testsuiteId}/{variableId}/run", produces = {
 	"application/json" })
 	public ResponseEntity<?> triggerTestSuite(@PathVariable("testsuiteId") String testSuiteId,
@@ -251,7 +251,7 @@ public interface TestSuiteService {
 	@PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN', 'TEST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@ApiOperation(value = "Cancel TestSuite", notes = "", code = 202)
 	@ApiResponses(value = { @ApiResponse(code = 202, message = "Accepted", response = Void.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/testsuites/{testsuiteId}/{variableId}/cancel", produces = {
 	"application/json" })
 	public ResponseEntity<?> cancelTestSuite(@PathVariable("testsuiteId") String testSuiteId,
@@ -261,7 +261,7 @@ public interface TestSuiteService {
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@ApiOperation(value = "Get Testsuite Status", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "No Content", response = String.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/testsuites/executions/{executionid}/status")
 	public ResponseEntity<?> getExecutionStatus(@PathVariable("executionid") String executionId,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -270,7 +270,7 @@ public interface TestSuiteService {
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@ApiOperation(value = "Get Testsuite Status", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "No Content", response = String.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/testsuites/{testsuiteid}/status")
 	public ResponseEntity<?> getTestSuiteStatus(@PathVariable("testsuiteid") String testsuiteid,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -279,7 +279,7 @@ public interface TestSuiteService {
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@ApiOperation(value = "Get Testsuite History", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "ok", response = String.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/testsuites/{testsuiteId}/environments/{variableId}/executions", produces = {
 	"application/json" })
 	public ResponseEntity<?> getTestSuiteHistoryWithTestSuiteAndConfig(@PathVariable("testsuiteId") String testSuiteId,
@@ -294,7 +294,7 @@ public interface TestSuiteService {
 	@PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN', 'TEST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@ApiOperation(value = "Pause Testsuite", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "ok", response = String.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/testsuites/{testsuiteId}/pause", produces = {
 	"application/json" })
 	public ResponseEntity<?> pauseTestSuite(@PathVariable("testsuiteId") String testSuiteId,
@@ -305,7 +305,7 @@ public interface TestSuiteService {
 	@PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN', 'TEST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@ApiOperation(value = "unPause Testsuite", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "ok", response = String.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/testsuites/{testsuiteId}/unpause", produces = {
 	"application/json" })
 	public ResponseEntity<?> unpauseTestSuite(@PathVariable("testsuiteId") String testSuiteId,
@@ -316,7 +316,7 @@ public interface TestSuiteService {
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@ApiOperation(value = "Get Run Time Logs", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "No Content", response = String.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/testsuites/{testsuiteExecutionId}/logs", produces = {
 	"text/plain" })
 	public ResponseEntity<?> getRunTimeLogs(@PathVariable("testsuiteExecutionId") String testsuiteExecutionId,

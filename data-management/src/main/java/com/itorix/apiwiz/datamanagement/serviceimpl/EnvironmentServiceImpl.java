@@ -66,7 +66,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/organizations/{organization}/environments/{environment}/deployments")
 	public ResponseEntity<List<String>> getEnvironmentDepolyedProxies(
@@ -108,7 +108,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/backupenvironment")
 	public ResponseEntity<BackupInfo> backUpEnvironment(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -152,7 +152,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/cleanupenvironment")
 	public ResponseEntity<BackupInfo> cleanUpEnvironment(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -194,7 +194,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/restoreenvironment")
 	public ResponseEntity<Void> restoreEnvironment(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -230,7 +230,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/getenvironmentbackuphistory")
 	public ResponseEntity<List<EnvironmentBackUpInfo>> getEnvironmentBackupHistory(
@@ -262,7 +262,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/environment/backupapiproxy")
 	public ResponseEntity<BackupInfo> backUpEnvironmentApiProxy(
@@ -302,7 +302,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "/v1/api/apigee/organizations/{organization}/environment/cleanupapiproxy")
 	public ResponseEntity<BackupInfo> cleanUpEnvironmentApiProxy(
@@ -341,7 +341,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/environment/restoreapiproxies")
 	public ResponseEntity<Void> restoreEnvironmentApiProxy(
@@ -375,7 +375,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	@ApiOperation(value = "Get Environment Api Proxies Backup History", notes = "", code=200)
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "Ok", response = ProxyBackUpInfo.class,responseContainer="List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/environment/getapiproxiesbackuphistory")
 	public ResponseEntity<List<ProxyBackUpInfo> > getEnvironmentApiProxiesBackupHistory(
@@ -407,7 +407,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/backupenvironmentcaches")
 	public ResponseEntity<BackupInfo> backUpCaches(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -446,7 +446,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "/v1/api/apigee/organizations/{organization}/cleanupenvironmentcaches")
 	public ResponseEntity<BackupInfo> cleanUpCaches(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -484,7 +484,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/restoreenvironmentcaches")
 	public ResponseEntity<Void> restoreCaches(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -516,7 +516,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	@ApiOperation(value = "Get Caches Backup History", notes = "", code=200)
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "Ok", response = ResourceBackUpInfo.class,responseContainer="List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/getenvironmentcachesbackuphistory")
 	public ResponseEntity<List<ResourceBackUpInfo>> getCachesBackupHistory(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -547,7 +547,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/backupenvironmenttaretservers")
 	public ResponseEntity<Object> backUpTargetServers(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -586,7 +586,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "/v1/api/apigee/organizations/{organization}/cleanupenvironmenttargetservers")
 	public ResponseEntity<BackupInfo> cleanUpTargetServers(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -625,7 +625,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/restoreenvironmenttargetservers")
 	public ResponseEntity<Void> restoreTargetServers(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -658,7 +658,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	@ApiOperation(value = "Get Target Servers Backup History", notes = "", code=200)
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "Ok", response = ResourceBackUpInfo.class,responseContainer="List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/getenvironmenttargetserversbackuphistory")
 	public ResponseEntity<List<ResourceBackUpInfo> > getTargetServersBackupHistory(
@@ -689,7 +689,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/backupenvironmentkvm")
 	public ResponseEntity<BackupInfo> backUpKVM(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -728,7 +728,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "/v1/api/apigee/organizations/{organization}/cleanupenvironmentkvm")
 	public ResponseEntity<BackupInfo> cleanUpKVM(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -766,7 +766,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 			@ApiResponse(code = 401, message = "Sorry! Apigee unauthorized user.", response = ErrorObj.class),
 			@ApiResponse(code = 403, message = "Sorry! Insufficeint permissions to carry out this task", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/{organization}/restoreenvironmentkvm")
 	public ResponseEntity<Void> restoreKVM(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -799,7 +799,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 	@ApiOperation(value = "Get KVM Backup History", notes = "", code=200)
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "Ok", response = ResourceBackUpInfo.class,responseContainer="List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/getenvironmentkvmbackuphistory")
 	public ResponseEntity<List<ResourceBackUpInfo> > getKVMBackupHistory(@RequestHeader(value = "interactionid", required = false) String interactionid,
