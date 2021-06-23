@@ -34,11 +34,11 @@ import io.swagger.annotations.ApiResponses;
  *
  */
 public interface DictionaryService {
-	
+
 
 	/**
 	 * Using this method we can create the Portfolio.
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param portfolioVO
@@ -49,7 +49,8 @@ public interface DictionaryService {
 	@ApiOperation(value = "Create Portfolio", notes = "", code = 201, response = Void.class)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Portfolio Created sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/data-dictionary")
 	public ResponseEntity<Void> createPortfolio(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -58,7 +59,7 @@ public interface DictionaryService {
 
 	/**
 	 * Using this method we can create the Portfolio.
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param portfolioVO
@@ -69,7 +70,8 @@ public interface DictionaryService {
 	@ApiOperation(value = "Update Portfolio", notes = "", code = 201, response = Void.class)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Portfolio updated sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/data-dictionary")
 	public ResponseEntity<Void> updatePortfolio(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -78,7 +80,7 @@ public interface DictionaryService {
 
 	/**
 	 * Using this method we can get the Portfolio.
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @return
@@ -89,27 +91,29 @@ public interface DictionaryService {
 	@ApiOperation(value = "Get Portfolio Overview", notes = "", code = 200, response = PortfolioVO.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PortfolioVO.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/overview")
 	public ResponseEntity<PortfolioHistoryResponse> getPortfolioOverview(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) throws  Exception ;
-	
-	
+
+
 	@ApiOperation(value = "Get Portfolio Overview", notes = "", code = 200, response = PortfolioVO.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PortfolioVO.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary")
 	public ResponseEntity<List<PortfolioVO>> getPortfolios(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws  Exception;
-	
+
 	/**
 	 * Using this method we can get the Portfolio.
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @return
@@ -120,16 +124,17 @@ public interface DictionaryService {
 	@ApiOperation(value = "Get Portfolio ", notes = "", code = 200, response = PortfolioVO.class)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Portfolio updated sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/{id}")
 	public ResponseEntity<PortfolioVO> getPortfolio(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable("id") String id) throws  Exception ;
-	
-	
+
+
 	/**
 	 * Using this method we can Delete the Portfolio.
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param portfolioVO
@@ -140,16 +145,17 @@ public interface DictionaryService {
 	@ApiOperation(value = "Delete Portfolio", notes = "", code = 201, response = Void.class)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Portfolio Deleted sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/data-dictionary/{id}")
 	public ResponseEntity<Void> deletePortfolio(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id) throws Exception ;
-	
-	
+
+
 	/**
 	 * This method it will update the Portfolio models.
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param portfolioVO
@@ -160,16 +166,17 @@ public interface DictionaryService {
 	@ApiOperation(value = "Update Portfolio Models", notes = "", code = 201, response = Void.class)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Portfolio updated sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/data-dictionary/{id}/schemas")
 	public ResponseEntity<Void> updatePortfolioModels(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable("id") String id, @RequestBody String body)
 			throws  Exception ;
-	
+
 	/**
 	 * Using this method we can create the Portfolio.
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param portfolioVO
@@ -180,16 +187,17 @@ public interface DictionaryService {
 	@ApiOperation(value = "Update Portfolio", notes = "", code = 201, response = Void.class)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Portfolio updated sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/{id}/schemas")
 	public ResponseEntity<Object> getPortfolioModelNames(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable("id") String id, @RequestParam(name="filterby",required =false) String filterby)
 			throws  Exception;
-	
+
 	/**
 	 * Using this method we can create the Portfolio.
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param portfolioVO
@@ -200,7 +208,8 @@ public interface DictionaryService {
 	@ApiOperation(value = "Update Portfolio", notes = "", code = 201, response = Void.class)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Portfolio updated sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/{id}/schemas/{model_name}")
 	public ResponseEntity<Object> getPortfolioModel(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -209,11 +218,11 @@ public interface DictionaryService {
 			@PathVariable("model_name") String model_name,
 			@RequestParam(name="filterby",required =false) String filterby)
 			throws  Exception;
-	
-	
+
+
 	/**
 	 * Using this method we can create the Portfolio.
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param portfolioVO
@@ -224,14 +233,16 @@ public interface DictionaryService {
 	@ApiOperation(value = "Update Portfolio", notes = "", code = 201, response = Void.class)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Portfolio updated sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/data-dictionary/{id}/schemas/{model_name}")
 	public ResponseEntity<Void> deletePortfolioModelByName(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable("id") String id,
 			@PathVariable("model_name") String model_name)
 			throws  Exception ;
-	
+
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/search", produces = { "application/json" })
 	public ResponseEntity<Object> swaggerSearch(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,

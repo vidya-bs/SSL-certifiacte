@@ -183,22 +183,22 @@ public class IdentityManagementDao {
 			User user = findByEmailUserName(userInfo.getLoginId());
 			Workspace workspace = getWorkspace(userInfo.getWorkspaceId());
 			if (user == null ){
-				throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1012"),"IDENTITY-1012");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"),"Identity-1037");
 			}
 			if(workspace == null){
-				throw new ItorixException(ErrorCodes.errorMessage.get("USER_022"),"USER_022");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1039"),"Identity-1039");
 			}
 			UserWorkspace userWorkspace = user.getUserWorkspace(userInfo.getWorkspaceId());
 			if(userWorkspace == null ||( userWorkspace.getActive() != true  && userWorkspace.getAcceptInvite() == true)){ //(!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
-				throw new ItorixException(ErrorCodes.errorMessage.get("USER_030"),"USER_030");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1030"),"Identity-1030");
 			}
 
 			if(userWorkspace == null || userWorkspace.getActive() != true){ //(!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
-				throw new ItorixException(ErrorCodes.errorMessage.get("USER_022"),"USER_022");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1039"),"Identity-1039");
 			}
 
 			if(user.canLogin() != true){
-				throw new ItorixException(ErrorCodes.errorMessage.get("USER_002"),"USER_002");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"),"Identity-1023");
 			}
 
 			if(preAuthenticated || rsaEncryption.decryptText(user.getPassword()).equals(rsaEncryption.decryptText(userInfo.getPassword())))
@@ -247,15 +247,15 @@ public class IdentityManagementDao {
 				if (user.getUserCount() < 5) {
 					user.setUserCount(user.getUserCount() + 1);
 					saveUser(user);
-					throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1012"),"IDENTITY-1012");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"),"Identity-1037");
 				} else {
 					user.setUserStatus(UserStatus.getStatus(UserStatus.LOCKED));
 					saveUser(user);
-					throw new ItorixException(ErrorCodes.errorMessage.get("USER_002"),"USER_002");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"),"Identity-1023");
 				}
 			}
 		}
-		throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1012"),"IDENTITY-1012");
+		throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"),"Identity-1037");
 	}
 
 	public Object addUser(UserInfo userInfo) throws ItorixException{
@@ -263,11 +263,11 @@ public class IdentityManagementDao {
 		userInfo.setWorkspaceId(userSessionToken.getWorkspaceId());
 		Workspace workspace = getWorkspace(userInfo.getWorkspaceId());
 		if( userInfo.allowInviteUser() == false && workspace == null){
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_022"),"USER_022");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1039"),"Identity-1039");
 		}
 		User loginUser = findUserById(userSessionToken.getUserId());
 		if(!loginUser.isWorkspaceAdmin(userInfo.getWorkspaceId()) == true){
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_023"),"USER_023");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"),"Identity-1037");
 		}
 		boolean isNewUser = false;
 		User user = findByUserEmail(userInfo.getEmail());
@@ -338,10 +338,10 @@ public class IdentityManagementDao {
 			UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 			User loginUser = findUserById(userSessionToken.getUserId());
 			if( !loginUser.getEmail().equals(userInfo.getEmail()) && findByEmailUserName(userInfo.getEmail()) != null){
-				throw new ItorixException(ErrorCodes.errorMessage.get("USER_021"),"USER_021");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1036"),"Identity-1036");
 			}
 			if(userInfo.getLoginId() != null && !loginUser.getLoginId().equals(userInfo.getLoginId()) && findByEmailUserName(userInfo.getLoginId()) != null){
-				throw new ItorixException(ErrorCodes.errorMessage.get("USER_021"),"USER_021");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1036"),"Identity-1036");
 			}
 			if( userInfo.getLoginId() != null)
 				loginUser.setLoginId(userInfo.getLoginId());
@@ -400,7 +400,7 @@ public class IdentityManagementDao {
 			else
 				return null;
 		}
-		throw new ItorixException(ErrorCodes.errorMessage.get("USER_023"),"USER_023");
+		throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"),"Identity-1037");
 	}
 
 	public void updateMetaData(Map<String, String> metadata){
@@ -431,10 +431,10 @@ public class IdentityManagementDao {
 					return new ArrayList<SwaggerTeam>();
 			}
 			else{
-				throw new ItorixException(ErrorCodes.errorMessage.get("USER_029"),"USER_029");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1042"),"Identity-1042");
 			}
 		}else{
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_029"),"USER_029");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1042"),"Identity-1042");
 		}
 	}
 
@@ -491,14 +491,14 @@ public class IdentityManagementDao {
 					addUserTeam(newTeamNames, user);
 					deleteUserTeams(teamNames, user);
 				}else{
-					throw new ItorixException(ErrorCodes.errorMessage.get("USER_029"),"USER_029");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1042"),"Identity-1042");
 				}
 			}
 			else{
-				throw new ItorixException(ErrorCodes.errorMessage.get("USER_029"),"USER_029");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1042"),"Identity-1042");
 			}
 		}else{
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_029"),"USER_029");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1042"),"Identity-1042");
 		}
 	}
 
@@ -541,12 +541,12 @@ public class IdentityManagementDao {
 				if(sendRegistrationEmail(token, user))
 					user = saveUser(user);
 				else
-					throw new ItorixException(ErrorCodes.errorMessage.get("USER_031"),"USER_031");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1031"),"Identity-1031");
 			} else {
 				throw new ItorixException(ErrorCodes.errorMessage.get("USER_005"),"USER_005");
 			}
 		} else{
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("USER_011"),domainId ),"USER_011");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Identity-1038"),domainId ),"Identity-1038");
 		}
 		return "";
 	}
@@ -610,7 +610,7 @@ public class IdentityManagementDao {
 			saveVerificationToken(token);
 			return token;
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_003"),"USER_003");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1000"),"Identity-1000");
 		}
 	}
 
@@ -625,17 +625,17 @@ public class IdentityManagementDao {
 				saveVerificationToken(token);
 				return userByEmail;
 			}else{
-				throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1001"),"IDENTITY-1001");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"),"Identity-1023");
 			}
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_020"),"USER_020");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1009"),"Identity-1009");
 		}
 	}
 
 	public Object changePassword(User user) throws  Exception {
 		if(user.getOldPassword() == null || user.getOldPassword().trim() == "" ||
 				user.getNewPassword() == null || user.getNewPassword().trim() == "")
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_016"),"USER_016");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1007"),"Identity-1007");
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		User dbUser = findUserById(userSessionToken.getUserId());
 		if(dbUser!=null){
@@ -646,7 +646,7 @@ public class IdentityManagementDao {
 				throw new ItorixException(ErrorCodes.errorMessage.get("USER_004"),"USER_004");
 			}
 		}else{
-			throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1001"),"IDENTITY-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"),"Identity-1023");
 		}
 		return "";
 	}
@@ -674,10 +674,10 @@ public class IdentityManagementDao {
 						break;
 					}
 			}else{
-				throw new ItorixException(ErrorCodes.errorMessage.get("USER_023"),"USER_023");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"),"Identity-1037");
 			}
 		}else{
-			throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1001"),"IDENTITY-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"),"Identity-1023");
 		}
 	}
 
@@ -707,10 +707,10 @@ public class IdentityManagementDao {
 				user.setWorkspaces(workspaces);
 				saveUser(user);
 			}else{
-				throw new ItorixException(ErrorCodes.errorMessage.get("USER_023"),"USER_023");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"),"Identity-1037");
 			}
 		}else{
-			throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1001"),"IDENTITY-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"),"Identity-1023");
 		}
 	}
 
@@ -741,10 +741,10 @@ public class IdentityManagementDao {
 				user.setWorkspaces(workspaces);
 				saveUser(user);
 			}else{
-				throw new ItorixException(ErrorCodes.errorMessage.get("USER_023"),"USER_023");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"),"Identity-1037");
 			}
 		}else{
-			throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1001"),"IDENTITY-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"),"Identity-1023");
 		}
 	}
 
@@ -787,7 +787,7 @@ public class IdentityManagementDao {
 			masterMongoTemplate.save(workspace);
 			return workspace;
 		}else{
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_018"),"USER_018");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1035"),"Identity-1035");
 		}
 	}
 
@@ -1009,7 +1009,7 @@ public class IdentityManagementDao {
 					}
 				}
 				else{
-					throw new ItorixException(ErrorCodes.errorMessage.get("USER_020"),"USER_020");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1009"),"Identity-1009");
 				}
 			}else{
 				resendToken(token);
@@ -1018,7 +1018,7 @@ public class IdentityManagementDao {
 		}catch(ItorixException ex){
 			throw ex;
 		}catch(Exception ex){
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_020"),"USER_020");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1009"),"Identity-1009");
 		}
 
 		return "";
@@ -1050,7 +1050,7 @@ public class IdentityManagementDao {
 
 	public void resendToken(UserInfo userInfo) throws ItorixException{
 		if(userInfo.allowCreateToken() != true)
-			throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1004"),"IDENTITY-1004");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1038"),"Identity-1038");
 		if(userInfo.getType().equals("password-reset") )
 		{
 			User user = new User();
@@ -1058,7 +1058,7 @@ public class IdentityManagementDao {
 			password(user);
 		}else if(userInfo.getType().equals("register")){
 			//			if(userInfo.getWorkspaceId() == null)
-			//				throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1004"),"IDENTITY-1004");
+			//				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1038"),"Identity-1038");
 			User user = findByEmail(userInfo.getEmail());
 			//			UserWorkspace workspace = user.getUserWorkspace(userInfo.getWorkspaceId());
 			//			if(workspace != null && workspace.getUserType().equals("Site-Admin") && workspace.getAcceptInvite() == false){
@@ -1068,7 +1068,7 @@ public class IdentityManagementDao {
 			saveVerificationToken(token);
 			sendRegistrationEmail(token, user);
 			//			}else {
-			//				throw new ItorixException(ErrorCodes.errorMessage.get("USER_023"),"USER_023");
+			//				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"),"Identity-1037");
 			//			}
 		}
 	}
@@ -1173,7 +1173,7 @@ public class IdentityManagementDao {
 			workspace.setStatus("cancel");
 			masterMongoTemplate.save(workspace);
 		} else{
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_029"),"USER_029");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1042"),"Identity-1042");
 		}
 	}
 
@@ -1183,7 +1183,7 @@ public class IdentityManagementDao {
 		String workspaceId = userSessionToken.getWorkspaceId();
 		User loginUser = findUserById(userSessionToken.getUserId());
 		if(!loginUser.isWorkspaceAdmin(workspaceId)){
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_023"),"USER_023");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"),"Identity-1037");
 		}
 		Users allUsers = new Users();
 		List<String> userName=new ArrayList<String>();
@@ -1256,7 +1256,7 @@ public class IdentityManagementDao {
 		String workspaceId = userSessionToken.getWorkspaceId();
 		User loginUser = findUserById(userSessionToken.getUserId());
 		if(!loginUser.isWorkspaceAdmin(workspaceId)){
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_023"),"USER_023");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"),"Identity-1037");
 		}
 		Users allUsers = new Users();
 		List<UserDetails> userDetails = new ArrayList<UserDetails>();
@@ -1306,7 +1306,7 @@ public class IdentityManagementDao {
 		String workspaceId = userSessionToken.getWorkspaceId();
 		User loginUser = findUserById(userSessionToken.getUserId());
 		if(!loginUser.isWorkspaceAdmin(workspaceId)){
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_023"),"USER_023");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"),"Identity-1037");
 		}
 		User user = findUserById(userId);
 		if(user.getUserWorkspace(workspaceId)!= null){
@@ -1320,7 +1320,7 @@ public class IdentityManagementDao {
 		String workspaceId = userSessionToken.getWorkspaceId();
 		User loginUser = findUserById(userSessionToken.getUserId());
 		if(!loginUser.isWorkspaceAdmin(workspaceId)){
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_023"),"USER_023");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"),"Identity-1037");
 		}
 		User user = findUserById(userId);
 		if(user.getUserWorkspace(workspaceId)!= null){
@@ -1466,7 +1466,7 @@ public class IdentityManagementDao {
 			}
 			user = baseRepository.save(user);
 		}else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_003"),"USER_003");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1000"),"Identity-1000");
 		}
 	}
 
@@ -1512,7 +1512,7 @@ public class IdentityManagementDao {
 		if (userByEmail != null) {
 
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1001"),"IDENTITY-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"),"Identity-1023");
 		}
 
 		return userRoles;
@@ -1563,7 +1563,7 @@ public class IdentityManagementDao {
 			userByEmail.setUserStatus(UserStatus.getStatus(UserStatus.ACTIVE));
 			userByEmail = saveUser(userByEmail);
 		}else{
-			throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1001"),"IDENTITY-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"),"Identity-1023");
 		}
 		return userByEmail;
 	}
@@ -1594,7 +1594,7 @@ public class IdentityManagementDao {
 				e.printStackTrace();
 			}
 		}else{
-			throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1001"),"IDENTITY-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"),"Identity-1023");
 		}
 		return "";
 	}
@@ -1661,7 +1661,7 @@ public class IdentityManagementDao {
 		UserSession userSessionToken = findUserSession(jsessionid);//userSessionRepository.findOne(jsessionid);
 		if (userSessionToken == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1011"),"IDENTITY-1011");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1039"),"Identity-1039");
 		} else {
 			Query query  = new Query().addCriteria(new Criteria().orOperator(Criteria.where("id").is(jsessionid)));
 			//masterMongoTemplate.remove(query, UserSession.class);
@@ -1781,7 +1781,7 @@ public class IdentityManagementDao {
 	{
 		UserSession userSessionToken = (sessionId != null) ? findUserSession(sessionId) : null;
 		if(	userSessionToken==null)
-			throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1011") ,"IDENTITY-1011");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1039") ,"Identity-1039");
 		return (userSessionToken == null) ? false : (System.currentTimeMillis() - userSessionToken.getLoginTimestamp() <= Constants.MILLIS_PER_DAY)  ? true : false ;
 	}
 
@@ -1840,7 +1840,7 @@ public class IdentityManagementDao {
 			}
 		}else{
 			String message = "Invalid request data! Invalid permissions ";
-			throw new ItorixException(message,"USER_016");
+			throw new ItorixException(message,"Identity-1007");
 		}
 	}
 
@@ -1863,7 +1863,7 @@ public class IdentityManagementDao {
 		Query dBquery = new Query(Criteria.where("planId").is(workspace.getPlanId()));
 		Plan dbPlan = masterMongoTemplate.findOne(dBquery, Plan.class);
 		if(dbPlan == null || dbPlan.getUiPermissions() == null){
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_028") ,"USER_028");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1041") ,"Identity-1041");
 		}
 		return dbPlan.getUiPermissions();
 	}
@@ -1873,7 +1873,7 @@ public class IdentityManagementDao {
 			UIMetadata uiuxMetadata = getUIUXMetadata(UIMetadata.ROLE_MAPPER);
 			return uiuxMetadata == null ? null : new ObjectMapper().readValue(uiuxMetadata.getMetadata() , new TypeReference<Map<String, String>>(){});
 		} catch (IOException e) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1028"), "IDENTITY-1028");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1041"), "Identity-1041");
 		}
 	}
 

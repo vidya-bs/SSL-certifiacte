@@ -277,7 +277,7 @@ public class ScenarioServiceDAO {
 			mongoTemplate.insert(expectationRequest);
 			return expectationRequest.getId();
 		}
-		throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-1"), "MockServer-1");
+		throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-1000"), "MockServer-1000");
 	}
 
 	public void updateScenario(Expectation expectationRequest, String scenarioId, String jsessionId) throws ItorixException {
@@ -288,7 +288,7 @@ public class ScenarioServiceDAO {
 		expectationRequest.setMts(System.currentTimeMillis());
 		Expectation expectation = mongoTemplate.findById(scenarioId, Expectation.class);
 		if(expectation == null){
-			throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-2"), "MockServer-2");
+			throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-1001"), "MockServer-1001");
 		}
 		String pathValue = expectationRequest.getRequest().getPath().getValue();
 		List<String> pathArray = getPathArrayForRegex(pathValue);
@@ -318,7 +318,7 @@ public class ScenarioServiceDAO {
 	public void deleteScenario(String scenarioId) throws ItorixException {
 		Query query = new Query(Criteria.where("id").is(scenarioId));
 		if(mongoTemplate.remove(query, Expectation.class).getDeletedCount() == 0){
-			throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-2"), "MockServer-2");
+			throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-1001"), "MockServer-1001");
 		}
 	}
 
@@ -330,7 +330,7 @@ public class ScenarioServiceDAO {
 		 if(expectation != null){
 			 return expectation;
 		 }
-		 throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-2"), "MockServer-2");
+		 throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-1001"), "MockServer-1001");
 	}
 
 

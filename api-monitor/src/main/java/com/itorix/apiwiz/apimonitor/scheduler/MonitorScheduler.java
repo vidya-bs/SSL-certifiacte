@@ -176,7 +176,7 @@ public class MonitorScheduler {
 
 		try {
 			if (!StringUtils.hasText(monitorSuitAgentPath)) {
-				throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-2"), "Monitor-Api-2");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1001"), "Monitor-1001");
 			}
 
 			RestTemplate restTemplate = getRestTemplate();

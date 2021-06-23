@@ -334,9 +334,9 @@ public class UserInfo {
 			String message = new ObjectMapper().writeValueAsString(fileds);
 			message = message.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\"", "").replaceAll(",", ", ");
 			message = "Invalid request data! Missing mandatory data: " + message ;
-			throw new ItorixException(message,"USER_016");
+			throw new ItorixException(message,"Identity-1007");
 		} catch (JsonProcessingException e) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_016"),"USER_016");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1007"),"Identity-1007");
 		}
 	}
 	

@@ -75,7 +75,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 			serviceRequestDao.updateServiceRequest(config);
 			return new ResponseEntity<Void>(HttpStatus.CREATED);
 		} else {
-			throw new ItorixException("Insufficient Data in the Request", "Config-1006");
+			throw new ItorixException("Insufficient Data in the Request", "Configuration-1005");
 		}
 	}
 
@@ -107,7 +107,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 			serviceRequestDao.changeServiceRequestStatus(config, user);
 			return new ResponseEntity<Void>(HttpStatus.CREATED);
 		} else {
-			throw new ItorixException("Insufficient Data in the Request", "Config-1006");
+			throw new ItorixException("Insufficient Data in the Request", "Configuration-1005");
 		}
 	}
 
@@ -133,7 +133,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 			serviceRequestDao.createLogHistory(serviceRequestComments);
 			return new ResponseEntity<Void>(HttpStatus.CREATED);
 		} else {
-			throw new ItorixException("Insufficient Data in the Request", "Config-1006");
+			throw new ItorixException("Insufficient Data in the Request", "Configuration-1005");
 		}
 	}
 
@@ -156,7 +156,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 			serviceRequestComments.setIsSaaS(isSaaS);
 			return new ResponseEntity<Object>(serviceRequestDao.getLogHistory(serviceRequestComments), HttpStatus.OK);
 		} else {
-			throw new ItorixException("Insufficient Data in the Request", "Config-1006");
+			throw new ItorixException("Insufficient Data in the Request", "Configuration-1005");
 		}
 	}
 

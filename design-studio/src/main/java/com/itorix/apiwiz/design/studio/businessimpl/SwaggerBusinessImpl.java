@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import javax.mail.MessagingException;
 
 import com.itorix.apiwiz.design.studio.model.*;
+import com.itorix.apiwiz.identitymanagement.model.*;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -74,10 +75,6 @@ import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.common.util.zip.ZIPUtil;
 import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
-import com.itorix.apiwiz.identitymanagement.model.Pagination;
-import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
-import com.itorix.apiwiz.identitymanagement.model.User;
-import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCursor;
 
@@ -151,8 +148,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	public boolean saveSwagger(SwaggerVO swaggerVO) throws ItorixException {
 		SwaggerVO vo = findSwagger(swaggerVO);
 		if (vo != null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1003"), swaggerVO.getName()),
-					"Swagger-1003");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1002"), swaggerVO.getName()),
+					"Swagger-1002");
 		}
 		swaggerVO.setRevision(1);
 		swaggerVO.setStatus("Draft");
@@ -166,8 +163,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	public boolean saveSwagger(Swagger3VO swaggerVO) throws ItorixException {
 		Swagger3VO vo = findSwagger(swaggerVO);
 		if (vo != null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1003"), swaggerVO.getName()),
-					"Swagger-1003");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1002"), swaggerVO.getName()),
+					"Swagger-1002");
 		}
 		swaggerVO.setRevision(1);
 		swaggerVO.setStatus("Draft");
@@ -284,7 +281,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 							swagger.setLoaded(true);
 							reason = "swagger loadeds" ;
 						}catch (ItorixException e){
-							if(e.errorCode.equals("Swagger-1003")){
+							if(e.errorCode.equals("Swagger-1002")){
 								reason = "swagger with same name exists" ;
 								createSwaggerWithNewRevision( swaggerVO, null);
 							}
@@ -310,7 +307,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 							saveSwagger(swaggerVO);
 							swagger.setLoaded(true);
 						}catch (ItorixException e){
-							if(e.errorCode.equals("Swagger-1003")){
+							if(e.errorCode.equals("Swagger-1002")){
 								reason = "swagger with same name exists" ;
 								createSwaggerWithNewRevision( swaggerVO, null);
 							}
@@ -759,10 +756,10 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					swagger = swaggervo.getName();
 					names.add(swaggervo.getName());
 				}else{
-					throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1001"),"Swagger-1001");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"),"Swagger-1000");
 				}
 			}catch(Exception e){
-				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1001"),"Swagger-1001");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"),"Swagger-1000");
 			}
 		}
 		if (isAdmin) {
@@ -946,10 +943,10 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				names.add(swaggervo.getName());
 			}else{
 				swagger = "";
-				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1001"),"Swagger-1001");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"),"Swagger-1000");
 			}
 			}catch(Exception e){
-				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1001"),"Swagger-1001");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"),"Swagger-1000");
 			}
 		}
 
@@ -3011,8 +3008,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		//			vo.setProducts(productSet);
 		//			baseRepository.save(vo);
 		//		} else {
-		//			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), swaggerName),
-		//					"Swagger-1001");
+		//			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000"), swaggerName),
+		//					"Swagger-1000");
 		//		}
 	}
 
@@ -3061,8 +3058,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			vo.setPortfolios(portfolioSet);
 			baseRepository.save(vo);
 		} else {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-					"Swagger-1001");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+					"Swagger-1000");
 		}
 	}
 
@@ -3335,8 +3332,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			swaggerName = vo != null?vo.getName():null;
 		}
 		if(swaggerName == null)
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-					"Swagger-1001");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+					"Swagger-1000");
 		swaggerIntegrations.isValid();
 		SwaggerIntegrations integrations = baseRepository.findOne("swaggerName",swaggerName, "oas", oas, SwaggerIntegrations.class);
 		if(integrations != null )
@@ -3361,8 +3358,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			swaggerName = vo != null?vo.getName():null;
 		}
 		if(swaggerName == null)
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-					"Swagger-1001");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+					"Swagger-1000");
 		SwaggerIntegrations integrations = baseRepository.findOne("swaggerName",swaggerName, "oas", oas, SwaggerIntegrations.class);
 		return integrations;
 	}
@@ -3385,8 +3382,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			swaggerName = vo != null?vo.getName():null;
 		}
 		if(swaggerName == null)
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-					"Swagger-1001");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+					"Swagger-1000");
 		SwaggerIntegrations integrations = baseRepository.findOne("swaggerName",swaggerName, "oas", oas, SwaggerIntegrations.class);
 		mongoTemplate.remove(integrations);
 
@@ -3426,8 +3423,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		description = String.valueOf(swaggerInfoNode.get("description"));
 
 		if (name == "null" || name == "")
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-					"Swagger-1001");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+					"Swagger-1000");
 
 		ObjectNode jsonNode = objectMapper.createObjectNode();
 		jsonNode.put("name", name);
@@ -3446,8 +3443,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			//Check Swagger Already Exists with the same name of clone
 			Swagger3VO swaggerObj = getSwagger3(swaggerCloneDetails.getName(), null);
 			if(swaggerObj != null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1003")),
-						"Swagger-1003");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1002")),
+						"Swagger-1002");
 			}
 
 			Swagger3VO vo = getSwagger3(swaggerCloneDetails.getCurrentSwaggerID(), null);
@@ -3466,8 +3463,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			//Check Swagger Already Exists with the same name of clone
 			SwaggerVO swaggerObj = getSwagger(swaggerCloneDetails.getName(), null);
 			if(swaggerObj != null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1003")),
-						"Swagger-1003");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1002")),
+						"Swagger-1002");
 			}
 			SwaggerVO vo = getSwagger(swaggerCloneDetails.getCurrentSwaggerID(), null);
 			vo.setName(swaggerCloneDetails.getName());

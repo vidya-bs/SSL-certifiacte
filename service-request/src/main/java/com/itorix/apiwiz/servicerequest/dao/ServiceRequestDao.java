@@ -131,18 +131,18 @@ public class ServiceRequestDao {
 							sendEmailTo(config);
 							return config;
 						} else
-							throw new ItorixException(ErrorCodes.errorMessage.get("CONFIG-1102"), "CONFIG-1102");
+							throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1026"), "Configuration-1026");
 					}
 					// throw new
-					// ItorixException(ErrorCodes.errorMessage.get("CONFIG-1103"),"CONFIG-1103");
+					// ItorixException(ErrorCodes.errorMessage.get("Configuration-1027"),"Configuration-1027");
 				}
 			} else {
-				throw new ItorixException(ErrorCodes.errorMessage.get("CONFIG-1101"), "CONFIG-1101");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1028"), "Configuration-1028");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 		return null;
 	}
@@ -169,7 +169,7 @@ public class ServiceRequestDao {
 				return mongoTemplate.findAll(ServiceRequest.class);
 			}
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -198,7 +198,7 @@ public class ServiceRequestDao {
 				// return mongoTemplate.findAll(ServiceRequest.class);
 			}
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -232,7 +232,7 @@ public class ServiceRequestDao {
 			response.setPagination(pagination);
 			return response;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -352,7 +352,7 @@ public class ServiceRequestDao {
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 
 	}
@@ -681,12 +681,12 @@ public class ServiceRequestDao {
 			} else {
 				if ((!config.getStatus().equalsIgnoreCase("Change Required")
 						|| config.getStatus().equalsIgnoreCase("Approved")))
-					throw new ItorixException(ErrorCodes.errorMessage.get("CONFIG-1105"), "CONFIG-1105");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1030"), "Configuration-1030");
 
-				throw new ItorixException(ErrorCodes.errorMessage.get("CONFIG-1106"), "CONFIG-1106");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1031"), "Configuration-1031");
 			}
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("CONFIG-1104"), "CONFIG-1104");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1029"), "Configuration-1029");
 		}
 	}
 
@@ -716,7 +716,7 @@ public class ServiceRequestDao {
 			}
 			return mongoTemplate.find(query, ServiceRequestComments.class);
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -748,7 +748,7 @@ public class ServiceRequestDao {
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -780,13 +780,13 @@ public class ServiceRequestDao {
 				listData.add(map);
 			}
 			if (listData.size() == 0) {
-				throw new ItorixException("No Record exists", "Config-1004");
+				throw new ItorixException("No Record exists", "Configuration-1003");
 			}
 			return listData;
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 
 	}
@@ -797,12 +797,12 @@ public class ServiceRequestDao {
 			List<ServiceRequest> serviceRequests = (ArrayList<ServiceRequest>) getAllActiveServiceRequests(
 					serviceRequest);
 			if (serviceRequests.size() == 0)
-				throw new ItorixException("No Record exists", "Config-1004");
+				throw new ItorixException("No Record exists", "Configuration-1003");
 			return serviceRequests;
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 
 	}

@@ -40,7 +40,7 @@ public interface CollaborationService {
 	 */
 	@ApiOperation(value = "Create Team", notes = "", code = 201)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/teams")
 	public ResponseEntity<Void> createTeam(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -60,8 +60,8 @@ public interface CollaborationService {
 	 */
 	@ApiOperation(value = "Update Team", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger team name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected team name - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/teams/{teamname}")
 	public ResponseEntity<Void> updateTeam(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -70,8 +70,8 @@ public interface CollaborationService {
 
 	@ApiOperation(value = "get Team", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Team", response = SwaggerTeam.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger team name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected team name - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams/{teamname}")
 	public ResponseEntity<SwaggerTeam> getTeam(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -91,8 +91,8 @@ public interface CollaborationService {
 	 */
 	@ApiOperation(value = "Delete Team", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger team name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected team name - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/teams/{teamname}")
 	public ResponseEntity<Void> deleteTeam(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -112,8 +112,8 @@ public interface CollaborationService {
 	@ApiOperation(value = "Assoiate Team", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/associate-team")
 	public ResponseEntity<Void> assoiateTeam(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -135,8 +135,8 @@ public interface CollaborationService {
 	@ApiOperation(value = "Get Assoiated Teams", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/associated-teams")
 	public ResponseEntity<?> getAssoiatedTeams(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -157,7 +157,7 @@ public interface CollaborationService {
 	@ApiOperation(value = "Get Team Permissions", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerTeamPermissionVO.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams/permission")
 	public ResponseEntity<Object> getTeamPermissions(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -175,7 +175,7 @@ public interface CollaborationService {
 	@ApiOperation(value = "Get Teams", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerTeam.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams")
 	public ResponseEntity<TeamsHistoryResponse> getTeams(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -196,7 +196,7 @@ public interface CollaborationService {
 	@ApiOperation(value = "Get Team Names", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/team-names")
 	public ResponseEntity<List<String>> getTeamNames(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,

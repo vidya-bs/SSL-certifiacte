@@ -268,7 +268,7 @@ public class ManagePackageServiceImpl implements ManagePackageService {
 		packageReviewComents.setJsessionid(jsessionid);
 		Package pkg = (Package) packageDao.getPackages(packageId);
 		if (pkg == null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("package-1001"), packageReviewComents.getPackageId()),"Swagger-1001");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("package-1001"), packageReviewComents.getPackageId()),"Swagger-1000");
 		}
 		packageReviewComents.setPackageId(packageId);
 		packageReviewComents.setId(commentId);;
@@ -287,7 +287,7 @@ public class ManagePackageServiceImpl implements ManagePackageService {
 		packageReviewComents.setJsessionid(jsessionid);
 		Package pkg = (Package)packageDao.getPackages(packageId);
 		if (pkg == null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("package-1001"), packageReviewComents.getPackageId()),"Swagger-1001");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("package-1001"), packageReviewComents.getPackageId()),"Swagger-1000");
 		}
 		packageReviewComents.setPackageId(packageId);
 		packageReviewComents.setCommentId(commentId);

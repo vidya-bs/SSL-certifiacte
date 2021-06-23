@@ -937,7 +937,7 @@ public class CiCdIntegrationAPI {
 		EmailTemplate emailTemplate = new EmailTemplate();
 		emailTemplate.setSubject(subject);
 		if (pipelineName.indexOf("_") == -1) {
-			throw new ItorixException("Pipeline Name Must Contain Hypen", "CICD_001");
+			throw new ItorixException("Pipeline Name Must Contain Hypen", "CICD-1000");
 		}
 		String[] splitByHypen = pipelineName.split("_");
 
@@ -1413,7 +1413,7 @@ public class CiCdIntegrationAPI {
 	public void createcicdBackUp(BackUpRequest backUpRequest) throws ItorixException {
 		List<BackUpRequest> findAll = mongoTemplate.findAll(BackUpRequest.class);
 		if (findAll.size() > 0) {
-			throw new ItorixException(new Throwable().getMessage(), "CICD_004", new Throwable());
+			throw new ItorixException(new Throwable().getMessage(), "CICD-1001", new Throwable());
 		} else {
 			mongoTemplate.save(backUpRequest);
 		}
@@ -1426,7 +1426,7 @@ public class CiCdIntegrationAPI {
 			mongoTemplate.dropCollection(BackUpRequest.class);
 			mongoTemplate.save(backUpRequest);
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("CICD_005"), "CICD_005");
+			throw new ItorixException(ErrorCodes.errorMessage.get("CICD-1002"), "CICD-1002");
 		}
 		return "";
 	}
@@ -1436,7 +1436,7 @@ public class CiCdIntegrationAPI {
 		if (findAll.size() > 0) {
 			return findAll.get(0);
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("CICD_005"), "CICD_005");
+			throw new ItorixException(ErrorCodes.errorMessage.get("CICD-1002"), "CICD-1002");
 		}
 	}
 

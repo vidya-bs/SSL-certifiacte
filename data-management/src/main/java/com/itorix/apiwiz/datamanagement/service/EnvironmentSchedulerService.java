@@ -38,7 +38,7 @@ public interface EnvironmentSchedulerService {
 	@ApiOperation(value = "Create Environment Schedule", notes = "", code=201)
     @ApiResponses(value = { 
         @ApiResponse(code = 201, message = "Created", response = Void.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/environment/schedules")
 	public ResponseEntity<Void>  createEnvironmentSchedule(
@@ -60,7 +60,7 @@ public interface EnvironmentSchedulerService {
 	@ApiOperation(value = "Update Environment Schedule", notes = "", code=204)
     @ApiResponses(value = { 
         @ApiResponse(code = 204, message = "No Content", response = Void.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/api/apigee/environment/schedules")
 	public ResponseEntity<Void>  updateEnvironmentSchedule(
@@ -82,7 +82,7 @@ public interface EnvironmentSchedulerService {
 	@ApiOperation(value = "Delete Environment Schedule", notes = "", code=201)
     @ApiResponses(value = { 
         @ApiResponse(code = 201, message = "Deletion Success", response = Void.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "/v1/api/apigee/environment/schedules")
 	public ResponseEntity<Void>  deleteEnvironmentSchedule(
@@ -103,7 +103,7 @@ public interface EnvironmentSchedulerService {
 	@ApiOperation(value = "Get Environment Schedule", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = ScheduleModel.class,responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/environment/schedules")
 	public ResponseEntity<List<ScheduleModel>>  getEnvironmentSchedule(@RequestHeader(value = "interactionid", required = false) String interactionid,
