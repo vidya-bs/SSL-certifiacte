@@ -1047,10 +1047,9 @@ public interface SwaggerService {
 			throws Exception;
 
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/clone")
-	public ResponseEntity<?> validateSwagger(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
+	public ResponseEntity<?> cloneSwagger(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = true) String oas,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestBody SwaggerCloneDetails swaggerCloneDetails)
 			throws Exception;
 

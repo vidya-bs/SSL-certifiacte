@@ -11,5 +11,5 @@ public class SwaggerCloneDetails {
     private String description;
     private String basePath;
     private String currentSwaggerID;
-    private String revision;
+    private Integer revision;
 }

@@ -32,6 +32,7 @@ import javax.mail.MessagingException;
 
 import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.identitymanagement.model.*;
+import io.swagger.generator.util.SwaggerUtil;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -3402,9 +3403,17 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	public String getSwaggerInfo(String jsessionid, String swaggerid, String oas) {
 		if (oas.equals("3.0")) {
 			Swagger3VO vo = getSwagger3(swaggerid, null);
+			if(vo == null) {
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
+						"Swagger-1001");
+			}
 			return  parseSwaggerInfoNodes(vo.getSwagger());
 		} else {
 			SwaggerVO vo = getSwagger(swaggerid, null);
+			if(vo == null) {
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
+						"Swagger-1001");
+			}
 			return  parseSwaggerInfoNodes(vo.getSwagger());
 		}
 	}
@@ -3439,7 +3448,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		//find existing swagger
 		boolean isSwaggerCloneSuccess = false;
 		if("3.0".equals(oas)) {
-			isSwaggerCloneSuccess = cloneSwagger3(swaggerCloneDetails, isSwaggerCloneSuccess);
+			isSwaggerCloneSuccess = cloneSwagger3(swaggerCloneDetails);
 		} else {
 			isSwaggerCloneSuccess = cloneSwagger2(swaggerCloneDetails);
 		}
@@ -3452,12 +3461,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		//Check Swagger Already Exists with the same name of clone
 		SwaggerVO swaggerObj = getSwagger(swaggerCloneDetails.getName(), null);
 		if(swaggerObj != null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1003")),
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1003"), swaggerCloneDetails.getName()),
 					"Swagger-1003");
 		}
 		SwaggerVO vo = null;
 
-		if (null != swaggerCloneDetails.getRevision() || "" != swaggerCloneDetails.getRevision()) {
+		if (null != swaggerCloneDetails.getRevision()) {
 			vo = baseRepository.findOne("swaggerId", swaggerCloneDetails.getCurrentSwaggerID(), "revision", swaggerCloneDetails.getRevision(), SwaggerVO.class);
 		} else {
 			vo = getSwagger(swaggerCloneDetails.getCurrentSwaggerID(), null);
@@ -3467,29 +3476,25 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
 					"Swagger-1001");
 		}
-		vo.setName(swaggerCloneDetails.getName());
-		vo.setDescription(swaggerCloneDetails.getDescription());
-		String swaggerId = UUID.randomUUID().toString().replaceAll("-", "");
-		vo.setRevision(1);
-		vo.setSwaggerId(swaggerId);
-		ObjectMapper objMapper = new ObjectMapper();
-		JsonNode jsonNode = objMapper.readTree(vo.getSwagger());
-		((ObjectNode) jsonNode).put("basePath", swaggerCloneDetails.getBasePath());
-		SwaggerVO clonedSwaggerVo = baseRepository.save(vo);
-		isSwaggerCloneSuccess  = clonedSwaggerVo != null ? true : false;
+
+		SwaggerVO newSwaggerForClone = new SwaggerVO();
+		SwaggerUtil.copyAllSwaggerFields(newSwaggerForClone, vo);
+		SwaggerUtil.setCloneDetailsFromReq(newSwaggerForClone, swaggerCloneDetails);
+		isSwaggerCloneSuccess = baseRepository.save(newSwaggerForClone) != null ? true : false;
 		return isSwaggerCloneSuccess;
 	}
 
-	private boolean cloneSwagger3(SwaggerCloneDetails swaggerCloneDetails, boolean isSwaggerCloneSuccess) throws ItorixException {
+	private boolean cloneSwagger3(SwaggerCloneDetails swaggerCloneDetails) throws ItorixException {
+		boolean isSwaggerCloneSuccess;
 		//Check Swagger Already Exists with the same name of clone
 		Swagger3VO swaggerObj = getSwagger3(swaggerCloneDetails.getName(), null);
 		if (swaggerObj != null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1003")),
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1003"), swaggerCloneDetails.getName()),
 					"Swagger-1003");
 		}
 
 		Swagger3VO vo = null;
-		if (null != swaggerCloneDetails.getRevision() || "" != swaggerCloneDetails.getRevision()) {
+		if (null != swaggerCloneDetails.getRevision()) {
 			vo = baseRepository.findOne("swaggerId", swaggerCloneDetails.getCurrentSwaggerID(), "revision", swaggerCloneDetails.getRevision(), Swagger3VO.class);
 		} else {
 			vo = getSwagger3(swaggerCloneDetails.getCurrentSwaggerID(), null);
@@ -3500,13 +3505,10 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					"Swagger-1001");
 		}
 
-		vo.setName(swaggerCloneDetails.getName());
-		vo.setDescription(swaggerCloneDetails.getDescription());
-		vo.setRevision(1);
-		String swaggerId = UUID.randomUUID().toString().replaceAll("-", "");
-		vo.setSwaggerId(swaggerId);
-		Swagger3VO clonedSwaggerVo = baseRepository.save(vo);
-		isSwaggerCloneSuccess = clonedSwaggerVo != null ? true : false;
+		Swagger3VO newSwaggerForClone = new Swagger3VO();
+		SwaggerUtil.copyAllSwaggerFields(newSwaggerForClone, vo);
+		SwaggerUtil.setCloneDetailsFromReq(newSwaggerForClone, swaggerCloneDetails);
+		isSwaggerCloneSuccess = baseRepository.save(newSwaggerForClone) != null ? true : false;
 		return isSwaggerCloneSuccess;
 	}
 }
