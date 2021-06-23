@@ -319,8 +319,8 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 
 	@Override
 	@UnSecure
-	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/users/sessions")
-	public ResponseEntity<Void> removeUserSessions(
+	public @ResponseBody ResponseEntity<Void> removeUserSessions(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value="interactionid",required=false)String interactionid,
 			@RequestHeader(value="x-apikey")String apikey) {
 		identityManagementDao.removeUserSessions();
