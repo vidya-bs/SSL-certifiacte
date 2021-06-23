@@ -10,6 +10,7 @@ import com.itorix.apiwiz.design.studio.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,12 +42,14 @@ import io.swagger.models.Swagger;
  *associated-products
  */
 public interface SwaggerService {
-
+	
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('BASIC','PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/puls")
 	public String checkPuls(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, HttpServletRequest request,
 			HttpServletResponse response);
 
+	@PreAuthorize("hasAnyAuthority('BASIC','PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/import")
 	public ResponseEntity<Object> importSwaggers(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -76,6 +79,7 @@ public interface SwaggerService {
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Swagger Created sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('BASIC','PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}")
 	public ResponseEntity<Void> createSwagger(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -99,6 +103,7 @@ public interface SwaggerService {
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Swagger Created sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class) })
+	@PreAuthorize(" hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/revisions")
 	public ResponseEntity<Void> createSwaggerWithNewRevision(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -185,6 +190,7 @@ public interface SwaggerService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/history", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getListOfSwaggerDetails(
@@ -332,6 +338,7 @@ public interface SwaggerService {
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/status")
 	public ResponseEntity<Void> updateStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -354,6 +361,7 @@ public interface SwaggerService {
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/roles")
 	public ResponseEntity<Object> getRoles(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -455,6 +463,7 @@ public interface SwaggerService {
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/deprecate")
 	public ResponseEntity<Object> deprecate(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -480,6 +489,7 @@ public interface SwaggerService {
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/proxies")
 	public ResponseEntity<Void> updateProxies(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -528,6 +538,7 @@ public interface SwaggerService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = XmlSchemaVo.class, responseContainer = "List"),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/genaratexpath", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> genarateXpath(
@@ -552,6 +563,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "GenarateSwaggerDefinations", notes = "", code = 201)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/definitions", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> genarateSwaggerDefinations(
@@ -577,6 +589,7 @@ public interface SwaggerService {
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/jsondefinitions", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> genarateSwaggerJsonDefinations(
@@ -602,6 +615,7 @@ public interface SwaggerService {
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/revisions/{revision}/review")
 	public ResponseEntity<Void> createReview(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -624,6 +638,7 @@ public interface SwaggerService {
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/reviews")
 	public ResponseEntity<Void> createReviewComment(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -644,6 +659,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "Update Review Comment", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/reviews")
 	public ResponseEntity<Void> updateReviewComment(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -666,6 +682,7 @@ public interface SwaggerService {
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
 			@ApiResponse(code = 404, message = "No records found for selected review id - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/reviews/{reviewid}/comment")
 	public ResponseEntity<Void> reviewCommentReplay(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -691,6 +708,7 @@ public interface SwaggerService {
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/revisions/{revision}/reviews")
 	public ResponseEntity<Object> getReviewComment(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -715,6 +733,7 @@ public interface SwaggerService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams/stats")
 	public ResponseEntity<Object> getTeamStats(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -763,6 +782,7 @@ public interface SwaggerService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swagger-gen/servers/{framework}", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<ResponseCode> genrateServer(
@@ -811,6 +831,7 @@ public interface SwaggerService {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/associated-products")
 	public ResponseEntity<Set<String>> getAssoiatedProducts(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -833,6 +854,7 @@ public interface SwaggerService {
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content"),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/teams/{teamname}/associate-projects")
 	public ResponseEntity<Void> assoiateTeamsToProject(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -855,6 +877,7 @@ public interface SwaggerService {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams/{teamname}/associated-projects")
 	public ResponseEntity<Set<String>> getassoiateTeamsToProjects(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -876,6 +899,7 @@ public interface SwaggerService {
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content"),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/associated-portfolio")
 	public ResponseEntity<Void> assoiatePortfolio(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -898,6 +922,7 @@ public interface SwaggerService {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/associated-portfolio")
 	public ResponseEntity<Set<String>> getAssoiatedPortfolios(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -966,6 +991,7 @@ public interface SwaggerService {
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Create or update git Integration", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swagger-id}/git-integrations")
 	public ResponseEntity<Void> createOrUpdateGitIntegrations(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -979,6 +1005,7 @@ public interface SwaggerService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swagger-id}/git-integrations")
 	public ResponseEntity<SwaggerIntegrations> getGitIntegrations(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1003,6 +1030,7 @@ public interface SwaggerService {
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Ok", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swagger-id}/git-integrations")
 	public ResponseEntity<Void> deleteGitIntegrations(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
