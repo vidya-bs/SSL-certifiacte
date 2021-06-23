@@ -99,7 +99,7 @@ public interface ApiMonitorService {
 			@PathVariable(value = "requestId") String requestId, @RequestHeader(value = "JSESSIONID") String jsessionid)
 					throws Exception;
 
-	@PreAuthorize("hasAnyRole('hasAnyAuthority('TEAM','ENTERPRISE')" )
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = {
 			RequestMethod.GET }, value = "/v1/monitor/collections/{collectionId}/requests/{requestId}/schedulers/{schedulerId}", produces = {
 	"application/json" })
@@ -109,7 +109,7 @@ public interface ApiMonitorService {
 			@RequestParam("date") @DateTimeFormat(pattern = "MM-dd-yyyy") Date date,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
-	@PreAuthorize("hasAnyRole('hasAnyAuthority('TEAM','ENTERPRISE')" )
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = {
 			RequestMethod.GET }, value = "/v1/monitor/collections/{collectionId}/requests/{requestId}/events/{eventId}", produces = {
 	"application/json" })
@@ -128,7 +128,7 @@ public interface ApiMonitorService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, HttpServletRequest request,
 			HttpServletResponse response) throws JsonProcessingException, ItorixException;
 
-	@PreAuthorize("hasAnyRole('hasAnyAuthority('TEAM','ENTERPRISE')" )
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/monitor/variables/{id}", produces = {
 	"application/json" })
 	public ResponseEntity<?> getVariables(
