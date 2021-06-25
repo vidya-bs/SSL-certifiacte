@@ -190,14 +190,14 @@ public interface ProxyStudio {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, HttpServletRequest request,
 			HttpServletResponse response) throws Exception ;
 
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{Proxy}/revisions/{Revision}/getassociatedproxy", produces = {
-	"application/json" })
-	public ResponseEntity<?> getProxies(
-			@PathVariable("Proxy") String proxy,
-			@PathVariable("Revision") String revision,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+//	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
+//	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{Proxy}/revisions/{Revision}/getassociatedproxy", produces = {
+//	"application/json" })
+//	public ResponseEntity<?> getProxies(
+//			@PathVariable("Proxy") String proxy,
+//			@PathVariable("Revision") String revision,
+//			@RequestHeader(value = "interactionid", required = false) String interactionid,
+//			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
 	@UnSecure
 	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )

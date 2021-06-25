@@ -2141,16 +2141,22 @@ public class SwaggerServiceImpl implements SwaggerService {
 		return new ResponseEntity<Void>(httpStatus);
 	}
 	
-//	@Override
-//	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swagger}/revisions/{revision}/getassociatedproxy", produces = {
-//	"application/json" })
-//	public ResponseEntity<?> getProxies(
-//			@PathVariable("swagger") String swagger,
-//			@PathVariable("revision") String revision,
-//			@RequestHeader(value = "interactionid", required = false) String interactionid,
-//			@RequestHeader(value = "JSESSIONID") String jsessionid,
-//			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas) throws Exception {
-//		return new ResponseEntity<Object> ("" , HttpStatus.OK);
-//	}
-
+	@Override
+	public ResponseEntity<?> getProxies(
+			@PathVariable("swagger") String swagger,
+			@PathVariable("revision") String revision,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas) throws Exception {
+		return new ResponseEntity<Object> (swaggerBusiness.getProxies(swagger, oas) , HttpStatus.OK);
+	}
+	
+	@Override
+	public ResponseEntity<?> managePartnerGroup(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody List<SwaggerPartner> swaggerPartnerList) throws Exception{
+		return new ResponseEntity<Object> (HttpStatus.NO_CONTENT);
+	}
+	
 }

@@ -282,14 +282,14 @@ public class ProxyStudioImpl implements ProxyStudio {
 		return new ResponseEntity<>(codeGenService.getCategories(), HttpStatus.OK);
 	}
 
-	@Override
-	public ResponseEntity<?> getProxies(
-			@PathVariable("Proxy") String proxy,
-			@PathVariable("Revision") String revision,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
-		return new ResponseEntity<> (codeGenService.getProxies(proxy,revision) , HttpStatus.OK);
-	}
+//	@Override
+//	public ResponseEntity<?> getProxies(
+//			@PathVariable("Proxy") String proxy,
+//			@PathVariable("Revision") String revision,
+//			@RequestHeader(value = "interactionid", required = false) String interactionid,
+//			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
+//		return new ResponseEntity<> (codeGenService.getProxies(proxy,revision) , HttpStatus.OK);
+//	}
 
 	@UnSecure
 	@Override

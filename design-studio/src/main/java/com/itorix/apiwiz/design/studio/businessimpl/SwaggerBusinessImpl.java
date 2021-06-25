@@ -67,6 +67,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.itorix.apiwiz.common.model.SearchItem;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyData;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.Date.DateUtil;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
@@ -3510,5 +3511,21 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		SwaggerUtil.setCloneDetailsFromReq(newSwaggerForClone, swaggerCloneDetails);
 		isSwaggerCloneSuccess = baseRepository.save(newSwaggerForClone) != null ? true : false;
 		return isSwaggerCloneSuccess;
+	}
+	
+	public List<String> getProxies(String swagger, String oas){
+		List<String> proxyNames = new ArrayList<String>();
+ 		Query query = new Query();
+	    query.addCriteria(Criteria.where("codeGenHistory")
+	    		.elemMatch(Criteria.where("proxy.buildProxyArtifact").is(swagger)
+	                    .and("proxy.oas").is(oas)));
+	    query.fields().include("proxyName");
+	    List<ProxyData> proxies  = mongoTemplate.find(query, ProxyData.class);
+	    if(null != proxies)
+	    {
+	    	for(ProxyData proxy : proxies)
+	    		proxyNames.add(proxy.getProxyName());
+	    }
+		return proxyNames;
 	}
 }

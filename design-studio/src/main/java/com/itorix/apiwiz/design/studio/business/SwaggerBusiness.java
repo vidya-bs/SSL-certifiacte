@@ -641,4 +641,6 @@ public interface SwaggerBusiness {
     public String getSwaggerInfo(String jsessionid, String swaggerid, String oas);
 
 	public boolean cloneSwagger(SwaggerCloneDetails swaggerCloneDetails, String oas);
+	
+	public List<String> getProxies(String swagger, String oas);
 }

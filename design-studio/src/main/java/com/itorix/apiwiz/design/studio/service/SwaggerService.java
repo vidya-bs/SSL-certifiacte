@@ -1053,14 +1053,24 @@ public interface SwaggerService {
 			@RequestBody SwaggerCloneDetails swaggerCloneDetails)
 			throws Exception;
 
-//	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swagger}/revisions/{revision}/getassociatedproxy", produces = {
-//	"application/json" })
-//	public ResponseEntity<?> getProxies(
-//			@PathVariable("swagger") String swagger,
-//			@PathVariable("revision") String revision,
-//			@RequestHeader(value = "interactionid", required = false) String interactionid,
-//			@RequestHeader(value = "JSESSIONID") String jsessionid,
-//			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas) throws Exception;
+	@ApiOperation(value = "Get proxies associated to swagger", notes = "", code = 204)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = Void.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swagger}/revisions/{revision}/getassociatedproxy", produces = {
+	"application/json" })
+	public ResponseEntity<?> getProxies(
+			@PathVariable("swagger") String swagger,
+			@PathVariable("revision") String revision,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas) throws Exception;
+	
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/partner-groups", produces = {
+	"application/json" })
+	public ResponseEntity<?> managePartnerGroup(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody List<SwaggerPartner> swaggerPartnerList) throws Exception;
 
-
+	
 }
