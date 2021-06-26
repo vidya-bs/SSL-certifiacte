@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -472,23 +473,32 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Object> getListOfSwaggerDetails(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
 			@RequestParam(value = "swagger", required = false) String swagger,
-			@RequestParam(value = "status", required = false) String status) throws Exception {
-		// offset = offset == null? 0: offset;
-		if (oas == null || oas.trim().equals(""))
-			oas = "2.0";
+			@RequestParam(value = "status", required = false) String status,
+			@RequestParam(value = "product", required = false) String product) throws Exception {
 		String json = "";
+		List<String> products = null;
+		if(null != product ){
+			products = Arrays.asList(product.split(","));
+		}
 		if (oas.equals("2.0")) {
-			SwaggerHistoryResponse response = swaggerBusiness.getListOfSwaggerDetails(status, interactionid, jsessionid, offset, oas, swagger, pageSize);
+			SwaggerHistoryResponse response;
+			if(null != products )
+				response = 	swaggerBusiness.getSwaggerDetailsByproduct(products, interactionid, jsessionid, offset, oas, swagger, pageSize);
+			else
+				response = swaggerBusiness.getListOfSwaggerDetails(status, interactionid, jsessionid, offset, oas, swagger, pageSize);
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.setSerializationInclusion(Include.NON_NULL);
 			json = mapper.writeValueAsString(response);
 		} else if (oas.equals("3.0")) {
-			SwaggerHistoryResponse response = swaggerBusiness.getListOfSwagger3Details(status, interactionid,
-					jsessionid, offset, oas, swagger, pageSize);
+			SwaggerHistoryResponse response;
+			if(null != products )
+				response = 	swaggerBusiness.getSwaggerDetailsByproduct(products, interactionid, jsessionid, offset, oas, swagger, pageSize);
+			else
+				response = swaggerBusiness.getListOfSwagger3Details(status, interactionid, jsessionid, offset, oas, swagger, pageSize);
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.setSerializationInclusion(Include.NON_NULL);
 			json = mapper.writeValueAsString(response);
@@ -513,20 +523,19 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Object> getListOfPublishedSwaggerDetails(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@RequestParam(value = "status", required = false) String status) throws Exception {
-		if (oas == null || oas.trim().equals(""))
-			oas = "2.0";
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+			@RequestParam(value = "status", required = false) String status,
+			@RequestParam(value = "partnerID", required = false) String partnerID) throws Exception {
+		
 		String json = "";
-		ArrayNode node = swaggerBusiness.getListOfPublishedSwaggerDetails(interactionid, jsessionid, status);
-		ArrayNode node3 = swaggerBusiness.getListOfPublishedSwagger3Details(interactionid, jsessionid, status);
+		ArrayNode node = swaggerBusiness.getListOfPublishedSwaggerDetails(interactionid, jsessionid, status, partnerID);
+		ArrayNode node3 = swaggerBusiness.getListOfPublishedSwagger3Details(interactionid, jsessionid, status, partnerID);
 		if (node3 != null && node3.size() > 0)
 			for (JsonNode nodeElement : node3)
 				node.add(nodeElement);
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setSerializationInclusion(Include.NON_NULL);
 		json = mapper.writeValueAsString(node);
-		
 		return new ResponseEntity<Object>(json, HttpStatus.OK);
 	}
 
@@ -2152,11 +2161,39 @@ public class SwaggerServiceImpl implements SwaggerService {
 	}
 	
 	@Override
-	public ResponseEntity<?> managePartnerGroup(
+	public ResponseEntity<?> managePartnerGroups(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody List<SwaggerPartner> swaggerPartnerList) throws Exception{
+			@RequestBody SwaggerPartnerRequest swaggerPartnerList) throws Exception{
+		swaggerBusiness.managePartners(swaggerPartnerList.getPartners());
 		return new ResponseEntity<Object> (HttpStatus.NO_CONTENT);
 	}
 	
+	@Override
+	public ResponseEntity<?> getPartnerGroups(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception{
+		return new ResponseEntity<Object> (swaggerBusiness.getPartners(),HttpStatus.OK);
+	}
+	
+	@Override
+	public ResponseEntity<?> manageSwaggerPartners(
+			@PathVariable("swaggerId") String swaggerId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+			@RequestBody AsociateSwaggerPartnerRequest swaggerPartnerRequest) throws Exception{
+		swaggerBusiness.associatePartners(swaggerId, oas, swaggerPartnerRequest.getPartners());
+		return new ResponseEntity<Object> (HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	public ResponseEntity<?> getSwaggerPartners(
+			@PathVariable("swaggerId") String swaggerId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas) throws Exception{
+		return new ResponseEntity<Object> (swaggerBusiness.getAssociatedPartners(swaggerId, oas),HttpStatus.OK);
+	}
+
 }

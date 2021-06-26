@@ -189,6 +189,19 @@ public interface SwaggerBusiness {
 			int offset, String oas, String swagger, int pageSize) throws ItorixException, JsonProcessingException, IOException;
 
 	/**
+	 * getSwaggerDetailsByproduct
+	 * 
+	 * @param interactionid
+	 * @param jsessionid
+	 * @return
+	 * @throws IOException
+	 * @throws JsonProcessingException
+	 */
+	public SwaggerHistoryResponse getSwaggerDetailsByproduct(List<String> products, String interactionid, String jsessionid,
+			int offset, String oas, String swagger, int pageSize) throws ItorixException, JsonProcessingException, IOException;
+
+	
+	/**
 	 * getSwaggerCount
 	 * 
 	 * @param status
@@ -227,7 +240,7 @@ public interface SwaggerBusiness {
 	 * @throws JsonProcessingException
 	 */
 
-	public ArrayNode getListOfPublishedSwaggerDetails(String interactionid, String jsessionid, String status)
+	public ArrayNode getListOfPublishedSwaggerDetails(String interactionid, String jsessionid, String status, String partnerId)
 			throws ItorixException, JsonProcessingException, IOException;
 
 	/**
@@ -240,7 +253,7 @@ public interface SwaggerBusiness {
 	 * @throws IOException
 	 * @throws JsonProcessingException
 	 */
-	public ArrayNode getListOfPublishedSwagger3Details(String interactionid, String jsessionid, String status)
+	public ArrayNode getListOfPublishedSwagger3Details(String interactionid, String jsessionid, String status, String partnerId)
 			throws ItorixException, JsonProcessingException, IOException;
 
 	/**
@@ -643,4 +656,14 @@ public interface SwaggerBusiness {
 	public boolean cloneSwagger(SwaggerCloneDetails swaggerCloneDetails, String oas);
 	
 	public List<String> getProxies(String swagger, String oas);
+	
+	public void managePartners(List<SwaggerPartner> partners);
+	
+	public List<SwaggerPartner> getPartners();
+	
+	public  void associatePartners(String swaggerId, String oas, List<String> partners);
+	
+	public  List<String> getAssociatedPartners(String swaggerId, String oas);
+	
+	
 }

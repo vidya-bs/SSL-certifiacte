@@ -56,7 +56,8 @@ public class SwaggerVO extends AbstractObject {
     private String scm_type;
 
     private String scm_password;
-
+    
+    private List<String> partners;
 
 	public Integer getRevision() {
 		return revision;
@@ -248,6 +249,14 @@ public class SwaggerVO extends AbstractObject {
 
 	public void setSwaggerId(String swaggerId) {
 		this.swaggerId = swaggerId;
+	}
+
+	public List<String> getPartners() {
+		return partners;
+	}
+
+	public void setPartners(List<String> partners) {
+		this.partners = partners;
 	}
 	
 	

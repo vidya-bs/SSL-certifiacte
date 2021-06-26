@@ -200,7 +200,8 @@ public interface SwaggerService {
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
 			@RequestParam(value = "swagger", required = false) String swagger,
-			@RequestParam(value = "status", required = false) String status) throws Exception;
+			@RequestParam(value = "status", required = false) String status,
+			@RequestParam(value = "product", required = false) String product) throws Exception;
 
 	/**
 	 * We will get when the swagger state is published.
@@ -219,7 +220,8 @@ public interface SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
-			@RequestParam(value = "status", required = false) String status) throws Exception;
+			@RequestParam(value = "status", required = false) String status,
+			@RequestParam(value = "partnerID", required = false) String partnerID) throws Exception;
 
 	/**
 	 * We need to pass the particular swagger name and we will get the
@@ -1067,10 +1069,32 @@ public interface SwaggerService {
 	
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/partner-groups", produces = {
 	"application/json" })
-	public ResponseEntity<?> managePartnerGroup(
+	public ResponseEntity<?> managePartnerGroups(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody List<SwaggerPartner> swaggerPartnerList) throws Exception;
+			@RequestBody SwaggerPartnerRequest swaggerPartnerList) throws Exception;
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/partner-groups", produces = {
+	"application/json" })
+	public ResponseEntity<?> getPartnerGroups(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggerId}/associate-partner", produces = {
+	"application/json" })
+	public ResponseEntity<?> manageSwaggerPartners(
+			@PathVariable("swaggerId") String swaggerId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+			@RequestBody AsociateSwaggerPartnerRequest swaggerPartnerRequest) throws Exception;
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggerId}/associate-partner", produces = {
+	"application/json" })
+	public ResponseEntity<?> getSwaggerPartners(
+			@PathVariable("swaggerId") String swaggerId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas) throws Exception;
 	
 }
