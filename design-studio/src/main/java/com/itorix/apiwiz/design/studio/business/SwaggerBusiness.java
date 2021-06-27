@@ -185,8 +185,8 @@ public interface SwaggerBusiness {
 	 * @throws IOException
 	 * @throws JsonProcessingException
 	 */
-	public SwaggerHistoryResponse getListOfSwaggerDetails(String status, String interactionid, String jsessionid,
-			int offset, String oas, String swagger, int pageSize) throws ItorixException, JsonProcessingException, IOException;
+	public SwaggerHistoryResponse getListOfSwaggerDetails(String status, String modifiedDate, String interactionid, String jsessionid,
+			int offset, String oas, String swagger, int pageSize, String sortByModfiedDate) throws ItorixException, JsonProcessingException, IOException;
 
 	/**
 	 * getSwaggerCount
@@ -213,8 +213,8 @@ public interface SwaggerBusiness {
 	 * @throws IOException
 	 * @throws JsonProcessingException
 	 */
-	public SwaggerHistoryResponse getListOfSwagger3Details(String status, String interactionid, String jsessionid,
-			int offset, String oas, String swagger, int pageSize) throws ItorixException, JsonProcessingException, IOException;
+	public SwaggerHistoryResponse getListOfSwagger3Details(String status, String modifiedDate, String interactionid, String jsessionid,
+			int offset, String oas, String swagger, int pageSize, String sortByModifiedDate) throws ItorixException, JsonProcessingException, IOException;
 
 	/**
 	 * getListOfPublishedSwaggerDetails

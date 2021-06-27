@@ -476,19 +476,21 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
 			@RequestParam(value = "swagger", required = false) String swagger,
-			@RequestParam(value = "status", required = false) String status) throws Exception {
+			@RequestParam(value = "status", required = false) String status,
+			@RequestParam(value ="modifieddate", required = false) String modifiedDate,
+			@RequestParam(value ="sortbymodifieddate", required = false) String sortByModifiedDate) throws Exception {
 		// offset = offset == null? 0: offset;
 		if (oas == null || oas.trim().equals(""))
 			oas = "2.0";
 		String json = "";
 		if (oas.equals("2.0")) {
-			SwaggerHistoryResponse response = swaggerBusiness.getListOfSwaggerDetails(status, interactionid, jsessionid, offset, oas, swagger, pageSize);
+			SwaggerHistoryResponse response = swaggerBusiness.getListOfSwaggerDetails(status, modifiedDate, interactionid, jsessionid, offset, oas, swagger, pageSize, sortByModifiedDate);
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.setSerializationInclusion(Include.NON_NULL);
 			json = mapper.writeValueAsString(response);
 		} else if (oas.equals("3.0")) {
-			SwaggerHistoryResponse response = swaggerBusiness.getListOfSwagger3Details(status, interactionid,
-					jsessionid, offset, oas, swagger, pageSize);
+			SwaggerHistoryResponse response = swaggerBusiness.getListOfSwagger3Details(status, modifiedDate, interactionid,
+					jsessionid, offset, oas, swagger, pageSize, sortByModifiedDate);
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.setSerializationInclusion(Include.NON_NULL);
 			json = mapper.writeValueAsString(response);

@@ -1,13 +1,13 @@
 package com.itorix.apiwiz.identitymanagement.dao;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -18,6 +18,9 @@ import com.mongodb.WriteResult;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.result.DeleteResult;
+
+import static com.itorix.apiwiz.identitymanagement.model.Constants.SWAGGER_PROJECTION_FIELDS;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Component
 public class BaseRepository {
@@ -166,6 +169,38 @@ public class BaseRepository {
 	    list.add(cursor.next());
 		}
 		return list;
+	}
+
+	public List<String> filterAndGroupBySwaggerName(Map<String, Object> filterFieldsAndValues, Class<?> clazz) {
+		ArrayList<String> names = new ArrayList();
+		ProjectionOperation projectRequiredFields = project(SWAGGER_PROJECTION_FIELDS).
+				andExpression("toDate(mts)").as("mtsToDate");
+
+		ProjectionOperation dateToString = Aggregation.project(SWAGGER_PROJECTION_FIELDS)
+				.and("mtsToDate")
+				.dateAsFormattedString("%m%d%Y")
+				.as("modified_date");
+
+		GroupOperation groupByName = group("name");
+
+		MatchOperation match = getMatchOperation(filterFieldsAndValues);
+
+		AggregationResults<Document> results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, match, groupByName), clazz, Document.class);
+		results.getMappedResults().forEach( d -> names.add(d.getString("_id")));
+		return names;
+	}
+
+	private MatchOperation getMatchOperation(Map<String, Object> filterFieldsAndValues) {
+		List<Criteria> criteriaList = new ArrayList<>();
+		filterFieldsAndValues.forEach((k, v) -> {
+			if (null != v) {
+				criteriaList.add(Criteria.where(k).is(v));
+			}
+		});
+
+		Criteria criteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()]));
+		MatchOperation match = match(criteria);
+		return match;
 	}
 
 }

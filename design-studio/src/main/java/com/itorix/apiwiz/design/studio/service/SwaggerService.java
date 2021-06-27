@@ -200,7 +200,9 @@ public interface SwaggerService {
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
 			@RequestParam(value = "swagger", required = false) String swagger,
-			@RequestParam(value = "status", required = false) String status) throws Exception;
+			@RequestParam(value = "status", required = false) String status,
+			@RequestParam(value ="modifieddate", required = false) String modifiedDate,
+			@RequestParam(value ="sortbymodifieddate", required = false) String sortByModifiedDate) throws Exception;
 
 	/**
 	 * We will get when the swagger state is published.

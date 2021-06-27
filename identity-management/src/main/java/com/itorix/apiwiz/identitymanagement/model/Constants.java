@@ -17,5 +17,7 @@ public class Constants {
 	public final static long MILLIS_PER_DAY = 24 * 60 * 60 * 1000L;
 	
 	public static final String USER_REGISTR_PAGE= "session/register";
+
+	public static final String[] SWAGGER_PROJECTION_FIELDS= new String[] {"swaggerId", "name", "status", "mts", "revision", "createdUserName"};
 	
 }

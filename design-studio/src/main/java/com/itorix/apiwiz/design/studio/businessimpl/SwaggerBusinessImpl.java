@@ -733,10 +733,14 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	 * @throws JsonProcessingException
 	 */
 	@SuppressWarnings("unchecked")
-	public SwaggerHistoryResponse getListOfSwaggerDetails(String status, String interactionid, String jsessionid,int offset, String oas, String swagger, int pageSize)
+	public SwaggerHistoryResponse getListOfSwaggerDetails(String status, String modifiedDate, String interactionid, String jsessionid,int offset, String oas, String swagger, int pageSize, String sortByModifiedDate)
 			throws ItorixException, JsonProcessingException, IOException {
 		log("getListOfSwaggerDetails", interactionid, jsessionid);
 		//		getSwaggers();
+		Map<String, Object> filterFieldsAndValues = new HashMap<>();
+		filterFieldsAndValues.put("status", status);
+		filterFieldsAndValues.put("modified_date", modifiedDate);
+
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		User user = getUserDetailsFromSessionID(jsessionid);
 		boolean isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
@@ -745,11 +749,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		List<SwaggerVO> list = new ArrayList<SwaggerVO>();
 		SwaggerHistoryResponse response = new SwaggerHistoryResponse();
 		List<String> names = new ArrayList<String>();
-		if(swagger == null){
-			names = trimList(baseRepository.findDistinctValuesByColumnName(SwaggerVO.class, "name"),offset, pageSize);
-			if(status != null){
-				names =  trimList(getList(mongoTemplate.getCollection(mongoTemplate.getCollectionName(SwaggerVO.class)).distinct("name", new Query(new Criteria("status").is(status)).getQueryObject(), String.class)),offset, pageSize);
-			}
+		if(swagger == null) {
+			names = trimList(baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues, SwaggerVO.class), offset, pageSize);
 		}else{
 			try{
 				SwaggerVO swaggervo = getSwagger(swagger, interactionid);
@@ -815,7 +816,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("2.0", user);
 			Set<String> SwaggerNames = new HashSet<>();
 			SwaggerNames.addAll(swaggerRoles.keySet());
-			List<String> trimList = trimList(baseRepository.findDistinctValuesByColumnNameWherecreatedBy(SwaggerVO.class, "name",user.getId()),offset, pageSize);
+			filterFieldsAndValues.put("createdBy", user.getId());
+			List<String> trimList = trimList(baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues, SwaggerVO.class),offset, pageSize);
 			SwaggerNames.addAll(trimList);
 			if(swagger != null){
 				if(SwaggerNames.contains(swagger)){
@@ -869,6 +871,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				response.setData(list);
 			}
 		}
+		sortSwaggerResponseByModifiedDate(sortByModifiedDate, list);
 		log("getListOfSwaggerDetails", interactionid, list);
 		return response;
 	}
@@ -919,9 +922,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	 * @throws JsonProcessingException
 	 */
 	@SuppressWarnings("unchecked")
-	public SwaggerHistoryResponse getListOfSwagger3Details(String status, String interactionid, String jsessionid, int offset, String oas, String swagger, int pageSize)
+	public SwaggerHistoryResponse getListOfSwagger3Details(String status, String modifiedDate, String interactionid, String jsessionid, int offset, String oas, String swagger, int pageSize, String sortByModifiedDate)
 			throws ItorixException, JsonProcessingException, IOException {
 		log("getListOfSwaggerDetails", interactionid, jsessionid);
+		Map<String, Object> filterFieldsAndValues = new HashMap<>();
+		filterFieldsAndValues.put("status", status);
+		filterFieldsAndValues.put("modified_date", modifiedDate);
 
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		User user = getUserDetailsFromSessionID(jsessionid);
@@ -931,11 +937,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		List<Swagger3VO> list = new ArrayList<Swagger3VO>();
 		SwaggerHistoryResponse response = new SwaggerHistoryResponse();
 		List<String> names = new ArrayList<String>();
-		if(swagger == null){
-			names = trimList(baseRepository.findDistinctValuesByColumnName(Swagger3VO.class, "name"),offset, pageSize);
-			if(status != null){
-				names =  trimList(getList(mongoTemplate.getCollection(mongoTemplate.getCollectionName(SwaggerVO.class)).distinct("name", new Query(new Criteria("status").is(status)).getQueryObject(), String.class)),offset, pageSize);
-			}
+		if(swagger == null) {
+			names = trimList(baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues, Swagger3VO.class), offset, pageSize);
 		}else{
 			try{
 			Swagger3VO swaggervo = getSwagger3(swagger, interactionid);
@@ -994,10 +997,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			response.setPagination(pagination);
 			response.setData(list);
 		} else {
+			filterFieldsAndValues.put("createdBy", user.getId());
 			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("3.0", user);
 			Set<String> SwaggerNames = new HashSet<>();
 			SwaggerNames.addAll(swaggerRoles.keySet());
-			List<String> trimList = trimList(baseRepository.findDistinctValuesByColumnNameWherecreatedBy(SwaggerVO.class, "name",user.getId()),offset, pageSize);
+			List<String> trimList = trimList(baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues, Swagger3VO.class),offset, pageSize);
 			SwaggerNames.addAll(trimList);
 			if(swagger != null){
 				if(SwaggerNames.contains(swagger)){
@@ -1056,7 +1060,36 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			}
 		}
 		log("getListOfSwaggerDetails", interactionid, list);
+		sortSwagger3ResponseByModifiedDate(sortByModifiedDate, list);
 		return response;
+	}
+
+	private void sortSwagger3ResponseByModifiedDate(String sortByModifiedDate, List<Swagger3VO> list) {
+		if(sortByModifiedDate != null) {
+			if("desc".equalsIgnoreCase(sortByModifiedDate)) {
+				Collections.sort(list, (o1, o2) -> {
+					return o1.getMts() < o2.getMts() ? 1 : (o1.getMts() == o2.getMts() ? 0 : -1);
+				});
+			} else {
+				Collections.sort(list, (o1, o2) -> {
+					return o1.getMts().compareTo(o2.getMts());
+				});
+			}
+		}
+	}
+
+	private void sortSwaggerResponseByModifiedDate(String sortByModifiedDate, List<SwaggerVO> list) {
+		if(sortByModifiedDate != null) {
+			if("desc".equalsIgnoreCase(sortByModifiedDate)) {
+				Collections.sort(list, (o1, o2) -> {
+					return o1.getMts() < o2.getMts() ? 1 : (o1.getMts() == o2.getMts() ? 0 : -1);
+				});
+			} else {
+				Collections.sort(list, (o1, o2) -> {
+					return o1.getMts().compareTo(o2.getMts());
+				});
+			}
+		}
 	}
 
 	private List<SwaggerTeam> getUserTeams(User user){
