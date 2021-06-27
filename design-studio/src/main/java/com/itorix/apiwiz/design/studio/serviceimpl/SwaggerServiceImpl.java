@@ -2135,6 +2135,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	}
 
 
+	@ApiOperation(value = "Get Info of Swagger", notes = "", code = 200)
+	@ApiResponses(value = { @ApiResponse(code=200, message = "Ok", response = Object.class),
+			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/info", produces = { "application/json" })
 	public ResponseEntity<Object> getSwaggerInfo(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
@@ -2145,6 +2148,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 		return new ResponseEntity<Object>(swaggerInfo, HttpStatus.OK);
 	}
 
+	@ApiOperation(value = "Clone existing Swagger. Creates a new clone based on the request details ", notes = "", code = 201)
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Swagger Cloned successfully", response = Void.class),
+			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/clone")
 	public ResponseEntity<?> cloneSwagger(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,

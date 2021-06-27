@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -1043,6 +1044,9 @@ public interface SwaggerService {
 			@PathVariable("swagger-id") String swaggerid)
 			throws Exception;
 
+	@ApiOperation(value = "Get Info of Swagger", notes = "", code = 200)
+	@ApiResponses(value = { @ApiResponse(code=200, message = "Ok", response = Object.class),
+	@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/info", produces = { "application/json" })
 	public ResponseEntity<Object> getSwaggerInfo(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
@@ -1050,6 +1054,9 @@ public interface SwaggerService {
 			@RequestParam("id") String swaggerid)
 			throws Exception;
 
+	@ApiOperation(value = "Clone existing Swagger. Creates a new clone based on the request details ", notes = "", code = 201)
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Swagger Cloned successfully", response = Void.class),
+			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/clone")
 	public ResponseEntity<?> cloneSwagger(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
