@@ -484,9 +484,6 @@ public class SwaggerServiceImpl implements SwaggerService {
 		// offset = offset == null? 0: offset;
 		if (oas == null || oas.trim().equals(""))
 			oas = "2.0";
-
-
-
 		String json = "";
 		List<String> products = null;
 		if(null != product ){
@@ -497,7 +494,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			if(null != products )
 				response = 	swaggerBusiness.getSwaggerDetailsByproduct(products, interactionid, jsessionid, offset, oas, swagger, pageSize);
 			else
-				response = swaggerBusiness.getListOfSwaggerDetails(status, interactionid, jsessionid, offset, oas, swagger, pageSize);
+				response = swaggerBusiness.getListOfSwaggerDetails(status, modifiedDate, interactionid, jsessionid, offset, oas, swagger, pageSize, sortByModifiedDate);
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.setSerializationInclusion(Include.NON_NULL);
 			json = mapper.writeValueAsString(response);
@@ -506,7 +503,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			if(null != products )
 				response = 	swaggerBusiness.getSwaggerDetailsByproduct(products, interactionid, jsessionid, offset, oas, swagger, pageSize);
 			else
-				response = swaggerBusiness.getListOfSwagger3Details(status, interactionid, jsessionid, offset, oas, swagger, pageSize);
+				response = swaggerBusiness.getListOfSwagger3Details(status, modifiedDate, interactionid, jsessionid, offset, oas, swagger, pageSize, sortByModifiedDate);
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.setSerializationInclusion(Include.NON_NULL);
 			json = mapper.writeValueAsString(response);
