@@ -155,7 +155,7 @@ public class TestSuiteDAO {
 			}
 			mongoTemplate.save(variables);
 		} else {
-			throw new ItorixException("Variables exists with same name", "Configuration-1003");
+			throw new ItorixException("Variables exists with same name", "Config-1004");
 		}
 	}
 
@@ -194,7 +194,7 @@ public class TestSuiteDAO {
 						try {
 							header.setValue(new RSAEncryption().encryptText(header.getValue()));
 						} catch (Exception e) {
-							throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100807"), "Testsuite-100807");
+							throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1007"), "Testsuite-1007");
 						}
 					}
 				}
@@ -202,7 +202,7 @@ public class TestSuiteDAO {
 			mongoTemplate.save(variables);
 			return true;
 		} else {
-			throw new ItorixException("No Record exists", "Configuration-1003");
+			throw new ItorixException("No Record exists", "Config-1004");
 		}
 	}
 	private Header getVariable(List<Header> headerVariables, String name){
@@ -270,7 +270,7 @@ public class TestSuiteDAO {
 			mongoTemplate.save(testSuite);
 			return findBytestSuiteName(testSuite.getName()).getId();
 		} else {
-			throw new ItorixException("Test suite exists with same name", "Configuration-1003");
+			throw new ItorixException("Test suite exists with same name", "Config-1004");
 		}
 	}
 
@@ -291,7 +291,7 @@ public class TestSuiteDAO {
 				}
 			}
 		}
-		throw new ItorixException("TestSuite or scenario not available", "Configuration-1003");
+		throw new ItorixException("TestSuite or scenario not available", "Config-1004");
 	}
 
 	public void createScenario(String testsuiteid, Scenario scenario) throws ItorixException {
@@ -307,7 +307,7 @@ public class TestSuiteDAO {
 			}
 			mongoTemplate.save(testSuite);
 		}
-		throw new ItorixException("TestSuite or scenario not available", "Configuration-1003");
+		throw new ItorixException("TestSuite or scenario not available", "Config-1004");
 	}
 
 	public String updateTestSuite(TestSuite testSuite, String testsuiteid) throws ItorixException {
@@ -341,7 +341,7 @@ public class TestSuiteDAO {
 			mongoTemplate.save(testSuite);
 			return testsuiteid;
 		} else {
-			throw new ItorixException("No Record exists", "Configuration-1003");
+			throw new ItorixException("No Record exists", "Config-1004");
 		}
 	}
 
@@ -364,7 +364,7 @@ public class TestSuiteDAO {
 				}
 			}
 		}
-		throw new ItorixException("No Record exists", "Configuration-1003");
+		throw new ItorixException("No Record exists", "Config-1004");
 	}
 
 	public TestSuite getTestSuite(String testsuiteid) {
@@ -532,20 +532,20 @@ public class TestSuiteDAO {
 		Variables variables = null;
 		testSuite = getTestSuite(testSuiteId);
 		if(testSuite == null){
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100804"), "Testsuite-100804");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1004"), "Testsuite-1004");
 		}
 
 		if (!testSuite.getActive()) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100801"), "Testsuite-100801");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1001"), "Testsuite-1001");
 		}
 		variables = getVariablesById(variableId);
 
 		if(variables == null){
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100805"), "Testsuite-100805");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1005"), "Testsuite-1005");
 		}
 		
 		if(!testSuite.hasTestCases()){
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1008008"), "Testsuite-1008008");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-18"), "Testsuite-18");
 		}
 
 		return triggerPipeline(testSuiteId, variableId, testSuite, variables, userName, false, isCron);
@@ -560,7 +560,7 @@ public class TestSuiteDAO {
 					.and("status").is(TestSuiteResponse.STATUSES.SCHEDULED.getValue()));
 			List<TestSuiteResponse> response = mongoTemplate.find(query, TestSuiteResponse.class);
 			if (response != null && response.size() > 0) {
-				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100800"), "Testsuite-100800");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1000"), "Testsuite-1000");
 			}
 		}
 		TestSuiteResponse response = new TestSuiteResponse(testSuiteId, variableId, testSuite, TestSuiteResponse.STATUSES.SCHEDULED.getValue());
@@ -1088,7 +1088,7 @@ public class TestSuiteDAO {
 			// TestSuiteResponse.class);
 			// dashboard = buildDashboard(responses);
 			// } else {
-			// throw new ItorixException("Invalid Date Range", "Configuration-1003");
+			// throw new ItorixException("Invalid Date Range", "Config-1004");
 			// }
 		} else {
 			List<DashboardSummary> summaries = mongoTemplate.findAll(DashboardSummary.class);
@@ -1222,7 +1222,7 @@ public class TestSuiteDAO {
 	public void deleteCertificate(String name) throws ItorixException {
 		if(mongoTemplate.remove(new Query(Criteria.where("name").is(name)),
 				Certificates.class).getDeletedCount() == 0){
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1008005"), "Testsuite-1008005");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1012"), "Testsuite-1012");
 		}
 	}
 
@@ -1246,7 +1246,7 @@ public class TestSuiteDAO {
 				ks.load(new ByteArrayInputStream(jKSFile), password.toCharArray());
 			} catch (NoSuchAlgorithmException | CertificateException | IOException | KeyStoreException e) {
 				log.error("Issue in uploaded certificate", e);
-				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1008002"), "Testsuite-1008002");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1010"), "Testsuite-1010");
 			}
 		}
 

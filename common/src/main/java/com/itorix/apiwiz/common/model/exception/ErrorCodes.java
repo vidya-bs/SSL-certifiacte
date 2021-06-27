@@ -108,7 +108,7 @@ public enum ErrorCodes {
 			put("Identity-1029","Resource authorization validation failed. Please contact your workspace admin..");
 			put("Identity-1030","Request validation failed. Invalid SAML configurations.");
 			put("Identity-1031","Not able to find the loginId provided, please register before login.");
-			put("Identity-1032","User account validation failed. Session-Id is expired.");
+			put("Identity-1032","Request validation failed. Invalid session token.");
 			put("Identity-1033","Required data metadataUrl or metadata file is missing.");
 			put("Identity-1034","Request validation failed. Invalid SAML configurations.");
 			put("Identity-1035","Required data metadataUrl is missing in the SAML configuration.");
@@ -120,7 +120,7 @@ public enum ErrorCodes {
 			put("Identity-1040","Internal server error. Please contact support for further instructions.");
 			put("Identity-1041","Internal server error. Please contact support for further instructions.");
 			put("Identity-1042","Trial period expired. Please contact support to assist you further.");
-
+			put("Identity-1043","Resource authorization validation failed. Please contact your workspace admin.");
 
 			put("PROJECT_PLAN_TRACK_001", "Project already exist");
 			put("ProjectPlan-1001", "Project with name %s does not exists.");
@@ -185,22 +185,23 @@ public enum ErrorCodes {
 			put("ServiceRegistry-1001", "Request validation failed. Record with value %s already exists.");
 			put("ServiceRegistry-1002", "Request validation failed. Resource already exist.");
 
-			put("Testsuite-1","Testsuite execution is already in progress! Can't trigger a new one.");
-			put("Testsuite-2","TestSuite is Paused. Unpause it to run");
-			put("Testsuite-4","TestSuite agent configuration is missing");
-			put("Testsuite-5","Internal error occured during testSuite agent call");
-			put("Testsuite-6","Resource not found. Request validation failed. Please check the mandatory data fields and retry again.t");
-			put("Testsuite-7","Resource not found. Request validation failed. Please check the mandatory data fields and retry again.");
-			put("Testsuite-8","There are no test suites in running status to cancel.");
-			put("Testsuite-9","Error encrypting the data. contact support.");
-			put("Testsuite-10","No certificate found with the data provided.");
-			put("Testsuite-11","Invalid request data!  Missing mandatory data to process the request : missing %s ");
-			put("Testsuite-12","Request validation failed. Not a valid certificate document.");
-			put("Testsuite-14","Error creating SSL connection.");
-			put("Testsuite-15","No certificate found with the data provided.");
-			put("Testsuite-16","Certificate can't be deleted. It is refered in testsuite(s) %s.");
-			put("Testsuite-17","Variable decryption failed.Please contact support");
-			put("Testsuite-18","No testcases peresent in the testsuite to execute.");
+			put("Testsuite-1000","Request validation failed. Testsuite execution is already in progress.");
+			put("Testsuite-1001","Request validation failed. Cannot trigger a testsuite with status paused.");
+			put("Testsuite-1002","Internal server error. Please contact support for further instructions.");
+			put("Testsuite-1003","Internal server error. Please contact support for further instructions.");
+			put("Testsuite-1004","Resource not found. Please check the request and retry again.");
+			put("Testsuite-1005","Resource not found. Please check the request and retry again.");
+			put("Testsuite-1006","Request validation failed. Please select a valid testsuite in running status to cancel.");
+			put("Testsuite-1007","Internal server error. Please contact support for further instructions.");
+			put("Testsuite-1008","No certificate found with the data provided.");
+			put("Testsuite-1009","Resource not found. Please check the request and retry again.");
+			put("Testsuite-1010","Request validation failed. Not a valid certificate document.");
+			put("Testsuite-1011","Internal server error. Please contact support for further instructions.");
+			put("Testsuite-1012","Resource not found. Please check the request and retry again.");
+			put("Testsuite-1013","Request validation failed. Certificate can't be deleted as it is referred in testsuite(s) %s.");
+			put("Testsuite-1014","Variable decryption failed.Please contact support");
+			put("Testsuite-1015","Internal server error. Please contact support for further instructions.");
+			put("Testsuite-1016","Request validation failed. Cannot trigger testsuite.");
 
 			put("Portfolio-1000", "Invalid request data!  Missing mandatory data to process the request.");
 			put("Portfolio-1001","Sorry! No records found for the given Portfolio name  - %s.");
@@ -209,15 +210,15 @@ public enum ErrorCodes {
 			put("Portfolio-1004", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again..");
 			put("Portfolio-1005", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again..");
 			put("Portfolio-1006", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again..");
-			put("Portfolio-1007", "Document not available in the Request, please upload the document.");
-			put("Portfolio-1008", "Invalid request data!  Missing mandatory data to process the request. %s missing");
-			put("Portfolio-1009", "Error while uplading the file please contact the Support.");
-			put("Portfolio-1010", "Required Image file is not available please upload the file before proceding.");
+			put("Portfolio-1007", "Request validation failed. Please check the mandatory data fields and retry again.");
+			put("Portfolio-1008", "Request validation failed. Please check the mandatory data fields and retry again.");
+			put("Portfolio-1009", "Internal server error. Please contact support for further instructions.");
+			put("Portfolio-1010", "Request validation failed. Please check the mandatory data fields and retry again.");
 			put("Portfolio-1011", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again..");
-			put("Portfolio-1012", "Sorry! No records found for the Portfolio and Project combination.");
-			put("Portfolio-1013", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.");
-			put("Portfolio-1014", "Sorry! Record already exist with the Name provided.");
-			put("Portfolio-1015", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.");
+			put("Portfolio-1012", "Resource not found. Please check the request and retry again.");
+			put("Portfolio-1013", "Resource not found. Please check the request and retry again.");
+			put("Portfolio-1014", "Request validation failed. Resource already exist.");
+			put("Portfolio-1015", "Resource not found. Please check the request and retry again.");
 			put("Portfolio-1016", "Internal server error. Please contact support for further instructions.");
 
 			put("Monitor-1000", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again..");
@@ -230,10 +231,10 @@ public enum ErrorCodes {
 
 
 			put("MockServer-1000", "Request validation failed. Mock scenario with similar configuration already exist.");
-			put("MockServer-1001", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again..");
-			put("MockServer-1002", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again..");
+			put("MockServer-1001", "Resource not found. Please check the request and retry again.");
+			put("MockServer-1002", "Resource not found. Please check the request and retry again.");
 			
-			put("Marketing-1000", "File couldn't be stored. Please contact support.");
+			put("Marketing-1000", "Internal server error. Please contact support for further instructions.");
 			
 			put("General-1000", "Sorry! Internal server error. Please try again later.");
 			put("General-1001", "Sorry! Invalid request. Please correct the request and try again.");
@@ -324,6 +325,7 @@ public enum ErrorCodes {
 			put("Identity-1040", 500 );
 			put("Identity-1041", 500 );
 			put("Identity-1042", 403 );
+			put("Identity-1043", 400 );
 			put("Connector-1000", 400 );
 			put("Connector-1001", 400 );
 			put("Connector-1002", 400 );
@@ -368,6 +370,8 @@ public enum ErrorCodes {
 			put("Testsuite-1012", 404 );
 			put("Testsuite-1013", 400 );
 			put("Testsuite-1014", 500 );
+			put("Testsuite-1015", 500 );
+			put("Testsuite-1016", 400 );
 			put("Portfolio-1000", 400 );
 			put("Portfolio-1001", 400 );
 			put("Portfolio-1002", 400 );

@@ -20,11 +20,6 @@
 	</properties>
 
 	<dependencies>
-		<!-- <dependency> <groupId>io.micrometer</groupId> <artifactId>micrometer-core</artifactId> 
-			<optional>true</optional> </dependency> <dependency> <groupId>io.micrometer</groupId> 
-			<artifactId>micrometer-spring-legacy</artifactId> <version>1.0.6</version> 
-			</dependency> <dependency> <groupId>io.micrometer</groupId> <artifactId>micrometer-registry-prometheus</artifactId> 
-			</dependency> -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
@@ -58,9 +53,6 @@
 			<artifactId>spring-cloud-starter-sleuth</artifactId>
 		</dependency>
 
-		<!-- <dependency> <groupId>org.springframework.cloud</groupId> <artifactId>spring-cloud-sleuth-core</artifactId> 
-			<version>1.1.0.RELEASE</version> </dependency> -->
-
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-mongodb</artifactId>
@@ -70,14 +62,12 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-		<!-- <dependency> <groupId>io.micrometer</groupId> <artifactId>micrometer-registry-prometheus</artifactId> 
-			<version>1.1.2</version> </dependency> -->
-
-
+		
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>

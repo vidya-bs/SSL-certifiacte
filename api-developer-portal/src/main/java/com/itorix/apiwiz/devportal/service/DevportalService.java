@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public interface DevportalService {
 	
-	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('TEAM','ENTERPRISE')" )
+	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('PRO','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/organizations/{org}/developers")
 	public ResponseEntity<String> createDeveloper(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,

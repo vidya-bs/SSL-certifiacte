@@ -59,6 +59,11 @@ public class JsessionAuthFilter extends OncePerRequestFilter {
 							authorities);
 					SecurityContextHolder.getContext().setAuthentication(authentication);
 				}
+				else{
+					List<GrantedAuthority> authorities = new ArrayList<>();
+					Authentication authentication = new UsernamePasswordAuthenticationToken("",null,authorities);
+					SecurityContextHolder.getContext().setAuthentication(authentication);
+				}
 			} catch (Exception e) {
 				log.error("error occured durnig setup of authentication ", e);
 			}
