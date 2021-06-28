@@ -184,8 +184,13 @@ public class BaseRepository {
 		GroupOperation groupByName = group("name");
 
 		MatchOperation match = getMatchOperation(filterFieldsAndValues);
+		AggregationResults<Document> results = null;
 
-		AggregationResults<Document> results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, match, groupByName), clazz, Document.class);
+		if(match != null) {
+			results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, match, groupByName), clazz, Document.class);
+		} else {
+			results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, groupByName), clazz, Document.class);
+		}
 		results.getMappedResults().forEach( d -> names.add(d.getString("_id")));
 		return names;
 	}
@@ -199,8 +204,7 @@ public class BaseRepository {
 		});
 
 		Criteria criteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()]));
-		MatchOperation match = match(criteria);
-		return match;
+		return criteriaList.size() > 0 ? match(criteria) : null;
 	}
 
 }

@@ -60,7 +60,7 @@ public class BaseRepositoryTest {
         Query query = new Query();
         List<Criteria> criteriaList = new ArrayList<>();
         Map<String, Object> matchFields = new LinkedHashMap<>();
-        matchFields.put("status", "Draft");
+        //matchFields.put("status", "Draft");
         //matchFields.put("mtsToDate", "05142021");
         matchFields.forEach((k, v) -> {
             criteriaList.add(Criteria.where(k).is(v));
@@ -69,10 +69,15 @@ public class BaseRepositoryTest {
         //Criteria criteria = Criteria.where("status").is("Draft").and("mtsToDate").is("05142021");
         Criteria criteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()]));
 
+
         MatchOperation match = match(criteria);
 
+        System.out.println(match);
 
-        AggregationResults<Document> results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, match, groupByName), SwaggerVO.class, Document.class);
+        AggregationResults<Document> results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, groupByName), SwaggerVO.class, Document.class);
+
+
+        //AggregationResults<Document> results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, match, groupByName), SwaggerVO.class, Document.class);
         System.out.println(results.getMappedResults());
 
         List<String> names = new ArrayList<>();
