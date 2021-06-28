@@ -805,7 +805,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Pagination pagination = new Pagination();
 			int total = 1;
 			if(swagger == null){
-				total = getSwaggerCount(status);
+				total = names.size();
 			}
 			int count = total/pageSize;
 			count = total % pageSize > 0 ? count + 1: count;
@@ -1062,7 +1062,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Pagination pagination = new Pagination();
 			int total = 1;
 			if(swagger == null){
-				total = getSwagger3Count(status);
+				total = names.size();
 			}
 			int count = total/pageSize;
 			count = total % pageSize > 0 ? count + 1: count;
