@@ -27,7 +27,8 @@ public class BaseRepository {
 
 	@Autowired
 	MongoTemplate mongoTemplate;
-	
+	private GroupOperation groupByName = null;
+
 	@SuppressWarnings("unchecked")
 	public <T> T save(T t) {
 		BaseObject obj = (BaseObject) t;
@@ -171,8 +172,10 @@ public class BaseRepository {
 		return list;
 	}
 
-	public List<String> filterAndGroupBySwaggerName(Map<String, Object> filterFieldsAndValues, Class<?> clazz) {
-		ArrayList<String> names = new ArrayList();
+	public List<String> filterAndGroupBySwaggerName(Map<String, Object> filterFieldsAndValues, Class<?> clazz, String sortByModifiedTS) {
+		List<String> names = new LinkedList();
+		AggregationResults<Document> results = null;
+
 		ProjectionOperation projectRequiredFields = project(SWAGGER_PROJECTION_FIELDS).
 				andExpression("toDate(mts)").as("mtsToDate");
 
@@ -181,15 +184,15 @@ public class BaseRepository {
 				.dateAsFormattedString("%m%d%Y")
 				.as("modified_date");
 
-		GroupOperation groupByName = group("name");
 
 		MatchOperation match = getMatchOperation(filterFieldsAndValues);
-		AggregationResults<Document> results = null;
+		groupByName = group("name").max("mts").as("mts");
+		SortOperation sortOperation = getSortOperation(sortByModifiedTS);
 
 		if(match != null) {
-			results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, match, groupByName), clazz, Document.class);
+			results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, match, groupByName, sortOperation), clazz, Document.class);
 		} else {
-			results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, groupByName), clazz, Document.class);
+			results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, groupByName, sortOperation), clazz, Document.class);
 		}
 		results.getMappedResults().forEach( d -> names.add(d.getString("_id")));
 		return names;
@@ -206,5 +209,21 @@ public class BaseRepository {
 		Criteria criteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()]));
 		return criteriaList.size() > 0 ? match(criteria) : null;
 	}
+
+	private SortOperation getSortOperation(String sortByModifiedTS) {
+		SortOperation sortOperation = null;
+		if(sortByModifiedTS != null && sortByModifiedTS.equalsIgnoreCase("ASC")) {
+			sortOperation = sort(Sort.Direction.ASC, "mts");
+			groupByName = group("name").min("mts").as("mts");
+		} else if (sortByModifiedTS != null && sortByModifiedTS.equalsIgnoreCase("DESC")) {
+			sortOperation = sort(Sort.Direction.DESC, "mts");
+		} else {
+			sortOperation = sort(Sort.Direction.ASC, "name");
+			groupByName = group("name").max("name").as("name");
+		}
+
+		return sortOperation;
+	}
+
 
 }

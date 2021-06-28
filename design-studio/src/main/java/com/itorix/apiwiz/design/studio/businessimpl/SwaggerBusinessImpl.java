@@ -752,7 +752,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		SwaggerHistoryResponse response = new SwaggerHistoryResponse();
 		List<String> names = new ArrayList<String>();
 		if(swagger == null) {
-			names = trimList(baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues, SwaggerVO.class), offset, pageSize);
+			names = trimList(baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues, SwaggerVO.class, sortByModifiedDate), offset, pageSize);
 		}else{
 			try{
 				SwaggerVO swaggervo = getSwagger(swagger, interactionid);
@@ -819,7 +819,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Set<String> SwaggerNames = new HashSet<>();
 			SwaggerNames.addAll(swaggerRoles.keySet());
 			filterFieldsAndValues.put("createdBy", user.getId());
-			List<String> trimList = trimList(baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues, SwaggerVO.class),offset, pageSize);
+			List<String> trimList = trimList(baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues, SwaggerVO.class, sortByModifiedDate),offset, pageSize);
 			SwaggerNames.addAll(trimList);
 			if(swagger != null){
 				if(SwaggerNames.contains(swagger)){
@@ -873,7 +873,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				response.setData(list);
 			}
 		}
-		sortSwaggerResponseByModifiedDate(sortByModifiedDate, list);
 		log("getListOfSwaggerDetails", interactionid, list);
 		return response;
 	}
@@ -976,7 +975,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	private List<String> trimList(List<String> names, int offset, int pageSize){
-		Collections.sort(names);
 		List<String> swaggerNames = new ArrayList<String>();
 		int i = offset > 0 ? ((offset - 1) * pageSize) : 0;
 		int end = i + pageSize;
@@ -1014,7 +1012,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		SwaggerHistoryResponse response = new SwaggerHistoryResponse();
 		List<String> names = new ArrayList<String>();
 		if(swagger == null) {
-			names = trimList(baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues, Swagger3VO.class), offset, pageSize);
+			names = trimList(baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues, Swagger3VO.class, sortByModifiedDate), offset, pageSize);
 		}else{
 			try{
 				Swagger3VO swaggervo = getSwagger3(swagger, interactionid);
@@ -1077,7 +1075,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("3.0", user);
 			Set<String> SwaggerNames = new HashSet<>();
 			SwaggerNames.addAll(swaggerRoles.keySet());
-			List<String> trimList = trimList(baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues, Swagger3VO.class),offset, pageSize);
+			List<String> trimList = trimList(baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues, Swagger3VO.class, sortByModifiedDate),offset, pageSize);
 			SwaggerNames.addAll(trimList);
 			if(swagger != null){
 				if(SwaggerNames.contains(swagger)){
@@ -1136,37 +1134,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			}
 		}
 		log("getListOfSwaggerDetails", interactionid, list);
-		sortSwagger3ResponseByModifiedDate(sortByModifiedDate, list);
 		return response;
 	}
 
-	private void sortSwagger3ResponseByModifiedDate(String sortByModifiedDate, List<Swagger3VO> list) {
-		if(sortByModifiedDate != null) {
-			if("desc".equalsIgnoreCase(sortByModifiedDate)) {
-				Collections.sort(list, (o1, o2) -> {
-					return o1.getMts() < o2.getMts() ? 1 : (o1.getMts() == o2.getMts() ? 0 : -1);
-				});
-			} else {
-				Collections.sort(list, (o1, o2) -> {
-					return o1.getMts().compareTo(o2.getMts());
-				});
-			}
-		}
-	}
-
-	private void sortSwaggerResponseByModifiedDate(String sortByModifiedDate, List<SwaggerVO> list) {
-		if(sortByModifiedDate != null) {
-			if("desc".equalsIgnoreCase(sortByModifiedDate)) {
-				Collections.sort(list, (o1, o2) -> {
-					return o1.getMts() < o2.getMts() ? 1 : (o1.getMts() == o2.getMts() ? 0 : -1);
-				});
-			} else {
-				Collections.sort(list, (o1, o2) -> {
-					return o1.getMts().compareTo(o2.getMts());
-				});
-			}
-		}
-	}
 
 	private List<SwaggerTeam> getUserTeams(User user){
 		Query query = new Query().addCriteria(Criteria.where("contacts.email").is(user.getEmail()));
