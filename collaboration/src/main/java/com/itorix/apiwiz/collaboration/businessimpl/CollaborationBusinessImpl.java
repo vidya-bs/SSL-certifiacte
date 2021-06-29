@@ -291,8 +291,8 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 					team.setSwaggers(swaggers);
 					team = baseRepository.save(team);
 				} else {
-					throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-							"Swagger-1001");
+					throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+							"Swagger-1000");
 				}
 			} else {
 				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Teams-1001"), teamName),

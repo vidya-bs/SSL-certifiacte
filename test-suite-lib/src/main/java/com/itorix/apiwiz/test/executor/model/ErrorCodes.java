@@ -9,8 +9,8 @@ public enum ErrorCodes {
 	public static final Map<String, String> errorMessage = new HashMap<String, String>() {
 		private static final long serialVersionUID = 1L;
 		{
-			put("TestSuiteAgent-1","you don't have enough permissions to access the resource");
-			put("TestSuiteAgent-2","Login failed! Invalid or missing JSESSIONID.");
+			put("TestSuiteAgent-1","Resource authorization validation failed. Please contact your workspace admin.");
+			put("TestSuiteAgent-2","Request validation failed. Invalid session token.");
 			put("TestSuiteAgent-4","Couldn't find tenant");
 			put("TestSuiteAgent-5","executionId is missing");
 			put("TestSuiteAgent-6","A request is already processed for executionId");

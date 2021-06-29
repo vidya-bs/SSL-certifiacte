@@ -2350,7 +2350,7 @@ public class AnalyticsDao {
 		if (dbDashBoardEnvironments != null) {
 			environmentsList.put("Environments", dbDashBoardEnvironments.getEnvironments());
 		} else {
-			throw new ItorixException(new Throwable().getMessage(), "NO_ENV_FOUND", new Throwable());
+			throw new ItorixException(new Throwable().getMessage(), "Connector-1005", new Throwable());
 		}
 		return environmentsList;
 	}

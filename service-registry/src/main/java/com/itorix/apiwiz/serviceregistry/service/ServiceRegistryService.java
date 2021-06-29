@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.serviceregistry.service;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,31 +22,37 @@ import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryResponse
 @RestController
 public interface ServiceRegistryService {
 
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/service-registry/columns")
 	public ResponseEntity<ServiceRegistryColumns> getServiceRegistryColumns(@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException;
 
+	@PreAuthorize("hasAnyRole('ADMIN','OPERATION','DEVELOPER','TEST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/service-registry/columns")
 	public ResponseEntity<?> createOrUpdateServRegColumns(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestBody ServiceRegistryColumns registryColumns) throws ItorixException;
 
 	//// service registry ///////
 	// https://itorix.atlassian.net/browse/IE-166
+	@PreAuthorize("hasAnyRole('ADMIN','OPERATION','DEVELOPER','TEST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/service-registry")
 	public ResponseEntity<?> createServiceRegistry(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestBody ServiceRegistryList serviceRegistry) throws ItorixException;
 
 	// https://itorix.atlassian.net/browse/IE-167
+	@PreAuthorize("hasAnyRole('ADMIN','OPERATION','DEVELOPER','TEST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/service-registry/{service-registry-id}")
 	public ResponseEntity<?> updateServiceRegistry(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("service-registry-id") String serviceRegistryId,
 			@RequestBody ServiceRegistryList serviceRegistry) throws ItorixException;
 
 	// https://itorix.atlassian.net/browse/IE-171
+	@PreAuthorize("hasAnyRole('ADMIN','OPERATION','DEVELOPER','TEST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/service-registry/{service-registry-id}")
 	public ResponseEntity<?> deleteServiceRegistry(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("service-registry-id") String serviceRegistryId) throws ItorixException;
 
 	//https://itorix.atlassian.net/browse/IE-164
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/service-registry")
 	public ResponseEntity<ServiceRegistryResponse> getServiceRegistry(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
@@ -53,34 +60,39 @@ public interface ServiceRegistryService {
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) throws ItorixException;
 
 	//https://itorix.atlassian.net/browse/IE-161
+	@PreAuthorize("hasAnyRole('ADMIN','OPERATION','DEVELOPER','TEST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/service-registry/{service-registry-id}/rows")
 	public ResponseEntity<?> createServiceRegistryEntry(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("service-registry-id") String serviceRegistryId,
 			@RequestBody ServiceRegistry serviceRegistry) throws ItorixException;
 
 	//https://itorix.atlassian.net/browse/IE-162
+	@PreAuthorize("hasAnyRole('ADMIN','OPERATION','DEVELOPER','TEST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/service-registry/{service-registry-id}/rows/{row-id}")
 	public ResponseEntity<?> updateServiceRegistryEntry(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody ServiceRegistry serviceRegistry, 
+			@RequestBody ServiceRegistry serviceRegistry,
 			@PathVariable("service-registry-id") String serviceRegistryId,
 			@PathVariable("row-id") String rowId) throws ItorixException;
 
 	//https://itorix.atlassian.net/browse/IE-163
+	@PreAuthorize("hasAnyRole('ADMIN','OPERATION','DEVELOPER','TEST') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/service-registry/{service-registry-id}/rows/{row-id}")
 	public ResponseEntity<?> deleteServiceRegistryEntry(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("service-registry-id") String serviceRegistryId,
 			@PathVariable("row-id") String rowId) throws ItorixException;
 
 	//https://itorix.atlassian.net/browse/IE-165
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/service-registry/{service-registry-id}")
 	public ResponseEntity<ServiceRegistryEntriesResponse> getServiceRegistryEntries(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("service-registry-id") String serviceRegistryId) throws ItorixException;
-	
+
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "v1/service-registry/search", produces = { "application/json" })
 	public ResponseEntity<Object> swaggerSearch(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam("name") String name, @RequestParam("limit") int limit)
 			throws ItorixException;
 }

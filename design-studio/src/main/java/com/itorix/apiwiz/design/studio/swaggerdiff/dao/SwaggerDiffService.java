@@ -200,7 +200,7 @@ public class SwaggerDiffService {
 		{
 			System.out.println("no swagger");
 			throw new ItorixException(
-					String.format(ErrorCodes.errorMessage.get("Swagger-1001")),"Swagger-1001");
+					String.format(ErrorCodes.errorMessage.get("Swagger-1000")),"Swagger-1000");
 		}
 	}
 
@@ -216,7 +216,7 @@ public class SwaggerDiffService {
 		}
 		else
 			throw new ItorixException(
-					String.format(ErrorCodes.errorMessage.get("Swagger-1001")),"Swagger-1001");
+					String.format(ErrorCodes.errorMessage.get("Swagger-1000")),"Swagger-1000");
 	}
 
 	/**
@@ -281,7 +281,7 @@ public class SwaggerDiffService {
 			return response;
 		}
 		throw new ItorixException(
-				String.format(ErrorCodes.errorMessage.get("Swagger-1001")),"Swagger-1001");
+				String.format(ErrorCodes.errorMessage.get("Swagger-1000")),"Swagger-1000");
 
 	}
 

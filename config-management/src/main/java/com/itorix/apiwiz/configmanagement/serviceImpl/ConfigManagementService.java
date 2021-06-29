@@ -124,8 +124,8 @@ public class ConfigManagementService implements ConfigManagement {
 			config.setType(type);
 			List data = (ArrayList) configManagementDAO.getAllActiveTargets(config);
 			if (data.size() == 0)
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ConfigMgmt-1023"),
-						config.getName(), config.getOrg(), config.getEnv()), "ConfigMgmt-1023");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Configuration-1022"),
+						config.getName(), config.getOrg(), config.getEnv()), "Configuration-1022");
 			return new ResponseEntity<Object>(data.get(0), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<Object>(configManagementDAO.getTarget(target), HttpStatus.OK);
@@ -149,7 +149,7 @@ public class ConfigManagementService implements ConfigManagement {
 			configManagementDAO.createApigeeTarget(config, user);
 			return new ResponseEntity<Void>(HttpStatus.CREATED);
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("ConfigMgmt-1021"), "ConfigMgmt-1021");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1024"), "Configuration-1024");
 		}
 	}
 
@@ -170,7 +170,7 @@ public class ConfigManagementService implements ConfigManagement {
 			configManagementDAO.updateApigeeTarget(config, user);
 			return new ResponseEntity<Void>(HttpStatus.CREATED);
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("ConfigMgmt-1021"), "ConfigMgmt-1021");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1024"), "Configuration-1024");
 		}
 	}
 
@@ -249,8 +249,8 @@ public class ConfigManagementService implements ConfigManagement {
 			config.setType(type);
 			List<CacheConfig> data = (ArrayList<CacheConfig>) configManagementDAO.getAllActiveCaches(config);
 			if (data.size() == 0)
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ConfigMgmt-1003"),
-						config.getName(), config.getOrg(), config.getEnv()), "ConfigMgmt-1003");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Configuration-1012"),
+						config.getName(), config.getOrg(), config.getEnv()), "Configuration-1012");
 			return new ResponseEntity<Object>(data.get(0), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<Object>(configManagementDAO.getCache(cache), HttpStatus.OK);
@@ -274,7 +274,7 @@ public class ConfigManagementService implements ConfigManagement {
 			configManagementDAO.createApigeeCache(config, user);
 			return new ResponseEntity<Void>(HttpStatus.CREATED);
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("ConfigMgmt-1006"), "ConfigMgmt-1006");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1014"), "Configuration-1014");
 		}
 	}
 
@@ -295,7 +295,7 @@ public class ConfigManagementService implements ConfigManagement {
 			configManagementDAO.updateApigeeCache(config, user);
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("ConfigMgmt-1006"), "ConfigMgmt-1006");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1014"), "Configuration-1014");
 		}
 	}
 
@@ -368,8 +368,8 @@ public class ConfigManagementService implements ConfigManagement {
 			config.setType(type);
 			List data = (ArrayList) configManagementDAO.getKVMs(config);
 			if (data.size() == 0)
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ConfigMgmt-1013"),
-						config.getName(), config.getOrg(), config.getEnv()), "ConfigMgmt-1013");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Configuration-1017"),
+						config.getName(), config.getOrg(), config.getEnv()), "Configuration-1017");
 			return new ResponseEntity<Object>(data.get(0), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<Object>(configManagementDAO.getKVM(kvm), HttpStatus.OK);
@@ -393,7 +393,7 @@ public class ConfigManagementService implements ConfigManagement {
 			configManagementDAO.createApigeeKVM(config, user);
 			return new ResponseEntity<Void>(HttpStatus.CREATED);
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("ConfigMgmt-1011"), "ConfigMgmt-1011");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1019"), "Configuration-1019");
 		}
 	}
 
@@ -414,7 +414,7 @@ public class ConfigManagementService implements ConfigManagement {
 			configManagementDAO.updateApigeeKVM(config, user);
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("ConfigMgmt-1011"), "ConfigMgmt-1011");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1019"), "Configuration-1019");
 		}
 	}
 
@@ -509,7 +509,7 @@ public class ConfigManagementService implements ConfigManagement {
 			configManagementDAO.createApigeeProduct(config, user);
 			return new ResponseEntity<Void>(HttpStatus.CREATED);
 		} else {
-			throw new ItorixException("Insufficient Data in the Request ", "Config-1006");
+			throw new ItorixException("Insufficient Data in the Request ", "Configuration-1005");
 		}
 	}
 
@@ -526,7 +526,7 @@ public class ConfigManagementService implements ConfigManagement {
 			configManagementDAO.updateApigeeProduct(config, user);
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		} else {
-			throw new ItorixException("Insufficient Data in the Request ", "Config-1006");
+			throw new ItorixException("Insufficient Data in the Request ", "Configuration-1005");
 		}
 	}
 

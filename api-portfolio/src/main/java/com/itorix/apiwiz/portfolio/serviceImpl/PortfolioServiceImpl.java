@@ -85,7 +85,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 
 		if (image == null || image.getBytes() == null || image.getBytes().length == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-8"), "Portfolio-8");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1010"), "Portfolio-1010");
 		}
 
 		byte[] imageBytes = image.getBytes();
@@ -159,8 +159,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
 		if (!CollectionUtils.isEmpty(missingField)) {
 			throw new ItorixException(
-					(String.format(ErrorCodes.errorMessage.get("Portfolio-6"), String.join(",", missingField))),
-					"Portfolio-6");
+					(String.format(ErrorCodes.errorMessage.get("Portfolio-1008"), String.join(",", missingField))),
+					"Portfolio-1008");
 		}
 
 		PortfolioDocument portfolioDocument = PortfolioDocument.builder()
@@ -192,7 +192,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 
 		if (document == null || document.getBytes() == null || document.getBytes().length == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-5"), "Portfolio-5");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1007"), "Portfolio-1007");
 		}
 
 		String updatePortfolioDocument = portfolioDao.updatePortfolioDocument(portfolioId, documentId,
@@ -474,7 +474,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 
 		if (document == null || document.getBytes() == null || document.getBytes().length == 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-5"), "Portfolio-5");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1007"), "Portfolio-1007");
 		}
 
 		byte[] documentBytes = document.getBytes();

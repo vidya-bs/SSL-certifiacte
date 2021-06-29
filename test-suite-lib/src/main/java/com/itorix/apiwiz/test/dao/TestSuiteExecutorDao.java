@@ -141,7 +141,7 @@ public class TestSuiteExecutorDao {
 					trustStore.load(instream, (new RSAEncryption()).decryptText(certificate.getPassword()).toCharArray());
 				} catch (Exception e) {
 					log.error("Could not load certificate to truststore",e);
-					throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-14"), "Testsuite-14");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1008004"), "Testsuite-1008004");
 				}
 
 				KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -155,7 +155,7 @@ public class TestSuiteExecutorDao {
 			} catch (KeyManagementException | UnrecoverableKeyException | KeyStoreException | NoSuchAlgorithmException
 					| CertificateException | IOException e) {
 				log.error("Could not load certificate to truststore",e);
-				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-14"), "Testsuite-14");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1008004"), "Testsuite-1008004");
 			}
 		}
 		return null;

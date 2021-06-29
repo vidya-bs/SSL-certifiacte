@@ -25,7 +25,7 @@ public class ProductService {
 			return URL;
 		}
 		catch( Exception ex){
-			throw new ItorixException(ex.getMessage(),"Config-1000", ex );
+			throw new ItorixException(ex.getMessage(),"Configuration-1000", ex );
 		}
 	}
 	
@@ -37,7 +37,7 @@ public class ProductService {
 			return URL;
 		}
 		catch( Exception ex){
-			throw new ItorixException(ex.getMessage(),"Config-1000", ex );
+			throw new ItorixException(ex.getMessage(),"Configuration-1000", ex );
 		}
 	}
 	
@@ -48,7 +48,7 @@ public class ProductService {
 			return apigeeProduct;
 		}
 		catch( Exception ex){
-			throw new ItorixException(ex.getMessage(),"Config-1000", ex );
+			throw new ItorixException(ex.getMessage(),"Configuration-1000", ex );
 		}
 	}
 }

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.itorix.apiwiz.design.studio.model.*;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -55,27 +57,6 @@ import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
 import com.itorix.apiwiz.design.studio.businessimpl.Swagger3SDK;
 import com.itorix.apiwiz.design.studio.businessimpl.ValidateSchema;
 import com.itorix.apiwiz.design.studio.businessimpl.XlsUtil;
-import com.itorix.apiwiz.design.studio.model.Clients;
-import com.itorix.apiwiz.design.studio.model.GenrateClientRequest;
-import com.itorix.apiwiz.design.studio.model.Revision;
-import com.itorix.apiwiz.design.studio.model.RowData;
-import com.itorix.apiwiz.design.studio.model.Servers;
-import com.itorix.apiwiz.design.studio.model.Swagger2BasePath;
-import com.itorix.apiwiz.design.studio.model.Swagger3Comment;
-import com.itorix.apiwiz.design.studio.model.Swagger3ReviewComents;
-import com.itorix.apiwiz.design.studio.model.Swagger3VO;
-import com.itorix.apiwiz.design.studio.model.SwaggerComment;
-import com.itorix.apiwiz.design.studio.model.SwaggerDocumentationVO;
-import com.itorix.apiwiz.design.studio.model.SwaggerHistoryResponse;
-import com.itorix.apiwiz.design.studio.model.SwaggerIntegrations;
-import com.itorix.apiwiz.design.studio.model.SwaggerLockResponse;
-import com.itorix.apiwiz.design.studio.model.SwaggerMetadata;
-import com.itorix.apiwiz.design.studio.model.SwaggerReview;
-import com.itorix.apiwiz.design.studio.model.SwaggerReviewComents;
-import com.itorix.apiwiz.design.studio.model.SwaggerTeam;
-import com.itorix.apiwiz.design.studio.model.SwaggerVO;
-import com.itorix.apiwiz.design.studio.model.ValidationResponse;
-import com.itorix.apiwiz.design.studio.model.XmlSchemaVo;
 import com.itorix.apiwiz.design.studio.service.SwaggerService;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
@@ -328,15 +309,15 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setInteractionid(interactionid);
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			String name = vo.getName();
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(swaggername, revision, interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"), name, revision),
-						"Swagger-1002");
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+						"Swagger-1001");
 			}
 			vo.setSwagger(json);
 			swaggerVO = swaggerBusiness.updateSwagger(vo);
@@ -360,13 +341,13 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setInteractionid(interactionid);
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")), "Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			String name = vo.getName();
 			vo = swaggerBusiness.getSwagger3WithVersionNumber(swaggername, revision, interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"), name, revision), "Swagger-1002");
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision), "Swagger-1001");
 			}
 			vo.setSwagger(json);
 			swaggerVO = swaggerBusiness.updateSwagger(vo);
@@ -413,8 +394,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Get Swagger Revison's", notes = "")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = Revision.class, responseContainer = "List"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/revisions", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<List<Revision>> getListOfRevisions(
@@ -428,15 +409,15 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			list = swaggerBusiness.getListOfRevisions(vo.getName(), interactionid);
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			list = swaggerBusiness.getListOf3Revisions(vo.getName(), interactionid);
 		}
@@ -456,7 +437,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Get List Of Swagger Names", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getListOfSwaggerNames(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -486,7 +467,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Get List Of Swagger Details", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/history", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getListOfSwaggerDetails(
@@ -496,19 +477,33 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
 			@RequestParam(value = "swagger", required = false) String swagger,
-			@RequestParam(value = "status", required = false) String status) throws Exception {
+			@RequestParam(value = "status", required = false) String status,
+			@RequestParam(value = "product", required = false) String product,
+			@RequestParam(value ="modifieddate", required = false) String modifiedDate,
+			@RequestParam(value ="sortbymodifieddate", required = false) String sortByModifiedDate) throws Exception {
 		// offset = offset == null? 0: offset;
 		if (oas == null || oas.trim().equals(""))
 			oas = "2.0";
 		String json = "";
+		List<String> products = null;
+		if(null != product ){
+			products = Arrays.asList(product.split(","));
+		}
 		if (oas.equals("2.0")) {
-			SwaggerHistoryResponse response = swaggerBusiness.getListOfSwaggerDetails(status, interactionid, jsessionid, offset, oas, swagger, pageSize);
+			SwaggerHistoryResponse response;
+			if(null != products )
+				response = 	swaggerBusiness.getSwaggerDetailsByproduct(products, interactionid, jsessionid, offset, oas, swagger, pageSize);
+			else
+				response = swaggerBusiness.getListOfSwaggerDetails(status, modifiedDate, interactionid, jsessionid, offset, oas, swagger, pageSize, sortByModifiedDate);
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.setSerializationInclusion(Include.NON_NULL);
 			json = mapper.writeValueAsString(response);
 		} else if (oas.equals("3.0")) {
-			SwaggerHistoryResponse response = swaggerBusiness.getListOfSwagger3Details(status, interactionid,
-					jsessionid, offset, oas, swagger, pageSize);
+			SwaggerHistoryResponse response;
+			if(null != products )
+				response = 	swaggerBusiness.getSwaggerDetailsByproduct(products, interactionid, jsessionid, offset, oas, swagger, pageSize);
+			else
+				response = swaggerBusiness.getListOfSwagger3Details(status, modifiedDate, interactionid, jsessionid, offset, oas, swagger, pageSize, sortByModifiedDate);
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.setSerializationInclusion(Include.NON_NULL);
 			json = mapper.writeValueAsString(response);
@@ -527,26 +522,25 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Get List Of Published Swagger Details", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerDocumentationVO.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/documentation", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getListOfPublishedSwaggerDetails(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@RequestParam(value = "status", required = false) String status) throws Exception {
-		if (oas == null || oas.trim().equals(""))
-			oas = "2.0";
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+			@RequestParam(value = "status", required = false) String status,
+			@RequestParam(value = "partnerID", required = false) String partnerID) throws Exception {
+
 		String json = "";
-		ArrayNode node = swaggerBusiness.getListOfPublishedSwaggerDetails(interactionid, jsessionid, status);
-		ArrayNode node3 = swaggerBusiness.getListOfPublishedSwagger3Details(interactionid, jsessionid, status);
+		ArrayNode node = swaggerBusiness.getListOfPublishedSwaggerDetails(interactionid, jsessionid, status, partnerID);
+		ArrayNode node3 = swaggerBusiness.getListOfPublishedSwagger3Details(interactionid, jsessionid, status, partnerID);
 		if (node3 != null && node3.size() > 0)
 			for (JsonNode nodeElement : node3)
 				node.add(nodeElement);
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setSerializationInclusion(Include.NON_NULL);
 		json = mapper.writeValueAsString(node);
-		
 		return new ResponseEntity<Object>(json, HttpStatus.OK);
 	}
 
@@ -564,8 +558,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 */
 	@ApiOperation(value = "Get Swagger", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = Swagger.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getSwagger(
@@ -578,8 +572,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 
 			SwaggerVO swaggerVO = swaggerBusiness.getSwagger(swaggername, interactionid);
@@ -592,14 +586,14 @@ public class SwaggerServiceImpl implements SwaggerService {
 				headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
 				return new ResponseEntity<Object>(json, headers, HttpStatus.OK);
 			} else {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 
 			Swagger3VO swaggerVO = swaggerBusiness.getSwagger3(swaggername, interactionid);
@@ -612,8 +606,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 				headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
 				return new ResponseEntity<Object>(json, headers, HttpStatus.OK);
 			} else {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), swaggername),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000"), swaggername),
+						"Swagger-1000");
 			}
 		}
 		return new ResponseEntity<Object>(null, null, HttpStatus.OK);
@@ -633,8 +627,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 */
 	@ApiOperation(value = "Delete Swagger", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Ok", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggername}")
 	public ResponseEntity<Void> deleteSwagger(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -646,15 +640,15 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			swaggerBusiness.deleteSwagger(vo.getName(), interactionid);
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			swaggerBusiness.deleteSwagger3(vo.getName(), interactionid);
 		}
@@ -675,9 +669,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 */
 	@ApiOperation(value = "delete Swagger based on Revison", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Swagger deleted sucessfully", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggername}/revisions/{revision}")
 	public ResponseEntity<Void> deleteSwaggerVersion(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -690,15 +684,15 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			swaggerBusiness.deleteSwaggerVersion(vo.getName(), revision, interactionid);
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			swaggerBusiness.deleteSwagger3Version(vo.getName(), revision, interactionid);
 		}
@@ -717,9 +711,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 */
 	@ApiOperation(value = "Get Swagger With revision", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/revisions/{revision}", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getSwaggerWithrevision(
@@ -732,8 +726,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			SwaggerVO swaggerVO = swaggerBusiness.getSwaggerWithVersionNumber(swaggername, revision, interactionid);
 			if (swaggerVO != null) {
@@ -745,14 +739,14 @@ public class SwaggerServiceImpl implements SwaggerService {
 				JsonNode actualObj = mapper.readTree(swagger);
 				return new ResponseEntity<Object>(actualObj, headers, HttpStatus.OK);
 			} else {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			Swagger3VO swaggerVO = swaggerBusiness.getSwagger3WithVersionNumber(swaggername, revision, interactionid);
 			if (swaggerVO != null) {
@@ -764,12 +758,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 				JsonNode actualObj = mapper.readTree(swagger);
 				return new ResponseEntity<Object>(actualObj, headers, HttpStatus.OK);
 			} else {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 		}
-		throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-				"Swagger-1001");
+		throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+				"Swagger-1000");
 	}
 
 	/**
@@ -786,9 +780,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 */
 	@ApiOperation(value = "Update Status", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Swagger Updated sucessfully", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/status")
 	public ResponseEntity<Void> updateStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -815,14 +809,14 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null)
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			swaggername = vo.getName();
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null)
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			swaggername = vo.getName();
 		}
 		List<String> roles = swaggerBusiness.getSwaggerRoles(swaggername, oas, interactionid, jsessionid);
@@ -842,9 +836,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 */
 	@ApiOperation(value = "Update Comment", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "Swagger Updated sucessfully", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/comment")
 	public ResponseEntity<Void> updateComment(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -883,9 +877,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Get Swagger Comments", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Swagger Updated sucessfully", response = SwaggerComment.class, responseContainer = "list"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/revisions/{revision}/comments/history", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getSwaggerComments(
@@ -898,15 +892,15 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			String name = vo.getName();
 			SwaggerVO swaggerVO = swaggerBusiness.getSwaggerWithVersionNumber(swaggername, revision, interactionid);
 			if (swaggerVO == null) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"), name, revision),
-						"Swagger-1002");
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+						"Swagger-1001");
 			}
 			List<SwaggerComment> comments = swaggerBusiness.getSwaggerComments(swaggername, revision, interactionid);
 			HttpHeaders headers = new HttpHeaders();
@@ -915,22 +909,22 @@ public class SwaggerServiceImpl implements SwaggerService {
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			String name = vo.getName();
 			Swagger3VO swaggerVO = swaggerBusiness.getSwagger3WithVersionNumber(swaggername, revision, interactionid);
 			if (swaggerVO == null) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"), name, revision),
-						"Swagger-1002");
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+						"Swagger-1001");
 			}
 			List<Swagger3Comment> comments = swaggerBusiness.getSwagger3Comments(swaggername, revision, interactionid);
 			HttpHeaders headers = new HttpHeaders();
 			headers.add("X-Swagger-Version", revision + "");
 			return new ResponseEntity<Object>(comments, headers, HttpStatus.OK);
 		}
-		throw new ItorixException(String.format("invalid Swagger version specified, supported versions 2.0 and 3.0 "), "Swagger-1001");
+		throw new ItorixException(String.format("invalid Swagger version specified, supported versions 2.0 and 3.0 "), "Swagger-1000");
 
 	}
 
@@ -949,9 +943,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Update Lock Status", notes = "", code = 204)
 	@ApiResponses(value = {
 			@ApiResponse(code = 204, message = "Swagger Lock Updated sucessfully", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/lockstatus")
 	public ResponseEntity<Void> updateLockStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -963,15 +957,15 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			String name = vo.getName();
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(vo.getName(), revision, interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"), name, revision),
-						"Swagger-1002");
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+						"Swagger-1001");
 			}
 			swaggerVO.setRevision(revision);
 			swaggerVO.setName(vo.getName());
@@ -980,15 +974,15 @@ public class SwaggerServiceImpl implements SwaggerService {
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			String name = vo.getName();
 			vo = swaggerBusiness.getSwagger3WithVersionNumber(swaggername, revision, interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"), name, revision),
-						"Swagger-1002");
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+						"Swagger-1001");
 			}
 			Swagger3VO swagger3VO = new Swagger3VO();
 			swagger3VO.setRevision(revision);
@@ -1016,9 +1010,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Deprecate Swagger", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Swagger Updated sucessfully", response = SwaggerVO.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/deprecate")
 	public ResponseEntity<Object> deprecate(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1030,15 +1024,15 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			String name = vo.getName();
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(swaggername, revision, interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"), name, revision),
-						"Swagger-1002");
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+						"Swagger-1001");
 			}
 			swaggerVO.setRevision(revision);
 			swaggerVO.setName(swaggername);
@@ -1048,15 +1042,15 @@ public class SwaggerServiceImpl implements SwaggerService {
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			String name = vo.getName();
 			vo = swaggerBusiness.getSwagger3WithVersionNumber(swaggername, revision, interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"), name, revision),
-						"Swagger-1002");
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+						"Swagger-1001");
 			}
 			Swagger3VO swagger3VO = new Swagger3VO();
 			swagger3VO.setRevision(revision);
@@ -1066,8 +1060,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swagger3VO = swaggerBusiness.deprecate(swagger3VO);
 			return new ResponseEntity<Object>(swagger3VO, HttpStatus.OK);
 		}
-		throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1002"), swaggername, revision),
-				"Swagger-1002");
+		throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), swaggername, revision),
+				"Swagger-1001");
 	}
 
 	/**
@@ -1084,9 +1078,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Update Proxies", notes = "", code = 204)
 	@ApiResponses(value = {
 			@ApiResponse(code = 204, message = "Swagger Proxies Updated sucessfully", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/proxies")
 	public ResponseEntity<Void> updateProxies(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1094,14 +1088,14 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@PathVariable("revision") Integer revision) throws Exception {
 		SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 		if (vo == null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-					"Swagger-1001");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+					"Swagger-1000");
 		}
 		String name = vo.getName();
 		vo = swaggerBusiness.getSwaggerWithVersionNumber(swaggername, revision, interactionid);
 		if (vo == null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1002"), name, revision),
-					"Swagger-1002");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+					"Swagger-1001");
 		}
 		SwaggerVO swaggerVO = new SwaggerVO();
 		swaggerVO.setRevision(revision);
@@ -1125,9 +1119,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 */
 	@ApiOperation(value = "Get LockStatus", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = Boolean.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/revisions/{revision}/lockstatus", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getLockStatus(
@@ -1141,8 +1135,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(swaggername, revision, interactionid);
 			Boolean lockStatus = vo.getLock();// swaggerBusiness.getLockStatus(vo.getName(),
@@ -1159,21 +1153,21 @@ public class SwaggerServiceImpl implements SwaggerService {
 				return new ResponseEntity<Object>(lockResponse, headers, HttpStatus.OK);
 			} else {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"), swaggername, revision),
-						"Swagger-1002");
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), swaggername, revision),
+						"Swagger-1001");
 			}
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			String name = vo.getName();
 			vo = swaggerBusiness.getSwagger3WithVersionNumber(swaggername, revision, interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"), name, revision),
-						"Swagger-1002");
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+						"Swagger-1001");
 			}
 			Boolean lockStatus = swaggerBusiness.getSwagger3LockStatus(vo.getName(), revision, interactionid);
 			//Boolean lockStatus = vo.getLock();//swaggerBusiness.getLockStatus(vo.getName(), revision, interactionid);
@@ -1189,12 +1183,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 				return new ResponseEntity<Object>(lockResponse, headers, HttpStatus.OK);
 			} else {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"), swaggername, revision),
-						"Swagger-1002");
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), swaggername, revision),
+						"Swagger-1001");
 			}
 		}
-		throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1002"), swaggername, revision),
-				"Swagger-1002");
+		throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), swaggername, revision),
+				"Swagger-1001");
 	}
 
 	/**
@@ -1213,7 +1207,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Genarate Xpath", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = XmlSchemaVo.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/genaratexpath", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> genarateXpath(
@@ -1223,10 +1217,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 			throws Exception {
 		JSONObject jsonObject = new JSONObject();
 		if (xsdFile == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1004"), "Swagger-1004");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1002"), "Swagger-1002");
 		}
 		if (elementName == null || elementName.trim().length() <= 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1005"), "Swagger-1005");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1003"), "Swagger-1003");
 		}
 		String fileLocation = swaggerBusiness.genarateXpath(xsdFile, elementName, interactionid);
 		ColumnPositionMappingStrategy<XmlSchemaVo> strategy = new ColumnPositionMappingStrategy<>();
@@ -1268,7 +1262,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 */
 	@ApiOperation(value = "GenarateSwaggerDefinations", notes = "", code = 201)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/definitions", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> genarateSwaggerDefinations(
@@ -1277,10 +1271,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@PathVariable("swaggername") String swaggername, @RequestParam("revision") Integer revision,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		if (xpathFile == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1006"), "Swagger-1006");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1004"), "Swagger-1004");
 		}
 		if (sheetName == null || sheetName.trim().length() <= 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1007"), "Swagger-1007");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1005"), "Swagger-1005");
 		}
 		swaggerBusiness.getSwagger(swaggername, interactionid);
 		SwaggerVO swaggerVO = swaggerBusiness.getSwagger(swaggername, interactionid);
@@ -1306,8 +1300,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 */
 	@ApiOperation(value = "Genarate Swagger Json Definations", notes = "", code = 201)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/jsondefinitions", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Void> genarateSwaggerJsonDefinations(
@@ -1355,9 +1349,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 */
 	@ApiOperation(value = "Create Review", notes = "", code = 201)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/revisions/{revision}/review")
 	public ResponseEntity<Void> createReview(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1371,16 +1365,16 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerReview.setJsessionid(jsessionid);
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			swaggername = vo.getName();
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(swaggername, revision, interactionid);
 			if (vo == null) {
 				throw new ItorixException(
 						String.format(
-								String.format(ErrorCodes.errorMessage.get("Swagger-1002"), swaggername, revision)),
-						"Swagger-1002");
+								String.format(ErrorCodes.errorMessage.get("Swagger-1001"), swaggername, revision)),
+						"Swagger-1001");
 			}
 			swaggerReview.setSwaggerName(swaggername);
 			swaggerReview.setRevision(revision);
@@ -1401,8 +1395,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 */
 	@ApiOperation(value = "Create Review Comment", notes = "", code = 201)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/reviews")
 	public ResponseEntity<Void> createReviewComment(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1417,7 +1411,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerReviewComments.setJsessionid(jsessionid);
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggerReviewComments.getSwaggerName(), interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")), "Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerReviewComments.setSwaggerName(vo.getName());
 			String name = vo.getName();
@@ -1425,9 +1419,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 					swaggerReviewComments.getRevision(), interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(String.format(ErrorCodes.errorMessage.get("Swagger-1002"),
+						String.format(String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
 								name, swaggerReviewComments.getRevision())),
-						"Swagger-1002");
+						"Swagger-1001");
 			}
 			swaggerBusiness.createOrUpdateReviewComment(swaggerReviewComments);
 		} else if (oas.equals("3.0")) {
@@ -1443,7 +1437,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swagger3ReviewComments.setJsessionid(jsessionid);
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swagger3ReviewComments.getSwaggerName(), interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")), "Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerReviewComments.setSwaggerName(vo.getName());
 			swagger3ReviewComments.setSwaggerName(swaggerReviewComments.getSwaggerName());
@@ -1451,9 +1445,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 					swaggerReviewComments.getRevision(), interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(String.format(ErrorCodes.errorMessage.get("Swagger-1002"),
+						String.format(String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
 								swaggerReviewComments.getSwaggerName(), swaggerReviewComments.getRevision())),
-						"Swagger-1002");
+						"Swagger-1001");
 			}
 			swaggerBusiness.createOrUpdateReviewComment(swagger3ReviewComments);
 		}
@@ -1473,7 +1467,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 */
 	@ApiOperation(value = "Update Review Comment", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content", response = Void.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/reviews")
 	public ResponseEntity<Void> updateReviewComment(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1487,16 +1481,16 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerReviewComments.setJsessionid(jsessionid);
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggerReviewComments.getSwaggerName(), interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")), "Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerReviewComments.setSwaggerName(vo.getName());
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(swaggerReviewComments.getSwaggerName(),
 					swaggerReviewComments.getRevision(), interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(String.format(ErrorCodes.errorMessage.get("Swagger-1002"),
+						String.format(String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
 								swaggerReviewComments.getSwaggerName(), swaggerReviewComments.getRevision())),
-						"Swagger-1002");
+						"Swagger-1001");
 			}
 			swaggerBusiness.updateReviewComment(swaggerReviewComments);
 		} else if (oas.equals("3.0")) {
@@ -1514,7 +1508,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swagger3ReviewComments.setJsessionid(jsessionid);
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swagger3ReviewComments.getSwaggerName(), interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")), "Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerReviewComments.setSwaggerName(vo.getName());
 			swagger3ReviewComments.setSwaggerName(vo.getName());
@@ -1522,9 +1516,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 					swaggerReviewComments.getRevision(), interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(String.format(ErrorCodes.errorMessage.get("Swagger-1002"),
+						String.format(String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
 								swaggerReviewComments.getSwaggerName(), swaggerReviewComments.getRevision())),
-						"Swagger-1002");
+						"Swagger-1001");
 			}
 			swaggerBusiness.updateReviewComment(swagger3ReviewComments);
 		}
@@ -1546,7 +1540,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Review Comment Replay", notes = "", code = 201)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
 			@ApiResponse(code = 404, message = "No records found for selected review id - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/reviews/{reviewid}/comment")
 	public ResponseEntity<Void> reviewCommentReplay(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1560,16 +1554,16 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerReviewComments.setJsessionid(jsessionid);
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggerReviewComments.getSwaggerName(), interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")), "Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerReviewComments.setSwaggerName(vo.getName());
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(swaggerReviewComments.getSwaggerName(),
 					swaggerReviewComments.getRevision(), interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(String.format(ErrorCodes.errorMessage.get("Swagger-1002"),
+						String.format(String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
 								swaggerReviewComments.getSwaggerName(), swaggerReviewComments.getRevision())),
-						"Swagger-1002");
+						"Swagger-1001");
 			}
 			swaggerReviewComments.setCommentId(reviewid);
 			swaggerBusiness.createOrUpdateReviewComment(swaggerReviewComments);
@@ -1587,7 +1581,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swagger3ReviewComments.setJsessionid(jsessionid);
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swagger3ReviewComments.getSwaggerName(), interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")), "Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerReviewComments.setSwaggerName(vo.getName());
 			swagger3ReviewComments.setSwaggerName(swaggerReviewComments.getSwaggerName());
@@ -1595,9 +1589,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 					swaggerReviewComments.getRevision(), interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(String.format(ErrorCodes.errorMessage.get("Swagger-1002"),
+						String.format(String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
 								swaggerReviewComments.getSwaggerName(), swaggerReviewComments.getRevision())),
-						"Swagger-1002");
+						"Swagger-1001");
 			}
 			swaggerBusiness.createOrUpdateReviewComment(swagger3ReviewComments);
 		}
@@ -1619,9 +1613,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Update Swagger With new Revison", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerReviewComents.class, responseContainer = "List"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/revisions/{revision}/reviews")
 	public ResponseEntity<Object> getReviewComment(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1652,7 +1646,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Get Swagger Revison's", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/stats")
 	public ResponseEntity<Object> getSwaggerStats(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1674,7 +1668,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Get Team Stats", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams/stats")
 	public ResponseEntity<Object> getTeamStats(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1708,7 +1702,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Genrate client", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swagger-gen/clients/{framework}", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> genrateClient(
@@ -1721,18 +1715,18 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			if (!clients.contains(framework)) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"),
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
 								genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
-						"Swagger-1002");
+						"Swagger-1001");
 			}
 			SwaggerVO vo = null;
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(genrateClientRequest.getSwaggerName(),
 					genrateClientRequest.getRevision(), interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"),
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
 								genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
-						"Swagger-1002");
+						"Swagger-1001");
 			}
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.setSerializationInclusion(Include.NON_NULL);
@@ -1758,9 +1752,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 					genrateClientRequest.getRevision(), interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"),
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
 								genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
-						"Swagger-1002");
+						"Swagger-1001");
 			}
 			String filename = generateSwagger3SDK(vo, framework);
 
@@ -1804,7 +1798,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Genrate client", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swagger-gen/servers/{framework}", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<ResponseCode> genrateServer(
@@ -1817,18 +1811,18 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			if (!servers.contains(framework)) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"),
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
 								genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
-						"Swagger-1002");
+						"Swagger-1001");
 			}
 			SwaggerVO vo = null;
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(genrateClientRequest.getSwaggerName(),
 					genrateClientRequest.getRevision(), interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"),
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
 								genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
-						"Swagger-1002");
+						"Swagger-1001");
 			}
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.setSerializationInclusion(Include.NON_NULL);
@@ -1853,9 +1847,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 					genrateClientRequest.getRevision(), interactionid);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1002"),
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
 								genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
-						"Swagger-1002");
+						"Swagger-1001");
 			}
 			String filename = generateSwagger3SDK(vo, framework);
 			org.json.JSONObject obj = null;
@@ -1881,8 +1875,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 */
 	@ApiOperation(value = "Assoiate Product", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/associate-products")
 	public ResponseEntity<Void> assoiateProduct(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1897,8 +1891,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 				Set<String> products = swaggerVO.getProducts();
 				swaggerBusiness.associateProduct(vo.getName(), products, "2.0");
 			} else {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
@@ -1906,8 +1900,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 				Set<String> products = swaggerVO.getProducts();
 				swaggerBusiness.associateProduct(vo.getName(), products, "3.0");
 			} else {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 		}
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
@@ -1927,8 +1921,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Get Assoiated Products", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/associated-products")
 	public ResponseEntity<Set<String>> getAssoiatedProducts(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1941,8 +1935,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 		SwaggerVO vo = null;
 		vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 		if (vo == null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-					"Swagger-1001");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+					"Swagger-1000");
 		}
 		SwaggerMetadata metadata = swaggerBusiness.getSwaggerMetadata(vo.getName(), oas);
 		Set<String> responseSet = responseSet = (metadata != null) ? metadata.getProducts() : new HashSet<String>();
@@ -1951,8 +1945,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 			Swagger3VO vo = null;
 			vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-						"Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+						"Swagger-1000");
 			}
 			SwaggerMetadata metadata = swaggerBusiness.getSwaggerMetadata(vo.getName(), oas);
 			Set<String> responseSet = responseSet = (metadata != null) ? metadata.getProducts() : new HashSet<String>();
@@ -1973,8 +1967,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 */
 	@ApiOperation(value = "Assoiate Projects", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/teams/{teamname}/associate-projects")
 	public ResponseEntity<Void> assoiateTeamsToProject(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1999,8 +1993,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Get Assoiated Projects", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams/{teamname}/associated-projects")
 	public ResponseEntity<Set<String>> getassoiateTeamsToProjects(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -2028,8 +2022,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 */
 	@ApiOperation(value = "Assoiate Product", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/associated-portfolio")
 	public ResponseEntity<Void> assoiatePortfolio(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -2054,8 +2048,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Get Assoiated Portfolios", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
-			@ApiResponse(code = 404, message = "No records found for selected swagger name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/associated-portfolio")
 	public ResponseEntity<Set<String>> getAssoiatedPortfolios(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -2065,8 +2059,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 		SwaggerVO vo = null;
 		vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 		if (vo == null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
-					"Swagger-1001");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+					"Swagger-1000");
 		}
 		responseSet = vo.getPortfolios();
 		return new ResponseEntity<Set<String>>(responseSet, HttpStatus.OK);
@@ -2139,17 +2133,78 @@ public class SwaggerServiceImpl implements SwaggerService {
 		swaggerBusiness.deleteGitIntegrations(interactionid, jsessionid, swaggerid , oas);
 		return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
 	}
+
+
+	@ApiOperation(value = "Get Info of Swagger", notes = "", code = 200)
+	@ApiResponses(value = { @ApiResponse(code=200, message = "Ok", response = Object.class),
+			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/info", produces = { "application/json" })
+	public ResponseEntity<Object> getSwaggerInfo(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+			@RequestParam("id") String swaggerid)
+			throws Exception {
+		String swaggerInfo = swaggerBusiness.getSwaggerInfo(jsessionid, swaggerid , oas);
+		return new ResponseEntity<Object>(swaggerInfo, HttpStatus.OK);
+	}
+
+	@ApiOperation(value = "Clone existing Swagger. Creates a new clone based on the request details ", notes = "", code = 201)
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Swagger Cloned successfully", response = Void.class),
+			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/clone")
+	public ResponseEntity<?> cloneSwagger(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+			@RequestBody SwaggerCloneDetails swaggerCloneDetails)
+			throws Exception{
+		HttpStatus httpStatus = swaggerBusiness.cloneSwagger(swaggerCloneDetails, oas) ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
+		return new ResponseEntity<Void>(httpStatus);
+	}
 	
-//	@Override
-//	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swagger}/revisions/{revision}/getassociatedproxy", produces = {
-//	"application/json" })
-//	public ResponseEntity<?> getProxies(
-//			@PathVariable("swagger") String swagger,
-//			@PathVariable("revision") String revision,
-//			@RequestHeader(value = "interactionid", required = false) String interactionid,
-//			@RequestHeader(value = "JSESSIONID") String jsessionid,
-//			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas) throws Exception {
-//		return new ResponseEntity<Object> ("" , HttpStatus.OK);
-//	}
+	@Override
+	public ResponseEntity<?> getProxies(
+			@PathVariable("swagger") String swagger,
+			@PathVariable("revision") String revision,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas) throws Exception {
+		return new ResponseEntity<Object> (swaggerBusiness.getProxies(swagger, oas) , HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> managePartnerGroups(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody SwaggerPartnerRequest swaggerPartnerList) throws Exception{
+		swaggerBusiness.managePartners(swaggerPartnerList.getPartners());
+		return new ResponseEntity<Object> (HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	public ResponseEntity<?> getPartnerGroups(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception{
+		return new ResponseEntity<Object> (swaggerBusiness.getPartners(),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> manageSwaggerPartners(
+			@PathVariable("swaggerId") String swaggerId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+			@RequestBody AsociateSwaggerPartnerRequest swaggerPartnerRequest) throws Exception{
+		swaggerBusiness.associatePartners(swaggerId, oas, swaggerPartnerRequest.getPartners());
+		return new ResponseEntity<Object> (HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	public ResponseEntity<?> getSwaggerPartners(
+			@PathVariable("swaggerId") String swaggerId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas) throws Exception{
+		return new ResponseEntity<Object> (swaggerBusiness.getAssociatedPartners(swaggerId, oas),HttpStatus.OK);
+	}
 
 }

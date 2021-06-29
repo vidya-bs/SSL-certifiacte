@@ -37,13 +37,13 @@ public class DevportalDao{
 				return responseEntity;
 			}
 			else if (statusCode.value() >= 401 && statusCode.value() <= 403)
-				throw new ItorixException("Invalid Apigee Credentials " + statusCode.value(), "Config-1007");
+				throw new ItorixException("Request validation failed. Exception connecting to apigee connector. " + statusCode.value(), "Configuration-1006");
 			else
-				throw new ItorixException("invalid request data " + statusCode.value(), "Config-1000");
+				throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 

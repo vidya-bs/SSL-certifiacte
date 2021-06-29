@@ -82,7 +82,7 @@ public class PolicyPerformanceServiceImpl implements PolicyPerformanceService {
 	@ApiOperation(value = "Prepare PolicyPerformance", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = PolicyPerformanceBackUpInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/buildconfig/policyperformance", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> preparePolicyPerformance(
@@ -142,7 +142,7 @@ public class PolicyPerformanceServiceImpl implements PolicyPerformanceService {
 	 * responseContainer = "List"),
 	 * 
 	 * @ApiResponse(code = 500, message =
-	 * "Sorry! Internal server error. Please try again later.", response =
+	 * "Internal server error. Please contact support for further instructions.", response =
 	 * ErrorObj.class) })
 	 * 
 	 * @RequestMapping(method = RequestMethod.GET, value =
@@ -176,8 +176,8 @@ public class PolicyPerformanceServiceImpl implements PolicyPerformanceService {
 	 */
 	@ApiOperation(value = "Get Code Policy Performance ForId", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = PolicyPerformanceBackUpInfo.class),
-			@ApiResponse(code = 404, message = "Sorry! No records found for the given record id.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/policyperformance/{id}", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getPolicyPerformanceOnId(
@@ -186,7 +186,7 @@ public class PolicyPerformanceServiceImpl implements PolicyPerformanceService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		PolicyPerformanceBackUpInfo performanceBackUpInfo = null;
 		if (id == null || id.length() <= 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("PolicyPerformance-1001"), "PolicyPerformance-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("PolicyPerformance-1000"), "PolicyPerformance-1000");
 		}
 		performanceBackUpInfo = policyPerformanceService.getPolicyPerformanceOnId(id, interactionid);
 		return new ResponseEntity<Object>(performanceBackUpInfo, HttpStatus.OK);
@@ -209,15 +209,15 @@ public class PolicyPerformanceServiceImpl implements PolicyPerformanceService {
 	 */
 	@ApiOperation(value = "Delete PolicyPerformance On Id", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content", response = Void.class),
-			@ApiResponse(code = 404, message = "Sorry! No records found for the given record id.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/buildconfig/policyperformance/{id}")
 	public ResponseEntity<Void> deletePolicyPerformanceOnId(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("id") String id, @RequestHeader HttpHeaders headers,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		if (id == null || id.length() <= 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("PolicyPerformance-1001"), "PolicyPerformance-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("PolicyPerformance-1000"), "PolicyPerformance-1000");
 		}
 		policyPerformanceService.deletePolicyPerformanceOnId(id, interactionid);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
@@ -226,7 +226,7 @@ public class PolicyPerformanceServiceImpl implements PolicyPerformanceService {
 	@ApiOperation(value = "Get Policy Performance List", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = History.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/policyperformance", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<List<History>> getPolicyPerformanceList(

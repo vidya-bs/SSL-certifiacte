@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.mail.MessagingException;
 
+import com.itorix.apiwiz.design.studio.model.*;
 import org.json.JSONException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,20 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.design.studio.model.Revision;
-import com.itorix.apiwiz.design.studio.model.RowData;
-import com.itorix.apiwiz.design.studio.model.Swagger3Comment;
-import com.itorix.apiwiz.design.studio.model.Swagger3ReviewComents;
-import com.itorix.apiwiz.design.studio.model.Swagger3VO;
-import com.itorix.apiwiz.design.studio.model.SwaggerComment;
-import com.itorix.apiwiz.design.studio.model.SwaggerHistoryResponse;
-import com.itorix.apiwiz.design.studio.model.SwaggerImport;
-import com.itorix.apiwiz.design.studio.model.SwaggerIntegrations;
-import com.itorix.apiwiz.design.studio.model.SwaggerMetadata;
-import com.itorix.apiwiz.design.studio.model.SwaggerReview;
-import com.itorix.apiwiz.design.studio.model.SwaggerReviewComents;
-import com.itorix.apiwiz.design.studio.model.SwaggerTeam;
-import com.itorix.apiwiz.design.studio.model.SwaggerVO;
 
 @Service
 public interface SwaggerBusiness {
@@ -198,9 +185,22 @@ public interface SwaggerBusiness {
 	 * @throws IOException
 	 * @throws JsonProcessingException
 	 */
-	public SwaggerHistoryResponse getListOfSwaggerDetails(String status, String interactionid, String jsessionid,
+	public SwaggerHistoryResponse getListOfSwaggerDetails(String status, String modifiedDate, String interactionid, String jsessionid,
+			int offset, String oas, String swagger, int pageSize, String sortByModfiedDate) throws ItorixException, JsonProcessingException, IOException;
+
+	/**
+	 * getSwaggerDetailsByproduct
+	 * 
+	 * @param interactionid
+	 * @param jsessionid
+	 * @return
+	 * @throws IOException
+	 * @throws JsonProcessingException
+	 */
+	public SwaggerHistoryResponse getSwaggerDetailsByproduct(List<String> products, String interactionid, String jsessionid,
 			int offset, String oas, String swagger, int pageSize) throws ItorixException, JsonProcessingException, IOException;
 
+	
 	/**
 	 * getSwaggerCount
 	 * 
@@ -226,8 +226,8 @@ public interface SwaggerBusiness {
 	 * @throws IOException
 	 * @throws JsonProcessingException
 	 */
-	public SwaggerHistoryResponse getListOfSwagger3Details(String status, String interactionid, String jsessionid,
-			int offset, String oas, String swagger, int pageSize) throws ItorixException, JsonProcessingException, IOException;
+	public SwaggerHistoryResponse getListOfSwagger3Details(String status, String modifiedDate, String interactionid, String jsessionid,
+			int offset, String oas, String swagger, int pageSize, String sortByModifiedDate) throws ItorixException, JsonProcessingException, IOException;
 
 	/**
 	 * getListOfPublishedSwaggerDetails
@@ -240,7 +240,7 @@ public interface SwaggerBusiness {
 	 * @throws JsonProcessingException
 	 */
 
-	public ArrayNode getListOfPublishedSwaggerDetails(String interactionid, String jsessionid, String status)
+	public ArrayNode getListOfPublishedSwaggerDetails(String interactionid, String jsessionid, String status, String partnerId)
 			throws ItorixException, JsonProcessingException, IOException;
 
 	/**
@@ -253,7 +253,7 @@ public interface SwaggerBusiness {
 	 * @throws IOException
 	 * @throws JsonProcessingException
 	 */
-	public ArrayNode getListOfPublishedSwagger3Details(String interactionid, String jsessionid, String status)
+	public ArrayNode getListOfPublishedSwagger3Details(String interactionid, String jsessionid, String status, String partnerId)
 			throws ItorixException, JsonProcessingException, IOException;
 
 	/**
@@ -651,4 +651,19 @@ public interface SwaggerBusiness {
 
 	public void deleteGitIntegrations(String interactionid, String jsessionid, String swaggerid, String oas) throws ItorixException;
 
+    public String getSwaggerInfo(String jsessionid, String swaggerid, String oas);
+
+	public boolean cloneSwagger(SwaggerCloneDetails swaggerCloneDetails, String oas);
+	
+	public List<String> getProxies(String swagger, String oas);
+	
+	public void managePartners(List<SwaggerPartner> partners);
+	
+	public List<SwaggerPartner> getPartners();
+	
+	public  void associatePartners(String swaggerId, String oas, List<String> partners);
+	
+	public  List<String> getAssociatedPartners(String swaggerId, String oas);
+	
+	
 }

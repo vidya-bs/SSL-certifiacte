@@ -54,7 +54,7 @@ public class OrganizationSchedulerBusinessImpl implements OrganizationSchedulerB
 				scheduleModel.getOrganization(),  ScheduleModel.LABEL_PERIODICITY,
 				scheduleModel.getPeriodicity(), ScheduleModel.class);
 		if (model1 != null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("DMB_0002"), "DMB_0002");
+			throw new ItorixException(ErrorCodes.errorMessage.get("DataBackup-1000"), "DataBackup-1000");
 		} else {
 			scheduleModel = baseRepository.save(scheduleModel);
 		}
@@ -70,7 +70,7 @@ public class OrganizationSchedulerBusinessImpl implements OrganizationSchedulerB
 				+ scheduleModel);
 		ScheduleModel model1 = baseRepository.findById(scheduleModel.getId(), ScheduleModel.class);
 		if (model1 == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("DMB_0003"), "DMB_0003");
+			throw new ItorixException(ErrorCodes.errorMessage.get("DataBackup-1001"), "DataBackup-1001");
 		} else {
 			model1.setOrganization(scheduleModel.getOrganization());
 			model1.setPeriodicity(scheduleModel.getPeriodicity());
@@ -88,7 +88,7 @@ public class OrganizationSchedulerBusinessImpl implements OrganizationSchedulerB
 				+ scheduleModel);
 		ScheduleModel model1 = baseRepository.findById(scheduleModel.getId(), ScheduleModel.class);
 		if (model1 == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("DMB_0003"), "DMB_0003");
+			throw new ItorixException(ErrorCodes.errorMessage.get("DataBackup-1001"), "DataBackup-1001");
 		} else {
 			baseRepository.delete(scheduleModel.getId(), ScheduleModel.class);
 		}

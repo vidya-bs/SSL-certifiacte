@@ -8,6 +8,7 @@ import javax.xml.bind.JAXBException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,7 +37,7 @@ public interface CodeCoverageService {
 	/**
 	 * <h1>http://hostname:port/v1/buildconfig/codecoverage</h1> Using this we
 	 * can test the the code coverage how much we done
-	 * 
+	 *
 	 * @param interactionid
 	 * @param postmanFile
 	 * @param envFile
@@ -55,18 +56,19 @@ public interface CodeCoverageService {
 	@ApiOperation(value = "Prepare CodeCoverage", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = CodeCoverageBackUpInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/buildconfig/codecoverage", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> prepareCodeCoverage(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestParam(value = "postmanFile",required = false ) MultipartFile postmanFile, 
+			@RequestParam(value = "postmanFile",required = false ) MultipartFile postmanFile,
 			@RequestParam(value = "envFile",required = false) MultipartFile envFile,
-			@RequestParam("org") String org, 
-			@RequestParam("env") String env, 
+			@RequestParam("org") String org,
+			@RequestParam("env") String env,
 			@RequestParam("proxy") String proxy,
-			@RequestParam(value = "testsuiteId", required = false) String testsuiteId, 
-			@RequestParam(value = "variableId", required = false) String variableId, 
+			@RequestParam(value = "testsuiteId", required = false) String testsuiteId,
+			@RequestParam(value = "variableId", required = false) String variableId,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestHeader HttpHeaders headers,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
@@ -76,7 +78,7 @@ public interface CodeCoverageService {
 	 * <p>
 	 * This service fetches code coverage based on id that were ran
 	 * </p>
-	 * 
+	 *
 	 * @param interactionid
 	 * @param id
 	 * @param headers
@@ -87,8 +89,9 @@ public interface CodeCoverageService {
 	 */
 	@ApiOperation(value = "Get Code Coverage Overview ForId", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = CodeCoverageBackUpInfo.class),
-			@ApiResponse(code = 404, message = "Sorry! No records found for the given record id.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/codecoverage/{id}", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getCodeCoverageOverviewForId(
@@ -98,7 +101,7 @@ public interface CodeCoverageService {
 
 	/**
 	 * <h1>http://hostname:port/v1/buildconfig/codecoverage/{id}</h1>
-	 * 
+	 *
 	 * @param interactionid
 	 * @param id
 	 * @param headers
@@ -109,8 +112,9 @@ public interface CodeCoverageService {
 	 */
 	@ApiOperation(value = "Delete Code Coverage Overview ForId", notes = "", code = 204)
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content", response = Void.class),
-			@ApiResponse(code = 404, message = "Sorry! No records found for the given record id.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 404, message = "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/buildconfig/codecoverage/{id}")
 	public ResponseEntity<Void> deleteCodeCoverageOverviewForId(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -119,7 +123,8 @@ public interface CodeCoverageService {
 
 	@ApiOperation(value = "Get Code Coverages", notes = "", code = 200)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Ok", response = MonitorResponse.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/codecoverage")
 	public ResponseEntity<List<History>> getMonitoringStats(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -132,7 +137,7 @@ public interface CodeCoverageService {
 
 	/**
 	 * <h1>http://hostname:port/v1/api/codecoverage/unittest</h1>
-	 * 
+	 *
 	 * @param interactionid
 	 * @param headers
 	 * @param org
@@ -144,22 +149,23 @@ public interface CodeCoverageService {
 	 * @return
 	 * @throws Exception
 	 */
-	
+
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/cicd/unittest")
 	public Object getUnitTests(@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader HttpHeaders headers, 
+			@RequestHeader HttpHeaders headers,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam("org") String org,
 			@RequestParam("env") String env,
-			@RequestParam("proxy") String proxy, 
-			@RequestParam(value = "testsuitId", required = false) String testsuitId, 
-			@RequestParam(value = "artifactType", required = false) String artifactType, 
-			@RequestParam(value = "variableId", required = false) String variableId, 
+			@RequestParam("proxy") String proxy,
+			@RequestParam(value = "testsuitId", required = false) String testsuitId,
+			@RequestParam(value = "artifactType", required = false) String artifactType,
+			@RequestParam(value = "variableId", required = false) String variableId,
 			@RequestParam("isSaaS") boolean isSaaS) throws Exception;
 
 	/**
 	 * <h1>http://hostname:port/v1/api/codecoverage/execute</h1>
-	 * 
+	 *
 	 * @param interactionid
 	 * @param headers
 	 * @param codeCoverageVO
@@ -170,10 +176,11 @@ public interface CodeCoverageService {
 	 * @return
 	 * @throws Exception
 	 */
-	
+
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')" )
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/cicd/codecoverage")
 	public Object executeCodeCoverage(@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader HttpHeaders headers, 
+			@RequestHeader HttpHeaders headers,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestBody CodeCoverageVO codeCoverageVO,
 			@RequestParam(value = "type", required = false) String type,

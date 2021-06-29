@@ -154,7 +154,7 @@ public class CareersDao {
 			JSONObject uploadFiles = jfrogUtilImpl.uploadFiles(new ByteArrayInputStream(bytes), "/marketing/careers/" + folderPath);
 			return uploadFiles.getString("downloadURI");
 		} catch (Exception e) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-7"), "Marketing-2");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1009"), "Marketing-1000");
 		}
 	}
 
@@ -162,7 +162,7 @@ public class CareersDao {
 		try {
 			jfrogUtilImpl.deleteFileIgnore404(folderPath);
 		} catch (Exception e) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-15"), "Marketing-3");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1016"), "Marketing-3");
 		}
 	}
 

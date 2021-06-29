@@ -9,7 +9,7 @@ public enum ErrorCodes {
 	public static final Map<String, String> errorMessage = new HashMap<String, String>() {
 		private static final long serialVersionUID = 1L;
 		{
-			put("MonitorAgent-1","you don't have enough permissions to access the resource");
+			put("MonitorAgent-1","Resource authorization validation failed. Please contact your workspace admin.");
 			put("MonitorAgent-2","Login failed! Invalid or missing x-apikey.");
 			put("MonitorAgent-4","Couldn't find workspace id");
 			put("MonitorAgent-5","collectionId or schedulerId is missing");

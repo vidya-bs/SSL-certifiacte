@@ -26,7 +26,7 @@ public class CacheService {
 			return URL;
 		}
 		catch( Exception ex){
-			throw new ItorixException(ex.getMessage(),"Config-1000", ex );
+			throw new ItorixException(ex.getMessage(),"Configuration-1000", ex );
 		}
 	}
 
@@ -39,7 +39,7 @@ public class CacheService {
 			return URL;
 		}
 		catch( Exception ex){
-			throw new ItorixException(ex.getMessage(),"Config-1000", ex );
+			throw new ItorixException(ex.getMessage(),"Configuration-1000", ex );
 		}
 	}
 
@@ -72,7 +72,7 @@ public class CacheService {
 			return apigeeCache;
 		}
 		catch( Exception ex){
-			throw new ItorixException(ex.getMessage(),"Config-1000", ex );
+			throw new ItorixException(ex.getMessage(),"Configuration-1000", ex );
 		}
 	}
 }

@@ -53,7 +53,7 @@ public class ApigeeConfigurationServiceImpl implements ApigeeConfigurationServic
 	@ApiOperation(value = "Get Configuration", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = ApigeeConfigurationVO.class,responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/apigee/organizations/config")
 	public ResponseEntity<List<ApigeeConfigurationVO>> getConfiguration(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -77,7 +77,7 @@ public class ApigeeConfigurationServiceImpl implements ApigeeConfigurationServic
 	@ApiOperation(value = "GetList Of Org And Env", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = ApigeeConfigurationVO.class,responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/apigee/organizations")
@@ -117,7 +117,7 @@ public class ApigeeConfigurationServiceImpl implements ApigeeConfigurationServic
 	@ApiOperation(value = "Get Apigee Host", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = String.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/apigee/host")
@@ -153,7 +153,7 @@ public class ApigeeConfigurationServiceImpl implements ApigeeConfigurationServic
 	@ApiOperation(value = "Create Configuration", notes = "", code=201)
     @ApiResponses(value = { 
         @ApiResponse(code = 201, message = "Created", response = Void.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/apigee/organizations/import")
 	public  ResponseEntity<Void> createConfiguration(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -180,7 +180,7 @@ public class ApigeeConfigurationServiceImpl implements ApigeeConfigurationServic
 	@ApiOperation(value = "Update Configuration", notes = "", code=204)
     @ApiResponses(value = { 
         @ApiResponse(code = 204, message = "No Content", response = Void.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/apigee/organizations/import")
 	public  ResponseEntity<Void> updateConfiguration(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -206,7 +206,7 @@ public class ApigeeConfigurationServiceImpl implements ApigeeConfigurationServic
 	@ApiOperation(value = "Delete Configuration", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = Void.class),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = { RequestMethod.DELETE, RequestMethod.PATCH}, value = "/v1/api/apigee/config")
 	public  ResponseEntity<Void> deleteConfiguration(@RequestHeader(value = "interactionid", required = false) String interactionid,

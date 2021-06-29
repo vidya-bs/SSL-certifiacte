@@ -63,8 +63,8 @@ public class DictionaryServiceImpl implements DictionaryService{
 			PortfolioVO vo = dictionaryBusiness.findPortfolio(portfolioVO);
 			if (vo != null) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Portfolio-1003"), portfolioVO.getName()),
-						"Portfolio-1003");
+						String.format(ErrorCodes.errorMessage.get("Portfolio-1001"), portfolioVO.getName()),
+						"Portfolio-1001");
 			}
 			portfolioVO = dictionaryBusiness.createPortfolio(portfolioVO);
 			
@@ -97,8 +97,8 @@ public class DictionaryServiceImpl implements DictionaryService{
 			PortfolioVO vo = dictionaryBusiness.findPortfolioById(portfolioVO);
 			if (vo == null) {
 				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), portfolioVO.getName()),
-						"Portfolio-1002");
+						String.format(ErrorCodes.errorMessage.get("Portfolio-1001"), portfolioVO.getName()),
+						"Portfolio-1001");
 			}
 			portfolioVO = dictionaryBusiness.createPortfolio(portfolioVO);
 		}
@@ -158,8 +158,8 @@ public class DictionaryServiceImpl implements DictionaryService{
 		vo = dictionaryBusiness.getPortfolioById(vo);
 		if(vo==null){
 			throw new ItorixException(
-					String.format(ErrorCodes.errorMessage.get("Portfolio-1004"), id),
-					"Portfolio-1004");	
+					String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
+					"Portfolio-1002");	
 		}
 		return new ResponseEntity<PortfolioVO>(vo, HttpStatus.OK);
 	}
@@ -205,8 +205,8 @@ public class DictionaryServiceImpl implements DictionaryService{
 		PortfolioVO portfolioVO=dictionaryBusiness.findPortfolioById(vo);
 		if (portfolioVO == null) {
 			throw new ItorixException(
-					String.format(ErrorCodes.errorMessage.get("Portfolio-1004"), id),
-					"Portfolio-1004");	
+					String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
+					"Portfolio-1002");	
 		} else {
 			PortfolioModel model=new PortfolioModel();
 			model.setInteractionid(interactionid);
@@ -280,8 +280,8 @@ public class DictionaryServiceImpl implements DictionaryService{
 		model = dictionaryBusiness.findPortfolioModelsByportfolioIDAndModelName(model);
 		if (model == null) {
 			throw new ItorixException(
-					String.format(ErrorCodes.errorMessage.get("Portfolio-1004"), id),
-					"Portfolio-1004");	
+					String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
+					"Portfolio-1002");	
 		}
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode jsonNode = mapper.readTree(model.getModel());
@@ -309,8 +309,8 @@ public class DictionaryServiceImpl implements DictionaryService{
 	    model = dictionaryBusiness.findPortfolioModelsByportfolioIDAndModelName(model);
 	    if (model == null) {
 			throw new ItorixException(
-					String.format(ErrorCodes.errorMessage.get("Portfolio-1004"), id),
-					"Portfolio-1004");	
+					String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
+					"Portfolio-1002");	
 		}
 		dictionaryBusiness.deletePortfolioModelByportfolioIDAndModelName(model);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);

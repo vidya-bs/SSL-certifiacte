@@ -46,7 +46,7 @@ public class ServiceMonitor {
 			ex.printStackTrace();
 			if (response.getStatus() == 403) {
 				ErrorObj error = new ErrorObj();
-				error.setErrorMessage(SESSION_TOKEN_NAME + " specified in the header is not valid ", "USER_010");
+				error.setErrorMessage(SESSION_TOKEN_NAME + " specified in the header is not valid ", "Identity-1003");
 				return error;
 			}
 			throw ex;
@@ -62,11 +62,11 @@ public class ServiceMonitor {
 				ServiceRequestContext ctx = ServiceRequestContextHolder.getContext();
 				ctx.setTenantId(workspace.getTenant());
 			}else{
-				throw new ItorixException("invalid " + SESSION_TOKEN_NAME, "Session_02");
+				throw new ItorixException("invalid " + SESSION_TOKEN_NAME, "Identity-1033");
 			}
 		}
 		else{
-			throw new ItorixException("missing header " + SESSION_TOKEN_NAME, "Session_03");
+			throw new ItorixException("missing header " + SESSION_TOKEN_NAME, "Identity-1034");
 		}
 		return key;
 	}

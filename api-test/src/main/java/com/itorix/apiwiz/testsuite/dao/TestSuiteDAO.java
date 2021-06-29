@@ -194,7 +194,7 @@ public class TestSuiteDAO {
 						try {
 							header.setValue(new RSAEncryption().encryptText(header.getValue()));
 						} catch (Exception e) {
-							throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-9"), "Testsuite-9");
+							throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1007"), "Testsuite-1007");
 						}
 					}
 				}
@@ -532,16 +532,16 @@ public class TestSuiteDAO {
 		Variables variables = null;
 		testSuite = getTestSuite(testSuiteId);
 		if(testSuite == null){
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-6"), "Testsuite-6");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1004"), "Testsuite-1004");
 		}
 
 		if (!testSuite.getActive()) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-2"), "Testsuite-2");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1001"), "Testsuite-1001");
 		}
 		variables = getVariablesById(variableId);
 
 		if(variables == null){
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-7"), "Testsuite-7");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1005"), "Testsuite-1005");
 		}
 		
 		if(!testSuite.hasTestCases()){
@@ -560,7 +560,7 @@ public class TestSuiteDAO {
 					.and("status").is(TestSuiteResponse.STATUSES.SCHEDULED.getValue()));
 			List<TestSuiteResponse> response = mongoTemplate.find(query, TestSuiteResponse.class);
 			if (response != null && response.size() > 0) {
-				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1"), "Testsuite-1");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1000"), "Testsuite-1000");
 			}
 		}
 		TestSuiteResponse response = new TestSuiteResponse(testSuiteId, variableId, testSuite, TestSuiteResponse.STATUSES.SCHEDULED.getValue());
@@ -1222,7 +1222,7 @@ public class TestSuiteDAO {
 	public void deleteCertificate(String name) throws ItorixException {
 		if(mongoTemplate.remove(new Query(Criteria.where("name").is(name)),
 				Certificates.class).getDeletedCount() == 0){
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-15"), "Testsuite-15");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1012"), "Testsuite-1012");
 		}
 	}
 
@@ -1246,7 +1246,7 @@ public class TestSuiteDAO {
 				ks.load(new ByteArrayInputStream(jKSFile), password.toCharArray());
 			} catch (NoSuchAlgorithmException | CertificateException | IOException | KeyStoreException e) {
 				log.error("Issue in uploaded certificate", e);
-				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-12"), "Testsuite-12");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1010"), "Testsuite-1010");
 			}
 		}
 

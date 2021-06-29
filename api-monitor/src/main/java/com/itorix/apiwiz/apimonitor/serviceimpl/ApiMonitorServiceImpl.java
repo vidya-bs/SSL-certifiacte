@@ -174,7 +174,7 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 				try {
 					header.setValue(new RSAEncryption().encryptText(header.getValue()));
 				} catch (Exception e) {
-					throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-2"), "Monitor-Api-2");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1001"), "Monitor-1001");
 				}
 			}
 		}
@@ -243,7 +243,7 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 
 		Certificates certificate = apiMonitorDAO.getCertificate(name);
 		if (certificate == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-3"), "Monitor-Api-3");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1002"), "Monitor-1002");
 		}
 
 		String url = request.getRequestURL().toString();
@@ -265,11 +265,11 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 
 		if (jksFile == null) {
-			throw new ItorixException((String.format(ErrorCodes.errorMessage.get("Monitor-Api-4"),"JKSFile")), "Monitor-Api-4");
+			throw new ItorixException((String.format(ErrorCodes.errorMessage.get("Monitor-1003"),"JKSFile")), "Monitor-1003");
 		}
 		byte[] bytes = jksFile.getBytes();
 		if (bytes == null || bytes.length == 0) {
-			throw new ItorixException((String.format(ErrorCodes.errorMessage.get("Monitor-Api-4"),"JKSFile")), "Monitor-Api-4");
+			throw new ItorixException((String.format(ErrorCodes.errorMessage.get("Monitor-1003"),"JKSFile")), "Monitor-1003");
 		}
 
 		apiMonitorDAO.createOrUpdateCertificate(name, bytes, description, password, alias, jsessionid);
@@ -296,7 +296,7 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 
 		byte[] content = apiMonitorDAO.downloadCertificate(name);
 		if(content == null || content.length == 0){
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-3"), "Monitor-Api-3");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1002"), "Monitor-1002");
 		}
 
 		ByteArrayResource resource = new ByteArrayResource(content);

@@ -97,7 +97,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 				else
 					return new ResponseEntity<Object>(identityManagementDao.registerWithToken(userInfo, token),HttpStatus.CREATED);
 			else
-				throw new ItorixException(ErrorCodes.errorMessage.get("USER_020"),"USER_020");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1009"),"Identity-1009");
 		}
 	}
 
@@ -214,7 +214,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			@RequestParam(value="type", required=false) String type) throws ItorixException, Exception {
 		VerificationToken dbToken = identityManagementDao.getVerificationToken(token);
 		if(dbToken == null)
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_020"),"USER_020");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1009"),"Identity-1009");
 		return new ResponseEntity<Object>(dbToken ,HttpStatus.OK);
 	}
 	
@@ -228,10 +228,10 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			@RequestBody VerificationToken token) throws ItorixException,Exception{
 		VerificationToken dbToken = identityManagementDao.getVerificationToken(token.getId());
 		if(dbToken == null)
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_020"),"USER_020");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1009"),"Identity-1009");
 		if(token.getUserEmail()!=null && token.getUserEmail() != "")
 			if(!dbToken.getUserEmail().equals(token.getUserEmail())){
-				throw new ItorixException(ErrorCodes.errorMessage.get("USER_021"),"USER_021");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1036"),"Identity-1036");
 			}
 		String status = identityManagementDao.VerifyToken(dbToken);
 		token.setUserEmail(dbToken.getUserEmail());
@@ -319,8 +319,8 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 
 	@Override
 	@UnSecure
-	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/users/sessions")
-	public ResponseEntity<Void> removeUserSessions(
+	public @ResponseBody ResponseEntity<Void> removeUserSessions(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value="interactionid",required=false)String interactionid,
 			@RequestHeader(value="x-apikey")String apikey) {
 		identityManagementDao.removeUserSessions();
@@ -339,7 +339,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 
 		VerificationToken token = identityManagementDao.getVerificationToken(verificationToken);
 		if(token == null)
-			throw new ItorixException(ErrorCodes.errorMessage.get("USER_020"),"USER_020");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1009"),"Identity-1009");
 		String status = identityManagementDao.VerifyToken(token);
 		//String status = identityManagementDao.verifyRegisteredEmailHash(user);
 		if (status.equalsIgnoreCase("activated")) {
@@ -369,7 +369,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			resetUserToken.setId(null);
 			return new ResponseEntity<Object> (resetUserToken,HttpStatus.OK);
 		}else{
-			throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1004") ,"IDENTITY-1004");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1038") ,"Identity-1038");
 		}
 	}
 
@@ -385,14 +385,14 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		if(user!=null && user.getNewPassword() != null && verificationToken != null){
 			VerificationToken dbToken = identityManagementDao.getVerificationToken(verificationToken);
 			if(dbToken == null)
-				throw new ItorixException(ErrorCodes.errorMessage.get("USER_020"),"USER_020");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1009"),"Identity-1009");
 			user.setEmail(dbToken.getUserEmail());
 			user.setPassword(user.getNewPassword());
 			user = identityManagementDao.updatePassword(user,dbToken);
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		}
 		else{
-			throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1006"),"IDENTITY-1006");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1040"),"Identity-1040");
 		}
 	}
 
@@ -435,7 +435,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		if(userInfo != null && userInfo.getRoles() != null)
 			identityManagementDao.updateWorkspaceUserRoles(userId, userInfo.getRoles());
 		else
-			throw new ItorixException(ErrorCodes.errorMessage.get("IDENTITY-1006"),"IDENTITY-1006");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1040"),"Identity-1040");
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 

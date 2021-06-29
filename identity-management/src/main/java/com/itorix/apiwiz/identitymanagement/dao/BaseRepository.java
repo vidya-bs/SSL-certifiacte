@@ -1,13 +1,13 @@
 package com.itorix.apiwiz.identitymanagement.dao;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -19,12 +19,16 @@ import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.result.DeleteResult;
 
+import static com.itorix.apiwiz.identitymanagement.model.Constants.SWAGGER_PROJECTION_FIELDS;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+
 @Component
 public class BaseRepository {
 
 	@Autowired
 	MongoTemplate mongoTemplate;
-	
+	private GroupOperation groupByName = null;
+
 	@SuppressWarnings("unchecked")
 	public <T> T save(T t) {
 		BaseObject obj = (BaseObject) t;
@@ -167,5 +171,60 @@ public class BaseRepository {
 		}
 		return list;
 	}
+
+	public List<String> filterAndGroupBySwaggerName(Map<String, Object> filterFieldsAndValues, Class<?> clazz, String sortByModifiedTS) {
+		List<String> names = new LinkedList();
+		AggregationResults<Document> results = null;
+
+		ProjectionOperation projectRequiredFields = project(SWAGGER_PROJECTION_FIELDS).
+				andExpression("toDate(mts)").as("mtsToDate");
+
+		ProjectionOperation dateToString = Aggregation.project(SWAGGER_PROJECTION_FIELDS)
+				.and("mtsToDate")
+				.dateAsFormattedString("%m%d%Y")
+				.as("modified_date");
+
+
+		MatchOperation match = getMatchOperation(filterFieldsAndValues);
+		groupByName = group("name").max("mts").as("mts");
+		SortOperation sortOperation = getSortOperation(sortByModifiedTS);
+
+		if(match != null) {
+			results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, match, groupByName, sortOperation), clazz, Document.class);
+		} else {
+			results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, groupByName, sortOperation), clazz, Document.class);
+		}
+		results.getMappedResults().forEach( d -> names.add(d.getString("_id")));
+		return names;
+	}
+
+	private MatchOperation getMatchOperation(Map<String, Object> filterFieldsAndValues) {
+		List<Criteria> criteriaList = new ArrayList<>();
+		filterFieldsAndValues.forEach((k, v) -> {
+			if (null != v) {
+				criteriaList.add(Criteria.where(k).is(v));
+			}
+		});
+
+		Criteria criteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()]));
+		return criteriaList.size() > 0 ? match(criteria) : null;
+	}
+
+	private SortOperation getSortOperation(String sortByModifiedTS) {
+		SortOperation sortOperation = null;
+		if(sortByModifiedTS != null && sortByModifiedTS.equalsIgnoreCase("ASC")) {
+			sortOperation = sort(Sort.Direction.ASC, "mts");
+			groupByName = group("name").max("mts").as("mts");
+		} else if (sortByModifiedTS != null && sortByModifiedTS.equalsIgnoreCase("DESC")) {
+			groupByName = group("name").max("mts").as("mts");
+			sortOperation = sort(Sort.Direction.DESC, "mts");
+		} else {
+			sortOperation = sort(Sort.Direction.ASC, "name");
+			groupByName = group("name").max("name").as("name");
+		}
+
+		return sortOperation;
+	}
+
 
 }

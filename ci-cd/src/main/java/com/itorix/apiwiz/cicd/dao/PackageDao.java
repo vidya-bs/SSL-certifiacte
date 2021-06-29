@@ -114,7 +114,7 @@ public class PackageDao {
 			return packageRequest;
 		}
 		catch(Exception ex){
-			throw new ItorixException(ex.getMessage(),"Config-1000", ex );
+			throw new ItorixException(ex.getMessage(),"Configuration-1000", ex );
 		}
 	}
 

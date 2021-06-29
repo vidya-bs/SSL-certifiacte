@@ -47,7 +47,7 @@ public class SoapArtifiactServiceDao {
 		try {
 			SoapUiEnvFileInfo postManEnvFiledbInfo = findByOrgEnvProxy(org, env, proxy,type,false);
 			if (postManEnvFiledbInfo != null && postManEnvFiledbInfo.getPostManFileContent() != null) {
-				throw new ItorixException(new Throwable().getMessage(), "POSTMAN_001", new Throwable());
+				throw new ItorixException(new Throwable().getMessage(), "Connector-1000", new Throwable());
 			} else {
 				GridFSFile gridFSFile = gridFsRepository.store(
 						new GridFsData(postmanFile.getInputStream(), org + "-" + env + "-" + proxy + "_postManFile"));
@@ -162,7 +162,7 @@ public class SoapArtifiactServiceDao {
 					soapUiEnvFileInfo = baseRepository.save(soapUiEnvFileInfo);
 				}
 			} else {
-				throw new ItorixException(new Throwable().getMessage(), "POSTMAN_002", new Throwable());
+				throw new ItorixException(new Throwable().getMessage(), "Connector-1001", new Throwable());
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -223,7 +223,7 @@ public class SoapArtifiactServiceDao {
 			String str = new String(filebytes, "UTF-8");
 			return str;
 		} else {
-			throw new ItorixException(new Throwable().getMessage(), "POSTMAN_004", new Throwable());
+			throw new ItorixException(new Throwable().getMessage(), "Connector-1003", new Throwable());
 		}
 	}
 
@@ -233,14 +233,14 @@ public class SoapArtifiactServiceDao {
 			if (soapUiEnvFileInfo != null) {
 				baseRepository.delete(soapUiEnvFileInfo.getId(), SoapUiEnvFileInfo.class);
 			}else{
-				throw new ItorixException(new Throwable().getMessage(), "POSTMAN_005", new Throwable());
+				throw new ItorixException(new Throwable().getMessage(), "Connector-1004", new Throwable());
 			}
 		}else if(recordtype!=null &&  recordtype.equalsIgnoreCase("postman")){
 			SoapUiFileInfo soapUiFileInfo = findPostManByOrgEnvProxy(org, env, proxy,type,isSaaS);
 			if (soapUiFileInfo != null) {
 				baseRepository.delete(soapUiFileInfo.getId(), SoapUiFileInfo.class);
 			}else{
-				throw new ItorixException(new Throwable().getMessage(), "POSTMAN_005", new Throwable());
+				throw new ItorixException(new Throwable().getMessage(), "Connector-1004", new Throwable());
 			}
 		}
 		return null;
@@ -299,7 +299,7 @@ public class SoapArtifiactServiceDao {
 			String str = new String(filebytes, "UTF-8");
 			return str;
 		} else {
-			throw new ItorixException(new Throwable().getMessage(), "POSTMAN_003", new Throwable());
+			throw new ItorixException(new Throwable().getMessage(), "Connector-1002", new Throwable());
 		}
 	}
 	

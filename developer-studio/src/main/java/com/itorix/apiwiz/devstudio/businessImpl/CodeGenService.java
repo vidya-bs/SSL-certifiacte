@@ -555,7 +555,7 @@ public class CodeGenService {
 			if (data != null) {
 				return data.getProxyArtifacts();
 			} else
-				throw new ItorixException("No records exist for Proxy - " + proxy, "ProxyGen-1002");
+				throw new ItorixException("No records exist for Proxy - " + proxy, "ProxyGen-1001");
 		} catch (Exception e) {
 			throw new ItorixException(e.getMessage(), "ProxyGen-1000", e);
 		}
@@ -567,7 +567,7 @@ public class CodeGenService {
 			if (data != null) {
 				return data.getProxyConnections();
 			} else
-				throw new ItorixException("No records exist for Proxy - " + proxy, "ProxyGen-1002");
+				throw new ItorixException("No records exist for Proxy - " + proxy, "ProxyGen-1001");
 		} catch (Exception e) {
 			throw new ItorixException(e.getMessage(), "ProxyGen-1000", e);
 		}
@@ -579,7 +579,7 @@ public class CodeGenService {
 			if (data != null) {
 				return data.getProjectName();
 			} else
-				throw new ItorixException("No records exist for Proxy - " + proxy, "ProxyGen-1002");
+				throw new ItorixException("No records exist for Proxy - " + proxy, "ProxyGen-1001");
 		} catch (Exception e) {
 			throw new ItorixException(e.getMessage(), "ProxyGen-1000", e);
 		}
@@ -591,7 +591,7 @@ public class CodeGenService {
 			if (data != null) {
 				return data;
 			} else
-				throw new ItorixException("No records exist for Proxy - " + proxy, "ProxyGen-1002");
+				throw new ItorixException("No records exist for Proxy - " + proxy, "ProxyGen-1001");
 		} catch (Exception e) {
 			throw new ItorixException(e.getMessage(), "ProxyGen-1000", e);
 		}
@@ -701,7 +701,7 @@ public class CodeGenService {
 			proxyDetails = mongoConnection.getProxyDetails(proxy);
 			if (!refresh) {
 				if (proxyDetails == null)
-					throw new ItorixException("Data not available", "ProxyGen-1004");
+					throw new ItorixException("Data not available", "ProxyGen-1002");
 				// if(proxyDetails!=null &&
 				// proxyDetails.getProxyApigeeDetails()!=null){
 				if (proxyDetails.getProxyApigeeDetails() != null
@@ -1138,7 +1138,7 @@ public class CodeGenService {
 	// if( result.isUpdateOfExisting())
 	// return result.isUpdateOfExisting();
 	// else
-	// throw new ItorixException("No Record exists","ProxyGen-1004" );
+	// throw new ItorixException("No Record exists","ProxyGen-1002" );
 	// }
 	// catch(ItorixException ex){
 	// throw ex;
@@ -1155,7 +1155,7 @@ public class CodeGenService {
 			if (result.getDeletedCount() > 0)
 				return result.wasAcknowledged();
 			else
-				throw new ItorixException("No Record exists", "ProxyGen-1004");
+				throw new ItorixException("No Record exists", "ProxyGen-1002");
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {

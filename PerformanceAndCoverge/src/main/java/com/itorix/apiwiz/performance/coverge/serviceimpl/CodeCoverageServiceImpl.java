@@ -97,7 +97,7 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "Ok", response = CodeCoverageBackUpInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/buildconfig/codecoverage", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
@@ -151,7 +151,7 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 	/*	@ApiOperation(value = "Get Code Coverages", notes = "", code=200)
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Ok", response = History.class,responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+        @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
        })
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/codecoverage", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
@@ -179,8 +179,8 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 	@ApiOperation(value = "Get Code Coverage Overview ForId", notes = "", code=200)
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "Ok", response = CodeCoverageBackUpInfo.class),
-			@ApiResponse(code = 404, message = "Sorry! No records found for the given record id.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 404, message = "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/codecoverage/{id}", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
@@ -190,11 +190,11 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid)throws Exception {
 		CodeCoverageBackUpInfo codeCoverageBackUpInfo = null;
 		if (id == null || id.length() <= 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("CodeCoverage-1001"), "CodeCoverage-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("CodeCoverage-1000"), "CodeCoverage-1000");
 		}
 		codeCoverageBackUpInfo = codeCoverageService.getCodeCoverageOnId(id, interactionid);
 		if (codeCoverageBackUpInfo == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("CodeCoverage-1001"), "CodeCoverage-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("CodeCoverage-1000"), "CodeCoverage-1000");
 		}
 		return new ResponseEntity<Object>(codeCoverageBackUpInfo, HttpStatus.OK);
 	}
@@ -213,8 +213,8 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 	@ApiOperation(value = "Delete Code Coverage Overview ForId", notes = "", code=204)
 	@ApiResponses(value = { 
 			@ApiResponse(code = 204, message = "No Content", response = Void.class),
-			@ApiResponse(code = 404, message = "Sorry! No records found for the given record id.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 404, message = "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/buildconfig/codecoverage/{id}")
 	public ResponseEntity<Void> deleteCodeCoverageOverviewForId(
@@ -222,7 +222,7 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 			@PathVariable("id") String id, @RequestHeader HttpHeaders headers,
 			@RequestHeader(value = "JSESSIONID") String jsessionid)throws Exception {
 		if (id == null || id.length() <= 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("CodeCoverage-1001"),"CodeCoverage-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("CodeCoverage-1000"),"CodeCoverage-1000");
 		}
 		codeCoverageService.deleteCodeCoverageOnId(id, interactionid);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
@@ -231,7 +231,7 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 	@ApiOperation(value = "Get Code Coverages", notes = "", code=200)
 	@ApiResponses(value = { 
 			@ApiResponse(code = 200, message = "Ok", response = MonitorResponse.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)
 	})
 	@RequestMapping(method = RequestMethod.GET,value = "/v1/buildconfig/codecoverage" )
 	public ResponseEntity<List<History>> getMonitoringStats(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="JSESSIONID") String jsessionid,
