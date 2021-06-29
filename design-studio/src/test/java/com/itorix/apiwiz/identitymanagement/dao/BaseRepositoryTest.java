@@ -26,6 +26,10 @@ import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+import static org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter.filter;
+import static org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Eq.valueOf;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -64,13 +68,17 @@ public class BaseRepositoryTest {
                 .dateAsFormattedString("%m%d%Y")
                 .as("modified_date");
 
+        GroupOperation groupByMaxRevision = group("name").max("revision").as("maxRevision").push("$$ROOT").as("originalDoc");
+        ProjectionOperation filterMaxRevision = project().and(filter("originalDoc").as("doc").by(valueOf("maxRevision").equalToValue("$$doc.revision"))).as("originalDoc");
 
+        UnwindOperation unwindOperation = unwind("originalDoc");
+        ProjectionOperation projectionOperation = project("originalDoc.name").andInclude("originalDoc.status", "originalDoc.modified_date", "originalDoc.mts");
 
         Query query = new Query();
         List<Criteria> criteriaList = new ArrayList<>();
         Map<String, Object> matchFields = new LinkedHashMap<>();
-        matchFields.put("status", "Draft");
-        matchFields.put("mtsToDate", null);
+        matchFields.put("status", null);
+        matchFields.put("modified_date", null);
 
         Criteria criteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()]));
 
@@ -79,10 +87,11 @@ public class BaseRepositoryTest {
         MatchOperation match = getMatchOperation(matchFields);
         AggregationResults<Document> results = null;
 
+        //unwindOperation projectionOperation//match, groupByName, sortOperation
         if(match != null) {
-            results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, match, groupByName, sortOperation), SwaggerVO.class, Document.class);
+            results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, groupByMaxRevision, filterMaxRevision, unwindOperation ,projectionOperation, match, groupByName, sortOperation), SwaggerVO.class, Document.class);
         } else {
-            results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, groupByName, sortOperation), SwaggerVO.class, Document.class);
+            results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, groupByMaxRevision, filterMaxRevision, unwindOperation ,projectionOperation, groupByName, sortOperation), SwaggerVO.class, Document.class);
         }
 
         List test = null;

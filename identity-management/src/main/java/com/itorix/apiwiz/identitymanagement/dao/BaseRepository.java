@@ -21,6 +21,8 @@ import com.mongodb.client.result.DeleteResult;
 
 import static com.itorix.apiwiz.identitymanagement.model.Constants.SWAGGER_PROJECTION_FIELDS;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+import static org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter.filter;
+import static org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Eq.valueOf;
 
 @Component
 public class BaseRepository {
@@ -184,15 +186,21 @@ public class BaseRepository {
 				.dateAsFormattedString("%m%d%Y")
 				.as("modified_date");
 
+		GroupOperation groupByMaxRevision = group("name").max("revision").as("maxRevision").push("$$ROOT").as("originalDoc");
+		ProjectionOperation filterMaxRevision = project().and(filter("originalDoc").as("doc").by(valueOf("maxRevision").equalToValue("$$doc.revision"))).as("originalDoc");
+
+		UnwindOperation unwindOperation = unwind("originalDoc");
+		ProjectionOperation projectionOperation = project("originalDoc.name").andInclude("originalDoc.status", "originalDoc.modified_date", "originalDoc.mts");
+
 
 		MatchOperation match = getMatchOperation(filterFieldsAndValues);
 		groupByName = group("name").max("mts").as("mts");
 		SortOperation sortOperation = getSortOperation(sortByModifiedTS);
 
 		if(match != null) {
-			results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, match, groupByName, sortOperation), clazz, Document.class);
+			results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, groupByMaxRevision, filterMaxRevision, unwindOperation ,projectionOperation, match, groupByName, sortOperation), clazz, Document.class);
 		} else {
-			results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, groupByName, sortOperation), clazz, Document.class);
+			results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, groupByMaxRevision, filterMaxRevision, unwindOperation ,projectionOperation, groupByName, sortOperation), clazz, Document.class);
 		}
 		results.getMappedResults().forEach( d -> names.add(d.getString("_id")));
 		return names;
