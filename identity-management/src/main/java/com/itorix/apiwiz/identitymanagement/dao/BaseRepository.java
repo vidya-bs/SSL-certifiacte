@@ -214,8 +214,9 @@ public class BaseRepository {
 		SortOperation sortOperation = null;
 		if(sortByModifiedTS != null && sortByModifiedTS.equalsIgnoreCase("ASC")) {
 			sortOperation = sort(Sort.Direction.ASC, "mts");
-			groupByName = group("name").min("mts").as("mts");
+			groupByName = group("name").max("mts").as("mts");
 		} else if (sortByModifiedTS != null && sortByModifiedTS.equalsIgnoreCase("DESC")) {
+			groupByName = group("name").max("mts").as("mts");
 			sortOperation = sort(Sort.Direction.DESC, "mts");
 		} else {
 			sortOperation = sort(Sort.Direction.ASC, "name");
