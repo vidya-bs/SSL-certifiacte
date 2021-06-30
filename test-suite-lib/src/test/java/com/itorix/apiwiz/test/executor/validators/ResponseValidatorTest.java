@@ -23,4 +23,16 @@ public class ResponseValidatorTest {
         ResponseValidator.checkAssertion(0.01, "0.01", "equalTO", false);
         assertTrue(true);
     }
+
+    @Test
+    public void checkAssertionForString() throws Exception {
+        ResponseValidator.checkAssertion("200", "200", "equalTO", false);
+        assertTrue(true);
+    }
+
+    @Test
+    public void checkAssertionForBoolean() throws Exception {
+        ResponseValidator.checkAssertion(true, "true", "equalTO", false);
+        assertTrue(true);
+    }
 }
