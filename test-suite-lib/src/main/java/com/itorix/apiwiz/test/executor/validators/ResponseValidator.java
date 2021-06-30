@@ -202,6 +202,11 @@ public class ResponseValidator {
 			return;
 		}
 
+		if (actualValue instanceof Number) {
+			checkAssertionString(actualValue.toString(), expectedValue.toString(), condition, continueOnError);
+			return;
+		}
+
 		try { // Cover equalTO, present, absent, doesNotMatch, matches, contains
 			String[] expectedArr = expectedValue.split(",");
 			String[] actualArr = getList(actualValue);
