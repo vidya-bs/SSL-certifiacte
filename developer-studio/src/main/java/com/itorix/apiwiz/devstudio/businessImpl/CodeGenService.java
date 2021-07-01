@@ -827,7 +827,7 @@ public class CodeGenService {
 				if (name.length > 0)
 					proxy.setName(name[0]);
 				else
-					proxy.setName(operations.getFileName());
+					proxy.setName(operations.getFileName().replaceAll(" ", ""));
 				proxy.setDescription(proxy.getName());
 				proxy.setVersion("v1");
 			}
@@ -881,10 +881,10 @@ public class CodeGenService {
 			if (null == target.getName()) {
 				String[] name = operations.getFileName().toString().split("\\.");
 				if (name.length > 0)
-					target.setName(name[0]);
+					target.setName(name[0].replaceAll(" " , ""));
 				else
 					target.setName(operations.getFileName());
-				target.setDescription(target.getName());
+				target.setDescription(target.getName().replaceAll(" " , ""));
 			}
 
 			for (int i = 0; i < target.getFlows().getFlow().length; i++) {
