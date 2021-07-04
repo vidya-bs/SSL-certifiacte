@@ -16,6 +16,7 @@ import javax.annotation.PostConstruct;
 import javax.crypto.NoSuchPaddingException;
 import javax.xml.parsers.ParserConfigurationException;
 
+import static com.itorix.apiwiz.monitor.agent.util.MonitorAgentConstants.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -78,19 +79,23 @@ public class MonitorAgentRunner {
 
 	private final static Logger logger = LoggerFactory.getLogger(MonitorAgentRunner.class);
 
-	private static final MustacheFactory mf = new DefaultMustacheFactory();
-
 	@Autowired
 	private MonitorAgentExecutorDao dao;
 
 	@Autowired
 	private MonitorAgentExecutorSQLDao sqlDao;
 
+	@Autowired
+	private MonitorAgentHelper monitorAgentHelper;
+
 	@Value("${http.timeout}")
 	int globalTimeout;
 
 	@Autowired
 	LoggerService loggerService;
+
+	@Autowired
+	private EmailContentParser emailContentParser;
 
 	RestTemplate restTemplate = new RestTemplate();
 
@@ -204,10 +209,10 @@ public class MonitorAgentRunner {
 			ExecutionResult result = new ExecutionResult();
 			try {
 
-				String sslReference = fillTemplate(monitorRequest.getSslReference(), globalVars);
+				String sslReference = monitorAgentHelper.fillTemplate(monitorRequest.getSslReference(), globalVars);
 				SSLConnectionSocketFactory sslConnectionFactory = dao.getSSLConnectionFactory(sslReference);
 				executionStart = System.currentTimeMillis();
-				response = invokeMonitorApi(monitorRequest, globalVars, encryptedVariables, testStatus,
+				response = monitorAgentHelper.invokeMonitorApi(monitorRequest, globalVars, encryptedVariables, testStatus,
 						sslConnectionFactory, globalTimeout);
 
 			} catch (Exception ex) {
@@ -216,7 +221,10 @@ public class MonitorAgentRunner {
 				List<NotificationDetails> notificationDetails = dao.getNotificationDetails(context.getTenant(),
 						context.getCollectionId());
 				for (NotificationDetails notificationDetail : notificationDetails) {
-					invokeNotificationAgent(notificationDetail,"Failed",monitorRequest.getName());
+					Map<String, String> notificationData = new HashMap<>();
+					notificationData.put(STATUS, "Failed");
+					notificationData.put(SCHEDULER_ID, monitorRequest.getName());
+					invokeNotificationAgent(notificationDetail, SUMMARY_NOTIFICATION, notificationData);
 				}
 			} finally {
 
@@ -225,7 +233,8 @@ public class MonitorAgentRunner {
 				result.setCollectionId(context.getCollectionId());
 				result.setSchedulerId(context.getSchedulerId());
 				result.setRequestId(monitorRequest.getId());
-				result.setLatency(System.currentTimeMillis() - executionStart);
+				long latency = System.currentTimeMillis() - executionStart;
+				result.setLatency(latency);
 				result.setExecutedTime(System.currentTimeMillis());
 				if (response != null) {
 					result.setStatusCode(response.getStatusLine().getStatusCode());
@@ -234,12 +243,29 @@ public class MonitorAgentRunner {
 				if (response != null
 						&& HttpStatus.valueOf(response.getStatusLine().getStatusCode()).is2xxSuccessful()) {
 					result.setStatus("Success");
+					if(latency > monitorRequest.getExpectedLatency()) {
+						result.setStatus("Failed");
+						List<NotificationDetails> notificationDetails = dao.getNotificationDetails(context.getTenant(),
+								context.getCollectionId());
+						for (NotificationDetails notificationDetail : notificationDetails) {
+							Map<String, String> notificationData = new HashMap<>();
+							notificationData.put(STATUS, "Failed");
+							notificationData.put(SCHEDULER_ID, monitorRequest.getName());
+							notificationData.put(EXPECTED_LATENCY, String.valueOf(monitorRequest.getExpectedLatency()));
+							notificationData.put(MEASURED_LATENCY, String.valueOf(latency));
+							invokeNotificationAgent(notificationDetail, LATENCY_THRESHOLD_BREACH, notificationData);
+						}
+					}
+
 				} else if (!StringUtils.hasText(result.getStatus())) {
 					result.setStatus("Failed");
 					List<NotificationDetails> notificationDetails = dao.getNotificationDetails(context.getTenant(),
 							context.getCollectionId());
 					for (NotificationDetails notificationDetail : notificationDetails) {
-						invokeNotificationAgent(notificationDetail,"Failed",monitorRequest.getName());
+						Map<String, String> notificationData = new HashMap<>();
+						notificationData.put(STATUS, "Failed");
+						notificationData.put(SCHEDULER_ID, monitorRequest.getName());
+						invokeNotificationAgent(notificationDetail,SUMMARY_NOTIFICATION, notificationData);
 					}
 				}
 				replaceResponseVariables(result, monitorRequest, response);
@@ -249,168 +275,10 @@ public class MonitorAgentRunner {
 	}
 
 	private Map<String, String> getGlobalVars(Variables vars) {
-		return computeHeaders(vars.getVariables(), null);
-	}
-
-	public HttpResponse invokeMonitorApi(MonitorRequest monitorRequest, Map<String, String> globalVars,
-			Map<String, String> encryptedVariables, Map<String, Integer> testStatus,
-			SSLConnectionSocketFactory sslConnectionFactory, int timeout) throws Exception {
-
-		if (monitorRequest.getVerb() == null) {
-			logger.error("verb is null for {} ", monitorRequest.getId());
-			return null;
-		}
-
-		monitorRequest.setPath(fillTemplate(monitorRequest.getPath(), globalVars));
-		String path = monitorRequest.getPath();
-		path = computeQueryParams(path, monitorRequest.getRequest().getQueryParams(), globalVars);
-
-		monitorRequest.setSchemes(fillTemplate(monitorRequest.getSchemes(), globalVars));
-		monitorRequest.setHost(fillTemplate(monitorRequest.getHost(), globalVars));
-		monitorRequest.setPort(fillTemplate(monitorRequest.getPort(), globalVars));
-
-		path = monitorRequest.getSchemes() + "://" + monitorRequest.getHost() + ":" + monitorRequest.getPort() + path;
-
-		if (path != null) {
-			monitorRequest.setPath(path);
-		}
-
-		Map<String, String> headers = computeHeaders(monitorRequest.getRequest().getHeaders(), globalVars);
-		HttpResponse response = null;
-		String reqBody = null;
-
-		if (monitorRequest.getRequest() != null && monitorRequest.getRequest().getBody() != null
-				&& monitorRequest.getRequest().getBody().getData() != null) {
-			reqBody = fillTemplate(monitorRequest.getRequest().getBody().getData(), globalVars);
-			String reqBodyToSet = fillTemplate(monitorRequest.getRequest().getBody().getData(), encryptedVariables);
-
-			monitorRequest.getRequest().getBody().setData(reqBodyToSet);
-		}
-
-		if (monitorRequest.getVerb().equalsIgnoreCase(API.GET.toString())) {
-			response = APIFactory.invokeGet(path, headers, monitorRequest.getName(), sslConnectionFactory, timeout);
-		} else if (monitorRequest.getVerb().equalsIgnoreCase(API.POST.toString())) {
-
-			String content = null;
-			if (monitorRequest.getRequest() != null
-					&& (!CollectionUtils.isEmpty(monitorRequest.getRequest().getFormParams())
-							|| !CollectionUtils.isEmpty(monitorRequest.getRequest().getFormURLEncoded()))) {
-
-				List<NameValuePair> generateNameValuePairs = null;
-				if (!CollectionUtils.isEmpty(monitorRequest.getRequest().getFormParams())) {
-					generateNameValuePairs = generateNameValuePairs(monitorRequest.getRequest().getFormParams(),
-							globalVars);
-					content = "multi-part";
-				} else {
-					generateNameValuePairs = generateNameValuePairs(monitorRequest.getRequest().getFormURLEncoded(),
-							globalVars);
-					content = "form-url-encoded";
-				}
-				response = APIFactory.invokePost(path, headers, generateNameValuePairs, content, reqBody,
-						monitorRequest.getName(), sslConnectionFactory, timeout);
-			} else {
-				response = APIFactory.invokePost(path, headers, null, content, reqBody, monitorRequest.getName(),
-						sslConnectionFactory, timeout);
-			}
-		} else if (monitorRequest.getVerb().equalsIgnoreCase(API.PUT.toString())) {
-
-			String contentType = null;
-			if (monitorRequest.getRequest() != null
-					&& (!CollectionUtils.isEmpty(monitorRequest.getRequest().getFormParams())
-							|| !CollectionUtils.isEmpty(monitorRequest.getRequest().getFormURLEncoded()))) {
-
-				List<NameValuePair> generateNameValuePairs = null;
-				if (!CollectionUtils.isEmpty(monitorRequest.getRequest().getFormParams())) {
-					generateNameValuePairs = generateNameValuePairs(monitorRequest.getRequest().getFormParams(),
-							globalVars);
-					contentType = "multi-part";
-				} else {
-					generateNameValuePairs = generateNameValuePairs(monitorRequest.getRequest().getFormURLEncoded(),
-							globalVars);
-					contentType = "form-url-encoded";
-				}
-				response = APIFactory.invokePut(path, headers, generateNameValuePairs, contentType, reqBody,
-						monitorRequest.getName(), sslConnectionFactory, timeout);
-			} else {
-				response = APIFactory.invokePut(path, headers, null, contentType, reqBody, monitorRequest.getName(),
-						sslConnectionFactory, timeout);
-			}
-
-		} else if (monitorRequest.getVerb().equalsIgnoreCase(API.DELETE.toString())) {
-			response = APIFactory.invokeDelete(path, headers, reqBody, monitorRequest.getName(), sslConnectionFactory,
-					timeout);
-		} else if (monitorRequest.getVerb().equalsIgnoreCase(API.OPTIONS.toString())) {
-			response = APIFactory.invokeOptions(path, headers, reqBody, monitorRequest.getName(), sslConnectionFactory,
-					timeout);
-		} else if (monitorRequest.getVerb().equalsIgnoreCase(API.PATCH.toString())) {
-			response = APIFactory.invokePatch(path, headers, reqBody, monitorRequest.getName(), sslConnectionFactory,
-					timeout);
-		}
-
-		ResponseManager responseManager = new ResponseManager();
-		responseManager.gatherResponseData(response, monitorRequest.getResponse(), globalVars, encryptedVariables);
-
-		return response;
-
-	}
-
-	private List<NameValuePair> generateNameValuePairs(List<FormParam> formParams, Map<String, String> globalVars) {
-		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		if (formParams != null) {
-			for (FormParam formParam : formParams) {
-				formParam.setValue(fillTemplate(formParam.getValue(), globalVars));
-				params.add(new BasicNameValuePair(formParam.getName(), formParam.getValue()));
-			}
-		}
-		return params;
+		return monitorAgentHelper.computeHeaders(vars.getVariables(), null);
 	}
 
 
-	public Map<String, String> computeHeaders(List<Header> headers, Map<String, String> globalVars) {
-		Map<String, String> headerMap = new HashMap<String, String>();
-		if (null == headers) {
-			return headerMap;
-		}
-		for (Header header : headers) {
-			header.setValue(fillTemplate(header.getValue(), globalVars));
-			headerMap.put(header.getName(), header.getValue());
-		}
-		return headerMap;
-	}
-
-	private String fillTemplate(String input, Map<String, String> vars) {
-		if (input == null) {
-			return null;
-		}
-		if (vars == null) {
-			return input;
-		}
-		Writer writer = new StringWriter();
-		Mustache mustache = mf.compile(new StringReader(input), "headers");
-		mustache.execute(writer, vars);
-		return writer.toString();
-	}
-
-	private String computeQueryParams(String path, List<QueryParam> queryParams, Map<String, String> globalVars) {
-		if (path != null) {
-			if (!path.contains("?")) {
-				path = path + "?";
-			}
-		} else {
-			path = "?";
-		}
-		if (queryParams != null) {
-			for (QueryParam param : queryParams) {
-				param.setValue(fillTemplate(param.getValue(), globalVars));
-				path = path + "&" + param.getName() + "=" + param.getValue();
-			}
-		} else {
-			if (path.endsWith("?")) {
-				path = path.substring(0, path.length() - 1);
-			}
-		}
-		return path;
-	}
 
 	private void replaceResponseVariables(ExecutionResult result, MonitorRequest monitorRequest,
 			HttpResponse httpResponse) {
@@ -461,7 +329,7 @@ public class MonitorAgentRunner {
 
 	}
 
-	private void invokeNotificationAgent(NotificationDetails notificationDetail, String status, String resource) {
+	private void invokeNotificationAgent(NotificationDetails notificationDetail, String notificationType, Map<String, String> notificationData) {
 
 		if (!StringUtils.hasText(notificationAgentPath)) {
 			log.error("Maintain notificationAgentPath in property file");
@@ -475,16 +343,13 @@ public class MonitorAgentRunner {
 			RequestModel requestModel = new RequestModel();
 			try {
 				if (!CollectionUtils.isEmpty(notification.getEmails())) {
-					String mailBody = MessageFormat.format(emailBody, notificationDetail.getWorkspaceName(),
-							notificationDetail.getCollectionname(), notificationDetail.getEnvironmentName(),
-							notificationDetail.getDate(), status, resource, notificationDetail.getDailyUptime(),
-							notificationDetail.getDailyLatency(), notificationDetail.getAvgUptime(),
-							notificationDetail.getAvgLatency(), notificationDetail.getSchedulerId());
+					String[] emailContentToReplace = emailContentParser.getRelevantEmailContent(notificationType, notificationDetail, notificationData);
+					String mailBody = emailContentParser.getEmailBody(notificationType, emailContentToReplace);
 
 					EmailTemplate emailTemplate = new EmailTemplate();
 					emailTemplate.setBody(mailBody);
 					emailTemplate.setToMailId(notification.getEmails());
-					String mailSubject = MessageFormat.format(subject, notificationDetail.getWorkspaceName(),
+					String mailSubject = emailContentParser.getEmailSubject(notificationType, notificationDetail.getWorkspaceName(),
 							notificationDetail.getCollectionname(), notificationDetail.getEnvironmentName());
 					emailTemplate.setSubject(mailSubject);
 					requestModel.setEmailContent(emailTemplate);

@@ -28,4 +28,5 @@ public class MonitorRequest {
 	private String sslReference;
 	private Request request;
 	private Response response;
+	private long expectedLatency;
 }
