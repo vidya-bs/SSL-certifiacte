@@ -181,14 +181,14 @@ public class IdentityManagementDao {
 		UserSession userSession = null;
 		if (preAuthenticated || userInfo.allowLogin() == true) {
 			User user = findByEmailUserName(userInfo.getLoginId());
-			Workspace workspace = getWorkspace(userInfo.getWorkspaceId());
+			Workspace workspace = getWorkspace(userInfo.getWorkspaceId().toLowerCase());
 			if (user == null ){
 				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"),"Identity-1037");
 			}
 			if(workspace == null){
 				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1039"),"Identity-1039");
 			}
-			UserWorkspace userWorkspace = user.getUserWorkspace(userInfo.getWorkspaceId());
+			UserWorkspace userWorkspace = user.getUserWorkspace(userInfo.getWorkspaceId().toLowerCase());
 			if(userWorkspace == null ||( userWorkspace.getActive() != true  && userWorkspace.getAcceptInvite() == true)){ //(!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
 				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1030"),"Identity-1030");
 			}
@@ -261,12 +261,12 @@ public class IdentityManagementDao {
 	public Object addUser(UserInfo userInfo) throws ItorixException{
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		userInfo.setWorkspaceId(userSessionToken.getWorkspaceId());
-		Workspace workspace = getWorkspace(userInfo.getWorkspaceId());
+		Workspace workspace = getWorkspace(userInfo.getWorkspaceId().toLowerCase());
 		if( userInfo.allowInviteUser() == false && workspace == null){
 			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1039"),"Identity-1039");
 		}
 		User loginUser = findUserById(userSessionToken.getUserId());
-		if(!loginUser.isWorkspaceAdmin(userInfo.getWorkspaceId()) == true){
+		if(!loginUser.isWorkspaceAdmin(userInfo.getWorkspaceId().toLowerCase()) == true){
 			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"),"Identity-1037");
 		}
 		boolean isNewUser = false;
@@ -276,7 +276,7 @@ public class IdentityManagementDao {
 			user = new User();
 			user.setEmail(userInfo.getEmail());
 		}
-		if(user.containsWorkspace(userInfo.getWorkspaceId()) != true){
+		if(user.containsWorkspace(userInfo.getWorkspaceId().toLowerCase()) != true){
 			List<UserWorkspace> workspaces;
 			if(user.getWorkspaces() == null)
 				workspaces = new ArrayList<>();
@@ -292,7 +292,7 @@ public class IdentityManagementDao {
 			user.setWorkspaces(workspaces);
 		}
 		VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail());
-		token.setWorkspaceId(userInfo.getWorkspaceId());
+		token.setWorkspaceId(userInfo.getWorkspaceId().toLowerCase());
 		token.setUserType(User.LABEL_MEMBER);
 		saveVerificationToken(token);
 		if(isNewUser)
@@ -320,7 +320,7 @@ public class IdentityManagementDao {
 			if(userInfo.getMetadata() != null)
 				user.setMetadata(userInfo.getMetadata());
 			for(UserWorkspace workspace : user.getWorkspaces())
-				if(workspace.getWorkspace().getName().equals(token.getWorkspaceId())){
+				if(workspace.getWorkspace().getName().equals(token.getWorkspaceId().toLowerCase())){
 					workspace.getWorkspace().setStatus("active");
 					workspace.setAcceptInvite(true);
 					workspace.setActive(true);
@@ -536,7 +536,7 @@ public class IdentityManagementDao {
 				User user = new User();
 				user.setEmail(userInfo.getEmail());
 				VerificationToken token = createVerificationToken("registerUser", user.getEmail());
-				token.setWorkspaceId(userInfo.getWorkspaceId());
+				token.setWorkspaceId(userInfo.getWorkspaceId().toLowerCase());
 				saveVerificationToken(token);
 				if(sendRegistrationEmail(token, user))
 					user = saveUser(user);
@@ -758,13 +758,13 @@ public class IdentityManagementDao {
 
 	public Workspace createWorkspace(UserInfo userInfo,String status) throws ItorixException{
 		Query query  = new Query();
-		query.addCriteria(new Criteria().orOperator(Criteria.where("name").is(userInfo.getWorkspaceId())));
+		query.addCriteria(new Criteria().orOperator(Criteria.where("name").is(userInfo.getWorkspaceId().toLowerCase())));
 		Workspace workspace = mongoTemplate.findOne(query, Workspace.class);
 		if(workspace == null){
 			workspace = new Workspace();
-			workspace.setName(userInfo.getWorkspaceId());
+			workspace.setName(userInfo.getWorkspaceId().toLowerCase());
 			workspace.setPlanId(userInfo.getPlanId());
-			workspace.setTenant(userInfo.getWorkspaceId());
+			workspace.setTenant(userInfo.getWorkspaceId().toLowerCase());
 			workspace.setStatus(status);
 			workspace.setKey( UUID.randomUUID().toString());
 			workspace.setRegionCode(userInfo.getRegionCode());
