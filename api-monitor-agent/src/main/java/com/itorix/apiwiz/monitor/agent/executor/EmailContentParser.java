@@ -23,8 +23,8 @@ public class EmailContentParser {
     @PostConstruct
     private void initNotificationTemplates() {
         notificationEmailTemplates = new HashMap<>();
-        notificationEmailTemplates.put("DAILY_SUMMARY_NOTIFICATION_SUB", "itorix.app.monitor.summary.report.email.subject");
-        notificationEmailTemplates.put("DAILY_SUMMARY_NOTIFICATION_BODY", "itorix.app.monitor.summary.report.email.body");
+        notificationEmailTemplates.put("SUMMARY_NOTIFICATION_SUB", "itorix.app.monitor.summary.report.email.subject");
+        notificationEmailTemplates.put("SUMMARY_NOTIFICATION_BODY", "itorix.app.monitor.summary.report.email.body");
         notificationEmailTemplates.put("LATENCY_THRESHOLD_BREACH_SUB", "itorix.app.monitor.test.report.email.subject");
         notificationEmailTemplates.put("LATENCY_THRESHOLD_BREACH_BODY", "itorix.app.monitor.test.report.email.body");
     }

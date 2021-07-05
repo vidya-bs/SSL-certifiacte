@@ -1,47 +1,6 @@
 package com.itorix.apiwiz.monitor.agent.executor;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.security.NoSuchAlgorithmException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.annotation.PostConstruct;
-import javax.crypto.NoSuchPaddingException;
-import javax.xml.parsers.ParserConfigurationException;
-
-import static com.itorix.apiwiz.monitor.agent.util.MonitorAgentConstants.*;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.message.BasicNameValuePair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestTemplate;
-import org.xml.sax.SAXException;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
-import com.itorix.apiwiz.monitor.agent.api.factory.APIFactory;
 import com.itorix.apiwiz.monitor.agent.dao.MonitorAgentExecutorDao;
 import com.itorix.apiwiz.monitor.agent.dao.MonitorAgentExecutorSQLDao;
 import com.itorix.apiwiz.monitor.agent.db.MonitorAgentExecutorEntity;
@@ -60,16 +19,38 @@ import com.itorix.apiwiz.monitor.model.collection.MonitorCollections;
 import com.itorix.apiwiz.monitor.model.collection.Notifications;
 import com.itorix.apiwiz.monitor.model.collection.Schedulers;
 import com.itorix.apiwiz.monitor.model.execute.ExecutionResult;
-import com.itorix.apiwiz.monitor.model.request.FormParam;
 import com.itorix.apiwiz.monitor.model.request.Header;
 import com.itorix.apiwiz.monitor.model.request.MonitorRequest;
-import com.itorix.apiwiz.monitor.model.request.QueryParam;
 import com.itorix.apiwiz.monitor.model.request.Response;
 import com.itorix.apiwiz.monitor.model.request.Variable;
-
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpResponse;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
+import org.xml.sax.SAXException;
+
+import javax.annotation.PostConstruct;
+import javax.crypto.NoSuchPaddingException;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static com.itorix.apiwiz.monitor.agent.util.MonitorAgentConstants.*;
 
 @SuppressWarnings("unused")
 @Component
@@ -106,15 +87,6 @@ public class MonitorAgentRunner {
 
 	@Value("${itorix.notification.agent.contextPath:null}")
 	private String notificationContextPath;
-
-	@Value("${itorix.app.monitor.error.report.email.subject}")
-	private String subject;
-
-	@Value("${itorix.notification.failed.mail.body:null}")
-	private String body;
-
-	@Value("${itorix.app.monitor.summary.report.email.body}")
-	private String emailBody;
 
 	@Value("${itorix.core.security.apikey:null}")
 	private String apiKey;
