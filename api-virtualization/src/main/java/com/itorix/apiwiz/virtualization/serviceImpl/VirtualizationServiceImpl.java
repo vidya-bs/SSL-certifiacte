@@ -90,7 +90,7 @@ public class VirtualizationServiceImpl implements VirtualizationService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid){
 		logger.debug("inside updateGroup method ");
 		group.setId(groupId);
-		if(groupService.updateGroup(group ,  commonServices.getUserDetailsFromSessionID(jsessionId))) {
+		if(groupService.updateGroup(group , commonServices.getUserDetailsFromSessionID(jsessionId))) {
 			ResponseEntity<Object> response = new org.springframework.http.ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 			return response;
 		}else {

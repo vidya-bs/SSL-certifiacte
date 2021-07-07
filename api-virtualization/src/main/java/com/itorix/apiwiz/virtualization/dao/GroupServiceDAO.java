@@ -19,11 +19,13 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.SearchItem;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
@@ -52,7 +54,7 @@ public class GroupServiceDAO {
 	private String mockPort;
 	@Value("${itorix.mock.agent}")
 	private String mockHost;
-	
+
 
 
 	private final String MOCK_URL = "http://#URL#-mock.apiwiz.io";
@@ -96,7 +98,7 @@ public class GroupServiceDAO {
 			throw new ItorixException("","");
 		}
 	}
-	
+
 	public List<GroupVO> getGroups(String filter) throws ItorixException  {
 		try {
 			List<GroupVO> listVO = mongoTemplate.findAll(GroupVO.class);
@@ -199,9 +201,21 @@ public class GroupServiceDAO {
 
 	public GroupVO saveGroup(GroupVO group, User user)  {
 		try {
-			group.setMetadata(manageMetadata(group.getMetadata(), user));
-			mongoTemplate.save(group);
-			return group;
+			List<GroupVO> groups = getGroups(group.getName(), 10);
+			Boolean validGroup = true;
+			if(!CollectionUtils.isEmpty(groups)){
+				for(GroupVO dbGroup:groups){
+					if(dbGroup.getName().equalsIgnoreCase(group.getName()))
+						validGroup = false;
+				}
+			}
+			if(validGroup == true){
+				group.setMetadata(manageMetadata(group.getMetadata(), user));
+				mongoTemplate.save(group);
+				return group;
+			}else{
+				throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-1003"), "MockServer-1003");
+			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -237,7 +251,7 @@ public class GroupServiceDAO {
 	private Metadata manageMetadata(Metadata metadata2, User user) {
 		Metadata metadata = null;
 		String username = (user != null && user.getFirstName() != null) ? user.getFirstName() + " " + user.getLastName()
-				: "";
+		: "";
 		if (metadata2 == null || metadata2.getCreatedBy() == null) {
 			metadata = new Metadata(username, Instant.now().toEpochMilli(), username, Instant.now().toEpochMilli());
 		} else {
@@ -245,12 +259,10 @@ public class GroupServiceDAO {
 		}
 		return metadata;
 	}
-	
+
 	public Object search(String name, int limit) throws ItorixException
 	{
-		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
-		query.limit(limit > 0 ? limit : 10);
-		List<GroupVO> groups = mongoTemplate.find(query, GroupVO.class);
+		List<GroupVO> groups = getGroups(name, limit);
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode response = mapper.createObjectNode();
 		ArrayNode responseFields = mapper.createArrayNode();
@@ -262,6 +274,13 @@ public class GroupServiceDAO {
 		}
 		response.set("groups", responseFields);
 		return response;	
+	}
+
+	private List<GroupVO> getGroups(String name, int limit){
+		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
+		query.limit(limit > 0 ? limit : 10);
+		List<GroupVO> groups = mongoTemplate.find(query, GroupVO.class);
+		return groups;
 	}
 
 }

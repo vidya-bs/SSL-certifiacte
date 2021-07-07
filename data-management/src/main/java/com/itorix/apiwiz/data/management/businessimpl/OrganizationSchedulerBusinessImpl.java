@@ -33,9 +33,9 @@ public class OrganizationSchedulerBusinessImpl implements OrganizationSchedulerB
 
 	@Value("${itorix.core.scheduler.enable:false}")
 	private String scheduleEnable ;
-	@Value("${itorix.core.scheduler.primary}")
+	@Value("${itorix.core.scheduler.primary:null}")
 	private String primary;
-	@Value("${itorix.core.scheduler.primary.host}")
+	@Value("${itorix.core.scheduler.primary.host:null}")
 	private String primaryHost;
 	
 	
