@@ -23,28 +23,24 @@ public class EmailContentParser {
     @PostConstruct
     private void initNotificationTemplates() {
         notificationEmailTemplates = new HashMap<>();
-        notificationEmailTemplates.put("SUMMARY_NOTIFICATION_SUB", "itorix.app.monitor.summary.report.email.subject");
-        notificationEmailTemplates.put("SUMMARY_NOTIFICATION_BODY", "itorix.app.monitor.summary.report.email.body");
-        notificationEmailTemplates.put("LATENCY_THRESHOLD_BREACH_SUB", "itorix.app.monitor.test.report.email.subject");
-        notificationEmailTemplates.put("LATENCY_THRESHOLD_BREACH_BODY", "itorix.app.monitor.test.report.email.body");
+        notificationEmailTemplates.put(SUMMARY_NOTIFICATION, MONITORING_TEST_SUBJECT);
+        notificationEmailTemplates.put(LATENCY_THRESHOLD_BREACH, MONITORING_LATENCY_TEST_SUBJECT);
     }
 
 
     public String getEmailSubject (String notificationType, Object... contentToReplace) {
-        String notificationEmailSubject = notificationEmailTemplates.get(notificationType+"_SUB");
+        String notificationEmailSubject = notificationEmailTemplates.get(notificationType);
         return MessageFormat.format(env.getProperty(notificationEmailSubject), contentToReplace);
     }
 
-    public String getEmailBody (String notificationType, Object... contentToReplace) {
-        String notificationEmailBody = notificationEmailTemplates.get(notificationType+"_BODY");
-        return MessageFormat.format(env.getProperty(notificationEmailBody), contentToReplace);
+    public String getEmailBody (Object... contentToReplace) {
+        return MessageFormat.format(env.getProperty(MONITORING_TEST_BODY), contentToReplace);
     }
 
 
-    public String[] getRelevantEmailContent(String notificationType, NotificationDetails notificationDetail, Map<String, String> notificationData) {
+    public String[] getRelevantEmailContent(NotificationDetails notificationDetail, Map<String, String> notificationData) {
         String status = notificationData.get(STATUS);
         String resource = notificationData.get(SCHEDULER_ID);
-        if(SUMMARY_NOTIFICATION.equals(notificationType)) {
             String dailyUptime = String.valueOf(notificationDetail.getDailyUptime());
             String dailyLatency = String.valueOf(notificationDetail.getDailyLatency());
             String avgUptime = String.valueOf(notificationDetail.getAvgUptime());
@@ -55,16 +51,6 @@ public class EmailContentParser {
                     notificationDetail.getDate(), status, resource, dailyUptime,
                     dailyLatency, avgUptime,
                     avgLatency, notificationDetail.getSchedulerId()};
-        }
-
-        if(LATENCY_THRESHOLD_BREACH.equals(notificationType)) {
-            String expectedLatency = notificationData.get(EXPECTED_LATENCY);
-            String measuredLatency = notificationData.get(MEASURED_LATENCY);
-            return new String[]{status, notificationDetail.getWorkspaceName(), notificationDetail.getDate(),
-                    notificationDetail.getCollectionname(), notificationDetail.getEnvironmentName(),
-                    status, expectedLatency, measuredLatency};
-        }
-        return new String[]{};
     }
 
 }
