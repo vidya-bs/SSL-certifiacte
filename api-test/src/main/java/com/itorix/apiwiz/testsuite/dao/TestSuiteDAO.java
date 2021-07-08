@@ -247,7 +247,7 @@ public class TestSuiteDAO {
 	}
 
 	public String createTestSuite(TestSuite testSuite) throws ItorixException {
-		if (findBytestSuiteName(testSuite.getName()) == null) {
+		if (validateName(testSuite.getName()) == true) {
 			String userId = null;
 			String username = null;
 			try {
@@ -268,10 +268,22 @@ public class TestSuiteDAO {
 			}
 			testSuite.setActive(true);
 			mongoTemplate.save(testSuite);
-			return findBytestSuiteName(testSuite.getName()).getId();
+			return testSuite.getId();
 		} else {
 			throw new ItorixException("Test suite exists with same name", "Config-1004");
 		}
+	}
+	
+	private boolean validateName(String name){
+		Boolean validName = true;
+		List<TestSuite> testSuites = findBytestSuiteName(name);
+		if(!CollectionUtils.isEmpty(testSuites)){
+			for(TestSuite testsuite : testSuites){
+				if(testsuite.getName().equalsIgnoreCase(name))
+					return false;
+			}
+		}
+		return validName;
 	}
 
 	public String createTestCase(String testsuiteid, String scenarioid, TestCase testCase) throws ItorixException {
@@ -446,10 +458,12 @@ public class TestSuiteDAO {
 		return testSuite;
 	}
 
-	public TestSuite findBytestSuiteName(String testSuiteName) {
-		Query query = new Query(Criteria.where("name").is(testSuiteName));
-		TestSuite testSuite = mongoTemplate.findOne(query, TestSuite.class);
-		return testSuite;
+	public List<TestSuite> findBytestSuiteName(String testSuiteName) {
+//		Query query = new Query(Criteria.where("name").is(testSuiteName));
+//		TestSuite testSuite = mongoTemplate.findOne(query, TestSuite.class);
+		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + testSuiteName + "', $options: 'i'}}");
+		List<TestSuite> allTestSuite = mongoTemplate.find(query, TestSuite.class);
+		return allTestSuite;
 	}
 
 	public Variables findByConfigName(String configName) {
@@ -570,9 +584,6 @@ public class TestSuiteDAO {
 		return response.getId();
 	}
 
-	//	private String getBuildNumber(String historyResponse) throws JSONException {
-	//		return JsonPath.parse(historyResponse).read("pipelines[0].counter").toString();
-	//	}
 
 	private synchronized void updateCount(TestSuiteResponse response) {
 		Query query = new Query(
@@ -580,14 +591,6 @@ public class TestSuiteDAO {
 		response.setCounter("" + ( mongoTemplate.count(query, TestSuiteResponse.class) + 1 ));
 	}
 
-	//	public void updateUser(User user, List<String> projectRoles) {
-	//		Query query = new Query(Criteria.where("id").is(user.getId()));
-	//		DBObject dbDoc = new BasicDBList();
-	//		mongoTemplate.getConverter().write(projectRoles, dbDoc);
-	//		Update update = Update.fromDBObject(dbDoc);
-	//		mongoTemplate.upsert(query, update, "workspaces.0.roles");
-	//
-	//	}
 
 	public void createPipeline(String testSuiteId, String variableId, String pipelineName, String configName)
 			throws JsonProcessingException {
@@ -1175,9 +1178,7 @@ public class TestSuiteDAO {
 	}
 
 	public Object searchForTestSuite(String name, int limit) throws ItorixException {
-		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
-		query.limit(limit > 0 ? limit : 10);
-		List<TestSuite> allTestSuite = mongoTemplate.find(query, TestSuite.class);
+		List<TestSuite> allTestSuite = searchTestSuite(name, limit);
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode response = mapper.createObjectNode();
 		ArrayNode responseFields = mapper.createArrayNode();
@@ -1189,6 +1190,13 @@ public class TestSuiteDAO {
 		}
 		response.set("TestSuite", responseFields);
 		return response;
+	}
+	
+	private List<TestSuite> searchTestSuite(String name, int limit){
+		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
+		query.limit(limit > 0 ? limit : 10);
+		List<TestSuite> allTestSuite = mongoTemplate.find(query, TestSuite.class);
+		return allTestSuite;
 	}
 
 	public void deleteTestSuiteResponse(String id) {

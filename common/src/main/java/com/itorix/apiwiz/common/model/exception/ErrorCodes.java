@@ -233,6 +233,7 @@ public enum ErrorCodes {
 			put("MockServer-1000", "Request validation failed. Mock scenario with similar configuration already exist.");
 			put("MockServer-1001", "Resource not found. Please check the request and retry again.");
 			put("MockServer-1002", "Resource not found. Please check the request and retry again.");
+			put("MockServer-1003", "Request validation failed. Group with similar Name already exist.");
 			
 			put("Marketing-1000", "Internal server error. Please contact support for further instructions.");
 			
@@ -400,6 +401,7 @@ public enum ErrorCodes {
 			put("MockServer-1001", 404 );
 			put("MockServer-1002", 400 );
 			put("Marketing-1000", 500 );
+			put("MockServer-1003", 400);
 			put("General-1000",500);
 			put("General-1001",400);
 		}

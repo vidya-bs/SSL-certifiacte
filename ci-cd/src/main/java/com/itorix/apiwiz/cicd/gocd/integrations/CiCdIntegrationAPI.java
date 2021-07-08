@@ -109,11 +109,11 @@ public class CiCdIntegrationAPI {
 	@Autowired
 	private IntegrationsDao integrationsDao;
 
-	@Value("${itorix.core.scheduler.enable}")
+	@Value("${itorix.core.scheduler.enable:null}")
 	private String scheduleEnable;
-	@Value("${itorix.core.scheduler.primary}")
+	@Value("${itorix.core.scheduler.primary:null}")
 	private String primary;
-	@Value("${itorix.core.scheduler.primary.host}")
+	@Value("${itorix.core.scheduler.primary.host:null}")
 	private String primaryHost;
 
 	/**
@@ -1240,7 +1240,7 @@ public class CiCdIntegrationAPI {
 
 	}
 
-	@Scheduled(fixedDelayString = "${itorix.core.gocd.dashboard.fixedDelay.in.milliseconds}")
+	//@Scheduled(fixedDelayString = "${itorix.core.gocd.dashboard.fixedDelay.in.milliseconds}")
 	public void getScheduledPipelineDashBoard() throws IOException {
 		if(Schedule.isSchedulable(scheduleEnable, primary, primaryHost)) {
 			logger.debug("CiCdIntegrationAPI:getScheduledPipelineDashBoard  : Scheduler Started for CICD DashBoard");
@@ -1445,7 +1445,7 @@ public class CiCdIntegrationAPI {
 		return backUpHistory;
 	}
 
-	@Scheduled(cron = "* 0 0 * * ?")
+	//@Scheduled(cron = "* 0 0 * * ?")
 	// @Scheduled(cron = "0/30 * * * * ?")
 	public void SchedulecicdBackUpDaily() throws JsonProcessingException, IOException {
 		GoCDIntegration goCDIntegration = getGocdIntegration();
@@ -1482,7 +1482,7 @@ public class CiCdIntegrationAPI {
 		}
 	}
 
-	@Scheduled(cron = "* 0 0 1 * ?")
+	//@Scheduled(cron = "* 0 0 1 * ?")
 	public void SchedulecicdBackUpMonthly() throws JsonProcessingException, IOException {
 		GoCDIntegration goCDIntegration = getGocdIntegration();
 		Query query = new Query();
@@ -1516,7 +1516,7 @@ public class CiCdIntegrationAPI {
 		}
 	}
 
-	@Scheduled(cron = "* 30 0 * * MON")
+	//@Scheduled(cron = "* 30 0 * * MON")
 	public void SchedulecicdBackUpWeekly() throws JsonProcessingException, IOException {
 		GoCDIntegration goCDIntegration = getGocdIntegration();
 		Query query = new Query();
