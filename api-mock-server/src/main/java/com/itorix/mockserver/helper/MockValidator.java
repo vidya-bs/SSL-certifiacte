@@ -4,12 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +21,7 @@ import javax.xml.validation.Validator;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import com.itorix.mockserver.common.model.expectation.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
@@ -39,13 +35,6 @@ import org.xmlunit.diff.Diff;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itorix.mockserver.common.model.expectation.Body;
-import com.itorix.mockserver.common.model.expectation.Data;
-import com.itorix.mockserver.common.model.expectation.Expectation;
-import com.itorix.mockserver.common.model.expectation.FormParam;
-import com.itorix.mockserver.common.model.expectation.NameMultiValue;
-import com.itorix.mockserver.common.model.expectation.NameSingleValue;
-import com.itorix.mockserver.common.model.expectation.Path;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.networknt.schema.JsonSchemaFactory;
@@ -194,8 +183,38 @@ public class MockValidator {
 		return matched;
 	}
 
+
 	public boolean checkHeader(Expectation expectation, MultiValueMap<String, String> actualHeaders) {
-		return validateNameValue(actualHeaders, expectation.getRequest().getHeaders());
+		if (!checkHeaderKeys(expectation, actualHeaders)) {
+			return checkHeaderValues(expectation, actualHeaders);
+		}
+		return false;
+	}
+
+	private boolean checkHeaderKeys(Expectation expectation, MultiValueMap<String, String> actualHeaders) {
+		Map<String, Boolean> map = new HashMap<>();
+		for (NameMultiValue expectedHeader : expectation.getRequest().getHeaders()) {
+			for (String actualHeader : actualHeaders.keySet()) {
+				map.put(expectedHeader.getName().getKey(), checkAssertionString(actualHeader.toLowerCase(), expectedHeader.getName().getKey().toLowerCase(),
+						expectedHeader.getName().getCondition().name()));
+			}
+		}
+		return map.values().stream().anyMatch(r -> r.booleanValue() == false);
+
+	}
+
+	private boolean checkHeaderValues(Expectation expectation, MultiValueMap<String, String> actualHeaders) {
+		for (NameMultiValue expectedHeader : expectation.getRequest().getHeaders()) {
+			for (String actualQueryParam : actualHeaders.keySet()) {
+				List<String> actualValues = actualHeaders.get(actualQueryParam);
+				if(!checkAssertion(expectedHeader.getValue().getText(), actualValues,
+						expectedHeader.getValue().getCondition().name())) {
+					return false;
+				};
+			}
+		}
+		return true;
+
 	}
 
 	public boolean checkQueryString(Expectation expectation, MultiValueMap<String, String> queryParams) {
@@ -208,14 +227,16 @@ public class MockValidator {
 			return true;
 		}
 		boolean matched = false;
-		for (NameMultiValue expectedQueryParam : expectedNameValueMap) {
+		for (NameMultiValue expectedNameValue : expectedNameValueMap) {
 			for (String actualQueryParam : actualNameValueMap.keySet()) {
 				matched = false;
-				if (checkAssertionString(actualQueryParam.toLowerCase(), expectedQueryParam.getName().getKey().toLowerCase(),
-						expectedQueryParam.getName().getCondition().name())) {
+				String expectedName = expectedNameValue.getName().getKey().toLowerCase();
+				Name.Condition expectedNameCondition = expectedNameValue.getName().getCondition();
+				if (checkAssertionString(actualQueryParam.toLowerCase(), expectedName,
+						expectedNameCondition.name())) {
 					List<String> actualValues = actualNameValueMap.get(actualQueryParam);
-					if (checkAssertion(expectedQueryParam.getValue().getText(), actualValues,
-							expectedQueryParam.getValue().getCondition().name())) {
+					if (checkAssertion(expectedNameValue.getValue().getText(), actualValues,
+							expectedNameValue.getValue().getCondition().name())) {
 						matched = true;
 					}
 					break;

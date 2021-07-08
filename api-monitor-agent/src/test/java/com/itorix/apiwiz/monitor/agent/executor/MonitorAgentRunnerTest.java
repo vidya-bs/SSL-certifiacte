@@ -124,7 +124,7 @@ public class MonitorAgentRunnerTest {
 
         monitorAgentRunner.executeMonitorRequests(ctx, 3000);
 
-        Mockito.verify(emailContentParser, times(1)).getRelevantEmailContent(Mockito.eq(MonitorAgentConstants.LATENCY_THRESHOLD_BREACH), Mockito.any(), Mockito.anyMap());
+        Mockito.verify(emailContentParser, times(1)).getRelevantEmailContent(Mockito.any(), Mockito.anyMap());
 
 
     }

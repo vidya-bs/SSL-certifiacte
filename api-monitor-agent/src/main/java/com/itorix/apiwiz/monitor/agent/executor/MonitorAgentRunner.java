@@ -58,7 +58,7 @@ import static com.itorix.apiwiz.monitor.agent.util.MonitorAgentConstants.*;
 @FieldDefaults(level=AccessLevel.PRIVATE)
 public class MonitorAgentRunner {
 
-	private final static Logger logger = LoggerFactory.getLogger(MonitorAgentRunner.class);
+	private static final Logger logger = LoggerFactory.getLogger(MonitorAgentRunner.class);
 
 	@Autowired
 	private MonitorAgentExecutorDao dao;
@@ -162,7 +162,7 @@ public class MonitorAgentRunner {
 		}
 
 		Map<String, String> globalVars = getGlobalVars(vars);
-		//monitorRequests.sort(Comparator.comparing(MonitorRequest::getSequenceId));
+
 		List<String> requestSequence = dao.getRequestSequence(context.getCollectionId());
 		for (String sequence : requestSequence) {
 
@@ -176,7 +176,7 @@ public class MonitorAgentRunner {
 				continue;
 			}
 			HttpResponse response = null;
-			Map<String, Integer> testStatus = new HashMap<String, Integer>();
+			Map<String, Integer> testStatus = new HashMap<>();
 			long executionStart = 0;
 			ExecutionResult result = new ExecutionResult();
 			try {
@@ -315,7 +315,7 @@ public class MonitorAgentRunner {
 			RequestModel requestModel = new RequestModel();
 			try {
 				if (!CollectionUtils.isEmpty(notification.getEmails())) {
-					String[] emailContentToReplace = emailContentParser.getRelevantEmailContent(notificationType, notificationDetail, notificationData);
+					String[] emailContentToReplace = emailContentParser.getRelevantEmailContent(notificationDetail, notificationData);
 					String mailBody = emailContentParser.getEmailBody(notificationType, emailContentToReplace);
 
 					EmailTemplate emailTemplate = new EmailTemplate();
