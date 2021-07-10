@@ -1,9 +1,6 @@
 package com.itorix.apiwiz.test.executor.validators;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -32,9 +29,18 @@ public class ResponseValidator {
 					.collect(Collectors.toMap(Header::getName, Header::getValue));
 			for (Assertion responseHeaderAssertion : assertionHeaders) {
 				try {
+					if (responseHeaderAssertion.isIgnoreCase()) {
+						//converting response headers to lowerCase
+						Map<String, String> lowerCaseHeader = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+						lowerCaseHeader.putAll(responseHeaders);
+						checkAssertion(lowerCaseHeader.get(responseHeaderAssertion.getName().toLowerCase()),
+								responseHeaderAssertion.getValue(), responseHeaderAssertion.getCondition(),
+								responseHeaderAssertion.isContinueOnError());
+					} else {
 					checkAssertion(responseHeaders.get(responseHeaderAssertion.getName()),
 							responseHeaderAssertion.getValue(), responseHeaderAssertion.getCondition(),
 							responseHeaderAssertion.isContinueOnError());
+					}
 					responseHeaderAssertion.setStatus("PASS");
 				} catch (Exception e) {
 					responseHeaderAssertion.setStatus("FAIL");

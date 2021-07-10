@@ -25,6 +25,9 @@ public class Assertion {
 
 	@JsonProperty("continueOnError")
 	private boolean continueOnError;
+
+	@JsonProperty("ignoreCase")
+	private boolean ignoreCase;
 	
 	@JsonProperty("continueOnError")
 	public boolean isContinueOnError() {
@@ -83,4 +86,8 @@ public class Assertion {
 	public void setMessage(String message) {
 		this.message = message;
 	}
+
+	public boolean isIgnoreCase() { return ignoreCase; }
+
+	public void setIgnoreCase(boolean ignoreCase) { this.ignoreCase = ignoreCase; }
 }
