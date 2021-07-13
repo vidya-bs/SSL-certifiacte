@@ -100,7 +100,7 @@ public class MockValidatorTest {
         actualHeader.put("idx", Arrays.asList("11"));
         boolean checkHeader = mockValidator.checkHeader(expectation, actualHeader);
         System.out.println(  "is header valid ?  " + checkHeader);
-        assertFalse(checkHeader);
+        assertTrue(checkHeader);
 
     }
 
@@ -124,5 +124,53 @@ public class MockValidatorTest {
         request.setHeaders(headers);
         expectation.setRequest(request);
         return expectation;
+    }
+
+    @Test
+    public void checkMultipleHeaderExpectation() {
+        Expectation expectation = getExpectation();
+        NameMultiValue header = new NameMultiValue();
+        Name headerName = new Name();
+        headerName.setKey("name");
+        headerName.setCondition(Name.Condition.equalTo);
+        header.setName(headerName);
+        Value nameHeaderValue = new Value();
+        nameHeaderValue.setCondition(Value.Condition.equalTo);
+        nameHeaderValue.setText(Arrays.asList("joe"));
+        header.setValue(nameHeaderValue);
+        expectation.getRequest().getHeaders().add(header);
+
+        MultiValueMap<String, String> actualHeader = new LinkedMultiValueMap();
+        actualHeader.put("name", Arrays.asList("joe"));
+        actualHeader.put("id", Arrays.asList("10"));
+
+        boolean checkHeader = mockValidator.checkHeader(expectation, actualHeader);
+        System.out.println(  "is header valid ?  " + checkHeader);
+        assertTrue(checkHeader);
+
+    }
+
+    @Test
+    public void checkMultipleHeaderExpectationForNotEqualTo() {
+        Expectation expectation = getExpectation();
+        NameMultiValue header = new NameMultiValue();
+        Name headerName = new Name();
+        headerName.setKey("name");
+        headerName.setCondition(Name.Condition.notEqualTo);
+        header.setName(headerName);
+        Value nameHeaderValue = new Value();
+        nameHeaderValue.setCondition(Value.Condition.notEqualTo);
+        nameHeaderValue.setText(Arrays.asList("joe"));
+        header.setValue(nameHeaderValue);
+        expectation.getRequest().getHeaders().add(header);
+
+        MultiValueMap<String, String> actualHeader = new LinkedMultiValueMap();
+        actualHeader.put("name1", Arrays.asList("bob"));
+        actualHeader.put("id", Arrays.asList("10"));
+
+        boolean checkHeader = mockValidator.checkHeader(expectation, actualHeader);
+        System.out.println(  "is header valid ?  " + checkHeader);
+        assertTrue(checkHeader);
+
     }
 }

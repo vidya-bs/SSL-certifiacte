@@ -186,7 +186,7 @@ public class MockValidator {
 
 	public boolean checkHeader(Expectation expectation, MultiValueMap<String, String> actualHeaders) {
 		if (!checkHeaderKeys(expectation, actualHeaders)) {
-			return checkHeaderValues(expectation, actualHeaders);
+			return !checkHeaderValues(expectation, actualHeaders);
 		}
 		return false;
 	}
@@ -201,6 +201,8 @@ public class MockValidator {
 			} else {
 				if(expectedHeader.getName().getCondition().equals(Name.Condition.notEqualTo)) {
 					map.put(expectedHeader.getName().getKey(), true);
+				} else {
+					map.put(expectedHeader.getName().getKey(), false);
 				}
 			}
 		}
@@ -209,20 +211,21 @@ public class MockValidator {
 	}
 
 	private boolean checkHeaderValues(Expectation expectation, MultiValueMap<String, String> actualHeaders) {
+		Map<String, Boolean> result = new HashMap<>();
 		for (NameMultiValue expectedHeader : expectation.getRequest().getHeaders()) {
-			List<String> actualValues = actualHeaders.get(expectedHeader.getName().getKey());
-			if (actualValues != null) {
-				return checkAssertion(expectedHeader.getValue().getText(), actualValues,
-						expectedHeader.getValue().getCondition().name());
+			Optional<List<String>> matchedValue = actualHeaders.values().stream().filter(value -> value.equals(expectedHeader.getValue().getText())).findAny();
+			if (matchedValue.isPresent()) {
+				result.put(expectedHeader.getName().getKey(), checkAssertion(expectedHeader.getValue().getText(), matchedValue.get(),
+						expectedHeader.getValue().getCondition().name()));
 			} else {
-				Optional<List<String>> matchedValue = actualHeaders.values().stream().filter(value -> value.equals(expectedHeader.getValue().getText())).findAny();
-				if(matchedValue.isPresent()) {
-					return checkAssertion(expectedHeader.getValue().getText(), matchedValue.get(),
-							expectedHeader.getValue().getCondition().name());
+				if(expectedHeader.getValue().getCondition().equals(Value.Condition.notEqualTo)) {
+					result.put(expectedHeader.getName().getKey(), true);
+				} else {
+					result.put(expectedHeader.getName().getKey(), false);
 				}
 			}
 		}
-			return false;
+			return result.values().stream().anyMatch(r -> r.booleanValue() == false);
 	}
 
 	public boolean checkQueryString(Expectation expectation, MultiValueMap<String, String> queryParams) {
