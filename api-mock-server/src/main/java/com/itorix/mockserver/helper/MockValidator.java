@@ -210,16 +210,19 @@ public class MockValidator {
 
 	private boolean checkHeaderValues(Expectation expectation, MultiValueMap<String, String> actualHeaders) {
 		for (NameMultiValue expectedHeader : expectation.getRequest().getHeaders()) {
-			for (String actualQueryParam : actualHeaders.keySet()) {
-				List<String> actualValues = actualHeaders.get(actualQueryParam);
-				if(!checkAssertion(expectedHeader.getValue().getText(), actualValues,
-						expectedHeader.getValue().getCondition().name())) {
-					return false;
-				};
+			List<String> actualValues = actualHeaders.get(expectedHeader.getName().getKey());
+			if (actualValues != null) {
+				return checkAssertion(expectedHeader.getValue().getText(), actualValues,
+						expectedHeader.getValue().getCondition().name());
+			} else {
+				Optional<List<String>> matchedValue = actualHeaders.values().stream().filter(value -> value.equals(expectedHeader.getValue().getText())).findAny();
+				if(matchedValue.isPresent()) {
+					return checkAssertion(expectedHeader.getValue().getText(), matchedValue.get(),
+							expectedHeader.getValue().getCondition().name());
+				}
 			}
 		}
-		return true;
-
+			return false;
 	}
 
 	public boolean checkQueryString(Expectation expectation, MultiValueMap<String, String> queryParams) {

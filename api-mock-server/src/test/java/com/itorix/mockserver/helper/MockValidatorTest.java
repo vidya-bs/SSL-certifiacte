@@ -81,6 +81,8 @@ public class MockValidatorTest {
     public void checkHeaderValidation_ExpectationNameNotEqualValueNotEqual() {
         Expectation expectation = getExpectation();
         ArrayList<NameMultiValue> headers = new ArrayList<>();
+
+
         NameMultiValue idHeader = new NameMultiValue();
         Name idName = new Name();
         idName.setKey("id");
@@ -98,7 +100,7 @@ public class MockValidatorTest {
         actualHeader.put("idx", Arrays.asList("11"));
         boolean checkHeader = mockValidator.checkHeader(expectation, actualHeader);
         System.out.println(  "is header valid ?  " + checkHeader);
-        assertTrue(checkHeader);
+        assertFalse(checkHeader);
 
     }
 
