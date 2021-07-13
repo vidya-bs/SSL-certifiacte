@@ -29,6 +29,16 @@ public class MockValidatorTest {
     }
 
     @Test
+    public void checkHeaderValidation_ExpectationNameAndValueEqual_CaseSensitive() {
+        Expectation expectation = getExpectation();
+
+        MultiValueMap<String, String> actualHeader = new LinkedMultiValueMap();
+        actualHeader.put("iD", Arrays.asList("10"));
+        assertFalse(mockValidator.checkHeader(expectation, actualHeader));
+
+    }
+
+    @Test
     public void checkHeaderValidation_ExpectationNameEqualValueNotEqual() {
         Expectation expectation = getExpectation();
         ArrayList<NameMultiValue> headers = new ArrayList<>();
