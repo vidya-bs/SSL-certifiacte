@@ -266,7 +266,7 @@ public class PortfolioDao {
 		query.fields().include("name").include("summary").include("owner").include("portfolioImage").include("cts").include("createdBy").include("modifiedBy").include("mts");;
 		PortfolioResponse response = new PortfolioResponse();
 
-		List<Portfolio> portfolios = mongoTemplate.find(new Query().with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+		List<Portfolio> portfolios = mongoTemplate.find(new Query().with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
 				.limit(pageSize), Portfolio.class);
 		if (!CollectionUtils.isEmpty(portfolios)) {
 			Long counter = mongoTemplate.count(new Query(), Portfolio.class);

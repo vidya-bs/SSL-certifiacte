@@ -150,7 +150,7 @@ public class ServiceRegistryDao {
 	
 	public ServiceRegistryResponse getServiceaRegistry(int offset, int pageSize) {
 		
-		Query query = new Query().with(Sort.by(Direction.DESC, "_id"))
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts"))
 				.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 		ServiceRegistryResponse response = new ServiceRegistryResponse();
 		List<ServiceRegistryList> testSuites = mongoTemplate.find(query, ServiceRegistryList.class);

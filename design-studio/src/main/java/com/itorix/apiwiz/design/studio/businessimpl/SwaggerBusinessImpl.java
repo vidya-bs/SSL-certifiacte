@@ -3635,7 +3635,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("codeGenHistory")
 				.elemMatch(Criteria.where("proxy.buildProxyArtifact").is(swagger)
-						.and("proxy.oas").is(oas)));
+						.and("proxy.oas").is(oas))).with(Sort.by(Sort.Direction.DESC, "mts"));
 		query.fields().include("proxyName");
 		List<ProxyData> proxies  = mongoTemplate.find(query, ProxyData.class);
 		if(null != proxies)

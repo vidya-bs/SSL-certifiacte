@@ -376,7 +376,7 @@ public class ProjectManagementDao {
 	
 	public Object getOverview(int offset) throws ItorixException {
 		Query query = new Query()
-				.with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * 10) : 0)
+				.with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * 10) : 0)
 				.limit(10);
 		ProjectHistoryResponse historyResponse = new ProjectHistoryResponse();
 		List<Project> allprojects =  mongoTemplate.find(query, Project.class);

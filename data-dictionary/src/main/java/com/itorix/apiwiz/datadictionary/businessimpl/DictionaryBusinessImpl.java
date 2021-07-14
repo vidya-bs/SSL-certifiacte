@@ -70,7 +70,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness{
 
 	public PortfolioHistoryResponse findAllPortfolios(String interactionid, int offset, int paeSize) {
 		log("findPortfolio", interactionid);
-		Query query = new Query().with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * paeSize) : 0).limit(paeSize);
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * paeSize) : 0).limit(paeSize);
 		PortfolioHistoryResponse historyResponse = new PortfolioHistoryResponse();
 		List<PortfolioVO> portfolios =  mongoTemplate.find(query, PortfolioVO.class);
 		if (portfolios != null) {
