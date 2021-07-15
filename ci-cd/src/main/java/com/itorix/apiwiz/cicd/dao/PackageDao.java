@@ -296,7 +296,7 @@ public class PackageDao {
 
 	public Object getPackages(int offset, int pageSize) throws ItorixException{
 		try{
-			Query query = new Query().with(Sort.by(Direction.DESC, "_id"))
+			Query query = new Query().with(Sort.by(Direction.DESC, "mts"))
 					.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 			PackageOverviewResponse response = new PackageOverviewResponse();
 			List<Package> packages = mongoTemplate.find(query,Package.class); 

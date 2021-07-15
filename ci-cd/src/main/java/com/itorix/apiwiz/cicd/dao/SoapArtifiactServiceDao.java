@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.opensaml.xml.signature.Q;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -248,7 +250,8 @@ public class SoapArtifiactServiceDao {
 	
 	public Object getPostManFilesList(String interactionid) {
 	//logger.info("getPostManFilesList : CorelationId= "+ interactionid );
-	List<SoapUiFileInfo>  soapUiFileInfolist= mongoTemplate.findAll(SoapUiFileInfo.class);
+		Query query = new Query().with(Sort.by(Sort.Direction.DESC, "mts"));
+	List<SoapUiFileInfo>  soapUiFileInfolist= mongoTemplate.find(query, SoapUiFileInfo.class);
 	List<Map> soapUiFileNamesList=new ArrayList<Map>();
 	for (SoapUiFileInfo soapUiFileInfo : soapUiFileInfolist) {
 		Map<String,Object> soapUiFileInfoMap =new HashMap<String,Object>();
@@ -270,7 +273,8 @@ public class SoapArtifiactServiceDao {
 
 	public Object getEnvFilesList(String interactionid) {
 		//logger.info("getEnvFilesList : CorelationId= "+ interactionid );
-		List<SoapUiEnvFileInfo>  soapUiEnvFileInfolist= mongoTemplate.findAll(SoapUiEnvFileInfo.class);
+		Query query = new Query().with(Sort.by(Sort.Direction.DESC, "mts"));
+		List<SoapUiEnvFileInfo>  soapUiEnvFileInfolist= mongoTemplate.find(query, SoapUiEnvFileInfo.class);
 		List<Map> envFileNamesList=new ArrayList<Map>();
 		for (SoapUiEnvFileInfo postManEnvFileInfo : soapUiEnvFileInfolist) {
 			Map<String,Object> soapUiEnvFileInfoMap =new HashMap<String,Object>();

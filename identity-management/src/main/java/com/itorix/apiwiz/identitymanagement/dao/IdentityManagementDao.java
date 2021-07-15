@@ -1340,7 +1340,7 @@ public class IdentityManagementDao {
 
 	public List<User> findUsersByWorkspace(String workspaceId){
 		Query query  = new Query();
-		query.addCriteria(new Criteria().orOperator(Criteria.where("workspaces.workspace.name").is(workspaceId)));
+		query.addCriteria(new Criteria().orOperator(Criteria.where("workspaces.workspace.name").is(workspaceId))).with(Sort.by(Direction.DESC, "mts"));
 		List<User> users = masterMongoTemplate.find(query, User.class);
 		return users;
 	}

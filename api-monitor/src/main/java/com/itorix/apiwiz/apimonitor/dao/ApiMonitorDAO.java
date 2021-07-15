@@ -125,7 +125,7 @@ public class ApiMonitorDAO {
 
 	public APIMonitorResponse getCollections(int offset, int pageSize) {
 
-		Query query = new Query().with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
 				.limit(pageSize);
 
 		query.fields().include("id").include("name").include("summary").include("cts").include("createdBy")
@@ -502,7 +502,8 @@ public class ApiMonitorDAO {
 	}
 
 	public List<Variables> getVariables() {
-		return mongoTemplate.findAll(Variables.class);
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts"));
+		return mongoTemplate.find(query, Variables.class);
 	}
 
 	public void deleteVariable(String id) {
@@ -522,11 +523,11 @@ public class ApiMonitorDAO {
 
 	public List<Certificates> getCertificates(boolean names) {
 		if (names) {
-			Query searchQuery = new Query();
+			Query searchQuery = new Query().with(Sort.by(Direction.DESC, "mts"));
 			searchQuery.fields().include("name");
 			return mongoTemplate.find(searchQuery, Certificates.class);
 		}
-		Query searchQuery = new Query();
+		Query searchQuery = new Query().with(Sort.by(Direction.DESC, "mts"));
 		searchQuery.fields().exclude("content").exclude("password");
 		return mongoTemplate.find(searchQuery, Certificates.class);
 	}

@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -248,7 +249,8 @@ public class PostmanArtifiactServiceDao {
 	}
 
 	public Object getPostManFilesList(String interactionid) {
-		List<PostManFileInfo>  postManEnvFileInfolist= mongoTemplate.findAll(PostManFileInfo.class);
+		Query query = new Query().with(Sort.by(Sort.Direction.DESC, "mts"));
+		List<PostManFileInfo>  postManEnvFileInfolist= mongoTemplate.find(query, PostManFileInfo.class);
 		List<Map> postManFileNamesList=new ArrayList<Map>();
 		for (PostManFileInfo postManEnvFileInfo : postManEnvFileInfolist) {
 			Map<String,Object> postManEnvFileInfoMap =new HashMap<String,Object>();
@@ -276,7 +278,8 @@ public class PostmanArtifiactServiceDao {
 	}
 
 	public Object getEnvFilesList(String interactionid) {
-		List<PostManEnvFileInfo>  postManEnvFileInfolist= mongoTemplate.findAll(PostManEnvFileInfo.class);
+		Query query = new Query().with(Sort.by(Sort.Direction.DESC, "mts"));
+		List<PostManEnvFileInfo>  postManEnvFileInfolist= mongoTemplate.find(query, PostManEnvFileInfo.class);
 		List<Map> envFileNamesList=new ArrayList<Map>();
 		for (PostManEnvFileInfo postManEnvFileInfo : postManEnvFileInfolist) {
 			Map<String,Object> postManEnvFileInfoMap =new HashMap<String,Object>();

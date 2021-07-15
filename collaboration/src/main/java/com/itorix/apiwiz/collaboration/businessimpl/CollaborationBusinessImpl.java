@@ -394,21 +394,21 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 		if (isAdmin) {
 			Query query;
 			if(name != null)
-				query = new Query(Criteria.where("name").is(name)).with(Sort.by(Direction.DESC, "_id"))
+				query = new Query(Criteria.where("name").is(name)).with(Sort.by(Direction.DESC, "mts"))
 					.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 			else
-				query = new Query().with(Sort.by(Direction.DESC, "_id"))
+				query = new Query().with(Sort.by(Direction.DESC, "mts"))
 				.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 			swaggerTeams = baseRepository.find(query, SwaggerTeam.class);
 		} else {
 			Query query;
 			if(name != null)
 			query = new Query(Criteria.where("contacts.email").is(user.getEmail()).and("name").is(name))
-					.with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+					.with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
 					.limit(pageSize);
 			else
 				query = new Query(Criteria.where("contacts.email").is(user.getEmail()))
-				.with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+				.with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
 				.limit(pageSize);
 			swaggerTeams = baseRepository.find(query, SwaggerTeam.class);
 		}

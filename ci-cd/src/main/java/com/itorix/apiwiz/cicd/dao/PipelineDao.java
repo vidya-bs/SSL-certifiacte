@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -136,7 +137,7 @@ public class PipelineDao {
 	public PipelineGroups getPipelineGroups(String groupName, boolean minified) {
 		PipelineGroups pipelineGroups = null;
 		if (groupName != null) {
-			Query query = new Query(Criteria.where("_id").is(groupName));
+			Query query = new Query(Criteria.where("_id").is(groupName)).with(Sort.by(Sort.Direction.DESC, "mts"));
 			List<PipelineGroups> projects = mongoTemplate.find(query, PipelineGroups.class);
 			if (projects != null && projects.size() > 0) {
 				pipelineGroups = projects.get(0);
@@ -192,7 +193,8 @@ public class PipelineDao {
 	}
 
 	public List<PipelineGroups> getAvailablePipelines() {
-		List<PipelineGroups> pipelineGroups = mongoTemplate.findAll(PipelineGroups.class);
+		Query query = new Query().with(Sort.by(Sort.Direction.DESC, "mts"));
+		List<PipelineGroups> pipelineGroups = mongoTemplate.find(query, PipelineGroups.class);
 		for (PipelineGroups pipelineGroup : pipelineGroups) {
 			minifyPipelineGroupsResponse(pipelineGroup);
 		}

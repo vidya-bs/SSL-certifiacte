@@ -219,7 +219,8 @@ public class TestSuiteDAO {
 	}
 
 	public TestSuiteOverviewResponse getVariables(int offset, int pageSize) {
-		List<Variables> variables = mongoTemplate.findAll(Variables.class);
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts"));
+		List<Variables> variables = mongoTemplate.find(query, Variables.class);
 		if(variables.size()>0){
 			for(Variables variable: variables )
 				variable.setVariables(null);
@@ -239,7 +240,8 @@ public class TestSuiteDAO {
 	}
 
 	public List<Variables> getVariables() {
-		return mongoTemplate.findAll(Variables.class);
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts"));
+		return mongoTemplate.find(query, Variables.class);
 	}
 
 	public void deleteVariable(String id) {
@@ -496,7 +498,7 @@ public class TestSuiteDAO {
 
 
 	public TestSuiteOverviewResponse getAllTestSuite(String expand, int offset, int pageSize) {
-		Query query = new Query().with(Sort.by(Direction.DESC, "_id"))
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts"))
 				.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 		TestSuiteOverviewResponse response = new TestSuiteOverviewResponse();
 		List<TestSuite> testSuites = mongoTemplate.find(query, TestSuite.class);
@@ -531,7 +533,8 @@ public class TestSuiteDAO {
 	}
 
 	public List<TestSuite> getAllTestSuites() {
-		List<TestSuite> testSuites = mongoTemplate.findAll(TestSuite.class);
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts"));
+		List<TestSuite> testSuites = mongoTemplate.find(query, TestSuite.class);
 		for (TestSuite testSuite : testSuites) {
 			testSuite.setScenarios(null);
 		}
@@ -1212,17 +1215,18 @@ public class TestSuiteDAO {
 	}
 
 	public MaskFields getMaskingFields() {
-		List<MaskFields> maskingFields = mongoTemplate.findAll(MaskFields.class);
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts"));
+		List<MaskFields> maskingFields = mongoTemplate.find(query, MaskFields.class);
 		return maskingFields.isEmpty() ? null : maskingFields.get(0);
 	}
 
 	public List<Certificates> getCertificates(boolean names) {
 		if (names) {
-			Query searchQuery = new Query();
+			Query searchQuery = new Query().with(Sort.by(Direction.DESC, "mts"));
 			searchQuery.fields().include("name");
 			return mongoTemplate.find(searchQuery, Certificates.class);
 		}
-		Query searchQuery = new Query();
+		Query searchQuery = new Query().with(Sort.by(Direction.DESC, "mts"));
 		searchQuery.fields().exclude("content").exclude("password");
 		return mongoTemplate.find(searchQuery, Certificates.class);
 	}
