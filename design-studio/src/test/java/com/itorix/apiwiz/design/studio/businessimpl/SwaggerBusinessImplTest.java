@@ -13,8 +13,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito.*;
 import org.mockito.MockitoAnnotations;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class SwaggerBusinessImplTest {
 
@@ -44,8 +46,7 @@ public class SwaggerBusinessImplTest {
         swaggerVersions.add(swagger3VO);
         when(baseRepository.find("name", swaggerName, Swagger3VO.class)).thenReturn(swaggerVersions);
 
-        String swaggerInfo = swaggerBusiness.getSwaggerInfo(jsessionId, swaggerId, oas);
+        Map swaggerInfo = swaggerBusiness.getSwaggerInfo(jsessionId, swaggerId, oas);
 
-        assertTrue(swaggerInfo.contains("EDI Benefit Eligibility Inquiry"));
     }
 }

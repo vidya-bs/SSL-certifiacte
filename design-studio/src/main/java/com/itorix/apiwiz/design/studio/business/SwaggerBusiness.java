@@ -3,6 +3,7 @@ package com.itorix.apiwiz.design.studio.business;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.mail.MessagingException;
@@ -651,7 +652,7 @@ public interface SwaggerBusiness {
 
 	public void deleteGitIntegrations(String interactionid, String jsessionid, String swaggerid, String oas) throws ItorixException;
 
-    public String getSwaggerInfo(String jsessionid, String swaggerid, String oas);
+    public Map<String, Object> getSwaggerInfo(String jsessionid, String swaggerid, String oas);
 
 	public boolean cloneSwagger(SwaggerCloneDetails swaggerCloneDetails, String oas);
 	

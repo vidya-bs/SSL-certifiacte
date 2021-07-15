@@ -2144,7 +2144,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestParam("id") String swaggerid)
 			throws Exception {
-		String swaggerInfo = swaggerBusiness.getSwaggerInfo(jsessionid, swaggerid , oas);
+		Map swaggerInfo = swaggerBusiness.getSwaggerInfo(jsessionid, swaggerid , oas);
 		return new ResponseEntity<Object>(swaggerInfo, HttpStatus.OK);
 	}
 

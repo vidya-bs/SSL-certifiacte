@@ -3518,7 +3518,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 	@SneakyThrows
 	@Override
-	public String getSwaggerInfo(String jsessionid, String swaggerid, String oas) {
+	public Map<String, Object> getSwaggerInfo(String jsessionid, String swaggerid, String oas) {
 		if (oas.equals("3.0")) {
 			Swagger3VO vo = getSwagger3(swaggerid, null);
 			if(vo == null) {
@@ -3537,27 +3537,28 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	@SneakyThrows
-	private String parseSwaggerInfoNodes(String swaggerJson) {
-		String version = "";
-		String name = "";
-		String description = "";
+	private Map<String, Object> parseSwaggerInfoNodes(String swaggerJson) {
+		Object version = null;
+		Object name = null;
+		Object description = null;
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		JsonNode swaggerNode = objectMapper.readTree(swaggerJson);
 		JsonNode swaggerInfoNode = swaggerNode.get("info");
-		name = String.valueOf(swaggerInfoNode.get("title"));
-		version = String.valueOf(swaggerInfoNode.get("version"));
-		description = String.valueOf(swaggerInfoNode.get("description"));
+		name = swaggerInfoNode.get("title");
+		version = swaggerInfoNode.get("version");
+		description = swaggerInfoNode.get("description");
 
-		if ("null" == name|| "" == name)
+		if (null == name)
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")),
 					"Swagger-1001");
 
 		ObjectNode jsonNode = objectMapper.createObjectNode();
-		jsonNode.put("name", name);
-		jsonNode.put("description", description);
-		jsonNode.put("version", version);
-		return objectMapper.writeValueAsString(jsonNode);
+		Map<String, Object> json = new HashMap();
+		json.put("name", name);
+		json.put("description", description);
+		json.put("version", version);
+		return json;
 	}
 
 	@SneakyThrows
