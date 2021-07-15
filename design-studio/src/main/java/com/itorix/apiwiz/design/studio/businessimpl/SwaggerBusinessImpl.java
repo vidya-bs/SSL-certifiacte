@@ -3580,8 +3580,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		//Check Swagger Already Exists with the same name of clone
 		SwaggerVO swaggerObj = getSwagger(swaggerCloneDetails.getName(), null);
 		if(swaggerObj != null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1003"), swaggerCloneDetails.getName()),
-					"Swagger-1003");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1002"), swaggerCloneDetails.getName()),
+					"Swagger-1002");
 		}
 		SwaggerVO vo = null;
 
@@ -3598,7 +3598,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 		SwaggerVO newSwaggerForClone = new SwaggerVO();
 		SwaggerUtil.copyAllSwaggerFields(newSwaggerForClone, vo);
-		SwaggerUtil.setCloneDetailsFromReq(newSwaggerForClone, swaggerCloneDetails);
+		SwaggerUtil.setCloneDetailsFromReq(newSwaggerForClone, swaggerCloneDetails, vo.getSwagger());
 		isSwaggerCloneSuccess = baseRepository.save(newSwaggerForClone) != null ? true : false;
 		return isSwaggerCloneSuccess;
 	}
@@ -3608,8 +3608,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		//Check Swagger Already Exists with the same name of clone
 		Swagger3VO swaggerObj = getSwagger3(swaggerCloneDetails.getName(), null);
 		if (swaggerObj != null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1003"), swaggerCloneDetails.getName()),
-					"Swagger-1003");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1002"), swaggerCloneDetails.getName()),
+					"Swagger-1002");
 		}
 
 		Swagger3VO vo = null;

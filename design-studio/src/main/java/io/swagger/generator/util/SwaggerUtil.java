@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.design.studio.model.Swagger3VO;
 import com.itorix.apiwiz.design.studio.model.SwaggerCloneDetails;
 import com.itorix.apiwiz.design.studio.model.SwaggerVO;
+import io.swagger.models.Swagger;
+import io.swagger.parser.SwaggerParser;
 import lombok.SneakyThrows;
 import org.apache.commons.beanutils.BeanUtils;
 
@@ -39,17 +41,18 @@ public class SwaggerUtil {
     }
 
     @SneakyThrows
-    public static void setCloneDetailsFromReq(SwaggerVO dest, SwaggerCloneDetails orig) {
+    public static void setCloneDetailsFromReq(SwaggerVO dest, SwaggerCloneDetails orig, String swaggerStr) {
         dest.setName(orig.getName());
         dest.setDescription(orig.getDescription());
         dest.setRevision(1);
         String swaggerId = UUID.randomUUID().toString().replaceAll("-", "");
         dest.setSwaggerId(swaggerId);
 
+        SwaggerParser swaggerParser = new SwaggerParser();
+        Swagger swagger = swaggerParser.parse(swaggerStr);
+        swagger.setBasePath(orig.getBasePath());
         ObjectMapper objMapper = new ObjectMapper();
-        JsonNode jsonNode = objMapper.readTree(dest.getSwagger());
-        ((ObjectNode) jsonNode).put("basePath", orig.getBasePath());
-        dest.setSwagger(objMapper.writeValueAsString(jsonNode));
+        dest.setSwagger(objMapper.writeValueAsString(swagger));
     }
 
 }
