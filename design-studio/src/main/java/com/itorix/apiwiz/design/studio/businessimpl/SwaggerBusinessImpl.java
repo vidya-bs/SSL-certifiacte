@@ -751,8 +751,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		List<SwaggerVO> list = new ArrayList<SwaggerVO>();
 		SwaggerHistoryResponse response = new SwaggerHistoryResponse();
 		List<String> names = new ArrayList<String>();
+		int total = 1;
 		if(swagger == null) {
-			names = trimList(baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues, SwaggerVO.class, sortByModifiedDate), offset, pageSize);
+			names = baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues, SwaggerVO.class, sortByModifiedDate);
+			total = names.size();
+			names = trimList(names, offset, pageSize);
 		}else{
 			try{
 				SwaggerVO swaggervo = getSwagger(swagger, interactionid);
@@ -803,12 +806,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				}
 			}
 			Pagination pagination = new Pagination();
-			int total = 1;
-			if(swagger == null){
-				total = names.size();
-			}
-			int count = total/pageSize;
-			count = total % pageSize > 0 ? count + 1: count;
 			pagination.setOffset(offset);
 			pagination.setTotal((long) total);
 			pagination.setPageSize(pageSize);
@@ -863,11 +860,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					}
 				}
 				Pagination pagination = new Pagination();
-				int total = SwaggerNames.size();
-				int count = total/pageSize;
-				count = total % pageSize > 0 ? count + 1: count;
+				int totalByUser = SwaggerNames.size();
 				pagination.setOffset(offset);
-				pagination.setTotal((long) total);
+				pagination.setTotal((long) totalByUser);
 				pagination.setPageSize(pageSize);
 				response.setPagination(pagination);
 				response.setData(list);
