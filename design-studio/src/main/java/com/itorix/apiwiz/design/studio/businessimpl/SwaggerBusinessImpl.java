@@ -887,6 +887,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			for(SwaggerMetadata swaggerMetadata : metadataList){
 				SwaggerVO vo = getSwaggerDetails(swaggerMetadata.getSwaggerName());
 				vo.setTeams(swaggerMetadata.getTeams());
+				list.add(vo);
 			}
 			response.setData(list);
 		}else{
