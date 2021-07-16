@@ -311,7 +311,7 @@ public class MongoConnection {
 			if(proxy != null)
 				query = new Query().addCriteria(Criteria.where("_id").is(proxy));
 			else 
-				query = new Query().with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+				query = new Query().with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 			
 			dbProxyData = mongoTemplate.find(query, ProxyData.class);
 			totalRecords = mongoTemplate.count(new Query(), ProxyData.class);

@@ -206,7 +206,7 @@ public class ServiceRequestDao {
 		try {
 			ServiceRequestHistoryResponse response = new ServiceRequestHistoryResponse();
 			Query countquery = new Query(Criteria.where("activeFlag").is(Boolean.TRUE));
-			Query query = new Query(Criteria.where("activeFlag").is(Boolean.TRUE)).with(Sort.by(Direction.DESC, "_id"))
+			Query query = new Query(Criteria.where("activeFlag").is(Boolean.TRUE)).with(Sort.by(Direction.DESC, "mts"))
 					.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 			
 			if (config != null && StringUtils.isNotBlank(config.getType())) {
