@@ -68,7 +68,7 @@ public class GroupServiceDAO {
 
 	public GroupHistoryResponse getGroups(int offset, int pageSize) throws ItorixException  {
 		try {
-			Query query = new Query().with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+			Query query = new Query().with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 			List<GroupVO> listVO = mongoTemplate.find(query,GroupVO.class);
 			UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 			Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
