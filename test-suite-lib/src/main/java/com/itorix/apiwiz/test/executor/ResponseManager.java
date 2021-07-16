@@ -3,6 +3,7 @@ package com.itorix.apiwiz.test.executor;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -58,8 +59,16 @@ public class ResponseManager {
 			// EntityUtils.toString(actualResponse.getEntity(), "UTF-8");
 			for (Variable variable : response.getVariables()) {
 				if (variable.getReference() != null) {
-					if (variable.getReference().equalsIgnoreCase("headers")) {
-						vars.put(variable.getName(), headerMap.get(variable.getName()));
+					String reference = variable.getReference();
+					if ("Header".equalsIgnoreCase(reference) || "headers".equalsIgnoreCase(reference)) {
+						if(variable.isIgnoreCase()) {
+							//converting response headers to lowerCase
+							Map<String, String> lowerCaseHeader = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+							lowerCaseHeader.putAll(headerMap);
+							vars.put(variable.getName(), lowerCaseHeader.get(variable.getName().toLowerCase()));
+						} else {
+							vars.put(variable.getName(), headerMap.get(variable.getName()));
+						}
 						if(variable.isEncryption()){
 							try {
 							headerMap.put(variable.getName() , (new RSAEncryption()).encryptText(headerMap.get(variable.getName())));
