@@ -215,7 +215,7 @@ public class MonitorAgentRunner {
 				if (response != null
 						&& HttpStatus.valueOf(response.getStatusLine().getStatusCode()).is2xxSuccessful()) {
 					result.setStatus("Success");
-					if(latency > monitorRequest.getExpectedLatency()) {
+					if(monitorRequest.isLatencyAlert() && latency > monitorRequest.getExpectedLatency()) {
 						result.setStatus("Failed");
 						List<NotificationDetails> notificationDetails = dao.getNotificationDetails(context.getTenant(),
 								context.getCollectionId());
@@ -316,7 +316,7 @@ public class MonitorAgentRunner {
 			try {
 				if (!CollectionUtils.isEmpty(notification.getEmails())) {
 					String[] emailContentToReplace = emailContentParser.getRelevantEmailContent(notificationDetail, notificationData);
-					String mailBody = emailContentParser.getEmailBody(notificationType, emailContentToReplace);
+					String mailBody = emailContentParser.getEmailBody(emailContentToReplace);
 
 					EmailTemplate emailTemplate = new EmailTemplate();
 					emailTemplate.setBody(mailBody);

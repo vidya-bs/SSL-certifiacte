@@ -29,4 +29,5 @@ public class MonitorRequest {
 	private Request request;
 	private Response response;
 	private long expectedLatency;
+	private boolean latencyAlert;
 }
