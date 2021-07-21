@@ -79,6 +79,7 @@ public class MonitorAgentRunnerTest {
         List<MonitorRequest> monitorRequests = new ArrayList<>();
         MonitorRequest monitorRequest = spy(MonitorRequest.class);
         monitorRequest.setVerb(MonitorAgentRunner.API.GET.toString());
+        monitorRequest.setLatencyAlert(true);
         monitorRequest.setId("12345");
         Response monitorResponse = new Response();
         Body body = new Body();
