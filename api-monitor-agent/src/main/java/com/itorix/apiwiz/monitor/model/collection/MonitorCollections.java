@@ -18,11 +18,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MonitorCollections extends AbstractObject {
-	private String name;
-	private String summary;
-	private String description;
-	private List<Notifications> notifications;
-	private List<Schedulers> schedulers;
-	private List<MonitorRequest> monitorRequest ;
-	private List<String> sequence;
+    private String name;
+    private String summary;
+    private String description;
+    private List<Notifications> notifications;
+    private List<Schedulers> schedulers;
+    private List<MonitorRequest> monitorRequest;
+    private List<String> sequence;
 }

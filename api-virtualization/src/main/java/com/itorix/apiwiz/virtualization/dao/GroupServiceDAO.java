@@ -1,6 +1,5 @@
 package com.itorix.apiwiz.virtualization.dao;
 
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,79 +43,79 @@ public class GroupServiceDAO {
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
+
 	@Qualifier("masterMongoTemplate")
 	@Autowired
 	private MongoTemplate masterMongoTemplate;
+
 	@Autowired
 	private ScenarioServiceDAO scenarioService;
 
 	@Value("${itorix.core.mock.port:9002}")
 	private String mockPort;
+
 	@Value("${itorix.mock.agent}")
 	private String mockHost;
 
-
-
 	private final String MOCK_URL = "http://#URL#-mock.apiwiz.io";
 
-	private Workspace getWorkspace(String workapaceId){
-		Query query  = new Query();
+	private Workspace getWorkspace(String workapaceId) {
+		Query query = new Query();
 		query.addCriteria(new Criteria().orOperator(Criteria.where("name").is(workapaceId)));
 		Workspace workspace = masterMongoTemplate.findOne(query, Workspace.class);
 		return workspace;
 	}
 
-	public GroupHistoryResponse getGroups(int offset, int pageSize) throws ItorixException  {
+	public GroupHistoryResponse getGroups(int offset, int pageSize) throws ItorixException {
 		try {
-			Query query = new Query().with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
-			List<GroupVO> listVO = mongoTemplate.find(query,GroupVO.class);
+			Query query = new Query().with(Sort.by(Direction.DESC, "_id"))
+					.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+			List<GroupVO> listVO = mongoTemplate.find(query, GroupVO.class);
 			UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 			Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
 			String tenantId = workspace.getKey();
-			//String mockURL = MOCK_URL.replaceAll("#URL#", userSessionToken.getWorkspaceId());
-			//mockURL = mockURL + ":" + mockPort;
-			for(GroupVO vo : listVO){
+			// String mockURL = MOCK_URL.replaceAll("#URL#",
+			// userSessionToken.getWorkspaceId());
+			// mockURL = mockURL + ":" + mockPort;
+			for (GroupVO vo : listVO) {
 				vo.setTenantId(tenantId);
 				vo.setMockURL(mockHost);
 			}
-			if(listVO.size()>0){
+			if (listVO.size() > 0) {
 				GroupHistoryResponse response = new GroupHistoryResponse();
-				response.setData( polulateExpectation(listVO));
+				response.setData(polulateExpectation(listVO));
 				Pagination pagination = new Pagination();
-				long total = mongoTemplate.count(new Query(),GroupVO.class);
-				long count = total/pageSize;
-				count = total % pageSize > 0 ? count + 1: count;
+				long total = mongoTemplate.count(new Query(), GroupVO.class);
+				long count = total / pageSize;
+				count = total % pageSize > 0 ? count + 1 : count;
 				pagination.setOffset(offset);
 				pagination.setTotal(total);
 				pagination.setPageSize(pageSize);
 				response.setPagination(pagination);
 				return response;
-			}
-			else
+			} else
 				return new GroupHistoryResponse();
-		}catch (Exception ex) {
-			throw new ItorixException("","");
+		} catch (Exception ex) {
+			throw new ItorixException("", "");
 		}
 	}
 
-	public List<GroupVO> getGroups(String filter) throws ItorixException  {
+	public List<GroupVO> getGroups(String filter) throws ItorixException {
 		try {
 			List<GroupVO> listVO = mongoTemplate.findAll(GroupVO.class);
-			if(listVO.size()>0){
+			if (listVO.size() > 0) {
 				listVO = polulateExpectation(listVO);
 				return listVO;
-			}
-			else
+			} else
 				return null;
-		}catch (Exception ex) {
-			throw new ItorixException("","");
+		} catch (Exception ex) {
+			throw new ItorixException("", "");
 		}
 	}
 
-	public List<GroupVO> getGroupNames(){
+	public List<GroupVO> getGroupNames() {
 		List<GroupVO> listVO = mongoTemplate.findAll(GroupVO.class);
-		for(GroupVO vo : listVO)
-		{
+		for (GroupVO vo : listVO) {
 			vo.setMetadata(null);
 			vo.setExpectations(null);
 			vo.setDescription(null);
@@ -127,9 +126,9 @@ public class GroupServiceDAO {
 
 	private List<GroupVO> polulateExpectation(List<GroupVO> listVO) {
 		List<GroupVO> groupList = new ArrayList<GroupVO>();
-		for(GroupVO groupVO : listVO){
+		for (GroupVO groupVO : listVO) {
 			List<Map<Object, Object>> expectations = new ArrayList<Map<Object, Object>>();
-			for(Expectation expectationVO: scenarioService.getExpectationByGroup(groupVO.getId())){
+			for (Expectation expectationVO : scenarioService.getExpectationByGroup(groupVO.getId())) {
 				Map<Object, Object> expectation = new HashMap<Object, Object>();
 				expectation.put("expectationId", expectationVO.getId());
 				expectation.put("expectationName", expectationVO.getName());
@@ -141,9 +140,9 @@ public class GroupServiceDAO {
 		return groupList;
 	}
 
-	public GroupVO getGroup(String groupId) throws ItorixException  {
+	public GroupVO getGroup(String groupId) throws ItorixException {
 		try {
-			if(groupId!=null) {
+			if (groupId != null) {
 				Query query = new Query(Criteria.where("_id").is(groupId));
 				List<GroupVO> groupList = new ArrayList<GroupVO>();
 				groupList.add(mongoTemplate.findOne(query, GroupVO.class));
@@ -156,19 +155,18 @@ public class GroupServiceDAO {
 				vo.setTenantId(tenantId);
 				vo.setMockURL(mockHost);
 				return vo;
-			}
-			else
-				throw new ItorixException("","");
+			} else
+				throw new ItorixException("", "");
 		} catch (ItorixException ex) {
 			throw ex;
-		}catch (Exception ex) {
-			throw new ItorixException("","");
+		} catch (Exception ex) {
+			throw new ItorixException("", "");
 		}
 	}
 
-	public GroupVO getGroup(GroupVO group)  {
+	public GroupVO getGroup(GroupVO group) {
 		try {
-			if(group != null) {
+			if (group != null) {
 				Query query = new Query(Criteria.where("_id").is(group.getId()));
 				UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 				Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
@@ -186,11 +184,11 @@ public class GroupServiceDAO {
 		return null;
 	}
 
-	public boolean isValidGroup(String groupId)  {
+	public boolean isValidGroup(String groupId) {
 		try {
-			if(groupId!=null) {
+			if (groupId != null) {
 				Query query = new Query(Criteria.where("_id").is(groupId));
-				if(mongoTemplate.findOne(query, GroupVO.class) != null)
+				if (mongoTemplate.findOne(query, GroupVO.class) != null)
 					return true;
 			}
 		} catch (Exception ex) {
@@ -199,21 +197,21 @@ public class GroupServiceDAO {
 		return false;
 	}
 
-	public GroupVO saveGroup(GroupVO group, User user)  {
+	public GroupVO saveGroup(GroupVO group, User user) {
 		try {
 			List<GroupVO> groups = getGroups(group.getName(), 10);
 			Boolean validGroup = true;
-			if(!CollectionUtils.isEmpty(groups)){
-				for(GroupVO dbGroup:groups){
-					if(dbGroup.getName().equalsIgnoreCase(group.getName()))
+			if (!CollectionUtils.isEmpty(groups)) {
+				for (GroupVO dbGroup : groups) {
+					if (dbGroup.getName().equalsIgnoreCase(group.getName()))
 						validGroup = false;
 				}
 			}
-			if(validGroup == true){
+			if (validGroup == true) {
 				group.setMetadata(manageMetadata(group.getMetadata(), user));
 				mongoTemplate.save(group);
 				return group;
-			}else{
+			} else {
 				throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-1003"), "MockServer-1003");
 			}
 		} catch (Exception ex) {
@@ -222,7 +220,7 @@ public class GroupServiceDAO {
 		return null;
 	}
 
-	public boolean updateGroup(GroupVO group, User user)  {
+	public boolean updateGroup(GroupVO group, User user) {
 		try {
 			Query query = new Query(Criteria.where("_id").is(group.getId()));
 			Document dbDoc = new Document();
@@ -230,18 +228,18 @@ public class GroupServiceDAO {
 			mongoTemplate.getConverter().write(group, dbDoc);
 			Update update = Update.fromDocument(dbDoc, "_id");
 			UpdateResult result = mongoTemplate.updateFirst(query, update, GroupVO.class);
-			return  result.wasAcknowledged();
+			return result.wasAcknowledged();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 		return false;
 	}
 
-	public boolean deleteGroup(GroupVO group)  {
+	public boolean deleteGroup(GroupVO group) {
 		try {
 			Query query = new Query(Criteria.where("_id").is(group.getId()));
-			DeleteResult result = mongoTemplate.remove(query,GroupVO.class);
-			return  result.wasAcknowledged();
+			DeleteResult result = mongoTemplate.remove(query, GroupVO.class);
+			return result.wasAcknowledged();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -250,18 +248,19 @@ public class GroupServiceDAO {
 
 	private Metadata manageMetadata(Metadata metadata2, User user) {
 		Metadata metadata = null;
-		String username = (user != null && user.getFirstName() != null) ? user.getFirstName() + " " + user.getLastName()
-		: "";
+		String username = (user != null && user.getFirstName() != null)
+				? user.getFirstName() + " " + user.getLastName()
+				: "";
 		if (metadata2 == null || metadata2.getCreatedBy() == null) {
 			metadata = new Metadata(username, Instant.now().toEpochMilli(), username, Instant.now().toEpochMilli());
 		} else {
-			metadata = new Metadata(metadata2.getCreatedBy(), metadata2.getCts(), username, Instant.now().toEpochMilli());
+			metadata = new Metadata(metadata2.getCreatedBy(), metadata2.getCts(), username,
+					Instant.now().toEpochMilli());
 		}
 		return metadata;
 	}
 
-	public Object search(String name, int limit) throws ItorixException
-	{
+	public Object search(String name, int limit) throws ItorixException {
 		List<GroupVO> groups = getGroups(name, limit);
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode response = mapper.createObjectNode();
@@ -273,14 +272,13 @@ public class GroupServiceDAO {
 			responseFields.addPOJO(searchItem);
 		}
 		response.set("groups", responseFields);
-		return response;	
+		return response;
 	}
 
-	private List<GroupVO> getGroups(String name, int limit){
+	private List<GroupVO> getGroups(String name, int limit) {
 		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
 		query.limit(limit > 0 ? limit : 10);
 		List<GroupVO> groups = mongoTemplate.find(query, GroupVO.class);
 		return groups;
 	}
-
 }

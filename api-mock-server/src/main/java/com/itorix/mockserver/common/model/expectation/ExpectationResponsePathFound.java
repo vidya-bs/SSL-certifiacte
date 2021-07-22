@@ -9,8 +9,8 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ExpectationResponsePathFound {
-	String expectationId;
-	String expectationName;
-	String groupName;
-	String reason;
+    String expectationId;
+    String expectationName;
+    String groupName;
+    String reason;
 }

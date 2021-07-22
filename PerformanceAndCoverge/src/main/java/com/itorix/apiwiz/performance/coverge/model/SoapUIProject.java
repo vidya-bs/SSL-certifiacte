@@ -3,13 +3,13 @@ package com.itorix.apiwiz.performance.coverge.model;
 import java.util.List;
 
 public class SoapUIProject {
-	
+
 	private List<SoapUITestSuite> testSuiteList;
-	
+
 	private Integer total;
-	
+
 	private Integer failed;
-	
+
 	private Integer passed;
 
 	public Integer getTotal() {
@@ -51,7 +51,4 @@ public class SoapUIProject {
 		this.failed = failed;
 		this.passed = passed;
 	}
-
-	
-
 }

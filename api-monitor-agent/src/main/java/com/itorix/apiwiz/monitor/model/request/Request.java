@@ -13,18 +13,18 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Request {
 
-	@JsonProperty("headers")
-	private List<Header> headers = null;
+    @JsonProperty("headers")
+    private List<Header> headers = null;
 
-	@JsonProperty("queryParams")
-	private List<QueryParam> queryParams = null;
+    @JsonProperty("queryParams")
+    private List<QueryParam> queryParams = null;
 
-	@JsonProperty("formData")
-	private List<FormParam> formParams = null;
+    @JsonProperty("formData")
+    private List<FormParam> formParams = null;
 
-	@JsonProperty("formURLEncoded")
-	private List<FormParam> formURLEncoded = null;
+    @JsonProperty("formURLEncoded")
+    private List<FormParam> formURLEncoded = null;
 
-	@JsonProperty("payload")
-	private Body body;
+    @JsonProperty("payload")
+    private Body body;
 }

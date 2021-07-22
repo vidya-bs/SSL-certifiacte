@@ -6,21 +6,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class RowData {
 	private String xpath;
+
 	@JsonProperty("minOccurs")
 	private String min;
+
 	@JsonProperty("maxOccurs")
 	private String max;
+
 	private String xsdType;
 	private String jsonType;
 	private String jsonFormat;
 	private String enums;
 	private String minLength;
-    private String maxLength;
-    private String length;
-    private String pattern;
-    private String documentation;
-    
-    private List<String>  enumcell;
+	private String maxLength;
+	private String length;
+	private String pattern;
+	private String documentation;
+
+	private List<String> enumcell;
 
 	public String getXpath() {
 		return xpath;
@@ -125,8 +128,4 @@ public class RowData {
 	public void setEnumcell(List<String> enumcell) {
 		this.enumcell = enumcell;
 	}
-	
-	
-
-
 }

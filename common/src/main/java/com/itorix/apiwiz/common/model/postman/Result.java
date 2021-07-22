@@ -12,186 +12,147 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
-
-
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Generated("org.jsonschema2pojo")
-@JsonPropertyOrder({
-"ActionResult",
-"properties",
-"timestamp",
-"headers",
-"reasonPhrase",
-"statusCode",
-"accessList"
-})
+@JsonPropertyOrder({"ActionResult", "properties", "timestamp", "headers", "reasonPhrase", "statusCode", "accessList"})
 public class Result {
 
-@JsonProperty("ActionResult")
-private String actionResult;
-@JsonProperty("properties")
-private Properties properties;
-@JsonProperty("timestamp")
-private String timestamp;
-@JsonProperty("headers")
-private List<Header> headers = new ArrayList<Header>();
-@JsonProperty("reasonPhrase")
-private String reasonPhrase;
-@JsonProperty("statusCode")
-private String statusCode;
-@JsonProperty("accessList")
-private List<AccessList> accessList = new ArrayList<AccessList>();
-@JsonIgnore
-private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	@JsonProperty("ActionResult")
+	private String actionResult;
 
-/**
-* 
-* @return
-* The actionResult
-*/
-@JsonProperty("ActionResult")
-public String getActionResult() {
-return actionResult;
-}
+	@JsonProperty("properties")
+	private Properties properties;
 
-/**
-* 
-* @param actionResult
-* The ActionResult
-*/
-@JsonProperty("ActionResult")
-public void setActionResult(String actionResult) {
-this.actionResult = actionResult;
-}
+	@JsonProperty("timestamp")
+	private String timestamp;
 
-/**
-* 
-* @return
-* The properties
-*/
-@JsonProperty("properties")
-public Properties getProperties() {
-return properties;
-}
+	@JsonProperty("headers")
+	private List<Header> headers = new ArrayList<Header>();
 
-/**
-* 
-* @param properties
-* The properties
-*/
-@JsonProperty("properties")
-public void setProperties(Properties properties) {
-this.properties = properties;
-}
+	@JsonProperty("reasonPhrase")
+	private String reasonPhrase;
 
-/**
-* 
-* @return
-* The timestamp
-*/
-@JsonProperty("timestamp")
-public String getTimestamp() {
-return timestamp;
-}
+	@JsonProperty("statusCode")
+	private String statusCode;
 
-/**
-* 
-* @param timestamp
-* The timestamp
-*/
-@JsonProperty("timestamp")
-public void setTimestamp(String timestamp) {
-this.timestamp = timestamp;
-}
+	@JsonProperty("accessList")
+	private List<AccessList> accessList = new ArrayList<AccessList>();
 
-/**
-* 
-* @return
-* The headers
-*/
-@JsonProperty("headers")
-public List<Header> getHeaders() {
-return headers;
-}
+	@JsonIgnore
+	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-/**
-* 
-* @param headers
-* The headers
-*/
-@JsonProperty("headers")
-public void setHeaders(List<Header> headers) {
-this.headers = headers;
-}
+	/** @return The actionResult */
+	@JsonProperty("ActionResult")
+	public String getActionResult() {
+		return actionResult;
+	}
 
-/**
-* 
-* @return
-* The reasonPhrase
-*/
-@JsonProperty("reasonPhrase")
-public String getReasonPhrase() {
-return reasonPhrase;
-}
+	/**
+	 * @param actionResult
+	 *            The ActionResult
+	 */
+	@JsonProperty("ActionResult")
+	public void setActionResult(String actionResult) {
+		this.actionResult = actionResult;
+	}
 
-/**
-* 
-* @param reasonPhrase
-* The reasonPhrase
-*/
-@JsonProperty("reasonPhrase")
-public void setReasonPhrase(String reasonPhrase) {
-this.reasonPhrase = reasonPhrase;
-}
+	/** @return The properties */
+	@JsonProperty("properties")
+	public Properties getProperties() {
+		return properties;
+	}
 
-/**
-* 
-* @return
-* The statusCode
-*/
-@JsonProperty("statusCode")
-public String getStatusCode() {
-return statusCode;
-}
+	/**
+	 * @param properties
+	 *            The properties
+	 */
+	@JsonProperty("properties")
+	public void setProperties(Properties properties) {
+		this.properties = properties;
+	}
 
-/**
-* 
-* @param statusCode
-* The statusCode
-*/
-@JsonProperty("statusCode")
-public void setStatusCode(String statusCode) {
-this.statusCode = statusCode;
-}
+	/** @return The timestamp */
+	@JsonProperty("timestamp")
+	public String getTimestamp() {
+		return timestamp;
+	}
 
-/**
-* 
-* @return
-* The accessList
-*/
-@JsonProperty("accessList")
-public List<AccessList> getAccessList() {
-return accessList;
-}
+	/**
+	 * @param timestamp
+	 *            The timestamp
+	 */
+	@JsonProperty("timestamp")
+	public void setTimestamp(String timestamp) {
+		this.timestamp = timestamp;
+	}
 
-/**
-* 
-* @param accessList
-* The accessList
-*/
-@JsonProperty("accessList")
-public void setAccessList(List<AccessList> accessList) {
-this.accessList = accessList;
-}
+	/** @return The headers */
+	@JsonProperty("headers")
+	public List<Header> getHeaders() {
+		return headers;
+	}
 
-@JsonAnyGetter
-public Map<String, Object> getAdditionalProperties() {
-return this.additionalProperties;
-}
+	/**
+	 * @param headers
+	 *            The headers
+	 */
+	@JsonProperty("headers")
+	public void setHeaders(List<Header> headers) {
+		this.headers = headers;
+	}
 
-@JsonAnySetter
-public void setAdditionalProperty(String name, Object value) {
-this.additionalProperties.put(name, value);
-}
+	/** @return The reasonPhrase */
+	@JsonProperty("reasonPhrase")
+	public String getReasonPhrase() {
+		return reasonPhrase;
+	}
 
+	/**
+	 * @param reasonPhrase
+	 *            The reasonPhrase
+	 */
+	@JsonProperty("reasonPhrase")
+	public void setReasonPhrase(String reasonPhrase) {
+		this.reasonPhrase = reasonPhrase;
+	}
+
+	/** @return The statusCode */
+	@JsonProperty("statusCode")
+	public String getStatusCode() {
+		return statusCode;
+	}
+
+	/**
+	 * @param statusCode
+	 *            The statusCode
+	 */
+	@JsonProperty("statusCode")
+	public void setStatusCode(String statusCode) {
+		this.statusCode = statusCode;
+	}
+
+	/** @return The accessList */
+	@JsonProperty("accessList")
+	public List<AccessList> getAccessList() {
+		return accessList;
+	}
+
+	/**
+	 * @param accessList
+	 *            The accessList
+	 */
+	@JsonProperty("accessList")
+	public void setAccessList(List<AccessList> accessList) {
+		this.accessList = accessList;
+	}
+
+	@JsonAnyGetter
+	public Map<String, Object> getAdditionalProperties() {
+		return this.additionalProperties;
+	}
+
+	@JsonAnySetter
+	public void setAdditionalProperty(String name, Object value) {
+		this.additionalProperties.put(name, value);
+	}
 }

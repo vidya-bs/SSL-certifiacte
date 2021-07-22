@@ -26,37 +26,37 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JsessionAuthFilter extends OncePerRequestFilter {
 
-	public final static long MILLIS_PER_DAY = 24 * 60 * 60 * 1000L;
+    public final static long MILLIS_PER_DAY = 24 * 60 * 60 * 1000L;
 
-	@Value(value = "${itorix.core.security.apikey}")
-	String apiKey;
+    @Value(value = "${itorix.core.security.apikey}")
+    String apiKey;
 
-	@Autowired
-	private RSAEncryption rsaEncryption;
+    @Autowired
+    private RSAEncryption rsaEncryption;
 
-	private static final String API_KEY_NAME = "x-apikey";
+    private static final String API_KEY_NAME = "x-apikey";
 
-	public static final String SESSION_TOKEN_NAME = "JSESSIONID";
+    public static final String SESSION_TOKEN_NAME = "JSESSIONID";
 
-	@Override
-	protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
-			throws IOException, ServletException {
+    @Override
+    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
 
-		String apiKeyHeader = req.getHeader(API_KEY_NAME);
+        String apiKeyHeader = req.getHeader(API_KEY_NAME);
 
-		if (SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
-			try {
-				if (StringUtils.hasText(apiKeyHeader) && rsaEncryption.decryptText(apiKey).equals(apiKeyHeader)) {
-					Authentication authentication = new UsernamePasswordAuthenticationToken("test", null,
-							Arrays.asList(new SimpleGrantedAuthority("test")));
-					SecurityContextHolder.getContext().setAuthentication(authentication);
-				}
-			} catch (Exception e) {
-				log.error("error occured during decrypting apikey", e);
-			}
-		}
-		chain.doFilter(req, res);
+            try {
+                if (StringUtils.hasText(apiKeyHeader) && rsaEncryption.decryptText(apiKey).equals(apiKeyHeader)) {
+                    Authentication authentication = new UsernamePasswordAuthenticationToken("test", null,
+                            Arrays.asList(new SimpleGrantedAuthority("test")));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            } catch (Exception e) {
+                log.error("error occured during decrypting apikey", e);
+            }
+        }
+        chain.doFilter(req, res);
 
-	}
+    }
 }

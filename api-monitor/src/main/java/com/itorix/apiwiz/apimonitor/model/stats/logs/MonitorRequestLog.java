@@ -15,6 +15,7 @@ public class MonitorRequestLog {
 	public String requestID;
 	public String requestName;
 	public long timestamp;
+
 	@JsonProperty("event")
 	public LogEvent event;
 }

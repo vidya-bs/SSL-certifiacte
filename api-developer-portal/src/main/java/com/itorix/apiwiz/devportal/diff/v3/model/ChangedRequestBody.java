@@ -15,5 +15,4 @@ public class ChangedRequestBody extends RequestBody {
 	public void setContentDiff(ContentDiff contentDiff) {
 		this.contentDiff = contentDiff;
 	}
-
 }

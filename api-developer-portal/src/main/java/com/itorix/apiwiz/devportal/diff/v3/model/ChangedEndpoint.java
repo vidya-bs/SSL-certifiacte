@@ -46,10 +46,9 @@ public class ChangedEndpoint implements Changed {
 	}
 
 	public boolean isDiff() {
-//		newOperations.isEmpty() 
-//		|| !missingOperations.isEmpty()
-//		|| 
+		// newOperations.isEmpty()
+		// || !missingOperations.isEmpty()
+		// ||
 		return !changed.isEmpty();
 	}
-
 }

@@ -11,10 +11,10 @@ public class FormParam {
 
     @JsonProperty("name")
     private String name;
-    
+
     @JsonProperty("description")
     private String description;
-    
+
     @JsonProperty("value")
     private String value;
 

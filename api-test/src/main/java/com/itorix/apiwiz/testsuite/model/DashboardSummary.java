@@ -1,4 +1,3 @@
-
 package com.itorix.apiwiz.testsuite.model;
 
 import org.springframework.data.annotation.Id;
@@ -21,8 +20,8 @@ public class DashboardSummary {
 
 	private int successRatio;
 
-	public DashboardSummary(String testSuiteId, String testSuiteName, int successCount, int failureCount, int cancelledCount,
-			int successRatio) {
+	public DashboardSummary(String testSuiteId, String testSuiteName, int successCount, int failureCount,
+			int cancelledCount, int successRatio) {
 		super();
 		this.testSuiteId = testSuiteId;
 		this.testSuiteName = testSuiteName;

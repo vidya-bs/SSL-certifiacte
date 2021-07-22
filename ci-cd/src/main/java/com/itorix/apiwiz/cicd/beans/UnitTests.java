@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class UnitTests {
 	@JsonProperty("enabled")
 	private String enabled;
-	
+
 	@JsonProperty("acceptance")
 	private Integer acceptance;
 
@@ -18,7 +18,7 @@ public class UnitTests {
 
 	@JsonProperty("testsuites")
 	List<TestSuiteAndConfig> testSuites;
-	
+
 	@JsonProperty("enabled")
 	public String getEnabled() {
 		return enabled;

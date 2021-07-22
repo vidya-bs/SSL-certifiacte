@@ -1,4 +1,3 @@
-
 package com.itorix.apiwiz.apimonitor.model.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -36,7 +35,7 @@ public class Header {
 	@JsonProperty("value")
 	private String value;
 
-	//@JsonProperty("isEncryption")
+	// @JsonProperty("isEncryption")
 	@JsonIgnore
 	private boolean encryption;
 

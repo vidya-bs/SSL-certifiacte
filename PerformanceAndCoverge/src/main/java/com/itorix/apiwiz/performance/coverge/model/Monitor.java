@@ -8,7 +8,7 @@ public class Monitor {
 	private String enviornment;
 
 	private List<Dimensions> dimensions;
-	
+
 	private List<Operations> operations;
 
 	private String organisationName;
@@ -62,7 +62,4 @@ public class Monitor {
 	public void setProjectName(String projectName) {
 		this.projectName = projectName;
 	}
-
-	
-
 }

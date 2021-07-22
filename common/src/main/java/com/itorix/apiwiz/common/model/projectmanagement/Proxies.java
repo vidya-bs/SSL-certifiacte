@@ -31,7 +31,7 @@ public class Proxies {
 	private Set<String> applications;
 	private Set<String> developers;
 	private Organization[] organization;
-	
+
 	private List<ProjectFile> wsdlFiles;
 	private List<ProjectFile> xsdFiles;
 	private List<ProjectFile> attachments;
@@ -43,7 +43,6 @@ public class Proxies {
 	private boolean external;
 	private boolean defaultVirtualHosts = true;
 	private List<ProxyConnection> proxyConnections;
-	
 
 	public String getName() {
 		return name;
@@ -220,5 +219,4 @@ public class Proxies {
 	public void setProxyConnections(List<ProxyConnection> proxyConnections) {
 		this.proxyConnections = proxyConnections;
 	}
-
 }

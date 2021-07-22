@@ -6,12 +6,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.itorix.apiwiz.identitymanagement.model.AbstractObject;
+
 @Document(collection = "Apigee.Organization.Overview")
-public class ApigeeOrganizationalVO extends AbstractObject  {
+public class ApigeeOrganizationalVO extends AbstractObject {
 	private List<Environment> environment;
 
 	private String name;
-	
+
 	@JsonIgnore
 	private String type;
 
@@ -43,8 +44,4 @@ public class ApigeeOrganizationalVO extends AbstractObject  {
 	public String toString() {
 		return "ApigeeOverView [environment=" + environment + ", name=" + name + "]";
 	}
-
-	
-
-	
 }

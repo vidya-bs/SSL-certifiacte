@@ -16,7 +16,7 @@ import lombok.experimental.FieldDefaults;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
-@FieldDefaults(level=AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class PortfolioMetadata {
 	@Id
 	String fileName;
@@ -24,4 +24,4 @@ public class PortfolioMetadata {
 	String fileOwner;
 	String fileOwnerEmail;
 	byte[] file;
-	}
+}

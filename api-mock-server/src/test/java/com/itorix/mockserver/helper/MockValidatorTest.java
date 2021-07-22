@@ -17,7 +17,6 @@ public class MockValidatorTest {
     @InjectMocks
     MockValidator mockValidator = new MockValidator();
 
-
     @Test
     public void checkHeaderValidation_ExpectationNameAndValueEqual() {
         Expectation expectation = getExpectation();
@@ -58,10 +57,9 @@ public class MockValidatorTest {
         actualHeader.put("JSESSIONID", Arrays.asList("11111"));
         actualHeader.put("id", Arrays.asList("11"));
         boolean checkHeader = mockValidator.checkHeader(expectation, actualHeader);
-        System.out.println(  "is expectation matched ?  " + checkHeader);
+        System.out.println("is expectation matched ?  " + checkHeader);
         assertTrue(checkHeader);
     }
-
 
     @Test
     public void checkHeaderValidation_ExpectationNameEqualValueNotEqual_2() {
@@ -83,7 +81,7 @@ public class MockValidatorTest {
         actualHeader.put("JSESSIONID", Arrays.asList("11111"));
         actualHeader.put("id", Arrays.asList("10"));
         boolean checkHeader = mockValidator.checkHeader(expectation, actualHeader);
-        System.out.println(  "is expectation matched ?  " + checkHeader);
+        System.out.println("is expectation matched ?  " + checkHeader);
         assertFalse(checkHeader);
     }
 
@@ -91,7 +89,6 @@ public class MockValidatorTest {
     public void checkHeaderValidation_ExpectationNameNotEqualValueNotEqual() {
         Expectation expectation = getExpectation();
         ArrayList<NameMultiValue> headers = new ArrayList<>();
-
 
         NameMultiValue idHeader = new NameMultiValue();
         Name idName = new Name();
@@ -109,12 +106,10 @@ public class MockValidatorTest {
         actualHeader.put("JSESSIONID", Arrays.asList("11111"));
         actualHeader.put("idx", Arrays.asList("11"));
         boolean checkHeader = mockValidator.checkHeader(expectation, actualHeader);
-        System.out.println(  "is header valid ?  " + checkHeader);
+        System.out.println("is header valid ?  " + checkHeader);
         assertTrue(checkHeader);
 
     }
-
-
 
     private Expectation getExpectation() {
         Expectation expectation = new Expectation();
@@ -155,7 +150,7 @@ public class MockValidatorTest {
         actualHeader.put("id", Arrays.asList("10"));
 
         boolean checkHeader = mockValidator.checkHeader(expectation, actualHeader);
-        System.out.println(  "is header valid ?  " + checkHeader);
+        System.out.println("is header valid ?  " + checkHeader);
         assertTrue(checkHeader);
 
     }
@@ -179,7 +174,7 @@ public class MockValidatorTest {
         actualHeader.put("id", Arrays.asList("10"));
 
         boolean checkHeader = mockValidator.checkHeader(expectation, actualHeader);
-        System.out.println(  "is header valid ?  " + checkHeader);
+        System.out.println("is header valid ?  " + checkHeader);
         assertTrue(checkHeader);
 
     }

@@ -4,14 +4,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.itorix.apiwiz.identitymanagement.model.AbstractObject;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "Design.Dictionary.Model")
 public class PortfolioModel extends AbstractObject {
-	
+
 	private String portfolioID;
-	
+
 	private String modelName;
-	
+
 	private String model;
 
 	public String getPortfolioID() {
@@ -37,5 +38,4 @@ public class PortfolioModel extends AbstractObject {
 	public void setModel(String model) {
 		this.model = model;
 	}
-
 }

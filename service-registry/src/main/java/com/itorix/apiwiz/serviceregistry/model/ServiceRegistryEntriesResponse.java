@@ -21,5 +21,4 @@ public class ServiceRegistryEntriesResponse {
 	String name;
 	String serviceRregistryId;
 	List<Map<String, String>> data;
-	
 }

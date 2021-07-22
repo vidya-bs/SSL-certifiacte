@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class ApigeeResponse {
 
 	private Environments[] environments;
-	
+
 	private ApigeeMetaData metaData;
 
 	public Environments[] getEnvironments() {
@@ -24,6 +24,4 @@ public class ApigeeResponse {
 	public void setMetaData(ApigeeMetaData metaData) {
 		this.metaData = metaData;
 	}
-	
-	
 }

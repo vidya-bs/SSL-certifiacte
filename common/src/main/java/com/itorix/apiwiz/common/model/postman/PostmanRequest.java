@@ -7,16 +7,17 @@ import java.util.Map;
 import org.springframework.http.HttpHeaders;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PostmanRequest {
 	public String id;
 	public String headers; // String of \n separated headers with : separate
-							// name:value.
+	// name:value.
 	public String url;
 	public String preRequestScript;
 	public String method;
 	public Object data; // Either String of escaped-JSON or [] empty array (for
-						// GET)
+	// GET)
 	public Object rawModeData;
 	public String dataMode;
 	public String name;
@@ -30,15 +31,14 @@ public class PostmanRequest {
 
 	public String getData(PostmanVariables var) {
 		Object dataToUse = null;
-		if(dataMode!=null)
-		dataToUse = dataMode.equals("raw") ? rawModeData : data;
+		if (dataMode != null)
+			dataToUse = dataMode.equals("raw") ? rawModeData : data;
 
 		if (dataToUse instanceof String) {
 			String result = (String) dataToUse;
 			result = var.replace(result);
 			return result;
-		} else if (dataToUse instanceof ArrayList
-				&& dataMode.equals("urlencoded")) {
+		} else if (dataToUse instanceof ArrayList && dataMode.equals("urlencoded")) {
 			ArrayList<Map<String, String>> formData = (ArrayList<Map<String, String>>) dataToUse;
 			return urlFormEncodeData(var, formData);
 		} else { // empty array
@@ -46,13 +46,11 @@ public class PostmanRequest {
 		}
 	}
 
-	public String urlFormEncodeData(PostmanVariables var,
-			ArrayList<Map<String, String>> formData) {
+	public String urlFormEncodeData(PostmanVariables var, ArrayList<Map<String, String>> formData) {
 		String result = "";
 		int i = 0;
 		for (Map<String, String> m : formData) {
-			result += m.get("key") + "="
-					+ URLEncoder.encode(var.replace(m.get("value")));
+			result += m.get("key") + "=" + URLEncoder.encode(var.replace(m.get("value")));
 			if (i < formData.size() - 1) {
 				result += "&";
 			}

@@ -37,5 +37,4 @@ public class XMLDiff {
 
 		return changedXML;
 	}
-
 }

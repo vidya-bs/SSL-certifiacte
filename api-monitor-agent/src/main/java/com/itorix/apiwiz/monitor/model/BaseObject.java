@@ -2,32 +2,32 @@ package com.itorix.apiwiz.monitor.model;
 
 public interface BaseObject {
 
-	String getId();
+    String getId();
 
-	void setId(String id);
+    void setId(String id);
 
-	Long getCts();
+    Long getCts();
 
-	void setCts(Long cts);
+    void setCts(Long cts);
 
-	Long getMts();
+    Long getMts();
 
-	void setMts(Long mts);
+    void setMts(Long mts);
 
-	String getCreatedBy();
+    String getCreatedBy();
 
-	void setCreatedBy(String createdBy);
+    void setCreatedBy(String createdBy);
 
-	String getModifiedBy();
+    String getModifiedBy();
 
-	void setModifiedBy(String modifiedBy);
+    void setModifiedBy(String modifiedBy);
 
-	String getCreatedUserName();
+    String getCreatedUserName();
 
-	void setCreatedUserName(String createdUserName);
+    void setCreatedUserName(String createdUserName);
 
-	String getModifiedUserName();
+    String getModifiedUserName();
 
-	void setModifiedUserName(String modifiedUserName);
+    void setModifiedUserName(String modifiedUserName);
 
 }

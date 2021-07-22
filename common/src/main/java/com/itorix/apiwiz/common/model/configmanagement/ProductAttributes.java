@@ -6,6 +6,7 @@ public class ProductAttributes {
 
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String name;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String value;
 
@@ -24,9 +25,4 @@ public class ProductAttributes {
 	public void setValue(String value) {
 		this.value = value;
 	}
-
-	
-	
-	
-	
 }

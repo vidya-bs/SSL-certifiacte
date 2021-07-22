@@ -13,37 +13,34 @@ import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.logging.LoggerService;
 
 @Configuration
-@Import({ CommonApplicationBeans.class })
+@Import({CommonApplicationBeans.class})
 @EnableMongoRepositories("com.itorix.apiwiz.identitymanagement.dao")
 public class IdentityBeans {
-	
-//	@Autowired
-//	private UserSessionRepository userSessionRepository;
-	
+
+	// @Autowired
+	// private UserSessionRepository userSessionRepository;
+
 	@Bean(name = "baseRepository")
 	public BaseRepository baseRepositoryBean() {
-		BaseRepository baseRepository= new BaseRepository();
+		BaseRepository baseRepository = new BaseRepository();
 		return baseRepository;
 	}
-	
-	@Bean(name ="mailUtil")
-	public MailUtil mailUtilBean(){
-		MailUtil mailUtil=new MailUtil();
+
+	@Bean(name = "mailUtil")
+	public MailUtil mailUtilBean() {
+		MailUtil mailUtil = new MailUtil();
 		return mailUtil;
-		
 	}
-	
-	@Bean(name ="loggerService")
-	public LoggerService loggerServiceBean(){
-		LoggerService loggerService=new LoggerService();
+
+	@Bean(name = "loggerService")
+	public LoggerService loggerServiceBean() {
+		LoggerService loggerService = new LoggerService();
 		return loggerService;
-		
 	}
-	
+
 	@Bean(name = "identityManagementDao")
-	public IdentityManagementDao identityManagementDaoBean(){
-		IdentityManagementDao identityManagementDao =new IdentityManagementDao();
+	public IdentityManagementDao identityManagementDaoBean() {
+		IdentityManagementDao identityManagementDao = new IdentityManagementDao();
 		return identityManagementDao;
 	}
-	
 }

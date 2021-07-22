@@ -13,30 +13,31 @@ import com.mongodb.client.result.DeleteResult;
 @Service
 public interface DictionaryBusiness {
 
-	
-	public PortfolioVO createPortfolio(PortfolioVO portfolioVO) ;
+	public PortfolioVO createPortfolio(PortfolioVO portfolioVO);
 
 	public PortfolioVO findPortfolio(PortfolioVO portfolioVO);
 
 	public List<PortfolioVO> findAllPortfolioSummary(String interactionid);
-	
+
 	public PortfolioVO getPortfolioById(PortfolioVO portfolioVO);
-	
-//	public PortfolioVO updatePortfolioModel(PortfolioVO portfolio, String action) throws ItorixException;
+
+	// public PortfolioVO updatePortfolioModel(PortfolioVO portfolio, String
+	// action) throws
+	// ItorixException;
 
 	public PortfolioHistoryResponse findAllPortfolios(String interactionid, int offset, int pageSize);
 
-	public PortfolioVO findPortfolioById(PortfolioVO portfolioVO) ;
+	public PortfolioVO findPortfolioById(PortfolioVO portfolioVO);
 
 	public DeleteResult deletePortfolioById(PortfolioVO portfolioVO);
 
 	public PortfolioModel createPortfolioModel(PortfolioModel model);
 
-	public List<PortfolioModel> findPortfolioModelsByportfolioID(PortfolioModel model) ;
+	public List<PortfolioModel> findPortfolioModelsByportfolioID(PortfolioModel model);
 
-	public PortfolioModel findPortfolioModelsByportfolioIDAndModelName(PortfolioModel model) ;
+	public PortfolioModel findPortfolioModelsByportfolioIDAndModelName(PortfolioModel model);
 
 	public DeleteResult deletePortfolioModelByportfolioIDAndModelName(PortfolioModel model);
-	
+
 	public Object portfolioSearch(String interactionid, String name, int limit) throws ItorixException;
 }

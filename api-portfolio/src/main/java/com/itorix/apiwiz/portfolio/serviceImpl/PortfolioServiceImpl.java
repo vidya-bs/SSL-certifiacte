@@ -74,7 +74,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 		portfolioRequest.setMts(System.currentTimeMillis());
 		portfolioRequest.setModifiedBy(user.getFirstName() + " " + user.getLastName());
 
-		portfolioDao.updatePortfolio(portfolioRequest, portfolioId,jsessionid);
+		portfolioDao.updatePortfolio(portfolioRequest, portfolioId, jsessionid);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
@@ -108,33 +108,33 @@ public class PortfolioServiceImpl implements PortfolioService {
 		PortfolioResponse portfolios = portfolioDao.getListOfPortfolios(offset, pageSize);
 		return new ResponseEntity<>(portfolios, HttpStatus.OK);
 	}
-	
+
 	@Override
-	public ResponseEntity<Object> getListOfPortfolioList(
-			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception{
+	public ResponseEntity<Object> getListOfPortfolioList(@RequestHeader(value = "JSESSIONID") String jsessionid)
+			throws Exception {
 		return new ResponseEntity<>(portfolioDao.getListOfPortfolios(), HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseEntity<Object> deletePortfolio(@PathVariable(value = "portfolioId") String portfolioId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
-		portfolioDao.deletePortfolios(portfolioId,jsessionid);
+		portfolioDao.deletePortfolios(portfolioId, jsessionid);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
 	public ResponseEntity<Object> createOrUpdatePortfolioMetadata(@RequestBody List<Metadata> metadata,
 			@PathVariable(value = "id") String id, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
-		portfolioDao.createOrUpdatePortfolioMetadata(id, metadata,jsessionid);
+			throws Exception {
+		portfolioDao.createOrUpdatePortfolioMetadata(id, metadata, jsessionid);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
 	public ResponseEntity<Object> createOrUpdatePortfolioTeam(@RequestBody Portfolio portfolio,
 			@PathVariable(value = "id") String id, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
-		portfolioDao.createOrUpdatePortfolioTeam(id, portfolio.getTeams(),jsessionid);
+			throws Exception {
+		portfolioDao.createOrUpdatePortfolioTeam(id, portfolio.getTeams(), jsessionid);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
@@ -142,7 +142,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 	public ResponseEntity<Object> createPortfolioDocument(@RequestParam Map<String, Object> requestParams,
 			@RequestPart(value = "document", required = false) MultipartFile document,
 			@PathVariable(value = "id") String id, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
+			throws Exception {
 
 		List<String> missingField = new ArrayList<>();
 		if (!StringUtils.hasText((String) requestParams.get("documentName"))) {
@@ -170,7 +170,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 				.documentSummary((String) requestParams.get("documentSummary")).build();
 
 		String location = null;
-		String docId = portfolioDao.createPortfolioDocument(id, portfolioDocument,jsessionid);
+		String docId = portfolioDao.createPortfolioDocument(id, portfolioDocument, jsessionid);
 		try {
 			location = portfolioDao.updatePortfolioDocument(id, docId, document.getBytes(), jsessionid,
 					document.getOriginalFilename());
@@ -178,7 +178,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 			logger.error("exception when updating portfolio document", e);
 			portfolioDao.deletePortfolioDocument(id, docId, jsessionid);
 		}
-		portfolioDao.updateDocumentLocation(id, docId, location,jsessionid);
+		portfolioDao.updateDocumentLocation(id, docId, location, jsessionid);
 
 		return new ResponseEntity<>("{\"id\": \"" + docId + "\"}", HttpStatus.CREATED);
 	}
@@ -199,14 +199,14 @@ public class PortfolioServiceImpl implements PortfolioService {
 				document.getBytes(), jsessionid, document.getOriginalFilename());
 		PortfolioDocument portfolioDocument = PortfolioDocument.builder().documentSummary(documentSummary)
 				.document(updatePortfolioDocument).build();
-		portfolioDao.updatePortfolioDocument(portfolioId, documentId, portfolioDocument,jsessionid);
+		portfolioDao.updatePortfolioDocument(portfolioId, documentId, portfolioDocument, jsessionid);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	public ResponseEntity<Object> deletePortfolioDocument(@PathVariable(value = "portfolioId") String portfolioId,
 			@PathVariable(value = "documentId") String documentId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
-		portfolioDao.deletePortfolioDocument(portfolioId, documentId,jsessionid);
+		portfolioDao.deletePortfolioDocument(portfolioId, documentId, jsessionid);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
@@ -220,8 +220,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 	@Override
 	public ResponseEntity<Object> createProducts(@RequestBody ProductRequest products,
 			@PathVariable(value = "id") String portfolioId, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
-		String id = portfolioDao.createProducts(portfolioId, products,jsessionid);
+			throws Exception {
+		String id = portfolioDao.createProducts(portfolioId, products, jsessionid);
 		return new ResponseEntity<>("{\"id\": \"" + id + "\"}", HttpStatus.CREATED);
 	}
 
@@ -230,7 +230,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 			@RequestPart(value = "productImage", required = true) MultipartFile image,
 			@PathVariable(value = "portfolioId") String portfolioId,
 			@PathVariable(value = "productId") String productId, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
+			throws Exception {
 		byte[] bytes = image.getBytes();
 		portfolioDao.uploadProductPortfolioImage(portfolioId, productId, bytes, jsessionid,
 				image.getOriginalFilename());
@@ -241,23 +241,24 @@ public class PortfolioServiceImpl implements PortfolioService {
 	public ResponseEntity<Object> updateProduct(@RequestBody Products productsUpdateRequest,
 			@PathVariable(value = "portfolioId") String portfolioId,
 			@PathVariable(value = "productId") String productId, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
-		portfolioDao.updateProduct(portfolioId, productId, productsUpdateRequest,jsessionid);
+			throws Exception {
+		portfolioDao.updateProduct(portfolioId, productId, productsUpdateRequest, jsessionid);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
 	public ResponseEntity<Object> deleteProduct(@PathVariable(value = "portfolioId") String portfolioId,
 			@PathVariable(value = "productId") String productId, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
+			throws Exception {
 
-		portfolioDao.deleteProduct(portfolioId, productId,jsessionid);
+		portfolioDao.deleteProduct(portfolioId, productId, jsessionid);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
 	public ResponseEntity<Object> getProductNames(@PathVariable(value = "portfolioId") String portfolioId,
-			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset, @RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "pagesize", defaultValue = "10") int pageSize) throws Exception {
 		return new ResponseEntity<>(portfolioDao.getProductNames(portfolioId, offset, pageSize), HttpStatus.OK);
 	}
@@ -265,7 +266,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 	@Override
 	public ResponseEntity<Object> getProductDetails(@PathVariable(value = "portfolioId") String portfolioId,
 			@PathVariable(value = "productId") String productId, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
+			throws Exception {
 		Products Product = portfolioDao.getProductDetails(portfolioId, productId);
 		return new ResponseEntity<>(Product, HttpStatus.OK);
 	}
@@ -274,8 +275,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 	public ResponseEntity<Object> updateProductMetadata(@RequestBody List<Metadata> metadata,
 			@PathVariable(value = "portfolioId") String portfolioId,
 			@PathVariable(value = "productId") String productId, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
-		portfolioDao.updateProductMetadata(portfolioId, productId, metadata,jsessionid);
+			throws Exception {
+		portfolioDao.updateProductMetadata(portfolioId, productId, metadata, jsessionid);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
@@ -283,16 +284,16 @@ public class PortfolioServiceImpl implements PortfolioService {
 	public ResponseEntity<Object> updateProductServices(@RequestBody Products product,
 			@PathVariable(value = "portfolioId") String portfolioId,
 			@PathVariable(value = "productId") String productId, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
-		portfolioDao.updateProductServices(portfolioId, productId, product.getProductServices(),jsessionid);
+			throws Exception {
+		portfolioDao.updateProductServices(portfolioId, productId, product.getProductServices(), jsessionid);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
 	public ResponseEntity<Object> createApiRegistry(@RequestBody ServiceRegistry serviceRegistry,
 			@PathVariable(value = "portfolioId") String id, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
-		String apiRegistryId = portfolioDao.createApiRegistry(id, serviceRegistry,jsessionid);
+			throws Exception {
+		String apiRegistryId = portfolioDao.createApiRegistry(id, serviceRegistry, jsessionid);
 		return new ResponseEntity<>("{\"id\": \"" + apiRegistryId + "\"}", HttpStatus.CREATED);
 	}
 
@@ -301,14 +302,14 @@ public class PortfolioServiceImpl implements PortfolioService {
 			@PathVariable(value = "portfolioId") String portfolioId,
 			@PathVariable(value = "serviceRegistryId") String servRegistryId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
-		portfolioDao.updateApiRegistry(portfolioId, servRegistryId, serviceRegistry,jsessionid);
+		portfolioDao.updateApiRegistry(portfolioId, servRegistryId, serviceRegistry, jsessionid);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
 	}
 
 	@Override
 	public ResponseEntity<Object> getApiRegistryList(@PathVariable(value = "portfolioId") String portfolioId,
-			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset, @RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "pagesize", defaultValue = "10") int pageSize) throws Exception {
 		return new ResponseEntity<>(portfolioDao.getApiRegistryList(portfolioId, offset, pageSize), HttpStatus.OK);
 	}
@@ -320,7 +321,6 @@ public class PortfolioServiceImpl implements PortfolioService {
 
 		ServiceRegistry serviceRegistry = portfolioDao.getApiRegistryDetails(portfolioId, servRegistryId);
 		return new ResponseEntity<>(serviceRegistry, HttpStatus.OK);
-
 	}
 
 	@Override
@@ -334,24 +334,24 @@ public class PortfolioServiceImpl implements PortfolioService {
 	@Override
 	public ResponseEntity<Object> createProjects(@RequestBody Projects project,
 			@PathVariable(value = "portfolioId") String id, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
-		String projectId = portfolioDao.createProjects(id, project,jsessionid);
+			throws Exception {
+		String projectId = portfolioDao.createProjects(id, project, jsessionid);
 		return new ResponseEntity<>("{\"id\": \"" + projectId + "\"}", HttpStatus.CREATED);
-
 	}
 
 	@Override
 	public ResponseEntity<Object> updateProject(@RequestBody Projects project,
 			@PathVariable(value = "portfolioId") String portfolioId,
 			@PathVariable(value = "projectId") String projectId, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
-		portfolioDao.updateProject(portfolioId, projectId, project,jsessionid);
+			throws Exception {
+		portfolioDao.updateProject(portfolioId, projectId, project, jsessionid);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
 	public ResponseEntity<Object> getprojectsList(@PathVariable(value = "portfolioId") String portfolioId,
-			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset, @RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "pagesize", defaultValue = "10") int pageSize) throws Exception {
 		return new ResponseEntity<>(portfolioDao.getProjectsList(portfolioId, offset, pageSize), HttpStatus.OK);
 	}
@@ -359,7 +359,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 	@Override
 	public ResponseEntity<Object> getProjectDetails(@PathVariable(value = "portfolioId") String portfolioId,
 			@PathVariable(value = "projectId") String projectId, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
+			throws Exception {
 		Projects project = portfolioDao.getProjectDetails(portfolioId, projectId);
 		return new ResponseEntity<>(project, HttpStatus.OK);
 	}
@@ -367,7 +367,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 	@Override
 	public ResponseEntity<Object> deleteProject(@PathVariable(value = "portfolioId") String portfolioId,
 			@PathVariable(value = "projectId") String projectId, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
+			throws Exception {
 		portfolioDao.deleteProject(portfolioId, projectId);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
@@ -376,7 +376,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 	public ResponseEntity<Object> createProxy(@RequestBody Proxies proxy,
 			@PathVariable(value = "portfolioId") String id, @PathVariable(value = "projectId") String projectId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
-		String proxyId = portfolioDao.createProxy(id, projectId, proxy,jsessionid);
+		String proxyId = portfolioDao.createProxy(id, projectId, proxy, jsessionid);
 		return new ResponseEntity<>("{\"id\": \"" + proxyId + "\"}", HttpStatus.CREATED);
 	}
 
@@ -391,7 +391,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
 	@Override
 	public ResponseEntity<Object> getProxyList(@PathVariable(value = "portfolioId") String portfolioId,
-			@PathVariable(value = "projectId") String projectId, @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@PathVariable(value = "projectId") String projectId,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "pagesize", defaultValue = "10") int pageSize) throws Exception {
 		return new ResponseEntity<>(portfolioDao.getProxyList(portfolioId, projectId, offset, pageSize), HttpStatus.OK);
@@ -411,18 +412,17 @@ public class PortfolioServiceImpl implements PortfolioService {
 			@PathVariable(value = "projectId") String projectId, @PathVariable(value = "proxyId") String proxyId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 
-		portfolioDao.deleteProxyDetail(portfolioId, projectId, proxyId,jsessionid);
+		portfolioDao.deleteProxyDetail(portfolioId, projectId, proxyId, jsessionid);
 		return new ResponseEntity<>(HttpStatus.OK);
-
 	}
 
 	@Override
 	public ResponseEntity<Object> createPipeline(@RequestBody Pipelines pipeline,
 			@PathVariable(value = "portfolioId") String id, @PathVariable(value = "projectId") String projectId,
 			@PathVariable(value = "proxyId") String proxyId, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
+			throws Exception {
 
-		String pipelenieId = portfolioDao.createPipeline(id, projectId, proxyId,jsessionid,pipeline);
+		String pipelenieId = portfolioDao.createPipeline(id, projectId, proxyId, jsessionid, pipeline);
 		return new ResponseEntity<>("{\"id\": \"" + pipelenieId + "\"}", HttpStatus.CREATED);
 	}
 
@@ -432,37 +432,33 @@ public class PortfolioServiceImpl implements PortfolioService {
 			@PathVariable(value = "proxyId") String proxyId, @PathVariable(value = "pipelineId") String pipelineId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 
-		portfolioDao.updateProxyPipeline(id, projectId, proxyId, pipelineId, pipelines,jsessionid);
+		portfolioDao.updateProxyPipeline(id, projectId, proxyId, pipelineId, pipelines, jsessionid);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
 	}
-
 
 	@Override
 	public ResponseEntity<Object> getPipeline(@PathVariable(value = "portfolioId") String id,
 			@PathVariable(value = "projectId") String projectId, @PathVariable(value = "proxyId") String proxyId,
-			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception{
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 
-		List<Pipelines> pipelines = portfolioDao.getPipeline(id, projectId, proxyId,jsessionid);
+		List<Pipelines> pipelines = portfolioDao.getPipeline(id, projectId, proxyId, jsessionid);
 		return new ResponseEntity<>(pipelines, HttpStatus.OK);
-
 	}
 
 	@Override
 	public ResponseEntity<Object> deletePipeline(@PathVariable(value = "portfolioId") String id,
 			@PathVariable(value = "projectId") String projectId, @PathVariable(value = "proxyId") String proxyId,
 			@PathVariable(value = "pipelineId") String pipelineId,
-			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception{
-		portfolioDao.deletePipeline(id, projectId, proxyId,pipelineId,jsessionid);
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
+		portfolioDao.deletePipeline(id, projectId, proxyId, pipelineId, jsessionid);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@Override
-	public ResponseEntity<Object> search(
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
+	public ResponseEntity<Object> search(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestParam(value = "name") String name,
-			@RequestParam(value = "limit" ,defaultValue = "10") int limit) throws Exception{
+			@RequestParam(value = "name") String name, @RequestParam(value = "limit", defaultValue = "10") int limit)
+			throws Exception {
 		return new ResponseEntity<Object>(portfolioDao.search(name, limit), HttpStatus.OK);
 	}
 
@@ -470,8 +466,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 			@RequestPart(value = "document", required = true) MultipartFile document,
 			@RequestPart(value = "documentName", required = true) String documentName,
 			@PathVariable(value = "portfolioId") String portfolioId,
-			@PathVariable(value = "projectId") String projectId,
-			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
+			@PathVariable(value = "projectId") String projectId, @RequestHeader(value = "JSESSIONID") String jsessionid)
+			throws Exception {
 
 		if (document == null || document.getBytes() == null || document.getBytes().length == 0) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1007"), "Portfolio-1007");
@@ -488,5 +484,4 @@ public class PortfolioServiceImpl implements PortfolioService {
 
 		return new ResponseEntity<>(map, HttpStatus.CREATED);
 	}
-
 }

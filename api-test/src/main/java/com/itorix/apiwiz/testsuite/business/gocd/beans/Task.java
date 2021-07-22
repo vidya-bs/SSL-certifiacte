@@ -10,20 +10,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "type", "attributes" })
+@JsonPropertyOrder({"type", "attributes"})
 public class Task {
 
 	@JsonProperty("type")
 	private String type;
+
 	@JsonProperty("attributes")
 	private Attributes_ attributes;
+
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
 	public Task() {
 	}
-	
-	public Task(String type, String runCondition, String command, String arguments, String workingDirectory, boolean isCommand) {
+
+	public Task(String type, String runCondition, String command, String arguments, String workingDirectory,
+			boolean isCommand) {
 		this.type = type;
 		attributes = new Attributes_(runCondition, command, arguments, null, true);
 	}
@@ -68,5 +71,4 @@ public class Task {
 	public void setAdditionalProperty(String name, Object value) {
 		this.additionalProperties.put(name, value);
 	}
-
 }

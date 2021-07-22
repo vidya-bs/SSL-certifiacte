@@ -29,5 +29,4 @@ public interface BaseObject {
 	String getModifiedUserName();
 
 	void setModifiedUserName(String modifiedUserName);
-
 }

@@ -1,8 +1,7 @@
 package com.itorix.apiwiz.common.model.apigee;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EnvironmentVO {
@@ -52,5 +51,4 @@ public class EnvironmentVO {
 	public void setVirtualHosts(List<String> virtualHosts) {
 		this.virtualHosts = virtualHosts;
 	}
-
 }

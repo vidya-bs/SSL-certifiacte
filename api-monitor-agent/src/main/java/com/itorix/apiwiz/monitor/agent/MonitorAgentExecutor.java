@@ -24,42 +24,40 @@ import com.itorix.apiwiz.monitor.model.ExecutionContext;
 @Component
 public class MonitorAgentExecutor {
 
-	private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 5);
+    private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 5);
 
-	@Autowired
-	private MonitorAgentExecutorDao dao;
+    @Autowired
+    private MonitorAgentExecutorDao dao;
 
-	@Autowired
-	private MonitorAgentExecutorSQLDao sqlDao;
+    @Autowired
+    private MonitorAgentExecutorSQLDao sqlDao;
 
-	@Autowired
-	private MonitorAgentRunner testRunner;
+    @Autowired
+    private MonitorAgentRunner testRunner;
 
-	@Autowired
-	JdbcTemplate jdbcTemplate;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
+    @Scheduled(fixedRate = 15000)
+    public void fetchAndRunTestsuites() {
 
+        int avlThreads = (Runtime.getRuntime().availableProcessors() * 5)
+                - ((ThreadPoolExecutor) executor).getActiveCount();
 
-	@Scheduled(fixedRate = 15000)
-	public void fetchAndRunTestsuites() {
+        List<MonitorAgentExecutorEntity> executorEntities = sqlDao.getExecutorEntityByColumn("status",
+                MonitorAgentExecutorEntity.STATUSES.SCHEDULED.getValue(), avlThreads);
 
-		int avlThreads = (Runtime.getRuntime().availableProcessors() * 5)
-				- ((ThreadPoolExecutor) executor).getActiveCount();
-
-		List<MonitorAgentExecutorEntity> executorEntities = sqlDao.getExecutorEntityByColumn("status",
-				MonitorAgentExecutorEntity.STATUSES.SCHEDULED.getValue(), avlThreads);
-
-		for (MonitorAgentExecutorEntity testExecutorEntity : executorEntities) {
-			TenantContext.setCurrentTenant(testExecutorEntity.getTenant());
-			ExecutionContext context = new ExecutionContext();
-			context.setExecutionId(testExecutorEntity.getId());
-			context.setTenant(testExecutorEntity.getTenant());
-			context.setCollectionId(testExecutorEntity.getCollectionId());
-			context.setSchedulerId(testExecutorEntity.getSchedulerId());
-			testExecutorEntity.setStatus(MonitorAgentExecutorEntity.STATUSES.IN_PROGRESS.getValue());
-			sqlDao.updateField(testExecutorEntity.getId(), "status",
-					MonitorAgentExecutorEntity.STATUSES.IN_PROGRESS.getValue());
-			executor.execute(() -> testRunner.run(context));
-		}
-	}
+        for (MonitorAgentExecutorEntity testExecutorEntity : executorEntities) {
+            TenantContext.setCurrentTenant(testExecutorEntity.getTenant());
+            ExecutionContext context = new ExecutionContext();
+            context.setExecutionId(testExecutorEntity.getId());
+            context.setTenant(testExecutorEntity.getTenant());
+            context.setCollectionId(testExecutorEntity.getCollectionId());
+            context.setSchedulerId(testExecutorEntity.getSchedulerId());
+            testExecutorEntity.setStatus(MonitorAgentExecutorEntity.STATUSES.IN_PROGRESS.getValue());
+            sqlDao.updateField(testExecutorEntity.getId(), "status",
+                    MonitorAgentExecutorEntity.STATUSES.IN_PROGRESS.getValue());
+            executor.execute(() -> testRunner.run(context));
+        }
+    }
 }

@@ -16,8 +16,8 @@ public class ResponseValidatorTest {
 
     @Test
     public void checkAssertionForInteger() throws Exception {
-            ResponseValidator.checkAssertion(200, "200", "equalTO", false);
-            assertTrue(true);
+        ResponseValidator.checkAssertion(200, "200", "equalTO", false);
+        assertTrue(true);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class ResponseValidatorTest {
     }
 
     @Test
-    public void checkValidHeadersIgnoreCase() throws  Exception {
+    public void checkValidHeadersIgnoreCase() throws Exception {
         Header header = new BasicHeader("cOnTent-type", "json");
         Header[] responseHeaders = new Header[1];
         responseHeaders[0] = header;
@@ -58,9 +58,8 @@ public class ResponseValidatorTest {
         assertTrue(ResponseValidator.isValidHeaders(responseHeaders, expectedHeader, testStatus));
     }
 
-
     @Test(expected = Exception.class)
-    public void checkValidHeaders() throws  Exception {
+    public void checkValidHeaders() throws Exception {
         Header header = new BasicHeader("cOnTent-type", "json");
         Header[] responseHeaders = new Header[1];
         responseHeaders[0] = header;

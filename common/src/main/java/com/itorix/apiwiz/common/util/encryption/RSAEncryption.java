@@ -1,6 +1,5 @@
 package com.itorix.apiwiz.common.util.encryption;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,27 +22,27 @@ import javax.crypto.NoSuchPaddingException;
 
 import org.apache.commons.codec.binary.Base64;
 
-
-
 public class RSAEncryption {
 
 	private PrivateKey privateKey;
 	private PublicKey publicKey;
 	private Cipher cipher;
 
-	public RSAEncryption() throws NoSuchAlgorithmException, NoSuchPaddingException{
+	public RSAEncryption() throws NoSuchAlgorithmException, NoSuchPaddingException {
 		this.cipher = Cipher.getInstance("RSA");
 		try {
 			this.loadKeys();
 		} catch (Exception e) {
 			e.printStackTrace();
-		} 
+		}
 	}
 
 	/**
 	 * @param msg
 	 * @param key
+	 * 
 	 * @return String
+	 * 
 	 * @throws NoSuchAlgorithmException
 	 * @throws NoSuchPaddingException
 	 * @throws UnsupportedEncodingException
@@ -51,7 +50,8 @@ public class RSAEncryption {
 	 * @throws BadPaddingException
 	 * @throws InvalidKeyException
 	 */
-	public String encryptText(String msg, PublicKey key) throws NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException{
+	public String encryptText(String msg, PublicKey key) throws NoSuchAlgorithmException, NoSuchPaddingException,
+			UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
 		this.cipher.init(Cipher.ENCRYPT_MODE, key);
 		return Base64.encodeBase64String(cipher.doFinal(msg.getBytes("UTF-8")));
 	}
@@ -59,23 +59,28 @@ public class RSAEncryption {
 	/**
 	 * @param msg
 	 * @param key
+	 * 
 	 * @return String
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
-	public String encryptText(String msg) throws Exception{
+	public String encryptText(String msg) throws Exception {
 		return this.encryptText(msg, this.publicKey);
 	}
 
 	/**
 	 * @param msg
 	 * @param key
+	 * 
 	 * @return String
+	 * 
 	 * @throws InvalidKeyException
 	 * @throws UnsupportedEncodingException
 	 * @throws IllegalBlockSizeException
 	 * @throws BadPaddingException
 	 */
-	public String decryptText(String msg, PrivateKey key) throws InvalidKeyException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException{
+	public String decryptText(String msg, PrivateKey key)
+			throws InvalidKeyException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException {
 		this.cipher.init(Cipher.DECRYPT_MODE, key);
 		return new String(cipher.doFinal(Base64.decodeBase64(msg)), "UTF-8");
 	}
@@ -84,27 +89,28 @@ public class RSAEncryption {
 		return decryptText(msg, this.privateKey);
 	}
 
-	private String readKeyFromFile(String filename)
-			throws IOException
-	{
-		BufferedReader br = new BufferedReader(new InputStreamReader(RSAEncryption.class.getClassLoader().getResourceAsStream(filename)));
+	private String readKeyFromFile(String filename) throws IOException {
+		BufferedReader br = new BufferedReader(
+				new InputStreamReader(RSAEncryption.class.getClassLoader().getResourceAsStream(filename)));
 		StringBuilder sb = new StringBuilder();
 		String line;
-		while ((line = br.readLine()) != null) 
+		while ((line = br.readLine()) != null)
 			sb.append(line);
 		br.close();
 		return sb.toString();
 	}
-	
-	private  void loadKeys() 
-			throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, URISyntaxException {
+
+	private void loadKeys() throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, URISyntaxException {
 		String privateKeyContent = readKeyFromFile("private_key_pkcs8.pem");
 		String publicKeyContent = readKeyFromFile("public_key.pem");
-		privateKeyContent = privateKeyContent.replaceAll("\\n", "").replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "");
-		publicKeyContent = publicKeyContent.replaceAll("\\n", "").replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "");;
+		privateKeyContent = privateKeyContent.replaceAll("\\n", "").replace("-----BEGIN PRIVATE KEY-----", "")
+				.replace("-----END PRIVATE KEY-----", "");
+		publicKeyContent = publicKeyContent.replaceAll("\\n", "").replace("-----BEGIN PUBLIC KEY-----", "")
+				.replace("-----END PUBLIC KEY-----", "");;
 		KeyFactory kf = KeyFactory.getInstance("RSA");
 		PKCS8EncodedKeySpec keySpecPKCS8 = new PKCS8EncodedKeySpec(Base64.decodeBase64(privateKeyContent));
-//		X509EncodedKeySpec keySpecPKCS8 = new X509EncodedKeySpec(Base64.decodeBase64(privateKeyContent));
+		// X509EncodedKeySpec keySpecPKCS8 = new
+		// X509EncodedKeySpec(Base64.decodeBase64(privateKeyContent));
 		privateKey = kf.generatePrivate(keySpecPKCS8);
 		X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(Base64.decodeBase64(publicKeyContent));
 		publicKey = kf.generatePublic(keySpecX509);
@@ -112,11 +118,12 @@ public class RSAEncryption {
 
 	public static void main(String[] args) throws Exception {
 		RSAEncryption ac = new RSAEncryption();
-		System.out.println(ac.decryptText("PTIbpnp35PhDb0Tnnu/WOkAKtRDsdVbweR2aAObOXqki4lIVMFWhRC3vArE26RQzSv6l92WouPvpPe4lzfaxyg=="));
+		System.out.println(ac.decryptText(
+				"PTIbpnp35PhDb0Tnnu/WOkAKtRDsdVbweR2aAObOXqki4lIVMFWhRC3vArE26RQzSv6l92WouPvpPe4lzfaxyg=="));
 		String msg = "Passw0rd";
 		String encrypted_msg = ac.encryptText(msg);
 		String decrypted_msg = ac.decryptText(encrypted_msg);
-		System.out.println("Original Message: " + msg + "\nEncrypted Message: " + encrypted_msg + "\nDecrypted Message: " + decrypted_msg);
+		System.out.println("Original Message: " + msg + "\nEncrypted Message: " + encrypted_msg
+				+ "\nDecrypted Message: " + decrypted_msg);
 	}
-
 }

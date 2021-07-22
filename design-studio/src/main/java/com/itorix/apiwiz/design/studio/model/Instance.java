@@ -1,13 +1,13 @@
 package com.itorix.apiwiz.design.studio.model;
 
 public class Instance {
-    private String pointer;
+	private String pointer;
 
-    public String getPointer() {
-        return pointer;
-    }
+	public String getPointer() {
+		return pointer;
+	}
 
-    public void setPointer(String pointer) {
-        this.pointer = pointer;
-    }
+	public void setPointer(String pointer) {
+		this.pointer = pointer;
+	}
 }

@@ -46,13 +46,13 @@ import freemarker.template.Version;
 public class SOAPUITestReportExecutor {
 
 	private static final String REPORT_TEMPLATE = "firstClientReport.ftl";
-	//private static final String PROJECT_XML_PATH = "src/main/resources/project.xml";
+	// private static final String PROJECT_XML_PATH =
+	// "src/main/resources/project.xml";
 	private static final String PROJECT_XML_PATH = "project.xml";
 
-	public  Map<String, String> soapUIProjectTestReportExecutor(String xmlString, String env) {
+	public Map<String, String> soapUIProjectTestReportExecutor(String xmlString, String env) {
 		Map<String, String> reportMap = null;
 		try {
-
 
 			SoapUIProject soupUITest = getTestSuite(xmlString);
 
@@ -86,7 +86,7 @@ public class SOAPUITestReportExecutor {
 		return reportMap;
 	}
 
-	public  SoapUIProject getTestSuite(String stringXML) throws Exception {
+	public SoapUIProject getTestSuite(String stringXML) throws Exception {
 
 		String suiteName = "";
 		long startTime = 0;
@@ -99,9 +99,9 @@ public class SOAPUITestReportExecutor {
 		List<TestSuite> suiteList = new ArrayList<TestSuite>();
 		List<TestCase> caseList = new ArrayList<TestCase>();
 		List<SoapUITestSuite> testSuiteList = new ArrayList<SoapUITestSuite>();
-		//SoapUI.setSoapUICore(new StandaloneSoapUICore(true));
-		SoapUI.setSoapUICore( new StandaloneSoapUICore( "src/main/resources/soapui-settings.xml"));
-		
+		// SoapUI.setSoapUICore(new StandaloneSoapUICore(true));
+		SoapUI.setSoapUICore(new StandaloneSoapUICore("src/main/resources/soapui-settings.xml"));
+
 		WsdlProject project = stringToSoapUIProject(stringXML);
 
 		suiteList = project.getTestSuiteList();
@@ -139,8 +139,8 @@ public class SOAPUITestReportExecutor {
 		return test;
 	}
 
-	public  WsdlProject stringToSoapUIProject(String xmlSource) throws SAXException, ParserConfigurationException,
-		IOException, TransformerException, XmlException, SoapUIException {
+	public WsdlProject stringToSoapUIProject(String xmlSource) throws SAXException, ParserConfigurationException,
+			IOException, TransformerException, XmlException, SoapUIException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		Document doc = builder.parse(new InputSource(new StringReader(xmlSource)));
@@ -155,13 +155,14 @@ public class SOAPUITestReportExecutor {
 		projectFile.delete();
 		return wsdlProject;
 	}
-	
-	
-	public static void main(String[] args) throws IOException {
-		//System.out.println(FileUtils.readFileToString(new File("/Users/sudhakar/Desktop/REST-Itorix-soapui-project.xml")));
-		//Map<String, String> map = soapUIProjectTestReportExecutor(FileUtils.readFileToString(new File("/Users/sudhakar/Desktop/REST-Itorix-soapui-project.xml")),null);
-		// output = new ObjectMapper().writeValueAsString(map);
-		//System.out.println(map);
-	}
 
+	public static void main(String[] args) throws IOException {
+		// System.out.println(FileUtils.readFileToString(new
+		// File("/Users/sudhakar/Desktop/REST-Itorix-soapui-project.xml")));
+		// Map<String, String> map =
+		// soapUIProjectTestReportExecutor(FileUtils.readFileToString(new
+		// File("/Users/sudhakar/Desktop/REST-Itorix-soapui-project.xml")),null);
+		// output = new ObjectMapper().writeValueAsString(map);
+		// System.out.println(map);
+	}
 }

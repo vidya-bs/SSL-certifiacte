@@ -16,5 +16,4 @@ import lombok.Setter;
 public class NameIdContainer {
 	String id;
 	String name;
-
 }

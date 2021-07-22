@@ -116,7 +116,8 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 	}
 
 	public ResponseEntity<Object> getRequests(@PathVariable(value = "id") String id,
-			@RequestParam(value = "offset", defaultValue = "1") int offset, @RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "offset", defaultValue = "1") int offset,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "pagesize", defaultValue = "10") int pageSize) throws Exception {
 		MonitorCollections monitorRequests = apiMonitorDAO.getRequests(id, offset, pageSize);
 		return new ResponseEntity<>(monitorRequests, HttpStatus.OK);
@@ -150,8 +151,7 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 
 	@Override
 	public ResponseEntity<Object> getRequestStatLogs(@PathVariable(value = "collectionId") String collectionId,
-			@PathVariable(value = "requestId") String requestId,
-			@PathVariable(value = "eventId") String eventId,
+			@PathVariable(value = "requestId") String requestId, @PathVariable(value = "eventId") String eventId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 
 		MonitorRequestLog monitorLogs = apiMonitorDAO.getRequestStatLogs(collectionId, requestId, eventId);
@@ -204,8 +204,7 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 		variables.setModifiedBy(user.getFirstName() + " " + user.getLastName());
 		variables.setMts(System.currentTimeMillis());
 		// variables.setCreatedBy(user.getFirstName()+" "+user.getLastName());
-		return new ResponseEntity<>(apiMonitorDAO.updateVariables(variables, id,jsessionid), HttpStatus.NO_CONTENT);
-
+		return new ResponseEntity<>(apiMonitorDAO.updateVariables(variables, id, jsessionid), HttpStatus.NO_CONTENT);
 	}
 
 	public ResponseEntity<?> deleteVariables(
@@ -229,17 +228,20 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 	}
 
 	@Override
-	public ResponseEntity<?> deleteCertificate(@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable(value = "name") String name) throws ItorixException{
+	public ResponseEntity<?> deleteCertificate(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(value = "name") String name)
+			throws ItorixException {
 
 		apiMonitorDAO.deleteCertificate(name);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
 	}
 
 	@Override
-	public ResponseEntity<?> getCertificate(@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable(value = "name") String name) throws ItorixException {
+	public ResponseEntity<?> getCertificate(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(value = "name") String name)
+			throws ItorixException {
 
 		Certificates certificate = apiMonitorDAO.getCertificate(name);
 		if (certificate == null) {
@@ -247,17 +249,17 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 		}
 
 		String url = request.getRequestURL().toString();
-		StringBuilder downloadLocation =  new StringBuilder(url.substring(0,url.indexOf(request.getContextPath())+request.getContextPath().length()+1));
+		StringBuilder downloadLocation = new StringBuilder(
+				url.substring(0, url.indexOf(request.getContextPath()) + request.getContextPath().length() + 1));
 		downloadLocation.append("/v1/monitor/certificates/").append(name).append("/download");
-		CertificatesResponse  certificatesResponse = new CertificatesResponse();
+		CertificatesResponse certificatesResponse = new CertificatesResponse();
 		BeanUtils.copyProperties(certificate, certificatesResponse);
 		certificatesResponse.setDownloadLocation(downloadLocation.toString());
-		return new ResponseEntity<>(certificatesResponse,HttpStatus.OK);
+		return new ResponseEntity<>(certificatesResponse, HttpStatus.OK);
 	}
 
 	@Override
-	public ResponseEntity<Object> createOrUpdateCertificate(
-			@RequestPart(value = "name", required = true) String name,
+	public ResponseEntity<Object> createOrUpdateCertificate(@RequestPart(value = "name", required = true) String name,
 			@RequestPart(value = "jksFile", required = false) MultipartFile jksFile,
 			@RequestPart(value = "description", required = false) String description,
 			@RequestPart(value = "password", required = false) String password,
@@ -265,11 +267,13 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 
 		if (jksFile == null) {
-			throw new ItorixException((String.format(ErrorCodes.errorMessage.get("Monitor-1003"),"JKSFile")), "Monitor-1003");
+			throw new ItorixException((String.format(ErrorCodes.errorMessage.get("Monitor-1003"), "JKSFile")),
+					"Monitor-1003");
 		}
 		byte[] bytes = jksFile.getBytes();
 		if (bytes == null || bytes.length == 0) {
-			throw new ItorixException((String.format(ErrorCodes.errorMessage.get("Monitor-1003"),"JKSFile")), "Monitor-1003");
+			throw new ItorixException((String.format(ErrorCodes.errorMessage.get("Monitor-1003"), "JKSFile")),
+					"Monitor-1003");
 		}
 
 		apiMonitorDAO.createOrUpdateCertificate(name, bytes, description, password, alias, jsessionid);
@@ -291,20 +295,19 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 		}
 	}
 
-	public ResponseEntity<Resource> downloadCertificate(@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable(name = "name") String name) throws ItorixException{
+	public ResponseEntity<Resource> downloadCertificate(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(name = "name") String name)
+			throws ItorixException {
 
 		byte[] content = apiMonitorDAO.downloadCertificate(name);
-		if(content == null || content.length == 0){
+		if (content == null || content.length == 0) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1002"), "Monitor-1002");
 		}
 
 		ByteArrayResource resource = new ByteArrayResource(content);
 
-	    return ResponseEntity.ok()
-	            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-	            .body(resource);
-
+		return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(resource);
 	}
 
 	@Override
@@ -327,7 +330,8 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 	}
 
 	@Override
-	public ResponseEntity<Object> getSchedulers(@RequestHeader(value = "interactionid", required = false) String interactionid,
+	public ResponseEntity<Object> getSchedulers(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable(name = "collectionId") String collectionId) throws ItorixException {
 		MonitorCollections monitors = apiMonitorDAO.getSchedulers(collectionId);
@@ -349,27 +353,25 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 	}
 
 	@Override
-	public ResponseEntity<Object> search(
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
+	public ResponseEntity<Object> search(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestParam(value = "name") String name,
-			@RequestParam(value = "limit" ,defaultValue = "10") int limit) throws Exception{
+			@RequestParam(value = "name") String name, @RequestParam(value = "limit", defaultValue = "10") int limit)
+			throws Exception {
 		return new ResponseEntity<Object>(apiMonitorDAO.search(name, limit), HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseEntity<?> createMetaData(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody String metadata) throws JsonProcessingException, ItorixException{
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody String metadata)
+			throws JsonProcessingException, ItorixException {
 		apiMonitorDAO.createMetaData(metadata);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
-	public ResponseEntity<?> getMetaData(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid) throws JsonProcessingException, ItorixException{
+	public ResponseEntity<?> getMetaData(@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws JsonProcessingException, ItorixException {
 		return new ResponseEntity<>(apiMonitorDAO.getMetaData(), HttpStatus.OK);
 	}
 

@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public interface MonitorAgentService {
 
-	@RequestMapping(method = RequestMethod.POST, value = "/v1/execute", consumes = { "application/json" }, produces = {
-			"application/json" })
-	public ResponseEntity<?> storeMonitorDetails(@RequestHeader HttpHeaders headers , @RequestBody Map<String, String> requestBody) throws Exception;
+    @RequestMapping(method = RequestMethod.POST, value = "/v1/execute", consumes = { "application/json" }, produces = {
+            "application/json" })
+    public ResponseEntity<?> storeMonitorDetails(@RequestHeader HttpHeaders headers,
+            @RequestBody Map<String, String> requestBody) throws Exception;
 }

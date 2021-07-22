@@ -121,9 +121,8 @@ public class ApigeeOrganizationalVO {
 			return "ClassPojo [targetservers = " + targetservers + ", revision = " + revision + ", cache = " + cache
 					+ ", name = " + name + ", products = " + products + ", kvm = " + kvm + "]";
 		}
-
-		
 	}
+
 	public class Products {
 		private List<Apps> apps;
 
@@ -150,6 +149,7 @@ public class ApigeeOrganizationalVO {
 			return "ClassPojo [apps = " + apps + ", name = " + name + "]";
 		}
 	}
+
 	public class Apps {
 		private String name;
 

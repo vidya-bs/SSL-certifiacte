@@ -43,7 +43,7 @@ public class ServiceRequestContext implements Serializable, Cloneable {
 
 	/**
 	 * Show the value of the context.
-	 * 
+	 *
 	 * @return a string representation of the object.
 	 */
 	@Override
@@ -66,5 +66,4 @@ public class ServiceRequestContext implements Serializable, Cloneable {
 	public void setRequestId(RequestId requestId) {
 		this.requestId = requestId;
 	}
-
 }

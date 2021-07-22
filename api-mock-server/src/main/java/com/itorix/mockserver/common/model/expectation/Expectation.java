@@ -14,13 +14,12 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Expectation extends AbstractObject {
-     String name;
-     String description;
-     String summary;
-     String groupId;
-     String scenarioName;
-     Request request;
-     Response response;
-     List<String> pathArray;
+    String name;
+    String description;
+    String summary;
+    String groupId;
+    String scenarioName;
+    Request request;
+    Response response;
+    List<String> pathArray;
 }
-

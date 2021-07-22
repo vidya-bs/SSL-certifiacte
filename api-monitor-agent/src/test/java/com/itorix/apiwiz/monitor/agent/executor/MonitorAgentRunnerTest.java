@@ -37,6 +37,7 @@ import java.util.List;
 import static org.mockito.Mockito.*;
 
 import static org.junit.Assert.*;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MonitorAgentConfigTest.class)
 public class MonitorAgentRunnerTest {
@@ -120,13 +121,12 @@ public class MonitorAgentRunnerTest {
         when(dao.getVariablesById(Mockito.anyString())).thenReturn(vars);
         when(dao.getMonitorRequests(Mockito.anyString())).thenReturn(monitorRequests);
         when(dao.getRequestSequence(Mockito.eq(ctx.getCollectionId()))).thenReturn(requestSequence);
-        when(helper.invokeMonitorApi(Mockito.any(), Mockito.anyMap(), Mockito.anyMap(), Mockito.anyMap(), Mockito.any(), Mockito.anyInt())).thenReturn(response);
-
+        when(helper.invokeMonitorApi(Mockito.any(), Mockito.anyMap(), Mockito.anyMap(), Mockito.anyMap(), Mockito.any(),
+                Mockito.anyInt())).thenReturn(response);
 
         monitorAgentRunner.executeMonitorRequests(ctx, 3000);
 
         Mockito.verify(emailContentParser, times(1)).getRelevantEmailContent(Mockito.any(), Mockito.anyMap());
-
 
     }
 

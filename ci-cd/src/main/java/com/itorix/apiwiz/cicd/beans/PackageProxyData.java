@@ -7,89 +7,92 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "build.proxy")
 public class PackageProxyData {
-	
+
 	private String name;
 	private Set<String> products;
 	private Set<String> devapps;
 	private List<String> kvm;
 	private List<String> caches;
 	private List<String> targetServers;
-	
-	/**
-	 * @return the name
-	 */
+
+	/** @return the name */
 	public String getName() {
 		return name;
 	}
+
 	/**
-	 * @param name the name to set
+	 * @param name
+	 *            the name to set
 	 */
 	public void setName(String name) {
 		this.name = name;
 	}
-	/**
-	 * @return the products
-	 */
+
+	/** @return the products */
 	public Set<String> getProducts() {
 		return products;
 	}
+
 	/**
-	 * @param products the products to set
+	 * @param products
+	 *            the products to set
 	 */
 	public void setProducts(Set<String> products) {
 		this.products = products;
 	}
-	/**
-	 * @return the devapps
-	 */
+
+	/** @return the devapps */
 	public Set<String> getDevapps() {
 		return devapps;
 	}
+
 	/**
-	 * @param devapps the devapps to set
+	 * @param devapps
+	 *            the devapps to set
 	 */
 	public void setDevapps(Set<String> devapps) {
 		this.devapps = devapps;
 	}
-	/**
-	 * @return the kvm
-	 */
+
+	/** @return the kvm */
 	public List<String> getKvm() {
 		return kvm;
 	}
+
 	/**
-	 * @param kvm the kvm to set
+	 * @param kvm
+	 *            the kvm to set
 	 */
 	public void setKvm(List<String> kvm) {
 		this.kvm = kvm;
 	}
-	/**
-	 * @return the caches
-	 */
+
+	/** @return the caches */
 	public List<String> getCaches() {
 		return caches;
 	}
+
 	/**
-	 * @param caches the caches to set
+	 * @param caches
+	 *            the caches to set
 	 */
 	public void setCaches(List<String> caches) {
 		this.caches = caches;
 	}
-	/**
-	 * @return the targetServers
-	 */
+
+	/** @return the targetServers */
 	public List<String> getTargetServers() {
 		return targetServers;
 	}
+
 	/**
-	 * @param targetServers the targetServers to set
+	 * @param targetServers
+	 *            the targetServers to set
 	 */
 	public void setTargetServers(List<String> targetServers) {
 		this.targetServers = targetServers;
 	}
-	
 }

@@ -43,92 +43,100 @@ import static org.junit.Assert.*;
 
 public class BaseRepositoryTest {
 
-    private static MongoTemplate mongoTemplate = null;
+	private static MongoTemplate mongoTemplate = null;
 
-    @BeforeClass
-    public static void init() {
-        ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017");
-        MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
-                .applyConnectionString(connectionString)
-                .build();
-        MongoClients.create(mongoClientSettings);
-        mongoTemplate = new MongoTemplate(MongoClients.create(mongoClientSettings), "acme-team-dev");
-    }
+	@BeforeClass
+	public static void init() {
+		ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017");
+		MongoClientSettings mongoClientSettings = MongoClientSettings.builder().applyConnectionString(connectionString)
+				.build();
+		MongoClients.create(mongoClientSettings);
+		mongoTemplate = new MongoTemplate(MongoClients.create(mongoClientSettings), "acme-team-dev");
+	}
 
-    @Test
-    public void checkFiltersOnSwaggerList() {
-        String swaggerCollName = mongoTemplate.getCollectionName(SwaggerVO.class);
-        MongoCollection<Document> swaggerDocs = mongoTemplate.getCollection(swaggerCollName);
+	@Test
+	public void checkFiltersOnSwaggerList() {
+		String swaggerCollName = mongoTemplate.getCollectionName(SwaggerVO.class);
+		MongoCollection<Document> swaggerDocs = mongoTemplate.getCollection(swaggerCollName);
 
-        ProjectionOperation projectRequiredFields = project(SWAGGER_PROJECTION_FIELDS).
-                andExpression("toDate(mts)").as("mtsToDate");
+		ProjectionOperation projectRequiredFields = project(SWAGGER_PROJECTION_FIELDS).andExpression("toDate(mts)")
+				.as("mtsToDate");
 
-        ProjectionOperation dateToString = Aggregation.project(SWAGGER_PROJECTION_FIELDS)
-                .and("mtsToDate")
-                .dateAsFormattedString("%m%d%Y")
-                .as("modified_date");
+		ProjectionOperation dateToString = Aggregation.project(SWAGGER_PROJECTION_FIELDS).and("mtsToDate")
+				.dateAsFormattedString("%m%d%Y").as("modified_date");
 
-        GroupOperation groupByMaxRevision = group("name").max("revision").as("maxRevision").push("$$ROOT").as("originalDoc");
-        ProjectionOperation filterMaxRevision = project().and(filter("originalDoc").as("doc").by(valueOf("maxRevision").equalToValue("$$doc.revision"))).as("originalDoc");
+		GroupOperation groupByMaxRevision = group("name").max("revision").as("maxRevision").push("$$ROOT")
+				.as("originalDoc");
+		ProjectionOperation filterMaxRevision = project()
+				.and(filter("originalDoc").as("doc").by(valueOf("maxRevision").equalToValue("$$doc.revision")))
+				.as("originalDoc");
 
-        UnwindOperation unwindOperation = unwind("originalDoc");
-        ProjectionOperation projectionOperation = project("originalDoc.name").andInclude("originalDoc.status", "originalDoc.modified_date", "originalDoc.mts");
+		UnwindOperation unwindOperation = unwind("originalDoc");
+		ProjectionOperation projectionOperation = project("originalDoc.name").andInclude("originalDoc.status",
+				"originalDoc.modified_date", "originalDoc.mts");
 
-        Query query = new Query();
-        List<Criteria> criteriaList = new ArrayList<>();
-        Map<String, Object> matchFields = new LinkedHashMap<>();
-        matchFields.put("status", null);
-        matchFields.put("modified_date", null);
+		Query query = new Query();
+		List<Criteria> criteriaList = new ArrayList<>();
+		Map<String, Object> matchFields = new LinkedHashMap<>();
+		matchFields.put("status", null);
+		matchFields.put("modified_date", null);
 
-        Criteria criteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()]));
+		Criteria criteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()]));
 
-        SortOperation sortOperation = getSortOperation("asc");
+		SortOperation sortOperation = getSortOperation("asc");
 
-        MatchOperation match = getMatchOperation(matchFields);
-        AggregationResults<Document> results = null;
+		MatchOperation match = getMatchOperation(matchFields);
+		AggregationResults<Document> results = null;
 
-        //unwindOperation projectionOperation//match, groupByName, sortOperation
-        if(match != null) {
-            results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, groupByMaxRevision, filterMaxRevision, unwindOperation ,projectionOperation, match, groupByName, sortOperation), SwaggerVO.class, Document.class);
-        } else {
-            results = mongoTemplate.aggregate(newAggregation(projectRequiredFields, dateToString, groupByMaxRevision, filterMaxRevision, unwindOperation ,projectionOperation, groupByName, sortOperation), SwaggerVO.class, Document.class);
-        }
+		// unwindOperation projectionOperation//match, groupByName,
+		// sortOperation
+		if (match != null) {
+			results = mongoTemplate.aggregate(
+					newAggregation(projectRequiredFields, dateToString, groupByMaxRevision, filterMaxRevision,
+							unwindOperation, projectionOperation, match, groupByName, sortOperation),
+					SwaggerVO.class, Document.class);
+		} else {
+			results = mongoTemplate.aggregate(
+					newAggregation(projectRequiredFields, dateToString, groupByMaxRevision, filterMaxRevision,
+							unwindOperation, projectionOperation, groupByName, sortOperation),
+					SwaggerVO.class, Document.class);
+		}
 
-        List test = null;
+		List test = null;
 
-        results.getMappedResults().stream().forEach(System.out::println);
+		results.getMappedResults().stream().forEach(System.out::println);
 
-        List<String> names = new LinkedList<>();
-        results.getMappedResults().stream().forEach( d -> names.add(d.getString("_id")));
-        System.out.println(names);
-    }
+		List<String> names = new LinkedList<>();
+		results.getMappedResults().stream().forEach(d -> names.add(d.getString("_id")));
+		System.out.println(names);
+	}
 
-    private SortOperation getSortOperation(String sortByModifiedTS) {
-        SortOperation sortOperation = null;
-        if(sortByModifiedTS != null && sortByModifiedTS.equalsIgnoreCase("ASC")) {
-            sortOperation = sort(Sort.Direction.ASC, "mts");
-            groupByName = group("name").max("mts").as("mts");
-        } else if (sortByModifiedTS != null && sortByModifiedTS.equalsIgnoreCase("DESC")) {
-            sortOperation = sort(Sort.Direction.DESC, "mts");
-        } else {
-            sortOperation = sort(Sort.Direction.ASC, "name");
-            groupByName = group("name").max("name").as("name");
-        }
+	private SortOperation getSortOperation(String sortByModifiedTS) {
+		SortOperation sortOperation = null;
+		if (sortByModifiedTS != null && sortByModifiedTS.equalsIgnoreCase("ASC")) {
+			sortOperation = sort(Sort.Direction.ASC, "mts");
+			groupByName = group("name").max("mts").as("mts");
+		} else if (sortByModifiedTS != null && sortByModifiedTS.equalsIgnoreCase("DESC")) {
+			sortOperation = sort(Sort.Direction.DESC, "mts");
+		} else {
+			sortOperation = sort(Sort.Direction.ASC, "name");
+			groupByName = group("name").max("name").as("name");
+		}
 
-        return sortOperation;
-    }
+		return sortOperation;
+	}
 
-    private MatchOperation getMatchOperation(Map<String, Object> filterFieldsAndValues) {
-        List<Criteria> criteriaList = new ArrayList<>();
-        filterFieldsAndValues.forEach((k, v) -> {
-            if (null != v) {
-                criteriaList.add(Criteria.where(k).is(v));
-            }
-        });
+	private MatchOperation getMatchOperation(Map<String, Object> filterFieldsAndValues) {
+		List<Criteria> criteriaList = new ArrayList<>();
+		filterFieldsAndValues.forEach((k, v) -> {
+			if (null != v) {
+				criteriaList.add(Criteria.where(k).is(v));
+			}
+		});
 
-        Criteria criteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()]));
-        return criteriaList.size() > 0 ? match(criteria) : null;
-    }
+		Criteria criteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()]));
+		return criteriaList.size() > 0 ? match(criteria) : null;
+	}
 
-    GroupOperation groupByName = group("name").max("mts").as("mts");
+	GroupOperation groupByName = group("name").max("mts").as("mts");
 }

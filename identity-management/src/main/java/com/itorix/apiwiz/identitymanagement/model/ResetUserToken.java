@@ -8,7 +8,7 @@ public class ResetUserToken {
 
 	@JsonProperty("type")
 	private String type;
-	
+
 	@JsonProperty("emailID")
 	private String emailID;
 
@@ -27,7 +27,4 @@ public class ResetUserToken {
 	public void setEmailID(String emailID) {
 		this.emailID = emailID;
 	}
-
-	
-	
 }

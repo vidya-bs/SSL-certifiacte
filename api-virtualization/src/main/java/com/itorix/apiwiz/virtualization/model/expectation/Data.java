@@ -10,7 +10,6 @@ import lombok.Setter;
 public class Data {
 
 	public enum Condition {
-
 		@JsonProperty("equalTo")
 		equalTo,
 

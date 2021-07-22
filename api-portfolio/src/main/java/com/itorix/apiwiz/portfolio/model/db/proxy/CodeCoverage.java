@@ -24,5 +24,4 @@ public class CodeCoverage {
 
 	@JsonProperty("testsuites")
 	private List<Testsuites> testsuites;
-
 }

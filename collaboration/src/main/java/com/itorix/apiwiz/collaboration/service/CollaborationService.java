@@ -24,10 +24,11 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
 @CrossOrigin
 @RestController
 public interface CollaborationService {
-	
+
 	/**
 	 * Using this we can create the team.
 	 *
@@ -36,11 +37,12 @@ public interface CollaborationService {
 	 * @param swaggerTeam
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
 	 */
 	@ApiOperation(value = "Create Team", notes = "", code = 201)
-	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
-			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Created", response = Void.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/teams")
 	public ResponseEntity<Void> createTeam(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -56,12 +58,13 @@ public interface CollaborationService {
 	 * @param swaggerTeam
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
 	 */
 	@ApiOperation(value = "Update Team", notes = "", code = 204)
-	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content", response = Void.class),
+	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected team name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/teams/{teamname}")
 	public ResponseEntity<Void> updateTeam(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -69,16 +72,15 @@ public interface CollaborationService {
 			@RequestBody SwaggerTeam swaggerTeam) throws Exception;
 
 	@ApiOperation(value = "get Team", notes = "", code = 204)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Team", response = SwaggerTeam.class),
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Team", response = SwaggerTeam.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected team name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams/{teamname}")
 	public ResponseEntity<SwaggerTeam> getTeam(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("teamname") String teamname)
-			throws Exception ;
-	
-	
+			throws Exception;
+
 	/**
 	 * USing this we can delete the team.
 	 *
@@ -87,12 +89,13 @@ public interface CollaborationService {
 	 * @param teamname
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
 	 */
 	@ApiOperation(value = "Delete Team", notes = "", code = 204)
-	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content", response = Void.class),
+	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected team name - %s.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/teams/{teamname}")
 	public ResponseEntity<Void> deleteTeam(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -113,13 +116,12 @@ public interface CollaborationService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/associate-team")
 	public ResponseEntity<Void> assoiateTeam(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
 			@RequestBody SwaggerVO swaggerVO) throws Exception;
 
 	/**
@@ -130,19 +132,19 @@ public interface CollaborationService {
 	 * @param swaggername
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
 	 */
 	@ApiOperation(value = "Get Assoiated Teams", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/associated-teams")
 	public ResponseEntity<?> getAssoiatedTeams(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername)
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername)
 			throws Exception;
 
 	/**
@@ -152,12 +154,13 @@ public interface CollaborationService {
 	 * @param jsessionid
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
 	 */
 	@ApiOperation(value = "Get Team Permissions", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerTeamPermissionVO.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams/permission")
 	public ResponseEntity<Object> getTeamPermissions(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -170,12 +173,13 @@ public interface CollaborationService {
 	 * @param jsessionid
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
 	 */
 	@ApiOperation(value = "Get Teams", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerTeam.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams")
 	public ResponseEntity<TeamsHistoryResponse> getTeams(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -191,32 +195,31 @@ public interface CollaborationService {
 	 * @param jsessionid
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
 	 */
 	@ApiOperation(value = "Get Team Names", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/team-names")
 	public ResponseEntity<List<String>> getTeamNames(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
-	
+
 	/**
-	 * 
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param name
 	 * @param limit
+	 * 
 	 * @return
+	 * 
 	 * @throws ItorixException
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams/search", produces = { "application/json" })
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams/search", produces = {"application/json"})
 	public ResponseEntity<Object> teamSearch(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,@RequestParam("name") String name,@RequestParam("limit") int limit) throws ItorixException, JsonProcessingException ;
-
-
-
-
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam("name") String name,
+			@RequestParam("limit") int limit) throws ItorixException, JsonProcessingException;
 }

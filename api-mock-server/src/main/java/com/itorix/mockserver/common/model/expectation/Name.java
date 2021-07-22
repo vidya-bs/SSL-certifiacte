@@ -12,21 +12,21 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Name {
 
-	public enum Condition {
+    public enum Condition {
 
-		@JsonProperty("equalTo")
-		equalTo,
+        @JsonProperty("equalTo")
+        equalTo,
 
-		@JsonProperty("notEqualTo")
-		notEqualTo,
+        @JsonProperty("notEqualTo")
+        notEqualTo,
 
-		// @JsonProperty("contains")
-		// contains,
+        // @JsonProperty("contains")
+        // contains,
 
-		@JsonProperty("regEx")
-		regEx,
-	}
+        @JsonProperty("regEx")
+        regEx,
+    }
 
-	String key;
-	Condition condition;
+    String key;
+    Condition condition;
 }

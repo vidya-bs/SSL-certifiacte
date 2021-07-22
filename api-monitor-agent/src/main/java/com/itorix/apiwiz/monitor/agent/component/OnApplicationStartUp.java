@@ -14,25 +14,23 @@ import com.itorix.apiwiz.monitor.agent.db.MonitorAgentExecutorEntity;
 @Component
 public class OnApplicationStartUp {
 
-	@Autowired
-	JdbcTemplate jdbcTemplate;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
-	@Autowired
-	MonitorAgentExecutorSQLDao executorSQLDao;
+    @Autowired
+    MonitorAgentExecutorSQLDao executorSQLDao;
 
+    @EventListener
+    public void onApplicationEvent(ContextRefreshedEvent event) {
 
-	@EventListener
-	public void onApplicationEvent(ContextRefreshedEvent event) {
+        String createTable = "CREATE TABLE IF NOT EXISTS " + MonitorAgentExecutorEntity.TABLE_NAME
+                + "  (id  INTEGER PRIMARY KEY," + "   tenant  TEXT," + " collection_id TEXT," + " scheduler_id  TEXT"
+                + "   errorDescription            TEXT," + "   status TEXT)";
 
-		String createTable = "CREATE TABLE IF NOT EXISTS " + MonitorAgentExecutorEntity.TABLE_NAME
-				+ "  (id  INTEGER PRIMARY KEY," + "   tenant  TEXT," + " collection_id TEXT," + " scheduler_id  TEXT"
-				+ "   errorDescription            TEXT," + "   status TEXT)";
+        jdbcTemplate.execute(createTable);
 
-		jdbcTemplate.execute(createTable);
-
-		executorSQLDao.updateStatus(
-				Arrays.asList(MonitorAgentExecutorEntity.STATUSES.IN_PROGRESS.getValue()),
-				MonitorAgentExecutorEntity.STATUSES.SCHEDULED.getValue());
-	}
+        executorSQLDao.updateStatus(Arrays.asList(MonitorAgentExecutorEntity.STATUSES.IN_PROGRESS.getValue()),
+                MonitorAgentExecutorEntity.STATUSES.SCHEDULED.getValue());
+    }
 
 }

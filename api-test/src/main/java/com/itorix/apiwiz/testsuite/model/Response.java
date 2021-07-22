@@ -87,5 +87,4 @@ public class Response {
 	public void setAssertions(ResponseAssertions assertions) {
 		this.assertions = assertions;
 	}
-
 }

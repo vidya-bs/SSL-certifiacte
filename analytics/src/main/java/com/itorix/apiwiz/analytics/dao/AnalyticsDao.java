@@ -85,14 +85,14 @@ public class AnalyticsDao {
 			cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 			cfg.setJsessionId(jsessionId);
 
-
-			if(performanceMetrics.getType() !=null){
+			if (performanceMetrics.getType() != null) {
 				cfg.setType(performanceMetrics.getType());
-			}else{
+			} else {
 				cfg.setType("saas");
 			}
 
-			ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+			ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(),
+					cfg.getType());
 
 			cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 			cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
@@ -135,11 +135,11 @@ public class AnalyticsDao {
 				JsonNode envList = envrootNode.next();
 				((ObjectNode) envList).put("successCount",
 						Double.valueOf(elementDataWithOutTimeUnit.get("sum(message_count)"))
-						- Double.valueOf(elementDataWithOutTimeUnit.get("sum(is_error)"))); 
+								- Double.valueOf(elementDataWithOutTimeUnit.get("sum(is_error)")));
 				((ObjectNode) envList).put("successDelta",
 						(Double.valueOf(elementDataWithOutTimeUnit.get("sum(message_count)"))
 								- Double.valueOf(elementDataWithOutTimeUnit.get("sum(is_error)"))) * 100
-						/ Double.valueOf(elementDataWithOutTimeUnit.get("sum(message_count)")));
+								/ Double.valueOf(elementDataWithOutTimeUnit.get("sum(message_count)")));
 				Iterator<JsonNode> metricsMap = envList.elements();
 				while (metricsMap.hasNext()) {
 					JsonNode metricsList = metricsMap.next();
@@ -161,11 +161,8 @@ public class AnalyticsDao {
 									/ Double.valueOf(elementDataWithOutTimeUnit.get("sum(message_count)"))) * 100;
 							((ObjectNode) metricElement).put("delta", delta);
 						}
-
 					}
-
 				}
-
 			}
 
 			return performanceTrafficNode;
@@ -175,6 +172,7 @@ public class AnalyticsDao {
 		}
 		return null;
 	}
+
 	public Object averageResponseTime(PerformanceMetrics performanceMetrics, String jsessionid, String interactionid)
 			throws ItorixException, JsonProcessingException, IOException {
 
@@ -186,38 +184,28 @@ public class AnalyticsDao {
 		}
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
 
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
 		String suffix;
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+ cfg.getEnvironment()
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 					+ "/stats/?select=avg(total_response_time),avg(target_response_time),avg(request_processing_latency),avg(response_processing_latency)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit();
+					+ "&timeRange=" + cfg.getTimeRange() + "&timeUnit=" + cfg.getTimeUnit();
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 					+ "/stats/?select=avg(total_response_time),avg(target_response_time),avg(request_processing_latency),avg(response_processing_latency)"
-					+ "&timeRange="
-					+ cfg.getTimeRange();
+					+ "&timeRange=" + cfg.getTimeRange();
 		}
 
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
@@ -235,56 +223,55 @@ public class AnalyticsDao {
 			while (metric.hasNext()) {
 				JsonNode metricNode = metric.next();
 
-				List<Integer> removableNodes =new ArrayList<>();
+				List<Integer> removableNodes = new ArrayList<>();
 				if (metricNode.isArray()) {
 
-					int i=0;
-					//	ArrayNode arrayNode=(ArrayNode)metricNode;
+					int i = 0;
+					// ArrayNode arrayNode=(ArrayNode)metricNode;
 
 					for (JsonNode jsonNode : metricNode) {
-						boolean isDelete=true;
+						boolean isDelete = true;
 						if (jsonNode.get("name").asText().startsWith("sum")) {
 							// jsonNode.elements().remove();
-							isDelete=false;
+							isDelete = false;
 							System.out.println("ArrayNode :::::" + i);
 							removableNodes.add(i);
 
 							((ObjectNode) jsonNode).removeAll();
 						} else if (isDelete && jsonNode.get("name").asText().equals("avg(total_response_time)")) {
 							((ObjectNode) jsonNode).put("displayName", "Average Response Time");
-						} else if (isDelete && jsonNode.get("name").asText().equals("avg(response_processing_latency)")) {
+						} else if (isDelete
+								&& jsonNode.get("name").asText().equals("avg(response_processing_latency)")) {
 							((ObjectNode) jsonNode).put("displayName", "Average Response Processing Latency");
 						} else if (isDelete && jsonNode.get("name").asText().equals("avg(target_response_time)")) {
 							((ObjectNode) jsonNode).put("displayName", "Average Target Response Time");
-						} else if (isDelete && jsonNode.get("name").asText().equals("avg(request_processing_latency)")) {
+						} else if (isDelete
+								&& jsonNode.get("name").asText().equals("avg(request_processing_latency)")) {
 							((ObjectNode) jsonNode).put("displayName", "Average Request Processing Latency");
-						} else if (isDelete && jsonNode.get("name").asText().equals("global-avg-target_response_time")) {
+						} else if (isDelete
+								&& jsonNode.get("name").asText().equals("global-avg-target_response_time")) {
 							((ObjectNode) jsonNode).put("displayName", "Global Average Target Response Time");
 						} else if (isDelete && jsonNode.get("name").asText().equals("global-avg-total_response_time")) {
 							((ObjectNode) jsonNode).put("displayName", "Global Average Total Response Time");
-						} else if (isDelete && jsonNode.get("name").asText().equals("global-avg-request_processing_latency")) {
+						} else if (isDelete
+								&& jsonNode.get("name").asText().equals("global-avg-request_processing_latency")) {
 							((ObjectNode) jsonNode).put("displayName", "Global Average Request Processing Latency");
 						}
-
 
 						i++;
 					}
 
-					Collections.sort(removableNodes,Collections.reverseOrder());
+					Collections.sort(removableNodes, Collections.reverseOrder());
 
-					for(int postion : removableNodes){
-						System.out.println("Position####"+postion );
-						((ArrayNode)(metricNode)).remove(postion);
+					for (int postion : removableNodes) {
+						System.out.println("Position####" + postion);
+						((ArrayNode) (metricNode)).remove(postion);
 					}
-
-
 				}
-
 			}
 		}
 
 		return averageResponseNode;
-
 	}
 
 	public Object averageResponseTimeAtProxy(PerformanceMetrics performanceMetrics, String jsessionid,
@@ -298,39 +285,29 @@ public class AnalyticsDao {
 		}
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
 
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
 
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 					+ "/stats/apiproxy?select=avg(total_response_time),avg(target_response_time),avg(request_processing_latency),avg(response_processing_latency)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit();
+					+ "&timeRange=" + cfg.getTimeRange() + "&timeUnit=" + cfg.getTimeUnit();
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 					+ "/stats/apiproxy?select=avg(total_response_time),avg(target_response_time),avg(request_processing_latency),avg(response_processing_latency)"
-					+ "&timeRange="
-					+ cfg.getTimeRange();
+					+ "&timeRange=" + cfg.getTimeRange();
 		}
 
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
@@ -367,13 +344,12 @@ public class AnalyticsDao {
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
 	}
+
 	public Object evaluateTrafficAtProxy(PerformanceMetrics performanceMetrics, String jsessionid, String interactionid)
 			throws ItorixException, JsonProcessingException, IOException {
 		CommonConfiguration cfg = new CommonConfiguration();
@@ -384,24 +360,19 @@ public class AnalyticsDao {
 		}
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix="v1/organizations/"
-				+ cfg.getOrganization()
-				+ "/environments/"
-				+cfg.getEnvironment()
-				+ "/stats/apiproxy?select=sum(message_count),tps,sum(is_error)"
-				+ "&timeRange="
-				+ cfg.getTimeRange();
+		String suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+				+ "/stats/apiproxy?select=sum(message_count),tps,sum(is_error)" + "&timeRange=" + cfg.getTimeRange();
 
-		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg,suffix);
+		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode averageResponseNodeAtProxy = mapper.readTree(apiAverageResponseTime);
@@ -433,19 +404,16 @@ public class AnalyticsDao {
 
 							} else if (metricElement.get("name").asText().equals("sum(is_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Traffic Errors");
-
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
 	}
+
 	public Object evaluateTrafficByTarget(PerformanceMetrics performanceMetrics, String jsessionid,
 			String interactionid) throws ItorixException, JsonProcessingException, IOException {
 		CommonConfiguration cfg = new CommonConfiguration();
@@ -456,37 +424,26 @@ public class AnalyticsDao {
 		}
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/target?select=sum(message_count),sum(is_error)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit();
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/target?select=sum(message_count),sum(is_error)" + "&timeRange=" + cfg.getTimeRange()
+					+ "&timeUnit=" + cfg.getTimeUnit();
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/target?select=sum(message_count),sum(is_error)"
-					+ "&timeRange="
-					+ cfg.getTimeRange();
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/target?select=sum(message_count),sum(is_error)" + "&timeRange=" + cfg.getTimeRange();
 		}
 
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
@@ -521,19 +478,16 @@ public class AnalyticsDao {
 
 							} else if (metricElement.get("name").asText().equals("sum(is_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Traffic Errors");
-
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
 	}
+
 	public Object evaluateTargetErrorComposition(PerformanceMetrics performanceMetrics, String jsessionid,
 			String interactionid) throws ItorixException, JsonProcessingException, IOException {
 		CommonConfiguration cfg = new CommonConfiguration();
@@ -544,40 +498,29 @@ public class AnalyticsDao {
 		}
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/target_response_code?select=sum(message_count)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit()
-					+"&filter=(target_response_code ge 400 and target_response_code le 599)";
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/target_response_code?select=sum(message_count)" + "&timeRange=" + cfg.getTimeRange()
+					+ "&timeUnit=" + cfg.getTimeUnit()
+					+ "&filter=(target_response_code ge 400 and target_response_code le 599)";
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/target_response_code?select=sum(message_count)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+"&filter=(target_response_code ge 400 and target_response_code le 599)";
-		}	
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/target_response_code?select=sum(message_count)" + "&timeRange=" + cfg.getTimeRange()
+					+ "&filter=(target_response_code ge 400 and target_response_code le 599)";
+		}
 
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
 
@@ -611,19 +554,16 @@ public class AnalyticsDao {
 
 							} else if (metricElement.get("name").asText().equals("sum(is_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Traffic Errors");
-
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
 	}
+
 	public Object evaluateResponseTimeComposition(PerformanceMetrics performanceMetrics, String jsessionid,
 			String interactionid) throws ItorixException, JsonProcessingException, IOException {
 		CommonConfiguration cfg = new CommonConfiguration();
@@ -634,37 +574,26 @@ public class AnalyticsDao {
 		}
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/target?select=avg(target_response_time)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit();
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/target?select=avg(target_response_time)" + "&timeRange=" + cfg.getTimeRange()
+					+ "&timeUnit=" + cfg.getTimeUnit();
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/target?select=avg(target_response_time)"
-					+ "&timeRange="
-					+ cfg.getTimeRange();
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/target?select=avg(target_response_time)" + "&timeRange=" + cfg.getTimeRange();
 		}
 
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
@@ -696,17 +625,15 @@ public class AnalyticsDao {
 							} else if (metricElement.get("name").asText().equals("global-avg-target_response_time")) {
 								((ObjectNode) metricElement).put("displayName", "Global Average Target Response Time");
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
 	}
+
 	public Object evaluateTargetRequestPayLoadSize(PerformanceMetrics performanceMetrics, String jsessionid,
 			String interactionid) throws ItorixException, JsonProcessingException, IOException {
 		CommonConfiguration cfg = new CommonConfiguration();
@@ -717,37 +644,26 @@ public class AnalyticsDao {
 		}
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/target?select=avg(request_size)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/target?select=avg(request_size)" + "&timeRange=" + cfg.getTimeRange() + "&timeUnit="
 					+ cfg.getTimeUnit();
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/target?select=avg(request_size)"
-					+ "&timeRange="
-					+ cfg.getTimeRange();
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/target?select=avg(request_size)" + "&timeRange=" + cfg.getTimeRange();
 		}
 
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
@@ -779,13 +695,10 @@ public class AnalyticsDao {
 							} else if (metricElement.get("name").asText().equals("global-avg-request_size")) {
 								((ObjectNode) metricElement).put("displayName", "Global Average Payload Size");
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
@@ -801,22 +714,19 @@ public class AnalyticsDao {
 		}
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 					+ "/stats/apiproxy?_optimized=js&limit=14400&select=percentile(total_response_time,50),percentile(total_response_time,95),percentile(total_response_time,99)"
 					+ ",percentile(target_response_time,50),percentile(target_response_time,95),percentile(target_response_time,99),percentile(response_processing_latency,50)"
 					+ ",percentile(response_processing_latency,95),percentile(response_processing_latency,99),percentile(request_processing_latency,50),percentile(request_processing_latency,95),"
@@ -824,17 +734,11 @@ public class AnalyticsDao {
 					+ "percentile(target_response_time,50),percentile(target_response_time,95),percentile(target_response_time,99),percentile(response_processing_latency,50)"
 					+ ",percentile(response_processing_latency,95),percentile(response_processing_latency,99)"
 					+ ",percentile(request_processing_latency,50),percentile(request_processing_latency,95),percentile(request_processing_latency,99)&t=agg_percentile"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit();
+					+ "&timeRange=" + cfg.getTimeRange() + "&timeUnit=" + cfg.getTimeUnit();
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 					+ "/stats/apiproxy?_optimized=js&limit=14400&select=percentile(total_response_time,50),percentile(total_response_time,95),percentile(total_response_time,99)"
 					+ ",percentile(target_response_time,50),percentile(target_response_time,95),percentile(target_response_time,99),percentile(response_processing_latency,50)"
 					+ ",percentile(response_processing_latency,95),percentile(response_processing_latency,99),percentile(request_processing_latency,50),percentile(request_processing_latency,95),"
@@ -842,12 +746,10 @@ public class AnalyticsDao {
 					+ "percentile(target_response_time,50),percentile(target_response_time,95),percentile(target_response_time,99),percentile(response_processing_latency,50)"
 					+ ",percentile(response_processing_latency,95),percentile(response_processing_latency,99)"
 					+ ",percentile(request_processing_latency,50),percentile(request_processing_latency,95),percentile(request_processing_latency,99)&t=agg_percentile"
-					+ "&timeRange="
-					+ cfg.getTimeRange();
+					+ "&timeRange=" + cfg.getTimeRange();
+		}
 
-		}	
-
-		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg,suffix);
+		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
 
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode averageResponseNodeAtProxy = mapper.readTree(apiAverageResponseTime);
@@ -857,6 +759,7 @@ public class AnalyticsDao {
 
 		return averageResponseNodeAtProxy;
 	}
+
 	public Object totalTrafficVsProxyErrorVsTargetError(PerformanceMetrics performanceMetrics, String jsessionid,
 			String interactionid) throws ItorixException, JsonProcessingException, IOException {
 		CommonConfiguration cfg = new CommonConfiguration();
@@ -867,35 +770,25 @@ public class AnalyticsDao {
 		}
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/?select=sum(message_count),sum(is_error),sum(target_error)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit();
-		}else{
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/?select=sum(message_count),sum(is_error),sum(target_error)" + "&timeRange="
+					+ cfg.getTimeRange() + "&timeUnit=" + cfg.getTimeUnit();
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/?select=sum(message_count),sum(is_error),sum(target_error)"
-					+ "&timeRange="
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/?select=sum(message_count),sum(is_error),sum(target_error)" + "&timeRange="
 					+ cfg.getTimeRange();
 		}
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
@@ -907,10 +800,6 @@ public class AnalyticsDao {
 		JsonNode enviromentsNode = averageResponseNodeAtProxy.path("environments");
 
 		Iterator<JsonNode> elements = enviromentsNode.elements();
-
-
-
-
 
 		while (elements.hasNext()) {
 			JsonNode metricList = elements.next();
@@ -930,16 +819,11 @@ public class AnalyticsDao {
 
 						} else if (jsonNode.get("name").asText().equals("sum(is_error)")) {
 							((ObjectNode) jsonNode).put("displayName", "Traffic Errors");
-
 						}
-
 					}
 				}
-
 			}
 		}
-
-
 
 		return averageResponseNodeAtProxy;
 	}
@@ -955,43 +839,33 @@ public class AnalyticsDao {
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
 
-//		Apigee apigee = identityManagementDao.getApigeeCredential(cfg.getJsessionId());
-//		if (apigee == null) {
-//			throw new ItorixException(ErrorCodes.errorMessage.get("Apigee-1007"), "Apigee-1007");
-//		}
-		if(performanceMetrics.getType() !=null){
+		// Apigee apigee =
+		// identityManagementDao.getApigeeCredential(cfg.getJsessionId());
+		// if (apigee == null) {
+		// throw new ItorixException(ErrorCodes.errorMessage.get("Apigee-1007"),
+		// "Apigee-1007");
+		// }
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/response_status_code?select=sum(message_count)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit()
-					+"&filter=(response_status_code gt 399)";
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/response_status_code?select=sum(message_count)" + "&timeRange=" + cfg.getTimeRange()
+					+ "&timeUnit=" + cfg.getTimeUnit() + "&filter=(response_status_code gt 399)";
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/response_status_code?select=sum(message_count)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+"&filter=(response_status_code gt 399)";
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/response_status_code?select=sum(message_count)" + "&timeRange=" + cfg.getTimeRange()
+					+ "&filter=(response_status_code gt 399)";
 		}
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
 
@@ -1025,19 +899,16 @@ public class AnalyticsDao {
 
 							} else if (metricElement.get("name").asText().equals("sum(is_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Traffic Errors");
-
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
 	}
+
 	public Object TargetErrorVsResponseCode(PerformanceMetrics performanceMetrics, String jsessionid,
 			String interactionid) throws ItorixException, JsonProcessingException, IOException {
 		CommonConfiguration cfg = new CommonConfiguration();
@@ -1047,41 +918,29 @@ public class AnalyticsDao {
 			cfg.setTimeRange(performanceMetrics.getTimeRange().replaceAll("%20", " "));
 		}
 
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/target_response_code?select=sum(message_count)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit()
-					+"&filter=(target_response_code gt 399)";
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/target_response_code?select=sum(message_count)" + "&timeRange=" + cfg.getTimeRange()
+					+ "&timeUnit=" + cfg.getTimeUnit() + "&filter=(target_response_code gt 399)";
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/target_response_code?select=sum(message_count)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+"&filter=(target_response_code gt 399)";
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/target_response_code?select=sum(message_count)" + "&timeRange=" + cfg.getTimeRange()
+					+ "&filter=(target_response_code gt 399)";
 		}
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
 
@@ -1110,24 +969,21 @@ public class AnalyticsDao {
 							if (metricElement.get("name").asText().equals("sum(message_count)")) {
 								((ObjectNode) metricElement).put("displayName", "Total Traffic");
 
-							}  else if (metricElement.get("name").asText().equals("sum(target_error)")) {
+							} else if (metricElement.get("name").asText().equals("sum(target_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Sum of Target Errors");
 
 							} else if (metricElement.get("name").asText().equals("sum(is_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Traffic Errors");
-
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
 	}
+
 	public Object evaluateErrorVsProxyName(PerformanceMetrics performanceMetrics, String jsessionid,
 			String interactionid) throws ItorixException, JsonProcessingException, IOException {
 		CommonConfiguration cfg = new CommonConfiguration();
@@ -1139,38 +995,27 @@ public class AnalyticsDao {
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
 
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/apiproxy?select=sum(message_count),sum(is_error),sum(target_error)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit();
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/apiproxy?select=sum(message_count),sum(is_error),sum(target_error)" + "&timeRange="
+					+ cfg.getTimeRange() + "&timeUnit=" + cfg.getTimeUnit();
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/apiproxy?select=sum(message_count),sum(is_error),sum(target_error)"
-					+ "&timeRange="
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/apiproxy?select=sum(message_count),sum(is_error),sum(target_error)" + "&timeRange="
 					+ cfg.getTimeRange();
-
 		}
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
 
@@ -1199,24 +1044,21 @@ public class AnalyticsDao {
 							if (metricElement.get("name").asText().equals("sum(message_count)")) {
 								((ObjectNode) metricElement).put("displayName", "Total Traffic");
 
-							}  else if (metricElement.get("name").asText().equals("sum(target_error)")) {
+							} else if (metricElement.get("name").asText().equals("sum(target_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Sum of Target Errors");
 
 							} else if (metricElement.get("name").asText().equals("sum(is_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Traffic Errors");
-
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
 	}
+
 	public Object evaluateErrorVsTargetName(PerformanceMetrics performanceMetrics, String jsessionid,
 			String interactionid) throws ItorixException, JsonProcessingException, IOException {
 		CommonConfiguration cfg = new CommonConfiguration();
@@ -1227,44 +1069,32 @@ public class AnalyticsDao {
 		}
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
 
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/target?select=sum(message_count),sum(target_error)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit();
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/target?select=sum(message_count),sum(target_error)" + "&timeRange=" + cfg.getTimeRange()
+					+ "&timeUnit=" + cfg.getTimeUnit();
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/target?select=sum(message_count),sum(target_error)"
-					+ "&timeRange="
-					+ cfg.getTimeRange();
-
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/target?select=sum(message_count),sum(target_error)" + "&timeRange=" + cfg.getTimeRange();
 		}
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
 
@@ -1293,24 +1123,21 @@ public class AnalyticsDao {
 							if (metricElement.get("name").asText().equals("sum(message_count)")) {
 								((ObjectNode) metricElement).put("displayName", "Total Traffic");
 
-							}  else if (metricElement.get("name").asText().equals("sum(target_error)")) {
+							} else if (metricElement.get("name").asText().equals("sum(target_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Sum of Target Errors");
 
 							} else if (metricElement.get("name").asText().equals("sum(is_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Traffic Errors");
-
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
 	}
+
 	public Object evaluateTrafficCountVsErrorCodes(PerformanceMetrics performanceMetrics, String jsessionid,
 			String interactionid) throws ItorixException, JsonProcessingException, IOException {
 		CommonConfiguration cfg = new CommonConfiguration();
@@ -1321,43 +1148,32 @@ public class AnalyticsDao {
 		}
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/developer_email?select=sum(message_count),sum(is_error)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit();
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/developer_email?select=sum(message_count),sum(is_error)" + "&timeRange="
+					+ cfg.getTimeRange() + "&timeUnit=" + cfg.getTimeUnit();
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/developer_email?select=sum(message_count),sum(is_error)"
-					+ "&timeRange="
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/developer_email?select=sum(message_count),sum(is_error)" + "&timeRange="
 					+ cfg.getTimeRange();
-
 		}
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
 
@@ -1386,20 +1202,16 @@ public class AnalyticsDao {
 							if (metricElement.get("name").asText().equals("sum(message_count)")) {
 								((ObjectNode) metricElement).put("displayName", "Total Traffic");
 
-							}  else if (metricElement.get("name").asText().equals("sum(target_error)")) {
+							} else if (metricElement.get("name").asText().equals("sum(target_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Sum of Target Errors");
 
 							} else if (metricElement.get("name").asText().equals("sum(is_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Sum of Proxy Errors");
-
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
@@ -1416,38 +1228,27 @@ public class AnalyticsDao {
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
 
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/developer_email?select=avg(total_response_time),avg(request_size)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit();
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/developer_email?select=avg(total_response_time),avg(request_size)" + "&timeRange="
+					+ cfg.getTimeRange() + "&timeUnit=" + cfg.getTimeUnit();
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/developer_email?select=avg(total_response_time),avg(request_size)"
-					+ "&timeRange="
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/developer_email?select=avg(total_response_time),avg(request_size)" + "&timeRange="
 					+ cfg.getTimeRange();
-
 		}
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
 
@@ -1476,7 +1277,7 @@ public class AnalyticsDao {
 							if (metricElement.get("name").asText().equals("avg(request_size)")) {
 								((ObjectNode) metricElement).put("displayName", "Average Request Size");
 
-							}  else if (metricElement.get("name").asText().equals("avg(total_response_time)")) {
+							} else if (metricElement.get("name").asText().equals("avg(total_response_time)")) {
 								((ObjectNode) metricElement).put("displayName", "Average Total Response Time");
 
 							} else if (metricElement.get("name").asText().equals("global-avg-request_size")) {
@@ -1484,19 +1285,16 @@ public class AnalyticsDao {
 
 							} else if (metricElement.get("name").asText().equals("global-avg-total_response_time")) {
 								((ObjectNode) metricElement).put("displayName", "Global Average Total Response Time");
-
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
 	}
+
 	public Object evalTotalTrafficSucessVsErrorCountByApp(PerformanceMetrics performanceMetrics, String jsessionid,
 			String interactionid) throws ItorixException, JsonProcessingException, IOException {
 		CommonConfiguration cfg = new CommonConfiguration();
@@ -1508,34 +1306,24 @@ public class AnalyticsDao {
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
 
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/developer_app?select=sum(message_count),sum(is_error)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit();
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/developer_app?select=sum(message_count),sum(is_error)" + "&timeRange="
+					+ cfg.getTimeRange() + "&timeUnit=" + cfg.getTimeUnit();
 
-		}else{
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/developer_app?select=sum(message_count),sum(is_error)"
-					+ "&timeRange="
+		} else {
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/developer_app?select=sum(message_count),sum(is_error)" + "&timeRange="
 					+ cfg.getTimeRange();
 		}
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
@@ -1565,24 +1353,21 @@ public class AnalyticsDao {
 							if (metricElement.get("name").asText().equals("sum(message_count)")) {
 								((ObjectNode) metricElement).put("displayName", "Total Traffic");
 
-							}  else if (metricElement.get("name").asText().equals("sum(target_error)")) {
+							} else if (metricElement.get("name").asText().equals("sum(target_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Sum of Target Errors");
 
 							} else if (metricElement.get("name").asText().equals("sum(is_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Sum of Proxy Errors");
-
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
 	}
+
 	public Object evalAvgTotalResponseTimeVsAvgRequestSizeByApp(PerformanceMetrics performanceMetrics,
 			String jsessionid, String interactionid) throws ItorixException, JsonProcessingException, IOException {
 		CommonConfiguration cfg = new CommonConfiguration();
@@ -1594,35 +1379,25 @@ public class AnalyticsDao {
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
 
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
 
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/developer_app?select=avg(total_response_time),avg(request_size)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit();
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/developer_app?select=avg(total_response_time),avg(request_size)" + "&timeRange="
+					+ cfg.getTimeRange() + "&timeUnit=" + cfg.getTimeUnit();
 
-		}else{
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/developer_app?select=avg(total_response_time),avg(request_size)"
-					+ "&timeRange="
+		} else {
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/developer_app?select=avg(total_response_time),avg(request_size)" + "&timeRange="
 					+ cfg.getTimeRange();
 		}
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
@@ -1652,27 +1427,24 @@ public class AnalyticsDao {
 							if (metricElement.get("name").asText().equals("avg(request_size)")) {
 								((ObjectNode) metricElement).put("displayName", "Average Request Size");
 
-							}  else if (metricElement.get("name").asText().equals("avg(total_response_time)")) {
+							} else if (metricElement.get("name").asText().equals("avg(total_response_time)")) {
 								((ObjectNode) metricElement).put("displayName", "Average Total Response Time");
 
 							} else if (metricElement.get("name").asText().equals("global-avg-request_size")) {
 								((ObjectNode) metricElement).put("displayName", "Global Average Request Size");
 
-							}else if (metricElement.get("name").asText().equals("global-avg-total_response_time")) {
+							} else if (metricElement.get("name").asText().equals("global-avg-total_response_time")) {
 								((ObjectNode) metricElement).put("displayName", "Global Average Total Response Time");
-
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
 	}
+
 	public Object evalTotalSucessVsErrorAtProxyLevel(PerformanceMetrics performanceMetrics, String jsessionid,
 			String interactionid) throws ItorixException, JsonProcessingException, IOException {
 		CommonConfiguration cfg = new CommonConfiguration();
@@ -1684,40 +1456,28 @@ public class AnalyticsDao {
 		}
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
 
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/apiproxy?select=sum(message_count),sum(is_error)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit()
-					+"&filter=(developer_app eq '"+cfg.getAppName()+ "')";
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/apiproxy?select=sum(message_count),sum(is_error)" + "&timeRange=" + cfg.getTimeRange()
+					+ "&timeUnit=" + cfg.getTimeUnit() + "&filter=(developer_app eq '" + cfg.getAppName() + "')";
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/apiproxy?select=sum(message_count),sum(is_error)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+"&filter=(developer_app eq '"+cfg.getAppName()+ "')";
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/apiproxy?select=sum(message_count),sum(is_error)" + "&timeRange=" + cfg.getTimeRange()
+					+ "&filter=(developer_app eq '" + cfg.getAppName() + "')";
 		}
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
 
@@ -1746,20 +1506,16 @@ public class AnalyticsDao {
 							if (metricElement.get("name").asText().equals("sum(message_count)")) {
 								((ObjectNode) metricElement).put("displayName", "Total Traffic");
 
-							}  else if (metricElement.get("name").asText().equals("sum(target_error)")) {
+							} else if (metricElement.get("name").asText().equals("sum(target_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Sum of Target Errors");
 
 							} else if (metricElement.get("name").asText().equals("sum(is_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Sum of Proxy Errors");
-
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
@@ -1776,37 +1532,26 @@ public class AnalyticsDao {
 		}
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/api_product?select=sum(message_count),sum(is_error)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit();
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/api_product?select=sum(message_count),sum(is_error)" + "&timeRange=" + cfg.getTimeRange()
+					+ "&timeUnit=" + cfg.getTimeUnit();
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/api_product?select=sum(message_count),sum(is_error)"
-					+ "&timeRange="
-					+ cfg.getTimeRange();
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/api_product?select=sum(message_count),sum(is_error)" + "&timeRange=" + cfg.getTimeRange();
 		}
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
 
@@ -1835,24 +1580,21 @@ public class AnalyticsDao {
 							if (metricElement.get("name").asText().equals("sum(message_count)")) {
 								((ObjectNode) metricElement).put("displayName", "Total Traffic");
 
-							}  else if (metricElement.get("name").asText().equals("sum(target_error)")) {
+							} else if (metricElement.get("name").asText().equals("sum(target_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Sum of Target Errors");
 
 							} else if (metricElement.get("name").asText().equals("sum(is_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Sum of Proxy Errors");
-
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
 	}
+
 	public Object evalTotalSucessVsErrorAtProductVsApp(PerformanceMetrics performanceMetrics, String jsessionid,
 			String interactionid) throws ItorixException, JsonProcessingException, IOException {
 		CommonConfiguration cfg = new CommonConfiguration();
@@ -1866,40 +1608,28 @@ public class AnalyticsDao {
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
 
-
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/developer_app?select=sum(message_count),sum(is_error)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit()
-					+"&filter=(api_product eq '"+cfg.getApiProductName()+ "')";
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/developer_app?select=sum(message_count),sum(is_error)" + "&timeRange="
+					+ cfg.getTimeRange() + "&timeUnit=" + cfg.getTimeUnit() + "&filter=(api_product eq '"
+					+ cfg.getApiProductName() + "')";
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/developer_app?select=sum(message_count),sum(is_error)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+"&filter=(api_product eq '"+cfg.getApiProductName()+ "')";
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/developer_app?select=sum(message_count),sum(is_error)" + "&timeRange="
+					+ cfg.getTimeRange() + "&filter=(api_product eq '" + cfg.getApiProductName() + "')";
 		}
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
 
@@ -1928,24 +1658,21 @@ public class AnalyticsDao {
 							if (metricElement.get("name").asText().equals("sum(message_count)")) {
 								((ObjectNode) metricElement).put("displayName", "Total Traffic");
 
-							}  else if (metricElement.get("name").asText().equals("sum(target_error)")) {
+							} else if (metricElement.get("name").asText().equals("sum(target_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Sum of Target Errors");
 
 							} else if (metricElement.get("name").asText().equals("sum(is_error)")) {
 								((ObjectNode) metricElement).put("displayName", "Sum of Proxy Errors");
-
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
 	}
+
 	public Object evalAvgTotalResponseTimeVsAvgRequestSizeByProduct(PerformanceMetrics performanceMetrics,
 			String jsessionid, String interactionid) throws ItorixException, JsonProcessingException, IOException {
 		CommonConfiguration cfg = new CommonConfiguration();
@@ -1956,36 +1683,26 @@ public class AnalyticsDao {
 		}
 		cfg.setTimeUnit(performanceMetrics.getTimeUnit());
 		cfg.setJsessionId(jsessionid);
-		if(performanceMetrics.getType() !=null){
+		if (performanceMetrics.getType() != null) {
 			cfg.setType(performanceMetrics.getType());
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String suffix=null;	
-		if(cfg.getTimeUnit()!=null && StringUtils.isNotBlank(cfg.getTimeUnit())){
+		String suffix = null;
+		if (cfg.getTimeUnit() != null && StringUtils.isNotBlank(cfg.getTimeUnit())) {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/api_product?select=avg(total_response_time),avg(request_size)"
-					+ "&timeRange="
-					+ cfg.getTimeRange()
-					+ "&timeUnit="
-					+ cfg.getTimeUnit();
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/api_product?select=avg(total_response_time),avg(request_size)" + "&timeRange="
+					+ cfg.getTimeRange() + "&timeUnit=" + cfg.getTimeUnit();
 
-		}else{
+		} else {
 
-			suffix="v1/organizations/"
-					+ cfg.getOrganization()
-					+ "/environments/"
-					+cfg.getEnvironment()
-					+ "/stats/api_product?select=avg(total_response_time),avg(request_size)"
-					+ "&timeRange="
+			suffix = "v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/stats/api_product?select=avg(total_response_time),avg(request_size)" + "&timeRange="
 					+ cfg.getTimeRange();
 		}
 		String apiAverageResponseTime = apigeeUtil.getMetricsData(cfg, suffix);
@@ -2015,37 +1732,34 @@ public class AnalyticsDao {
 							if (metricElement.get("name").asText().equals("avg(request_size)")) {
 								((ObjectNode) metricElement).put("displayName", "Average Request Size");
 
-							}  else if (metricElement.get("name").asText().equals("avg(total_response_time)")) {
+							} else if (metricElement.get("name").asText().equals("avg(total_response_time)")) {
 								((ObjectNode) metricElement).put("displayName", "Average Total Response Time");
 
 							} else if (metricElement.get("name").asText().equals("global-avg-request_size")) {
 								((ObjectNode) metricElement).put("displayName", "Global Average Request Size");
 
-							}else if (metricElement.get("name").asText().equals("global-avg-total_response_time")) {
+							} else if (metricElement.get("name").asText().equals("global-avg-total_response_time")) {
 								((ObjectNode) metricElement).put("displayName", "Global Average Total Response Time");
-
 							}
-
 						}
 					}
 				}
-
 			}
-
 		}
 
 		return averageResponseNodeAtProxy;
 	}
 
-	public Object getOverview(String organization, String environment, String interactionid, String type) throws ItorixException, InterruptedException, ExecutionException {
+	public Object getOverview(String organization, String environment, String interactionid, String type)
+			throws ItorixException, InterruptedException, ExecutionException {
 
 		DashBoardSetUp dbDashBoardSetUp = findDashBoardSetUpDetails();
 		CommonConfiguration cfg = new CommonConfiguration();
 		cfg.setOrganization(organization);
 		cfg.setEnvironment(environment);
-		if(type !=null){
+		if (type != null) {
 			cfg.setType(type);
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
 
@@ -2056,11 +1770,11 @@ public class AnalyticsDao {
 		cfg.setTimeRangestartDate(df.format(dateBefore31Days));
 		cfg.setTimeRangeendDate(df.format(todayDate));
 
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(organization, type);
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(organization, type);
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		DashBoardOverview dbOverViewResponse = findOverViewResponse(organization, environment,type);
+		DashBoardOverview dbOverViewResponse = findOverViewResponse(organization, environment, type);
 
 		if (dbOverViewResponse == null) {
 			Map<String, ApigeeResponse> responseList = apigeeUtil.getOverview(cfg);
@@ -2075,7 +1789,6 @@ public class AnalyticsDao {
 		} else {
 			return dbOverViewResponse.getOverviewResponse();
 		}
-
 	}
 
 	public DashBoardSetUp findDashBoardSetUpDetails() {
@@ -2084,6 +1797,7 @@ public class AnalyticsDao {
 		DashBoardSetUp dashBoardSetUp = mongoTemplate.findOne(query, DashBoardSetUp.class);
 		return dashBoardSetUp;
 	}
+
 	public DashBoardOverview findOverViewResponse(String org, String env, String type) {
 		Query query = new Query(
 				new Criteria().andOperator(Criteria.where(DashBoardOverview.LABEL_DASH_BOARD_ORGANISATION).is(org),
@@ -2092,7 +1806,9 @@ public class AnalyticsDao {
 		DashBoardOverview dashBoardDBOverview = mongoTemplate.findOne(query, DashBoardOverview.class);
 		return dashBoardDBOverview;
 	}
-	public JSONObject postprocess(Map<String, ApigeeResponse> responseList, CommonConfiguration cfg) throws ItorixException {
+
+	public JSONObject postprocess(Map<String, ApigeeResponse> responseList, CommonConfiguration cfg)
+			throws ItorixException {
 		List returnList = new ArrayList();
 		JSONObject levelList = new JSONObject();
 		JSONObject levelsList = new JSONObject();
@@ -2147,9 +1863,8 @@ public class AnalyticsDao {
 						}
 
 						valuesArrayList.add(valuenew);
-
 					}
-					valuesnew = valuesArrayList.toArray(new Values[] {});
+					valuesnew = valuesArrayList.toArray(new Values[]{});
 				} else if (apigeeEnvironments.getDimensions() != null) {
 					level.setLevelname(apigeeresponse.getKey());
 					ArrayList<Values> valuesArrayList = new ArrayList<Values>();
@@ -2160,8 +1875,10 @@ public class AnalyticsDao {
 							valuenew.setName(dimension.getName());
 							if (apigeeresponse.getKey().equalsIgnoreCase("topFiveDevelopers")
 									&& !dimension.getName().contains("not set")) {
-								DeveloperDetails developerDetails =(DeveloperDetails) apigeeUtil.getDeveloperName(dimension.getName(), cfg);
-								valuenew.setName(developerDetails.getFirstName()+" "+developerDetails.getLastName());
+								DeveloperDetails developerDetails = (DeveloperDetails) apigeeUtil
+										.getDeveloperName(dimension.getName(), cfg);
+								valuenew.setName(
+										developerDetails.getFirstName() + " " + developerDetails.getLastName());
 							}
 							if (deltaCalcuation.get(apigeeresponse.getKey()).equalsIgnoreCase("Y")) {
 								delta = (double) ((Double.parseDouble(metric.getValues()[0].replace(".0", "")) * 100)
@@ -2173,9 +1890,8 @@ public class AnalyticsDao {
 
 							valuesArrayList.add(valuenew);
 						}
-
 					}
-					valuesnew = valuesArrayList.toArray(new Values[] {});
+					valuesnew = valuesArrayList.toArray(new Values[]{});
 				}
 				level.setValues(valuesnew);
 				returnList.add(level);
@@ -2186,8 +1902,8 @@ public class AnalyticsDao {
 		levelsList.put("levels", levelList);
 
 		return levelsList;
-
 	}
+
 	private Level calculateSuccessRate(ApigeeResponse totalErrorRateapigeeResponse, double totalTrafficcount) {
 		Double delta;
 		double totalErrorRatecount = Double.parseDouble(
@@ -2208,7 +1924,8 @@ public class AnalyticsDao {
 		return sucesslevel;
 	}
 
-	public Object getTimeSeriesData(String org, String env, String interactionid, String type) throws ItorixException, InterruptedException, ExecutionException {
+	public Object getTimeSeriesData(String org, String env, String interactionid, String type)
+			throws ItorixException, InterruptedException, ExecutionException {
 
 		DashBoardSetUp dbDashBoardSetUp = findDashBoardSetUpDetails();
 
@@ -2216,9 +1933,9 @@ public class AnalyticsDao {
 		cfg.setOrganization(org);
 		cfg.setEnvironment(env);
 
-		if(type !=null){
+		if (type != null) {
 			cfg.setType(type);
-		}else{
+		} else {
 			cfg.setType("saas");
 		}
 		DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
@@ -2232,7 +1949,7 @@ public class AnalyticsDao {
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		DashBoardTimeSeries dbResponse = findTimeSeriesResponse(org, env,type);
+		DashBoardTimeSeries dbResponse = findTimeSeriesResponse(org, env, type);
 		if (dbResponse == null) {
 			JSONObject responseList = (JSONObject) apigeeUtil.getTimeSeriesData(cfg);
 			dashBoardTimeSeries.setEnvironment(env);
@@ -2243,9 +1960,9 @@ public class AnalyticsDao {
 			return responseList.get("environments");
 		} else {
 			return dbResponse.getTimeSeriesResponse();
-
 		}
 	}
+
 	public DashBoardTimeSeries findTimeSeriesResponse(String org, String env, String type) {
 		Query query = new Query(
 				new Criteria().andOperator(Criteria.where(DashBoardTimeSeries.LABEL_DASH_BOARD_ORGANISATION).is(org),
@@ -2254,12 +1971,13 @@ public class AnalyticsDao {
 		DashBoardTimeSeries dashBoardDBTimeSeries = mongoTemplate.findOne(query, DashBoardTimeSeries.class);
 		return dashBoardDBTimeSeries;
 	}
+
 	public Object dashBoardSet(Apigee apigee, String interactionid, String jsessionid) throws Exception {
 
 		Set<DashBoardOrganisations> organisations;
 		CommonConfiguration cfg = new CommonConfiguration();
 		DashBoardSetUp dashBoardSetUp = new DashBoardSetUp();
-		DashBoardEnvironments dashBoardEnvironments=new DashBoardEnvironments();	
+		DashBoardEnvironments dashBoardEnvironments = new DashBoardEnvironments();
 		dashBoardSetUp.setApigee(apigee);
 		dashBoardSetUp.setDashBoardSetUpDetails(DashBoardSetUp.DASH_BOARD_SETUP);
 
@@ -2267,11 +1985,11 @@ public class AnalyticsDao {
 		cfg.setApigeePassword(applicationProperties.getApigeeServicePassword());
 
 		mongoTemplate.dropCollection(DashBoardEnvironments.class);
-		if(apigee.getOrganizations()!=null){
-			organisations=apigee.getOrganizations();
+		if (apigee.getOrganizations() != null) {
+			organisations = apigee.getOrganizations();
 
 			for (DashBoardOrganisations org : organisations) {
-				ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(org.getName(), org.getType());
+				ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(org.getName(), org.getType());
 				cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 				cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 				cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
@@ -2286,6 +2004,7 @@ public class AnalyticsDao {
 		mongoTemplate.save(dashBoardSetUp);
 		return "";
 	}
+
 	public Object getDashBoardSetUpDetails(String interactionid, String jsessionid) {
 		JSONObject apigeeDetails = new JSONObject();
 		JSONObject apigeeResponse = new JSONObject();
@@ -2295,43 +2014,45 @@ public class AnalyticsDao {
 		apigeeDetails.put("organisations", dbDashBoardSetUp.getApigee().getOrganizations());
 		apigeeResponse.put("apigee", apigeeDetails);
 		return apigeeResponse;
-
 	}
-	public Object updateDashBoardDetails(Apigee apigee, String jsessionid, String interactionid) throws ItorixException {
+
+	public Object updateDashBoardDetails(Apigee apigee, String jsessionid, String interactionid)
+			throws ItorixException {
 
 		DashBoardSetUp dbDashBoardSetUp = findDashBoardSetUpDetails();
 		Set<DashBoardOrganisations> organisations;
-		Map<String,DashBoardEnvironments> orgAndEnv=new HashMap<String,DashBoardEnvironments>();
+		Map<String, DashBoardEnvironments> orgAndEnv = new HashMap<String, DashBoardEnvironments>();
 		CommonConfiguration cfg = new CommonConfiguration();
-		
+
 		cfg.setApigeeEmail(applicationProperties.getApigeeServiceUsername());
 		cfg.setApigeePassword(applicationProperties.getApigeeServicePassword());
 
-		dbDashBoardSetUp.setApigee(apigee); 
-		if(apigee.getOrganizations()!=null){
-			organisations=apigee.getOrganizations();
+		dbDashBoardSetUp.setApigee(apigee);
+		if (apigee.getOrganizations() != null) {
+			organisations = apigee.getOrganizations();
 
 			for (DashBoardOrganisations org : organisations) {
-				ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(org.getName(), org.getType());
+				ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(org.getName(), org.getType());
 				cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 				cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 				cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-				DashBoardEnvironments dashBoardEnvironments=new DashBoardEnvironments();
-				//List<String> envList = null;
+				DashBoardEnvironments dashBoardEnvironments = new DashBoardEnvironments();
+				// List<String> envList = null;
 				cfg.setOrganization(org.getName());
-				//envList = apigeeUtil.getEnvironmentNames(cfg);
+				// envList = apigeeUtil.getEnvironmentNames(cfg);
 				dashBoardEnvironments.setOrg(org.getName());
 				dashBoardEnvironments.setEnvironments(org.getEnvironments());
 				orgAndEnv.put(org.getName(), dashBoardEnvironments);
 			}
 		}
 		mongoTemplate.dropCollection(DashBoardEnvironments.class);
-		for (Map.Entry<String,DashBoardEnvironments > org : orgAndEnv.entrySet()) {
+		for (Map.Entry<String, DashBoardEnvironments> org : orgAndEnv.entrySet()) {
 			mongoTemplate.save(org.getValue());
 		}
 		mongoTemplate.save(dbDashBoardSetUp);
 		return "";
 	}
+
 	public Object getOrganisationsList(String interactionid, String jsessionid) throws ItorixException {
 
 		JSONObject organisationsList = new JSONObject();
@@ -2342,9 +2063,10 @@ public class AnalyticsDao {
 			throw new ItorixException(new Throwable().getMessage(), "PERFORMANCE_MONITORING_SETUP", new Throwable());
 		}
 		return organisationsList;
-
 	}
-	public Object getEnvironmentsForOrganisations(String org, String interactionid, String jsessionid) throws ItorixException {
+
+	public Object getEnvironmentsForOrganisations(String org, String interactionid, String jsessionid)
+			throws ItorixException {
 		JSONObject environmentsList = new JSONObject();
 		DashBoardEnvironments dbDashBoardEnvironments = findEnvironmentsList(org);
 		if (dbDashBoardEnvironments != null) {
@@ -2354,28 +2076,28 @@ public class AnalyticsDao {
 		}
 		return environmentsList;
 	}
-	
+
 	public DashBoardEnvironments findEnvironmentsList(String org) {
 		Query query = new Query((Criteria.where(DashBoardEnvironments.LABEL_DASH_BOARD_ENV_ORGANISATION).is(org)));
 		DashBoardEnvironments dashBoardDBOverview = mongoTemplate.findOne(query, DashBoardEnvironments.class);
 		return dashBoardDBOverview;
 	}
-	
+
 	public Object refreshEnvironments(String jsessionid, String interactionid) throws ItorixException {
 		DashBoardSetUp dbDashBoardSetUp = findDashBoardSetUpDetails();
-		Map<String,DashBoardEnvironments> orgAndEnv=new HashMap<String,DashBoardEnvironments>();	
+		Map<String, DashBoardEnvironments> orgAndEnv = new HashMap<String, DashBoardEnvironments>();
 		Set<DashBoardOrganisations> organisations;
 		CommonConfiguration cfg = new CommonConfiguration();
 		cfg.setApigeeEmail(applicationProperties.getApigeeServiceUsername());
 		cfg.setApigeePassword(applicationProperties.getApigeeServicePassword());
-		if(dbDashBoardSetUp.getApigee().getOrganizations()!=null){
-			organisations=dbDashBoardSetUp.getApigee().getOrganizations();
+		if (dbDashBoardSetUp.getApigee().getOrganizations() != null) {
+			organisations = dbDashBoardSetUp.getApigee().getOrganizations();
 			for (DashBoardOrganisations org : organisations) {
-				ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(org.getName(), org.getType());
+				ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(org.getName(), org.getType());
 				cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 				cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 				cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-				DashBoardEnvironments dashBoardEnvironments=new DashBoardEnvironments();
+				DashBoardEnvironments dashBoardEnvironments = new DashBoardEnvironments();
 				List<String> envList = null;
 				cfg.setOrganization(org.getName());
 				envList = apigeeUtil.getEnvironmentNames(cfg);
@@ -2384,7 +2106,7 @@ public class AnalyticsDao {
 				orgAndEnv.put(org.getName(), dashBoardEnvironments);
 			}
 			mongoTemplate.dropCollection(DashBoardEnvironments.class);
-			for (Map.Entry<String,DashBoardEnvironments > org : orgAndEnv.entrySet()) {
+			for (Map.Entry<String, DashBoardEnvironments> org : orgAndEnv.entrySet()) {
 				mongoTemplate.save(org.getValue());
 			}
 		}

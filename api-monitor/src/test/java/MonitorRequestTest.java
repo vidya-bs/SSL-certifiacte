@@ -8,18 +8,16 @@ import java.util.Arrays;
 
 public class MonitorRequestTest {
 
+	@Test
+	public void checkDeserialization() throws JsonProcessingException {
 
-    @Test
-    public void checkDeserialization() throws JsonProcessingException {
+		MonitorRequest request = new MonitorRequest();
+		request.setId("12345");
 
-        MonitorRequest request = new MonitorRequest();
-        request.setId("12345");
+		MonitorCollections collections = new MonitorCollections();
+		collections.setMonitorRequest(Arrays.asList(request));
 
-        MonitorCollections collections = new MonitorCollections();
-        collections.setMonitorRequest(Arrays.asList(request));
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        System.out.println(objectMapper.writeValueAsString(collections));
-
-    }
+		ObjectMapper objectMapper = new ObjectMapper();
+		System.out.println(objectMapper.writeValueAsString(collections));
+	}
 }

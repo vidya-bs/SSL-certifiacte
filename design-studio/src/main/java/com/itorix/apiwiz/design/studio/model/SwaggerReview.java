@@ -6,7 +6,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.itorix.apiwiz.identitymanagement.model.AbstractObject;
 
-
 @Document(collection = "Design.Swagger.Review")
 public class SwaggerReview extends AbstractObject {
 
@@ -73,5 +72,4 @@ public class SwaggerReview extends AbstractObject {
 	public void setUserEmailId(String userEmailId) {
 		this.userEmailId = userEmailId;
 	}
-
 }

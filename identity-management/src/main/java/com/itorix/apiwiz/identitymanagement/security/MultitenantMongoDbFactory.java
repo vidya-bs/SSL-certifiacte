@@ -11,7 +11,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
 
 public class MultitenantMongoDbFactory extends SimpleMongoDbFactory {
-	//private MongoClient mongoClient;
+	// private MongoClient mongoClient;
 
 	public MultitenantMongoDbFactory(MongoClient mongoClient, String databaseName) {
 		super(mongoClient, databaseName);
@@ -26,7 +26,7 @@ public class MultitenantMongoDbFactory extends SimpleMongoDbFactory {
 			}
 		}
 
-		if(StringUtils.hasText(TenantContext.getCurrentTenant())){
+		if (StringUtils.hasText(TenantContext.getCurrentTenant())) {
 			return getDb(TenantContext.getCurrentTenant());
 		}
 

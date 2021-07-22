@@ -11,16 +11,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public class NotificationDetails {
-	private String WorkspaceName;
-	private String Collectionname;
-	private String environmentName;
-	private String date;
-	private String schedulerId;
-	private long dailyLatency;
-	private int dailyUptime;
-	private long avgLatency;
-	private int avgUptime;
+    private String WorkspaceName;
+    private String Collectionname;
+    private String environmentName;
+    private String date;
+    private String schedulerId;
+    private long dailyLatency;
+    private int dailyUptime;
+    private long avgLatency;
+    private int avgUptime;
 
-	@JsonIgnore
-	private List<Notifications> notifications;
+    @JsonIgnore
+    private List<Notifications> notifications;
 }

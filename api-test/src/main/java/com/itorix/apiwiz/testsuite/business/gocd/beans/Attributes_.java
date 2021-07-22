@@ -12,34 +12,46 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "run_if", "on_cancel", "plugin_configuration", "configuration", "pipeline", "stage", "job",
-		"is_source_a_file", "source", "destination" })
+@JsonPropertyOrder({"run_if", "on_cancel", "plugin_configuration", "configuration", "pipeline", "stage", "job",
+		"is_source_a_file", "source", "destination"})
 public class Attributes_ {
 
 	@JsonProperty("run_if")
 	private List<String> runIf = null;
+
 	@JsonProperty("on_cancel")
 	private Object onCancel;
+
 	@JsonProperty("plugin_configuration")
 	private PluginConfiguration pluginConfiguration;
+
 	@JsonProperty("configuration")
 	private List<Configuration> configuration = null;
+
 	@JsonProperty("pipeline")
 	private String pipeline;
+
 	@JsonProperty("stage")
 	private String stage;
+
 	@JsonProperty("job")
 	private String job;
+
 	@JsonProperty("is_source_a_file")
 	private Boolean isSourceAFile;
+
 	@JsonProperty("source")
 	private String source;
+
 	@JsonProperty("destination")
 	private String destination;
+
 	@JsonProperty("command")
 	private String command;
+
 	@JsonProperty("arguments")
 	private String[] arguments;
+
 	@JsonProperty("workingDirectory")
 	private String workingDirectory;
 
@@ -227,5 +239,4 @@ public class Attributes_ {
 	public void setWorkingDirectory(String workingDirectory) {
 		this.workingDirectory = workingDirectory;
 	}
-
 }

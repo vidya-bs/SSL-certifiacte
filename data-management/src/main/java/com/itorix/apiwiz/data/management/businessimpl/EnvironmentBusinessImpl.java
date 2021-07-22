@@ -50,6 +50,7 @@ import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+
 @Service
 public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 	private static final Logger logger = LoggerFactory.getLogger(EnvironmentBusinessImpl.class);
@@ -71,17 +72,21 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 	/**
 	 * doEnvironmentBackUp
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	public BackupInfo doEnvironmentBackUp(CommonConfiguration cfg) throws Exception {
-		logger.debug("EnvironmentService.doEnvironmentBackUp : interactionid="+cfg.getInteractionid()+": jsessionid=" + cfg.getJsessionId()+" : organization ="+cfg.getOrganization());
+		logger.debug("EnvironmentService.doEnvironmentBackUp : interactionid=" + cfg.getInteractionid()
+				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization());
 		long start = System.currentTimeMillis();
 		BackupInfo backupInfo = null;
-		logger.debug("Inside the EnvironmentService.doEnvironmentBackUp("+cfg+")");
-		EnvironmentBackUpInfo environmentBackUpInfo=new EnvironmentBackUpInfo();
-		if(cfg.getBackUpLocation()==null || cfg.getBackUpLocation()==""){
+		logger.debug("Inside the EnvironmentService.doEnvironmentBackUp(" + cfg + ")");
+		EnvironmentBackUpInfo environmentBackUpInfo = new EnvironmentBackUpInfo();
+		if (cfg.getBackUpLocation() == null || cfg.getBackUpLocation() == "") {
 			cfg.setBackUpLocation(applicationProperties.getBackupDir() + start);
 		}
 		JSONObject apiProxyInfo = null;
@@ -89,28 +94,32 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 		JSONArray resourcesInfo = null;
 		JSONArray appsInfo = null;
 		String developersInfo = null;
-		org.json.JSONObject obj=null;
+		org.json.JSONObject obj = null;
 		if (null != cfg.getSelectedEnvironments()) {
 			environmentBackUpInfo.setOrganization(cfg.getOrganization());
 			environmentBackUpInfo.setStatus(Constants.STATUS_INPROGRESS);
 			environmentBackUpInfo.setOperationId(cfg.getOperationId());
 			environmentBackUpInfo = baseRepository.save(environmentBackUpInfo);
 			apiProxyInfo = apigeeEnvironmentBackUP(cfg);
-			resourcesInfo=backupResource(cfg);
+			resourcesInfo = backupResource(cfg);
 			productsInfo = backupAPIProductsOnEnvironments(cfg);
 			appsInfo = backupAppsOnProductBasis(cfg);
 			developersInfo = backupAppDevelopers(cfg);
-			ZipUtil.pack(new File(cfg.getBackUpLocation()+ "/" + cfg.getOrganization()), new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
+			ZipUtil.pack(new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization()),
+					new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
 			try {
-				obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip", applicationProperties.getDataRestoreBackup(), 
-						applicationProperties.getJfrogHost()+":"+applicationProperties.getJfrogPort()+"/artifactory/",
-						"restore-backup/" + cfg.getOrganization() + "/" +start+"", applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+				obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
+						applicationProperties.getDataRestoreBackup(),
+						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
+								+ "/artifactory/",
+						"restore-backup/" + cfg.getOrganization() + "/" + start + "",
+						applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw e;
 			}
 		}
-		FileUtils.cleanDirectory(new File(cfg.getBackUpLocation())); 
+		FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
 		FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
 		if (null != obj) {
 			long end = System.currentTimeMillis();
@@ -136,8 +145,10 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 	/**
 	 * getBaseBackupDirectory
+	 *
 	 * @param rollover
 	 * @param cfg
+	 * 
 	 * @return
 	 */
 	private File getBaseBackupDirectory(boolean rollover, CommonConfiguration cfg) {
@@ -154,19 +165,23 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 	/**
 	 * backupProxies
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	public BackupInfo backupProxies(CommonConfiguration cfg) throws Exception {
-		logger.debug("EnvironmentService.backupProxies : interactionid="+cfg.getInteractionid()+": jsessionid=" + cfg.getJsessionId()+" : organization ="+cfg.getOrganization());
+		logger.debug("EnvironmentService.backupProxies : interactionid=" + cfg.getInteractionid() + ": jsessionid="
+				+ cfg.getJsessionId() + " : organization =" + cfg.getOrganization());
 		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
 		long start = System.currentTimeMillis();
 		BackupInfo backupInfo = null;
-		if(cfg.getBackUpLocation()==null || cfg.getBackUpLocation()==""){
+		if (cfg.getBackUpLocation() == null || cfg.getBackUpLocation() == "") {
 			cfg.setBackUpLocation(applicationProperties.getBackupDir() + start);
 		}
 		JSONObject apiProxyInfo = null;
@@ -177,19 +192,20 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 		proxyBackUpInfo.setOperationId(cfg.getOperationId());
 		proxyBackUpInfo = baseRepository.save(proxyBackUpInfo);
 		apiProxyInfo = apigeeEnvironmentBackUP(cfg);
-		ZipUtil.pack(new File(cfg.getBackUpLocation()+ "/" + cfg.getOrganization()), new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
-		org.json.JSONObject obj=null;
+		ZipUtil.pack(new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization()),
+				new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
+		org.json.JSONObject obj = null;
 		try {
-			obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip", applicationProperties.getDataRestoreBackup(), 
-					applicationProperties.getJfrogHost()+":"+applicationProperties.getJfrogPort()+"/artifactory/",
-					"restore-backup/" + proxyBackUpInfo.getOrganization()+"/"+start+"", 
-					applicationProperties.getJfrogUserName(), 
-					applicationProperties.getJfrogPassword());
+			obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
+					applicationProperties.getDataRestoreBackup(),
+					applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort() + "/artifactory/",
+					"restore-backup/" + proxyBackUpInfo.getOrganization() + "/" + start + "",
+					applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
-		FileUtils.cleanDirectory(new File(cfg.getBackUpLocation())); 
+		FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
 		FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
 		if (null != obj) {
 			long end = System.currentTimeMillis();
@@ -207,15 +223,21 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 	/**
 	 * getEnvironmentDepolyedProxies
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws ItorixException
 	 */
-	public List<String> getEnvironmentDepolyedProxies(CommonConfiguration cfg) throws ItorixException{
-		logger.debug("EnvironmentService.getEnvironmentDepolyedProxies : interactionid="+cfg.getInteractionid()+": jsessionid=" + cfg.getJsessionId()+" : organization ="+cfg.getOrganization()+" : cfg ="+cfg);
+	public List<String> getEnvironmentDepolyedProxies(CommonConfiguration cfg) throws ItorixException {
+		logger.debug("EnvironmentService.getEnvironmentDepolyedProxies : interactionid=" + cfg.getInteractionid()
+				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
+				+ cfg);
 		List<String> envApiList = new ArrayList<String>();
-		if(cfg.getApigeeEmail()==null && cfg.getApigeePassword()==null){
-			ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		if (cfg.getApigeeEmail() == null && cfg.getApigeePassword() == null) {
+			ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(),
+					cfg.getType());
 			cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 			cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		}
@@ -233,16 +255,22 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 	/**
 	 * apigeeEnvironmentBackUP
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws IOException
 	 * @throws ItorixException
 	 */
 	private JSONObject apigeeEnvironmentBackUP(CommonConfiguration cfg) throws IOException, ItorixException {
-		logger.debug("EnvironmentService.apigeeEnvironmentBackUP : interactionid="+cfg.getInteractionid()+": jsessionid=" + cfg.getJsessionId()+" : organization ="+cfg.getOrganization()+" : cfg ="+cfg);
+		logger.debug(
+				"EnvironmentService.apigeeEnvironmentBackUP : interactionid=" + cfg.getInteractionid() + ": jsessionid="
+						+ cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg =" + cfg);
 		List<String> envApiList = new ArrayList<String>();
-		if(cfg.getApigeeEmail()==null && cfg.getApigeePassword()==null){
-			ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+		if (cfg.getApigeeEmail() == null && cfg.getApigeePassword() == null) {
+			ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(),
+					cfg.getType());
 			cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 			cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		}
@@ -251,8 +279,8 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 		JSONArray skippedProxiesData = new JSONArray();
 		JSONArray envProxies = new JSONArray();
 		long start = System.currentTimeMillis();
-		logger.debug("Inside the EnvironmentService.apigeeEnvironmentBackUP("+cfg+")");
-		if(cfg.getBackUpLocation()==null || cfg.getBackUpLocation()==""){
+		logger.debug("Inside the EnvironmentService.apigeeEnvironmentBackUP(" + cfg + ")");
+		if (cfg.getBackUpLocation() == null || cfg.getBackUpLocation() == "") {
 			cfg.setBackUpLocation(applicationProperties.getBackupDir() + start);
 		}
 		final File backupLocation = new File(getBaseBackupDirectory(false, cfg), "apiproxies");
@@ -278,7 +306,8 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 					JSONObject revisionObj = (JSONObject) object;
 					String revision = revisionObj.getString("name");
 					cfg.setRevision(revision);
-					final File versionFile = new File(backupLocation, File.separator +environment+File.separator+ apiName + File.separator + revision);
+					final File versionFile = new File(backupLocation,
+							File.separator + environment + File.separator + apiName + File.separator + revision);
 					versionFile.getParentFile().mkdirs();
 					byte[] revisionBundle = apigeeUtil.getAnAPIProxyRevision(cfg);
 					FileUtils.writeByteArrayToFile(new File(versionFile.getAbsolutePath() + ".zip"), revisionBundle);
@@ -289,7 +318,6 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 					if (cfg.getIsCleanUpAreBackUp()) {
 						apigeeUtil.forceUndeployAPIProxy(cfg);
 						apigeeUtil.deleteAPIProxyRevision(cfg);
-
 					}
 				}
 
@@ -308,6 +336,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 	/**
 	 * createContextFile
+	 *
 	 * @param apiContext
 	 * @param apiProxyName
 	 * @param environment
@@ -324,31 +353,35 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	/**
 	 * backupAPIProductsOnEnvironments
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws IOException
 	 * @throws ItorixException
 	 */
 	private JSONObject backupAPIProductsOnEnvironments(CommonConfiguration cfg) throws IOException, ItorixException {
-		logger.debug("EnvironmentService.backupAPIProductsOnEnvironments : interactionid="+cfg.getInteractionid()+": jsessionid=" + cfg.getJsessionId()+" : organization ="+cfg.getOrganization()+" : cfg ="+cfg);
-		List<String> envApiList=cfg.getEnvApiList();
-		List<String> productList=	apigeeUtil.listAPIProducts(cfg);
+		logger.debug("EnvironmentService.backupAPIProductsOnEnvironments : interactionid=" + cfg.getInteractionid()
+				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
+				+ cfg);
+		List<String> envApiList = cfg.getEnvApiList();
+		List<String> productList = apigeeUtil.listAPIProducts(cfg);
 		JSONObject productsList = new JSONObject();
 		JSONArray productsData = new JSONArray();
 		for (String productName : productList) {
 			cfg.setApiProductName(productName);
 			try {
-				String apiProduct=apigeeUtil.getAPIProduct(cfg);
+				String apiProduct = apigeeUtil.getAPIProduct(cfg);
 				JSONObject json = (JSONObject) JSONSerializer.toJSON(apiProduct);
-				JSONArray prxiesList=json.getJSONArray("proxies");
+				JSONArray prxiesList = json.getJSONArray("proxies");
 				boolean proxyExists = false;
 				for (Object proxyObj : prxiesList) {
-					String proxy=(String)proxyObj;
+					String proxy = (String) proxyObj;
 					if (envApiList.contains(proxy)) {
 						productsData.add(productName);
 						proxyExists = true;
@@ -367,7 +400,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 					file.close();
 
 					// if cleanup delete the file
-					if (cfg.getIsCleanUpAreBackUp()){
+					if (cfg.getIsCleanUpAreBackUp()) {
 						apigeeUtil.deleteAPIProduct(cfg);
 					}
 				}
@@ -383,15 +416,19 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 	/**
 	 * restoreEnvironment
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
-	public String restoreEnvironment(CommonConfiguration cfg) throws Exception{
-		logger.debug("EnvironmentService.restoreEnvironment : interactionid="+cfg.getInteractionid()+": jsessionid=" + cfg.getJsessionId()+" : organization ="+cfg.getOrganization()+" : cfg ="+cfg);
+	public String restoreEnvironment(CommonConfiguration cfg) throws Exception {
+		logger.debug("EnvironmentService.restoreEnvironment : interactionid=" + cfg.getInteractionid() + ": jsessionid="
+				+ cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg =" + cfg);
 		long start = System.currentTimeMillis();
-		//BackupInfo backupInfo = null;
-		EnvironmentBackUpInfo environmentBackUpInfo=new EnvironmentBackUpInfo();
+		// BackupInfo backupInfo = null;
+		EnvironmentBackUpInfo environmentBackUpInfo = new EnvironmentBackUpInfo();
 		environmentBackUpInfo.setOrganization(cfg.getOrganization());
 		environmentBackUpInfo.setStatus(Constants.STATUS_INPROGRESS);
 		environmentBackUpInfo.setOperationId(cfg.getOperationId());
@@ -405,21 +442,26 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 		environmentBackUpInfo.setTimeTaken(backupTimeTaken);
 		environmentBackUpInfo.setStatus("Completed");
 		environmentBackUpInfo = baseRepository.save(environmentBackUpInfo);
-		//backupInfo = environmentBackUpInfo;
+		// backupInfo = environmentBackUpInfo;
 		return "SUCCESS";
 	}
 
 	/**
 	 * restoreAPIProxies1
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws ItorixException
 	 */
-	public String restoreAPIProxies1(CommonConfiguration cfg) throws IOException, InterruptedException, ItorixException {
-		logger.debug("EnvironmentService.restoreAPIProxies1 : interactionid="+cfg.getInteractionid()+": jsessionid=" + cfg.getJsessionId()+" : organization ="+cfg.getOrganization()+" : cfg ="+cfg);
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+	public String restoreAPIProxies1(CommonConfiguration cfg)
+			throws IOException, InterruptedException, ItorixException {
+		logger.debug("EnvironmentService.restoreAPIProxies1 : interactionid=" + cfg.getInteractionid() + ": jsessionid="
+				+ cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg =" + cfg);
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
@@ -455,7 +497,8 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 									if (null != cfg.getNewOrg() && cfg.getNewOrg().length() > 0)
 										deployedEnv = cfg.getNewEnv();
 									if (deployedRev.equals(i)) {
-										// check if proxy is deployed in e if yes
+										// check if proxy is deployed in e if
+										// yes
 										// undeploy all
 										cfg.setEnvironment(deployedEnv);
 										organizationService.undeployProxyRevision(cfg, deployedEnv, apiProxyName, null);
@@ -463,42 +506,47 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 										// get max revisions available
 										List<Integer> revisionList = apigeeUtil.getRevisionsListForProxy(cfg);
 										// Monetaization enabled proxies are not
-										// being imported, hence cant be deployed,
+										// being imported, hence cant be
+										// deployed,
 										// so adding below condition
 										if (revisionList.size() > 0) {
 											int maxRev = Collections.max(revisionList);
 											cfg.setRevision(maxRev + "");
 											cfg.setEnvironment(deployedEnv);
-											// deploy revision maxRev, since this is
+											// deploy revision maxRev, since
+											// this is
 											// latest uploaded
 											apigeeUtil.deployAPIProxy(cfg);
 										}
 									}
-
 								}
 
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
-
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-				}}
+				}
+			}
 
 		return "Success";
 	}
 
 	/**
 	 * restoreEnvironmentProxies1
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws ItorixException
 	 */
-	public BackupInfo restoreEnvironmentProxies1(CommonConfiguration cfg) throws IOException, InterruptedException, ItorixException {
+	public BackupInfo restoreEnvironmentProxies1(CommonConfiguration cfg)
+			throws IOException, InterruptedException, ItorixException {
 		BackupInfo backupInfo = null;
 		long start = System.currentTimeMillis();
 		ProxyBackUpInfo proxyBackUpInfo = new ProxyBackUpInfo();
@@ -516,20 +564,25 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 		proxyBackUpInfo = baseRepository.save(proxyBackUpInfo);
 		backupInfo = proxyBackUpInfo;
 		return backupInfo;
-
 	}
 
 	/**
 	 * restoreEnvironmentProxies
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws ItorixException
 	 */
-	public String restoreEnvironmentProxies(CommonConfiguration cfg) throws IOException, InterruptedException, ItorixException {
-		logger.debug("EnvironmentService.restoreEnvironmentProxies : interactionid="+cfg.getInteractionid()+": jsessionid=" + cfg.getJsessionId()+" : organization ="+cfg.getOrganization()+" : cfg ="+cfg);
-		ApigeeServiceUser apigeeServiceUser =apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
+	public String restoreEnvironmentProxies(CommonConfiguration cfg)
+			throws IOException, InterruptedException, ItorixException {
+		logger.debug("EnvironmentService.restoreEnvironmentProxies : interactionid=" + cfg.getInteractionid()
+				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
+				+ cfg);
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
@@ -560,13 +613,13 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 					cfg.setRevision(revison);
 					apigeeUtil.importApiProxy(cfg, fileRevision);
 					// get proxy revisions list
-					List<String> revisionList=	apigeeUtil.getAnAPIProxyRevisionList(cfg);
+					List<String> revisionList = apigeeUtil.getAnAPIProxyRevisionList(cfg);
 
 					List<Integer> intList = revisionList.stream().map(Integer::valueOf).collect(Collectors.toList());
 					int maxRevision = Collections.max(intList);
 					// undeploy the revision
 					undeployProxyRevision(cfg);
-					cfg.setRevision(maxRevision+"");
+					cfg.setRevision(maxRevision + "");
 					apigeeUtil.deployAPIProxy(cfg);
 
 				} catch (IOException e) {
@@ -580,21 +633,26 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 	/**
 	 * backupAppsOnProductBasis
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws ItorixException
 	 */
 	private JSONArray backupAppsOnProductBasis(CommonConfiguration cfg) throws ItorixException {
-		logger.debug("EnvironmentService.backupAppsOnProductBasis : interactionid="+cfg.getInteractionid()+": jsessionid=" + cfg.getJsessionId()+" : organization ="+cfg.getOrganization()+" : cfg ="+cfg);
+		logger.debug("EnvironmentService.backupAppsOnProductBasis : interactionid=" + cfg.getInteractionid()
+				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
+				+ cfg);
 		List<String> productList = JSONUtil.convertJSONObjectToList(cfg.getJsonArray());
-		List<String> listOfAppIds=apigeeUtil.listAppIDsInAnOrganization(cfg);
+		List<String> listOfAppIds = apigeeUtil.listAppIDsInAnOrganization(cfg);
 		JSONArray appNames = new JSONArray();
-		Set<String>	developersToBackup = new HashSet<String>();
-		List<String>  appDevelopers=apigeeUtil.listDevelopers(cfg);
-		Map<String, String> developersList =new HashMap<String, String>();
-		for(String developerId:appDevelopers){
+		Set<String> developersToBackup = new HashSet<String>();
+		List<String> appDevelopers = apigeeUtil.listDevelopers(cfg);
+		Map<String, String> developersList = new HashMap<String, String>();
+		for (String developerId : appDevelopers) {
 			cfg.setDeveloperId(developerId);
-			String developer=	apigeeUtil.getDeveloper(cfg);
+			String developer = apigeeUtil.getDeveloper(cfg);
 			JSONObject developerJson = (JSONObject) JSONSerializer.toJSON(developer);
 			developersList.put(developerJson.getString("developerId"), developerJson.getString("email"));
 		}
@@ -602,16 +660,15 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 			try {
 				cfg.setAppID(appID);
 				List<String> productsLinked = new ArrayList<String>();
-				String appsString=	apigeeUtil.getAppInAnOrganizationByAppID(cfg);
-				JSONObject apps =  (JSONObject)JSONSerializer.toJSON(appsString);
-				JSONArray credentials=apps.getJSONArray("credentials");
-				for(Object obj:credentials){
-					JSONObject credential=(JSONObject)obj;
-					for(Object obj1:credential.getJSONArray("apiProducts")){
-						JSONObject apiProduct=(JSONObject)obj1;
+				String appsString = apigeeUtil.getAppInAnOrganizationByAppID(cfg);
+				JSONObject apps = (JSONObject) JSONSerializer.toJSON(appsString);
+				JSONArray credentials = apps.getJSONArray("credentials");
+				for (Object obj : credentials) {
+					JSONObject credential = (JSONObject) obj;
+					for (Object obj1 : credential.getJSONArray("apiProducts")) {
+						JSONObject apiProduct = (JSONObject) obj1;
 						productsLinked.add(apiProduct.getString("apiproduct"));
 					}
-
 				}
 				boolean isProductExist = false;
 				for (String tempProduct : productsLinked) {
@@ -627,7 +684,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 					String appName1 = apps.getString("name");
 					appNames.add(appName1);
 					cfg.setAppName(appName1);
-					File backupLocation = new File(getBaseBackupDirectory(false,cfg), "apps");
+					File backupLocation = new File(getBaseBackupDirectory(false, cfg), "apps");
 					backupLocation.mkdirs();
 
 					FileWriter file = new FileWriter(new File(backupLocation, appID + ".json"));
@@ -635,7 +692,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 					file.flush();
 					file.close();
 					if (cfg.getIsCleanUpAreBackUp()) {
-						apigeeUtil.deleteDeveloperApp(cfg,appName1,apps.getString("developerId"));
+						apigeeUtil.deleteDeveloperApp(cfg, appName1, apps.getString("developerId"));
 					}
 				}
 			} catch (IOException e) {
@@ -647,7 +704,9 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 	/**
 	 * undeployProxyRevision
+	 *
 	 * @param cfg
+	 * 
 	 * @throws IOException
 	 * @throws ItorixException
 	 */
@@ -657,7 +716,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 				apigeeUtil.forceUndeployAPIProxy(cfg);
 			} else {
 				// get proxy deployments
-				String proxyDeploymentURL =apigeeUtil.getAPIProxyDeploymentDetail1s(cfg);
+				String proxyDeploymentURL = apigeeUtil.getAPIProxyDeploymentDetail1s(cfg);
 				ObjectMapper o2 = new ObjectMapper();
 				JsonNode targetNode = o2.readTree(proxyDeploymentURL);
 				JSONObject targetdeployedEnv = (JSONObject) JSONSerializer.toJSON(targetNode.toString());
@@ -672,22 +731,27 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 						apigeeUtil.forceUndeployAPIProxy(cfg);
 					}
 				}
-
 			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+
 	/**
 	 * backupAppDevelopers
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws IOException
 	 * @throws ItorixException
 	 */
 	private String backupAppDevelopers(CommonConfiguration cfg) throws IOException, ItorixException {
-		logger.debug("EnvironmentService.backupAppDevelopers : interactionid="+cfg.getInteractionid()+": jsessionid=" + cfg.getJsessionId()+" : organization ="+cfg.getOrganization()+" : cfg ="+cfg);
+		logger.debug(
+				"EnvironmentService.backupAppDevelopers : interactionid=" + cfg.getInteractionid() + ": jsessionid="
+						+ cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg =" + cfg);
 		List<String> developers = new ArrayList<String>();
 		if (null == cfg.getDevelopersToBackup()) {
 			developers = apigeeUtil.listDevelopers(cfg);
@@ -717,15 +781,19 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 	/**
 	 * backupResources
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	public BackupInfo backupResources(CommonConfiguration cfg) throws Exception {
-		logger.debug("EnvironmentService.backupResources : interactionid="+cfg.getInteractionid()+": jsessionid=" + cfg.getJsessionId()+" : organization ="+cfg.getOrganization()+" : cfg ="+cfg);
+		logger.debug("EnvironmentService.backupResources : interactionid=" + cfg.getInteractionid() + ": jsessionid="
+				+ cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg =" + cfg);
 		long start = System.currentTimeMillis();
 		BackupInfo backupInfo = null;
-		if(cfg.getBackUpLocation()==null || cfg.getBackUpLocation()==""){
+		if (cfg.getBackUpLocation() == null || cfg.getBackUpLocation() == "") {
 			cfg.setBackUpLocation(applicationProperties.getBackupDir() + start);
 		}
 		String oid = null;
@@ -736,16 +804,19 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 		resourceBackupInfo.setStatus(Constants.STATUS_INPROGRESS);
 		resourceBackupInfo = baseRepository.save(resourceBackupInfo);
 		resourcesInfo = backupResource(cfg);
-		ZipUtil.pack(new File(cfg.getBackUpLocation()+ "/" + cfg.getOrganization()), new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
-		org.json.JSONObject obj=null;
+		ZipUtil.pack(new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization()),
+				new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
+		org.json.JSONObject obj = null;
 		try {
-			obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",  applicationProperties.getDataRestoreBackup(), 
-					applicationProperties.getJfrogHost()+":"+applicationProperties.getJfrogPort()+"/artifactory/",
-					"restore-backup/" +cfg.getOrganization() + "/" + start + "", applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+			obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
+					applicationProperties.getDataRestoreBackup(),
+					applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort() + "/artifactory/",
+					"restore-backup/" + cfg.getOrganization() + "/" + start + "",
+					applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		FileUtils.cleanDirectory(new File(cfg.getBackUpLocation())); 
+		FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
 		FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
 		if (null != obj) {
 			long end = System.currentTimeMillis();
@@ -762,14 +833,18 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 	/**
 	 * backupResource
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws ItorixException
 	 */
 	public JSONArray backupResource(CommonConfiguration cfg) throws ItorixException {
-		logger.debug("EnvironmentService.backupResource : interactionid="+cfg.getInteractionid()+": jsessionid=" + cfg.getJsessionId()+" : organization ="+cfg.getOrganization()+" : cfg ="+cfg);
+		logger.debug("EnvironmentService.backupResource : interactionid=" + cfg.getInteractionid() + ": jsessionid="
+				+ cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg =" + cfg);
 		long start = System.currentTimeMillis();
-		if(cfg.getBackUpLocation()==null || cfg.getBackUpLocation()==""){
+		if (cfg.getBackUpLocation() == null || cfg.getBackUpLocation() == "") {
 			cfg.setBackUpLocation(applicationProperties.getBackupDir() + start);
 		}
 		JSONArray resourcesList = new JSONArray();
@@ -788,14 +863,18 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 	/**
 	 * backupCaches
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws ItorixException
 	 */
 	private JSONArray backupCaches(CommonConfiguration cfg) throws ItorixException {
-		logger.debug("EnvironmentService.backupCaches : interactionid="+cfg.getInteractionid()+": jsessionid=" + cfg.getJsessionId()+" : organization ="+cfg.getOrganization()+" : cfg ="+cfg);
+		logger.debug("EnvironmentService.backupCaches : interactionid=" + cfg.getInteractionid() + ": jsessionid="
+				+ cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg =" + cfg);
 		long start = System.currentTimeMillis();
-		if(cfg.getBackUpLocation()==null || cfg.getBackUpLocation()==""){
+		if (cfg.getBackUpLocation() == null || cfg.getBackUpLocation() == "") {
 			cfg.setBackUpLocation(applicationProperties.getBackupDir() + start);
 		}
 		List<String> environments = null;
@@ -845,14 +924,18 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 	/**
 	 * backupKVM
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws ItorixException
 	 */
-	private JSONArray backupKVM(CommonConfiguration cfg) throws ItorixException  {
-		logger.debug("EnvironmentService.backupKVM : interactionid="+cfg.getInteractionid()+": jsessionid=" + cfg.getJsessionId()+" : organization ="+cfg.getOrganization()+" : cfg ="+cfg);
+	private JSONArray backupKVM(CommonConfiguration cfg) throws ItorixException {
+		logger.debug("EnvironmentService.backupKVM : interactionid=" + cfg.getInteractionid() + ": jsessionid="
+				+ cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg =" + cfg);
 		long start = System.currentTimeMillis();
-		if(cfg.getBackUpLocation()==null || cfg.getBackUpLocation()==""){
+		if (cfg.getBackUpLocation() == null || cfg.getBackUpLocation() == "") {
 			cfg.setBackUpLocation(applicationProperties.getBackupDir() + start);
 		}
 		List<String> environments = null;
@@ -902,15 +985,19 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 	/**
 	 * backupTargetServers
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws ItorixException
 	 */
-	private JSONArray backupTargetServers(CommonConfiguration cfg) throws ItorixException
-	{
-		logger.debug("EnvironmentService.backupTargetServers : interactionid="+cfg.getInteractionid()+": jsessionid=" + cfg.getJsessionId()+" : organization ="+cfg.getOrganization()+" : cfg ="+cfg);
+	private JSONArray backupTargetServers(CommonConfiguration cfg) throws ItorixException {
+		logger.debug(
+				"EnvironmentService.backupTargetServers : interactionid=" + cfg.getInteractionid() + ": jsessionid="
+						+ cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg =" + cfg);
 		long start = System.currentTimeMillis();
-		if(cfg.getBackUpLocation()==null || cfg.getBackUpLocation()==""){
+		if (cfg.getBackUpLocation() == null || cfg.getBackUpLocation() == "") {
 			cfg.setBackUpLocation(applicationProperties.getBackupDir() + start);
 		}
 		List<String> environments = null;
@@ -966,7 +1053,9 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 	/**
 	 * getBaseRestoreDirectory
+	 *
 	 * @param cfg
+	 * 
 	 * @return
 	 */
 	private File getBaseRestoreDirectory(CommonConfiguration cfg) {
@@ -977,104 +1066,109 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 	/**
 	 * getEnvironmentBackupHistory
+	 *
 	 * @param interactionid
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
-	public  List<EnvironmentBackUpInfo> getEnvironmentBackupHistory(String interactionid)
-			throws Exception {
-		logger.debug("EnvironmentService.getOrganizationBackupHistory : CorelationId= "+ interactionid );
+	public List<EnvironmentBackUpInfo> getEnvironmentBackupHistory(String interactionid) throws Exception {
+		logger.debug("EnvironmentService.getOrganizationBackupHistory : CorelationId= " + interactionid);
 		List<EnvironmentBackUpInfo> list = new LinkedList<>();
-		list =  baseRepository.findAll(EnvironmentBackUpInfo.LABEL_CREATED_TIME, "-",
-				EnvironmentBackUpInfo.class);
+		list = baseRepository.findAll(EnvironmentBackUpInfo.LABEL_CREATED_TIME, "-", EnvironmentBackUpInfo.class);
 		return list;
 	}
 
 	/**
 	 * getApiproxiesBackupHistory
+	 *
 	 * @param backuplevel
 	 * @param interactionid
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
-	public <T> List<ProxyBackUpInfo> getApiproxiesBackupHistory(String backuplevel,String interactionid)
+	public <T> List<ProxyBackUpInfo> getApiproxiesBackupHistory(String backuplevel, String interactionid)
 			throws Exception {
-		logger.debug("EnvironmentService.getApiproxiesBackupHistory : CorelationId= "+ interactionid+" : backuplevel= "+ backuplevel );
+		logger.debug("EnvironmentService.getApiproxiesBackupHistory : CorelationId= " + interactionid
+				+ " : backuplevel= " + backuplevel);
 		List<ProxyBackUpInfo> list = new LinkedList<>();
-		Query query = new Query(
-				new Criteria().andOperator(Criteria.where(ProxyBackUpInfo.LABEL_RESOURCE_BACKUP_LEVEL).is(backuplevel)));
+		Query query = new Query(new Criteria()
+				.andOperator(Criteria.where(ProxyBackUpInfo.LABEL_RESOURCE_BACKUP_LEVEL).is(backuplevel)));
 		query.with(Sort.by(Sort.Direction.DESC, ProxyBackUpInfo.LABEL_CREATED_TIME));
-		list =  baseRepository.find(query, ProxyBackUpInfo.class);
+		list = baseRepository.find(query, ProxyBackUpInfo.class);
 		return list;
 	}
 
 	/**
 	 * getCachesBackupHistory
+	 *
 	 * @param interactionid
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
-	public  List<ResourceBackUpInfo> getCachesBackupHistory(String interactionid)
-			throws Exception {
-		logger.debug("EnvironmentService.getCachesBackupHistory : CorelationId= "+ interactionid );
+	public List<ResourceBackUpInfo> getCachesBackupHistory(String interactionid) throws Exception {
+		logger.debug("EnvironmentService.getCachesBackupHistory : CorelationId= " + interactionid);
 		List<ResourceBackUpInfo> list = new LinkedList<>();
 		Query query = new Query(
 				new Criteria().andOperator(Criteria.where(ResourceBackUpInfo.LABEL_RESOURCE_TYPE).is("cache"),
 						Criteria.where(ResourceBackUpInfo.LABEL_RESOURCE_BACKUP_LEVEL).is("environments")));
 		query.with(Sort.by(Sort.Direction.DESC, ResourceBackUpInfo.LABEL_CREATED_TIME));
-		list =  baseRepository.find(query, ResourceBackUpInfo.class);
+		list = baseRepository.find(query, ResourceBackUpInfo.class);
 		return list;
 	}
+
 	/**
 	 * getTargetServersBackupHistory
+	 *
 	 * @param interactionid
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
-	public List<ResourceBackUpInfo> getTargetServersBackupHistory(String interactionid)
-			throws Exception {
-		logger.debug("EnvironmentService.getTargetServersBackupHistory : CorelationId= "+ interactionid );
+	public List<ResourceBackUpInfo> getTargetServersBackupHistory(String interactionid) throws Exception {
+		logger.debug("EnvironmentService.getTargetServersBackupHistory : CorelationId= " + interactionid);
 		List<ResourceBackUpInfo> list = new LinkedList<>();
 		Query query = new Query(
 				new Criteria().andOperator(Criteria.where(ResourceBackUpInfo.LABEL_RESOURCE_TYPE).is("targetserver"),
 						Criteria.where(ResourceBackUpInfo.LABEL_RESOURCE_BACKUP_LEVEL).is("environments")));
 		query.with(Sort.by(Sort.Direction.DESC, ResourceBackUpInfo.LABEL_CREATED_TIME));
-		list =  baseRepository.find(query, ResourceBackUpInfo.class);
+		list = baseRepository.find(query, ResourceBackUpInfo.class);
 		return list;
 	}
 
 	/**
 	 * getKVMBackupHistory
+	 *
 	 * @param interactionid
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
-	public  List<ResourceBackUpInfo> getKVMBackupHistory(String interactionid)
-			throws Exception {
-		logger.debug("EnvironmentService.getKVMBackupHistory : CorelationId= "+ interactionid );
+	public List<ResourceBackUpInfo> getKVMBackupHistory(String interactionid) throws Exception {
+		logger.debug("EnvironmentService.getKVMBackupHistory : CorelationId= " + interactionid);
 		List<ResourceBackUpInfo> list = new LinkedList<>();
 		Query query = new Query(
 				new Criteria().andOperator(Criteria.where(ResourceBackUpInfo.LABEL_RESOURCE_TYPE).is("kvm"),
 						Criteria.where(ResourceBackUpInfo.LABEL_RESOURCE_BACKUP_LEVEL).is("environments")));
 		query.with(Sort.by(Sort.Direction.DESC, ResourceBackUpInfo.LABEL_CREATED_TIME));
-		list =  baseRepository.find(query, ResourceBackUpInfo.class);
+		list = baseRepository.find(query, ResourceBackUpInfo.class);
 		return list;
 	}
 
-	/*public Apigee getApigeeCredential(String jsessionid) {
-		UserSession userSessionToken = baseRepository.findById(jsessionid, UserSession.class);
-		User user = baseRepository.findById(userSessionToken.getUserId(), User.class);
-		if (user != null) {
-			Apigee apigee = user.getApigee();
-			return apigee;
-		} else {
-			return null;
-		}
-	}*/
-
-
-
-
-
+	/*
+	 * public Apigee getApigeeCredential(String jsessionid) { UserSession
+	 * userSessionToken = baseRepository.findById(jsessionid,
+	 * UserSession.class); User user =
+	 * baseRepository.findById(userSessionToken.getUserId(), User.class); if
+	 * (user != null) { Apigee apigee = user.getApigee(); return apigee; } else
+	 * { return null; } }
+	 */
 
 }

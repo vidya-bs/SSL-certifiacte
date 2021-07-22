@@ -15,44 +15,43 @@ import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 
-
 @Configuration
 public class MultitenantMongoDbConfiguration {
 
-	@Autowired(required = false)
-	private MongoClientOptions options;
+    @Autowired(required = false)
+    private MongoClientOptions options;
 
-	@Autowired
-	private Environment environment;
+    @Autowired
+    private Environment environment;
 
-	@Autowired
-	private MongoProperties properties;
+    @Autowired
+    private MongoProperties properties;
 
-	@Bean
-	public MongoClient createMongoClient() throws UnknownHostException {
-		return properties.createMongoClient(options, environment);
-	}
+    @Bean
+    public MongoClient createMongoClient() throws UnknownHostException {
+        return properties.createMongoClient(options, environment);
+    }
 
-	@Primary
-	@Bean
-	public MongoDbFactory multitenantFactory() throws UnknownHostException {
-		return new MultitenantMongoDbFactory(createMongoClient(), properties.getDatabase());
-	}
+    @Primary
+    @Bean
+    public MongoDbFactory multitenantFactory() throws UnknownHostException {
+        return new MultitenantMongoDbFactory(createMongoClient(), properties.getDatabase());
+    }
 
-	@Primary
-	@Bean
-	public MongoTemplate mongoTemplate() throws Exception {
-		return new MongoTemplate(multitenantFactory());
-	}
+    @Primary
+    @Bean
+    public MongoTemplate mongoTemplate() throws Exception {
+        return new MongoTemplate(multitenantFactory());
+    }
 
-	@Bean(name = "masterMongoTemplate")
-	public MongoTemplate secondaryMongoTemplate() throws Exception {
-		return new MongoTemplate(masterFactory());
-	}
+    @Bean(name = "masterMongoTemplate")
+    public MongoTemplate secondaryMongoTemplate() throws Exception {
+        return new MongoTemplate(masterFactory());
+    }
 
-	@Bean
-	public MongoDbFactory masterFactory() throws Exception {
-		return new SimpleMongoDbFactory(createMongoClient(), properties.getDatabase());
-	}
+    @Bean
+    public MongoDbFactory masterFactory() throws Exception {
+        return new SimpleMongoDbFactory(createMongoClient(), properties.getDatabase());
+    }
 
 }

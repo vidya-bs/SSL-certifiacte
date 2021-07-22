@@ -16,7 +16,7 @@ public class UserDetails {
 	private long cts;
 	private String createdUserName;
 	private List<UserInfo> workspaces;
-	
+
 	public String getLoginId() {
 		return loginId;
 	}

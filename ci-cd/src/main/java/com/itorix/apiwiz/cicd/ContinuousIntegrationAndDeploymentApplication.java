@@ -9,7 +9,6 @@ import org.springframework.context.annotation.ComponentScan;
 public class ContinuousIntegrationAndDeploymentApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(
-				ContinuousIntegrationAndDeploymentApplication.class, args);
+		SpringApplication.run(ContinuousIntegrationAndDeploymentApplication.class, args);
 	}
 }

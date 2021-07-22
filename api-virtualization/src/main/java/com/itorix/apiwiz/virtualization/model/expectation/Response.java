@@ -16,7 +16,6 @@ import lombok.experimental.FieldDefaults;
 public class Response {
 
 	public enum Type {
-
 		@JsonProperty("JSON")
 		json,
 
@@ -28,14 +27,15 @@ public class Response {
 
 		@JsonProperty("Text")
 		text
-
 	}
 
 	int statusCode;
 	String statusMessage;
 	String cookies;
+
 	@JsonProperty("headers")
 	Map<String, String> headers = new HashMap<>();
+
 	String body;
 	Type responseType;
 }

@@ -1,7 +1,7 @@
 package com.itorix.apiwiz.devstudio.model;
 
 public class PromoteSCM {
-	
+
 	private Scm scm;
 
 	public Scm getScm() {
@@ -11,5 +11,4 @@ public class PromoteSCM {
 	public void setScm(Scm scm) {
 		this.scm = scm;
 	}
-
 }

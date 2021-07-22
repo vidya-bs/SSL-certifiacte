@@ -30,5 +30,4 @@ public class SwaggerContacts {
 	public void setRole(List<String> role) {
 		this.role = role;
 	}
-
 }

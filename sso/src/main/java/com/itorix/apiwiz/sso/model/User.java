@@ -16,319 +16,321 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class User extends AbstractObject {
 
-	public static final String LABEL_USERNAME = "userName";
-	public static final String LABEL_LOGINID = "loginId";
-	public static final String LABEL_EMAIL = "email";
-	public static final String LABEL_PASSWORD = "password";
-	public static final String LABEL_PASSWORD_HASH = "passwordHash";
-	public static final String LABEL_MEMBER = "Member";
-	public static final String LABEL_SITEADMIN= "organizationInfo";
-	public static final String LABEL_ROLES = "roles";
-	public static final String LABEL_STATUS = "userStatus";
-	public static final String LABEL_USER_ID = "userId";
+    public static final String LABEL_USERNAME = "userName";
+    public static final String LABEL_LOGINID = "loginId";
+    public static final String LABEL_EMAIL = "email";
+    public static final String LABEL_PASSWORD = "password";
+    public static final String LABEL_PASSWORD_HASH = "passwordHash";
+    public static final String LABEL_MEMBER = "Member";
+    public static final String LABEL_SITEADMIN = "organizationInfo";
+    public static final String LABEL_ROLES = "roles";
+    public static final String LABEL_STATUS = "userStatus";
+    public static final String LABEL_USER_ID = "userId";
 
-	private String loginId;
-	private String email;
-	private String password;
-	private String displayMessage;
-	private String lastName;
-	private String firstName;
-	private String userStatus;
-	private List<UserWorkspace> workspaces;
-	private long userCount;
-	private String reason;
-	private String userId;
-	private String newPassword;
-	private String oldPassword;
-	//	private String type;
-	private String verificationToken;
-	private Date tokenValidUpto;
-	private String workPhone;
-	private boolean subscribeNewsLetter = true;
-	private String regionCode;
-	private String company;
-	private Apigee apigee;
-	private Map<String, String> metadata;
+    private String loginId;
+    private String email;
+    private String password;
+    private String displayMessage;
+    private String lastName;
+    private String firstName;
+    private String userStatus;
+    private List<UserWorkspace> workspaces;
+    private long userCount;
+    private String reason;
+    private String userId;
+    private String newPassword;
+    private String oldPassword;
+    // private String type;
+    private String verificationToken;
+    private Date tokenValidUpto;
+    private String workPhone;
+    private boolean subscribeNewsLetter = true;
+    private String regionCode;
+    private String company;
+    private Apigee apigee;
+    private Map<String, String> metadata;
 
+    @Transient
+    private String verificationStatus;
 
-	@Transient
-	private String verificationStatus;
+    public String getVerificationStatus() {
+        return verificationStatus;
+    }
 
+    public void setVerificationStatus(String verificationStatus) {
+        this.verificationStatus = verificationStatus;
+    }
 
-	public String getVerificationStatus() {
-		return verificationStatus;
-	}
+    public Date getTokenValidUpto() {
+        return tokenValidUpto;
+    }
 
-	public void setVerificationStatus(String verificationStatus) {
-		this.verificationStatus = verificationStatus;
-	}
+    public void setTokenValidUpto(Date tokenValidUpto) {
+        this.tokenValidUpto = tokenValidUpto;
+    }
 
-	public Date getTokenValidUpto() {
-		return tokenValidUpto;
-	}
+    public String getOldPassword() {
+        return oldPassword;
+    }
 
-	public void setTokenValidUpto(Date tokenValidUpto) {
-		this.tokenValidUpto = tokenValidUpto;
-	}
+    public void setOldPassword(String oldPassword) {
+        this.oldPassword = oldPassword;
+    }
 
-	public String getOldPassword() {
-		return oldPassword;
-	}
+    public String getNewPassword() {
+        return newPassword;
+    }
 
-	public void setOldPassword(String oldPassword) {
-		this.oldPassword = oldPassword;
-	}
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
+    }
 
-	public String getNewPassword() {
-		return newPassword;
-	}
+    public User() {
+        super();
+    }
 
-	public void setNewPassword(String newPassword) {
-		this.newPassword = newPassword;
-	}
+    public User(String userName, String email, String password) {
+        super();
+        this.loginId = userName;
+        this.email = email;
+        this.password = password;
+    }
 
-	public User() {
-		super();
-	}
+    public User(User user) {
+        super(user);
+        this.loginId = user.loginId;
+        this.email = user.email;
+        this.password = user.password;
+        this.lastName = user.lastName;
+        this.firstName = user.firstName;
+        this.userStatus = user.userStatus;
+        this.verificationToken = user.verificationToken;
+        this.userCount = user.userCount;
+        this.reason = user.reason;
+        this.userId = user.userId;
+    }
 
-	public User(String userName, String email, String password) {
-		super();
-		this.loginId = userName;
-		this.email = email;
-		this.password = password;
-	}
+    public String getUserId() {
+        return userId;
+    }
 
-	public User(User user) {
-		super(user);
-		this.loginId = user.loginId;
-		this.email = user.email;
-		this.password = user.password;
-		this.lastName = user.lastName;
-		this.firstName = user.firstName;
-		this.userStatus = user.userStatus;
-		this.verificationToken = user.verificationToken;
-		this.userCount = user.userCount;
-		this.reason = user.reason;
-		this.userId = user.userId;
-	}
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
-	public String getUserId() {
-		return userId;
-	}
+    public String getReason() {
+        return reason;
+    }
 
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
 
-	public String getReason() {
-		return reason;
-	}
+    @JsonIgnore
+    public long getUserCount() {
+        return userCount;
+    }
 
-	public void setReason(String reason) {
-		this.reason = reason;
-	}
+    public void setUserCount(long userCount) {
+        this.userCount = userCount;
+    }
 
-	@JsonIgnore
-	public long getUserCount() {
-		return userCount;
-	}
+    public String getVerificationToken() {
+        return verificationToken;
+    }
 
-	public void setUserCount(long userCount) {
-		this.userCount = userCount;
-	}
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
+    }
 
-	public String getVerificationToken() {
-		return verificationToken;
-	}
+    public String getUserStatus() {
+        return userStatus;
+    }
 
-	public void setVerificationToken(String verificationToken) {
-		this.verificationToken = verificationToken;
-	}
+    public void setUserStatus(String userStatus) {
+        this.userStatus = userStatus;
+    }
 
-	public String getUserStatus() {
-		return userStatus;
-	}
+    public String getLastName() {
+        return lastName;
+    }
 
-	public void setUserStatus(String userStatus) {
-		this.userStatus = userStatus;
-	}
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
-	public String getLastName() {
-		return lastName;
-	}
+    public String getFirstName() {
+        return firstName;
+    }
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
-	public String getFirstName() {
-		return firstName;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
+    public String getLoginId() {
+        return loginId;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public void setLoginId(String loginId) {
+        this.loginId = loginId;
+    }
 
-	public String getLoginId() {
-		return loginId;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public void setLoginId(String loginId) {
-		this.loginId = loginId;
-	}
+    @JsonIgnore
+    public String getPassword() {
+        return password;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	@JsonIgnore
-	public String getPassword() {
-		return password;
-	}
+    public String getDisplayMessage() {
+        return displayMessage;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setDisplayMessage(String displayMessage) {
+        this.displayMessage = displayMessage;
+    }
 
-	public String getDisplayMessage() {
-		return displayMessage;
-	}
+    public List<UserWorkspace> getWorkspaces() {
+        return workspaces;
+    }
 
-	public void setDisplayMessage(String displayMessage) {
-		this.displayMessage = displayMessage;
-	}
+    public void setWorkspaces(List<UserWorkspace> workspaces) {
+        this.workspaces = workspaces;
+    }
 
-	public List<UserWorkspace> getWorkspaces() {
-		return workspaces;
-	}
+    public String getWorkPhone() {
+        return workPhone;
+    }
 
-	public void setWorkspaces(List<UserWorkspace> workspaces) {
-		this.workspaces = workspaces;
-	}
-	public String getWorkPhone() {
-		return workPhone;
-	}
+    public void setWorkPhone(String workPhone) {
+        this.workPhone = workPhone;
+    }
 
-	public void setWorkPhone(String workPhone) {
-		this.workPhone = workPhone;
-	}
+    public String getRegionCode() {
+        return regionCode;
+    }
 
-	public String getRegionCode() {
-		return regionCode;
-	}
+    public void setRegionCode(String regionCode) {
+        this.regionCode = regionCode;
+    }
 
-	public void setRegionCode(String regionCode) {
-		this.regionCode = regionCode;
-	}
+    public String getCompany() {
+        return company;
+    }
 
-	public String getCompany() {
-		return company;
-	}
+    public void setCompany(String company) {
+        this.company = company;
+    }
 
-	public void setCompany(String company) {
-		this.company = company;
-	}
-	@JsonIgnore
-	public boolean containsWorkspace(String workspaceId){
-		try{
-			for(UserWorkspace workspace : workspaces)
-				if(workspace.getWorkspace().getName().equals(workspaceId))
-					return true;
-		}catch(Exception e){
-		}
-		return false;
-	}
-	@JsonIgnore
-	public UserWorkspace getUserWorkspace(String workspaceId){
-		try{
-			for(UserWorkspace workspace : workspaces)
-				if(workspace.getWorkspace().getName().equals(workspaceId))
-					return workspace;
-		}catch(Exception e){
-		}
-		return null;
-	}
-	@JsonIgnore
-	public boolean isWorkspaceAdmin(String workspaceId){
-		try{
-			for(UserWorkspace workspace : workspaces)
-				if(workspace.getWorkspace().getName().equals(workspaceId)){
-					if(workspace.getUserType() != null
-							&& workspace.getUserType().equalsIgnoreCase("Site-Admin"))
-					return Boolean.TRUE;
-					if(workspace.getRoles() != null
-							&& workspace.getRoles().contains("Admin"))
-					return Boolean.TRUE;
+    @JsonIgnore
+    public boolean containsWorkspace(String workspaceId) {
+        try {
+            for (UserWorkspace workspace : workspaces)
+                if (workspace.getWorkspace().getName().equals(workspaceId))
+                    return true;
+        } catch (Exception e) {
+        }
+        return false;
+    }
 
-				}
-		}catch(Exception e){}
-		return Boolean.FALSE;
-	}
+    @JsonIgnore
+    public UserWorkspace getUserWorkspace(String workspaceId) {
+        try {
+            for (UserWorkspace workspace : workspaces)
+                if (workspace.getWorkspace().getName().equals(workspaceId))
+                    return workspace;
+        } catch (Exception e) {
+        }
+        return null;
+    }
 
-	@JsonIgnore
-	public boolean isWorkspaceSuperAdmin(String workspaceId){
-		try{
-			for(UserWorkspace workspace : workspaces)
-				if(workspace.getWorkspace().getName().equals(workspaceId)){
-					if(workspace.getUserType() != null
-							&& workspace.getUserType().equalsIgnoreCase("Super-Admin"))
-					return Boolean.TRUE;
-				}
-		}catch(Exception e){}
-		return Boolean.FALSE;
-	}
+    @JsonIgnore
+    public boolean isWorkspaceAdmin(String workspaceId) {
+        try {
+            for (UserWorkspace workspace : workspaces)
+                if (workspace.getWorkspace().getName().equals(workspaceId)) {
+                    if (workspace.getUserType() != null && workspace.getUserType().equalsIgnoreCase("Site-Admin"))
+                        return Boolean.TRUE;
+                    if (workspace.getRoles() != null && workspace.getRoles().contains("Admin"))
+                        return Boolean.TRUE;
 
-	@JsonIgnore
-	public boolean canLogin(){
-		if(userStatus != null && userStatus.trim() != "")
-			if(userStatus.equalsIgnoreCase("Active"))
-				return true;
-			else
-				return false;
-		else
-			return true;
-	}
-	@JsonIgnore
-	public boolean isNew(){
+                }
+        } catch (Exception e) {
+        }
+        return Boolean.FALSE;
+    }
 
-		try{
-			if(workspaces .size() == 1)
-				if(workspaces.get(0).getAcceptInvite() == true)
-					return false;
-				else
-					return true;
-		}catch(Exception e){
-		}
-		return false;
-	}
+    @JsonIgnore
+    public boolean isWorkspaceSuperAdmin(String workspaceId) {
+        try {
+            for (UserWorkspace workspace : workspaces)
+                if (workspace.getWorkspace().getName().equals(workspaceId)) {
+                    if (workspace.getUserType() != null && workspace.getUserType().equalsIgnoreCase("Super-Admin"))
+                        return Boolean.TRUE;
+                }
+        } catch (Exception e) {
+        }
+        return Boolean.FALSE;
+    }
 
-	public boolean getSubscribeNewsLetter() {
-		return subscribeNewsLetter;
-	}
+    @JsonIgnore
+    public boolean canLogin() {
+        if (userStatus != null && userStatus.trim() != "")
+            if (userStatus.equalsIgnoreCase("Active"))
+                return true;
+            else
+                return false;
+        else
+            return true;
+    }
 
-	public void setSubscribeNewsLetter(boolean subscribeNewsLetter) {
-		this.subscribeNewsLetter = subscribeNewsLetter;
-	}
+    @JsonIgnore
+    public boolean isNew() {
 
-	@JsonIgnore
-	public Apigee getApigee() {
-		return apigee;
-	}
+        try {
+            if (workspaces.size() == 1)
+                if (workspaces.get(0).getAcceptInvite() == true)
+                    return false;
+                else
+                    return true;
+        } catch (Exception e) {
+        }
+        return false;
+    }
 
-	public void setApigee(Apigee apigee) {
-		this.apigee = apigee;
-	}
+    public boolean getSubscribeNewsLetter() {
+        return subscribeNewsLetter;
+    }
 
-	public Map<String, String> getMetadata() {
-		return metadata;
-	}
+    public void setSubscribeNewsLetter(boolean subscribeNewsLetter) {
+        this.subscribeNewsLetter = subscribeNewsLetter;
+    }
 
-	public void setMetadata(Map<String, String> metadata) {
-		this.metadata = metadata;
-	}
+    @JsonIgnore
+    public Apigee getApigee() {
+        return apigee;
+    }
+
+    public void setApigee(Apigee apigee) {
+        this.apigee = apigee;
+    }
+
+    public Map<String, String> getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Map<String, String> metadata) {
+        this.metadata = metadata;
+    }
 
 }

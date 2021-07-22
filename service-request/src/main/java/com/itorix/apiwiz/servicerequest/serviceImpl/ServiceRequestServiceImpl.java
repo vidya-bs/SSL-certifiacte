@@ -173,7 +173,8 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 		serviceRequest.setType(type);
 		serviceRequest.setStatus(status);
 		serviceRequest.setName(name);
-		return new ResponseEntity<Object>(serviceRequestDao.getServiceRequests(serviceRequest, offset, pageSize), HttpStatus.OK);
+		return new ResponseEntity<Object>(serviceRequestDao.getServiceRequests(serviceRequest, offset, pageSize),
+				HttpStatus.OK);
 	}
 
 	@Override
@@ -232,11 +233,9 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 	public ResponseEntity<Object> getHistory(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable(value = "serviceRequestType") String serviceRequestType,
-			@RequestParam(value = "org") String org, 
-			@RequestParam(value = "env", required = false) String env,
-			@RequestParam(value = "name") String name,
-			@RequestParam(value = "isSaaS", required=false) boolean isSaaS,
-			@RequestHeader(value="JSESSIONID") String jsessionid,
+			@RequestParam(value = "org") String org, @RequestParam(value = "env", required = false) String env,
+			@RequestParam(value = "name") String name, @RequestParam(value = "isSaaS", required = false) boolean isSaaS,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset) throws Exception {
 		ServiceRequest serviceRequest = new ServiceRequest();
 		serviceRequest.setName(name);
@@ -245,7 +244,6 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 		serviceRequest.setType(ServiceRequestTypes.valueOf(serviceRequestType.toUpperCase()).getResponse());
 		serviceRequest.setIsSaaS(isSaaS);
 		return new ResponseEntity<Object>(serviceRequestDao.getservicerequest(serviceRequest), HttpStatus.OK);
-
 	}
 
 	public ResponseEntity<Object> configSearch(
@@ -255,6 +253,4 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 		return new ResponseEntity<Object>(serviceRequestDao.configSearchOnServiceRequest(type, name, limit),
 				HttpStatus.OK);
 	}
-
-	
 }

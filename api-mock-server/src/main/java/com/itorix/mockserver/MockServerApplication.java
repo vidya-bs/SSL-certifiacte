@@ -18,19 +18,19 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @PropertySource(value = "file:${config.properties}", ignoreResourceNotFound = true)
 public class MockServerApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(MockServerApplication.class, args);
-	}
-	
-	@Bean
-	CorsConfigurationSource corsConfigurationSource() {
-	    CorsConfiguration configuration = new CorsConfiguration();
-	    configuration.setAllowedOrigins(Arrays.asList("*"));
-	    configuration.setAllowCredentials(true);
-	    configuration.setAllowedHeaders(Arrays.asList("*"));
-	    configuration.setAllowedMethods(Arrays.asList("DELETE", "GET", "POST", "PATCH", "PUT"));
-	    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	    source.registerCorsConfiguration("/**", configuration);
-	    return source;
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(MockServerApplication.class, args);
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("DELETE", "GET", "POST", "PATCH", "PUT"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 }

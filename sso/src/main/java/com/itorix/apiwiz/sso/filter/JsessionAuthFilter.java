@@ -28,41 +28,41 @@ import com.itorix.apiwiz.sso.model.TenantContext;
 @Component
 public class JsessionAuthFilter extends OncePerRequestFilter {
 
-	public final static long MILLIS_PER_DAY = 24 * 60 * 60 * 1000L;
+    public final static long MILLIS_PER_DAY = 24 * 60 * 60 * 1000L;
 
-	private static final Logger log = LoggerFactory.getLogger(JsessionAuthFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(JsessionAuthFilter.class);
 
-	@Value(value = "${itorix.security.apikey}")
-	String apiKey;
+    @Value(value = "${itorix.security.apikey}")
+    String apiKey;
 
-	private static final String TENANT_ID = "tenantId";
-	private static final String API_KEY_NAME = "x-apikey";
+    private static final String TENANT_ID = "tenantId";
+    private static final String API_KEY_NAME = "x-apikey";
 
-	@Qualifier("masterMongoTemplate")
-	@Autowired
-	private MongoTemplate mongoTemplate;
+    @Qualifier("masterMongoTemplate")
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
-	public static final String SESSION_TOKEN_NAME = "JSESSIONID";
+    public static final String SESSION_TOKEN_NAME = "JSESSIONID";
 
-	@Override
-	protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
-			throws IOException, ServletException {
-		String apiKeyHeader = req.getHeader(API_KEY_NAME);
+    @Override
+    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
+        String apiKeyHeader = req.getHeader(API_KEY_NAME);
 
-		if(!StringUtils.isEmpty(apiKeyHeader)){
-			try {
-				if (StringUtils.hasText(apiKeyHeader) && new RSAEncryption().decryptText(apiKey).equals(apiKeyHeader)) {
-					String tenantName = ((String) req.getHeader(TENANT_ID));
-					TenantContext.setCurrentTenant(tenantName);
-					Authentication authentication = new UsernamePasswordAuthenticationToken("test1", null,
-							Arrays.asList(new SimpleGrantedAuthority("test1")));
-					SecurityContextHolder.getContext().setAuthentication(authentication);
-				}
-			} catch (Exception e) {
-				log.error("error occured during decrypting apikey", e);
-			}
+        if (!StringUtils.isEmpty(apiKeyHeader)) {
+            try {
+                if (StringUtils.hasText(apiKeyHeader) && new RSAEncryption().decryptText(apiKey).equals(apiKeyHeader)) {
+                    String tenantName = ((String) req.getHeader(TENANT_ID));
+                    TenantContext.setCurrentTenant(tenantName);
+                    Authentication authentication = new UsernamePasswordAuthenticationToken("test1", null,
+                            Arrays.asList(new SimpleGrantedAuthority("test1")));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            } catch (Exception e) {
+                log.error("error occured during decrypting apikey", e);
+            }
 
-		}
-		chain.doFilter(req, res);
-	}
+        }
+        chain.doFilter(req, res);
+    }
 }

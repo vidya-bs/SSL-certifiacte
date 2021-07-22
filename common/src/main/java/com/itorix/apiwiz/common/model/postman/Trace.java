@@ -16,67 +16,55 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Generated("org.jsonschema2pojo")
-@JsonPropertyOrder({
-"completed",
-"point"
-})
+@JsonPropertyOrder({"completed", "point"})
 public class Trace {
 
-@JsonProperty("completed")
-private boolean completed;
-@JsonProperty("point")
-private List<Point> point = new ArrayList<Point>();
-@JsonIgnore
-private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	@JsonProperty("completed")
+	private boolean completed;
 
-/**
-* 
-* @return
-* The completed
-*/
-@JsonProperty("completed")
-public boolean isCompleted() {
-return completed;
-}
+	@JsonProperty("point")
+	private List<Point> point = new ArrayList<Point>();
 
-/**
-* 
-* @param completed
-* The completed
-*/
-@JsonProperty("completed")
-public void setCompleted(boolean completed) {
-this.completed = completed;
-}
+	@JsonIgnore
+	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-/**
-* 
-* @return
-* The point
-*/
-@JsonProperty("point")
-public List<Point> getPoint() {
-return point;
-}
+	/** @return The completed */
+	@JsonProperty("completed")
+	public boolean isCompleted() {
+		return completed;
+	}
 
-/**
-* 
-* @param point
-* The point
-*/
-@JsonProperty("point")
-public void setPoint(List<Point> point) {
-this.point = point;
-}
+	/**
+	 * @param completed
+	 *            The completed
+	 */
+	@JsonProperty("completed")
+	public void setCompleted(boolean completed) {
+		this.completed = completed;
+	}
 
-@JsonAnyGetter
-public Map<String, Object> getAdditionalProperties() {
-return this.additionalProperties;
-}
+	/** @return The point */
+	@JsonProperty("point")
+	public List<Point> getPoint() {
+		return point;
+	}
 
-@JsonAnySetter
-public void setAdditionalProperty(String name, Object value) {
-this.additionalProperties.put(name, value);
-}
+	/**
+	 * @param point
+	 *            The point
+	 */
+	@JsonProperty("point")
+	public void setPoint(List<Point> point) {
+		this.point = point;
+	}
 
+	@JsonAnyGetter
+	public Map<String, Object> getAdditionalProperties() {
+		return this.additionalProperties;
+	}
+
+	@JsonAnySetter
+	public void setAdditionalProperty(String name, Object value) {
+		this.additionalProperties.put(name, value);
+	}
 }

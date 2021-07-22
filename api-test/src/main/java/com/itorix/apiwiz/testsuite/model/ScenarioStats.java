@@ -69,5 +69,4 @@ public class ScenarioStats {
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

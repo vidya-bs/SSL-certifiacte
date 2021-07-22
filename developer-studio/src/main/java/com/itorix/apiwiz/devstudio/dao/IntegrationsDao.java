@@ -3,7 +3,6 @@ package com.itorix.apiwiz.devstudio.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -28,128 +27,129 @@ public class IntegrationsDao {
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
-	
-	@Autowired 
+
+	@Autowired
 	private BaseRepository baseRepository;
-	
-	public void updateIntegratoin(Integration integration){
+
+	public void updateIntegratoin(Integration integration) {
 		List<Integration> dbIntegrationList = getIntegration(integration.getType());
-		if(dbIntegrationList != null && dbIntegrationList .size() > 0){
+		if (dbIntegrationList != null && dbIntegrationList.size() > 0) {
 			Integration dbIntegration = dbIntegrationList.get(0);
-			if(integration.getType().equalsIgnoreCase("JFROG"))
+			if (integration.getType().equalsIgnoreCase("JFROG"))
 				dbIntegration.setJfrogIntegration(integration.getJfrogIntegration());
 			else
 				dbIntegration.setGoCDIntegration(integration.getGoCDIntegration());
 			baseRepository.save(dbIntegration);
-		}else{
+		} else {
 			baseRepository.save(integration);
 		}
 	}
-	
-	public void removeIntegratoin(Integration integration){
+
+	public void removeIntegratoin(Integration integration) {
 		mongoTemplate.remove(integration);
 	}
-	
-	public void removeIntegratoin(String id){
+
+	public void removeIntegratoin(String id) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("_id").is(id));
 		mongoTemplate.remove(query, Integration.class);
 	}
-	
-	public List<Integration> getIntegration(String type){
+
+	public List<Integration> getIntegration(String type) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("type").is(type));
 		List<Integration> dbIntegrations = mongoTemplate.find(query, Integration.class);
 		return dbIntegrations;
 	}
-	
-	
-	public List<Integration> getGitIntegration(){
+
+	public List<Integration> getGitIntegration() {
 		List<Integration> integrations = getIntegration("GIT");
-		if(integrations != null)
+		if (integrations != null)
 			return integrations;
-		else 
+		else
 			return new ArrayList<Integration>();
 	}
-	
-	public Integration getGitIntegration(String type, String usage){
+
+	public Integration getGitIntegration(String type, String usage) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("type").is(type));
 		query.addCriteria(Criteria.where("gitIntegration.userType").is(usage));
 		Integration dbIntegration = mongoTemplate.findOne(query, Integration.class);
-		if(dbIntegration != null)
-			return  dbIntegration;
+		if (dbIntegration != null)
+			return dbIntegration;
 		return null;
 	}
-	
-	public void updateGITIntegratoin(Integration integration){
-		Integration dbIntegration = getGitIntegration( integration.getType(), integration.getGitIntegration().getUserType());
-		if(dbIntegration != null){
+
+	public void updateGITIntegratoin(Integration integration) {
+		Integration dbIntegration = getGitIntegration(integration.getType(),
+				integration.getGitIntegration().getUserType());
+		if (dbIntegration != null) {
 			dbIntegration.setGitIntegration(integration.getGitIntegration());
 			baseRepository.save(dbIntegration);
-		}else{
+		} else {
 			baseRepository.save(integration);
 		}
-		
 	}
-	public void removeGitIntegration(String id){
-			removeIntegratoin(id);
+
+	public void removeGitIntegration(String id) {
+		removeIntegratoin(id);
 	}
-	
-	public Integration getJfrogIntegration(){
+
+	public Integration getJfrogIntegration() {
 		List<Integration> dbIntegrationList = getIntegration("JFROG");
 		Integration integration = new Integration();
-		if(dbIntegrationList != null && dbIntegrationList.size()>0)
-			return  dbIntegrationList.get(0);
+		if (dbIntegrationList != null && dbIntegrationList.size() > 0)
+			return dbIntegrationList.get(0);
 		return integration;
 	}
-	
-	public void updateJfrogIntegratoin(Integration integration){
-		List<Integration> dbIntegrationList = getIntegration( "JFROG");
-		if(dbIntegrationList != null && dbIntegrationList .size() > 0){
+
+	public void updateJfrogIntegratoin(Integration integration) {
+		List<Integration> dbIntegrationList = getIntegration("JFROG");
+		if (dbIntegrationList != null && dbIntegrationList.size() > 0) {
 			Integration dbIntegration = dbIntegrationList.get(0);
 			dbIntegration.setJfrogIntegration(integration.getJfrogIntegration());
 			baseRepository.save(dbIntegration);
-		}else{
+		} else {
 			baseRepository.save(integration);
 		}
 	}
-	
-	public void removeJfrogIntegration(){
+
+	public void removeJfrogIntegration() {
 		Integration integration = getIntegration("JFROG").get(0);
-		if(integration != null)
+		if (integration != null)
 			removeIntegratoin(integration);
 	}
-	
-	public List<Integration> getGitLabIntegration(){
+
+	public List<Integration> getGitLabIntegration() {
 		List<Integration> integrations = getIntegration("GITLAB");
-		if(integrations != null)
-			return  integrations;
-		else
-		return new ArrayList<Integration>();
-	}
-	
-	public void removeGitLabIntegration(){
-		Integration integration = getIntegration("GITLAB").get(0);
-		if(integration != null)
-			removeIntegratoin(integration);
-	}
-	
-	public List<Integration> getBitBucketIntegration(){
-		List<Integration> integrations = getIntegration("BITBUCKET");
-		if(integrations != null)
+		if (integrations != null)
 			return integrations;
-		else 
+		else
 			return new ArrayList<Integration>();
 	}
-	
-	public void removeBitBucketIntegration(){
-		Integration integration = getIntegration("BITBUCKET").get(0);
-		if(integration != null)
+
+	public void removeGitLabIntegration() {
+		Integration integration = getIntegration("GITLAB").get(0);
+		if (integration != null)
 			removeIntegratoin(integration);
 	}
-	
-	public String getGoServerVersion(GoCDIntegration goCDIntegration) throws JsonMappingException, JsonProcessingException{
+
+	public List<Integration> getBitBucketIntegration() {
+		List<Integration> integrations = getIntegration("BITBUCKET");
+		if (integrations != null)
+			return integrations;
+		else
+			return new ArrayList<Integration>();
+	}
+
+	public void removeBitBucketIntegration() {
+		Integration integration = getIntegration("BITBUCKET").get(0);
+		if (integration != null)
+			removeIntegratoin(integration);
+	}
+
+	public String getGoServerVersion(GoCDIntegration goCDIntegration)
+			throws JsonMappingException, JsonProcessingException {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", "application/vnd.go.cd.v1+json");
 		RestTemplate restTemplate = new RestTemplate();

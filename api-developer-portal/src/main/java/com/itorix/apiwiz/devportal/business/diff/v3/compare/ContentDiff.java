@@ -68,5 +68,4 @@ public class ContentDiff {
 	public Boolean isNotEmpty() {
 		return !this.getAdded().isEmpty() || !this.getChanged().isEmpty() || !this.getMissing().isEmpty();
 	}
-
 }

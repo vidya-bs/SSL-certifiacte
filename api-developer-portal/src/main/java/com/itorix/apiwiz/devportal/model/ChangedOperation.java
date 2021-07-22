@@ -66,17 +66,15 @@ public class ChangedOperation implements Changed {
 	}
 
 	public boolean isDiff() {
-		return !addParameters.isEmpty() || !missingParameters.isEmpty()
-				|| !changedParameter.isEmpty() || !addProps.isEmpty()
-				|| !missingProps.isEmpty();
-	}
-	public boolean isDiffProp(){
-		return !addProps.isEmpty()
-				|| !missingProps.isEmpty();
-	}
-	public boolean isDiffParam(){
-		return !addParameters.isEmpty() || !missingParameters.isEmpty()
-				|| !changedParameter.isEmpty();
+		return !addParameters.isEmpty() || !missingParameters.isEmpty() || !changedParameter.isEmpty()
+				|| !addProps.isEmpty() || !missingProps.isEmpty();
 	}
 
+	public boolean isDiffProp() {
+		return !addProps.isEmpty() || !missingProps.isEmpty();
+	}
+
+	public boolean isDiffParam() {
+		return !addParameters.isEmpty() || !missingParameters.isEmpty() || !changedParameter.isEmpty();
+	}
 }

@@ -11,20 +11,20 @@ public class ExternalDocumentationDiff {
 	public ExternalDocumentation diff(ExternalDocumentation oldDoc, ExternalDocumentation newDoc) {
 
 		ExternalDocumentation changedExternalDocumentation = null;
-		
-		if(Objects.isNull(oldDoc) && Objects.isNull(newDoc)) {
+
+		if (Objects.isNull(oldDoc) && Objects.isNull(newDoc)) {
 			return null;
 		}
-		
-		if(Objects.isNull(oldDoc) && Objects.nonNull(newDoc)) {
+
+		if (Objects.isNull(oldDoc) && Objects.nonNull(newDoc)) {
 			changedExternalDocumentation = new ExternalDocumentation();
 			changedExternalDocumentation.setDescription(newDoc.getDescription());
 			changedExternalDocumentation.setUrl(newDoc.getUrl());
-			changedExternalDocumentation.setExtensions(newDoc.getExtensions()); 
+			changedExternalDocumentation.setExtensions(newDoc.getExtensions());
 			return changedExternalDocumentation;
 		}
-		
-		if(Objects.nonNull(oldDoc) && Objects.isNull(newDoc)) {
+
+		if (Objects.nonNull(oldDoc) && Objects.isNull(newDoc)) {
 			return null;
 		}
 
@@ -40,11 +40,10 @@ public class ExternalDocumentationDiff {
 			}
 
 			// TODO: extensions - later
-			
+
 			return changedExternalDocumentation;
 		}
 
 		return null;
 	}
-
 }

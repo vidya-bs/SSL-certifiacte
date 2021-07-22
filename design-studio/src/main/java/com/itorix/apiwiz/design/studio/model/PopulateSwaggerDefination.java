@@ -29,9 +29,7 @@ import io.swagger.models.properties.RefProperty;
 
 public class PopulateSwaggerDefination {
 	private ObjectMapper mapper = new ObjectMapper();
-	final static Logger logger = Logger
-			.getLogger(PopulateSwaggerDefination.class);
-
+	static final Logger logger = Logger.getLogger(PopulateSwaggerDefination.class);
 
 	public Swagger populateDefinitons(List<RowData> rd, Swagger swagger) {
 		Map<String, Model> definitions = swagger.getDefinitions();
@@ -43,7 +41,7 @@ public class PopulateSwaggerDefination {
 		return swagger;
 	}
 
-	public OpenAPI populateDefinitons(List<RowData> rd, OpenAPI openAPI ) {
+	public OpenAPI populateDefinitons(List<RowData> rd, OpenAPI openAPI) {
 		Map<String, Model> definitions = null;
 		if (definitions == null) {
 			definitions = new HashMap<String, Model>();
@@ -59,28 +57,31 @@ public class PopulateSwaggerDefination {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private HashMap<String, Schema> convertDefinition(Map<String, Model> model){
+	private HashMap<String, Schema> convertDefinition(Map<String, Model> model) {
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		try {
-			HashMap<String, Schema> schemas3 = new HashMap<String, Schema>(); 
+			HashMap<String, Schema> schemas3 = new HashMap<String, Schema>();
 			Set<String> keys = model.keySet();
-			for(String key: keys){
+			for (String key : keys) {
 				Model model2 = model.get(key);
 				String modelStr = mapper.writeValueAsString(model2);
 				modelStr = modelStr.replaceAll("/definitions/", "/components/schemas/");
 				Schema schema = mapper.readValue(modelStr, Schema.class);
 				Map<String, Property> modelProps = model2.getProperties();
-				for(String propKey : modelProps.keySet()){
+				for (String propKey : modelProps.keySet()) {
 					Property property = modelProps.get(propKey);
 					String propStr = mapper.writeValueAsString(property);
 					DocumentContext context;
 					context = JsonPath.parse(propStr);
 					String token = getAttributeValue(context, "$.items.$ref");
-					if(token != ""){
+					if (token != "") {
 						Map<String, Schema> schemaProperties = schema.getProperties();
-						schemaProperties.get(propKey).set$ref(token.replaceAll("/definitions/", "/components/schemas/"));
-						String modelPropStr=  mapper.writeValueAsString(modelProps).replaceAll("/definitions/", "/components/schemas/");
-						//modelProps = mapper.readValue(modelStr, Map<String, Schema>.class);
+						schemaProperties.get(propKey)
+								.set$ref(token.replaceAll("/definitions/", "/components/schemas/"));
+						String modelPropStr = mapper.writeValueAsString(modelProps).replaceAll("/definitions/",
+								"/components/schemas/");
+						// modelProps = mapper.readValue(modelStr, Map<String,
+						// Schema>.class);
 						schema.setProperties(modelProps);
 					}
 				}
@@ -96,7 +97,7 @@ public class PopulateSwaggerDefination {
 	public Map<String, Model> populateDefinitons(List<RowData> rd, Map<String, Model> definitions) {
 		for (RowData r : rd) {
 			String xpath = r.getXpath();
-			//System.out.println(xpath);
+			// System.out.println(xpath);
 			String typ = r.getJsonType();
 			String[] xpathArray = xpath.split("/");
 			String lastBut = "";
@@ -119,8 +120,8 @@ public class PopulateSwaggerDefination {
 					if (model == null) {
 						ModelImpl modelImpl = new ModelImpl();
 						modelImpl.setType(ModelImpl.OBJECT);
-						Model m=definitions.get(last);
-						if(m==null){
+						Model m = definitions.get(last);
+						if (m == null) {
 							definitions.put(last, modelImpl);
 							String des = r.getDocumentation();
 							if (des != null && des.length() > 0) {
@@ -129,8 +130,7 @@ public class PopulateSwaggerDefination {
 						}
 					} else {
 						if (model instanceof ModelImpl) {
-							Map<String, Property> proMap = model
-									.getProperties();
+							Map<String, Property> proMap = model.getProperties();
 							if (proMap == null) {
 								Map<String, Property> propertties = new HashMap<String, Property>();
 
@@ -162,7 +162,7 @@ public class PopulateSwaggerDefination {
 
 					if (proMap == null) {
 						Map<String, Property> propertties = new HashMap<String, Property>();
-						Property property = getProperty(r,  lastBut, last);
+						Property property = getProperty(r, lastBut, last);
 						propertties.put(last, property);
 						model.setProperties(propertties);
 
@@ -178,7 +178,7 @@ public class PopulateSwaggerDefination {
 		String strDef;
 		try {
 			strDef = new ObjectMapper().writeValueAsString(definitions);
-			//System.out.println(strDef);
+			// System.out.println(strDef);
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -186,33 +186,24 @@ public class PopulateSwaggerDefination {
 		return definitions;
 	}
 
-
-	public static Property getProperty(RowData r, 
-			String lastBut, String last) {
+	public static Property getProperty(RowData r, String lastBut, String last) {
 		Map<PropertyBuilder.PropertyId, Object> map = new HashMap<PropertyBuilder.PropertyId, Object>();
-		/*String mmp = p1.getProperty(lastBut);
-		if (mmp != null && mmp.length() > 0) {
-			String[] a = mmp.split(Pattern.quote("|"));
-			int c = 0;
-			for (String s : a) {
-				if (c == 0) {
-					map.put(PropertyId.MIN_LENGTH, s);
-				} else if (c == 1) {
-					map.put(PropertyId.MAX_LENGTH, s);
-				} else if (c == 2) {
-					map.put(PropertyId.PATTERN, s);
-				}
-				c++;
-			}
-
-		}*/
-		if(r.getMinLength()!=null && r.getMinLength().length()>0){
-			map.put(PropertyId.MIN_LENGTH,Integer.parseInt(r.getMinLength()));
+		/*
+		 * String mmp = p1.getProperty(lastBut); if (mmp != null && mmp.length()
+		 * > 0) { String[] a = mmp.split(Pattern.quote("|")); int c = 0; for
+		 * (String s : a) { if (c == 0) { map.put(PropertyId.MIN_LENGTH, s); }
+		 * else if (c == 1) { map.put(PropertyId.MAX_LENGTH, s); } else if (c ==
+		 * 2) { map.put(PropertyId.PATTERN, s); } c++; }
+		 * 
+		 * }
+		 */
+		if (r.getMinLength() != null && r.getMinLength().length() > 0) {
+			map.put(PropertyId.MIN_LENGTH, Integer.parseInt(r.getMinLength()));
 		}
-		if(r.getMaxLength()!=null && r.getMaxLength().length()>0){
+		if (r.getMaxLength() != null && r.getMaxLength().length() > 0) {
 			map.put(PropertyId.MAX_LENGTH, Integer.parseInt(r.getMaxLength()));
 		}
-		if(r.getPattern()!=null && r.getPattern().length()>0){
+		if (r.getPattern() != null && r.getPattern().length() > 0) {
 			map.put(PropertyId.PATTERN, r.getPattern());
 		}
 		List<String> l = r.getEnumcell();
@@ -229,24 +220,26 @@ public class PopulateSwaggerDefination {
 			}
 
 			map.put(PropertyId.TYPE, "array");
-			ArrayProperty ar = (ArrayProperty) PropertyBuilder.build("array",
-					null, map);
+			ArrayProperty ar = (ArrayProperty) PropertyBuilder.build("array", null, map);
 			Property property = PropertyBuilder.build(r.getJsonType(),
-					(r.getJsonFormat() != null && r.getJsonFormat().trim()
-					.length() > 0) ? r.getJsonFormat().trim() : null, map);
+					(r.getJsonFormat() != null && r.getJsonFormat().trim().length() > 0)
+							? r.getJsonFormat().trim()
+							: null,
+					map);
 			ar.setItems(property);
 			return ar;
 		} else {
 			Property property = PropertyBuilder.build(r.getJsonType(),
-					(r.getJsonFormat() != null && r.getJsonFormat().trim()
-					.length() > 0) ? r.getJsonFormat().trim() : null, map);
+					(r.getJsonFormat() != null && r.getJsonFormat().trim().length() > 0)
+							? r.getJsonFormat().trim()
+							: null,
+					map);
 			if (r.getMin().equals("1") && r.getMax().equals("1")) {
-				//System.out.println(last);
+				// System.out.println(last);
 				property.setRequired(true);
 			}
 			return property;
 		}
-
 	}
 
 	public static Property getModelProperty(RowData r, String last) {
@@ -259,23 +252,20 @@ public class PopulateSwaggerDefination {
 			}
 			if (r.getMin().equalsIgnoreCase("1")) {
 				map.put(PropertyId.MIN_ITEMS, 1);
-				//map.put(PropertyId.MAX_ITEMS, 2147483647);
+				// map.put(PropertyId.MAX_ITEMS, 2147483647);
 			}
-			ArrayProperty ar = (ArrayProperty) PropertyBuilder.build("array",
-					null, map);
+			ArrayProperty ar = (ArrayProperty) PropertyBuilder.build("array", null, map);
 			RefProperty refProperty = new RefProperty();
 			refProperty.set$ref(last);
 			ar.setItems(refProperty);
 			return ar;
 		} else {
-			RefProperty property = (RefProperty) PropertyBuilder.build("ref",
-					null, map);
+			RefProperty property = (RefProperty) PropertyBuilder.build("ref", null, map);
 			property.set$ref(last);
 			return property;
 		}
 	}
-	
-	
+
 	private static String getAttributeValue(DocumentContext context, String path) {
 		String value = "";
 		try {
@@ -288,9 +278,8 @@ public class PopulateSwaggerDefination {
 			} else
 				value = context.read(path).toString();
 		} catch (Exception ex) {
-			//ex.printStackTrace();
+			// ex.printStackTrace();
 		}
 		return value;
 	}
-
 }

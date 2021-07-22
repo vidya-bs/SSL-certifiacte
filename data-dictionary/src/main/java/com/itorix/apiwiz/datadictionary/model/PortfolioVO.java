@@ -8,11 +8,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.itorix.apiwiz.identitymanagement.model.AbstractObject;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "Design.Dictionary.List")
-//@Document(collection = "Portfolio.Portfolios")
+// @Document(collection = "Portfolio.Portfolios")
 public class PortfolioVO extends AbstractObject {
-	
+
 	private String summary;
 
 	private String description;
@@ -20,7 +21,6 @@ public class PortfolioVO extends AbstractObject {
 	private String name;
 	@Transient
 	private List<Object> models;
-	
 
 	public String getSummary() {
 		return summary;
@@ -29,7 +29,7 @@ public class PortfolioVO extends AbstractObject {
 	public void setSummary(String summary) {
 		this.summary = summary;
 	}
-	
+
 	public String getDescription() {
 		return description;
 	}
@@ -50,11 +50,12 @@ public class PortfolioVO extends AbstractObject {
 	public List<Object> getModels() {
 		return models;
 	}
+
 	@JsonIgnore
 	public void setModels(List<Object> models) {
 		this.models = models;
 	}
-	
+
 	public List<Object> getSchemas() {
 		return models;
 	}
@@ -62,7 +63,4 @@ public class PortfolioVO extends AbstractObject {
 	public void setSchemas(List<Object> models) {
 		this.models = models;
 	}
-	
-	
-
 }

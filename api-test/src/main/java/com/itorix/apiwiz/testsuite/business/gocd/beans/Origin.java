@@ -10,47 +10,45 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-    "type",
-    "file"
-})
+@JsonPropertyOrder({"type", "file"})
 public class Origin {
 
-    @JsonProperty("type")
-    private String type;
-    @JsonProperty("file")
-    private String file;
-    @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	@JsonProperty("type")
+	private String type;
 
-    @JsonProperty("type")
-    public String getType() {
-        return type;
-    }
+	@JsonProperty("file")
+	private String file;
 
-    @JsonProperty("type")
-    public void setType(String type) {
-        this.type = type;
-    }
+	@JsonIgnore
+	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("file")
-    public String getFile() {
-        return file;
-    }
+	@JsonProperty("type")
+	public String getType() {
+		return type;
+	}
 
-    @JsonProperty("file")
-    public void setFile(String file) {
-        this.file = file;
-    }
+	@JsonProperty("type")
+	public void setType(String type) {
+		this.type = type;
+	}
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
+	@JsonProperty("file")
+	public String getFile() {
+		return file;
+	}
 
-    @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-    }
+	@JsonProperty("file")
+	public void setFile(String file) {
+		this.file = file;
+	}
 
+	@JsonAnyGetter
+	public Map<String, Object> getAdditionalProperties() {
+		return this.additionalProperties;
+	}
+
+	@JsonAnySetter
+	public void setAdditionalProperty(String name, Object value) {
+		this.additionalProperties.put(name, value);
+	}
 }

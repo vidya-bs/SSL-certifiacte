@@ -28,7 +28,7 @@ public class ProxyData {
 	private ProxyApigeeDetails proxyApigeeDetails;
 	private ProxyArtifacts proxyArtifacts = new ProxyArtifacts();
 	private List<ProxyConnection> proxyConnections;
-	
+
 	public String getId() {
 		return id;
 	}
@@ -36,6 +36,7 @@ public class ProxyData {
 	public void setId(String id) {
 		this.id = id;
 	}
+
 	public String getProxyName() {
 		return proxyName;
 	}
@@ -77,14 +78,14 @@ public class ProxyData {
 	}
 
 	public void addCodeGenHistory(CodeGenHistory codeGenHistory) {
-		if(this.codeGenHistory != null)
+		if (this.codeGenHistory != null)
 			this.codeGenHistory.add(codeGenHistory);
-		else{
+		else {
 			this.codeGenHistory = new ArrayList<CodeGenHistory>();
 			this.codeGenHistory.add(codeGenHistory);
-			}
+		}
 	}
-	
+
 	public OrgEnvs getOrgEnvs() {
 		return associatedProxyEnvs;
 	}
@@ -132,6 +133,4 @@ public class ProxyData {
 	public void setProxyConnections(List<ProxyConnection> proxyConnections) {
 		this.proxyConnections = proxyConnections;
 	}
-
-	
 }

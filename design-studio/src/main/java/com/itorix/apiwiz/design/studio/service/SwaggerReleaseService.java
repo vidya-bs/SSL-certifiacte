@@ -15,17 +15,15 @@ import com.itorix.apiwiz.design.studio.swaggerdiff.model.DiffVO;
 @CrossOrigin
 @RestController
 public interface SwaggerReleaseService {
-	
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/change-log")
-	public ResponseEntity<Object> getDifference(
-			@RequestHeader(value = "JSESSIONID") String jsessionId,
+	public ResponseEntity<Object> getDifference(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
-			@RequestBody DiffVO diff) throws Exception;
-	
+			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas, @RequestBody DiffVO diff)
+			throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggerid}/change-log")
-	public ResponseEntity<Object> saveDifference(
-			@RequestHeader(value = "JSESSIONID") String jsessionId,
+	public ResponseEntity<Object> saveDifference(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
 			@RequestParam(value = "text", required = false) String text,
@@ -33,37 +31,35 @@ public interface SwaggerReleaseService {
 			@RequestParam(value = "newRevision", required = false) String newRevision,
 			@RequestParam(value = "summary", required = false) String summary,
 			@PathVariable(value = "swaggerid") String swaggerid) throws Exception;
-	
+
 	@RequestMapping(method = RequestMethod.POST, value = {"/v1/swaggers/{swaggerid}/change-log/{id}"})
-	public ResponseEntity<Object> updateDifference(
-			@RequestHeader(value = "JSESSIONID") String jsessionId,
+	public ResponseEntity<Object> updateDifference(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
 			@PathVariable(value = "swaggerid", required = false) String swaggerid,
-			@PathVariable(value = "id" , required = false) String id,
+			@PathVariable(value = "id", required = false) String id,
 			@RequestParam(value = "text", required = false) String text,
 			@RequestParam(value = "summary", required = false) String summary) throws Exception;
-	
-	@RequestMapping(method = RequestMethod.GET, value = {"/v1/documentation/release-notes/{year}", "/v1/documentation/release-notes"})
-	public ResponseEntity<Object> getReleasenotesbyyear(
-			@RequestHeader(value = "JSESSIONID") String jsessionId,
+
+	@RequestMapping(method = RequestMethod.GET, value = {"/v1/documentation/release-notes/{year}",
+			"/v1/documentation/release-notes"})
+	public ResponseEntity<Object> getReleasenotesbyyear(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
-			@PathVariable(value = "year" , required = false) String year) throws Exception;
-	
+			@PathVariable(value = "year", required = false) String year) throws Exception;
+
 	@RequestMapping(method = RequestMethod.GET, value = {"/v1/documentation/release-notes/years"})
-	public ResponseEntity<Object> getYearsr(
-			@RequestHeader(value = "JSESSIONID") String jsessionId,
+	public ResponseEntity<Object> getYearsr(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas) throws Exception;
-	
-	@RequestMapping(method = RequestMethod.GET, value = {"/v1/swaggers/{swaggerid}/change-log/{id}", "/v1/swaggers/{swaggerid}/change-log"})
-	public ResponseEntity<Object> getSwaggerChangelog(
-			@RequestHeader(value = "JSESSIONID") String jsessionId,
+
+	@RequestMapping(method = RequestMethod.GET, value = {"/v1/swaggers/{swaggerid}/change-log/{id}",
+			"/v1/swaggers/{swaggerid}/change-log"})
+	public ResponseEntity<Object> getSwaggerChangelog(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "timeRange", required = false) String timeRange,
-			@PathVariable(value = "swaggerid" , required = false) String swaggerid,
-			@PathVariable(value = "id" , required = false) String id) throws Exception;
+			@PathVariable(value = "swaggerid", required = false) String swaggerid,
+			@PathVariable(value = "id", required = false) String id) throws Exception;
 }

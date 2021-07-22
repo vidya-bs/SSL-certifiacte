@@ -11,23 +11,23 @@ import lombok.Setter;
 @Setter
 public class Body {
 
-	enum Type {
-		@JsonProperty("JSON")
-		json,
+    enum Type {
+        @JsonProperty("JSON")
+        json,
 
-		@JsonProperty("XML")
-		xml,
+        @JsonProperty("XML")
+        xml,
 
-		@JsonProperty("TEXT")
-		text,
+        @JsonProperty("TEXT")
+        text,
 
-		@JsonProperty("HTML")
-		html;
-	}
+        @JsonProperty("HTML")
+        html;
+    }
 
-	@JsonProperty("type")
-	private String type;
+    @JsonProperty("type")
+    private String type;
 
-	@JsonProperty("data")
-	private String data;
+    @JsonProperty("data")
+    private String data;
 }

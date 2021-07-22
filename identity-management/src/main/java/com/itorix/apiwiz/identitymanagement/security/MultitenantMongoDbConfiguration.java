@@ -16,7 +16,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoClientURI;
 
-
 @Configuration
 public class MultitenantMongoDbConfiguration {
 
@@ -32,7 +31,7 @@ public class MultitenantMongoDbConfiguration {
 	@Bean
 	public MongoClient createMongoClient() throws UnknownHostException {
 		return new MongoClient(new MongoClientURI(mongoProperties.getUri()));
-		//return mongoProperties.createMongoClient(options, environment);
+		// return mongoProperties.createMongoClient(options, environment);
 	}
 
 	@Primary
@@ -56,5 +55,4 @@ public class MultitenantMongoDbConfiguration {
 	public MongoDbFactory masterFactory() throws Exception {
 		return new SimpleMongoDbFactory(createMongoClient(), mongoProperties.getDatabase());
 	}
-
 }

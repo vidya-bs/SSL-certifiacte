@@ -27,9 +27,8 @@ import com.itorix.apiwiz.common.model.postman.SoapUiEnvFileInfo;
 import com.itorix.apiwiz.common.model.postman.SoapUiFileInfo;
 import com.itorix.apiwiz.common.service.GridFsRepository;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
-//import com.mongodb.gridfs.GridFSFile;
+// import com.mongodb.gridfs.GridFSFile;
 import com.mongodb.client.gridfs.model.GridFSFile;
-
 
 @Component
 public class SoapArtifiactServiceDao {
@@ -43,11 +42,11 @@ public class SoapArtifiactServiceDao {
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
-	public PostmanEnvValue savePostMan(MultipartFile postmanFile, String org, String env, String proxy,String type)
+	public PostmanEnvValue savePostMan(MultipartFile postmanFile, String org, String env, String proxy, String type)
 			throws ItorixException {
 		PostManEnvFileInfo soapUiEnvFileInfo = new PostManEnvFileInfo();
 		try {
-			SoapUiEnvFileInfo postManEnvFiledbInfo = findByOrgEnvProxy(org, env, proxy,type,false);
+			SoapUiEnvFileInfo postManEnvFiledbInfo = findByOrgEnvProxy(org, env, proxy, type, false);
 			if (postManEnvFiledbInfo != null && postManEnvFiledbInfo.getPostManFileContent() != null) {
 				throw new ItorixException(new Throwable().getMessage(), "Connector-1000", new Throwable());
 			} else {
@@ -71,16 +70,16 @@ public class SoapArtifiactServiceDao {
 		return null;
 	}
 
-	public PostManEnvFileInfo updatePostMan(MultipartFile file, String org, String env, String proxy,String interactionid, String type, boolean isSaaS)
-			throws ItorixException {
-		//log("updatePostMan",interactionid,org, env, proxy);
+	public PostManEnvFileInfo updatePostMan(MultipartFile file, String org, String env, String proxy,
+			String interactionid, String type, boolean isSaaS) throws ItorixException {
+		// log("updatePostMan",interactionid,org, env, proxy);
 		SoapUiFileInfo soapUiFileInfo = new SoapUiFileInfo();
 		try {
-			SoapUiFileInfo soapuiFiledbInfo = findPostManByOrgEnvProxy(org, env, proxy,type, isSaaS);
-			if (soapuiFiledbInfo != null ) {
-				String oid = gridFsRepository.storeFile(
-						new GridFsData(file.getInputStream(), org + "-" + env + "-" + proxy + "-" +type + "_postManFile"));
-				//String oid = gridFSFile.getId().toString();
+			SoapUiFileInfo soapuiFiledbInfo = findPostManByOrgEnvProxy(org, env, proxy, type, isSaaS);
+			if (soapuiFiledbInfo != null) {
+				String oid = gridFsRepository.storeFile(new GridFsData(file.getInputStream(),
+						org + "-" + env + "-" + proxy + "-" + type + "_postManFile"));
+				// String oid = gridFSFile.getId().toString();
 				ByteArrayInputStream stream = new ByteArrayInputStream(file.getBytes());
 				String myString = IOUtils.toString(stream, "UTF-8");
 				String postManFileContent = null;
@@ -90,9 +89,9 @@ public class SoapArtifiactServiceDao {
 				soapuiFiledbInfo.setOriginalPostManFileName(file.getOriginalFilename());
 				soapuiFiledbInfo = baseRepository.save(soapuiFiledbInfo);
 			} else {
-				String oid = gridFsRepository.storeFile(
-						new GridFsData(file.getInputStream(), org + "-" + env + "-" + proxy + "-" +type + "_postManFile"));
-				//String oid = gridFSFile.getId().toString();
+				String oid = gridFsRepository.storeFile(new GridFsData(file.getInputStream(),
+						org + "-" + env + "-" + proxy + "-" + type + "_postManFile"));
+				// String oid = gridFSFile.getId().toString();
 				ByteArrayInputStream stream = new ByteArrayInputStream(file.getBytes());
 				String myString = IOUtils.toString(stream, "UTF-8");
 				String postManFileContent = null;
@@ -123,7 +122,6 @@ public class SoapArtifiactServiceDao {
 		SoapUiEnvFileInfo soapUiEnvFileInfo = mongoTemplate.findOne(query, SoapUiEnvFileInfo.class);
 		return soapUiEnvFileInfo;
 	}
-	
 
 	public SoapUiFileInfo findPostManByOrgEnvProxy(String org, String env, String proxy, String type, boolean isSaaS) {
 		Query query = new Query(
@@ -135,13 +133,12 @@ public class SoapArtifiactServiceDao {
 		SoapUiFileInfo soapUiFileInfo = mongoTemplate.findOne(query, SoapUiFileInfo.class);
 		return soapUiFileInfo;
 	}
-	
 
-	public SoapUiEnvFileInfo saveEnvFile(MultipartFile envFile, String org, String env, String proxy,String type)
+	public SoapUiEnvFileInfo saveEnvFile(MultipartFile envFile, String org, String env, String proxy, String type)
 			throws ItorixException {
 		SoapUiEnvFileInfo soapUiEnvFileInfo = new SoapUiEnvFileInfo();
 		try {
-			SoapUiEnvFileInfo soapUiEnvFiledbInfo = findByOrgEnvProxy(org, env, proxy,type,false);
+			SoapUiEnvFileInfo soapUiEnvFiledbInfo = findByOrgEnvProxy(org, env, proxy, type, false);
 			if (soapUiEnvFiledbInfo == null
 					|| (soapUiEnvFiledbInfo != null && soapUiEnvFiledbInfo.getEnvFileContent() == null)) {
 				GridFSFile gridFSFile = gridFsRepository
@@ -172,15 +169,15 @@ public class SoapArtifiactServiceDao {
 		return null;
 	}
 
-	public SoapUiEnvFileInfo updateEnvFile(MultipartFile envFile, String org, String env, String proxy,String interactionid,String type, boolean isSaaS)
-			throws ItorixException {
-		//log("updateEnvFile",interactionid,org, env, proxy);
+	public SoapUiEnvFileInfo updateEnvFile(MultipartFile envFile, String org, String env, String proxy,
+			String interactionid, String type, boolean isSaaS) throws ItorixException {
+		// log("updateEnvFile",interactionid,org, env, proxy);
 		try {
-			SoapUiEnvFileInfo postManEnvFiledbInfo = findByOrgEnvProxy(org, env, proxy,type, isSaaS);
-			if (postManEnvFiledbInfo != null ) {
-				String oid = gridFsRepository
-						.storeFile(new GridFsData(envFile.getInputStream(), org + "-" + env + "-" + proxy+ "-" +type + "_envFile"));
-				//String oid = gridFSFile.getId().toString();
+			SoapUiEnvFileInfo postManEnvFiledbInfo = findByOrgEnvProxy(org, env, proxy, type, isSaaS);
+			if (postManEnvFiledbInfo != null) {
+				String oid = gridFsRepository.storeFile(new GridFsData(envFile.getInputStream(),
+						org + "-" + env + "-" + proxy + "-" + type + "_envFile"));
+				// String oid = gridFSFile.getId().toString();
 				ByteArrayInputStream stream = new ByteArrayInputStream(envFile.getBytes());
 				String myString = IOUtils.toString(stream, "UTF-8");
 				String envFileContent = null;
@@ -194,9 +191,9 @@ public class SoapArtifiactServiceDao {
 				postManEnvFiledbInfo = baseRepository.save(postManEnvFiledbInfo);
 			} else {
 				SoapUiEnvFileInfo soapUiEnvFileInfo = new SoapUiEnvFileInfo();
-				String oid =gridFsRepository
-						.storeFile(new GridFsData(envFile.getInputStream(), org + "-" + env + "-" + proxy+ "-" +type + "_envFile"));
-				//String oid = gridFSFile.getId().toString();
+				String oid = gridFsRepository.storeFile(new GridFsData(envFile.getInputStream(),
+						org + "-" + env + "-" + proxy + "-" + type + "_envFile"));
+				// String oid = gridFSFile.getId().toString();
 				ByteArrayInputStream stream = new ByteArrayInputStream(envFile.getBytes());
 				String myString = IOUtils.toString(stream, "UTF-8");
 				String envFileContent = null;
@@ -216,9 +213,10 @@ public class SoapArtifiactServiceDao {
 		}
 		return null;
 	}
-	
-	public Object getEnvFile(String org, String env, String proxy,String interactionid, String type, boolean isSaaS) throws IOException, ItorixException {
-		SoapUiEnvFileInfo soapUiEnvFiledbInfo = findByOrgEnvProxy(org, env, proxy,type, isSaaS);
+
+	public Object getEnvFile(String org, String env, String proxy, String interactionid, String type, boolean isSaaS)
+			throws IOException, ItorixException {
+		SoapUiEnvFileInfo soapUiEnvFiledbInfo = findByOrgEnvProxy(org, env, proxy, type, isSaaS);
 		if (soapUiEnvFiledbInfo != null) {
 			File file1 = new File("EnvironmentFile");
 			byte[] filebytes = IOUtils.toByteArray(soapUiEnvFiledbInfo.getEnvFileContent());
@@ -229,59 +227,60 @@ public class SoapArtifiactServiceDao {
 		}
 	}
 
-	public Object deletePostManEnvFile(String org, String env, String proxy,String interactionid, String type, String recordtype, boolean isSaaS) throws ItorixException {
-		if(recordtype!=null &&  recordtype.equalsIgnoreCase("env")){
-			SoapUiEnvFileInfo soapUiEnvFileInfo = findByOrgEnvProxy(org, env, proxy,type, isSaaS);
+	public Object deletePostManEnvFile(String org, String env, String proxy, String interactionid, String type,
+			String recordtype, boolean isSaaS) throws ItorixException {
+		if (recordtype != null && recordtype.equalsIgnoreCase("env")) {
+			SoapUiEnvFileInfo soapUiEnvFileInfo = findByOrgEnvProxy(org, env, proxy, type, isSaaS);
 			if (soapUiEnvFileInfo != null) {
 				baseRepository.delete(soapUiEnvFileInfo.getId(), SoapUiEnvFileInfo.class);
-			}else{
+			} else {
 				throw new ItorixException(new Throwable().getMessage(), "Connector-1004", new Throwable());
 			}
-		}else if(recordtype!=null &&  recordtype.equalsIgnoreCase("postman")){
-			SoapUiFileInfo soapUiFileInfo = findPostManByOrgEnvProxy(org, env, proxy,type,isSaaS);
+		} else if (recordtype != null && recordtype.equalsIgnoreCase("postman")) {
+			SoapUiFileInfo soapUiFileInfo = findPostManByOrgEnvProxy(org, env, proxy, type, isSaaS);
 			if (soapUiFileInfo != null) {
 				baseRepository.delete(soapUiFileInfo.getId(), SoapUiFileInfo.class);
-			}else{
+			} else {
 				throw new ItorixException(new Throwable().getMessage(), "Connector-1004", new Throwable());
 			}
 		}
 		return null;
 	}
-	
+
 	public Object getPostManFilesList(String interactionid) {
-	//logger.info("getPostManFilesList : CorelationId= "+ interactionid );
+		// logger.info("getPostManFilesList : CorelationId= "+ interactionid );
 		Query query = new Query().with(Sort.by(Sort.Direction.DESC, "mts"));
-	List<SoapUiFileInfo>  soapUiFileInfolist= mongoTemplate.find(query, SoapUiFileInfo.class);
-	List<Map> soapUiFileNamesList=new ArrayList<Map>();
-	for (SoapUiFileInfo soapUiFileInfo : soapUiFileInfolist) {
-		Map<String,Object> soapUiFileInfoMap =new HashMap<String,Object>();
-		if(soapUiFileInfo.getOriginalPostManFileName()!=null){
-			soapUiFileInfoMap.put("fileName", soapUiFileInfo.getOriginalPostManFileName());
-			soapUiFileInfoMap.put("org",soapUiFileInfo.getOrganization());
-			soapUiFileInfoMap.put("env",soapUiFileInfo.getEnvironment());
-			soapUiFileInfoMap.put("type", soapUiFileInfo.getType());
-			soapUiFileInfoMap.put("proxy", soapUiFileInfo.getProxy());
-			soapUiFileInfoMap.put("isSaaS", soapUiFileInfo.getIsSaaS());
-			soapUiFileInfoMap.put("createdBy", soapUiFileInfo.getCreatedUserName());
-			soapUiFileInfoMap.put("modifiedBy", soapUiFileInfo.getModifiedUserName());
-			soapUiFileInfoMap.put("mts", soapUiFileInfo.getMts());
-			soapUiFileNamesList.add(soapUiFileInfoMap);
+		List<SoapUiFileInfo> soapUiFileInfolist = mongoTemplate.find(query, SoapUiFileInfo.class);
+		List<Map> soapUiFileNamesList = new ArrayList<Map>();
+		for (SoapUiFileInfo soapUiFileInfo : soapUiFileInfolist) {
+			Map<String, Object> soapUiFileInfoMap = new HashMap<String, Object>();
+			if (soapUiFileInfo.getOriginalPostManFileName() != null) {
+				soapUiFileInfoMap.put("fileName", soapUiFileInfo.getOriginalPostManFileName());
+				soapUiFileInfoMap.put("org", soapUiFileInfo.getOrganization());
+				soapUiFileInfoMap.put("env", soapUiFileInfo.getEnvironment());
+				soapUiFileInfoMap.put("type", soapUiFileInfo.getType());
+				soapUiFileInfoMap.put("proxy", soapUiFileInfo.getProxy());
+				soapUiFileInfoMap.put("isSaaS", soapUiFileInfo.getIsSaaS());
+				soapUiFileInfoMap.put("createdBy", soapUiFileInfo.getCreatedUserName());
+				soapUiFileInfoMap.put("modifiedBy", soapUiFileInfo.getModifiedUserName());
+				soapUiFileInfoMap.put("mts", soapUiFileInfo.getMts());
+				soapUiFileNamesList.add(soapUiFileInfoMap);
+			}
 		}
-	}
 		return soapUiFileNamesList;
 	}
 
 	public Object getEnvFilesList(String interactionid) {
-		//logger.info("getEnvFilesList : CorelationId= "+ interactionid );
+		// logger.info("getEnvFilesList : CorelationId= "+ interactionid );
 		Query query = new Query().with(Sort.by(Sort.Direction.DESC, "mts"));
-		List<SoapUiEnvFileInfo>  soapUiEnvFileInfolist= mongoTemplate.find(query, SoapUiEnvFileInfo.class);
-		List<Map> envFileNamesList=new ArrayList<Map>();
+		List<SoapUiEnvFileInfo> soapUiEnvFileInfolist = mongoTemplate.find(query, SoapUiEnvFileInfo.class);
+		List<Map> envFileNamesList = new ArrayList<Map>();
 		for (SoapUiEnvFileInfo postManEnvFileInfo : soapUiEnvFileInfolist) {
-			Map<String,Object> soapUiEnvFileInfoMap =new HashMap<String,Object>();
-			if(postManEnvFileInfo.getOriginalEnvFileName()!=null){
+			Map<String, Object> soapUiEnvFileInfoMap = new HashMap<String, Object>();
+			if (postManEnvFileInfo.getOriginalEnvFileName() != null) {
 				soapUiEnvFileInfoMap.put("fileName", postManEnvFileInfo.getOriginalEnvFileName());
-				soapUiEnvFileInfoMap.put("org",postManEnvFileInfo.getOrganization());
-				soapUiEnvFileInfoMap.put("env",postManEnvFileInfo.getEnvironment());
+				soapUiEnvFileInfoMap.put("org", postManEnvFileInfo.getOrganization());
+				soapUiEnvFileInfoMap.put("env", postManEnvFileInfo.getEnvironment());
 				soapUiEnvFileInfoMap.put("type", postManEnvFileInfo.getType());
 				soapUiEnvFileInfoMap.put("proxy", postManEnvFileInfo.getProxy());
 				soapUiEnvFileInfoMap.put("isSaaS", postManEnvFileInfo.getIsSaaS());
@@ -294,9 +293,9 @@ public class SoapArtifiactServiceDao {
 		return envFileNamesList;
 	}
 
-	
-	public Object getPostMan(String org, String env, String proxy,String interactionid, String type, boolean isSaaS) throws ItorixException, IOException {
-		SoapUiFileInfo postManEnvFiledbInfo = findPostManByOrgEnvProxy(org, env, proxy,type,isSaaS);
+	public Object getPostMan(String org, String env, String proxy, String interactionid, String type, boolean isSaaS)
+			throws ItorixException, IOException {
+		SoapUiFileInfo postManEnvFiledbInfo = findPostManByOrgEnvProxy(org, env, proxy, type, isSaaS);
 		if (postManEnvFiledbInfo != null) {
 			File file1 = new File("PostManfile");
 			byte[] filebytes = IOUtils.toByteArray(postManEnvFiledbInfo.getPostManFileContent());
@@ -306,6 +305,4 @@ public class SoapArtifiactServiceDao {
 			throw new ItorixException(new Throwable().getMessage(), "Connector-1002", new Throwable());
 		}
 	}
-	
-	
 }

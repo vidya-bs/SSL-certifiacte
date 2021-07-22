@@ -6,4 +6,5 @@
 
 <suppressions>
     <suppress files=".+\.(?:jar|zip|war|class|tar|bin|java)$" checks="FileTabCharacter"/>
+    <suppress files=".+\.(?:jar|zip|war|class|tar|bin|java)$" checks="Indentation"/>
 </suppressions>

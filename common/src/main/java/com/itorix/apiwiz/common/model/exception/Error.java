@@ -9,7 +9,6 @@ public class Error {
 	}
 
 	/**
-	 * 
 	 * @param userMessage
 	 * @param statusCode
 	 */

@@ -22,24 +22,24 @@ import com.itorix.apiwiz.notification.agent.service.NotificationAgentService;
 @RestController
 public class NotificationAgentServiceImpl implements NotificationAgentService {
 
-	@Autowired
-	NotificationAgentExecutorSQLDao executorSQLDao;
+    @Autowired
+    NotificationAgentExecutorSQLDao executorSQLDao;
 
-	@Autowired
-	HttpServletRequest request;
+    @Autowired
+    HttpServletRequest request;
 
-	@Value("${includeAgentPort:true}")
-	boolean includeAgentPort;
+    @Value("${includeAgentPort:true}")
+    boolean includeAgentPort;
 
-	ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = new ObjectMapper();
 
-	@Override
-	public ResponseEntity<?> createNotification(@RequestHeader HttpHeaders headers, @RequestBody RequestModel model)
-			throws Exception {
+    @Override
+    public ResponseEntity<?> createNotification(@RequestHeader HttpHeaders headers, @RequestBody RequestModel model)
+            throws Exception {
 
-		executorSQLDao.insertIntoTestExecutorEntity(model.getType().name(),
-				mapper.writeValueAsString(model.getEmailContent()),
-				NotificationExecutorEntity.STATUSES.SCHEDULED.getValue());
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
+        executorSQLDao.insertIntoTestExecutorEntity(model.getType().name(),
+                mapper.writeValueAsString(model.getEmailContent()),
+                NotificationExecutorEntity.STATUSES.SCHEDULED.getValue());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

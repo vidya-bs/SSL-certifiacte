@@ -10,17 +10,12 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
-public class PolicyCategory
-{
-    private String type;
+public class PolicyCategory {
+	private String type;
 
-    private String name;
+	private String name;
 
-    private String description;
+	private String description;
 
-    private List<Policies> policies;
-
+	private List<Policies> policies;
 }
-
-
-

@@ -18,20 +18,18 @@ import com.itorix.hyggee.third.party.integration.model.GitHubUserResponse;
  * To use to integrate git with our application modules..
  *
  * @author itorix.inc
- *
  */
 public interface GitIntegrationService {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/github/user")
 	public ResponseEntity<GitHubUserResponse> gitHubUser(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "token") String token) throws Exception;
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestHeader(value = "token") String token)
+			throws Exception;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/github/user/repos")
 	public ResponseEntity<List<GitHubUserReposResponse>> gitHubUserRepos(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "token") String token) throws Exception;
-
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestHeader(value = "token") String token)
+			throws Exception;
 }

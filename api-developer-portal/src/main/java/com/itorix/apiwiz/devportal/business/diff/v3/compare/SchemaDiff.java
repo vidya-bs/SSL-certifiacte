@@ -13,7 +13,7 @@ import io.swagger.v3.oas.models.media.XML;
 
 public class SchemaDiff {
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	public Schema diff(Schema leftSchema, Schema rightSchema) {
 
 		ChangedSchema changedSchema = null;
@@ -138,13 +138,13 @@ public class SchemaDiff {
 
 			// TODO: enum - later
 
-			DiscriminatorDiff discriminatorDiff = new DiscriminatorDiff().diff(leftSchema.getDiscriminator(), rightSchema.getDiscriminator());
-			if(Objects.nonNull(discriminatorDiff)) {
+			DiscriminatorDiff discriminatorDiff = new DiscriminatorDiff().diff(leftSchema.getDiscriminator(),
+					rightSchema.getDiscriminator());
+			if (Objects.nonNull(discriminatorDiff)) {
 				changedSchema.setDiscriminatorDiff(discriminatorDiff);
 			}
 		}
 
 		return changedSchema;
 	}
-
 }

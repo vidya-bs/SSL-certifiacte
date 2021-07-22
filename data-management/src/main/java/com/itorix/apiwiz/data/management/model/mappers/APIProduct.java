@@ -14,64 +14,77 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
-
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Generated("org.jsonschema2pojo")
-@JsonPropertyOrder({ "apiResources", "approvalType", "attributes", "createdAt", "createdBy", "description",
+@JsonPropertyOrder({"apiResources", "approvalType", "attributes", "createdAt", "createdBy", "description",
 		"displayName", "environments", "lastModifiedAt", "lastModifiedBy", "name", "proxies", "quota", "quotaInterval",
-		"quotaTimeUnit", "scopes", "apiproduct", "status" })
+		"quotaTimeUnit", "scopes", "apiproduct", "status"})
 public class APIProduct {
 
 	@JsonProperty("apiResources")
 	private List<Object> apiResources = new ArrayList<Object>();
+
 	@JsonProperty("approvalType")
 	private String approvalType;
+
 	@JsonProperty("attributes")
 	private List<Attribute> attributes = new ArrayList<Attribute>();
+
 	@JsonProperty("createdAt")
 	private String createdAt;
+
 	@JsonProperty("createdBy")
 	private String createdBy;
+
 	@JsonProperty("description")
 	private String description;
+
 	@JsonProperty("displayName")
 	private String displayName;
+
 	@JsonProperty("environments")
 	private List<String> environments = new ArrayList<String>();
+
 	@JsonProperty("lastModifiedAt")
 	private String lastModifiedAt;
+
 	@JsonProperty("lastModifiedBy")
 	private String lastModifiedBy;
+
 	@JsonProperty("name")
 	private String name;
+
 	@JsonProperty("proxies")
 	private List<Object> proxies = new ArrayList<Object>();
+
 	@JsonProperty("quota")
 	private String quota;
+
 	@JsonProperty("quotaInterval")
 	private String quotaInterval;
+
 	@JsonProperty("quotaTimeUnit")
 	private String quotaTimeUnit;
+
 	@JsonProperty("scopes")
 	private List<String> scopes = new ArrayList<String>();
+
 	@JsonProperty("apiproduct")
 	private String apiproduct;
+
 	@JsonProperty("status")
 	private String status;
+
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-	/**
-	 * 
-	 * @return The apiResources
-	 */
+	/** @return The apiResources */
 	@JsonProperty("apiResources")
 	public List<Object> getApiResources() {
 		return apiResources;
 	}
 
 	/**
-	 * 
 	 * @param apiResources
 	 *            The apiResources
 	 */
@@ -80,17 +93,13 @@ public class APIProduct {
 		this.apiResources = apiResources;
 	}
 
-	/**
-	 * 
-	 * @return The approvalType
-	 */
+	/** @return The approvalType */
 	@JsonProperty("approvalType")
 	public String getApprovalType() {
 		return approvalType;
 	}
 
 	/**
-	 * 
 	 * @param approvalType
 	 *            The approvalType
 	 */
@@ -99,17 +108,13 @@ public class APIProduct {
 		this.approvalType = approvalType;
 	}
 
-	/**
-	 * 
-	 * @return The attributes
-	 */
+	/** @return The attributes */
 	@JsonProperty("attributes")
 	public List<Attribute> getAttributes() {
 		return attributes;
 	}
 
 	/**
-	 * 
 	 * @param attributes
 	 *            The attributes
 	 */
@@ -118,17 +123,13 @@ public class APIProduct {
 		this.attributes = attributes;
 	}
 
-	/**
-	 * 
-	 * @return The createdAt
-	 */
+	/** @return The createdAt */
 	@JsonProperty("createdAt")
 	public String getCreatedAt() {
 		return createdAt;
 	}
 
 	/**
-	 * 
 	 * @param createdAt
 	 *            The createdAt
 	 */
@@ -137,17 +138,13 @@ public class APIProduct {
 		this.createdAt = createdAt;
 	}
 
-	/**
-	 * 
-	 * @return The createdBy
-	 */
+	/** @return The createdBy */
 	@JsonProperty("createdBy")
 	public String getCreatedBy() {
 		return createdBy;
 	}
 
 	/**
-	 * 
 	 * @param createdBy
 	 *            The createdBy
 	 */
@@ -156,17 +153,13 @@ public class APIProduct {
 		this.createdBy = createdBy;
 	}
 
-	/**
-	 * 
-	 * @return The description
-	 */
+	/** @return The description */
 	@JsonProperty("description")
 	public String getDescription() {
 		return description;
 	}
 
 	/**
-	 * 
 	 * @param description
 	 *            The description
 	 */
@@ -175,17 +168,13 @@ public class APIProduct {
 		this.description = description;
 	}
 
-	/**
-	 * 
-	 * @return The displayName
-	 */
+	/** @return The displayName */
 	@JsonProperty("displayName")
 	public String getDisplayName() {
 		return displayName;
 	}
 
 	/**
-	 * 
 	 * @param displayName
 	 *            The displayName
 	 */
@@ -194,17 +183,13 @@ public class APIProduct {
 		this.displayName = displayName;
 	}
 
-	/**
-	 * 
-	 * @return The environments
-	 */
+	/** @return The environments */
 	@JsonProperty("environments")
 	public List<String> getEnvironments() {
 		return environments;
 	}
 
 	/**
-	 * 
 	 * @param environments
 	 *            The environments
 	 */
@@ -213,17 +198,13 @@ public class APIProduct {
 		this.environments = environments;
 	}
 
-	/**
-	 * 
-	 * @return The lastModifiedAt
-	 */
+	/** @return The lastModifiedAt */
 	@JsonProperty("lastModifiedAt")
 	public String getLastModifiedAt() {
 		return lastModifiedAt;
 	}
 
 	/**
-	 * 
 	 * @param lastModifiedAt
 	 *            The lastModifiedAt
 	 */
@@ -232,17 +213,13 @@ public class APIProduct {
 		this.lastModifiedAt = lastModifiedAt;
 	}
 
-	/**
-	 * 
-	 * @return The lastModifiedBy
-	 */
+	/** @return The lastModifiedBy */
 	@JsonProperty("lastModifiedBy")
 	public String getLastModifiedBy() {
 		return lastModifiedBy;
 	}
 
 	/**
-	 * 
 	 * @param lastModifiedBy
 	 *            The lastModifiedBy
 	 */
@@ -251,17 +228,13 @@ public class APIProduct {
 		this.lastModifiedBy = lastModifiedBy;
 	}
 
-	/**
-	 * 
-	 * @return The name
-	 */
+	/** @return The name */
 	@JsonProperty("name")
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * 
 	 * @param name
 	 *            The name
 	 */
@@ -270,17 +243,13 @@ public class APIProduct {
 		this.name = name;
 	}
 
-	/**
-	 * 
-	 * @return The proxies
-	 */
+	/** @return The proxies */
 	@JsonProperty("proxies")
 	public List<Object> getProxies() {
 		return proxies;
 	}
 
 	/**
-	 * 
 	 * @param proxies
 	 *            The proxies
 	 */
@@ -289,17 +258,13 @@ public class APIProduct {
 		this.proxies = proxies;
 	}
 
-	/**
-	 * 
-	 * @return The quota
-	 */
+	/** @return The quota */
 	@JsonProperty("quota")
 	public String getQuota() {
 		return quota;
 	}
 
 	/**
-	 * 
 	 * @param quota
 	 *            The quota
 	 */
@@ -308,17 +273,13 @@ public class APIProduct {
 		this.quota = quota;
 	}
 
-	/**
-	 * 
-	 * @return The quotaInterval
-	 */
+	/** @return The quotaInterval */
 	@JsonProperty("quotaInterval")
 	public String getQuotaInterval() {
 		return quotaInterval;
 	}
 
 	/**
-	 * 
 	 * @param quotaInterval
 	 *            The quotaInterval
 	 */
@@ -327,17 +288,13 @@ public class APIProduct {
 		this.quotaInterval = quotaInterval;
 	}
 
-	/**
-	 * 
-	 * @return The quotaTimeUnit
-	 */
+	/** @return The quotaTimeUnit */
 	@JsonProperty("quotaTimeUnit")
 	public String getQuotaTimeUnit() {
 		return quotaTimeUnit;
 	}
 
 	/**
-	 * 
 	 * @param quotaTimeUnit
 	 *            The quotaTimeUnit
 	 */
@@ -346,17 +303,13 @@ public class APIProduct {
 		this.quotaTimeUnit = quotaTimeUnit;
 	}
 
-	/**
-	 * 
-	 * @return The scopes
-	 */
+	/** @return The scopes */
 	@JsonProperty("scopes")
 	public List<String> getScopes() {
 		return scopes;
 	}
 
 	/**
-	 * 
 	 * @param scopes
 	 *            The scopes
 	 */
@@ -365,17 +318,13 @@ public class APIProduct {
 		this.scopes = scopes;
 	}
 
-	/**
-	 * 
-	 * @return The apiproduct
-	 */
+	/** @return The apiproduct */
 	@JsonProperty("apiproduct")
 	public String getApiproduct() {
 		return apiproduct;
 	}
 
 	/**
-	 * 
 	 * @param apiproduct
 	 *            The apiproduct
 	 */
@@ -384,17 +333,13 @@ public class APIProduct {
 		this.apiproduct = apiproduct;
 	}
 
-	/**
-	 * 
-	 * @return The status
-	 */
+	/** @return The status */
 	@JsonProperty("status")
 	public String getStatus() {
 		return status;
 	}
 
 	/**
-	 * 
 	 * @param status
 	 *            The status
 	 */
@@ -412,5 +357,4 @@ public class APIProduct {
 	public void setAdditionalProperty(String name, Object value) {
 		this.additionalProperties.put(name, value);
 	}
-
 }

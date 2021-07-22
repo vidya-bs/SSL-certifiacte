@@ -43,5 +43,4 @@ public class GitHubUserReposResponse {
 	public void setBranches(List<String> branches) {
 		this.branches = branches;
 	}
-
 }

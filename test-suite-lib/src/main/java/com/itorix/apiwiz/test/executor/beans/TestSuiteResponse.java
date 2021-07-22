@@ -12,174 +12,175 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TestSuiteResponse extends AbstractObject {
 
-	public enum STATUSES {
+    public enum STATUSES {
 
-		SCHEDULED("Scheduled"), IN_PROGRESS("In Progress") , COMPLETED("Completed"),CANCELLED("Cancelled");
-		private String value;
+        SCHEDULED("Scheduled"), IN_PROGRESS("In Progress"), COMPLETED("Completed"), CANCELLED("Cancelled");
 
-		private STATUSES(String value) {
-			this.value = value;
-		}
+        private String value;
 
-		public String getValue() {
-			return value;
-		}
+        private STATUSES(String value) {
+            this.value = value;
+        }
 
-		public static String getStatus(STATUSES status) {
+        public String getValue() {
+            return value;
+        }
 
-			String userRoles = null;
-			for (STATUSES role : STATUSES.values()) {
-				if (role.equals(status)) {
-					userRoles = role.getValue();
-				}
-			}
-			return userRoles;
-		}
+        public static String getStatus(STATUSES status) {
 
-	}
+            String userRoles = null;
+            for (STATUSES role : STATUSES.values()) {
+                if (role.equals(status)) {
+                    userRoles = role.getValue();
+                }
+            }
+            return userRoles;
+        }
 
-	private String testSuiteId;
+    }
 
-	private String configId;
+    private String testSuiteId;
 
-	private TestSuite testSuite;
+    private String configId;
 
-	private String status;
+    private TestSuite testSuite;
 
-	private String testSuiteName;
+    private String status;
 
-	private String counter;
+    private String testSuiteName;
 
-	private int successRate;
+    private String counter;
 
-	private String testStatus;
+    private int successRate;
 
-	private Long duration;
+    private String testStatus;
 
-	private boolean isManual = false;
+    private Long duration;
 
-	private String testSuiteAgent;
+    private boolean isManual = false;
 
-	public TestSuiteResponse(String testSuiteId, String configId, TestSuite testSuite, String status, String counter) {
-		super();
-		this.setCts(System.currentTimeMillis());
-		this.testSuiteId = testSuiteId;
-		this.configId = configId;
-		this.testSuite = testSuite;
-		this.status = status;
-		this.counter = counter;
-	}
+    private String testSuiteAgent;
 
-	public TestSuiteResponse(String testSuiteId, String configId, TestSuite testSuite, String status) {
-		super();
-		this.setCts(System.currentTimeMillis());
-		this.testSuiteId = testSuiteId;
-		this.configId = configId;
-		this.testSuite = testSuite;
-		this.status = status;
-	}
+    public TestSuiteResponse(String testSuiteId, String configId, TestSuite testSuite, String status, String counter) {
+        super();
+        this.setCts(System.currentTimeMillis());
+        this.testSuiteId = testSuiteId;
+        this.configId = configId;
+        this.testSuite = testSuite;
+        this.status = status;
+        this.counter = counter;
+    }
 
-	public TestSuiteResponse() {
-	}
+    public TestSuiteResponse(String testSuiteId, String configId, TestSuite testSuite, String status) {
+        super();
+        this.setCts(System.currentTimeMillis());
+        this.testSuiteId = testSuiteId;
+        this.configId = configId;
+        this.testSuite = testSuite;
+        this.status = status;
+    }
 
-	public String getCounter() {
-		return counter;
-	}
+    public TestSuiteResponse() {
+    }
 
-	public void setCounter(String counter) {
-		this.counter = counter;
-	}
+    public String getCounter() {
+        return counter;
+    }
 
-	public String getTestSuiteName() {
-		if(testSuite != null) {
-			return testSuite.getName();
-		}
-		return testSuiteName;
-	}
+    public void setCounter(String counter) {
+        this.counter = counter;
+    }
 
-	public void setTestSuiteName(String testSuiteName) {
-		this.testSuiteName = testSuiteName;
-	}
+    public String getTestSuiteName() {
+        if (testSuite != null) {
+            return testSuite.getName();
+        }
+        return testSuiteName;
+    }
 
-	public String getConfigName() {
-		return configName;
-	}
+    public void setTestSuiteName(String testSuiteName) {
+        this.testSuiteName = testSuiteName;
+    }
 
-	public void setConfigName(String configName) {
-		this.configName = configName;
-	}
+    public String getConfigName() {
+        return configName;
+    }
 
-	private String configName;
+    public void setConfigName(String configName) {
+        this.configName = configName;
+    }
 
-	public String getTestSuiteId() {
-		return testSuiteId;
-	}
+    private String configName;
 
-	public void setTestSuiteId(String testSuiteId) {
-		this.testSuiteId = testSuiteId;
-	}
+    public String getTestSuiteId() {
+        return testSuiteId;
+    }
 
-	public String getConfigId() {
-		return configId;
-	}
+    public void setTestSuiteId(String testSuiteId) {
+        this.testSuiteId = testSuiteId;
+    }
 
-	public void setConfigId(String configId) {
-		this.configId = configId;
-	}
+    public String getConfigId() {
+        return configId;
+    }
 
-	public TestSuite getTestSuite() {
-		return testSuite;
-	}
+    public void setConfigId(String configId) {
+        this.configId = configId;
+    }
 
-	public void setTestSuite(TestSuite testSuite) {
-		this.testSuite = testSuite;
-	}
+    public TestSuite getTestSuite() {
+        return testSuite;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public void setTestSuite(TestSuite testSuite) {
+        this.testSuite = testSuite;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public String getStatus() {
+        return status;
+    }
 
-	public int getSuccessRate() {
-		return successRate;
-	}
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	public void setSuccessRate(int successRate) {
-		this.successRate = successRate;
-	}
+    public int getSuccessRate() {
+        return successRate;
+    }
 
-	public String getTestStatus() {
-		return testStatus;
-	}
+    public void setSuccessRate(int successRate) {
+        this.successRate = successRate;
+    }
 
-	public void setTestStatus(String testStatus) {
-		this.testStatus = testStatus;
-	}
+    public String getTestStatus() {
+        return testStatus;
+    }
 
-	public Long getDuration() {
-		return duration;
-	}
+    public void setTestStatus(String testStatus) {
+        this.testStatus = testStatus;
+    }
 
-	public void setDuration(Long duration) {
-		this.duration = duration;
-	}
+    public Long getDuration() {
+        return duration;
+    }
 
-	public boolean isManual() {
-		return isManual;
-	}
+    public void setDuration(Long duration) {
+        this.duration = duration;
+    }
 
-	public void setManual(boolean isManual) {
-		this.isManual = isManual;
-	}
+    public boolean isManual() {
+        return isManual;
+    }
 
-	public String getTestSuiteAgent() {
-		return testSuiteAgent;
-	}
+    public void setManual(boolean isManual) {
+        this.isManual = isManual;
+    }
 
-	public void setTestSuiteAgent(String testSuiteAgent) {
-		this.testSuiteAgent = testSuiteAgent;
-	}
+    public String getTestSuiteAgent() {
+        return testSuiteAgent;
+    }
+
+    public void setTestSuiteAgent(String testSuiteAgent) {
+        this.testSuiteAgent = testSuiteAgent;
+    }
 }

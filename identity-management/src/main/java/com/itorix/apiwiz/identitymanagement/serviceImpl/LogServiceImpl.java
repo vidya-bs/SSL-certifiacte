@@ -15,9 +15,9 @@ import com.itorix.apiwiz.identitymanagement.service.LogService;
 @CrossOrigin
 @RestController
 public class LogServiceImpl implements LogService {
-	@Autowired 
+	@Autowired
 	private LokiLogger lokiLogger;
-	
+
 	@UnSecure
 	@Override
 	public ResponseEntity<Void> register(String interactionid, String apikey, ErrorLog errorLog)
@@ -25,5 +25,4 @@ public class LogServiceImpl implements LogService {
 		lokiLogger.postLog(errorLog);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-
 }

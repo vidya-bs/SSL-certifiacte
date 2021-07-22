@@ -9,8 +9,8 @@ import io.micrometer.spring.autoconfigure.MeterRegistryCustomizer;
 @Configuration
 public class MicrometerConfiguration {
 
-	@Bean
-	MeterRegistryCustomizer<MeterRegistry> metricsCommonTags() {
-		return registry -> registry.config();
-	}
+    @Bean
+    MeterRegistryCustomizer<MeterRegistry> metricsCommonTags() {
+        return registry -> registry.config();
+    }
 }

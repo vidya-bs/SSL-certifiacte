@@ -8,18 +8,18 @@ import com.mongodb.MongoClient;
 
 public class MultitenantMongoDbFactory extends SimpleMongoDbFactory {
 
-	public MultitenantMongoDbFactory(MongoClient mongoClient, String databaseName) {
-		super(mongoClient, databaseName);
-	}
+    public MultitenantMongoDbFactory(MongoClient mongoClient, String databaseName) {
+        super(mongoClient, databaseName);
+    }
 
-	@Override
-	public DB getDb() throws DataAccessException {
-		if (ServiceRequestContextHolder.getContext().getTenentId() instanceof String) {
-			String tenant = ServiceRequestContextHolder.getContext().getTenentId();
-			if (tenant != null) {
-				return getDb(tenant);
-			}
-		}
-		return super.getDb();
-	}
+    @Override
+    public DB getDb() throws DataAccessException {
+        if (ServiceRequestContextHolder.getContext().getTenentId() instanceof String) {
+            String tenant = ServiceRequestContextHolder.getContext().getTenentId();
+            if (tenant != null) {
+                return getDb(tenant);
+            }
+        }
+        return super.getDb();
+    }
 }

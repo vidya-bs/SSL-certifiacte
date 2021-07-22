@@ -25,65 +25,66 @@ import org.w3c.dom.Node;
 public class LoadWADLImpl implements LoadWADL {
 
 	@Override
-	public String getWADLTargetOperations(String document) throws XPathExpressionException, JsonProcessingException{
-		Document doc=  getDoc(document);
+	public String getWADLTargetOperations(String document) throws XPathExpressionException, JsonProcessingException {
+		Document doc = getDoc(document);
 		Target target = new Target();
 		Flows flows = new Flows();
 		target.setFlows(flows);
 		Node rootNode = doc.getDocumentElement();
 		String prefix = "";
-		if(rootNode.getPrefix()!=null)
-			prefix = rootNode.getPrefix()+":";
-		Node resources = doc.getElementsByTagName(prefix+"resources").item(0);
-		Element resourcesElement = (Element)resources;
+		if (rootNode.getPrefix() != null)
+			prefix = rootNode.getPrefix() + ":";
+		Node resources = doc.getElementsByTagName(prefix + "resources").item(0);
+		Element resourcesElement = (Element) resources;
 		target.setBasePath(resourcesElement.getAttribute("base"));
-		NodeList resource = doc.getElementsByTagName(prefix+"resource");
+		NodeList resource = doc.getElementsByTagName(prefix + "resource");
 		List<Flow> flowList = new ArrayList<Flow>();
 		for (int temp = 0; temp < resource.getLength(); temp++) {
 			Node nNode = resource.item(temp);
 			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 				Element eElement = (Element) nNode;
 				String path = eElement.getAttribute("path");
-//				System.out.println("path : " + path);
+				// System.out.println("path : " + path);
 				NodeList methodList = nNode.getChildNodes();
-				for(int i=0; i<methodList.getLength();i++){
+				for (int i = 0; i < methodList.getLength(); i++) {
 					Node methodNode = methodList.item(i);
-					if(methodNode.getNodeType() == Node.ELEMENT_NODE && methodNode.getNodeName().equals(prefix+"method")){
+					if (methodNode.getNodeType() == Node.ELEMENT_NODE
+							&& methodNode.getNodeName().equals(prefix + "method")) {
 						Flow flow = new Flow();
 						Element methodElement = (Element) methodNode;
 						flow.setVerb(methodElement.getAttribute("name"));
 						flow.setPath(path);
-						flow.setName(methodElement.getAttribute("id").replaceAll("\\s",""));
+						flow.setName(methodElement.getAttribute("id").replaceAll("\\s", ""));
 						flow.setDescription(methodElement.getAttribute("id"));
 						flowList.add(flow);
 					}
 				}
 			}
 		}
-		
-		Flow flowsArray[] = new Flow[flowList.size()];              
-		for(int i =0;i<flowList.size();i++){
+
+		Flow flowsArray[] = new Flow[flowList.size()];
+		for (int i = 0; i < flowList.size(); i++) {
 			flowsArray[i] = flowList.get(i);
 		}
 		flows.setFlow(flowsArray);
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper.writeValueAsString(target);
 	}
-	
+
 	@Override
-	public String getWADLProxyOperations(String document) throws XPathExpressionException, JsonProcessingException{
-		Document doc=  getDoc(document);
+	public String getWADLProxyOperations(String document) throws XPathExpressionException, JsonProcessingException {
+		Document doc = getDoc(document);
 		Proxy proxy = new Proxy();
 		Flows flows = new Flows();
 		proxy.setFlows(flows);
 		Node rootNode = doc.getDocumentElement();
 		String prefix = "";
-		if(rootNode.getPrefix()!=null)
-			prefix = rootNode.getPrefix()+":";
-		Node resources = doc.getElementsByTagName(prefix+"resources").item(0);
-		Element resourcesElement = (Element)resources;
+		if (rootNode.getPrefix() != null)
+			prefix = rootNode.getPrefix() + ":";
+		Node resources = doc.getElementsByTagName(prefix + "resources").item(0);
+		Element resourcesElement = (Element) resources;
 		proxy.setBasePath(resourcesElement.getAttribute("base"));
-		NodeList resource = doc.getElementsByTagName(prefix+"resource");
+		NodeList resource = doc.getElementsByTagName(prefix + "resource");
 		List<Flow> flowList = new ArrayList<Flow>();
 		for (int temp = 0; temp < resource.getLength(); temp++) {
 			Node nNode = resource.item(temp);
@@ -91,23 +92,24 @@ public class LoadWADLImpl implements LoadWADL {
 				Element eElement = (Element) nNode;
 				String path = eElement.getAttribute("path");
 				NodeList methodList = nNode.getChildNodes();
-				for(int i=0; i<methodList.getLength();i++){
+				for (int i = 0; i < methodList.getLength(); i++) {
 					Node methodNode = methodList.item(i);
-					if(methodNode.getNodeType() == Node.ELEMENT_NODE && methodNode.getNodeName().equals(prefix+"method")){
+					if (methodNode.getNodeType() == Node.ELEMENT_NODE
+							&& methodNode.getNodeName().equals(prefix + "method")) {
 						Flow flow = new Flow();
 						Element methodElement = (Element) methodNode;
 						flow.setVerb(methodElement.getAttribute("name"));
 						flow.setPath(path);
-						flow.setName(methodElement.getAttribute("id").replaceAll("\\s",""));
+						flow.setName(methodElement.getAttribute("id").replaceAll("\\s", ""));
 						flow.setDescription(methodElement.getAttribute("id"));
 						flowList.add(flow);
 					}
 				}
 			}
 		}
-		
-		Flow flowsArray[] = new Flow[flowList.size()];              
-		for(int i =0;i<flowList.size();i++){
+
+		Flow flowsArray[] = new Flow[flowList.size()];
+		for (int i = 0; i < flowList.size(); i++) {
 			flowsArray[i] = flowList.get(i);
 		}
 		flows.setFlow(flowsArray);
@@ -128,5 +130,4 @@ public class LoadWADLImpl implements LoadWADL {
 		}
 		return null;
 	}
-
 }

@@ -15,7 +15,7 @@ import lombok.Setter;
 @Component("executionResult")
 @Document(collection = "Monitor.Collections.Events.History")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ExecutionResult extends MonitorRequest{
+public class ExecutionResult extends MonitorRequest {
 
 	@Id
 	String id;

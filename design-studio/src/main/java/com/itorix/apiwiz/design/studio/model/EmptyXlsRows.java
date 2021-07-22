@@ -11,7 +11,6 @@ public class EmptyXlsRows extends Exception {
 
 	@Override
 	public String toString() {
-		return ("Please delete empty Row's or Cell's at the Row Number ==" + rowNum)
-				.toString();
+		return ("Please delete empty Row's or Cell's at the Row Number ==" + rowNum).toString();
 	}
 }

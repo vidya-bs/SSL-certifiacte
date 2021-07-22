@@ -10,15 +10,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "type", "userName", "password" })
+@JsonPropertyOrder({"type", "userName", "password"})
 public class ScmCredentials {
 
 	@JsonProperty("type")
 	private String type;
+
 	@JsonProperty("userName")
 	private String userName;
+
 	@JsonProperty("password")
 	private String password;
+
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -61,5 +64,4 @@ public class ScmCredentials {
 	public void setAdditionalProperty(String name, Object value) {
 		this.additionalProperties.put(name, value);
 	}
-
 }
