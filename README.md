@@ -11,4 +11,4 @@ To auto format, **Window->Preferences->Java->Editor->SaveActions**
 #### Intellij
 Download the eclipse_check_style.xml file from code repo. Navigate to Preferences -> Editor -> Code Style. Click on Manage and import the downloaded Style Setting file. Select GoogleStyle as new coding style
 
-
+https://itorix.atlassian.net/browse/EN-542
