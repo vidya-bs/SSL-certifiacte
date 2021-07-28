@@ -20,6 +20,7 @@ import javax.validation.Valid;
 
 import com.itorix.apiwiz.design.studio.model.*;
 import org.apache.commons.io.FileUtils;
+import org.bson.types.ObjectId;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2172,14 +2173,35 @@ public class SwaggerServiceImpl implements SwaggerService {
 	}
 
 	@Override
-	public ResponseEntity<?> managePartnerGroups(
+	public ResponseEntity<?> createPartnerGroup(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody SwaggerPartnerRequest swaggerPartnerList) throws Exception{
-		swaggerBusiness.managePartners(swaggerPartnerList.getPartners());
+			@RequestBody SwaggerPartner swaggerPartner) throws Exception{
+		swaggerPartner.setId(new ObjectId().toString());
+		swaggerBusiness.createPartner(swaggerPartner);
+		return new ResponseEntity<Object> (HttpStatus.CREATED);
+	}
+	
+	@Override
+	public ResponseEntity<?> updatePartnerGroup(
+			@PathVariable("partnerId") String partnerId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody SwaggerPartner swaggerPartner) throws Exception{
+		swaggerPartner.setId(partnerId);
+		swaggerBusiness.updatePartner(swaggerPartner);
 		return new ResponseEntity<Object> (HttpStatus.NO_CONTENT);
 	}
-
+	
+	@Override
+	public ResponseEntity<?> deletePartnerGroup(
+			@PathVariable("partnerId") String partnerId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid)throws Exception{
+		swaggerBusiness.deletePartner(partnerId);
+		return new ResponseEntity<Object> (HttpStatus.NO_CONTENT);
+	}
+	
 	@Override
 	public ResponseEntity<?> getPartnerGroups(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -2194,7 +2216,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestBody AsociateSwaggerPartnerRequest swaggerPartnerRequest) throws Exception{
-		swaggerBusiness.associatePartners(swaggerId, oas, swaggerPartnerRequest.getPartners());
+		swaggerBusiness.associatePartners(swaggerId, oas, swaggerPartnerRequest.getPartnerId());
 		return new ResponseEntity<Object> (HttpStatus.NO_CONTENT);
 	}
 

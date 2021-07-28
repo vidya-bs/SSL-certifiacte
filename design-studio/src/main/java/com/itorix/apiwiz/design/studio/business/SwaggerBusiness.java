@@ -658,13 +658,18 @@ public interface SwaggerBusiness {
 	
 	public List<String> getProxies(String swagger, String oas);
 	
-	public void managePartners(List<SwaggerPartner> partners);
 	
 	public List<SwaggerPartner> getPartners();
 	
+	public void createPartner(SwaggerPartner partner);
+	
+	public void updatePartner(SwaggerPartner partner);
+	
+	public void deletePartner(String partnerid);
+	
 	public  void associatePartners(String swaggerId, String oas, List<String> partners);
 	
-	public  List<String> getAssociatedPartners(String swaggerId, String oas);
+	public  List<SwaggerPartner> getAssociatedPartners(String swaggerId, String oas);
 	
 	
 }
