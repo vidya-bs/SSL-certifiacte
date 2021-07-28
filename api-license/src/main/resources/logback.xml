@@ -8,16 +8,16 @@
 			</Pattern>
 		</encoder>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>DEBUG</level>
+			<level>ERROR</level>
 		</filter>
 	</appender>
 
 	<appender name="FILE-DEBUG"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>${itorix.mock.log.location}/itorix-mock-console.log</File>
+		<File>${itorix.licenseToken.api.log.location}/itorix-licenseToken-api-console.log</File>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 
-			<FileNamePattern>${itorix.log.location}/itorix-mock-console.%d{yyyy-MM-dd}.%i.log
+			<FileNamePattern>${itorix.log.location}/itorix-licenseToken-api-console.%d{yyyy-MM-dd}.%i.log
 			</FileNamePattern>
 
 			<maxHistory>30</maxHistory>
@@ -41,10 +41,10 @@
 
 	<appender name="FILE-INFO"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>${itorix.mock.log.location}/itorix-mock.log</File>
+		<File>${itorix.licenseToken.api.log.location}/itorix-licenseToken-api.log</File>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 
-			<FileNamePattern>${itorix.log.location}/itorix-mock.%d{yyyy-MM-dd}.%i.log
+			<FileNamePattern>${itorix.log.location}/itorix-licenseToken-api.%d{yyyy-MM-dd}.%i.log
 			</FileNamePattern>
 
 			<maxHistory>30</maxHistory>
@@ -68,7 +68,7 @@
 
 	<appender name="FILE-ERROR"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>${itorix.mock.log.location}/itorix-mock-error.log</File>
+		<File>${itorix.licenseToken.api.log.location}/itorix-licenseToken-api-error.log</File>
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
 			<Pattern>
 				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [${app.name}] [%thread] %-5level %logger{35} - %msg %n
@@ -76,7 +76,7 @@
 		</encoder>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			rollover daily
-			<fileNamePattern>${itorix.log.location}/itorix-mock-error.%d{yyyy-MM-dd}.%i.log
+			<fileNamePattern>${itorix.log.location}/itorix-licenseToken-api-error.%d{yyyy-MM-dd}.%i.log
 			</fileNamePattern>
 			<maxHistory>30</maxHistory>
 			<timeBasedFileNamingAndTriggeringPolicy
@@ -100,14 +100,13 @@
 		<level value="INFO" />
 		<appender-ref ref="FILE-INFO" />
 	</logger>
-	<logger name="com" level="DEBUG" additivity="true">
+	<logger name="com.itorix" level="DEBUG" additivity="true">
 		<level value="DEBUG" />
 		<appender-ref ref="FILE-DEBUG" />
 	</logger>
-	<root level="DEBUG">
+	<root level="ERROR" name="com.itorix">
 		<!-- <level value="INFO" /> -->
 		<!-- <level value="ERROR" />  -->
-		<appender-ref ref="FILE-DEBUG" />
 		<appender-ref ref="consoleAppender" />
 		<!-- <appender-ref ref="STASH" /> -->
 	</root>
