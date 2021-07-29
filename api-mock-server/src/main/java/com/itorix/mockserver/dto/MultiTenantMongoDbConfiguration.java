@@ -2,41 +2,33 @@ package com.itorix.mockserver.dto;
 
 import java.net.UnknownHostException;
 
+import com.mongodb.MongoClientURI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 
 import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
-
 
 @Configuration
-public class MultitenantMongoDbConfiguration {
-
-	@Autowired(required = false)
-	private MongoClientOptions options;
-
-	@Autowired
-	private Environment environment;
+public class MultiTenantMongoDbConfiguration {
 
 	@Autowired
 	private MongoProperties properties;
 
 	@Bean
 	public MongoClient createMongoClient() throws UnknownHostException {
-		return properties.createMongoClient(options, environment);
+		return new MongoClient(new MongoClientURI(properties.getUri()));
 	}
 
 	@Primary
 	@Bean
 	public MongoDbFactory multitenantFactory() throws UnknownHostException {
-		return new MultitenantMongoDbFactory(createMongoClient(), properties.getDatabase());
+		return new MultiTenantMongoDbFactory(createMongoClient(), properties.getDatabase());
 	}
 
 	@Primary
