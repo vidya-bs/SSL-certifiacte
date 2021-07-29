@@ -11,7 +11,6 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.sleuth.SpanAccessor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -32,9 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 public class MockLogger {
 
 	private ObjectMapper objectMapper = new ObjectMapper();
-
-	@Autowired
-	private SpanAccessor spanAccessor;
 
 	@Value("${itorix.core.aws.admin.url:null}")
 	private String awsURL;
@@ -111,7 +107,7 @@ public class MockLogger {
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		df.setTimeZone(TimeZone.getDefault());
 		logMap.put("date", df.format(date));
-		logMap.put("guid", spanAccessor.getCurrentSpan().getTraceId());
+		logMap.put("guid", mockLog.getTraceId());
 		logMap.put("clientIp", mockLog.getClientIp());
 		logMap.put("path", df.format(date));
 		try {

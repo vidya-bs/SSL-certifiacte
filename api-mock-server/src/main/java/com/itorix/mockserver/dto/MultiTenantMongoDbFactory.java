@@ -4,7 +4,6 @@ import com.mongodb.client.MongoDatabase;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 
-import com.mongodb.DB;
 import com.mongodb.MongoClient;
 
 public class MultiTenantMongoDbFactory extends SimpleMongoDbFactory {
