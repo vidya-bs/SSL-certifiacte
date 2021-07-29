@@ -28,15 +28,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import brave.Tracer;
-import brave.propagation.TraceContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.sleuth.SpanAccessor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
@@ -78,8 +76,6 @@ import com.jayway.jsonpath.JsonPath;
 
 import lombok.extern.slf4j.Slf4j;
 
-import static org.springframework.http.MediaType.*;
-
 @CrossOrigin
 @RestController
 @Component
@@ -95,7 +91,7 @@ public class Controller {
 	MockValidator mockValidator;
 
 	@Autowired
-	private Tracer tracer;
+	private SpanAccessor spanAccessor;
 
 	ObjectMapper objectMapper = new ObjectMapper();
 
@@ -108,7 +104,7 @@ public class Controller {
 	private String EXPECTATION_NOT_FOUND = "No Expectations Available";
 
 	@SuppressWarnings("rawtypes")
-	@RequestMapping(value = "/**", consumes = MULTIPART_FORM_DATA_VALUE) //multipart/form-data"
+	@RequestMapping(value = "/**", consumes = "multipart/form-data")
 	public ResponseEntity serviceFormParams(HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse,
 			@RequestParam(required = false) MultiValueMap<String, String> requestParams,
@@ -183,10 +179,11 @@ public class Controller {
 	}
 
 	@SuppressWarnings("rawtypes")
-	@RequestMapping(value = "/**", consumes = APPLICATION_FORM_URLENCODED_VALUE) //"application/x-www-form-urlencoded
+	@RequestMapping(value = "/**", consumes = "application/x-www-form-urlencoded")
 	public ResponseEntity serviceURLEncode(HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse,
 			@RequestParam(required = false) MultiValueMap<String, String> requestParams,
+			@PathVariable(required = false) String pathVariables,
 			@RequestBody(required = false) MultiValueMap<String, String> formParam,
 			@RequestHeader(required = false) MultiValueMap<String, String> headerVariables) {
 		MultiValueMap<String, String> urlForms = null;
@@ -203,11 +200,10 @@ public class Controller {
 	}
 
 	@SuppressWarnings("rawtypes")
-	@RequestMapping(value = "/*")
+	@RequestMapping(value = "/**")
 	public ResponseEntity service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
 			@RequestParam(required = false) MultiValueMap<String, String> requestParams,
-			@RequestBody(required = false) String requestBody,
-			@PathVariable(required = false) String pathVariables,
+			@RequestBody(required = false) String requestBody, @PathVariable(required = false) String pathVariables,
 			@RequestHeader(required = false) MultiValueMap<String, String> headerVariables) {
 
 		return validateRequest(httpServletRequest, requestParams, requestBody, headerVariables, null, null, null);
@@ -334,7 +330,7 @@ public class Controller {
 			MockLog mockLog = new MockLog();
 			mockLog.setClientIp(httpServletRequest.getRemoteAddr());
 			mockLog.setPath(path);
-			mockLog.setTraceId(tracer.currentSpan().context().traceId());
+			mockLog.setTraceId(spanAccessor.getCurrentSpan().getTraceId());
 
 			try {
 				if (matchedExpectation != null) {
