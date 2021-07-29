@@ -8,7 +8,7 @@
 			</Pattern>
 		</encoder>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>DEBUG</level>
+			<level>ERROR</level>
 		</filter>
 	</appender>
 
@@ -100,14 +100,13 @@
 		<level value="INFO" />
 		<appender-ref ref="FILE-INFO" />
 	</logger>
-	<logger name="com" level="DEBUG" additivity="true">
+	<logger name="com.itorix" level="DEBUG" additivity="true">
 		<level value="DEBUG" />
 		<appender-ref ref="FILE-DEBUG" />
 	</logger>
-	<root level="DEBUG">
+	<root level="ERROR" name="com.itorix">
 		<!-- <level value="INFO" /> -->
 		<!-- <level value="ERROR" />  -->
-		<appender-ref ref="FILE-DEBUG" />
 		<appender-ref ref="consoleAppender" />
 		<!-- <appender-ref ref="STASH" /> -->
 	</root>
