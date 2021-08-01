@@ -41,7 +41,6 @@
 		<module>notification-agent</module>
 		<module>api-mock-server</module>
 		<module>api-license</module>
-		<module>license-validator</module>
 	</modules>
 	<name>Itorix Hyggee Core Project</name>
 	<!-- <parent> -->

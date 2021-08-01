@@ -1,4 +1,4 @@
-package com.itorix.apiwiz.model;
+package com.itorix.apiwiz.validator.license.model;
 
 import lombok.Getter;
 import lombok.Setter;

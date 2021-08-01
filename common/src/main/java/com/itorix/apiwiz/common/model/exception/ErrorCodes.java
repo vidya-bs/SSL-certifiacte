@@ -228,6 +228,8 @@ public enum ErrorCodes {
 			put("Monitor-1005","Request validation failed. Resource already exist..");
 			put("Monitor-1006","Sorry! Record already exist with the Name provided.");
 
+			put("License-1001","Request validation failed. License already exists for the email %s.");
+			put("License-1002","Request validation failed. No license exists for the email %s.");
 
 			put("MockServer-1000", "Request validation failed. Mock scenario with similar configuration already exist.");
 			put("MockServer-1001", "Resource not found. Please check the request and retry again.");
