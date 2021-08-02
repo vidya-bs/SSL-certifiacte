@@ -104,7 +104,7 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 	}
 
 	private List<License> trimList(List<License> licenses, int offset, int pageSize){
-		List trimmedList = new ArrayList<License>();
+		List<License> trimmedList = new ArrayList<>();
 		int i = offset > 0 ? ((offset - 1) * pageSize) : 0;
 		int end = i + pageSize;
 		for (; i<licenses.size() && i < end ; i++){

@@ -1,7 +1,6 @@
 package com.itorix.apiwiz.controller;
 
 import com.itorix.apiwiz.validator.license.business.LicenseBusiness;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +18,10 @@ public class ValidateController {
 	LicenseBusiness licenseBusiness;
 
 	@GetMapping(value = "/v1/apiwiz/licenses/{emailId}/validate")
-	public ResponseEntity validate(@PathVariable String emailId){
-		Map response = new HashMap<String, Bool>();
+	public ResponseEntity<Map<String, Boolean>> validate(@PathVariable String emailId){
+		Map<String, Boolean> response = new HashMap<>();
 		boolean licenseValid = licenseBusiness.isLicenseValid(emailId);
 		response.put("valid", licenseValid);
-		return new ResponseEntity(response, HttpStatus.OK);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }
