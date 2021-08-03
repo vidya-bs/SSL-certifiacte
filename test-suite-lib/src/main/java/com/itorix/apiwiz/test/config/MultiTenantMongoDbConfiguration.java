@@ -1,7 +1,9 @@
 package com.itorix.apiwiz.test.config;
 
-import java.net.UnknownHostException;
-
+import com.itorix.apiwiz.test.security.MultiTenantMongoDbFactory;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoClientURI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.context.annotation.Bean;
@@ -13,9 +15,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 import org.springframework.util.StringUtils;
 
-import com.itorix.apiwiz.test.security.MultiTenantMongoDbFactory;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
+import java.net.UnknownHostException;
 
 
 @Configuration
@@ -32,7 +32,7 @@ public class MultiTenantMongoDbConfiguration {
 
 	@Bean
 	public MongoClient createMongoClient() throws UnknownHostException {
-		return properties.createMongoClient(options, environment);
+		return new MongoClient(new MongoClientURI(properties.getUri()));
 	}
 
 	@Primary
