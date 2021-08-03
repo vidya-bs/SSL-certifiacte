@@ -14,10 +14,10 @@
 
 	<appender name="FILE-DEBUG"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>${itorix.licenseToken.api.log.location}/itorix-licenseToken-api-console.log</File>
+		<File>${itorix.licenseToken.api.log.location}/itorix-license-api-console.log</File>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 
-			<FileNamePattern>${itorix.log.location}/itorix-licenseToken-api-console.%d{yyyy-MM-dd}.%i.log
+			<FileNamePattern>${itorix.log.location}/itorix-license-api-console.%d{yyyy-MM-dd}.%i.log
 			</FileNamePattern>
 
 			<maxHistory>30</maxHistory>
@@ -41,10 +41,10 @@
 
 	<appender name="FILE-INFO"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>${itorix.licenseToken.api.log.location}/itorix-licenseToken-api.log</File>
+		<File>${itorix.licenseToken.api.log.location}/itorix-license-api.log</File>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 
-			<FileNamePattern>${itorix.log.location}/itorix-licenseToken-api.%d{yyyy-MM-dd}.%i.log
+			<FileNamePattern>${itorix.log.location}/itorix-license-api.%d{yyyy-MM-dd}.%i.log
 			</FileNamePattern>
 
 			<maxHistory>30</maxHistory>
@@ -68,7 +68,7 @@
 
 	<appender name="FILE-ERROR"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>${itorix.licenseToken.api.log.location}/itorix-licenseToken-api-error.log</File>
+		<File>${itorix.licenseToken.api.log.location}/itorix-license-api-error.log</File>
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
 			<Pattern>
 				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [${app.name}] [%thread] %-5level %logger{35} - %msg %n
@@ -76,7 +76,7 @@
 		</encoder>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			rollover daily
-			<fileNamePattern>${itorix.log.location}/itorix-licenseToken-api-error.%d{yyyy-MM-dd}.%i.log
+			<fileNamePattern>${itorix.log.location}/itorix-license-api-error.%d{yyyy-MM-dd}.%i.log
 			</fileNamePattern>
 			<maxHistory>30</maxHistory>
 			<timeBasedFileNamingAndTriggeringPolicy
