@@ -72,6 +72,7 @@ public class LicenseValidator {
 				.toFormatter();
 	}
 
+
 //	public static void main(String[] args) throws IOException, GeneralSecurityException {
 //		HybridDecryption decryption = new HybridDecryption();
 //		decryption.loadKey();

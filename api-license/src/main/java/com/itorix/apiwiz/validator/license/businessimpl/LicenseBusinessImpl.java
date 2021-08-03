@@ -1,5 +1,4 @@
 package com.itorix.apiwiz.validator.license.businessimpl;
-import com.itorix.apiwiz.LicenseValidator;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.validator.license.business.LicenseBusiness;
@@ -13,6 +12,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.time.Clock;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,8 +124,8 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 		try {
 			checkLicenseStatus(license.getStatus());
 			checkLicenseExpiry(license.getExpiry());
-		} catch (Exception e) {
-			log.error("license validation failed" + e.getMessage());
+		} catch (ItorixException e) {
+			log.error("license validation failed " + e.getMessage());
 			return false;
 		}
 		return true;
@@ -132,12 +137,37 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 	}
 
 	private void checkLicenseExpiry(String expiryDate) throws ItorixException {
-		LicenseValidator validator = new LicenseValidator();
 		try {
-			validator.isLicenseExpired(expiryDate);
+			isLicenseExpired(expiryDate);
 		} catch (Exception e) {
-			throw new ItorixException("License expiry validation failed" + e.getMessage());
+			throw new ItorixException(e.getMessage());
 		}
+	}
+
+	public boolean isLicenseExpired(String expiryDate) throws ParseException {
+		log.info("Checking license expiry date {} ", expiryDate);
+		OffsetDateTime expiry = OffsetDateTime.parse(expiryDate, getDateFormatter());
+		ZonedDateTime now = ZonedDateTime.now(Clock.systemUTC());
+		if(expiry.toInstant().isBefore(now.toInstant())) {
+			String errorMsg = String.format("The License has expired on %s. Please contact Itorix support to renew the license", expiry);
+			log.error(errorMsg);
+			throw new IllegalArgumentException(errorMsg);
+		};
+		return false;
+	}
+
+	private DateTimeFormatter getDateFormatter() {
+		return new DateTimeFormatterBuilder()
+				// date/time
+				.append(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+				// offset (hh:mm - "+00:00" when it's zero)
+				.optionalStart().appendOffset("+HH:MM", "+00:00").optionalEnd()
+				// offset (hhmm - "+0000" when it's zero)
+				.optionalStart().appendOffset("+HHMM", "+0000").optionalEnd()
+				// offset (hh - "Z" when it's zero)
+				.optionalStart().appendOffset("+HH", "Z").optionalEnd()
+				// create formatter
+				.toFormatter();
 	}
 
 }
