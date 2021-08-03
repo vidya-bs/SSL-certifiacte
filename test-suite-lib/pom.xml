@@ -9,6 +9,7 @@
 	<artifactId>test-suite-lib</artifactId>
 	<packaging>jar</packaging>
 	<name>test-suite-lib</name>
+	<version>1.5.10.RELEASE</version>
 	<description></description>
 
 	<parent>
