@@ -1,12 +1,7 @@
 package com.itorix.apiwiz.validator.license.businessimpl;
-import com.itorix.apiwiz.common.model.exception.ErrorCodes;
-import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.validator.license.business.LicenseBusiness;
 import com.itorix.apiwiz.validator.license.dao.LicenseRepository;
-import com.itorix.apiwiz.validator.license.model.LicenseRequest;
-import com.itorix.apiwiz.validator.license.model.LicenseResponse;
-import com.itorix.apiwiz.validator.license.model.Pagination;
-import com.itorix.apiwiz.validator.license.model.Status;
+import com.itorix.apiwiz.validator.license.model.*;
 import com.itorix.apiwiz.validator.license.model.db.License;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +43,8 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 	}
 	private License createLicenseObj(LicenseRequest licenseRequest) throws ItorixException {
 		License licenseToSave = new License();
+		licenseToSave.setUserName(licenseRequest.getUserName());
+		licenseToSave.setPassword(licenseRequest.getPassword());
 		licenseToSave.setClientName(licenseRequest.getClientName());
 		licenseToSave.setEmailId(licenseRequest.getEmailId());
 		licenseToSave.setLicensePolicy(licenseRequest.getLicensePolicy());
@@ -71,11 +68,18 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 	}
 
 	@Override
-	public void deleteLicense(String emailId) {
-		licenseRepository.delete("emailId", emailId, License.class);
+	public void deleteLicense(String emailId) throws ItorixException {
+		License license = licenseRepository.findOne("emailId", emailId, License.class);
+		if(license == null ) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("License-1002"), emailId));
+		}
+		license.setStatus(Status.TERMINATED);
+		licenseRepository.save(license);
 	}
 
 	private void updateLicenseObj(License license, LicenseRequest licenseRequest) throws ItorixException {
+		license.setUserName(licenseRequest.getUserName());
+		license.setPassword(licenseRequest.getPassword());
 		license.setClientName(licenseRequest.getClientName());
 		license.setEmailId(licenseRequest.getEmailId());
 		license.setLicensePolicy(licenseRequest.getLicensePolicy());

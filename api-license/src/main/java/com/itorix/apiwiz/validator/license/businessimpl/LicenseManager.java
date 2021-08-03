@@ -2,8 +2,8 @@ package com.itorix.apiwiz.validator.license.businessimpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.validator.license.crypto.HybridEncryption;
+import com.itorix.apiwiz.validator.license.model.ItorixException;
 import com.itorix.apiwiz.validator.license.model.LicenseRequest;
 import com.itorix.apiwiz.validator.license.model.LicenseToken;
 import org.springframework.beans.factory.annotation.Autowired;

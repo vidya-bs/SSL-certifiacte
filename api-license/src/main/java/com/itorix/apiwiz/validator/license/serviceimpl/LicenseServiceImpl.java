@@ -1,7 +1,7 @@
 package com.itorix.apiwiz.validator.license.serviceimpl;
-import com.itorix.apiwiz.common.model.exception.ErrorObj;
-import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.validator.license.business.LicenseBusiness;
+import com.itorix.apiwiz.validator.license.model.ErrorObj;
+import com.itorix.apiwiz.validator.license.model.ItorixException;
 import com.itorix.apiwiz.validator.license.model.LicenseRequest;
 import com.itorix.apiwiz.validator.license.model.LicenseResponse;
 import com.itorix.apiwiz.validator.license.model.db.License;
@@ -13,7 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @CrossOrigin
 @RestController
@@ -52,8 +57,9 @@ public class LicenseServiceImpl implements LicenseService {
 
 	@ApiOperation(value = "Delete License", notes = "", code = 202) @ApiResponses(value = {
 			@ApiResponse(code = 202, message = "Accepted"),
+			@ApiResponse(code = 400, message = "Request validation failed. No license exists for the email %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@Override public ResponseEntity deleteLicense(String emailId) {
+	@Override public ResponseEntity deleteLicense(String emailId) throws ItorixException {
 		licenseBusiness.deleteLicense(emailId);
 		return new ResponseEntity(HttpStatus.ACCEPTED);
 	}
@@ -80,5 +86,16 @@ public class LicenseServiceImpl implements LicenseService {
 	public ResponseEntity<LicenseResponse> getLicenses(int offset, int pageSize) {
 		LicenseResponse licenses = licenseBusiness.getLicenses(offset, pageSize);
 		return new ResponseEntity<>(licenses, HttpStatus.OK);
+	}
+
+	@ApiOperation(value = "Get All Licenses", notes = "", code = 200) @ApiResponses(value = {
+			@ApiResponse(code = 200, message = "{valid : true/false}"),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@GetMapping(value = "/v1/apiwiz/licenses/{emailId}/validate")
+	public ResponseEntity<Map<String, Boolean>> validate(@PathVariable String emailId){
+		Map<String, Boolean> response = new HashMap<>();
+		boolean licenseValid = licenseBusiness.isLicenseValid(emailId);
+		response.put("valid", licenseValid);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

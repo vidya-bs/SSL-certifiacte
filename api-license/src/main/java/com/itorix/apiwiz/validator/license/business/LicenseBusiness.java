@@ -1,6 +1,6 @@
 package com.itorix.apiwiz.validator.license.business;
 
-import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.validator.license.model.ItorixException;
 import com.itorix.apiwiz.validator.license.model.LicenseRequest;
 import com.itorix.apiwiz.validator.license.model.LicenseResponse;
 import com.itorix.apiwiz.validator.license.model.db.License;
@@ -11,7 +11,7 @@ public interface LicenseBusiness {
 
 	public void updateLicense(String emailId, LicenseRequest licenseRequest) throws ItorixException;
 
-	public void deleteLicense(String emailId);
+	public void deleteLicense(String emailId) throws ItorixException;
 
 	public License getLicense(String emailId);
 
