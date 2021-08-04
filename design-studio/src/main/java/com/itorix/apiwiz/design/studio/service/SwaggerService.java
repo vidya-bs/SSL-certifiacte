@@ -1098,11 +1098,24 @@ public interface SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas) throws Exception;
 
-	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/partner-groups", produces = {"application/json"})
-	public ResponseEntity<?> managePartnerGroups(
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/partner-groups", produces = {"application/json"})
+	public ResponseEntity<?> createPartnerGroup(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody SwaggerPartnerRequest swaggerPartnerList) throws Exception;
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerPartner swaggerPartner)
+			throws Exception;
+
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/partner-groups/{partnerId}", produces = {
+			"application/json"})
+	public ResponseEntity<?> updatePartnerGroup(@PathVariable("partnerId") String partnerId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerPartner swaggerPartner)
+			throws Exception;
+
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/partner-groups/{partnerId}", produces = {
+			"application/json"})
+	public ResponseEntity<?> deletePartnerGroup(@PathVariable("partnerId") String partnerId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/partner-groups", produces = {"application/json"})
 	public ResponseEntity<?> getPartnerGroups(

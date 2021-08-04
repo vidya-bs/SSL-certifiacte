@@ -3718,11 +3718,27 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return proxyNames;
 	}
 
-	public void managePartners(List<SwaggerPartner> partners) {
-		mongoTemplate.remove(SwaggerPartner.class);
-		for (SwaggerPartner partner : partners) {
+	public void createPartner(SwaggerPartner partner) {
+		if (null == getPartnerbyName(partner))
+
 			mongoTemplate.save(partner);
-		}
+	}
+
+	public void updatePartner(SwaggerPartner partner) {
+		SwaggerPartner swaggerPartner = getPartnerbyName(partner);
+		if (null == swaggerPartner)
+			mongoTemplate.save(partner);
+	}
+
+	public void deletePartner(String partnerId) {
+		Query query = new Query(Criteria.where("id").is(partnerId));
+		mongoTemplate.remove(query, SwaggerPartner.class);
+	}
+
+	public SwaggerPartner getPartnerbyName(SwaggerPartner partner) {
+		Query query = new Query(Criteria.where("partnerName").is(partner.getPartnerName()));
+		SwaggerPartner swaggerPartner = mongoTemplate.findOne(query, SwaggerPartner.class);
+		return swaggerPartner;
 	}
 
 	public List<SwaggerPartner> getPartners() {
@@ -3763,7 +3779,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		}
 	}
 
-	public List<String> getAssociatedPartners(String swaggerId, String oas) {
+	public List<SwaggerPartner> getAssociatedPartners(String swaggerId, String oas) {
 		if (oas.equals("3.0")) {
 			Swagger3VO vo = getSwagger3(swaggerId, null);
 			if (null != vo) {
@@ -3772,7 +3788,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					Revision revision = revisions.stream().min((x, y) -> x.getRevision() - y.getRevision()).get();
 					try {
 						Swagger3VO swaggerVo = getSwagger3WithVersionNumber(swaggerId, revision.getRevision(), null);
-						return swaggerVo.getPartners();
+						return getswaggerPartners(swaggerVo.getPartners());
 					} catch (ItorixException e) {
 						e.printStackTrace();
 					}
@@ -3786,13 +3802,25 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					Revision revision = revisions.stream().min((x, y) -> x.getRevision() - y.getRevision()).get();
 					try {
 						SwaggerVO swaggerVo = getSwaggerWithVersionNumber(swaggerId, revision.getRevision(), null);
-						return swaggerVo.getPartners();
+						return getswaggerPartners(swaggerVo.getPartners());
 					} catch (ItorixException e) {
 						e.printStackTrace();
 					}
 				}
 			}
 		}
-		return new ArrayList<String>();
+		return new ArrayList<SwaggerPartner>();
+	}
+
+	private List<SwaggerPartner> getswaggerPartners(List<String> partnerId) {
+		List<SwaggerPartner> dbPartners = mongoTemplate.findAll(SwaggerPartner.class);
+		List<SwaggerPartner> partners = new ArrayList<SwaggerPartner>();
+		for (String partner : partnerId) {
+			try {
+				partners.add(dbPartners.stream().filter(p -> p.getId().equals(partner)).findFirst().get());
+			} catch (Exception e) {
+			}
+		}
+		return partners;
 	}
 }
