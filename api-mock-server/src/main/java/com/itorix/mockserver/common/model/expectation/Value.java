@@ -14,21 +14,21 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Value {
-	public enum Condition {
+    public enum Condition {
 
-		@JsonProperty("equalTo")
-		equalTo,
+        @JsonProperty("equalTo")
+        equalTo,
 
-		@JsonProperty("notEqualTo")
-		notEqualTo,
+        @JsonProperty("notEqualTo")
+        notEqualTo,
 
-		@JsonProperty("contains")
-		contains,
+        @JsonProperty("contains")
+        contains,
 
-		@JsonProperty("regEx")
-		regEx,
-	}
+        @JsonProperty("regEx")
+        regEx,
+    }
 
-	private List<String> text;
-	private Condition condition;
+    private List<String> text;
+    private Condition condition;
 }

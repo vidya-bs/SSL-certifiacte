@@ -10,26 +10,25 @@ import com.itorix.mockserver.common.model.MockLog;
 @Controller
 public class MockServerDao {
 
-	@Autowired
-	private MongoTemplate mongoTemplate;
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
-	public String getGroupName(String id) {
-		Group group = mongoTemplate.findById(id, Group.class);
-		if (group != null) {
-			return group.getName();
-		}
-		return null;
-	}
+    public String getGroupName(String id) {
+        Group group = mongoTemplate.findById(id, Group.class);
+        if (group != null) {
+            return group.getName();
+        }
+        return null;
+    }
 
-	public boolean addLogEntry(MockLog mockLog) {
-		try {
-			mongoTemplate.save(mockLog);
-			return true;
-		} catch (Exception ex) {
-			System.out.println(ex.getMessage());
-		}
-		return false;
-	}
-
+    public boolean addLogEntry(MockLog mockLog) {
+        try {
+            mongoTemplate.save(mockLog);
+            return true;
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        return false;
+    }
 
 }

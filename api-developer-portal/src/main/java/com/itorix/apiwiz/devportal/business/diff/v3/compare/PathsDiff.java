@@ -121,8 +121,8 @@ public class PathsDiff {
 
 					SecurityRequirementDiff securityRequirementDiff = new SecurityRequirementDiff()
 							.diff(oldOperation.getSecurity(), newOperation.getSecurity());
-					
-					if(Objects.nonNull(securityRequirementDiff)) {
+
+					if (Objects.nonNull(securityRequirementDiff)) {
 						if (securityRequirementDiff.isNotEmpty()) {
 							changedOperation.setSecurityRequirementDiff(securityRequirementDiff);
 						}
@@ -147,15 +147,15 @@ public class PathsDiff {
 					this.changed.add(changedEndpoint);
 				}
 			});
-			
-			pathDiffMap.getMissing().forEach((k,v) -> {
+
+			pathDiffMap.getMissing().forEach((k, v) -> {
 				this.missing.addAll(convert2EndpointList(k, v.readOperationsMap()));
 			});
-			
-			pathDiffMap.getIncreased().forEach((k,v) -> {
+
+			pathDiffMap.getIncreased().forEach((k, v) -> {
 				this.added.addAll(convert2EndpointList(k, v.readOperationsMap()));
 			});
-			
+
 			return this;
 		}
 
@@ -237,5 +237,4 @@ public class PathsDiff {
 
 		return tagDiff;
 	}
-
 }

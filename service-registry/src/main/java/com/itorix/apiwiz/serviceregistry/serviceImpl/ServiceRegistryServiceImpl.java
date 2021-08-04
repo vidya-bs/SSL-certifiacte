@@ -26,7 +26,6 @@ import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryList;
 import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryResponse;
 import com.itorix.apiwiz.serviceregistry.service.ServiceRegistryService;
 
-
 @CrossOrigin
 @RestController
 public class ServiceRegistryServiceImpl implements ServiceRegistryService {
@@ -35,14 +34,15 @@ public class ServiceRegistryServiceImpl implements ServiceRegistryService {
 	ServiceRegistryDao serviceRegistryDao;
 
 	@Override
-	public ResponseEntity<ServiceRegistryColumns> getServiceRegistryColumns(@RequestHeader(value = "JSESSIONID") String jsessionid)  throws ItorixException {
+	public ResponseEntity<ServiceRegistryColumns> getServiceRegistryColumns(
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException {
 		ServiceRegistryColumns serviceRegistryColumns = serviceRegistryDao.getServiceRegistryColumns();
 		return new ResponseEntity<ServiceRegistryColumns>(serviceRegistryColumns, HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseEntity<?> createOrUpdateServRegColumns(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody ServiceRegistryColumns registryColumns)  throws ItorixException {
+			@RequestBody ServiceRegistryColumns registryColumns) throws ItorixException {
 		serviceRegistryDao.createOrUpdateSRColumns(registryColumns);
 		return new ResponseEntity<ServiceRegistryColumns>(HttpStatus.OK);
 	}
@@ -60,27 +60,27 @@ public class ServiceRegistryServiceImpl implements ServiceRegistryService {
 	@Override
 	public ResponseEntity<?> deleteServiceRegistry(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("service-registry-id") String serviceRegistryId) throws ItorixException {
-			serviceRegistryDao.deleteServiceRegistry(serviceRegistryId);
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		serviceRegistryDao.deleteServiceRegistry(serviceRegistryId);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
 	public ResponseEntity<?> updateServiceRegistry(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("service-registry-id") String serviceRegistryId,
 			@RequestBody ServiceRegistryList registryResponser) throws ItorixException {
-			serviceRegistryDao.updateServiceRegistry(serviceRegistryId, registryResponser);
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		serviceRegistryDao.updateServiceRegistry(serviceRegistryId, registryResponser);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
 	public ResponseEntity<ServiceRegistryResponse> getServiceRegistry(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) throws ItorixException {
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize)
+			throws ItorixException {
 		ServiceRegistryResponse serviceRegistryList = serviceRegistryDao.getServiceaRegistry(offset, pageSize);
 		return new ResponseEntity<>(serviceRegistryList, HttpStatus.OK);
 	}
-
 
 	@Override
 	public ResponseEntity<ServiceRegistryEntriesResponse> getServiceRegistryEntries(
@@ -96,49 +96,48 @@ public class ServiceRegistryServiceImpl implements ServiceRegistryService {
 				dataMap.putAll(serviceRegistry.getData());
 				data.add(dataMap);
 			}
-			return new ResponseEntity<>(new ServiceRegistryEntriesResponse(
-					serviceRegistryList.getName(), serviceRegistryId, data), HttpStatus.OK);
+			return new ResponseEntity<>(
+					new ServiceRegistryEntriesResponse(serviceRegistryList.getName(), serviceRegistryId, data),
+					HttpStatus.OK);
 		}
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseEntity<?> createServiceRegistryEntry(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@PathVariable("service-registry-id") String serviceRegistryId,
-			@RequestBody ServiceRegistry serviceRegistry) throws ItorixException {
-			ObjectId rowId = serviceRegistryDao.createServiceRegistryEntry(serviceRegistryId, serviceRegistry.getData()).getId();
-			HttpHeaders headers = new HttpHeaders();
-			headers.add("Access-Control-Expose-Headers", "X-rowid");
-			headers.add("X-rowid", rowId.toString());
-			return new ResponseEntity<>(headers, HttpStatus.CREATED);
+			@PathVariable("service-registry-id") String serviceRegistryId, @RequestBody ServiceRegistry serviceRegistry)
+			throws ItorixException {
+		ObjectId rowId = serviceRegistryDao.createServiceRegistryEntry(serviceRegistryId, serviceRegistry.getData())
+				.getId();
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Access-Control-Expose-Headers", "X-rowid");
+		headers.add("X-rowid", rowId.toString());
+		return new ResponseEntity<>(headers, HttpStatus.CREATED);
 	}
 
 	@Override
 	public ResponseEntity<?> updateServiceRegistryEntry(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody ServiceRegistry serviceRegistry, 
-			@PathVariable("service-registry-id") String serviceRegistryId,
+			@RequestBody ServiceRegistry serviceRegistry, @PathVariable("service-registry-id") String serviceRegistryId,
 			@PathVariable("row-id") String rowId) throws ItorixException {
-			serviceRegistryDao.updateServiceRegistryEntry( serviceRegistryId, rowId, serviceRegistry.getData());
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		serviceRegistryDao.updateServiceRegistryEntry(serviceRegistryId, rowId, serviceRegistry.getData());
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
 	public ResponseEntity<?> deleteServiceRegistryEntry(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@PathVariable("service-registry-id") String serviceRegistryId,
-			@PathVariable("row-id") String rowId) throws ItorixException {
-			serviceRegistryDao.deleteServiceRegistryEntry(rowId);
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			@PathVariable("service-registry-id") String serviceRegistryId, @PathVariable("row-id") String rowId)
+			throws ItorixException {
+		serviceRegistryDao.deleteServiceRegistryEntry(rowId);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	@Override
 	public ResponseEntity<Object> swaggerSearch(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
-			@RequestParam("name") String name, @RequestParam("limit") int limit)
-			throws ItorixException{
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam("name") String name,
+			@RequestParam("limit") int limit) throws ItorixException {
 		Object response = null;
 		response = serviceRegistryDao.search(name, limit);
 		return new ResponseEntity<Object>(response, HttpStatus.OK);
 	}
-	
 }

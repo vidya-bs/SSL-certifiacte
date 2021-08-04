@@ -8,9 +8,9 @@ public class PostmanEnvValue {
 	public String value;
 	public String type;
 	public String name;
-	
+
 	@Override
 	public String toString() {
-		return "["+key+":"+value+"]";
+		return "[" + key + ":" + value + "]";
 	}
 }

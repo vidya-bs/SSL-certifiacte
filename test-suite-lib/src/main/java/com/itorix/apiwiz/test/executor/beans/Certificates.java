@@ -18,60 +18,60 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Certificates {
 
-	@Id
-	@JsonProperty("name")
-	private String name;
+    @Id
+    @JsonProperty("name")
+    private String name;
 
-	@JsonProperty("content")
-	private byte[] content;
+    @JsonProperty("content")
+    private byte[] content;
 
-	@JsonProperty("description")
-	private String description;
+    @JsonProperty("description")
+    private String description;
 
-	@JsonProperty("password")
-	private String password;
+    @JsonProperty("password")
+    private String password;
 
-	@JsonProperty("alias")
-	private String alias;
+    @JsonProperty("alias")
+    private String alias;
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public byte[] getContent() {
-		return content;
-	}
+    public byte[] getContent() {
+        return content;
+    }
 
-	public void setContent(byte[] content) {
-		this.content = content;
-	}
+    public void setContent(byte[] content) {
+        this.content = content;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	public String getAlias() {
-		return alias;
-	}
+    public String getAlias() {
+        return alias;
+    }
 
-	public void setAlias(String alias) {
-		this.alias = alias;
-	}
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
 
 }

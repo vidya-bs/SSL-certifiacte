@@ -4,7 +4,6 @@ public class ErrorObj {
 	private Error error;
 
 	/**
-	 * 
 	 * @param userMessage
 	 * @param statusCode
 	 */

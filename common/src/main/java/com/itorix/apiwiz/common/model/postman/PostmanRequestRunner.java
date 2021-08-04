@@ -35,7 +35,6 @@ public class PostmanRequestRunner {
 	private static final Logger logger = LoggerFactory.getLogger(PostmanRequestRunner.class);
 	private PostmanVariables var;
 	private boolean haltOnError = false;
-	
 
 	private static HttpComponentsClientHttpRequestFactory httpClientRequestFactory = new HttpComponentsClientHttpRequestFactory();
 
@@ -45,7 +44,7 @@ public class PostmanRequestRunner {
 
 	private RestTemplate setupRestTemplate(PostmanRequest request) {
 		RestTemplate restTemplate = new RestTemplate(httpClientRequestFactory);
-		if (request.dataMode!=null && request.dataMode.equals("urlencoded")) {
+		if (request.dataMode != null && request.dataMode.equals("urlencoded")) {
 			List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>();
 			converters.add(new FormHttpMessageConverter());
 			StringHttpMessageConverter stringConv = new StringHttpMessageConverter();
@@ -60,12 +59,13 @@ public class PostmanRequestRunner {
 		});
 		return restTemplate;
 	}
+
 	public boolean run(PostmanRequest request, PostmanRunResult runResult) {
-		Map postmanResult  = new HashMap();
+		Map postmanResult = new HashMap();
 		postmanResult.put("Request", request);
 		runPrerequestScript(request, runResult);
 		HttpHeaders headers = request.getHeaders(var);
-		if (request.dataMode!=null && request.dataMode.equals("urlencoded")) {
+		if (request.dataMode != null && request.dataMode.equals("urlencoded")) {
 			headers.set("Content-Type", "application/x-www-form-urlencoded");
 		}
 		HttpEntity<String> entity = new HttpEntity<String>(request.getData(var), headers);
@@ -84,123 +84,88 @@ public class PostmanRequestRunner {
 
 		long startMillis = System.currentTimeMillis();
 		httpResponse = restTemplate.exchange(uri, HttpMethod.valueOf(request.method), entity, String.class);
-		Set<Entry<String, List<String>>> entries=entity.getHeaders().entrySet();
-		for(Entry<String, List<String>> ent:entries){
-			logger.info(ent.getKey()+":"+ent.getValue() );
+		Set<Entry<String, List<String>>> entries = entity.getHeaders().entrySet();
+		for (Entry<String, List<String>> ent : entries) {
+			logger.info(ent.getKey() + ":" + ent.getValue());
 		}
 		logger.info(" [" + (System.currentTimeMillis() - startMillis) + "ms]");
 		logger.info("httpResponse : " + httpResponse);
 		postmanResult.put("Response", httpResponse);
 		runResult.addResultItem(request.name, postmanResult);
 		if (httpResponse.getStatusCode().series() != Series.SERVER_ERROR) {
-			return this.evaluateTests(request, httpResponse, runResult,postmanResult);
+			return this.evaluateTests(request, httpResponse, runResult, postmanResult);
 		} else {
 			return false;
 		}
 	}
-	/*public boolean run(PostmanRequest request, PostmanRunResult runResult,APIMonitorResults apiMonitorResults,BaseRepository baseRepository) {
-		List<Resources> resourcesList=apiMonitorResults.getResources();
-		if(resourcesList==null){
-			resourcesList=new ArrayList<>();
-		}
-		Resources resources=new Resources();
-		Request req=new Request();
-		Response res=new Response();
-		runPrerequestScript(request, runResult);
 
-		HttpHeaders headers = request.getHeaders(var);
-		if (request.dataMode.equals("urlencoded")) {
-			headers.set("Content-Type", "application/x-www-form-urlencoded");
-		}
-		resources.setName(request.name);
-		HttpEntity<String> entity = new HttpEntity<String>(request.getData(var), headers);
-		ResponseEntity<String> httpResponse = null;
-		RestTemplate restTemplate = setupRestTemplate(request);
-		String url = request.getUrl(var);
-		URI uri;
-		try {
-			uri = new URI(url);
-		} catch (URISyntaxException e) {
-			if (haltOnError)
-				throw new HaltTestFolderException();
-			else
-				return false;
-		}
-		List<String> ignoreList=new ArrayList<String>();
-		ignoreList.add("Accept-Charset");
-		List<Headers> headersList=new ArrayList<>();
-		Set<Entry<String, List<String>>> entries=entity.getHeaders().entrySet();
-		for(Entry<String, List<String>> ent:entries){
-			Headers headers2=new Headers();
-			headers2.setName(ent.getKey());
-			if(ent.getValue()!=null &&ent.getValue().size()>0){
-			headers2.setValue(ent.getValue().get(0));
-			}
-			headersList.add(headers2);
-		}
-		req.setHeaders(headersList);
-		req.setVerb(request.method);
-		req.setUri(uri.getPath());
-		req.setPayload((request.rawModeData==null)?null:request.rawModeData.toString());
-		resources.setRequest(req);
-		long startMillis = System.currentTimeMillis();
-		try{
-		httpResponse = restTemplate.exchange(uri, HttpMethod.valueOf(request.method), entity, String.class);
-		}catch(Exception e){
-			resources.setStatus("Error");
-			long elapsedTime = System.currentTimeMillis() - startMillis;
-			 res.setResponseTime(elapsedTime);
-			 resources.setResponse(res);
-			 resourcesList.add(resources);
-	         apiMonitorResults.setResources(resourcesList);
-			baseRepository.save(apiMonitorResults);
-		}
-		if(httpResponse!=null){
-		 long elapsedTime = System.currentTimeMillis() - startMillis;
-		 res.setResponseTime(elapsedTime);
-         res.setPayload(httpResponse.getBody());
-         List<Headers> headersList1=new ArrayList<>();
-         Set<Entry<String, List<String>>> entries1 = httpResponse.getHeaders().entrySet();
-         for(Entry<String, List<String>> ent:entries1){
-        	if(!ignoreList.contains(ent.getKey())){
- 			Headers headers2=new Headers();
- 			headers2.setName(ent.getKey());
- 			if(ent.getValue()!=null &&ent.getValue().size()>0){
- 			headers2.setValue(ent.getValue().get(0));
- 			}
- 			headersList1.add(headers2);
-        	}
- 		}
-         res.setHeaders(headersList1);
-         resources.setResponse(res);
-         resourcesList.add(resources);
-         apiMonitorResults.setResources(resourcesList);
-       
-		logger.info(" [" + (System.currentTimeMillis() - startMillis) + "ms]");
-		logger.info("httpResponse : " + httpResponse);
-		if (httpResponse.getStatusCode().series() != Series.SERVER_ERROR && httpResponse.getStatusCode().series() != Series.CLIENT_ERROR && httpResponse.getStatusCode().series() != Series.REDIRECTION) {
-			resources.setStatus("Success");
-			baseRepository.save(apiMonitorResults);
-			return this.evaluateTests(request, httpResponse, runResult, null);
-		} else {
-			resources.setStatus("Error");
-			baseRepository.save(apiMonitorResults);
-			return false;
-		}
-		}else{
-			long elapsedTime = System.currentTimeMillis() - startMillis;
-			 res.setResponseTime(elapsedTime);
-			 resources.setResponse(res);
-			resources.setStatus("Error");
-			baseRepository.save(apiMonitorResults);
-			return false;
-		}
-		  
-	}
-*/
+	/*
+	 * public boolean run(PostmanRequest request, PostmanRunResult
+	 * runResult,APIMonitorResults apiMonitorResults,BaseRepository
+	 * baseRepository) { List<Resources>
+	 * resourcesList=apiMonitorResults.getResources(); if(resourcesList==null){
+	 * resourcesList=new ArrayList<>(); } Resources resources=new Resources();
+	 * Request req=new Request(); Response res=new Response();
+	 * runPrerequestScript(request, runResult);
+	 * 
+	 * HttpHeaders headers = request.getHeaders(var); if
+	 * (request.dataMode.equals("urlencoded")) { headers.set("Content-Type",
+	 * "application/x-www-form-urlencoded"); } resources.setName(request.name);
+	 * HttpEntity<String> entity = new HttpEntity<String>(request.getData(var),
+	 * headers); ResponseEntity<String> httpResponse = null; RestTemplate
+	 * restTemplate = setupRestTemplate(request); String url =
+	 * request.getUrl(var); URI uri; try { uri = new URI(url); } catch
+	 * (URISyntaxException e) { if (haltOnError) throw new
+	 * HaltTestFolderException(); else return false; } List<String>
+	 * ignoreList=new ArrayList<String>(); ignoreList.add("Accept-Charset");
+	 * List<Headers> headersList=new ArrayList<>(); Set<Entry<String,
+	 * List<String>>> entries=entity.getHeaders().entrySet(); for(Entry<String,
+	 * List<String>> ent:entries){ Headers headers2=new Headers();
+	 * headers2.setName(ent.getKey()); if(ent.getValue()!=null
+	 * &&ent.getValue().size()>0){ headers2.setValue(ent.getValue().get(0)); }
+	 * headersList.add(headers2); } req.setHeaders(headersList);
+	 * req.setVerb(request.method); req.setUri(uri.getPath());
+	 * req.setPayload((request.rawModeData==null)?null:request.rawModeData.
+	 * toString()); resources.setRequest(req); long startMillis =
+	 * System.currentTimeMillis(); try{ httpResponse =
+	 * restTemplate.exchange(uri, HttpMethod.valueOf(request.method), entity,
+	 * String.class); }catch(Exception e){ resources.setStatus("Error"); long
+	 * elapsedTime = System.currentTimeMillis() - startMillis;
+	 * res.setResponseTime(elapsedTime); resources.setResponse(res);
+	 * resourcesList.add(resources);
+	 * apiMonitorResults.setResources(resourcesList);
+	 * baseRepository.save(apiMonitorResults); } if(httpResponse!=null){ long
+	 * elapsedTime = System.currentTimeMillis() - startMillis;
+	 * res.setResponseTime(elapsedTime); res.setPayload(httpResponse.getBody());
+	 * List<Headers> headersList1=new ArrayList<>(); Set<Entry<String,
+	 * List<String>>> entries1 = httpResponse.getHeaders().entrySet();
+	 * for(Entry<String, List<String>> ent:entries1){
+	 * if(!ignoreList.contains(ent.getKey())){ Headers headers2=new Headers();
+	 * headers2.setName(ent.getKey()); if(ent.getValue()!=null
+	 * &&ent.getValue().size()>0){ headers2.setValue(ent.getValue().get(0)); }
+	 * headersList1.add(headers2); } } res.setHeaders(headersList1);
+	 * resources.setResponse(res); resourcesList.add(resources);
+	 * apiMonitorResults.setResources(resourcesList);
+	 * 
+	 * logger.info(" [" + (System.currentTimeMillis() - startMillis) + "ms]");
+	 * logger.info("httpResponse : " + httpResponse); if
+	 * (httpResponse.getStatusCode().series() != Series.SERVER_ERROR &&
+	 * httpResponse.getStatusCode().series() != Series.CLIENT_ERROR &&
+	 * httpResponse.getStatusCode().series() != Series.REDIRECTION) {
+	 * resources.setStatus("Success"); baseRepository.save(apiMonitorResults);
+	 * return this.evaluateTests(request, httpResponse, runResult, null); } else
+	 * { resources.setStatus("Error"); baseRepository.save(apiMonitorResults);
+	 * return false; } }else{ long elapsedTime = System.currentTimeMillis() -
+	 * startMillis; res.setResponseTime(elapsedTime);
+	 * resources.setResponse(res); resources.setStatus("Error");
+	 * baseRepository.save(apiMonitorResults); return false; }
+	 * 
+	 * }
+	 */
 	/**
 	 * @param request
 	 * @param httpResponse
+	 * 
 	 * @return true if all tests pass, false otherwise
 	 */
 	public boolean evaluateTests(PostmanRequest request, ResponseEntity<String> httpResponse,
@@ -234,8 +199,8 @@ public class PostmanRequestRunner {
 					runResult.failedTestName.add(request.name + "." + e.getKey().toString());
 					isSuccessful = false;
 				}
-				tests.put(e.getKey() , e.getValue());
-				logger.info(testName +": "+ request.name + " : " + e.getKey() + " - " + e.getValue());
+				tests.put(e.getKey(), e.getValue());
+				logger.info(testName + ": " + request.name + " : " + e.getKey() + " - " + e.getValue());
 			}
 		} catch (Throwable t) {
 			isSuccessful = false;
@@ -245,14 +210,14 @@ public class PostmanRequestRunner {
 			logger.info(request.tests);
 			logger.info("========TEST========");
 			logger.info("========RESPONSE========");
-			logger.info(httpResponse.getStatusCode()+"");
+			logger.info(httpResponse.getStatusCode() + "");
 			logger.info(httpResponse.getBody());
 			logger.info("========RESPONSE========");
 			logger.info("=====FAILED TO EVALUATE TEST AGAINST SERVER RESPONSE======");
-			//t.printStackTrace();
+			// t.printStackTrace();
 		} finally {
 			Context.exit();
-			if(postmanResult!= null)
+			if (postmanResult != null)
 				postmanResult.put("Tests", tests);
 		}
 		return isSuccessful;

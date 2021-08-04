@@ -18,8 +18,10 @@ public class MonitorRequest {
 	private String id;
 	private String name;
 	private String summary;
+
 	@JsonProperty("isPause")
 	private boolean pause;
+
 	private String host;
 	private String port;
 	private String schemes;

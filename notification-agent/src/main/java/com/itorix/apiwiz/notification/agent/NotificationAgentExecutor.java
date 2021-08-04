@@ -22,33 +22,33 @@ import com.itorix.apiwiz.notification.agent.model.ExecutionContext;
 @Component
 public class NotificationAgentExecutor {
 
-	private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 5);
+    private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 5);
 
-	@Autowired
-	private NotificationAgentExecutorSQLDao sqlDao;
+    @Autowired
+    private NotificationAgentExecutorSQLDao sqlDao;
 
-	@Autowired
-	private NotificationAgentRunner testRunner;
+    @Autowired
+    private NotificationAgentRunner testRunner;
 
-	@Autowired
-	JdbcTemplate jdbcTemplate;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
-	@Scheduled(fixedRate = 15000)
-	public void fetchAndRunTestsuites() {
+    @Scheduled(fixedRate = 15000)
+    public void fetchAndRunTestsuites() {
 
-		int avlThreads = (Runtime.getRuntime().availableProcessors() * 5)
-				- ((ThreadPoolExecutor) executor).getActiveCount();
+        int avlThreads = (Runtime.getRuntime().availableProcessors() * 5)
+                - ((ThreadPoolExecutor) executor).getActiveCount();
 
-		List<NotificationExecutorEntity> executorEntities = sqlDao.getExecutorEntityByColumn("status",
-				NotificationExecutorEntity.STATUSES.SCHEDULED.getValue(), avlThreads);
+        List<NotificationExecutorEntity> executorEntities = sqlDao.getExecutorEntityByColumn("status",
+                NotificationExecutorEntity.STATUSES.SCHEDULED.getValue(), avlThreads);
 
-		for (NotificationExecutorEntity executorEntity : executorEntities) {
-			executorEntity.setStatus(NotificationExecutorEntity.STATUSES.IN_PROGRESS.getValue());
-			sqlDao.updateField(executorEntity.getId(), "status",
-					NotificationExecutorEntity.STATUSES.IN_PROGRESS.getValue());
-			ExecutionContext context = new ExecutionContext();
-			context.setNotificationExecutorEntity(executorEntity);
-			executor.execute(() -> testRunner.run(context));
-		}
-	}
+        for (NotificationExecutorEntity executorEntity : executorEntities) {
+            executorEntity.setStatus(NotificationExecutorEntity.STATUSES.IN_PROGRESS.getValue());
+            sqlDao.updateField(executorEntity.getId(), "status",
+                    NotificationExecutorEntity.STATUSES.IN_PROGRESS.getValue());
+            ExecutionContext context = new ExecutionContext();
+            context.setNotificationExecutorEntity(executorEntity);
+            executor.execute(() -> testRunner.run(context));
+        }
+    }
 }

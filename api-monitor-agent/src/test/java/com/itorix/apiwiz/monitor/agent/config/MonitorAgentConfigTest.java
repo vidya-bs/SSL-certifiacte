@@ -29,7 +29,7 @@ public class MonitorAgentConfigTest {
     }
 
     @Bean
-    public MonitorAgentRunner monitorAgentRunner () {
+    public MonitorAgentRunner monitorAgentRunner() {
         return new MonitorAgentRunner();
     }
 }

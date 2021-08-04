@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.itorix.apiwiz.identitymanagement.model.AbstractObject;
 
-
 @Document(collection = "Design.Swagger3.List")
 public class Swagger3VO extends AbstractObject {
 
@@ -108,5 +107,4 @@ public class Swagger3VO extends AbstractObject {
 	public void setPortfolios(Set<String> portfolios) {
 		this.portfolios = portfolios;
 	}
-
 }

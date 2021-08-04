@@ -4,7 +4,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.itorix.apiwiz.identitymanagement.model.AbstractObject;
 
-
 @Document(collection = "Design.Swagger.Comments")
 public class SwaggerComment extends AbstractObject {
 
@@ -37,5 +36,4 @@ public class SwaggerComment extends AbstractObject {
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
-
 }

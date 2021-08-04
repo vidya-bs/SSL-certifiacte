@@ -14,10 +14,7 @@ public class TestSuiteHistoryResponse {
 
 	private Pagination pagination;
 
-
 	private List<TestSuiteResponse> responses;
-
-
 
 	public List<TestSuiteResponse> getData() {
 		return responses;
@@ -47,5 +44,4 @@ public class TestSuiteHistoryResponse {
 	public void setPagination(Pagination pagination) {
 		this.pagination = pagination;
 	}
-
 }

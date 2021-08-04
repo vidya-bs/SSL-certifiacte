@@ -52,5 +52,4 @@ public class Endpoint {
 	public void setOperation(Operation operation) {
 		this.operation = operation;
 	}
-
 }

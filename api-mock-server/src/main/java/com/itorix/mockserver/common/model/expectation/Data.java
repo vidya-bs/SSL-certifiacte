@@ -9,22 +9,22 @@ import lombok.Setter;
 @Setter
 public class Data {
 
-	public enum Condition {
+    public enum Condition {
 
-		@JsonProperty("equalTo")
-		equalTo,
+        @JsonProperty("equalTo")
+        equalTo,
 
-		@JsonProperty("notEqualTo")
-		notEqualTo,
+        @JsonProperty("notEqualTo")
+        notEqualTo,
 
-		@JsonProperty("any")
-		any,
+        @JsonProperty("any")
+        any,
 
-		@JsonProperty("regEx")
-		regEx,
-	}
+        @JsonProperty("regEx")
+        regEx,
+    }
 
-	private Condition condition;
-	private String value;
-	private String path;
+    private Condition condition;
+    private String value;
+    private String path;
 }

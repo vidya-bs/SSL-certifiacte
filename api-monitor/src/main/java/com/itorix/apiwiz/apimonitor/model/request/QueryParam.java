@@ -18,65 +18,68 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class QueryParam {
 
-    @JsonProperty("name")
-    private String name;
-    @JsonProperty("description")
-    private String description;
-    @JsonProperty("value")
-    private String value;
-    @JsonProperty("type")
-    private String type;
-    @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	@JsonProperty("name")
+	private String name;
 
-    @JsonProperty("name")
-    public String getName() {
-        return name;
-    }
+	@JsonProperty("description")
+	private String description;
 
-    @JsonProperty("name")
-    public void setName(String name) {
-        this.name = name;
-    }
+	@JsonProperty("value")
+	private String value;
 
-    @JsonProperty("description")
-    public String getDescription() {
-        return description;
-    }
+	@JsonProperty("type")
+	private String type;
 
-    @JsonProperty("description")
-    public void setDescription(String description) {
-        this.description = description;
-    }
+	@JsonIgnore
+	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("value")
-    public String getValue() {
-        return value;
-    }
+	@JsonProperty("name")
+	public String getName() {
+		return name;
+	}
 
-    @JsonProperty("value")
-    public void setValue(String value) {
-        this.value = value;
-    }
+	@JsonProperty("name")
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    @JsonProperty("type")
-    public String getType() {
-        return type;
-    }
+	@JsonProperty("description")
+	public String getDescription() {
+		return description;
+	}
 
-    @JsonProperty("type")
-    public void setType(String type) {
-        this.type = type;
-    }
+	@JsonProperty("description")
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
+	@JsonProperty("value")
+	public String getValue() {
+		return value;
+	}
 
-    @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-    }
+	@JsonProperty("value")
+	public void setValue(String value) {
+		this.value = value;
+	}
 
+	@JsonProperty("type")
+	public String getType() {
+		return type;
+	}
+
+	@JsonProperty("type")
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	@JsonAnyGetter
+	public Map<String, Object> getAdditionalProperties() {
+		return this.additionalProperties;
+	}
+
+	@JsonAnySetter
+	public void setAdditionalProperty(String name, Object value) {
+		this.additionalProperties.put(name, value);
+	}
 }

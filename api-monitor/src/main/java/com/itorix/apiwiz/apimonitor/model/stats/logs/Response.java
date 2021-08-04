@@ -14,9 +14,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Response{
-    public int statusCode;
-    public String statusMessage;
+public class Response {
+	public int statusCode;
+	public String statusMessage;
+
 	@JsonProperty("headers")
 	private Map<String, String> headers;
 
@@ -26,4 +27,3 @@ public class Response{
 	@JsonProperty("variables")
 	private List<Variable> variables;
 }
-

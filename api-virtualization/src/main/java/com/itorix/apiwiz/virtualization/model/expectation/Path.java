@@ -10,7 +10,6 @@ import lombok.Setter;
 public class Path {
 
 	public enum Condition {
-
 		@JsonProperty("equalTo")
 		equalTo,
 
@@ -26,6 +25,7 @@ public class Path {
 
 	private String value;
 	private Condition condition;
+
 	@JsonProperty("isRegEx")
 	private boolean regEx;
 }

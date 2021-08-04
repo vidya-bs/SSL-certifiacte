@@ -8,8 +8,6 @@ public class Metrics {
 	private String name;
 	private String[] values;
 
-	
-	
 	public String getName() {
 		return name;
 	}
@@ -26,15 +24,10 @@ public class Metrics {
 		this.values = values;
 	}
 
-	
+	/*
+	 * public double[] getValues() { return values; }
+	 * 
+	 * public void setValues(double[] values) { this.values = values; }
+	 */
 
-	/*public double[] getValues() {
-		return values;
-	}
-
-	public void setValues(double[] values) {
-		this.values = values;
-	}*/
-	
-	
 }

@@ -1,36 +1,36 @@
 package com.itorix.apiwiz.sso.exception;
 
 public class Error {
-	private String userMessage;
+    private String userMessage;
 
-	private String statusCode;
+    private String statusCode;
 
-	public Error() {
-	}
+    public Error() {
+    }
 
-	/**
-	 * 
-	 * @param userMessage
-	 * @param statusCode
-	 */
-	public Error(String userMessage, String statusCode) {
-		this.userMessage = userMessage;
-		this.statusCode = statusCode;
-	}
+    /**
+     * 
+     * @param userMessage
+     * @param statusCode
+     */
+    public Error(String userMessage, String statusCode) {
+        this.userMessage = userMessage;
+        this.statusCode = statusCode;
+    }
 
-	public String getUserMessage() {
-		return userMessage;
-	}
+    public String getUserMessage() {
+        return userMessage;
+    }
 
-	public void setUserMessage(String userMessage) {
-		this.userMessage = userMessage;
-	}
+    public void setUserMessage(String userMessage) {
+        this.userMessage = userMessage;
+    }
 
-	public String getStatusCode() {
-		return statusCode;
-	}
+    public String getStatusCode() {
+        return statusCode;
+    }
 
-	public void setStatusCode(String statusCode) {
-		this.statusCode = statusCode;
-	}
+    public void setStatusCode(String statusCode) {
+        this.statusCode = statusCode;
+    }
 }

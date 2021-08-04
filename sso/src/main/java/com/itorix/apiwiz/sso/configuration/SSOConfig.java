@@ -25,38 +25,38 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SSOConfig {
 
-	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 
-	@Bean(name = "noVerify")
-	public RestTemplate getRestTemplate() {
+    @Bean(name = "noVerify")
+    public RestTemplate getRestTemplate() {
 
-		try {
-			TrustStrategy acceptingTrustStrategy = (X509Certificate[] chain, String authType) -> true;
-			SSLContext sslContext = org.apache.http.ssl.SSLContexts.custom()
-					.loadTrustMaterial(null, acceptingTrustStrategy).build();
-			HostnameVerifier allowAll = new HostnameVerifier() {
-				@Override
-				public boolean verify(String hostName, SSLSession session) {
-					return true;
-				}
-			};
-			SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, allowAll);
+        try {
+            TrustStrategy acceptingTrustStrategy = (X509Certificate[] chain, String authType) -> true;
+            SSLContext sslContext = org.apache.http.ssl.SSLContexts.custom()
+                    .loadTrustMaterial(null, acceptingTrustStrategy).build();
+            HostnameVerifier allowAll = new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostName, SSLSession session) {
+                    return true;
+                }
+            };
+            SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, allowAll);
 
-			CloseableHttpClient httpClient = HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-					.setSSLSocketFactory(csf).build();
+            CloseableHttpClient httpClient = HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                    .setSSLSocketFactory(csf).build();
 
-			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 
-			requestFactory.setHttpClient(httpClient);
+            requestFactory.setHttpClient(httpClient);
 
-			return new RestTemplate(requestFactory);
-		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
-			log.error("exception when creating rest template", e);
-		}
-		return null;
+            return new RestTemplate(requestFactory);
+        } catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
+            log.error("exception when creating rest template", e);
+        }
+        return null;
 
-	}
+    }
 }

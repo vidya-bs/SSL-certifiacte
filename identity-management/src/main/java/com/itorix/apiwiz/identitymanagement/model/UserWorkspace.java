@@ -11,7 +11,7 @@ import com.itorix.apiwiz.common.model.SwaggerTeam;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserWorkspace {
-	
+
 	private List<String> roles;
 	private Workspace workspace;
 	private String userType;
@@ -33,7 +33,7 @@ public class UserWorkspace {
 	public void setRoles(List<String> roles) {
 		this.roles = roles;
 	}
-	
+
 	@JsonIgnore
 	public Workspace getWorkspace() {
 		return workspace;
@@ -66,44 +66,49 @@ public class UserWorkspace {
 	public void setActive(boolean active) {
 		this.active = active;
 	}
-	
+
 	public String getName() {
 		return this.workspace != null ? this.workspace.getName() : null;
 	}
-	
+
 	public String getPlanId() {
 		return this.workspace != null ? this.workspace.getPlanId() : null;
 	}
-	
+
 	public String getTenant() {
 		return this.workspace != null ? this.workspace.getTenant() : null;
 	}
-	
+
 	public String getStatus() {
 		return this.workspace != null ? this.workspace.getStatus() : null;
 	}
-	
+
 	public String getActiveTill() {
 		return this.workspace != null ? this.workspace.getActiveTill() : null;
 	}
-	
+
 	public String getKey() {
 		return this.workspace != null ? this.workspace.getKey() : null;
 	}
-	public String getRegionCode(){
-		return this.workspace != null ? this.workspace.getRegionCode(): null;
+
+	public String getRegionCode() {
+		return this.workspace != null ? this.workspace.getRegionCode() : null;
 	}
-	public String getPaymentReference(){
-		return this.workspace != null ? this.workspace.getSubscriptionId(): null;
+
+	public String getPaymentReference() {
+		return this.workspace != null ? this.workspace.getSubscriptionId() : null;
 	}
-	public String getSubscriptionId(){
+
+	public String getSubscriptionId() {
 		return this.workspace != null ? this.workspace.getPaymentSchedule() : null;
 	}
-	public String getTrialPeriod(){
+
+	public String getTrialPeriod() {
 		return this.workspace != null ? this.workspace.getTrialPeriod() : null;
 	}
-	public boolean getIsTrial(){
-		return this.workspace != null ? this.workspace.getIsTrial():null;
+
+	public boolean getIsTrial() {
+		return this.workspace != null ? this.workspace.getIsTrial() : null;
 	}
 
 	public List<SwaggerTeam> getTeams() {
@@ -129,5 +134,4 @@ public class UserWorkspace {
 	public void setCts(Long cts) {
 		this.cts = cts;
 	}
-	
 }

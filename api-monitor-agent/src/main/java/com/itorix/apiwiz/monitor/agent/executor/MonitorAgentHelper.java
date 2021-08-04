@@ -31,10 +31,9 @@ public class MonitorAgentHelper {
     private final static Logger logger = LoggerFactory.getLogger(MonitorAgentHelper.class);
     private static final MustacheFactory mf = new DefaultMustacheFactory();
 
-
     public HttpResponse invokeMonitorApi(MonitorRequest monitorRequest, Map<String, String> globalVars,
-                                         Map<String, String> encryptedVariables, Map<String, Integer> testStatus,
-                                         SSLConnectionSocketFactory sslConnectionFactory, int timeout) throws Exception {
+            Map<String, String> encryptedVariables, Map<String, Integer> testStatus,
+            SSLConnectionSocketFactory sslConnectionFactory, int timeout) throws Exception {
 
         if (monitorRequest.getVerb() == null) {
             logger.error("verb is null for {} ", monitorRequest.getId());
@@ -74,7 +73,7 @@ public class MonitorAgentHelper {
             String content = null;
             if (monitorRequest.getRequest() != null
                     && (!CollectionUtils.isEmpty(monitorRequest.getRequest().getFormParams())
-                    || !CollectionUtils.isEmpty(monitorRequest.getRequest().getFormURLEncoded()))) {
+                            || !CollectionUtils.isEmpty(monitorRequest.getRequest().getFormURLEncoded()))) {
 
                 List<NameValuePair> generateNameValuePairs = null;
                 if (!CollectionUtils.isEmpty(monitorRequest.getRequest().getFormParams())) {
@@ -97,7 +96,7 @@ public class MonitorAgentHelper {
             String contentType = null;
             if (monitorRequest.getRequest() != null
                     && (!CollectionUtils.isEmpty(monitorRequest.getRequest().getFormParams())
-                    || !CollectionUtils.isEmpty(monitorRequest.getRequest().getFormURLEncoded()))) {
+                            || !CollectionUtils.isEmpty(monitorRequest.getRequest().getFormURLEncoded()))) {
 
                 List<NameValuePair> generateNameValuePairs = null;
                 if (!CollectionUtils.isEmpty(monitorRequest.getRequest().getFormParams())) {
@@ -144,7 +143,6 @@ public class MonitorAgentHelper {
         }
         return params;
     }
-
 
     public Map<String, String> computeHeaders(List<Header> headers, Map<String, String> globalVars) {
         Map<String, String> headerMap = new HashMap<String, String>();

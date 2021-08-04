@@ -28,7 +28,7 @@ public class ApiResponsesDiff {
 
 	public ApiResponsesDiff diff(LinkedHashMap<String, ApiResponse> oldResponses,
 			LinkedHashMap<String, ApiResponse> newResponses) {
-		
+
 		if (null == oldResponses || newResponses == null)
 			return null;
 
@@ -57,8 +57,8 @@ public class ApiResponsesDiff {
 
 				Map<String, Header> oldHeaders = oldApiResponse.getHeaders();
 				Map<String, Header> newHeaders = newApiResponse.getHeaders();
-				
-				if(Objects.isNull(oldHeaders) && Objects.isNull(newHeaders)) {
+
+				if (Objects.isNull(oldHeaders) && Objects.isNull(newHeaders)) {
 					return;
 				}
 
@@ -102,8 +102,7 @@ public class ApiResponsesDiff {
 							changedHeader.setExampleDiff(exampleDiff);
 						}
 
-						if (ComparisonUtils.isDiff(oldHeader.getExample(),
-								newHeader.getExample())) {
+						if (ComparisonUtils.isDiff(oldHeader.getExample(), newHeader.getExample())) {
 							changedHeader.setExample(newHeader.getExample());
 						}
 
@@ -117,7 +116,6 @@ public class ApiResponsesDiff {
 					});
 				}
 			}
-			
 		});
 
 		return null;

@@ -75,12 +75,10 @@ public class CommonServices {
 	@Autowired
 	ApigeeUtil apigeeUtil;
 
-
 	@Autowired
 	PerformanceAndCoveragePostmanCollectionRunner postmanCollectionRunner;
 	@Autowired
 	private TestSuiteDAO testsuitDAO;
-
 
 	public static final String CONTENT_TYPE_HEADER = "Content-Type";
 	public static final String CONTENT_TYPE_APPLICATION_XML = "application/xml";
@@ -109,37 +107,26 @@ public class CommonServices {
 		return apigeeUtil.createSession(cfg);
 	}
 
-	public String deleteSession(CommonConfiguration cfg,
-			String sessionID) throws ItorixException {
-		/*CommonConfiguration cfg = new CommonConfiguration() {
-			{
-				setOrganization(org);
-				setEnvironment(env);
-				setApiProxyName(apiproxy);
-				setRevision(rev);
-				setUserName(userName);
-				setPassword(password);
-				setApigeeEmail(userName);
-				setApigeePassword(password);
-			}
-		};*/
+	public String deleteSession(CommonConfiguration cfg, String sessionID) throws ItorixException {
+		/*
+		 * CommonConfiguration cfg = new CommonConfiguration() { {
+		 * setOrganization(org); setEnvironment(env); setApiProxyName(apiproxy);
+		 * setRevision(rev); setUserName(userName); setPassword(password);
+		 * setApigeeEmail(userName); setApigeePassword(password); } };
+		 */
 		return apigeeUtil.deleteSession(cfg, sessionID);
 	}
 
-	/*public String getProxyDeployedRevision(String org, String proxyname, String env, String userName, String password)
-			throws IOException {
-		CommonConfiguration cfg = new CommonConfiguration() {
-			{
-				setOrganization(org);
-				setEnvironment(env);
-				setApiProxyName(proxyname);
-				setApigeeEmail(userName);
-				setApigeePassword(password);
-			}
-		};
-		return getLatestDeploymentForAPIProxy(cfg);
-
-	}*/
+	/*
+	 * public String getProxyDeployedRevision(String org, String proxyname,
+	 * String env, String userName, String password) throws IOException {
+	 * CommonConfiguration cfg = new CommonConfiguration() { {
+	 * setOrganization(org); setEnvironment(env); setApiProxyName(proxyname);
+	 * setApigeeEmail(userName); setApigeePassword(password); } }; return
+	 * getLatestDeploymentForAPIProxy(cfg);
+	 * 
+	 * }
+	 */
 
 	public PostManBackUpInfo savePostMan(MultipartFile postmanFile, MultipartFile envFile, String org, String env,
 			String proxy, String tempToken) {
@@ -210,14 +197,12 @@ public class CommonServices {
 		String result = apigeeUtil.getListOfTransactionIds(cfg, sessionID);
 		JSONArray txIds = (JSONArray) JSONSerializer.toJSON(result);
 		return txIds;
-
 	}
 
 	public String getTransactionId(CommonConfiguration cfg, String sessionID) throws ItorixException {
 		String result = apigeeUtil.getListOfTransactionIds(cfg, sessionID);
 
 		return result;
-
 	}
 
 	public List<Trace> getTransactionData(CommonConfiguration cfg, String sessionID, JSONArray txIds)
@@ -227,8 +212,7 @@ public class CommonServices {
 		// Fetch trace for each and every transactionId
 		for (Object oo : txIds) {
 			String tid = (String) oo;
-			String traceResult = apigeeUtil.getTraceResponse(cfg, sessionID,
-					tid);
+			String traceResult = apigeeUtil.getTraceResponse(cfg, sessionID, tid);
 			ObjectMapper objMapper = new ObjectMapper();
 			objMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			Trace trace = new Trace();
@@ -237,7 +221,6 @@ public class CommonServices {
 		}
 
 		return tracesList;
-
 	}
 
 	public String getXMLTransactionData(CommonConfiguration cfg, String sessionID, JSONArray txIds)
@@ -246,22 +229,21 @@ public class CommonServices {
 		List<String> tracesList = new ArrayList<String>();
 		// Fetch trace for each and every transactionId
 		for (Object oo : txIds) {
-			String tid = (String) oo; 
-			String traceResult = apigeeUtil.getXMLTraceResponse(cfg, sessionID,
-					tid);
+			String tid = (String) oo;
+			String traceResult = apigeeUtil.getXMLTraceResponse(cfg, sessionID, tid);
 			tracesList.add(traceResult);
-			//tracesList.add(tid);
-//			ObjectMapper objMapper = new ObjectMapper();
-//			objMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-//			Trace trace = new Trace();
-//			trace = objMapper.readValue(traceResult, Trace.class);
-//			tracesList.add(trace);
+			// tracesList.add(tid);
+			// ObjectMapper objMapper = new ObjectMapper();
+			// objMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+			// false);
+			// Trace trace = new Trace();
+			// trace = objMapper.readValue(traceResult, Trace.class);
+			// tracesList.add(trace);
 		}
 
 		return tracesList.get(0);
-
 	}
-	
+
 	public List<String> getTransactionDataAsString(CommonConfiguration cfg, String sessionID, JSONArray txIds)
 			throws JsonParseException, JsonMappingException, IOException, ItorixException {
 
@@ -275,174 +257,153 @@ public class CommonServices {
 		}
 
 		return traceResult;
-
 	}
 
-	/*public Map<String, List<String>> getExecutedFlowAndPolicies(List<Trace> traces)
-			throws JsonParseException, JsonMappingException, IOException {
-
-		Map<String, List<String>> executedFlowAndPoliciesMap = new HashMap<String, List<String>>();
-		// Fetch trace for each and every transactionId
-		for (Trace tempTrace : traces) {
-
-			Stream<Point> stream = tempTrace.getPoint().stream();
-			List<Point> points = stream
-					.filter(point -> (point.getId().equals("FlowInfo") || point.getId().equals("Execution") || point.getId().equals("Condition")))
-					.collect(Collectors.toList());
-
-			//List<Property> properties = new ArrayList<Property>();
-			String flowName = null;
-			List<String> executedPoliciesInFlow = new ArrayList<String>();
-			for (Point p : points) {
-				for (Result r : p.getResults()) {
-					//List<Property> property = new ArrayList<Property>();
-					if (null != r.getProperties() && null != r.getProperties().getProperty()
-							&& r.getProperties().getProperty().size() > 0) {
-
-						List<Property> propertyList=r.getProperties().getProperty();
-						String stepDefinitionValue=null;
-						Boolean expression=false;
-						Boolean expressionResult=true;
-						Boolean expression1=false;
-						Boolean expressionResult1=true;
-						String treeValue=null;
-						for(Property property:propertyList){
-							if (property.getName().equals("proxy.pathsuffix")) {
-								flowName = property.getValue().substring(1, property.getValue().length());
-							}else if(property.getName().equals("stepDefinition-name")){
-								stepDefinitionValue=property.getValue();
-								//executedPoliciesInFlow.add(property.getValue());
-							}else if(property.getName().equals("expression")){
-								expression=true;
-							}else if(property.getName().equals("expressionResult")){
-								expressionResult=Boolean.parseBoolean(property.getValue());
-							}else if(property.getName().equals("Tree")){
-								treeValue=property.getValue();
-							}else if(property.getName().equals("Expression")){
-								expression1=true;
-							}else if(property.getName().equals("ExpressionResult")){
-								expressionResult1=Boolean.parseBoolean(property.getValue());
-							}
-						}
-						if(stepDefinitionValue !=null && expression == false && expressionResult==true){
-							executedPoliciesInFlow.add(stepDefinitionValue);
-						}else if(stepDefinitionValue !=null && expression == true && expressionResult==true){
-							executedPoliciesInFlow.add(stepDefinitionValue);
-						}else if(treeValue !=null && expression1 == true && expressionResult1==true){
-							executedPoliciesInFlow.add(treeValue);
-						}
-						Stream<Property> streamProperties = r.getProperties().getProperty().stream();
-						property = streamProperties.filter(prop -> (prop.getName().equals("stepDefinition-name")
-								|| prop.getName().equals("proxy.pathsuffix"))).collect(Collectors.toList());
-						if (property.size() > 0)
-							properties.add(property.get(0));
-
-					}
-
-				}
-			}
-
-
-
-			for (Property property : properties) {
-
-				if (property.getName().equals("proxy.pathsuffix")) {
-					flowName = property.getValue().substring(1, property.getValue().length());
-				}
-
-				if (property.getName().equals("stepDefinition-name")) {
-					executedPoliciesInFlow.add(property.getValue());
-				}
-			}
-
+	/*
+	 * public Map<String, List<String>> getExecutedFlowAndPolicies(List<Trace>
+	 * traces) throws JsonParseException, JsonMappingException, IOException {
+	 * 
+	 * Map<String, List<String>> executedFlowAndPoliciesMap = new
+	 * HashMap<String, List<String>>(); // Fetch trace for each and every
+	 * transactionId for (Trace tempTrace : traces) {
+	 * 
+	 * Stream<Point> stream = tempTrace.getPoint().stream(); List<Point> points
+	 * = stream .filter(point -> (point.getId().equals("FlowInfo") ||
+	 * point.getId().equals("Execution") || point.getId().equals("Condition")))
+	 * .collect(Collectors.toList());
+	 * 
+	 * //List<Property> properties = new ArrayList<Property>(); String flowName
+	 * = null; List<String> executedPoliciesInFlow = new ArrayList<String>();
+	 * for (Point p : points) { for (Result r : p.getResults()) {
+	 * //List<Property> property = new ArrayList<Property>(); if (null !=
+	 * r.getProperties() && null != r.getProperties().getProperty() &&
+	 * r.getProperties().getProperty().size() > 0) {
+	 * 
+	 * List<Property> propertyList=r.getProperties().getProperty(); String
+	 * stepDefinitionValue=null; Boolean expression=false; Boolean
+	 * expressionResult=true; Boolean expression1=false; Boolean
+	 * expressionResult1=true; String treeValue=null; for(Property
+	 * property:propertyList){ if
+	 * (property.getName().equals("proxy.pathsuffix")) { flowName =
+	 * property.getValue().substring(1, property.getValue().length()); }else
+	 * if(property.getName().equals("stepDefinition-name")){
+	 * stepDefinitionValue=property.getValue();
+	 * //executedPoliciesInFlow.add(property.getValue()); }else
+	 * if(property.getName().equals("expression")){ expression=true; }else
+	 * if(property.getName().equals("expressionResult")){
+	 * expressionResult=Boolean.parseBoolean(property.getValue()); }else
+	 * if(property.getName().equals("Tree")){ treeValue=property.getValue();
+	 * }else if(property.getName().equals("Expression")){ expression1=true;
+	 * }else if(property.getName().equals("ExpressionResult")){
+	 * expressionResult1=Boolean.parseBoolean(property.getValue()); } }
+	 * if(stepDefinitionValue !=null && expression == false &&
+	 * expressionResult==true){ executedPoliciesInFlow.add(stepDefinitionValue);
+	 * }else if(stepDefinitionValue !=null && expression == true &&
+	 * expressionResult==true){ executedPoliciesInFlow.add(stepDefinitionValue);
+	 * }else if(treeValue !=null && expression1 == true &&
+	 * expressionResult1==true){ executedPoliciesInFlow.add(treeValue); }
+	 * Stream<Property> streamProperties =
+	 * r.getProperties().getProperty().stream(); property =
+	 * streamProperties.filter(prop ->
+	 * (prop.getName().equals("stepDefinition-name") ||
+	 * prop.getName().equals("proxy.pathsuffix"))).collect(Collectors.toList());
+	 * if (property.size() > 0) properties.add(property.get(0));
+	 * 
+	 * }
+	 * 
+	 * } }
+	 * 
+	 * 
+	 * 
+	 * for (Property property : properties) {
+	 * 
+	 * if (property.getName().equals("proxy.pathsuffix")) { flowName =
+	 * property.getValue().substring(1, property.getValue().length()); }
+	 * 
+	 * if (property.getName().equals("stepDefinition-name")) {
+	 * executedPoliciesInFlow.add(property.getValue()); } }
+	 * 
 	 * List<Property> property = stream .filter(point-> (
-	 * point.getId().equals("Execution")))
-	 * .flatMap(f->f.getResults().stream())
+	 * point.getId().equals("Execution"))) .flatMap(f->f.getResults().stream())
 	 * .flatMap(c->c.getProperties().getProperty().stream())
 	 * .filter(d->d.getName().equals("stepDefinition-name"))
 	 * .collect(Collectors.toList());
-
-			executedFlowAndPoliciesMap.put(flowName, executedPoliciesInFlow);
-		}
-
-		return executedFlowAndPoliciesMap;
-
-	}*/
+	 * 
+	 * executedFlowAndPoliciesMap.put(flowName, executedPoliciesInFlow); }
+	 * 
+	 * return executedFlowAndPoliciesMap;
+	 * 
+	 * }
+	 */
 
 	public ExecutedFlowAndPolicies getExecutedFlowAndPolicies(List<Object> traces)
 			throws JsonParseException, JsonMappingException, IOException {
-		ExecutedFlowAndPolicies executedFlowAndPolicies=new ExecutedFlowAndPolicies();
+		ExecutedFlowAndPolicies executedFlowAndPolicies = new ExecutedFlowAndPolicies();
 		Map<String, List<String>> executedPoliciesMap = new HashMap<String, List<String>>();
 		Map<String, List<String>> executedFlowsMap = new HashMap<String, List<String>>();
 		List<String> executedPoliciesInFlow = new ArrayList<String>();
-		List<String> executedFlows=new ArrayList<String>();
+		List<String> executedFlows = new ArrayList<String>();
 		String flowName = null;
 		// Fetch trace for each and every transactionId
 		for (Object trace : traces) {
-			Trace tempTrace=(Trace)trace;
+			Trace tempTrace = (Trace) trace;
 			Stream<Point> stream = tempTrace.getPoint().stream();
-			List<Point> points = stream
-					.filter(point -> (point.getId().equals("FlowInfo") || point.getId().equals("Execution") || point.getId().equals("Condition")))
+			List<Point> points = stream.filter(point -> (point.getId().equals("FlowInfo")
+					|| point.getId().equals("Execution") || point.getId().equals("Condition")))
 					.collect(Collectors.toList());
 
-			//List<Property> properties = new ArrayList<Property>();
-
+			// List<Property> properties = new ArrayList<Property>();
 
 			for (Point p : points) {
 				for (Result r : p.getResults()) {
-					//List<Property> property = new ArrayList<Property>();
+					// List<Property> property = new ArrayList<Property>();
 					if (null != r.getProperties() && null != r.getProperties().getProperty()
 							&& r.getProperties().getProperty().size() > 0) {
 
-						List<Property> propertyList=r.getProperties().getProperty();
-						String stepDefinitionValue=null;
-						Boolean expression=false;
-						Boolean expressionResult=true;
-						Boolean expression1=false;
-						Boolean expressionResult1=true;
-						String treeValue=null;
-						for(Property property:propertyList){
+						List<Property> propertyList = r.getProperties().getProperty();
+						String stepDefinitionValue = null;
+						Boolean expression = false;
+						Boolean expressionResult = true;
+						Boolean expression1 = false;
+						Boolean expressionResult1 = true;
+						String treeValue = null;
+						for (Property property : propertyList) {
 							if (property.getName().equals("proxy.pathsuffix")) {
-								if(property.getValue()!=null && property.getValue().length()>1){
+								if (property.getValue() != null && property.getValue().length() > 1) {
 									flowName = property.getValue().substring(1, property.getValue().length());
 								}
-							}else if(property.getName().equals("stepDefinition-name")){
-								stepDefinitionValue=property.getValue();
-								//executedPoliciesInFlow.add(property.getValue());
-							}else if(property.getName().equals("expression")){
-								expression=true;
-							}else if(property.getName().equals("expressionResult")){
-								expressionResult=Boolean.parseBoolean(property.getValue());
-							}else if(property.getName().equals("Tree")){
-								treeValue=property.getValue();
-							}else if(property.getName().equals("Expression")){
-								expression1=true;
-							}else if(property.getName().equals("ExpressionResult")){
-								expressionResult1=Boolean.parseBoolean(property.getValue());
+							} else if (property.getName().equals("stepDefinition-name")) {
+								stepDefinitionValue = property.getValue();
+								// executedPoliciesInFlow.add(property.getValue());
+							} else if (property.getName().equals("expression")) {
+								expression = true;
+							} else if (property.getName().equals("expressionResult")) {
+								expressionResult = Boolean.parseBoolean(property.getValue());
+							} else if (property.getName().equals("Tree")) {
+								treeValue = property.getValue();
+							} else if (property.getName().equals("Expression")) {
+								expression1 = true;
+							} else if (property.getName().equals("ExpressionResult")) {
+								expressionResult1 = Boolean.parseBoolean(property.getValue());
 							}
 						}
-						if(stepDefinitionValue !=null && expression == false && expressionResult==true){
+						if (stepDefinitionValue != null && expression == false && expressionResult == true) {
 							executedPoliciesInFlow.add(stepDefinitionValue);
-						}else if(stepDefinitionValue !=null && expression == true && expressionResult==true){
+						} else if (stepDefinitionValue != null && expression == true && expressionResult == true) {
 							executedPoliciesInFlow.add(stepDefinitionValue);
-						}else if(treeValue !=null && expression1 == true && expressionResult1==true){
+						} else if (treeValue != null && expression1 == true && expressionResult1 == true) {
 							executedFlows.add(treeValue);
 						}
-
 					}
-
 				}
 			}
-
-
 		}
 		executedPoliciesMap.put(flowName, executedPoliciesInFlow);
 		executedFlowsMap.put(flowName, executedFlows);
 		executedFlowAndPolicies.setExecutedPoliciesMap(executedPoliciesMap);
 		executedFlowAndPolicies.setExecutedFlowMap(executedFlowsMap);
-		//return executedFlowAndPoliciesMap;
+		// return executedFlowAndPoliciesMap;
 		return executedFlowAndPolicies;
-
 	}
 
 	public List<ProxyEndpoint> fetchProxyEndPoints(String org, String userName, String password, String rev,
@@ -455,7 +416,7 @@ public class CommonServices {
 		cfg.setRevision(rev);
 		cfg.setApiName(apiProxy);
 		cfg.setType(type);
-		cfg.setApigeeCred( apigeeUtil.getApigeeAuth(org, type));
+		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(org, type));
 
 		Object[] listOfProxyEndPoints = apigeeUtil.getProxyEndPoints(cfg);
 
@@ -478,7 +439,6 @@ public class CommonServices {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		}
 
 		return proxyEndPointList;
@@ -514,7 +474,6 @@ public class CommonServices {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		}
 
 		return proxyEndPointList;
@@ -526,35 +485,30 @@ public class CommonServices {
 		JSONObject deployments = (JSONObject) JSONSerializer.toJSON(deployed);
 		JSONArray proxyRevisions = (JSONArray) deployments.get("revision");
 		List<Integer> al = new ArrayList<Integer>();
-		for(Object rev: proxyRevisions){
-			JSONObject obj = (JSONObject)rev;
-			String revision = (String)obj.get("name");
+		for (Object rev : proxyRevisions) {
+			JSONObject obj = (JSONObject) rev;
+			String revision = (String) obj.get("name");
 			al.add(Integer.parseInt(revision));
-
 		}
 
+		return Collections.max(al) + "";
 
-		return Collections.max(al)+"";
-
-		/*		JSONObject deployments = (JSONObject) JSONSerializer.toJSON(deployed);
-		JSONArray apiProxyDetailsArray = (JSONArray) deployments.get("aPIProxy");
-		JSONObject targetProxy = null;
-		for (Object obj : apiProxyDetailsArray) {
-			JSONObject proxyDetails = (JSONObject) obj;
-			if (proxyDetails.get("name").equals(cfg.getApiProxyName())) {
-				targetProxy = proxyDetails;
-				break;
-			}
-		}
-		JSONArray proxyRevisions = (JSONArray) targetProxy.get("revision");
-		List<Integer> revisions = new LinkedList<>();
-		for (Object revisionObj : proxyRevisions) {
-			JSONObject revisionDetails = (JSONObject) revisionObj;
-			Integer revisionNumber = Integer.parseInt((String) revisionDetails.get("name"));
-			revisions.add(revisionNumber);
-		}
-		Integer recentRevision = Collections.max(revisions);
-		return recentRevision + "";*/
+		/*
+		 * JSONObject deployments = (JSONObject)
+		 * JSONSerializer.toJSON(deployed); JSONArray apiProxyDetailsArray =
+		 * (JSONArray) deployments.get("aPIProxy"); JSONObject targetProxy =
+		 * null; for (Object obj : apiProxyDetailsArray) { JSONObject
+		 * proxyDetails = (JSONObject) obj; if
+		 * (proxyDetails.get("name").equals(cfg.getApiProxyName())) {
+		 * targetProxy = proxyDetails; break; } } JSONArray proxyRevisions =
+		 * (JSONArray) targetProxy.get("revision"); List<Integer> revisions =
+		 * new LinkedList<>(); for (Object revisionObj : proxyRevisions) {
+		 * JSONObject revisionDetails = (JSONObject) revisionObj; Integer
+		 * revisionNumber = Integer.parseInt((String)
+		 * revisionDetails.get("name")); revisions.add(revisionNumber); }
+		 * Integer recentRevision = Collections.max(revisions); return
+		 * recentRevision + "";
+		 */
 	}
 
 	public String getDeploymentsForEnvironment(CommonConfiguration cfg) throws IOException, ItorixException {
@@ -573,13 +527,12 @@ public class CommonServices {
 		for (File tempFileName : f.listFiles()) {
 
 			switch (FilenameUtils.getExtension(tempFileName.getAbsolutePath())) {
-
-			case "postman_environment":
-				envFileName = tempFileName.getAbsolutePath();
-				break;
-			case "json":
-				postManFileName = tempFileName.getAbsolutePath();
-				break;
+				case "postman_environment" :
+					envFileName = tempFileName.getAbsolutePath();
+					break;
+				case "json" :
+					postManFileName = tempFileName.getAbsolutePath();
+					break;
 			}
 		}
 
@@ -589,15 +542,18 @@ public class CommonServices {
 		return "Executed Postman";
 	}
 
-	public String executeLivePostmanCollection(CommonConfiguration cfg,String backupLocation) throws Exception{
+	public String executeLivePostmanCollection(CommonConfiguration cfg, String backupLocation) throws Exception {
 		try {
 			File fileLoc = new File(backupLocation);
 			if (!fileLoc.exists())
 				fileLoc.mkdirs();
-			FileUtils.copyInputStreamToFile(cfg.getPostmanFile().getInputStream(),new File(backupLocation + "/" + cfg.getPostmanFile().getOriginalFilename()));
-			FileUtils.copyInputStreamToFile(cfg.getEnvFile().getInputStream(),new File(backupLocation + "/" + cfg.getEnvFile().getOriginalFilename()));
+			FileUtils.copyInputStreamToFile(cfg.getPostmanFile().getInputStream(),
+					new File(backupLocation + "/" + cfg.getPostmanFile().getOriginalFilename()));
+			FileUtils.copyInputStreamToFile(cfg.getEnvFile().getInputStream(),
+					new File(backupLocation + "/" + cfg.getEnvFile().getOriginalFilename()));
 			PerformanceAndCoveragePostmanCollectionRunner runner = new PerformanceAndCoveragePostmanCollectionRunner();
-			runner.executePostManCollection(backupLocation + "/" + cfg.getPostmanFile().getOriginalFilename(), backupLocation + "/" + cfg.getEnvFile().getOriginalFilename());
+			runner.executePostManCollection(backupLocation + "/" + cfg.getPostmanFile().getOriginalFilename(),
+					backupLocation + "/" + cfg.getEnvFile().getOriginalFilename());
 			return "Success";
 		} catch (IOException e) {
 			logger.error(e.getMessage());
@@ -605,28 +561,30 @@ public class CommonServices {
 		}
 	}
 
-	
-	
-	public List<Object> executeLivePostmanCollectionXMLTraceAsObject(CommonConfiguration cfg,String backupLocation) throws Exception{
+	public List<Object> executeLivePostmanCollectionXMLTraceAsObject(CommonConfiguration cfg, String backupLocation)
+			throws Exception {
 		try {
 			String testsuiteId = cfg.getTestsuiteId();
 			String variableId = cfg.getVariableId();
-			if(testsuiteId != null && testsuiteId != "" && variableId != null && variableId != "") {
+			if (testsuiteId != null && testsuiteId != "" && variableId != null && variableId != "") {
 				ObjectMapper mapper = new ObjectMapper();
 				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 				String stringTestSuite = mapper.writeValueAsString(testsuitDAO.getTestSuite(testsuiteId));
 				String stringvariables = mapper.writeValueAsString(testsuitDAO.getVariablesById(variableId));
-				TestSuite testSuite= mapper.readValue(stringTestSuite, TestSuite.class);
-				Variables variables= mapper.readValue(stringvariables, Variables.class);
+				TestSuite testSuite = mapper.readValue(stringTestSuite, TestSuite.class);
+				Variables variables = mapper.readValue(stringvariables, Variables.class);
 				return executeTestsuiteForCodecoverage(testSuite, variables, cfg, true);
-			}
-			else {
+			} else {
 				File fileLoc = new File(backupLocation);
 				if (!fileLoc.exists())
 					fileLoc.mkdirs();
-				FileUtils.copyInputStreamToFile(cfg.getPostmanFile().getInputStream(),new File(backupLocation + "/" + cfg.getPostmanFile().getOriginalFilename()));
-				FileUtils.copyInputStreamToFile(cfg.getEnvFile().getInputStream(),new File(backupLocation + "/" + cfg.getEnvFile().getOriginalFilename()));
-				return postmanCollectionRunner.executePostManCollectionTraceAsObject(backupLocation + "/" + cfg.getPostmanFile().getOriginalFilename(), backupLocation + "/" + cfg.getEnvFile().getOriginalFilename(),cfg);
+				FileUtils.copyInputStreamToFile(cfg.getPostmanFile().getInputStream(),
+						new File(backupLocation + "/" + cfg.getPostmanFile().getOriginalFilename()));
+				FileUtils.copyInputStreamToFile(cfg.getEnvFile().getInputStream(),
+						new File(backupLocation + "/" + cfg.getEnvFile().getOriginalFilename()));
+				return postmanCollectionRunner.executePostManCollectionTraceAsObject(
+						backupLocation + "/" + cfg.getPostmanFile().getOriginalFilename(),
+						backupLocation + "/" + cfg.getEnvFile().getOriginalFilename(), cfg);
 			}
 		} catch (IOException e) {
 			logger.error(e.getMessage());
@@ -634,27 +592,31 @@ public class CommonServices {
 		}
 	}
 
-	public List<Object> executeLivePostmanCollectionTraceAsObject(CommonConfiguration cfg,String backupLocation) throws Exception{
+	public List<Object> executeLivePostmanCollectionTraceAsObject(CommonConfiguration cfg, String backupLocation)
+			throws Exception {
 		try {
 			String testsuiteId = cfg.getTestsuiteId();
 			String variableId = cfg.getVariableId();
-			if(testsuiteId != null && testsuiteId != "" && variableId != null && variableId != "") {
+			if (testsuiteId != null && testsuiteId != "" && variableId != null && variableId != "") {
 				ObjectMapper mapper = new ObjectMapper();
 				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 				String stringTestSuite = mapper.writeValueAsString(testsuitDAO.getTestSuite(testsuiteId));
 				String stringvariables = mapper.writeValueAsString(testsuitDAO.getVariablesById(variableId));
 				System.out.println("testSuite : " + stringTestSuite);
-				TestSuite testSuite= mapper.readValue(stringTestSuite, TestSuite.class);
-				Variables variables= mapper.readValue(stringvariables, Variables.class);
+				TestSuite testSuite = mapper.readValue(stringTestSuite, TestSuite.class);
+				Variables variables = mapper.readValue(stringvariables, Variables.class);
 				return executeTestsuiteForCodecoverage(testSuite, variables, cfg, false);
-			}
-			else {
+			} else {
 				File fileLoc = new File(backupLocation);
 				if (!fileLoc.exists())
 					fileLoc.mkdirs();
-				FileUtils.copyInputStreamToFile(cfg.getPostmanFile().getInputStream(),new File(backupLocation + "/" + cfg.getPostmanFile().getOriginalFilename()));
-				FileUtils.copyInputStreamToFile(cfg.getEnvFile().getInputStream(),new File(backupLocation + "/" + cfg.getEnvFile().getOriginalFilename()));
-				return postmanCollectionRunner.executePostManCollectionTraceAsObject(backupLocation + "/" + cfg.getPostmanFile().getOriginalFilename(), backupLocation + "/" + cfg.getEnvFile().getOriginalFilename(),cfg);
+				FileUtils.copyInputStreamToFile(cfg.getPostmanFile().getInputStream(),
+						new File(backupLocation + "/" + cfg.getPostmanFile().getOriginalFilename()));
+				FileUtils.copyInputStreamToFile(cfg.getEnvFile().getInputStream(),
+						new File(backupLocation + "/" + cfg.getEnvFile().getOriginalFilename()));
+				return postmanCollectionRunner.executePostManCollectionTraceAsObject(
+						backupLocation + "/" + cfg.getPostmanFile().getOriginalFilename(),
+						backupLocation + "/" + cfg.getEnvFile().getOriginalFilename(), cfg);
 			}
 		} catch (IOException e) {
 			logger.error(e.getMessage());
@@ -662,8 +624,9 @@ public class CommonServices {
 		}
 	}
 
-	public List<Object> executeTestsuiteForCodecoverage(TestSuite testSuite, Variables vars, CommonConfiguration cfg, boolean traceAsXML) {
-		List< com.itorix.test.executor.beans.Header> variables = vars.getVariables();
+	public List<Object> executeTestsuiteForCodecoverage(TestSuite testSuite, Variables vars, CommonConfiguration cfg,
+			boolean traceAsXML) {
+		List<com.itorix.test.executor.beans.Header> variables = vars.getVariables();
 		Map<String, String> globalVars = TestExecutor.computeHeaders(variables, null);
 		List<Object> traceList = new ArrayList<Object>();
 		if (testSuite.getScenarios() != null) {
@@ -673,16 +636,16 @@ public class CommonServices {
 				if (scenario != null && scenario.getTestCases() != null) {
 					List<TestCase> testCases = scenario.getTestCases();
 					int numberOfTestCases = testCases.size();
-					for (int counter = 0 ;   counter < numberOfTestCases  ; counter++) {
+					for (int counter = 0; counter < numberOfTestCases; counter++) {
 						TestCase testCase = testCases.get(counter);
 						Map<String, Integer> testStatus = new HashMap<String, Integer>();
 						try {
 							if (TestExecutor.canExecuteTestCase(testCase, succededTests, failedTests)) {
 								String sessionID = apigeeUtil.createSession(cfg);
-								testCase.getRequest().addHeader(new Header("itorix", "" , sessionID));
+								testCase.getRequest().addHeader(new Header("itorix", "", sessionID));
 								TestExecutor.invokeTestCase(testCase, globalVars, testStatus, true, false);
 								JSONArray txId = getTransactionIds(cfg, sessionID);
-								if(traceAsXML)
+								if (traceAsXML)
 									traceList.add(getXMLTransactionData(cfg, sessionID, txId));
 								else
 									traceList.addAll(getTransactionData(cfg, sessionID, txId));
@@ -703,25 +666,24 @@ public class CommonServices {
 		return traceList;
 	}
 
-
-	public List<Object> executeLivePostmanCollectionTraceAsObject(InputStream postManFileName,InputStream envFileName, CommonConfiguration cfg,String backupLocation) throws Exception{
+	public List<Object> executeLivePostmanCollectionTraceAsObject(InputStream postManFileName, InputStream envFileName,
+			CommonConfiguration cfg, String backupLocation) throws Exception {
 		try {
 			String testsuiteId = cfg.getTestsuiteId();
 			String variableId = cfg.getVariableId();
-			if(testsuiteId != null && testsuiteId != "" && variableId != null && variableId != "") {
+			if (testsuiteId != null && testsuiteId != "" && variableId != null && variableId != "") {
 				ObjectMapper mapper = new ObjectMapper();
 				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 				String stringTestSuite = mapper.writeValueAsString(testsuitDAO.getTestSuite(testsuiteId));
 				String stringvariables = mapper.writeValueAsString(testsuitDAO.getVariablesById(variableId));
-				TestSuite testSuite= mapper.readValue(stringTestSuite, TestSuite.class);
-				Variables variables= mapper.readValue(stringvariables, Variables.class);
-				return executeTestsuiteForCodecoverage(testSuite, variables, cfg , false);
-			}
-			else {
+				TestSuite testSuite = mapper.readValue(stringTestSuite, TestSuite.class);
+				Variables variables = mapper.readValue(stringvariables, Variables.class);
+				return executeTestsuiteForCodecoverage(testSuite, variables, cfg, false);
+			} else {
 				File fileLoc = new File(backupLocation);
 				if (!fileLoc.exists())
 					fileLoc.mkdirs();
-				return postmanCollectionRunner.executePostManCollectionTraceAsObject(postManFileName, envFileName ,cfg);
+				return postmanCollectionRunner.executePostManCollectionTraceAsObject(postManFileName, envFileName, cfg);
 			}
 		} catch (IOException e) {
 			logger.error(e.getMessage());
@@ -729,15 +691,19 @@ public class CommonServices {
 		}
 	}
 
-	public String executeLivePostmanCollectionTraceAsString(CommonConfiguration cfg,String backupLocation) throws Exception{
+	public String executeLivePostmanCollectionTraceAsString(CommonConfiguration cfg, String backupLocation)
+			throws Exception {
 		try {
 			File fileLoc = new File(backupLocation);
 			if (!fileLoc.exists())
 				fileLoc.mkdirs();
-			FileUtils.copyInputStreamToFile(cfg.getPostmanFile().getInputStream(),new File(backupLocation + "/" + cfg.getPostmanFile().getOriginalFilename()));
-			FileUtils.copyInputStreamToFile(cfg.getEnvFile().getInputStream(),new File(backupLocation + "/" + cfg.getEnvFile().getOriginalFilename()));
+			FileUtils.copyInputStreamToFile(cfg.getPostmanFile().getInputStream(),
+					new File(backupLocation + "/" + cfg.getPostmanFile().getOriginalFilename()));
+			FileUtils.copyInputStreamToFile(cfg.getEnvFile().getInputStream(),
+					new File(backupLocation + "/" + cfg.getEnvFile().getOriginalFilename()));
 			PerformanceAndCoveragePostmanCollectionRunner runner = new PerformanceAndCoveragePostmanCollectionRunner();
-			runner.executePostManCollection(backupLocation + "/" + cfg.getPostmanFile().getOriginalFilename(), backupLocation + "/" + cfg.getEnvFile().getOriginalFilename());
+			runner.executePostManCollection(backupLocation + "/" + cfg.getPostmanFile().getOriginalFilename(),
+					backupLocation + "/" + cfg.getEnvFile().getOriginalFilename());
 			return "Success";
 		} catch (IOException e) {
 			logger.error(e.getMessage());
@@ -767,10 +733,6 @@ public class CommonServices {
 		return postmanFileBackUpLocation + "/" + fileName;
 	}
 
-
-
-
-
 	private void writeToFile(InputStream uploadedInputStream, String uploadedFileLocation) {
 
 		try {
@@ -788,20 +750,16 @@ public class CommonServices {
 			e.printStackTrace();
 		}
 	}
-	public void copyFiles(File src, String dest){
+
+	public void copyFiles(File src, String dest) {
 		File[] filesList = src.listFiles();
-		for(File f: filesList){
+		for (File f : filesList) {
 			try {
-				FileUtils.copyFile(f, new File(dest+"/"+f.getName()));
+				FileUtils.copyFile(f, new File(dest + "/" + f.getName()));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
-
 		}
-
 	}
-
-
 }

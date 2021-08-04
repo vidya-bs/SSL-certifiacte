@@ -109,5 +109,4 @@ public class SwaggerVO extends AbstractObject {
 	public void setPortfolios(Set<String> portfolios) {
 		this.portfolios = portfolios;
 	}
-
 }

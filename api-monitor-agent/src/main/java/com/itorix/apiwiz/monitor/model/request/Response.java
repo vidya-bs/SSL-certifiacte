@@ -14,18 +14,18 @@ import lombok.Setter;
 @Setter
 public class Response {
 
-	@JsonProperty("description")
-	private String description;
+    @JsonProperty("description")
+    private String description;
 
-	@JsonProperty("statusMessage")
-	private String message;
+    @JsonProperty("statusMessage")
+    private String message;
 
-	@JsonProperty("headers")
-	private Map<String, String> headers;
+    @JsonProperty("headers")
+    private Map<String, String> headers;
 
-	@JsonProperty("body")
-	private Body body;
+    @JsonProperty("body")
+    private Body body;
 
-	@JsonProperty("variables")
-	private List<Variable> variables;
+    @JsonProperty("variables")
+    private List<Variable> variables;
 }

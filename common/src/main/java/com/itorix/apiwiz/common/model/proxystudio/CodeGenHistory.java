@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class CodeGenHistory {
-	
+
 	private List<Category> policyTemplates;
 	private String projectName;
 	private Proxy proxy;
@@ -17,10 +17,9 @@ public class CodeGenHistory {
 	private String scmBranch;
 	private String userCreated;
 	private String dateCreated;
-	
 
 	private ProxySCMDetails proxySCMDetails;
-	
+
 	public String getScmURL() {
 		return scmURL;
 	}
@@ -45,40 +44,33 @@ public class CodeGenHistory {
 		this.proxySCMDetails = proxySCMDetails;
 	}
 
-	public List<Category> getPolicyTemplates ()
-	{
+	public List<Category> getPolicyTemplates() {
 		return policyTemplates;
 	}
 
-	public void setPolicyTemplates (List<Category> policyTemplates)
-	{
+	public void setPolicyTemplates(List<Category> policyTemplates) {
 		this.policyTemplates = policyTemplates;
 	}
 
-	public Proxy getProxy ()
-	{
+	public Proxy getProxy() {
 		return proxy;
 	}
 
-	public void setProxy (Proxy proxy)
-	{
+	public void setProxy(Proxy proxy) {
 		this.proxy = proxy;
 	}
 
-	public List<Target> getTarget ()
-	{
+	public List<Target> getTarget() {
 		return target;
 	}
 
-	public void setTarget (List<Target> target)
-	{
+	public void setTarget(List<Target> target) {
 		this.target = target;
 	}
 
 	@Override
-	public String toString()
-	{
-		return "[policyTemplates = "+policyTemplates+", proxy = "+proxy+", target = "+target+"]";
+	public String toString() {
+		return "[policyTemplates = " + policyTemplates + ", proxy = " + proxy + ", target = " + target + "]";
 	}
 
 	public String getDownloadURL() {
@@ -97,15 +89,14 @@ public class CodeGenHistory {
 		this.dateCreated = dateCreated;
 	}
 
-	/**
-	 * @return the userCreated
-	 */
+	/** @return the userCreated */
 	public String getUserCreated() {
 		return userCreated;
 	}
 
 	/**
-	 * @param userCreated the userCreated to set
+	 * @param userCreated
+	 *            the userCreated to set
 	 */
 	public void setUserCreated(String userCreated) {
 		this.userCreated = userCreated;

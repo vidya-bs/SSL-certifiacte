@@ -19,7 +19,7 @@ public class UnitTests {
 	private String testArtifactType;
 	private String artifactType;
 	private List<TestArtifact> testArtifact;
+
 	@JsonProperty("testsuites")
 	private List<Testsuites> testsuites;
-
 }

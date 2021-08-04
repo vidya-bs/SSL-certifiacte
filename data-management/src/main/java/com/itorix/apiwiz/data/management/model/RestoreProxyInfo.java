@@ -18,29 +18,28 @@ import com.itorix.apiwiz.data.management.model.mappers.Environment;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Generated("org.jsonschema2pojo")
-@JsonPropertyOrder({ "environments", "versions", "maxversion" })
-public class RestoreProxyInfo  extends BackupCommon{
+@JsonPropertyOrder({"environments", "versions", "maxversion"})
+public class RestoreProxyInfo extends BackupCommon {
 
 	@JsonProperty("environments")
 	private List<Environment> environments = new ArrayList<Environment>();
+
 	@JsonProperty("versions")
 	private List<String> versions = new ArrayList<String>();
+
 	@JsonProperty("maxversion")
 	private Integer maxversion;
+
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-	/**
-	 * 
-	 * @return The environments
-	 */
+	/** @return The environments */
 	@JsonProperty("environments")
 	public List<Environment> getEnvironments() {
 		return environments;
 	}
 
 	/**
-	 * 
 	 * @param environments
 	 *            The environments
 	 */
@@ -49,17 +48,13 @@ public class RestoreProxyInfo  extends BackupCommon{
 		this.environments = environments;
 	}
 
-	/**
-	 * 
-	 * @return The versions
-	 */
+	/** @return The versions */
 	@JsonProperty("versions")
 	public List<String> getVersions() {
 		return versions;
 	}
 
 	/**
-	 * 
 	 * @param versions
 	 *            The versions
 	 */
@@ -68,17 +63,13 @@ public class RestoreProxyInfo  extends BackupCommon{
 		this.versions = versions;
 	}
 
-	/**
-	 * 
-	 * @return The maxversion
-	 */
+	/** @return The maxversion */
 	@JsonProperty("maxversion")
 	public Integer getMaxversion() {
 		return maxversion;
 	}
 
 	/**
-	 * 
 	 * @param maxversion
 	 *            The maxversion
 	 */
@@ -96,5 +87,4 @@ public class RestoreProxyInfo  extends BackupCommon{
 	public void setAdditionalProperty(String name, Object value) {
 		this.additionalProperties.put(name, value);
 	}
-
 }

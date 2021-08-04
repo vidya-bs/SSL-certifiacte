@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 @Component("ChannelDetails")
 @Document(collection = "Slack.ChaneelDetails")
 public class ChannelDetails {
-	
+
 	private String channelName;
-	
+
 	private String token;
 
 	public String getChannelName() {
@@ -26,7 +26,4 @@ public class ChannelDetails {
 	public void setToken(String token) {
 		this.token = token;
 	}
-	
-	
-
 }

@@ -4,8 +4,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.itorix.apiwiz.identitymanagement.model.AbstractObject;
 
-
-
 @Document(collection = "Apigee.PipeLineDashBoard")
 public class PipeLineDashBoard extends AbstractObject {
 
@@ -30,9 +28,4 @@ public class PipeLineDashBoard extends AbstractObject {
 	public void setDashBoradFunctionName(String dashBoradFunctionName) {
 		this.dashBoradFunctionName = dashBoradFunctionName;
 	}
-
-	
-	
-	
-	
 }

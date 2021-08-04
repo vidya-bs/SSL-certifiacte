@@ -14,5 +14,4 @@ import lombok.experimental.FieldDefaults;
 public class Environments {
 	private String name;
 	private String host;
-
 }

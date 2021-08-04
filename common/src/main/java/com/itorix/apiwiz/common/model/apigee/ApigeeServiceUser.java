@@ -18,31 +18,39 @@ public class ApigeeServiceUser {
 	private String tokenURL;
 	private String grantType = "password";
 	private String basicToken = "Basic ZWRnZWNsaTplZGdlY2xpc2VjcmV0";
-	
+
 	public String getOrgName() {
 		return orgName;
 	}
+
 	public void setOrgName(String orgName) {
 		this.orgName = orgName;
 	}
+
 	public String getType() {
 		return type;
 	}
+
 	public void setType(String type) {
 		this.type = type;
 	}
+
 	public String getUserName() {
 		return userName;
 	}
+
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
+
 	public String getPassword() {
 		return password;
 	}
+
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
 	@JsonIgnore
 	public String getDecryptedPassword() {
 		String decryptedPassword = "";
@@ -50,33 +58,40 @@ public class ApigeeServiceUser {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.password);
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 		return decryptedPassword;
 	}
+
 	public String getAuthType() {
 		return authType;
 	}
+
 	public void setAuthType(String authType) {
 		this.authType = authType;
 	}
+
 	public String getTokenURL() {
 		return tokenURL;
 	}
+
 	public void setTokenURL(String tokenURL) {
 		this.tokenURL = tokenURL;
 	}
+
 	public String getGrantType() {
 		return grantType;
 	}
+
 	public void setGrantType(String grantType) {
 		this.grantType = grantType;
 	}
+
 	public String getBasicToken() {
 		return basicToken;
 	}
+
 	public void setBasicToken(String basicToken) {
 		this.basicToken = basicToken;
 	}
-	
 }

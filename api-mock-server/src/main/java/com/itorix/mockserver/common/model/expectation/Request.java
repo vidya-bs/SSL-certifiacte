@@ -15,14 +15,14 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Request {
 
-	Method method;
-	Path path;
-	@JsonProperty("queryParams")
-	List<NameMultiValue> queryParams = new ArrayList<>();;
-	@JsonProperty("headers")
-	List<NameMultiValue> headers = new ArrayList<>();;
-	Body body;
-	List<Variable> variables = new ArrayList<>();
-	@JsonProperty("cookies")
-	List<NameSingleValue> cookies = new ArrayList<>();;
+    Method method;
+    Path path;
+    @JsonProperty("queryParams")
+    List<NameMultiValue> queryParams = new ArrayList<>();;
+    @JsonProperty("headers")
+    List<NameMultiValue> headers = new ArrayList<>();;
+    Body body;
+    List<Variable> variables = new ArrayList<>();
+    @JsonProperty("cookies")
+    List<NameSingleValue> cookies = new ArrayList<>();;
 }

@@ -35,7 +35,6 @@ import java.util.List;
 @Component
 public class TestSuiteExecutorDao {
 
-
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
@@ -207,4 +206,5 @@ public class TestSuiteExecutorDao {
 
 		}
 	}
+
 }

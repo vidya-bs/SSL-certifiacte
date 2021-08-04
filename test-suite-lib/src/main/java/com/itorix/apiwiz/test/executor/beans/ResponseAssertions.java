@@ -11,56 +11,56 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResponseAssertions {
 
-	@JsonProperty("status")
-	private List<Assertion> status;
+    @JsonProperty("status")
+    private List<Assertion> status;
 
-	@JsonProperty("headers")
-	private List<Assertion> headers = null;
+    @JsonProperty("headers")
+    private List<Assertion> headers = null;
 
-	@JsonProperty("body")
-	private List<ResponseBodyValidation> body = null;
+    @JsonProperty("body")
+    private List<ResponseBodyValidation> body = null;
 
-	@JsonProperty("message")
-	private String message;
+    @JsonProperty("message")
+    private String message;
 
-	@JsonProperty("status")
-	public List<Assertion> getStatus() {
-		return status;
-	}
+    @JsonProperty("status")
+    public List<Assertion> getStatus() {
+        return status;
+    }
 
-	@JsonProperty("status")
-	public void setStatus(List<Assertion> status) {
-		this.status = status;
-	}
+    @JsonProperty("status")
+    public void setStatus(List<Assertion> status) {
+        this.status = status;
+    }
 
-	@JsonProperty("headers")
-	public List<Assertion> getHeaders() {
-		return headers;
-	}
+    @JsonProperty("headers")
+    public List<Assertion> getHeaders() {
+        return headers;
+    }
 
-	@JsonProperty("headers")
-	public void setHeaders(List<Assertion> headers) {
-		this.headers = headers;
-	}
+    @JsonProperty("headers")
+    public void setHeaders(List<Assertion> headers) {
+        this.headers = headers;
+    }
 
-	@JsonProperty("body")
-	public List<ResponseBodyValidation> getBody() {
-		return body;
-	}
+    @JsonProperty("body")
+    public List<ResponseBodyValidation> getBody() {
+        return body;
+    }
 
-	@JsonProperty("body")
-	public void setBody(List<ResponseBodyValidation> body) {
-		this.body = body;
-	}
+    @JsonProperty("body")
+    public void setBody(List<ResponseBodyValidation> body) {
+        this.body = body;
+    }
 
-	@JsonProperty("message")
-	public String getMessage() {
-		return message;
-	}
+    @JsonProperty("message")
+    public String getMessage() {
+        return message;
+    }
 
-	@JsonProperty("message")
-	public void setMessage(String message) {
-		this.message = message;
-	}
+    @JsonProperty("message")
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
 }

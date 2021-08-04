@@ -6,27 +6,21 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class Environments {
 	private Metrics[] metrics;
 
-    private String name;
+	private String name;
 
-    
+	public Metrics[] getMetrics() {
+		return metrics;
+	}
 
-	public Metrics[] getMetrics ()
-    {
-        return metrics;
-    }
+	public void setMetrics(Metrics[] metrics) {
+		this.metrics = metrics;
+	}
 
-    public void setMetrics (Metrics[] metrics)
-    {
-        this.metrics = metrics;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public String getName ()
-    {
-        return name;
-    }
-
-    public void setName (String name)
-    {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 }

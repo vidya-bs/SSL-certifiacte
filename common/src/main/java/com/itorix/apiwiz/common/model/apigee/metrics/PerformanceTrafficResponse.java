@@ -5,29 +5,22 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PerformanceTrafficResponse {
 
-	
-	 private Environments[] environments;
+	private Environments[] environments;
 
-	    //private MetaData metaData;
+	// private MetaData metaData;
 
-	    public Environments[] getEnvironments ()
-	    {
-	        return environments;
-	    }
+	public Environments[] getEnvironments() {
+		return environments;
+	}
 
-	    public void setEnvironments (Environments[] environments)
-	    {
-	        this.environments = environments;
-	    }
+	public void setEnvironments(Environments[] environments) {
+		this.environments = environments;
+	}
 
-	   /* public MetaData getMetaData ()
-	    {
-	        return metaData;
-	    }
+	/*
+	 * public MetaData getMetaData () { return metaData; }
+	 * 
+	 * public void setMetaData (MetaData metaData) { this.metaData = metaData; }
+	 */
 
-	    public void setMetaData (MetaData metaData)
-	    {
-	        this.metaData = metaData;
-	    }*/
-	
 }

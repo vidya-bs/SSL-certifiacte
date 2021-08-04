@@ -2,23 +2,20 @@ package com.itorix.apiwiz.analytics.model;
 
 public class PerformanceMetrics {
 
-	
 	private String orgName;
-	
+
 	private String environment;
-	
+
 	private String timeRange;
-	
+
 	private String timeUnit;
 
 	private String appName;
-	
+
 	private String productName;
-	
+
 	private String type;
-	
-	
-	
+
 	public String getType() {
 		return type;
 	}
@@ -74,10 +71,4 @@ public class PerformanceMetrics {
 	public void setTimeUnit(String timeUnit) {
 		this.timeUnit = timeUnit;
 	}
-	
-	
-	
-	
-	
-	
 }

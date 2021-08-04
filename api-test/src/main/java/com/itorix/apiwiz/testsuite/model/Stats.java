@@ -1,4 +1,3 @@
-
 package com.itorix.apiwiz.testsuite.model;
 
 import java.util.List;

@@ -1,110 +1,92 @@
 package com.itorix.apiwiz.design.studio.model;
-public class SwaggerDocumentationVO
-{
-    private String title;
 
-    private Items[] items;
+public class SwaggerDocumentationVO {
+	private String title;
 
-    public String getTitle ()
-    {
-        return title;
-    }
+	private Items[] items;
 
-    public void setTitle (String title)
-    {
-        this.title = title;
-    }
+	public String getTitle() {
+		return title;
+	}
 
-    public Items[] getItems ()
-    {
-        return items;
-    }
+	public void setTitle(String title) {
+		this.title = title;
+	}
 
-    public void setItems (Items[] items)
-    {
-        this.items = items;
-    }
+	public Items[] getItems() {
+		return items;
+	}
 
-    @Override
-    public String toString()
-    {
-        return "ClassPojo [title = "+title+", items = "+items+"]";
-    }
-    
-    public class Items
-    {
-        private String id;
+	public void setItems(Items[] items) {
+		this.items = items;
+	}
 
-        private Versions[] versions;
+	@Override
+	public String toString() {
+		return "ClassPojo [title = " + title + ", items = " + items + "]";
+	}
 
-        private String title;
+	public class Items {
+		private String id;
 
-        public String getId ()
-        {
-            return id;
-        }
+		private Versions[] versions;
 
-        public void setId (String id)
-        {
-            this.id = id;
-        }
+		private String title;
 
-        public Versions[] getVersions ()
-        {
-            return versions;
-        }
+		public String getId() {
+			return id;
+		}
 
-        public void setVersions (Versions[] versions)
-        {
-            this.versions = versions;
-        }
+		public void setId(String id) {
+			this.id = id;
+		}
 
-        public String getTitle ()
-        {
-            return title;
-        }
+		public Versions[] getVersions() {
+			return versions;
+		}
 
-        public void setTitle (String title)
-        {
-            this.title = title;
-        }
+		public void setVersions(Versions[] versions) {
+			this.versions = versions;
+		}
 
-        @Override
-        public String toString()
-        {
-            return "ClassPojo [id = "+id+", versions = "+versions+", title = "+title+"]";
-        }
-    }
-    public class Versions
-    {
-        private String name;
+		public String getTitle() {
+			return title;
+		}
 
-        private String url;
+		public void setTitle(String title) {
+			this.title = title;
+		}
 
-        public String getName ()
-        {
-            return name;
-        }
+		@Override
+		public String toString() {
+			return "ClassPojo [id = " + id + ", versions = " + versions + ", title = " + title + "]";
+		}
+	}
 
-        public void setName (String name)
-        {
-            this.name = name;
-        }
+	public class Versions {
+		private String name;
 
-        public String getUrl ()
-        {
-            return url;
-        }
+		private String url;
 
-        public void setUrl (String url)
-        {
-            this.url = url;
-        }
+		public String getName() {
+			return name;
+		}
 
-        @Override
-        public String toString()
-        {
-            return "ClassPojo [name = "+name+", url = "+url+"]";
-        }
-    }
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public String getUrl() {
+			return url;
+		}
+
+		public void setUrl(String url) {
+			this.url = url;
+		}
+
+		@Override
+		public String toString() {
+			return "ClassPojo [name = " + name + ", url = " + url + "]";
+		}
+	}
 }

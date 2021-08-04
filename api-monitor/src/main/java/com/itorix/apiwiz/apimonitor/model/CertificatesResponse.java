@@ -13,5 +13,4 @@ public class CertificatesResponse extends Certificates {
 
 	@JsonProperty("downloadLocation")
 	private String downloadLocation;
-
 }

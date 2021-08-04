@@ -14,5 +14,4 @@ public class Environments {
 	private String env;
 
 	private String type;
-
 }

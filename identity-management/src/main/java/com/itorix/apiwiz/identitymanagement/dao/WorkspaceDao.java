@@ -35,23 +35,26 @@ import com.itorix.apiwiz.identitymanagement.model.Workspace;
 
 @Component
 public class WorkspaceDao {
-	
+
 	private final String SUBSCRIPTION_ENDPOINT = "/webhooks/subscriptions/";
-	
+
 	@Autowired
 	protected BaseRepository baseRepository;
+
 	@Qualifier("masterMongoTemplate")
 	@Autowired
 	private MongoTemplate masterMongoTemplate;
-	
+
 	@Value("${itorix.core.accounts.api}")
 	private String url;
+
 	@Value("${itorix.core.hmac.password}")
 	private String password;
 
-	public Workspace updateWorkspaceSubscription(Workspace workspace) throws ItorixException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException, JsonMappingException, JsonProcessingException{
+	public Workspace updateWorkspaceSubscription(Workspace workspace) throws ItorixException, InvalidKeyException,
+			NoSuchAlgorithmException, UnsupportedEncodingException, JsonMappingException, JsonProcessingException {
 		Workspace dBworkspace = getWorkspace(workspace.getName());
-		if(dBworkspace != null){
+		if (dBworkspace != null) {
 			Workspace subWorkspace = validateSubscriptionId(workspace.getSubscriptionId());
 			dBworkspace.setIsTrial(false);
 			dBworkspace.setPlanId(workspace.getPlanId());
@@ -64,31 +67,31 @@ public class WorkspaceDao {
 		}
 		return workspace;
 	}
-	
-	
-	private Workspace validateSubscriptionId(String subscriptionId) throws ItorixException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException, JsonMappingException, JsonProcessingException{
+
+	private Workspace validateSubscriptionId(String subscriptionId) throws ItorixException, InvalidKeyException,
+			NoSuchAlgorithmException, UnsupportedEncodingException, JsonMappingException, JsonProcessingException {
 		String connectionUrl = url + SUBSCRIPTION_ENDPOINT + subscriptionId;
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-		String reqBody = "{ \"timestamp\": "+ String.valueOf(System.currentTimeMillis()) +" }";
+		String reqBody = "{ \"timestamp\": " + String.valueOf(System.currentTimeMillis()) + " }";
 		String signature = HmacSHA256.hmacDigest(reqBody, password);
 		headers.set("signature", signature);
 		HttpEntity<Object> httpEntity = new HttpEntity<>(reqBody, headers);
 		ResponseEntity<String> response = null;
-		try{
+		try {
 			response = restTemplate.postForEntity(connectionUrl, httpEntity, String.class);
-		}catch (Exception e){
+		} catch (Exception e) {
 			throw e;
 		}
-		if(!response.getStatusCode().is2xxSuccessful())
-			throw new ItorixException("Subscription id provided is invalid","USER_005");
-		String respStr =  response.getBody();
+		if (!response.getStatusCode().is2xxSuccessful())
+			throw new ItorixException("Subscription id provided is invalid", "USER_005");
+		String respStr = response.getBody();
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode json = mapper.readTree(respStr);
-		JsonNode data  = json.get("data");
-		if(data != null){
+		JsonNode data = json.get("data");
+		if (data != null) {
 			Workspace workspace = new Workspace();
 			int seats = data.get("quantity").intValue();
 			String interval = data.get("interval").textValue();
@@ -96,60 +99,61 @@ public class WorkspaceDao {
 			workspace.setPaymentSchedule(interval);
 			return workspace;
 		}
-		throw new ItorixException("Subscription id provided is invalid","USER_005");
+		throw new ItorixException("Subscription id provided is invalid", "USER_005");
 	}
-	
-	public long getUsedSeats(String workspaceId){
+
+	public long getUsedSeats(String workspaceId) {
 		Query query = new Query().addCriteria(Criteria.where("workspaces.workspace._id").is(workspaceId));
-		return  masterMongoTemplate.count(query, User.class);
+		return masterMongoTemplate.count(query, User.class);
 	}
-	
-	public void addSeats(long count){
+
+	public void addSeats(long count) {
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
 		long seats = workspace.getSeats() + count;
 		workspace.setSeats(seats);
 		masterMongoTemplate.save(workspace);
 	}
-	
-	public void removeSeats(long count) throws ItorixException{
+
+	public void removeSeats(long count) throws ItorixException {
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
 		long usedSeats = getUsedSeats(workspace.getName());
-		if((workspace.getSeats() - usedSeats) >= count){
+		if ((workspace.getSeats() - usedSeats) >= count) {
 			long seats = workspace.getSeats() - count;
 			workspace.setSeats(seats);
 			masterMongoTemplate.save(workspace);
-		}
-		else
-			throw new ItorixException("current used seats is larger, delete current users before down sizing","USER_005");
+		} else
+			throw new ItorixException("current used seats is larger, delete current users before down sizing",
+					"USER_005");
 	}
-	
-	public Workspace updateWorkspaceStatus(String workapaceId, String status){
+
+	public Workspace updateWorkspaceStatus(String workapaceId, String status) {
 		Workspace workspace = getWorkspace(workapaceId);
-		if(workspace != null){
+		if (workspace != null) {
 			workspace.setStatus(status);
 			masterMongoTemplate.save(workspace);
 		}
 		return workspace;
 	}
-	
-	public Workspace updateWorkspaceStatus(String status){
+
+	public Workspace updateWorkspaceStatus(String status) {
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
-		if(workspace != null){
+		if (workspace != null) {
 			workspace.setStatus(status);
 			masterMongoTemplate.save(workspace);
 		}
 		return workspace;
 	}
-	public Workspace getWorkspace(String workapaceId){
-		Query query  = new Query();
+
+	public Workspace getWorkspace(String workapaceId) {
+		Query query = new Query();
 		query.addCriteria(new Criteria().orOperator(Criteria.where("name").is(workapaceId)));
 		Workspace workspace = masterMongoTemplate.findOne(query, Workspace.class);
 		return workspace;
 	}
-	
+
 	public void enableSso(Workspace workspace) {
 		Workspace dbWorkspace = getWorkspace(workspace.getName());
 		dbWorkspace.setSsoEnabled(true);
@@ -157,35 +161,34 @@ public class WorkspaceDao {
 		dbWorkspace.setSsoPath(workspace.getSsoPath());
 		masterMongoTemplate.save(dbWorkspace);
 	}
-	
-	public void createSubscriptionPlans(List<Subscription> subscriptions){
-		for(Subscription subscription: subscriptions){
+
+	public void createSubscriptionPlans(List<Subscription> subscriptions) {
+		for (Subscription subscription : subscriptions) {
 			masterMongoTemplate.save(subscription);
 		}
 	}
-	
-	public List<Subscription> getSubscriptions(){
+
+	public List<Subscription> getSubscriptions() {
 		List<Subscription> subscriptions = masterMongoTemplate.findAll(Subscription.class);
 		return subscriptions;
 	}
-	
-	public Subscription getSubscription(String subscriptionId){
-		Query query  = new Query();
+
+	public Subscription getSubscription(String subscriptionId) {
+		Query query = new Query();
 		query.addCriteria(new Criteria().orOperator(Criteria.where("id").is(subscriptionId)));
 		Subscription subscription = masterMongoTemplate.findOne(query, Subscription.class);
 		return subscription;
 	}
-	
+
 	public void createLandingData(String source, String metadataStr) {
 		Query query = new Query().addCriteria(Criteria.where("key").is(source));
 		MetaData metaData = masterMongoTemplate.findOne(query, MetaData.class);
-		if(metaData != null)
-		{
+		if (metaData != null) {
 			Update update = new Update();
 			update.set("metadata", metadataStr);
 			masterMongoTemplate.updateFirst(query, update, MetaData.class);
-		}else
-			masterMongoTemplate.save(new MetaData(source,metadataStr));
+		} else
+			masterMongoTemplate.save(new MetaData(source, metadataStr));
 	}
 
 	public Object getLandingData(String source) {
@@ -195,21 +198,16 @@ public class WorkspaceDao {
 			return metaData.getMetadata();
 		return null;
 	}
-	
-	
-	public String getPublicKey(String tenant, String source){
-		String key = "-----BEGIN PUBLIC KEY-----\r\n" + 
-				"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyM7Y0lRFgJqVtju1Ma/o\r\n" + 
-				"n/yA0FeR9W9kq249436kKZagIJqZRJ/eS2A/J0+M5VdDg43NWZ4Q7+DmszgXQTfd\r\n" + 
-				"pH+1wpOGY8taHhAtNrBn2cWVtbLh/iF7PDiPnmilodLycKP0oVpp4VpZTLHNReCR\r\n" + 
-				"JgjtpqDQoaQJkhtFYcPgrCO+owBSUYMszcv9OZBhZH64f897nQLwDHJ3nFY9MHUt\r\n" + 
-				"7jbV1FhGaRGDxnIRL20SaYkwgoV9s4b5l7RH91AxAbHjZjRvNXrgWuZ2X60ILraa\r\n" + 
-				"luBrltMW/bXvCcDF1NaZ0PMpQThrskK+JtvVzexzHUtulsL8XDvUZotmsXPqVPvX\r\n" + 
-				"AwIDAQAB\r\n" + 
-				"-----END PUBLIC KEY-----";
+
+	public String getPublicKey(String tenant, String source) {
+		String key = "-----BEGIN PUBLIC KEY-----\r\n"
+				+ "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyM7Y0lRFgJqVtju1Ma/o\r\n"
+				+ "n/yA0FeR9W9kq249436kKZagIJqZRJ/eS2A/J0+M5VdDg43NWZ4Q7+DmszgXQTfd\r\n"
+				+ "pH+1wpOGY8taHhAtNrBn2cWVtbLh/iF7PDiPnmilodLycKP0oVpp4VpZTLHNReCR\r\n"
+				+ "JgjtpqDQoaQJkhtFYcPgrCO+owBSUYMszcv9OZBhZH64f897nQLwDHJ3nFY9MHUt\r\n"
+				+ "7jbV1FhGaRGDxnIRL20SaYkwgoV9s4b5l7RH91AxAbHjZjRvNXrgWuZ2X60ILraa\r\n"
+				+ "luBrltMW/bXvCcDF1NaZ0PMpQThrskK+JtvVzexzHUtulsL8XDvUZotmsXPqVPvX\r\n" + "AwIDAQAB\r\n"
+				+ "-----END PUBLIC KEY-----";
 		return key;
 	}
-
-
-	
 }

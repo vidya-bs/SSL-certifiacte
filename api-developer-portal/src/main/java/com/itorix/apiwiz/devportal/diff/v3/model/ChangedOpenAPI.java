@@ -7,7 +7,7 @@ import com.itorix.apiwiz.devportal.business.diff.v3.compare.TagDiff;
 import io.swagger.v3.oas.models.OpenAPI;
 
 public class ChangedOpenAPI extends OpenAPI {
-	
+
 	private String swaggerName;
 	private String swaggerDescription;
 	private String oldVersion;
@@ -71,5 +71,4 @@ public class ChangedOpenAPI extends OpenAPI {
 	public void setNewVersion(String newVersion) {
 		this.newVersion = newVersion;
 	}
-
 }

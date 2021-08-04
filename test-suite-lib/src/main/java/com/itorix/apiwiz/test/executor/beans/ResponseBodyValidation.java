@@ -7,79 +7,79 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResponseBodyValidation {
 
-	@JsonProperty("path")
-	private String path;
+    @JsonProperty("path")
+    private String path;
 
-	@JsonProperty("value")
-	private Object value;
+    @JsonProperty("value")
+    private Object value;
 
-	@JsonProperty("condition")
-	private String condition;
-		
-	@JsonProperty("status")
-	private String status = "Did Not Execute";
+    @JsonProperty("condition")
+    private String condition;
 
-	@JsonProperty("errorMessage")
-	private String message;
+    @JsonProperty("status")
+    private String status = "Did Not Execute";
 
-	@JsonProperty("continueOnError")
-	private boolean continueOnError;
-	
-	@JsonProperty("continueOnError")
-	public boolean isContinueOnError() {
-		return continueOnError;
-	}
+    @JsonProperty("errorMessage")
+    private String message;
 
-	@JsonProperty("continueOnError")
-	public void setContinueOnError(boolean continueOnError) {
-		this.continueOnError = continueOnError;
-	}
+    @JsonProperty("continueOnError")
+    private boolean continueOnError;
 
-	@JsonProperty("status")
-	public String getStatus() {
-		return status;
-	}
+    @JsonProperty("continueOnError")
+    public boolean isContinueOnError() {
+        return continueOnError;
+    }
 
-	@JsonProperty("status")
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    @JsonProperty("continueOnError")
+    public void setContinueOnError(boolean continueOnError) {
+        this.continueOnError = continueOnError;
+    }
 
-	@JsonProperty("path")
-	public String getPath() {
-		return path;
-	}
+    @JsonProperty("status")
+    public String getStatus() {
+        return status;
+    }
 
-	@JsonProperty("path")
-	public void setPath(String path) {
-		this.path = path;
-	}
+    @JsonProperty("status")
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	@JsonProperty("value")
-	public Object getValue() {
-		return value;
-	}
+    @JsonProperty("path")
+    public String getPath() {
+        return path;
+    }
 
-	@JsonProperty("value")
-	public void setValue(Object value) {
-		this.value = value;
-	}
+    @JsonProperty("path")
+    public void setPath(String path) {
+        this.path = path;
+    }
 
-	@JsonProperty("condition")
-	public String getCondition() {
-		return condition;
-	}
+    @JsonProperty("value")
+    public Object getValue() {
+        return value;
+    }
 
-	@JsonProperty("condition")
-	public void setCondition(String condition) {
-		this.condition = condition;
-	}
+    @JsonProperty("value")
+    public void setValue(Object value) {
+        this.value = value;
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    @JsonProperty("condition")
+    public String getCondition() {
+        return condition;
+    }
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
+    @JsonProperty("condition")
+    public void setCondition(String condition) {
+        this.condition = condition;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }

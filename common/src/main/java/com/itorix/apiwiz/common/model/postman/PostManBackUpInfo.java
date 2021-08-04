@@ -4,6 +4,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "Util.PostmanFile")
 public class PostManBackUpInfo extends BackupCommon {
@@ -59,5 +60,4 @@ public class PostManBackUpInfo extends BackupCommon {
 	public void setEnvFileContent(String envFileContent) {
 		this.envFileContent = envFileContent;
 	}
-
 }

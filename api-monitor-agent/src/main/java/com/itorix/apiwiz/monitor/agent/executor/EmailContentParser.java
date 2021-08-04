@@ -27,30 +27,27 @@ public class EmailContentParser {
         notificationEmailTemplates.put(LATENCY_THRESHOLD_BREACH, MONITORING_LATENCY_TEST_SUBJECT);
     }
 
-
-    public String getEmailSubject (String notificationType, Object... contentToReplace) {
+    public String getEmailSubject(String notificationType, Object... contentToReplace) {
         String notificationEmailSubject = notificationEmailTemplates.get(notificationType);
         return MessageFormat.format(env.getProperty(notificationEmailSubject), contentToReplace);
     }
 
-    public String getEmailBody (Object... contentToReplace) {
+    public String getEmailBody(Object... contentToReplace) {
         return MessageFormat.format(env.getProperty(MONITORING_TEST_BODY), contentToReplace);
     }
 
-
-    public String[] getRelevantEmailContent(NotificationDetails notificationDetail, Map<String, String> notificationData) {
+    public String[] getRelevantEmailContent(NotificationDetails notificationDetail,
+            Map<String, String> notificationData) {
         String status = notificationData.get(STATUS);
         String resource = notificationData.get(SCHEDULER_ID);
-            String dailyUptime = String.valueOf(notificationDetail.getDailyUptime());
-            String dailyLatency = String.valueOf(notificationDetail.getDailyLatency());
-            String avgUptime = String.valueOf(notificationDetail.getAvgUptime());
-            String avgLatency = String.valueOf(notificationDetail.getAvgLatency());
+        String dailyUptime = String.valueOf(notificationDetail.getDailyUptime());
+        String dailyLatency = String.valueOf(notificationDetail.getDailyLatency());
+        String avgUptime = String.valueOf(notificationDetail.getAvgUptime());
+        String avgLatency = String.valueOf(notificationDetail.getAvgLatency());
 
-            return new String[]{notificationDetail.getWorkspaceName(),
-                    notificationDetail.getCollectionname(), notificationDetail.getEnvironmentName(),
-                    notificationDetail.getDate(), status, resource, dailyUptime,
-                    dailyLatency, avgUptime,
-                    avgLatency, notificationDetail.getSchedulerId()};
+        return new String[] { notificationDetail.getWorkspaceName(), notificationDetail.getCollectionname(),
+                notificationDetail.getEnvironmentName(), notificationDetail.getDate(), status, resource, dailyUptime,
+                dailyLatency, avgUptime, avgLatency, notificationDetail.getSchedulerId() };
     }
 
 }

@@ -10,7 +10,7 @@ public class ResourceBackUpInfo extends BackupCommon {
 
 	public static final String LABEL_APP_INFO = "resourceInfo";
 	public static final String LABEL_RESOURCE_TYPE = "resourceType";
-	public static final String LABEL_OPERATION_ID="operationId";
+	public static final String LABEL_OPERATION_ID = "operationId";
 
 	private JSONArray resourceInfo;
 	private String resourceType;
@@ -39,14 +39,14 @@ public class ResourceBackUpInfo extends BackupCommon {
 	public void setResourceType(String resourceType) {
 		this.resourceType = resourceType;
 	}
-	
+
 	@JsonProperty("operationId")
 	public String getOperationId() {
 		return operationId;
 	}
+
 	@JsonProperty("operationId")
 	public void setOperationId(String operationId) {
 		this.operationId = operationId;
 	}
-
 }

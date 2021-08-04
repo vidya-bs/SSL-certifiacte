@@ -30,51 +30,51 @@ import com.itorix.apiwiz.monitor.model.collection.MonitorCollections;
 @RestController
 public class MonitorAgentServiceImpl implements MonitorAgentService {
 
-	private static final String TENANT_ID = "tenantId";
+    private static final String TENANT_ID = "tenantId";
 
-	private static final Logger log = LoggerFactory.getLogger(MonitorAgentServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(MonitorAgentServiceImpl.class);
 
-	@Autowired
-	MonitorAgentExecutorSQLDao executorSQLDao;
+    @Autowired
+    MonitorAgentExecutorSQLDao executorSQLDao;
 
-	@Autowired
-	MonitorAgentExecutorDao testSuiteExecutorDao;
+    @Autowired
+    MonitorAgentExecutorDao testSuiteExecutorDao;
 
-	@Autowired
-	HttpServletRequest request;
+    @Autowired
+    HttpServletRequest request;
 
-	@Value("${includeAgentPort:true}")
-	boolean includeAgentPort;
+    @Value("${includeAgentPort:true}")
+    boolean includeAgentPort;
 
-	@Override
-	public ResponseEntity<?> storeMonitorDetails(@RequestHeader HttpHeaders headers,
-			@RequestBody Map<String, String> requestBody) throws Exception {
+    @Override
+    public ResponseEntity<?> storeMonitorDetails(@RequestHeader HttpHeaders headers,
+            @RequestBody Map<String, String> requestBody) throws Exception {
 
-		String collectionId = requestBody.get("collectionId");
-		String schedulerId = requestBody.get("schedulerId");
-		if (!StringUtils.hasText(collectionId) || !StringUtils.hasText(schedulerId)) {
-			log.error("collectionId or schedulerId is empty");
-			throw new ItorixException(ErrorCodes.errorMessage.get("MonitorAgent-5"), "MonitorAgent-5");
-		}
+        String collectionId = requestBody.get("collectionId");
+        String schedulerId = requestBody.get("schedulerId");
+        if (!StringUtils.hasText(collectionId) || !StringUtils.hasText(schedulerId)) {
+            log.error("collectionId or schedulerId is empty");
+            throw new ItorixException(ErrorCodes.errorMessage.get("MonitorAgent-5"), "MonitorAgent-5");
+        }
 
-		String tenantName = ((String) headers.getFirst(TENANT_ID));
+        String tenantName = ((String) headers.getFirst(TENANT_ID));
 
-		if (StringUtils.hasText(tenantName)) {
-			TenantContext.setCurrentTenant(tenantName);
-			MonitorCollections collection = testSuiteExecutorDao.getMonitorCollections(collectionId, schedulerId);
-			if (collection == null) {
-				log.error("There is no entry found for collectionId or schedulerId {} , {}", collectionId, schedulerId);
-				throw new ItorixException(ErrorCodes.errorMessage.get("MonitorAgent-8"), "MonitorAgent-8");
-			}
+        if (StringUtils.hasText(tenantName)) {
+            TenantContext.setCurrentTenant(tenantName);
+            MonitorCollections collection = testSuiteExecutorDao.getMonitorCollections(collectionId, schedulerId);
+            if (collection == null) {
+                log.error("There is no entry found for collectionId or schedulerId {} , {}", collectionId, schedulerId);
+                throw new ItorixException(ErrorCodes.errorMessage.get("MonitorAgent-8"), "MonitorAgent-8");
+            }
 
-			// String host =
-			// request.getRequestURL().substring(0,request.getRequestURL().indexOf(request.getContextPath())+request.getContextPath().length());
-			executorSQLDao.insertIntoTestExecutorEntity(tenantName, collectionId, schedulerId,
-					MonitorAgentExecutorEntity.STATUSES.SCHEDULED.getValue());
-			return new ResponseEntity<>(HttpStatus.OK);
-		}
+            // String host =
+            // request.getRequestURL().substring(0,request.getRequestURL().indexOf(request.getContextPath())+request.getContextPath().length());
+            executorSQLDao.insertIntoTestExecutorEntity(tenantName, collectionId, schedulerId,
+                    MonitorAgentExecutorEntity.STATUSES.SCHEDULED.getValue());
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
 
-		log.error("Couldn't find tenant");
-		throw new ItorixException(ErrorCodes.errorMessage.get("MonitorAgent-4"), "MonitorAgent-4");
-	}
+        log.error("Couldn't find tenant");
+        throw new ItorixException(ErrorCodes.errorMessage.get("MonitorAgent-4"), "MonitorAgent-4");
+    }
 }

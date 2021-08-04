@@ -31,7 +31,6 @@ public class RequestId implements Comparable<RequestId> {
 		RequestId requestId = (RequestId) o;
 
 		return !(id != null ? !id.equals(requestId.id) : requestId.id != null);
-
 	}
 
 	public int hashCode() {

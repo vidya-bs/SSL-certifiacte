@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class NameSingleValue {
-	private Name name;
-	private SingleValue value;
+    private Name name;
+    private SingleValue value;
 }

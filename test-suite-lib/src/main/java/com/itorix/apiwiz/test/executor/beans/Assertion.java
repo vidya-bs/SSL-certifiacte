@@ -8,86 +8,90 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Assertion {
 
-	@JsonProperty("name")
-	private String name;
-	
-	@JsonProperty("value")
-	private String value;
-	
-	@JsonProperty("condition")
-	private String condition;
+    @JsonProperty("name")
+    private String name;
 
-	@JsonProperty("status")
-	private String status = "Did not Execute";
+    @JsonProperty("value")
+    private String value;
 
-	@JsonProperty("message")
-	private String message;
+    @JsonProperty("condition")
+    private String condition;
 
-	@JsonProperty("continueOnError")
-	private boolean continueOnError;
+    @JsonProperty("status")
+    private String status = "Did not Execute";
 
-	@JsonProperty("ignoreCase")
-	private boolean ignoreCase;
-	
-	@JsonProperty("continueOnError")
-	public boolean isContinueOnError() {
-		return continueOnError;
-	}
+    @JsonProperty("message")
+    private String message;
 
-	@JsonProperty("continueOnError")
-	public void setContinueOnError(boolean continueOnError) {
-		this.continueOnError = continueOnError;
-	}
+    @JsonProperty("continueOnError")
+    private boolean continueOnError;
 
-	@JsonProperty("status")
-	public String getStatus() {
-		return status;
-	}
+    @JsonProperty("ignoreCase")
+    private boolean ignoreCase;
 
-	@JsonProperty("status")
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    @JsonProperty("continueOnError")
+    public boolean isContinueOnError() {
+        return continueOnError;
+    }
 
-	@JsonProperty("name")
-	public String getName() {
-		return name;
-	}
+    @JsonProperty("continueOnError")
+    public void setContinueOnError(boolean continueOnError) {
+        this.continueOnError = continueOnError;
+    }
 
-	@JsonProperty("name")
-	public void setName(String name) {
-		this.name = name;
-	}
+    @JsonProperty("status")
+    public String getStatus() {
+        return status;
+    }
 
-	@JsonProperty("value")
-	public String getValue() {
-		return value;
-	}
+    @JsonProperty("status")
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	@JsonProperty("value")
-	public void setValue(String value) {
-		this.value = value;
-	}
+    @JsonProperty("name")
+    public String getName() {
+        return name;
+    }
 
-	@JsonProperty("condition")
-	public String getCondition() {
-		return condition;
-	}
+    @JsonProperty("name")
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@JsonProperty("condition")
-	public void setCondition(String condition) {
-		this.condition = condition;
-	}
+    @JsonProperty("value")
+    public String getValue() {
+        return value;
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    @JsonProperty("value")
+    public void setValue(String value) {
+        this.value = value;
+    }
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
+    @JsonProperty("condition")
+    public String getCondition() {
+        return condition;
+    }
 
-	public boolean isIgnoreCase() { return ignoreCase; }
+    @JsonProperty("condition")
+    public void setCondition(String condition) {
+        this.condition = condition;
+    }
 
-	public void setIgnoreCase(boolean ignoreCase) { this.ignoreCase = ignoreCase; }
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public boolean isIgnoreCase() {
+        return ignoreCase;
+    }
+
+    public void setIgnoreCase(boolean ignoreCase) {
+        this.ignoreCase = ignoreCase;
+    }
 }

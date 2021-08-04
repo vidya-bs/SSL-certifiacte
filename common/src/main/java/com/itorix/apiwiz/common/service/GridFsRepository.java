@@ -1,5 +1,10 @@
 package com.itorix.apiwiz.common.service;
 
+import com.itorix.apiwiz.common.model.GridFsData;
+import com.mongodb.DBObject;
+import com.mongodb.client.gridfs.GridFSFindIterable;
+import com.mongodb.client.gridfs.model.GridFSFile;
+import com.mongodb.gridfs.GridFSDBFile;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -9,7 +14,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -19,19 +23,12 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsOperations;
 import org.springframework.stereotype.Component;
 
-import com.itorix.apiwiz.common.model.GridFsData;
-import com.mongodb.DBObject;
-import com.mongodb.client.gridfs.GridFSFindIterable;
-import com.mongodb.gridfs.GridFSDBFile;
-import com.mongodb.client.gridfs.model.GridFSFile ;
-
 @Component("gridFsRepository")
 public class GridFsRepository {
 
 	@Autowired
 	GridFsOperations gridFsOperations;
-	
-	
+
 	public String storeFile(GridFsData gridFsData) {
 		DBObject metaData = gridFsData.getMetaData();
 		String gridFSFile = null;
@@ -42,9 +39,9 @@ public class GridFsRepository {
 			} else {
 				inputStream = new FileInputStream(gridFsData.getFilePath());
 			}
-			ObjectId id  = gridFsOperations.store(inputStream, gridFsData.getFilename(), 
-					gridFsData.getContentType(), metaData);
-			gridFSFile= id.toString();
+			ObjectId id = gridFsOperations.store(inputStream, gridFsData.getFilename(), gridFsData.getContentType(),
+					metaData);
+			gridFSFile = id.toString();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} finally {
@@ -58,7 +55,6 @@ public class GridFsRepository {
 		}
 		return gridFSFile;
 	}
-	
 
 	public GridFSFile store(GridFsData gridFsData) {
 		DBObject metaData = gridFsData.getMetaData();
@@ -70,9 +66,9 @@ public class GridFsRepository {
 			} else {
 				inputStream = new FileInputStream(gridFsData.getFilePath());
 			}
-			ObjectId id  = gridFsOperations.store(inputStream, gridFsData.getFilename(), 
-					gridFsData.getContentType(), metaData);
-			
+			ObjectId id = gridFsOperations.store(inputStream, gridFsData.getFilename(), gridFsData.getContentType(),
+					metaData);
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} finally {
@@ -93,7 +89,7 @@ public class GridFsRepository {
 		try {
 			FileOutputStream fileOutputStream = new FileOutputStream(filePath);
 			fileOutputStream.flush();
-//			gridFSDBFile.writeTo(filePath);
+			// gridFSDBFile.writeTo(filePath);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -106,14 +102,14 @@ public class GridFsRepository {
 		query.with(Sort.by(Direction.DESC, "uploadDate"));
 		List<GridFSDBFile> gridFSDBFiles = null;
 		GridFSFindIterable collection = gridFsOperations.find(query);
-		if(collection != null ){
+		if (collection != null) {
 			Iterator iterator = collection.iterator();
 			gridFSDBFiles = new ArrayList<>();
-			while(iterator.hasNext()){
+			while (iterator.hasNext()) {
 				gridFSDBFiles.add((GridFSDBFile) iterator.next());
 			}
 		}
-		//List<GridFSDBFile> gridFSDBFiles = gridFsOperations.find(query);
+		// List<GridFSDBFile> gridFSDBFiles = gridFsOperations.find(query);
 		GridFSDBFile gridFSDBFile = null;
 		if (null != gridFSDBFiles && gridFSDBFiles.size() > 0) {
 			gridFSDBFile = gridFSDBFiles.get(0);
@@ -134,5 +130,4 @@ public class GridFsRepository {
 	public void deleteByName(String filename) throws IOException {
 		gridFsOperations.delete(new Query(Criteria.where("filename").is(filename)));
 	}
-
 }

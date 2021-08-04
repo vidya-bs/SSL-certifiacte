@@ -12,8 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Header{
-    public String name;
-    public String value;
+public class Header {
+	public String name;
+	public String value;
 }
-

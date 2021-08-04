@@ -1,7 +1,7 @@
 package com.itorix.apiwiz.performance.coverge.model;
 
 public class SoapUITestCase {
-	
+
 	@Override
 	public String toString() {
 		return "SoapUITestCase [testCaseName=" + testCaseName + ", testCaseStatus=" + testCaseStatus + ", failedReason="
@@ -12,7 +12,6 @@ public class SoapUITestCase {
 	private String testCaseStatus;
 	private String failedReason;
 	private Long duration;
-	
 
 	public SoapUITestCase(String testCaseName, String testCaseStatus, String failedReason, Long duration) {
 		super();
@@ -53,5 +52,4 @@ public class SoapUITestCase {
 	public void setDuration(Long duration) {
 		this.duration = duration;
 	}
-
 }

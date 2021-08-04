@@ -8,7 +8,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MicrometerConfiguration {
 
+
 	@Bean MeterRegistryCustomizer<MeterRegistry> metricsCommonTags() {
 		return registry -> registry.config();
 	}
+
 }

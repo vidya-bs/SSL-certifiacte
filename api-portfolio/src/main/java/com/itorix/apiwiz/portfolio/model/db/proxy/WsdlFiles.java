@@ -12,5 +12,4 @@ public class WsdlFiles {
 	private String wsdlName;
 
 	private String wsdlLocation;
-
 }

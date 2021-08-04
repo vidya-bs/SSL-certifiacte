@@ -12,7 +12,4 @@ public class CategoryList {
 	public void setPolicyTemplates(List<com.itorix.apiwiz.common.model.proxystudio.Category> policyTemplates) {
 		this.policyTemplates = policyTemplates;
 	}
-
-	
-	
 }

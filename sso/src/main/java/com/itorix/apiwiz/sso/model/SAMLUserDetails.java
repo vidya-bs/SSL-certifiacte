@@ -13,56 +13,54 @@ import com.itorix.apiwiz.sso.dao.SSODao;
 
 public class SAMLUserDetails implements UserDetails {
 
+    private static final long serialVersionUID = 5952811591131203949L;
+    private SAMLCredential credential;
+    private SSODao ssoDao;
 
-	private static final long serialVersionUID = 5952811591131203949L;
-	private SAMLCredential credential;
-	private SSODao ssoDao;
+    public SAMLUserDetails(SAMLCredential credential, SSODao identityManagementDao) {
+        super();
+        this.credential = credential;
+        this.ssoDao = identityManagementDao;
+    }
 
-	public SAMLUserDetails(SAMLCredential credential, SSODao identityManagementDao) {
-		super();
-		this.credential = credential;
-		this.ssoDao = identityManagementDao;
-	}
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        SAMLConfig samlAssertionMapper = ssoDao.getSamlConfig();
+        String roleName = null;
+        if (samlAssertionMapper != null) {
+            roleName = samlAssertionMapper.getGroup();
+        }
+        List<String> projectRole = ssoDao.getProjectRoleForSaml(roleName, credential);
+        return projectRole.stream().map(s -> new SimpleGrantedAuthority(s)).collect(Collectors.toList());
+    }
 
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		SAMLConfig samlAssertionMapper = ssoDao.getSamlConfig();
-		String roleName = null;
-		if(samlAssertionMapper != null){
-			roleName = samlAssertionMapper.getGroup();
-		}
-		List<String> projectRole = ssoDao.getProjectRoleForSaml(roleName , credential);
-		return projectRole.stream()
-		.map(s -> new SimpleGrantedAuthority(s)).collect(Collectors.toList());
-	}
+    @Override
+    public String getPassword() {
+        return null;
+    }
 
-	@Override
-	public String getPassword() {
-		return null;
-	}
+    @Override
+    public String getUsername() {
+        return credential.getNameID().getValue();
+    }
 
-	@Override
-	public String getUsername() {
-		return credential.getNameID().getValue();
-	}
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
-	@Override
-	public boolean isAccountNonExpired() {
-		return true;
-	}
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
-	@Override
-	public boolean isAccountNonLocked() {
-		return true;
-	}
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
-	@Override
-	public boolean isCredentialsNonExpired() {
-		return true;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		return true;
-	}
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

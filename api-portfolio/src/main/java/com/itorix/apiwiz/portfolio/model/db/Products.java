@@ -21,8 +21,10 @@ public class Products extends ProductRequest {
 	@Id
 	String id;
 	String productImage;
+
 	@JsonProperty("metadata")
 	List<Metadata> metadata;
+
 	@JsonProperty("services")
 	List<ProductServices> productServices;
 }

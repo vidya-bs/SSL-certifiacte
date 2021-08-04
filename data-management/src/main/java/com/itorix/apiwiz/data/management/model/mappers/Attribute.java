@@ -14,27 +14,25 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Generated("org.jsonschema2pojo")
-@JsonPropertyOrder({ "name", "value" })
+@JsonPropertyOrder({"name", "value"})
 public class Attribute {
 
 	@JsonProperty("name")
 	private String name;
+
 	@JsonProperty("value")
 	private String value;
+
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-	/**
-	 * 
-	 * @return The name
-	 */
+	/** @return The name */
 	@JsonProperty("name")
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * 
 	 * @param name
 	 *            The name
 	 */
@@ -43,17 +41,13 @@ public class Attribute {
 		this.name = name;
 	}
 
-	/**
-	 * 
-	 * @return The value
-	 */
+	/** @return The value */
 	@JsonProperty("value")
 	public String getValue() {
 		return value;
 	}
 
 	/**
-	 * 
 	 * @param value
 	 *            The value
 	 */
@@ -71,5 +65,4 @@ public class Attribute {
 	public void setAdditionalProperty(String name, Object value) {
 		this.additionalProperties.put(name, value);
 	}
-
 }

@@ -9,27 +9,27 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "metadata", "projectName", "notifications", "pipelines" })
+@JsonPropertyOrder({"metadata", "projectName", "notifications", "pipelines"})
 public class PipelineGroups {
 
 	public static final String LABEL_CREATED_TIME = "metadata.cts";
-	
+
 	@JsonProperty("metadata")
 	private Metadata metadata;
-	
+
 	@Id
 	@JsonProperty("projectName")
 	private String projectName;
-	
+
 	@JsonProperty("defineName")
 	private String defineName;
-	
+
 	@JsonProperty("notifications")
 	private List<String> notifications = null;
-	
+
 	@JsonProperty("pipelines")
 	private List<Pipeline> pipelines = null;
-	
+
 	@JsonProperty("metadata")
 	public Metadata getMetadata() {
 		return metadata;
@@ -47,8 +47,9 @@ public class PipelineGroups {
 
 	@JsonProperty("projectName")
 	public void setProjectName(String projectName) {
-		if(this.defineName == null) this.defineName = projectName;
-		this.projectName = projectName.replaceAll(" " , "-");
+		if (this.defineName == null)
+			this.defineName = projectName;
+		this.projectName = projectName.replaceAll(" ", "-");
 	}
 
 	public String getDefineName() {
@@ -72,7 +73,7 @@ public class PipelineGroups {
 
 	@JsonProperty("pipelines")
 	public void setPipelines(List<Pipeline> pipelines) {
-		if(pipelines != null && pipelines.size() > 0 && pipelines.get(0).getDefineName() == null) {
+		if (pipelines != null && pipelines.size() > 0 && pipelines.get(0).getDefineName() == null) {
 			pipelines.get(0).setDefineName(defineName);
 		}
 		this.pipelines = pipelines;
@@ -92,5 +93,4 @@ public class PipelineGroups {
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

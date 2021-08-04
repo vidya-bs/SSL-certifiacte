@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 @Component
 public class LoggerService {
 
+
 	private Logger logger = LoggerFactory.getLogger(LoggingContext.class);
 
 	@Value("${itorix.core.aws.admin.url:null}")
@@ -142,4 +143,5 @@ public class LoggerService {
 		logMessage.put("responseTime", String.valueOf(System.currentTimeMillis()));
 		logMethod(logMessage);
 	}
+
 }

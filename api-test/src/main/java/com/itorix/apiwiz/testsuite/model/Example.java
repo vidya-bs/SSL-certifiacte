@@ -1,4 +1,3 @@
-
 package com.itorix.apiwiz.testsuite.model;
 
 import java.util.HashMap;
@@ -15,29 +14,29 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Example {
 
-    @JsonProperty("testSuite")
-    private TestSuite testSuite;
-    @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	@JsonProperty("testSuite")
+	private TestSuite testSuite;
 
-    @JsonProperty("testSuite")
-    public TestSuite getTestSuite() {
-        return testSuite;
-    }
+	@JsonIgnore
+	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("testSuite")
-    public void setTestSuite(TestSuite testSuite) {
-        this.testSuite = testSuite;
-    }
+	@JsonProperty("testSuite")
+	public TestSuite getTestSuite() {
+		return testSuite;
+	}
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
+	@JsonProperty("testSuite")
+	public void setTestSuite(TestSuite testSuite) {
+		this.testSuite = testSuite;
+	}
 
-    @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-    }
+	@JsonAnyGetter
+	public Map<String, Object> getAdditionalProperties() {
+		return this.additionalProperties;
+	}
 
+	@JsonAnySetter
+	public void setAdditionalProperty(String name, Object value) {
+		this.additionalProperties.put(name, value);
+	}
 }

@@ -50,5 +50,4 @@ public class HttpResponse {
 	public void setAdditionalProperty(String name, Object value) {
 		this.additionalProperties.put(name, value);
 	}
-
 }

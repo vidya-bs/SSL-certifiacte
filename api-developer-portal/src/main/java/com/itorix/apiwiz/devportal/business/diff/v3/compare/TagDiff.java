@@ -60,7 +60,6 @@ public class TagDiff {
 
 					this.changed.add(changedTag);
 				}
-
 			});
 
 			return this;
@@ -92,5 +91,4 @@ public class TagDiff {
 	public void setChanged(List<Tag> changed) {
 		this.changed = changed;
 	}
-
 }

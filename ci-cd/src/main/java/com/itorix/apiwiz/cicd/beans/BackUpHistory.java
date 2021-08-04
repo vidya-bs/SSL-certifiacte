@@ -6,11 +6,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class BackUpHistory {
 
 	private String path;
-	
+
 	private String time;
-	
-	
-	
+
 	public String getPath() {
 		return path;
 	}
@@ -26,7 +24,4 @@ public class BackUpHistory {
 	public void setTime(String time) {
 		this.time = time;
 	}
-
-	
-	
 }

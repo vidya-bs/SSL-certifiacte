@@ -17,6 +17,7 @@ import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 
 import com.mongodb.MongoClient;
 
+
 @Configuration
 public class MultiTenantMongoDbConfiguration {
 

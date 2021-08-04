@@ -15,5 +15,4 @@ public class ChangedMediaType extends MediaType {
 	public void setExampleDiff(ExampleDiff exampleDiff) {
 		this.exampleDiff = exampleDiff;
 	}
-
 }

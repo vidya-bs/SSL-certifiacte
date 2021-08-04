@@ -10,25 +10,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Header {
 
     public Header() {
-		super();
-	}
+        super();
+    }
 
-	public Header(String name, String description, String value) {
-		super();
-		this.name = name;
-		this.description = description;
-		this.value = value;
-	}
+    public Header(String name, String description, String value) {
+        super();
+        this.name = name;
+        this.description = description;
+        this.value = value;
+    }
 
-	public Header(String name, String description, String value, boolean encryption) {
-		super();
-		this.name = name;
-		this.description = description;
-		this.value = value;
-		this.encryption = encryption;
-	}
+    public Header(String name, String description, String value, boolean encryption) {
+        super();
+        this.name = name;
+        this.description = description;
+        this.value = value;
+        this.encryption = encryption;
+    }
 
-	@JsonProperty("name")
+    @JsonProperty("name")
     private String name;
 
     @JsonProperty("description")
@@ -71,10 +71,10 @@ public class Header {
     }
 
     public boolean isEncryption() {
-		return encryption;
-	}
+        return encryption;
+    }
 
-	public void setEncryption(boolean encryption) {
-		this.encryption = encryption;
-	}
+    public void setEncryption(boolean encryption) {
+        this.encryption = encryption;
+    }
 }

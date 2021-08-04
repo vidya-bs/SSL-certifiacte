@@ -10,6 +10,9 @@ import com.itorix.hyggee.third.party.integration.model.GitHubUserResponse;
 
 @Component
 public interface GitIntegrationBusiness {
-	public GitHubUserResponse gitHubUser(String interactionid, String jsessionid, String token) throws ItorixException, Exception ;
-	public List<GitHubUserReposResponse> gitHubUserRepos(String interactionid, String jsessionid, String token) throws ItorixException, Exception;
+	public GitHubUserResponse gitHubUser(String interactionid, String jsessionid, String token)
+			throws ItorixException, Exception;
+
+	public List<GitHubUserReposResponse> gitHubUserRepos(String interactionid, String jsessionid, String token)
+			throws ItorixException, Exception;
 }

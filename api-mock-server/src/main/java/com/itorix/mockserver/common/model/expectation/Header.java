@@ -5,8 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Header{
+public class Header {
     private Name name;
     private Value value;
 }
-

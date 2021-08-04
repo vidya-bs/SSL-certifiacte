@@ -23,5 +23,4 @@ public class ElProperty {
 	public void setEl(String el) {
 		this.el = el;
 	}
-
 }

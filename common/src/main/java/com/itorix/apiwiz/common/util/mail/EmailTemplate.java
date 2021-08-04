@@ -53,5 +53,4 @@ public class EmailTemplate {
 	public void setFotter(String fotter) {
 		this.fotter = fotter;
 	}
-
 }

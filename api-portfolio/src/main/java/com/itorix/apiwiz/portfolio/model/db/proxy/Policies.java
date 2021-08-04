@@ -8,16 +8,12 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
-public class Policies
-{
-    private String name;
+public class Policies {
+	private String name;
 
-    private String displayName;
+	private String displayName;
 
-    private String description;
+	private String description;
 
-    private boolean enabled;
-
+	private boolean enabled;
 }
-
-

@@ -16,154 +16,152 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TestSuite {
 
-	@JsonProperty("name")
-	private String name;
+    @JsonProperty("name")
+    private String name;
 
-	@JsonProperty("description")
-	private String description;
+    @JsonProperty("description")
+    private String description;
 
-	@Id
-	private String id;
+    @Id
+    private String id;
 
-	@JsonProperty("executionId")
-	private Integer executionId;
+    @JsonProperty("executionId")
+    private Integer executionId;
 
-	@JsonProperty("date")
-	private String date;
+    @JsonProperty("date")
+    private String date;
 
-	@JsonProperty("status")
-	private String status;
+    @JsonProperty("status")
+    private String status;
 
-	@JsonProperty("variables")
-	private List<Header> vars = new ArrayList<>();
+    @JsonProperty("variables")
+    private List<Header> vars = new ArrayList<>();
 
-	@JsonProperty("scenarios")
-	private List<Scenario> scenarios = null;
+    @JsonProperty("scenarios")
+    private List<Scenario> scenarios = null;
 
-	@JsonProperty("successRate")
-	private int successRate;
+    @JsonProperty("successRate")
+    private int successRate;
 
-	@JsonProperty("isActive")
-	private Boolean active;
+    @JsonProperty("isActive")
+    private Boolean active;
 
-	@JsonProperty("timeout")
-	private Long timeout;
+    @JsonProperty("timeout")
+    private Long timeout;
 
-	@JsonProperty("successRatio")
-	private Double successRatio;
+    @JsonProperty("successRatio")
+    private Double successRatio;
 
-	@JsonProperty("executionStatus")
-	private String executionStatus = "not executed";
+    @JsonProperty("executionStatus")
+    private String executionStatus = "not executed";
 
+    @JsonProperty("name")
+    public String getName() {
+        return name;
+    }
 
+    @JsonProperty("name")
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@JsonProperty("name")
-	public String getName() {
-		return name;
-	}
+    @JsonProperty("description")
+    public String getDescription() {
+        return description;
+    }
 
-	@JsonProperty("name")
-	public void setName(String name) {
-		this.name = name;
-	}
+    @JsonProperty("description")
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	@JsonProperty("description")
-	public String getDescription() {
-		return description;
-	}
+    @JsonProperty("scenarios")
+    public List<Scenario> getScenarios() {
+        return scenarios;
+    }
 
-	@JsonProperty("description")
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    @JsonProperty("scenarios")
+    public void setScenarios(List<Scenario> scenarios) {
+        this.scenarios = scenarios;
+    }
 
-	@JsonProperty("scenarios")
-	public List<Scenario> getScenarios() {
-		return scenarios;
-	}
+    public String getId() {
+        return id;
+    }
 
-	@JsonProperty("scenarios")
-	public void setScenarios(List<Scenario> scenarios) {
-		this.scenarios = scenarios;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public String getId() {
-		return id;
-	}
+    public String getDate() {
+        return date;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setDate(String date) {
+        this.date = date;
+    }
 
-	public String getDate() {
-		return date;
-	}
+    public String getStatus() {
+        return status;
+    }
 
-	public void setDate(String date) {
-		this.date = date;
-	}
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public List<Header> getVars() {
+        return vars;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public void setVars(List<Header> vars) {
+        this.vars = vars;
+    }
 
-	public List<Header> getVars() {
-		return vars;
-	}
+    public Integer getExecutionId() {
+        return executionId;
+    }
 
-	public void setVars(List<Header> vars) {
-		this.vars = vars;
-	}
+    public void setExecutionId(Integer executionId) {
+        this.executionId = executionId;
+    }
 
-	public Integer getExecutionId() {
-		return executionId;
-	}
+    public int getSuccessRate() {
+        return successRate;
+    }
 
-	public void setExecutionId(Integer executionId) {
-		this.executionId = executionId;
-	}
+    public void setSuccessRate(int successRate) {
+        this.successRate = successRate;
+    }
 
-	public int getSuccessRate() {
-		return successRate;
-	}
+    public Boolean getActive() {
+        return active;
+    }
 
-	public void setSuccessRate(int successRate) {
-		this.successRate = successRate;
-	}
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
 
-	public Boolean getActive() {
-		return active;
-	}
+    public Long getTimeout() {
+        return timeout;
+    }
 
-	public void setActive(Boolean active) {
-		this.active = active;
-	}
+    public void setTimeout(Long timeout) {
+        this.timeout = timeout;
+    }
 
-	public Long getTimeout() {
-		return timeout;
-	}
+    public Double getSuccessRatio() {
+        return successRatio;
+    }
 
-	public void setTimeout(Long timeout) {
-		this.timeout = timeout;
-	}
+    public void setSuccessRatio(Double successRatio) {
+        this.successRatio = successRatio;
+    }
 
-	public Double getSuccessRatio() {
-		return successRatio;
-	}
+    public String getExecutionStatus() {
+        return executionStatus;
+    }
 
-	public void setSuccessRatio(Double successRatio) {
-		this.successRatio = successRatio;
-	}
-
-	public String getExecutionStatus() {
-		return executionStatus;
-	}
-
-	public void setExecutionStatus(String executionStatus) {
-		this.executionStatus = executionStatus;
-	}
+    public void setExecutionStatus(String executionStatus) {
+        this.executionStatus = executionStatus;
+    }
 }

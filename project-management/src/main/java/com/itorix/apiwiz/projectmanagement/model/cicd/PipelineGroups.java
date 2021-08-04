@@ -9,24 +9,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "metadata", "projectName", "notifications", "pipelines" })
+@JsonPropertyOrder({"metadata", "projectName", "notifications", "pipelines"})
 public class PipelineGroups {
 
 	public static final String LABEL_CREATED_TIME = "metadata.cts";
-	
+
 	@JsonProperty("metadata")
 	private Metadata metadata;
-	
+
 	@Id
 	@JsonProperty("projectName")
 	private String projectName;
-	
+
 	@JsonProperty("notifications")
 	private List<String> notifications = null;
-	
+
 	@JsonProperty("pipelines")
 	private List<Pipeline> pipelines = null;
-	
+
 	@JsonProperty("metadata")
 	public Metadata getMetadata() {
 		return metadata;
@@ -81,5 +81,4 @@ public class PipelineGroups {
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

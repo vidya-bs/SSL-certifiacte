@@ -18,8 +18,8 @@ public class ServerDiff {
 	List<ChangedServer> changed = new ArrayList<ChangedServer>();
 
 	public ServerDiff diff(List<Server> oldServers, List<Server> newServers) {
-		
-		if(Objects.isNull(oldServers) && Objects.isNull(newServers)) {
+
+		if (Objects.isNull(oldServers) && Objects.isNull(newServers)) {
 			return null;
 		}
 
@@ -32,7 +32,7 @@ public class ServerDiff {
 			this.missing.addAll(oldServers);
 			return this;
 		}
-		
+
 		if ((oldServers.isEmpty() && newServers.isEmpty())
 				|| (Objects.isNull(oldServers) && Objects.isNull(newServers))) {
 			return null;
@@ -114,5 +114,4 @@ public class ServerDiff {
 	public void setChanged(List<ChangedServer> changed) {
 		this.changed = changed;
 	}
-
 }

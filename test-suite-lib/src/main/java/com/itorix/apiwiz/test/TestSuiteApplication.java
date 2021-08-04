@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @PropertySource(value = "file:${config.properties}", ignoreResourceNotFound = true)
 public class TestSuiteApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(TestSuiteApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(TestSuiteApplication.class, args);
+    }
 }

@@ -8,11 +8,9 @@ public class BackUpRequest {
 	private String interval;
 
 	private String path;
-	
+
 	private String time;
-	
-	
-	
+
 	public String getPath() {
 		return path;
 	}
@@ -36,8 +34,4 @@ public class BackUpRequest {
 	public void setInterval(String interval) {
 		this.interval = interval;
 	}
-	
-	
-	
-	
 }

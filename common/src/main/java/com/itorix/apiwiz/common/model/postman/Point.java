@@ -14,67 +14,55 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Generated("org.jsonschema2pojo")
-@JsonPropertyOrder({
-"id",
-"results"
-})
+@JsonPropertyOrder({"id", "results"})
 public class Point {
 
-@JsonProperty("id")
-private String id;
-@JsonProperty("results")
-private List<Result> results = new ArrayList<Result>();
-@JsonIgnore
-private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	@JsonProperty("id")
+	private String id;
 
-/**
-* 
-* @return
-* The id
-*/
-@JsonProperty("id")
-public String getId() {
-return id;
-}
+	@JsonProperty("results")
+	private List<Result> results = new ArrayList<Result>();
 
-/**
-* 
-* @param id
-* The id
-*/
-@JsonProperty("id")
-public void setId(String id) {
-this.id = id;
-}
+	@JsonIgnore
+	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-/**
-* 
-* @return
-* The results
-*/
-@JsonProperty("results")
-public List<Result> getResults() {
-return results;
-}
+	/** @return The id */
+	@JsonProperty("id")
+	public String getId() {
+		return id;
+	}
 
-/**
-* 
-* @param results
-* The results
-*/
-@JsonProperty("results")
-public void setResults(List<Result> results) {
-this.results = results;
-}
+	/**
+	 * @param id
+	 *            The id
+	 */
+	@JsonProperty("id")
+	public void setId(String id) {
+		this.id = id;
+	}
 
-@JsonAnyGetter
-public Map<String, Object> getAdditionalProperties() {
-return this.additionalProperties;
-}
+	/** @return The results */
+	@JsonProperty("results")
+	public List<Result> getResults() {
+		return results;
+	}
 
-@JsonAnySetter
-public void setAdditionalProperty(String name, Object value) {
-this.additionalProperties.put(name, value);
-}
+	/**
+	 * @param results
+	 *            The results
+	 */
+	@JsonProperty("results")
+	public void setResults(List<Result> results) {
+		this.results = results;
+	}
 
+	@JsonAnyGetter
+	public Map<String, Object> getAdditionalProperties() {
+		return this.additionalProperties;
+	}
+
+	@JsonAnySetter
+	public void setAdditionalProperty(String name, Object value) {
+		this.additionalProperties.put(name, value);
+	}
 }

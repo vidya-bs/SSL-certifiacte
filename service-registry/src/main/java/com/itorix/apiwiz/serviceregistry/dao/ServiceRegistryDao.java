@@ -32,7 +32,6 @@ import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryList;
 import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryResponse;
 import com.mongodb.client.result.UpdateResult;
 
-
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -41,7 +40,7 @@ public class ServiceRegistryDao {
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
-	
+
 	@Autowired
 	private BaseRepository baseRepository;
 
@@ -76,14 +75,16 @@ public class ServiceRegistryDao {
 			return baseRepository.save(serviceRegistry);
 		} catch (DuplicateKeyException e) {
 			log.error("DuplicateKeyException entry found", e);
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ServiceRegistry-1001"), String.join(",", serviceRegistry.getName(),
-					serviceRegistry.getEnvironment())),"ServiceRegistry-1001");
+			throw new ItorixException(
+					String.format(ErrorCodes.errorMessage.get("ServiceRegistry-1001"),
+							String.join(",", serviceRegistry.getName(), serviceRegistry.getEnvironment())),
+					"ServiceRegistry-1001");
 		}
 	}
 
 	public void updateServiceRegistry(String serviceRegistryId, ServiceRegistryList serviceRegistry)
 			throws ItorixException {
-		UserSession userSession  = UserSession.getCurrentSessionToken();
+		UserSession userSession = UserSession.getCurrentSessionToken();
 		String userId = userSession.getUserId();
 		String username = userSession.getUsername();
 		serviceRegistry.setModifiedBy(userId);
@@ -98,20 +99,22 @@ public class ServiceRegistryDao {
 	}
 
 	public List<ServiceRegistry> getServiceRegistryEntries(String serviceRegistryId) {
-		return mongoTemplate.find( new Query(Criteria.where("serviceRegistryId").is(serviceRegistryId)), ServiceRegistry.class);
+		return mongoTemplate.find(new Query(Criteria.where("serviceRegistryId").is(serviceRegistryId)),
+				ServiceRegistry.class);
 	}
 
-	public void updateServiceRegistryEntry( String serviceRegistryId,
-			String rowId, Map<String, String> data) throws ItorixException {
+	public void updateServiceRegistryEntry(String serviceRegistryId, String rowId, Map<String, String> data)
+			throws ItorixException {
 		Query query = new Query(Criteria.where("id").is(rowId));
 		Update update = new Update();
 		update.set("data", data);
-		if(!mongoTemplate.updateFirst(query, update, ServiceRegistry.class).isModifiedCountAvailable())
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ServiceRegistry-1000"),rowId),"ServiceRegistry-1000");
+		if (!mongoTemplate.updateFirst(query, update, ServiceRegistry.class).isModifiedCountAvailable())
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ServiceRegistry-1000"), rowId),
+					"ServiceRegistry-1000");
 	}
 
-	public ServiceRegistry createServiceRegistryEntry(String serviceRegistryId,
-			Map<String, String> entryies) throws ItorixException {
+	public ServiceRegistry createServiceRegistryEntry(String serviceRegistryId, Map<String, String> entryies)
+			throws ItorixException {
 		List<Criteria> criteriaList = new ArrayList<>();
 		criteriaList.add(Criteria.where("id").is(serviceRegistryId));
 		Query query = Query.query(new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()])));
@@ -122,7 +125,8 @@ public class ServiceRegistryDao {
 			serviceRegistry = mongoTemplate.save(serviceRegistry);
 			return serviceRegistry;
 		} else {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ServiceRegistry-1000"), String.join("," , serviceRegistryId)),"ServiceRegistry-1000");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ServiceRegistry-1000"),
+					String.join(",", serviceRegistryId)), "ServiceRegistry-1000");
 		}
 	}
 
@@ -137,21 +141,20 @@ public class ServiceRegistryDao {
 		if (criteriaList.isEmpty()) {
 			return mongoTemplate.findAll(ServiceRegistryList.class);
 		} else {
-			Query query = Query.query(new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()])));
+			Query query = Query
+					.query(new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()])));
 			return mongoTemplate.find(query, ServiceRegistryList.class);
 		}
 	}
-	
-	
+
 	public List<ServiceRegistryList> getServiceaRegistry() {
 		return mongoTemplate.findAll(ServiceRegistryList.class);
 	}
-	
-	
+
 	public ServiceRegistryResponse getServiceaRegistry(int offset, int pageSize) {
-		
-		Query query = new Query().with(Sort.by(Direction.DESC, "mts"))
-				.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+				.limit(pageSize);
 		ServiceRegistryResponse response = new ServiceRegistryResponse();
 		List<ServiceRegistryList> testSuites = mongoTemplate.find(query, ServiceRegistryList.class);
 		if (testSuites != null) {
@@ -163,15 +166,15 @@ public class ServiceRegistryDao {
 			response.setPagination(pagination);
 			response.setData(testSuites);
 		}
-		
+
 		return response;
 	}
 
 	public void deleteServiceRegistryEntry(String rowId) throws ItorixException {
 
-		if(mongoTemplate.remove(new Query(Criteria.where("_id").is(rowId)), ServiceRegistry.class).getDeletedCount() <= 0){
-			throw new ItorixException(
-					String.format(ErrorCodes.errorMessage.get("ServiceRegistry-1000"), rowId),
+		if (mongoTemplate.remove(new Query(Criteria.where("_id").is(rowId)), ServiceRegistry.class)
+				.getDeletedCount() <= 0) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ServiceRegistry-1000"), rowId),
 					"ServiceRegistry-1000");
 		}
 	}
@@ -181,23 +184,24 @@ public class ServiceRegistryDao {
 		Document dbDoc = new Document();
 		mongoTemplate.getConverter().write(t, dbDoc);
 		Update update = Update.fromDocument(dbDoc, "_id");
-		try{
+		try {
 			UpdateResult result = mongoTemplate.updateFirst(query, update, t.getClass());
 			if (!(result.getModifiedCount() > 0)) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ServiceRegistry-1000"),id),"ServiceRegistry-1000");
-			} 
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ServiceRegistry-1000"), id),
+						"ServiceRegistry-1000");
+			}
 		} catch (DuplicateKeyException e) {
 			log.error("DuplicateKeyException entry found", e);
-			throw new ItorixException(e.getMessage(),"ServiceRegistry-1002");	
+			throw new ItorixException(e.getMessage(), "ServiceRegistry-1002");
 		}
 	}
 
 	public ServiceRegistryList getServiceRegistryListById(String serviceRegistryId) throws ItorixException {
 		ServiceRegistryList registryList = mongoTemplate.findById(serviceRegistryId, ServiceRegistryList.class);
-		if(registryList == null){
+		if (registryList == null) {
 			throw new ItorixException(
 					String.format(ErrorCodes.errorMessage.get("ServiceRegistry-1000"), serviceRegistryId),
-					"ServiceRegistry-1000");	
+					"ServiceRegistry-1000");
 		}
 		return registryList;
 	}

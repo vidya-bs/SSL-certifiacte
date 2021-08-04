@@ -11,5 +11,4 @@ public class GenrateClientResponse {
 	public void setDownloadURL(String downloadURL) {
 		this.downloadURL = downloadURL;
 	}
-
 }

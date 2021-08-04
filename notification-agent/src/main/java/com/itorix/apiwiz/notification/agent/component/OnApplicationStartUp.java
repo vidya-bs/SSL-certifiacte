@@ -14,22 +14,22 @@ import com.itorix.apiwiz.notification.agent.db.NotificationExecutorEntity;
 @Component
 public class OnApplicationStartUp {
 
-	@Autowired
-	JdbcTemplate jdbcTemplate;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
-	@Autowired
-	NotificationAgentExecutorSQLDao executorSQLDao;
+    @Autowired
+    NotificationAgentExecutorSQLDao executorSQLDao;
 
-	@EventListener
-	public void onApplicationEvent(ContextRefreshedEvent event) {
+    @EventListener
+    public void onApplicationEvent(ContextRefreshedEvent event) {
 
-		String createTable = "CREATE TABLE IF NOT EXISTS " + NotificationExecutorEntity.TABLE_NAME
-				+ "  (id  INTEGER PRIMARY KEY," + "   type  TEXT," + " content TEXT," + "   status TEXT)";
+        String createTable = "CREATE TABLE IF NOT EXISTS " + NotificationExecutorEntity.TABLE_NAME
+                + "  (id  INTEGER PRIMARY KEY," + "   type  TEXT," + " content TEXT," + "   status TEXT)";
 
-		jdbcTemplate.execute(createTable);
+        jdbcTemplate.execute(createTable);
 
-		executorSQLDao.updateStatus(Arrays.asList(NotificationExecutorEntity.STATUSES.IN_PROGRESS.getValue()),
-				NotificationExecutorEntity.STATUSES.SCHEDULED.getValue());
-	}
+        executorSQLDao.updateStatus(Arrays.asList(NotificationExecutorEntity.STATUSES.IN_PROGRESS.getValue()),
+                NotificationExecutorEntity.STATUSES.SCHEDULED.getValue());
+    }
 
 }

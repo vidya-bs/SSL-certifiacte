@@ -1,6 +1,5 @@
 package com.itorix.apiwiz.common.util.zip;
 
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -20,7 +19,6 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 public class ZIPUtil {
 
 	public ZIPUtil() {
-
 	}
 
 	public static void main(String[] args) {
@@ -41,7 +39,7 @@ public class ZIPUtil {
 		ZipEntry entry = null;
 
 		while ((entry = (ZipArchiveEntry) ais.getNextEntry()) != null) {
-			try{
+			try {
 				if (entry.getName().endsWith("/")) {
 					File dir = new File(outputFolder + File.separator + entry.getName());
 					if (!dir.exists()) {
@@ -69,14 +67,12 @@ public class ZIPUtil {
 				}
 				out.close();
 
-			}catch(Exception ex){
+			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 		}
 		is.close();
-
 	}
-
 
 	public void unZipIt(String zipFile, String outputFolder) {
 
@@ -127,28 +123,27 @@ public class ZIPUtil {
 		}
 	}
 
-	public  List<File> getJsonFiles(String folder){
+	public List<File> getJsonFiles(String folder) {
 		List<File> files = new ArrayList<File>();
 		getFiles(folder, ".json", files);
 		getFiles(folder, ".yaml", files);
 		return files;
 	}
 
-	public void getFiles(String folder, String extension, List<File> files){
+	public void getFiles(String folder, String extension, List<File> files) {
 		File dir = new File(folder);
-		for(File file : dir.listFiles())
-			if(file.isDirectory())
+		for (File file : dir.listFiles())
+			if (file.isDirectory())
 				getFiles(file.getAbsolutePath(), extension, files);
-			else
-				if(getFileExtension(file).equals(extension))
-					files.add(file);
+			else if (getFileExtension(file).equals(extension))
+				files.add(file);
 	}
 
 	private String getFileExtension(File file) {
 		int lastIndexOf = file.getName().lastIndexOf(".");
-		if (lastIndexOf == -1) return ""; 
-		String ext  = file.getName().substring(lastIndexOf);
+		if (lastIndexOf == -1)
+			return "";
+		String ext = file.getName().substring(lastIndexOf);
 		return ext;
 	}
-
 }

@@ -117,5 +117,4 @@ public abstract class AbstractObject implements BaseObject {
 	public void setJsessionid(String jsessionid) {
 		this.jsessionid = jsessionid;
 	}
-
 }

@@ -19,42 +19,46 @@ import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.User;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
 
-
 @Service
-public interface OrganizationSchedulerBusiness  {
-
-	
+public interface OrganizationSchedulerBusiness {
 
 	/**
 	 * createOrganizationSchedule
+	 *
 	 * @param scheduleModel
+	 * 
 	 * @throws ItorixException
 	 */
-	public void createOrganizationSchedule(ScheduleModel scheduleModel) throws ItorixException ;
+	public void createOrganizationSchedule(ScheduleModel scheduleModel) throws ItorixException;
 
 	/**
 	 * updateOrganizationSchedule
+	 *
 	 * @param scheduleModel
+	 * 
 	 * @throws ItorixException
 	 */
 	public void updateOrganizationSchedule(ScheduleModel scheduleModel) throws ItorixException;
 
 	/**
 	 * deleteOrganizationSchedule
+	 *
 	 * @param scheduleModel
+	 * 
 	 * @throws ItorixException
 	 */
 	public void deleteOrganizationSchedule(ScheduleModel scheduleModel) throws ItorixException;
 
 	/**
 	 * getOrganizationSchedule
+	 *
 	 * @param interactionid
+	 * 
 	 * @return
+	 * 
 	 * @throws ItorixException
 	 */
-	public List<ScheduleModel> getOrganizationSchedule(String interactionid) throws ItorixException ;
-	
-	public String getUserId(String jsessionid) ;
+	public List<ScheduleModel> getOrganizationSchedule(String interactionid) throws ItorixException;
 
-
+	public String getUserId(String jsessionid);
 }

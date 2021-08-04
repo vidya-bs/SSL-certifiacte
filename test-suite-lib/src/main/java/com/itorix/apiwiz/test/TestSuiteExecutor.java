@@ -28,58 +28,61 @@ import com.itorix.apiwiz.test.executor.model.TenantContext;
 @EnableScheduling
 public class TestSuiteExecutor {
 
-	private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 5);
+    private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 5);
 
-	@Autowired
-	private TestSuiteExecutorDao dao;
+    @Autowired
+    private TestSuiteExecutorDao dao;
 
-	@Autowired
-	private TestSuitExecutorSQLDao sqlDao;
+    @Autowired
+    private TestSuitExecutorSQLDao sqlDao;
 
-	@Autowired
-	private TestRunner testRunner;
+    @Autowired
+    private TestRunner testRunner;
 
-	@Autowired
-	JdbcTemplate jdbcTemplate;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
-	@Value("${http.timeout}")
-	int globalTimeout;
+    @Value("${http.timeout}")
+    int globalTimeout;
 
-	@Scheduled(fixedRate = 15000)
-	public void fetchAndRunTestsuites() {
+    @Scheduled(fixedRate = 15000)
+    public void fetchAndRunTestsuites() {
 
-		int avlThreads = (Runtime.getRuntime().availableProcessors() * 5)
-				- ((ThreadPoolExecutor) executor).getActiveCount();
+        int avlThreads = (Runtime.getRuntime().availableProcessors() * 5)
+                - ((ThreadPoolExecutor) executor).getActiveCount();
 
-		List<TestExecutorEntity> executorEntities = sqlDao.getExecutorEntityByColumn("status",
-				TestExecutorEntity.STATUSES.SCHEDULED.getValue(), avlThreads);
+        List<TestExecutorEntity> executorEntities = sqlDao.getExecutorEntityByColumn("status",
+                TestExecutorEntity.STATUSES.SCHEDULED.getValue(), avlThreads);
 
-		for (TestExecutorEntity testExecutorEntity : executorEntities) {
-			TenantContext.setCurrentTenant(testExecutorEntity.getTenant());
-			ExecutionContext context = new ExecutionContext();
-			TestSuiteResponse testSuiteResponse = dao.getTestSuiteResponseById(testExecutorEntity.getTestSuiteExecutionId());
-			if(testSuiteResponse == null){
-				sqlDao.updateErrorDescription(testExecutorEntity.getId(),"could not find testSuiteResponse");
-				continue;
-			}
-			if(TestSuiteResponse.STATUSES.CANCELLED.getValue().equals(testSuiteResponse.getStatus())){
-				continue;
-			}
-			context.setTestSuiteResponse(testSuiteResponse);
-			context.setTestExecutorEntity(testExecutorEntity);
-			context.setTenant(testExecutorEntity.getTenant());
-			if(globalTimeout!=0){
-				context.setGlobalTimeout(globalTimeout);
-			}
-			testExecutorEntity.setStatus(TestExecutorEntity.STATUSES.IN_PROGRESS.getValue());
-			sqlDao.updateField(testExecutorEntity.getId(), "status", TestExecutorEntity.STATUSES.IN_PROGRESS.getValue());
-			try {
-				dao.updateTestSuiteStatus(testSuiteResponse.getId(), testSuiteResponse, TestSuiteResponse.STATUSES.IN_PROGRESS.getValue());
+        for (TestExecutorEntity testExecutorEntity : executorEntities) {
+            TenantContext.setCurrentTenant(testExecutorEntity.getTenant());
+            ExecutionContext context = new ExecutionContext();
+            TestSuiteResponse testSuiteResponse = dao
+                    .getTestSuiteResponseById(testExecutorEntity.getTestSuiteExecutionId());
+            if (testSuiteResponse == null) {
+                sqlDao.updateErrorDescription(testExecutorEntity.getId(), "could not find testSuiteResponse");
+                continue;
+            }
+            if (TestSuiteResponse.STATUSES.CANCELLED.getValue().equals(testSuiteResponse.getStatus())) {
+                continue;
+            }
+            context.setTestSuiteResponse(testSuiteResponse);
+            context.setTestExecutorEntity(testExecutorEntity);
+            context.setTenant(testExecutorEntity.getTenant());
+            if (globalTimeout != 0) {
+                context.setGlobalTimeout(globalTimeout);
+            }
+            testExecutorEntity.setStatus(TestExecutorEntity.STATUSES.IN_PROGRESS.getValue());
+            sqlDao.updateField(testExecutorEntity.getId(), "status",
+                    TestExecutorEntity.STATUSES.IN_PROGRESS.getValue());
+            try {
+                dao.updateTestSuiteStatus(testSuiteResponse.getId(), testSuiteResponse,
+                        TestSuiteResponse.STATUSES.IN_PROGRESS.getValue());
 
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			executor.execute(() -> testRunner.run(context));
-		}
-	}
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            executor.execute(() -> testRunner.run(context));
+        }
+    }
 }

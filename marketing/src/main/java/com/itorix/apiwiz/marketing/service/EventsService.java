@@ -18,81 +18,63 @@ import com.itorix.apiwiz.marketing.events.model.EventRegistration;
 @CrossOrigin
 @RestController
 public interface EventsService {
-	
-	@UnSecure(useUpdateKey=true)
-	@RequestMapping(method = RequestMethod.POST, value = "/v1/marketing/events", 
-			produces = {MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<?> createEvent(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID", required=false) String jsessionid,
-			@RequestHeader(value="x-apikey")String apikey,
-			@RequestParam(value = "image",required = false ) MultipartFile image,
-			@RequestParam("name") String name, 
-			@RequestParam("eventDate") String eventDate, 
-			@RequestParam("location") String location,
-			@RequestParam("category") String category, 
-			@RequestParam("summary") String summary,
-			@RequestParam("description") String description,
-			@RequestParam("bannerImage") String bannerImage) throws Exception;
-	
-	@UnSecure(useUpdateKey=true)
+
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/marketing/events", produces = {
+			MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<?> createEvent(@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "x-apikey") String apikey,
+			@RequestParam(value = "image", required = false) MultipartFile image, @RequestParam("name") String name,
+			@RequestParam("eventDate") String eventDate, @RequestParam("location") String location,
+			@RequestParam("category") String category, @RequestParam("summary") String summary,
+			@RequestParam("description") String description, @RequestParam("bannerImage") String bannerImage)
+			throws Exception;
+
+	@UnSecure(useUpdateKey = true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/marketing/events/{eventId}")
-	public ResponseEntity<?> updateEvent(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID", required=false) String jsessionid,
-			@RequestHeader(value="x-apikey")String apikey,
-			@RequestParam(value = "image",required = false ) MultipartFile image,
-			@RequestParam("name") String name, 
-			@RequestParam("eventDate") String eventDate, 
-			@RequestParam("location") String location,
-			@RequestParam("category") String category, 
-			@RequestParam("summary") String summary,
-			@RequestParam("description") String description,
-			@RequestParam("bannerImage") String bannerImage,
+	public ResponseEntity<?> updateEvent(@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "x-apikey") String apikey,
+			@RequestParam(value = "image", required = false) MultipartFile image, @RequestParam("name") String name,
+			@RequestParam("eventDate") String eventDate, @RequestParam("location") String location,
+			@RequestParam("category") String category, @RequestParam("summary") String summary,
+			@RequestParam("description") String description, @RequestParam("bannerImage") String bannerImage,
 			@PathVariable("eventId") String eventId) throws Exception;
-	
-	@UnSecure(ignoreValidation=true)
+
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/marketing/events")
 	public ResponseEntity<?> getAllEvents(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID", required=false) String jsessionid,
-			@RequestHeader(value="x-apikey")String apikey,
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "x-apikey") String apikey,
 			@RequestParam(value = "status", required = false) String status,
-			@RequestParam(value = "category", required = false) String category) throws Exception ;
-	
-	@UnSecure(ignoreValidation=true)
+			@RequestParam(value = "category", required = false) String category) throws Exception;
+
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/marketing/events/{eventId}")
-	public ResponseEntity<?> getEvent(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID", required=false) String jsessionid,
-			@RequestHeader(value="x-apikey")String apikey,
-			@PathVariable("eventId") String eventId)
-			throws Exception ;
-	
-	@UnSecure(useUpdateKey=true)
+	public ResponseEntity<?> getEvent(@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "x-apikey") String apikey, @PathVariable("eventId") String eventId) throws Exception;
+
+	@UnSecure(useUpdateKey = true)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/marketing/events/{eventId}")
-	public ResponseEntity<?> deleteEvent(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID", required=false) String jsessionid,
-			@RequestHeader(value="x-apikey")String apikey, 
-			@PathVariable("eventId") String eventId)throws Exception;
-	
-	@UnSecure(ignoreValidation=true)
+	public ResponseEntity<?> deleteEvent(@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "x-apikey") String apikey, @PathVariable("eventId") String eventId) throws Exception;
+
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/marketing/events-register/{eventId}")
 	public ResponseEntity<?> registerEvent(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID", required=false) String jsessionid,
-			@RequestHeader(value="x-apikey")String apikey,
-			@PathVariable("eventId") String eventId,
-			@RequestBody EventRegistration eventRegistration) throws Exception ;
-	
-	@UnSecure(ignoreValidation=true)
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "x-apikey") String apikey, @PathVariable("eventId") String eventId,
+			@RequestBody EventRegistration eventRegistration) throws Exception;
+
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/marketing/events-register/{eventId}")
 	public ResponseEntity<?> getEventRegistrations(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID", required=false) String jsessionid,
-			@RequestHeader(value="x-apikey")String apikey, 
-			@PathVariable("eventId") String eventId)
-			throws Exception ;
-	
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "x-apikey") String apikey, @PathVariable("eventId") String eventId) throws Exception;
 }

@@ -13,7 +13,7 @@ import org.jfrog.artifactory.client.Artifactory;
 import org.jfrog.artifactory.client.ArtifactoryClient;
 import org.jfrog.artifactory.client.model.LightweightRepository;
 import org.jfrog.artifactory.client.model.Repository;
-//import org.jfrog.artifactory.client.model.repository.settings.impl.GenericRepositorySettingsImpl;
+// import org.jfrog.artifactory.client.model.repository.settings.impl.GenericRepositorySettingsImpl;
 import static org.jfrog.artifactory.client.model.impl.RepositoryTypeImpl.LOCAL;
 
 import org.json.JSONArray;
@@ -29,7 +29,7 @@ import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import groovyx.net.http.HttpResponseException;
 
 @Component
-public class JfrogUtilImpl{
+public class JfrogUtilImpl {
 
 	private static final Logger log = LoggerFactory.getLogger(JfrogUtilImpl.class);
 
@@ -38,21 +38,20 @@ public class JfrogUtilImpl{
 
 	private String artifactoryHost;
 
-	private String artifactoryName ;
+	private String artifactoryName;
 
-	private String username ;
-	private String userpassword ;
-
+	private String username;
+	private String userpassword;
 
 	@PostConstruct
-	private void initValues(){
+	private void initValues() {
 		StringBuilder host = new StringBuilder();
 		host.append(applicationProperties.getJfrogHost());
 		System.out.println();
-		if(applicationProperties.getJfrogPort() != null && !applicationProperties.getJfrogPort().equals("0"))
+		if (applicationProperties.getJfrogPort() != null && !applicationProperties.getJfrogPort().equals("0"))
 			host.append(":" + applicationProperties.getJfrogPort());
 		host.append("/artifactory/");
-		
+
 		artifactoryHost = host.toString();
 		artifactoryName = applicationProperties.getArtifactoryName();
 		username = applicationProperties.getJfrogUserName();
@@ -63,7 +62,8 @@ public class JfrogUtilImpl{
 		JSONArray arr = new JSONArray();
 		JSONObject files_list = new JSONObject();
 		for (int i = 0; i < fileArr.length; i++) {
-			JSONObject obj = uploadFiles(fileArr[i], artifactoryName, artifactoryHost,artifactoryResourcePath, username, userpassword);
+			JSONObject obj = uploadFiles(fileArr[i], artifactoryName, artifactoryHost, artifactoryResourcePath,
+					username, userpassword);
 			arr.put(obj);
 		}
 		files_list.put("files", arr);
@@ -71,7 +71,8 @@ public class JfrogUtilImpl{
 	}
 
 	public JSONObject uploadFiles(String file, String artifactoryResourcePath) throws Exception {
-		JSONObject obj = uploadFiles(file, artifactoryName, artifactoryHost,artifactoryResourcePath, username, userpassword);
+		JSONObject obj = uploadFiles(file, artifactoryName, artifactoryHost, artifactoryResourcePath, username,
+				userpassword);
 		return obj;
 	}
 
@@ -80,7 +81,8 @@ public class JfrogUtilImpl{
 		JSONArray arr = new JSONArray();
 		JSONObject files_list = new JSONObject();
 		for (int i = 0; i < fileArr.length; i++) {
-			JSONObject obj = uploadFiles(fileArr[i], repoName, artifactoryHost,artifactoryResourcePath, username, password);
+			JSONObject obj = uploadFiles(fileArr[i], repoName, artifactoryHost, artifactoryResourcePath, username,
+					password);
 			arr.put(obj);
 		}
 		files_list.put("files", arr);
@@ -94,10 +96,10 @@ public class JfrogUtilImpl{
 
 			File files;
 			Artifactory artifactory = ArtifactoryClient.create(artifactoryHost, userName, password);
-			files= new File(file);
+			files = new File(file);
 			String newFilePath = artifactoryResourcePath + "/" + files.getName();
-			org.jfrog.artifactory.client.model.File result = artifactory.repository(repoName)
-					.upload(newFilePath, files).doUpload();
+			org.jfrog.artifactory.client.model.File result = artifactory.repository(repoName).upload(newFilePath, files)
+					.doUpload();
 			try {
 				obj.put("filename", result.getName());
 				obj.put("downloadURI", replaceHost(result.getDownloadUri()));
@@ -112,41 +114,40 @@ public class JfrogUtilImpl{
 		} catch (Exception e) {
 			e.printStackTrace();
 			obj.put("logtrail", "Unable to connect to artifactory");
-			throw(e);
+			throw (e);
 		}
-
 	}
 
-	private  String replaceHost(String URL){
-		try{
-			
+	private String replaceHost(String URL) {
+		try {
+
 			StringBuilder host = new StringBuilder();
 			host.append(applicationProperties.getJfrogHost());
-			if(applicationProperties.getJfrogPort() != null && !applicationProperties.getJfrogPort().equals("0"))
+			if (applicationProperties.getJfrogPort() != null && !applicationProperties.getJfrogPort().equals("0"))
 				host.append(":" + applicationProperties.getJfrogPort());
 			String[] tokens = URL.split("/");
-			//String newHost = applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort();
+			// String newHost = applicationProperties.getJfrogHost() + ":" +
+			// applicationProperties.getJfrogPort();
 			StringBuilder newUrl = new StringBuilder();
-			newUrl.append( host.toString() + "/");
-			for (int x=3; x<tokens.length; x++)
-				if(x==tokens.length-1)
+			newUrl.append(host.toString() + "/");
+			for (int x = 3; x < tokens.length; x++)
+				if (x == tokens.length - 1)
 					newUrl.append(tokens[x]);
 				else
 					newUrl.append(tokens[x] + "/");
 			return newUrl.toString();
-		}catch(Exception e){
+		} catch (Exception e) {
 			return URL;
 		}
 	}
 
-
 	public JSONObject uploadFiles(InputStream file, String artifactoryResourcePath) throws Exception {
 		JSONObject obj = new JSONObject();
-		System.out.println("artifactoryHost : "+ artifactoryHost);
-		System.out.println("artifactoryResourcePath : "+ artifactoryResourcePath);
-		System.out.println("artifactoryName : "+ artifactoryName);
-		
-		obj = uploadFiles(file, artifactoryName, artifactoryHost,artifactoryResourcePath, username, userpassword);
+		System.out.println("artifactoryHost : " + artifactoryHost);
+		System.out.println("artifactoryResourcePath : " + artifactoryResourcePath);
+		System.out.println("artifactoryName : " + artifactoryName);
+
+		obj = uploadFiles(file, artifactoryName, artifactoryHost, artifactoryResourcePath, username, userpassword);
 		return obj;
 	}
 
@@ -174,9 +175,8 @@ public class JfrogUtilImpl{
 			e.printStackTrace();
 			log.error("error while uploading file to jfrog", e);
 			obj.put("logtrail", "Unable to connect to artifactory");
-			throw(e);
+			throw (e);
 		}
-
 	}
 
 	public JSONObject deleteFile(String filePath) throws Exception {
@@ -188,7 +188,7 @@ public class JfrogUtilImpl{
 	public String deleteFileIgnore404(String filePath) throws Exception {
 		try {
 			Artifactory artifactory = ArtifactoryClient.create(artifactoryHost, username, userpassword);
-				return artifactory.repository(artifactoryName).delete(filePath);
+			return artifactory.repository(artifactoryName).delete(filePath);
 		} catch (Exception e) {
 			if (e instanceof HttpResponseException && ((HttpResponseException) e).getStatusCode() == 404) {
 				return null;
@@ -197,9 +197,8 @@ public class JfrogUtilImpl{
 		}
 	}
 
-
-	public JSONObject deleteFile(String filePath, String repoName, String artifactoryBasePath,
-			String userName, String password) throws Exception {
+	public JSONObject deleteFile(String filePath, String repoName, String artifactoryBasePath, String userName,
+			String password) throws Exception {
 		JSONObject obj = new JSONObject();
 		try {
 			Artifactory artifactory = ArtifactoryClient.create(artifactoryBasePath, userName, password);
@@ -213,36 +212,30 @@ public class JfrogUtilImpl{
 		} catch (Exception e) {
 			log.error("error while connecting  to jfrog", e);
 			obj.put("logtrail", "Unable to connect to artifactory");
-			throw(e);
+			throw (e);
 		}
 	}
 
 	private static String createNewRepository(Artifactory artifactory, String repoName) {
-		if (artifactory == null || StringUtils.isEmpty(repoName)){
+		if (artifactory == null || StringUtils.isEmpty(repoName)) {
 			throw new IllegalArgumentException("Arguments passed to createNewRepository are not valid");
 		}
 		List<LightweightRepository> repoList = artifactory.repositories().list(LOCAL);
-		Set<String> repoNamesList = repoList.stream()
-				.map(LightweightRepository::getKey)
-				.collect(Collectors.toSet());
+		Set<String> repoNamesList = repoList.stream().map(LightweightRepository::getKey).collect(Collectors.toSet());
 		String creationResult = null;
-		if ( repoNamesList != null && !(repoNamesList.contains(repoName)) ){
-			//		    GenericRepositorySettingsImpl settings = new GenericRepositorySettingsImpl();
-			Repository repository = artifactory.repositories()
-					.builders()
-					.localRepositoryBuilder()
-					.key(repoName)
+		if (repoNamesList != null && !(repoNamesList.contains(repoName))) {
+			// GenericRepositorySettingsImpl settings = new
+			// GenericRepositorySettingsImpl();
+			Repository repository = artifactory.repositories().builders().localRepositoryBuilder().key(repoName)
 					.description("new example local repository")
-					//		        .repositorySettings(settings)
+					// .repositorySettings(settings)
 					.build();
 			creationResult = artifactory.repositories().create(1, repository);
 		}
 		return creationResult;
 	}
 
-	private Map<String, String> getartifactoryDetails(String path){
+	private Map<String, String> getartifactoryDetails(String path) {
 		return null;
 	}
-
-
 }

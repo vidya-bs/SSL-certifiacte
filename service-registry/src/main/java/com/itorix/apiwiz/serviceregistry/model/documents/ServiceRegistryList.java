@@ -17,7 +17,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-//@CompoundIndex(def = "{'projectId':1, 'proxyName':1, 'serviceRegistryNames.name':1}", name = "service_registry_index", unique = true)
+// @CompoundIndex(def = "{'projectId':1, 'proxyName':1,
+// 'serviceRegistryNames.name':1}", name =
+// "service_registry_index", unique = true)
 public class ServiceRegistryList extends AbstractObject {
 	private String name;
 	private String environment;

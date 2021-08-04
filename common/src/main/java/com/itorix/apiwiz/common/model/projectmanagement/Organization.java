@@ -5,12 +5,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Organization {
 	private String name;
-	
+
 	private String type;
-	
+
 	private String env;
 
-	
 	public String getType() {
 		return type;
 	}
@@ -39,6 +38,7 @@ public class Organization {
 	public String toString() {
 		return "Organization [name=" + name + ", type=" + type + ", env=" + env + "]";
 	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -69,5 +69,4 @@ public class Organization {
 			return false;
 		return true;
 	}
-
 }

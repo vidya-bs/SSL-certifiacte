@@ -23,8 +23,7 @@ public class PropertyDiff {
 		missing = new ArrayList<ElProperty>();
 	}
 
-	public static PropertyDiff buildWithDefinition(Map<String, Model> left,
-			Map<String, Model> right) {
+	public static PropertyDiff buildWithDefinition(Map<String, Model> left, Map<String, Model> right) {
 		PropertyDiff diff = new PropertyDiff();
 		diff.oldDedinitions = left;
 		diff.newDedinitions = right;
@@ -35,9 +34,7 @@ public class PropertyDiff {
 		if ((null == left || left instanceof RefProperty) && (null == right || right instanceof RefProperty)) {
 			Model leftModel = null == left ? null : oldDedinitions.get(((RefProperty) left).getSimpleRef());
 			Model rightModel = null == right ? null : newDedinitions.get(((RefProperty) right).getSimpleRef());
-			ModelDiff diff = ModelDiff
-					.buildWithDefinition(oldDedinitions, newDedinitions)
-					.diff(leftModel, rightModel);
+			ModelDiff diff = ModelDiff.buildWithDefinition(oldDedinitions, newDedinitions).diff(leftModel, rightModel);
 			increased.addAll(diff.getIncreased());
 			missing.addAll(diff.getMissing());
 		}
@@ -59,5 +56,4 @@ public class PropertyDiff {
 	public void setMissing(List<ElProperty> missing) {
 		this.missing = missing;
 	}
-
 }

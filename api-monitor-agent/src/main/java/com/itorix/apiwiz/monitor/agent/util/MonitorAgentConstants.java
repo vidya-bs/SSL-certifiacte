@@ -2,7 +2,7 @@ package com.itorix.apiwiz.monitor.agent.util;
 
 public class MonitorAgentConstants {
 
-    private MonitorAgentConstants () throws IllegalAccessException {
+    private MonitorAgentConstants() throws IllegalAccessException {
         throw new IllegalAccessException();
     }
 

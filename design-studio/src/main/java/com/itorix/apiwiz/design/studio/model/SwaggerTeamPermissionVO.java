@@ -1,45 +1,38 @@
 package com.itorix.apiwiz.design.studio.model;
-public class SwaggerTeamPermissionVO
-{
-    private String name;
 
-    private String[] roles;
+public class SwaggerTeamPermissionVO {
+	private String name;
 
-    private String type;
+	private String[] roles;
 
-    public String getName ()
-    {
-        return name;
-    }
+	private String type;
 
-    public void setName (String name)
-    {
-        this.name = name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public String[] getRoles ()
-    {
-        return roles;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public void setRoles (String[] roles)
-    {
-        this.roles = roles;
-    }
+	public String[] getRoles() {
+		return roles;
+	}
 
-    public String getType ()
-    {
-        return type;
-    }
+	public void setRoles(String[] roles) {
+		this.roles = roles;
+	}
 
-    public void setType (String type)
-    {
-        this.type = type;
-    }
+	public String getType() {
+		return type;
+	}
 
-    @Override
-    public String toString()
-    {
-        return "ClassPojo [name = "+name+", roles = "+roles+", type = "+type+"]";
-    }
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	@Override
+	public String toString() {
+		return "ClassPojo [name = " + name + ", roles = " + roles + ", type = " + type + "]";
+	}
 }

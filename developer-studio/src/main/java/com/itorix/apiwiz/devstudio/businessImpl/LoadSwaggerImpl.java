@@ -28,40 +28,38 @@ import org.json.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sf.json.JSONSerializer;
 
-
-public class LoadSwaggerImpl implements LoadSwagger{
-
+public class LoadSwaggerImpl implements LoadSwagger {
 
 	@Override
-	public String loadProxySwaggerDetails(String  content, String oas)	throws JsonProcessingException, JSONException {
-		if(oas != null && oas.equals("3.0")){
+	public String loadProxySwaggerDetails(String content, String oas) throws JsonProcessingException, JSONException {
+		if (oas != null && oas.equals("3.0")) {
 			return loadProxySwagger3Details(content);
-		} else{
+		} else {
 			return loadProxySwagger2Details(content);
 		}
 	}
 
 	@Override
-	public String  loadTargetSwaggerDetails(String  content, String oas)	throws JsonProcessingException, JSONException {
-		if(oas != null && oas.equals("3.0")){
+	public String loadTargetSwaggerDetails(String content, String oas) throws JsonProcessingException, JSONException {
+		if (oas != null && oas.equals("3.0")) {
 			return loadTargetSwagger3Details(content);
-		} else{
+		} else {
 			return loadTargetSwagger2Details(content);
 		}
 	}
 
-	public String loadProxySwagger3Details(String  content)	throws JsonProcessingException, JSONException {
+	public String loadProxySwagger3Details(String content) throws JsonProcessingException, JSONException {
 		OpenAPI api = getOpenAPI(content);
 		String basePath = null;
 		String name = null;
 		String version = null;
 		Proxy proxy = new Proxy();
-		if(api.getInfo()!= null){
+		if (api.getInfo() != null) {
 			name = api.getInfo().getTitle();
 			version = api.getInfo().getVersion();
 		}
-		if(api.getServers() != null)
-			basePath= api.getServers().get(0).getUrl();
+		if (api.getServers() != null)
+			basePath = api.getServers().get(0).getUrl();
 		proxy.setBasePath(basePath);
 		proxy.setName(name);
 		proxy.setDescription(name);
@@ -71,18 +69,18 @@ public class LoadSwaggerImpl implements LoadSwagger{
 		List<Flow> flowList = new ArrayList<Flow>();
 		Paths paths = api.getPaths();
 		Set<Map.Entry<String, PathItem>> pathSet = paths.entrySet();
-		for (Map.Entry<String, PathItem> pathItem :pathSet){
+		for (Map.Entry<String, PathItem> pathItem : pathSet) {
 			PathItem item = pathItem.getValue();
 			String path = pathItem.getKey();
 			List<Flow> pathFlows = getFlows(item, path);
-			if(pathFlows != null){
-				for(Flow flow : pathFlows){
+			if (pathFlows != null) {
+				for (Flow flow : pathFlows) {
 					flowList.add(flow);
 				}
 			}
 		}
-		Flow flowsArray[] = new Flow[flowList.size()];              
-		for(int i =0;i<flowList.size();i++){
+		Flow flowsArray[] = new Flow[flowList.size()];
+		for (int i = 0; i < flowList.size(); i++) {
 			flowsArray[i] = flowList.get(i);
 		}
 		flows.setFlow(flowsArray);
@@ -90,69 +88,67 @@ public class LoadSwaggerImpl implements LoadSwagger{
 		return mapper.writeValueAsString(proxy).toString();
 	}
 
-
-
-	private List<Flow> getFlows(PathItem item, String path ){
+	private List<Flow> getFlows(PathItem item, String path) {
 		List<Flow> flowList = new ArrayList<Flow>();
 		Operation get = item.getGet();
 		Operation put = item.getPut();
 		Operation post = item.getPost();
 		Operation delete = item.getDelete();
 		Operation patch = item.getPatch();
-		if(get != null){
+		if (get != null) {
 			Flow flow = new Flow();
 			get.getOperationId();
 			flow.setName(get.getOperationId());
 			flow.setPath(path);
 			flow.setVerb("GET");
 			flow.setDescription(get.getSummary());
-			if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
-			flowList.add(flow);
+			if (!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
+				flowList.add(flow);
 		}
-		if(put != null){
+		if (put != null) {
 			Flow flow = new Flow();
 			put.getOperationId();
 			flow.setName(put.getOperationId());
 			flow.setPath(path);
 			flow.setVerb("PUT");
 			flow.setDescription(put.getSummary());
-			if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
-			flowList.add(flow);
+			if (!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
+				flowList.add(flow);
 		}
-		if(post != null){
+		if (post != null) {
 			Flow flow = new Flow();
 			post.getOperationId();
 			flow.setName(post.getOperationId());
 			flow.setPath(path);
 			flow.setVerb("POST");
 			flow.setDescription(post.getSummary());
-			if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
-			flowList.add(flow);
+			if (!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
+				flowList.add(flow);
 		}
-		if(delete != null){
+		if (delete != null) {
 			Flow flow = new Flow();
 			delete.getOperationId();
 			flow.setName(delete.getOperationId());
 			flow.setPath(path);
 			flow.setVerb("DELETE");
 			flow.setDescription(delete.getSummary());
-			if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
-			flowList.add(flow);
+			if (!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
+				flowList.add(flow);
 		}
-		if(patch != null){
+		if (patch != null) {
 			Flow flow = new Flow();
 			patch.getOperationId();
 			flow.setName(patch.getOperationId());
 			flow.setPath(path);
 			flow.setVerb("PATCH");
 			flow.setDescription(delete.getSummary());
-			if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
-			flowList.add(flow);
+			if (!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
+				flowList.add(flow);
 		}
 		return flowList;
 	}
 
-	private  OpenAPI getOpenAPI(String swagger){
+	private OpenAPI getOpenAPI(String swagger) {
 		ParseOptions options = new ParseOptions();
 		options.setResolve(true);
 		options.setResolveCombinators(false);
@@ -161,7 +157,7 @@ public class LoadSwaggerImpl implements LoadSwagger{
 	}
 
 	@SuppressWarnings("unchecked")
-	public String loadProxySwagger2Details(String  content)	throws JsonProcessingException, JSONException {
+	public String loadProxySwagger2Details(String content) throws JsonProcessingException, JSONException {
 		net.sf.json.JSONObject jsonObject = (net.sf.json.JSONObject) JSONSerializer.toJSON(content);
 		String basePath = (String) jsonObject.get("basePath");
 		JSONObject nameJson = new JSONObject(jsonObject.get("info").toString());
@@ -176,8 +172,9 @@ public class LoadSwaggerImpl implements LoadSwagger{
 		proxy.setFlows(flows);
 		proxy.setVersion(getVersion(version));
 		List<Flow> flowList = new ArrayList<Flow>();
-		if(null != jsonObject.get("paths")){
-			net.sf.json.JSONObject paths = (net.sf.json.JSONObject) JSONSerializer.toJSON(jsonObject.get("paths").toString());
+		if (null != jsonObject.get("paths")) {
+			net.sf.json.JSONObject paths = (net.sf.json.JSONObject) JSONSerializer
+					.toJSON(jsonObject.get("paths").toString());
 			Set<Map.Entry<String, JSONObject>> set = paths.entrySet();
 			Iterator<Map.Entry<String, JSONObject>> iterator = set.iterator();
 			String path = null;
@@ -185,36 +182,38 @@ public class LoadSwaggerImpl implements LoadSwagger{
 				Map.Entry<String, JSONObject> entry = iterator.next();
 				path = entry.getKey();
 				net.sf.json.JSONObject operation = (net.sf.json.JSONObject) JSONSerializer.toJSON(entry.getValue());
-				for(Object obj : operation.keySet()){
-					String methodType = (String)obj; 
+				for (Object obj : operation.keySet()) {
+					String methodType = (String) obj;
 					Object operationJsonValue = operation.get(methodType);
-					if(!operationJsonValue.equals(null))
-					{
+					if (!operationJsonValue.equals(null)) {
 						Flow flow = new Flow();
-						//flowList.add(flow);
-						try{
-							net.sf.json.JSONObject js = (net.sf.json.JSONObject)operationJsonValue;
-							try{
-								flow.setName((js.get("operationId").toString()).replaceAll("\\s",""));
-							}catch(Exception e){}
+						// flowList.add(flow);
+						try {
+							net.sf.json.JSONObject js = (net.sf.json.JSONObject) operationJsonValue;
+							try {
+								flow.setName((js.get("operationId").toString()).replaceAll("\\s", ""));
+							} catch (Exception e) {
+							}
 							flow.setPath(path);
 							flow.setVerb(methodType.toUpperCase());
-							String summary =null;
-							try{
+							String summary = null;
+							try {
 								summary = js.get("summary").toString();
-							}catch(Exception e){}
-							if(summary!=null)
+							} catch (Exception e) {
+							}
+							if (summary != null)
 								flow.setDescription(summary);
-						}catch(Exception e){}
-						if(flow.getPath() != null && flow.getVerb() != null)
-						if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
-							flowList.add(flow);
+						} catch (Exception e) {
+						}
+						if (flow.getPath() != null && flow.getVerb() != null)
+							if (!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
+								flowList.add(flow);
 					}
 				}
 			}
 		}
-		Flow flowsArray[] = new Flow[flowList.size()];              
-		for(int i =0;i<flowList.size();i++){
+		Flow flowsArray[] = new Flow[flowList.size()];
+		for (int i = 0; i < flowList.size(); i++) {
 			flowsArray[i] = flowList.get(i);
 		}
 		flows.setFlow(flowsArray);
@@ -222,16 +221,16 @@ public class LoadSwaggerImpl implements LoadSwagger{
 		return mapper.writeValueAsString(proxy).toString();
 	}
 
-	public String loadTargetSwagger3Details(String  content)	throws JsonProcessingException, JSONException {
+	public String loadTargetSwagger3Details(String content) throws JsonProcessingException, JSONException {
 		OpenAPI api = getOpenAPI(content);
 		String basePath = null;
 		String name = null;
 		Target proxy = new Target();
-		if(api.getInfo()!= null){
+		if (api.getInfo() != null) {
 			name = api.getInfo().getTitle();
 		}
-		if(api.getServers() != null)
-			basePath= api.getServers().get(0).getUrl();
+		if (api.getServers() != null)
+			basePath = api.getServers().get(0).getUrl();
 
 		proxy.setBasePath(basePath);
 		proxy.setName(name);
@@ -241,18 +240,18 @@ public class LoadSwaggerImpl implements LoadSwagger{
 		List<Flow> flowList = new ArrayList<Flow>();
 		Paths paths = api.getPaths();
 		Set<Map.Entry<String, PathItem>> pathSet = paths.entrySet();
-		for (Map.Entry<String, PathItem> pathItem :pathSet){
+		for (Map.Entry<String, PathItem> pathItem : pathSet) {
 			PathItem item = pathItem.getValue();
 			String path = pathItem.getKey();
 			List<Flow> pathFlows = getFlows(item, path);
-			if(pathFlows != null){
-				for(Flow flow : pathFlows){
+			if (pathFlows != null) {
+				for (Flow flow : pathFlows) {
 					flowList.add(flow);
 				}
 			}
 		}
-		Flow flowsArray[] = new Flow[flowList.size()];              
-		for(int i =0;i<flowList.size();i++){
+		Flow flowsArray[] = new Flow[flowList.size()];
+		for (int i = 0; i < flowList.size(); i++) {
 			flowsArray[i] = flowList.get(i);
 		}
 		flows.setFlow(flowsArray);
@@ -260,9 +259,8 @@ public class LoadSwaggerImpl implements LoadSwagger{
 		return mapper.writeValueAsString(proxy).toString();
 	}
 
-
 	@SuppressWarnings("unchecked")
-	public String loadTargetSwagger2Details(String  content)	throws JsonProcessingException, JSONException {
+	public String loadTargetSwagger2Details(String content) throws JsonProcessingException, JSONException {
 		net.sf.json.JSONObject jsonObject = (net.sf.json.JSONObject) JSONSerializer.toJSON(content);
 		String basePath = (String) jsonObject.get("basePath");
 		JSONObject nameJson = new JSONObject(jsonObject.get("info").toString());
@@ -274,8 +272,9 @@ public class LoadSwaggerImpl implements LoadSwagger{
 		Flows flows = new Flows();
 		proxy.setFlows(flows);
 		List<Flow> flowList = new ArrayList<Flow>();
-		if(null != jsonObject.get("paths")){
-			net.sf.json.JSONObject paths = (net.sf.json.JSONObject) JSONSerializer.toJSON(jsonObject.get("paths").toString());
+		if (null != jsonObject.get("paths")) {
+			net.sf.json.JSONObject paths = (net.sf.json.JSONObject) JSONSerializer
+					.toJSON(jsonObject.get("paths").toString());
 			Set<Map.Entry<String, JSONObject>> set = paths.entrySet();
 			Iterator<Map.Entry<String, JSONObject>> iterator = set.iterator();
 			String path = null;
@@ -283,38 +282,40 @@ public class LoadSwaggerImpl implements LoadSwagger{
 				Map.Entry<String, JSONObject> entry = iterator.next();
 				path = entry.getKey();
 				net.sf.json.JSONObject operation = (net.sf.json.JSONObject) JSONSerializer.toJSON(entry.getValue());
-				for(Object obj : operation.keySet()){
-					String methodType = (String)obj; 
+				for (Object obj : operation.keySet()) {
+					String methodType = (String) obj;
 					Object operationJsonValue = operation.get(methodType);
-					if(!operationJsonValue.equals(null))
-					{
+					if (!operationJsonValue.equals(null)) {
 						Flow flow = new Flow();
-						try{
-							net.sf.json.JSONObject js = (net.sf.json.JSONObject)operationJsonValue;
-							try{
-								flow.setName((js.get("operationId").toString()).replaceAll("\\s",""));
-							}catch(Exception e){}
+						try {
+							net.sf.json.JSONObject js = (net.sf.json.JSONObject) operationJsonValue;
+							try {
+								flow.setName((js.get("operationId").toString()).replaceAll("\\s", ""));
+							} catch (Exception e) {
+							}
 							flow.setPath(path);
 							flow.setVerb(methodType.toUpperCase());
-							String description =null;
-							try{
+							String description = null;
+							try {
 								description = js.get("summary").toString();
-							}catch (Exception e){
-								try{
-									description = js.get("operationId").toString().replaceAll("\\s","");
-								}catch(Exception ex){}
+							} catch (Exception e) {
+								try {
+									description = js.get("operationId").toString().replaceAll("\\s", "");
+								} catch (Exception ex) {
+								}
 							}
 							flow.setDescription(description);
-						}catch (Exception e){}
-						if(flow.getPath() != null && flow.getVerb() != null)
-						if(!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
-							flowList.add(flow);
+						} catch (Exception e) {
+						}
+						if (flow.getPath() != null && flow.getVerb() != null)
+							if (!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
+								flowList.add(flow);
 					}
 				}
 			}
 		}
-		Flow flowsArray[] = new Flow[flowList.size()];              
-		for(int i =0;i<flowList.size();i++){
+		Flow flowsArray[] = new Flow[flowList.size()];
+		for (int i = 0; i < flowList.size(); i++) {
 			flowsArray[i] = flowList.get(i);
 		}
 		flows.setFlow(flowsArray);
@@ -322,39 +323,34 @@ public class LoadSwaggerImpl implements LoadSwagger{
 		return mapper.writeValueAsString(proxy).toString();
 	}
 
-	private String getVersion(String version){
+	private String getVersion(String version) {
 		String proxyVersion = "v1";
 		System.out.println(version.length());
-		if(version.length()>=2 && version.length()<=5)
-		{
+		if (version.length() >= 2 && version.length() <= 5) {
 			Pattern regexPattern = Pattern.compile("[a-zA-z]\\d\\d?");
 			Matcher matcher = regexPattern.matcher(version);
-			if(matcher.find()){
+			if (matcher.find()) {
 				proxyVersion = version;
-			}
-			else{
+			} else {
 				regexPattern = Pattern.compile("\\d\\d?");
 				matcher = regexPattern.matcher(version);
-				if(matcher.find()){
-					proxyVersion = "v" +  version;
+				if (matcher.find()) {
+					proxyVersion = "v" + version;
 				}
 			}
-		}
-		else if(version.length()<=2){
+		} else if (version.length() <= 2) {
 			Pattern regexPattern = Pattern.compile("[a-zA-z]\\d?");
 			Matcher matcher = regexPattern.matcher(version);
-			if(matcher.find()){
+			if (matcher.find()) {
 				proxyVersion = version;
-			}
-			else {
+			} else {
 				regexPattern = Pattern.compile("\\d\\d?");
 				matcher = regexPattern.matcher(version);
-				if(matcher.find()){
-					proxyVersion = "v"+version;
+				if (matcher.find()) {
+					proxyVersion = "v" + version;
 				}
 			}
 		}
 		return proxyVersion;
 	}
-
 }

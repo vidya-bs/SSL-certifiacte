@@ -37,7 +37,7 @@ import com.mongodb.WriteResult;
 import com.mongodb.client.result.DeleteResult;
 
 @Service
-public class DictionaryBusinessImpl implements DictionaryBusiness{
+public class DictionaryBusinessImpl implements DictionaryBusiness {
 
 	private static final Logger logger = LoggerFactory.getLogger(DictionaryBusinessImpl.class);
 	@Autowired
@@ -47,13 +47,14 @@ public class DictionaryBusinessImpl implements DictionaryBusiness{
 
 	/**
 	 * log
-	 * 
+	 *
 	 * @param methodName
 	 * @param interactionid
 	 * @param body
 	 */
 	private void log(String methodName, String interactionid, Object... body) {
-		logger.debug("dataDictionary." + methodName + " | CorelationId=" + interactionid + " | request/response Body =" + body);
+		logger.debug("dataDictionary." + methodName + " | CorelationId=" + interactionid + " | request/response Body ="
+				+ body);
 	}
 
 	public PortfolioVO createPortfolio(PortfolioVO portfolioVO) {
@@ -70,15 +71,16 @@ public class DictionaryBusinessImpl implements DictionaryBusiness{
 
 	public PortfolioHistoryResponse findAllPortfolios(String interactionid, int offset, int paeSize) {
 		log("findPortfolio", interactionid);
-		Query query = new Query().with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * paeSize) : 0).limit(paeSize);
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * paeSize) : 0)
+				.limit(paeSize);
 		PortfolioHistoryResponse historyResponse = new PortfolioHistoryResponse();
-		List<PortfolioVO> portfolios =  mongoTemplate.find(query, PortfolioVO.class);
+		List<PortfolioVO> portfolios = mongoTemplate.find(query, PortfolioVO.class);
 		if (portfolios != null) {
-			for(PortfolioVO portfolio: portfolios){
+			for (PortfolioVO portfolio : portfolios) {
 				List<Object> strModels = new ArrayList<Object>();
 				List<PortfolioModel> dataModels = findPortfolioModelsByportfolioID(portfolio);
-				if(dataModels != null)
-					for(PortfolioModel model: dataModels ){
+				if (dataModels != null)
+					for (PortfolioModel model : dataModels) {
 						try {
 							String name = model.getModelName();
 							strModels.add(name);
@@ -88,7 +90,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness{
 					}
 				portfolio.setModels(strModels);
 			}
-			Long counter = mongoTemplate.count(new Query(),PortfolioVO.class);
+			Long counter = mongoTemplate.count(new Query(), PortfolioVO.class);
 			Pagination pagination = new Pagination();
 			pagination.setOffset(offset);
 			pagination.setTotal(counter);
@@ -99,17 +101,17 @@ public class DictionaryBusinessImpl implements DictionaryBusiness{
 		return historyResponse;
 	}
 
-	public List<PortfolioVO> findAllPortfolioSummary(String interactionid){
+	public List<PortfolioVO> findAllPortfolioSummary(String interactionid) {
 		log("findPortfolio", interactionid);
-		List<PortfolioVO> portfolios =  baseRepository.findAll(PortfolioVO.class);
-		if(portfolios != null){
-			for(PortfolioVO portfolio: portfolios){
+		List<PortfolioVO> portfolios = baseRepository.findAll(PortfolioVO.class);
+		if (portfolios != null) {
+			for (PortfolioVO portfolio : portfolios) {
 				portfolio.setDescription(null);
 				portfolio.setSummary(null);
 				List<Object> strModels = new ArrayList<Object>();
 				List<PortfolioModel> dataModels = findPortfolioModelsByportfolioID(portfolio);
-				if(dataModels != null)
-					for(PortfolioModel model: dataModels ){
+				if (dataModels != null)
+					for (PortfolioModel model : dataModels) {
 						try {
 							String name = model.getModelName();
 							strModels.add(name);
@@ -122,15 +124,15 @@ public class DictionaryBusinessImpl implements DictionaryBusiness{
 		}
 		return portfolios;
 	}
-	
+
 	public PortfolioVO getPortfolioById(PortfolioVO portfolioVO) {
 		log("findPortfolio", portfolioVO.getInteractionid(), portfolioVO);
-		PortfolioVO portfolio=  baseRepository.findById(portfolioVO.getId(), PortfolioVO.class);
+		PortfolioVO portfolio = baseRepository.findById(portfolioVO.getId(), PortfolioVO.class);
 		List<Object> strModels = new ArrayList<Object>();
 		List<PortfolioModel> dataModels = findPortfolioModelsByportfolioID(portfolio);
 		ObjectMapper mapper = new ObjectMapper();
-		if(dataModels != null)
-			for(PortfolioModel model: dataModels ){
+		if (dataModels != null)
+			for (PortfolioModel model : dataModels) {
 				try {
 					JsonNode jsonNode = mapper.readTree(model.getModel());
 					strModels.add(jsonNode);
@@ -155,19 +157,19 @@ public class DictionaryBusinessImpl implements DictionaryBusiness{
 
 	public PortfolioModel createPortfolioModel(PortfolioModel model) {
 		log("createPortfolioModel", model.getInteractionid(), model);
-		Query query = new Query(Criteria.where("modelName").is(model.getModelName()).and("portfolioID").is(model.getPortfolioID()));
+		Query query = new Query(
+				Criteria.where("modelName").is(model.getModelName()).and("portfolioID").is(model.getPortfolioID()));
 		Update update = new Update();
 		update.set("model", model.getModel());
 		mongoTemplate.upsert(query, update, PortfolioModel.class);
 		return model;
-
 	}
 
 	public List<PortfolioModel> findPortfolioModelsByportfolioID(PortfolioModel model) {
 		log("findAllPortfolioModels", model.getInteractionid());
 		return baseRepository.find("portfolioID", model.getPortfolioID(), PortfolioModel.class);
 	}
-	
+
 	public List<PortfolioModel> findPortfolioModelsByportfolioID(PortfolioVO model) {
 		log("findAllPortfolioModels", model.getInteractionid());
 		return baseRepository.find("portfolioID", model.getId(), PortfolioModel.class);
@@ -175,7 +177,8 @@ public class DictionaryBusinessImpl implements DictionaryBusiness{
 
 	public PortfolioModel findPortfolioModelsByportfolioIDAndModelName(PortfolioModel model) {
 		log("findAllPortfolioModels", model.getInteractionid());
-		return baseRepository.findOne("portfolioID", model.getPortfolioID(), "modelName", model.getModelName(),PortfolioModel.class);
+		return baseRepository.findOne("portfolioID", model.getPortfolioID(), "modelName", model.getModelName(),
+				PortfolioModel.class);
 	}
 
 	public DeleteResult deletePortfolioModelByportfolioIDAndModelName(PortfolioModel model) {
@@ -187,10 +190,9 @@ public class DictionaryBusinessImpl implements DictionaryBusiness{
 	@Override
 	public Object portfolioSearch(String interactionid, String name, int limit) throws ItorixException {
 		log("portfolioSearch", interactionid, "");
-		BasicQuery query = 
-				new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
+		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
 		query.limit(limit > 0 ? limit : 10);
-		List<PortfolioVO> allPortfolios = mongoTemplate.find(query,PortfolioVO.class);
+		List<PortfolioVO> allPortfolios = mongoTemplate.find(query, PortfolioVO.class);
 		ObjectNode portfolioList = new ObjectMapper().createObjectNode();
 		ArrayNode responseFields = new ObjectMapper().createArrayNode();
 		for (PortfolioVO vo : allPortfolios) {
