@@ -5,6 +5,7 @@ import com.google.crypto.tink.HybridDecrypt;
 import com.google.crypto.tink.JsonKeysetReader;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.hybrid.HybridConfig;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -15,6 +16,7 @@ import java.security.GeneralSecurityException;
 import java.util.Base64;
 
 @Component
+@ConditionalOnProperty(prefix = "license", name = "check", havingValue = "true")
 public class HybridDecryption {
 
 	KeysetHandle keysetHandle;

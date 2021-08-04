@@ -58,9 +58,9 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 
 	@Override
 	public void updateLicense(String emailId, LicenseRequest licenseRequest) throws ItorixException {
-		License license = licenseRepository.findOne("emailId", licenseRequest.getEmailId(), License.class);
+		License license = licenseRepository.findOne("emailId", emailId, License.class);
 		if(license == null ) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("License-1002"), licenseRequest.getEmailId()));
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("License-1002"), emailId), "License-1002");
 		}
 
 		updateLicenseObj(license, licenseRequest);
@@ -71,7 +71,7 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 	public void deleteLicense(String emailId) throws ItorixException {
 		License license = licenseRepository.findOne("emailId", emailId, License.class);
 		if(license == null ) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("License-1002"), emailId));
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("License-1002"), emailId), "License-1002");
 		}
 		license.setStatus(Status.TERMINATED);
 		licenseRepository.save(license);
@@ -81,7 +81,6 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 		license.setUserName(licenseRequest.getUserName());
 		license.setPassword(licenseRequest.getPassword());
 		license.setClientName(licenseRequest.getClientName());
-		license.setEmailId(licenseRequest.getEmailId());
 		license.setLicensePolicy(licenseRequest.getLicensePolicy());
 		license.setClientIp(licenseRequest.getClientIp());
 		license.setWorkspaceName(licenseRequest.getWorkspaceName());
