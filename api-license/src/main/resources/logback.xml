@@ -104,7 +104,7 @@
 		<level value="DEBUG" />
 		<appender-ref ref="FILE-DEBUG" />
 	</logger>
-	<root level="DEBUG">
+	<root level="DEBUG" name="com.itorix">
 		<!-- <level value="INFO" /> -->
 		<!-- <level value="ERROR" />  -->
 		<appender-ref ref="consoleAppender" />
