@@ -13,5 +13,4 @@ public class AsociateSwaggerPartnerRequest {
 		this.partnerId = partnerId;
 	}
 
-	
 }
