@@ -1,4 +1,4 @@
-package com.itorix.apiwiz;
+package com.itorix.apiwiz.validator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.validator.license.crypto.HybridDecryption;

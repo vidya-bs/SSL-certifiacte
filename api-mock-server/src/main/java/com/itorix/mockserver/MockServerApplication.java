@@ -1,7 +1,5 @@
 package com.itorix.mockserver;
 
-import java.util.Arrays;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +10,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-@ComponentScan("com.itorix.mockserver")
+import java.util.Arrays;
+
+@ComponentScan({"com.itorix.mockserver", "com.itorix.apiwiz.validator"})
 @EnableScheduling
 @SpringBootApplication
 @PropertySource(value = "file:${config.properties}", ignoreResourceNotFound = true)
