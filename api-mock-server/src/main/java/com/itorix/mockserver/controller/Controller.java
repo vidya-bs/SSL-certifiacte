@@ -1,22 +1,36 @@
 package com.itorix.mockserver.controller;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import brave.Tracer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
+import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator;
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
+import com.itorix.mockserver.common.model.MockLog;
+import com.itorix.mockserver.common.model.MockRequest;
+import com.itorix.mockserver.common.model.MockResponse;
+import com.itorix.mockserver.common.model.expectation.*;
+import com.itorix.mockserver.common.model.expectation.Body.Type;
+import com.itorix.mockserver.dao.MockServerDao;
+import com.itorix.mockserver.helper.MockValidator;
+import com.itorix.mockserver.logging.MockLogger;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.util.*;
+import org.springframework.web.bind.annotation.*;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -27,54 +41,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.sleuth.SpanAccessor;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
-import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator;
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
-import com.itorix.mockserver.common.model.MockLog;
-import com.itorix.mockserver.common.model.MockRequest;
-import com.itorix.mockserver.common.model.MockResponse;
-import com.itorix.mockserver.common.model.expectation.Body;
-import com.itorix.mockserver.common.model.expectation.Body.Type;
-import com.itorix.mockserver.common.model.expectation.Expectation;
-import com.itorix.mockserver.common.model.expectation.ExpectationResPathNotFound;
-import com.itorix.mockserver.common.model.expectation.ExpectationResponsePathFound;
-import com.itorix.mockserver.common.model.expectation.Variable;
-import com.itorix.mockserver.dao.MockServerDao;
-import com.itorix.mockserver.helper.MockValidator;
-import com.itorix.mockserver.logging.MockLogger;
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
-
-import lombok.extern.slf4j.Slf4j;
+import java.io.*;
+import java.util.*;
 
 @CrossOrigin
 @RestController
@@ -91,7 +59,7 @@ public class Controller {
     MockValidator mockValidator;
 
     @Autowired
-    private SpanAccessor spanAccessor;
+    private Tracer tracer;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -330,7 +298,7 @@ public class Controller {
             MockLog mockLog = new MockLog();
             mockLog.setClientIp(httpServletRequest.getRemoteAddr());
             mockLog.setPath(path);
-            mockLog.setTraceId(spanAccessor.getCurrentSpan().getTraceId());
+            mockLog.setTraceId(tracer.currentSpan().context().traceId());
 
             try {
                 if (matchedExpectation != null) {
