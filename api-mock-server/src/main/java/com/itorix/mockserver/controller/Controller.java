@@ -152,7 +152,7 @@ public class Controller {
             HttpServletResponse httpServletResponse,
             @RequestParam(required = false) MultiValueMap<String, String> requestParams,
             @PathVariable(required = false) String pathVariables,
-            @RequestBody(required = false) MultiValueMap<String, String> formParam,
+            @RequestBody MultiValueMap<String, String> formParam,
             @RequestHeader(required = false) MultiValueMap<String, String> headerVariables) {
         MultiValueMap<String, String> urlForms = null;
         if (!CollectionUtils.isEmpty(formParam)) {
