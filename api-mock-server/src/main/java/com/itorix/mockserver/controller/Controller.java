@@ -488,9 +488,7 @@ public class Controller {
         }
 
         expectationByPriority.addAll(exactMatch);
-        matches.forEach((k, v) -> {
-            expectationByPriority.addAll(v);
-        });
+        matches.forEach((k, v) -> expectationByPriority.addAll(v));
         expectationByPriority.addAll(expectations);
         return expectationByPriority;
     }
