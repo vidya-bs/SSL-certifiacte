@@ -277,9 +277,7 @@ public class Controller {
 
                 responseBody = fillTemplate(matchedExpectation.getResponse().getBody(), variableExtract);
 
-                matchedExpectation.getResponse().getHeaders().forEach((k, v) -> {
-                    responseHeaders.add(fillTemplate(k, variableExtract), fillTemplate(v, variableExtract));
-                });
+                matchedExpectation.getResponse().getHeaders().forEach((k, v) -> responseHeaders.add(fillTemplate(k, variableExtract), fillTemplate(v, variableExtract)));
 
                 if (StringUtils.hasText(matchedExpectation.getResponse().getCookies())) {
                     responseHeaders.add("Set-Cookie", matchedExpectation.getResponse().getCookies());
