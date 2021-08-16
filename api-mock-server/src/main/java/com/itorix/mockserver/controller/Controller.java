@@ -151,7 +151,6 @@ public class Controller {
     public ResponseEntity serviceURLEncode(HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse,
             @RequestParam(required = false) MultiValueMap<String, String> requestParams,
-            @PathVariable(required = false) String pathVariables,
             @RequestBody MultiValueMap<String, String> formParam,
             @RequestHeader(required = false) MultiValueMap<String, String> headerVariables) {
         MultiValueMap<String, String> urlForms = null;
@@ -171,7 +170,7 @@ public class Controller {
     @RequestMapping(value = "/**")
     public ResponseEntity service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
             @RequestParam(required = false) MultiValueMap<String, String> requestParams,
-            @RequestBody(required = false) String requestBody, @PathVariable(required = false) String pathVariables,
+            @RequestBody(required = false) String requestBody,
             @RequestHeader(required = false) MultiValueMap<String, String> headerVariables) {
 
         return validateRequest(httpServletRequest, requestParams, requestBody, headerVariables, null, null, null);
