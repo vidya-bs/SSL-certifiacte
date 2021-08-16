@@ -92,7 +92,7 @@ public class LicenseServiceImpl implements LicenseService {
 			@ApiResponse(code = 200, message = "{valid : true/false}"),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@GetMapping(value = "/v1/apiwiz/licenses/{emailId}/validate")
-	public ResponseEntity<Map<String, Boolean>> validate(@PathVariable String emailId){
+	public ResponseEntity<Map<String, Boolean>> validate(@PathVariable String emailId) throws ItorixException {
 		Map<String, Boolean> response = new HashMap<>();
 		boolean licenseValid = licenseBusiness.isLicenseValid(emailId);
 		response.put("valid", licenseValid);

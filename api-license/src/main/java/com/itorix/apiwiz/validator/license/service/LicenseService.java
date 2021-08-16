@@ -33,6 +33,6 @@ public interface LicenseService {
 			@RequestParam(value = "pagesize", defaultValue = "10", required = false) int pageSize);
 
 	@GetMapping(value = "/v1/apiwiz/licenses/{emailId}/validate")
-	public ResponseEntity<Map<String, Boolean>> validate(@PathVariable String emailId);
+	public ResponseEntity<Map<String, Boolean>> validate(@PathVariable String emailId) throws ItorixException;
 
 }
