@@ -1,17 +1,14 @@
 package com.itorix.mockserver.logging;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
-
-import javax.annotation.PostConstruct;
-
+import brave.Tracer;
+import brave.propagation.TraceContext;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.mockserver.common.model.MockLog;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.sleuth.SpanAccessor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -20,12 +17,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itorix.mockserver.common.model.MockLog;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.PostConstruct;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
 
 @Component
 @Slf4j
@@ -34,7 +32,7 @@ public class MockLogger {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
-    private SpanAccessor spanAccessor;
+    private Tracer tracer;
 
     @Value("${itorix.core.aws.admin.url:null}")
     private String awsURL;
@@ -107,12 +105,13 @@ public class MockLogger {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public Map getLogData(MockLog mockLog) {
+        TraceContext span = tracer.currentSpan().context();
         Map logMap = new HashMap();
         Date date = new Date();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         df.setTimeZone(TimeZone.getDefault());
         logMap.put("date", df.format(date));
-        logMap.put("guid", spanAccessor.getCurrentSpan().getTraceId());
+        logMap.put("guid", String.valueOf(Long.toHexString(span.traceId())));
         logMap.put("clientIp", mockLog.getClientIp());
         logMap.put("path", df.format(date));
         try {
