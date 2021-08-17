@@ -122,8 +122,15 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 	}
 
 	@Override
-	public boolean isLicenseValid(String emailId) {
+	public boolean isLicenseValid(String emailId) throws ItorixException {
 		License license = licenseRepository.findOne("emailId", emailId, License.class);
+		if(license != null ) {
+			license.setAuditCount(license.getAuditCount() + 1);
+			log.info("Incrementing audit count of license {} ", license.getEmailId());
+			licenseRepository.save(license);
+		} else {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("License-1002"), emailId), "License-1002");
+		}
 		try {
 			checkLicenseStatus(license.getStatus());
 			checkLicenseExpiry(license.getExpiry());

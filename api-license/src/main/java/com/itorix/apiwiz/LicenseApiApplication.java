@@ -14,7 +14,7 @@ public class LicenseApiApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(LicenseApiApplication.class, args);
-		log.info("License API started successfully");
+		log.info("License API started successfully.");
 	}
 
 

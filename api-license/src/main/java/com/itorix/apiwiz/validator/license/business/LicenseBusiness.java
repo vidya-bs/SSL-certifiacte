@@ -17,5 +17,5 @@ public interface LicenseBusiness {
 
 	public LicenseResponse getLicenses(int offset, int pageSize);
 
-	public boolean isLicenseValid(String emailId);
+	public boolean isLicenseValid(String emailId) throws ItorixException;
 }

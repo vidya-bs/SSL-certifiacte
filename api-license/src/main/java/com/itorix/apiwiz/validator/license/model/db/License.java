@@ -32,4 +32,6 @@ public class License {
 	private String createdUserName;
 	private String modifiedUserName;
 	private Long mts;
+	@JsonIgnore
+	private int auditCount;
 }
