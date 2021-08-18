@@ -78,7 +78,7 @@ public class Controller {
             @RequestParam(required = false) MultiValueMap<String, String> requestParams,
             @PathVariable(required = false) String pathVariables,
             @RequestHeader(required = false) MultiValueMap<String, String> headerVariables) {
-        MultiValueMap<String, String> formData = new LinkedMultiValueMap<String, String>();
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         Collection<Part> parts;
         try {
             parts = httpServletRequest.getParts();
@@ -106,7 +106,7 @@ public class Controller {
             return null;
         }
 
-        MultiValueMap<String, String> queryParamsForLog = new LinkedMultiValueMap<String, String>();
+        MultiValueMap<String, String> queryParamsForLog = new LinkedMultiValueMap<>();
         final String[] splitQuery = httpServletRequest.getQueryString().split("&");
         for (final String query : splitQuery) {
 
@@ -194,7 +194,6 @@ public class Controller {
             List<Criteria> listOfOr = new ArrayList<>();
             String[] pathSplit = Arrays.stream(path.split("/")).filter(s -> !StringUtils.isEmpty(s))
                     .toArray(String[]::new);
-            ;
 
             for (int i = 0; i < pathSplit.length; i++) {
                 if (StringUtils.isEmpty(pathSplit[i])) {
