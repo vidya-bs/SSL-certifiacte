@@ -1,16 +1,16 @@
 package com.itorix.mockserver.helper;
 
 import com.itorix.mockserver.common.model.expectation.*;
-import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 public class MockValidatorTest {
 
