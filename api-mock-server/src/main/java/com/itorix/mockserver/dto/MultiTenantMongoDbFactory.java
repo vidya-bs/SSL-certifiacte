@@ -1,11 +1,9 @@
 package com.itorix.mockserver.dto;
 
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
-
-public class MultiTenantMongoDbFactory extends SimpleMongoDbFactory {
+import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
+public class MultiTenantMongoDbFactory extends SimpleMongoClientDatabaseFactory {
 
 
 	public MultiTenantMongoDbFactory(MongoClient mongoClient, String databaseName) {
@@ -13,13 +11,13 @@ public class MultiTenantMongoDbFactory extends SimpleMongoDbFactory {
 	}
 
     @Override
-    public MongoDatabase getDb() throws DataAccessException {
-        if (ServiceRequestContextHolder.getContext().getTenentId() instanceof String) {
-            String tenant = ServiceRequestContextHolder.getContext().getTenentId();
-            if (tenant != null) {
-                return getDb(tenant);
-            }
-        }
-        return super.getDb();
-    }
+	public MongoDatabase getMongoDatabase() {
+		if (ServiceRequestContextHolder.getContext().getTenentId() instanceof String) {
+			String tenant = ServiceRequestContextHolder.getContext().getTenentId();
+			if (tenant != null) {
+				return getMongoDatabase(tenant);
+			}
+		}
+		return super.getMongoDatabase();
+	}
 }
