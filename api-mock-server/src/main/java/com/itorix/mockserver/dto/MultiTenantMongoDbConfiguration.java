@@ -10,8 +10,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 
-import java.net.UnknownHostException;
-
 
 
 @Configuration
@@ -27,23 +25,23 @@ public class MultiTenantMongoDbConfiguration {
 
 	@Primary
 	@Bean
-	public SimpleMongoClientDatabaseFactory multitenantFactory() throws UnknownHostException {
+	public SimpleMongoClientDatabaseFactory multitenantFactory() {
 		return new MultiTenantMongoDbFactory(createMongoClient(), properties.getDatabase());
 	}
 
 	@Primary
 	@Bean
-	public MongoTemplate mongoTemplate() throws Exception {
+	public MongoTemplate mongoTemplate() {
 		return new MongoTemplate(multitenantFactory());
 	}
 
 	@Bean(name = "masterMongoTemplate")
-	public MongoTemplate secondaryMongoTemplate() throws Exception {
+	public MongoTemplate secondaryMongoTemplate() {
 		return new MongoTemplate(masterFactory());
 	}
 
 	@Bean
-	public SimpleMongoClientDatabaseFactory masterFactory() throws Exception {
+	public SimpleMongoClientDatabaseFactory masterFactory() {
 		return new SimpleMongoClientDatabaseFactory(createMongoClient(), properties.getDatabase());
 	}
 
