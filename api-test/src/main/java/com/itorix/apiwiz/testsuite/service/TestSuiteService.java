@@ -1,39 +1,23 @@
 package com.itorix.apiwiz.testsuite.service;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.itorix.apiwiz.common.model.exception.ErrorObj;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.testsuite.model.*;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import net.sf.json.JSONException;
 import org.json.simple.parser.ParseException;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.itorix.apiwiz.common.model.exception.ErrorObj;
-import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.testsuite.model.MaskFields;
-import com.itorix.apiwiz.testsuite.model.Scenario;
-import com.itorix.apiwiz.testsuite.model.TestCase;
-import com.itorix.apiwiz.testsuite.model.TestSuite;
-import com.itorix.apiwiz.testsuite.model.TestSuiteResponse;
-import com.itorix.apiwiz.testsuite.model.TestSuiteSchedule;
-import com.itorix.apiwiz.testsuite.model.Variables;
-
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import net.sf.json.JSONException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @CrossOrigin
 @RestController
@@ -403,6 +387,15 @@ public interface TestSuiteService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid);
 
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/testsuites/maskFields/overview")
+	public ResponseEntity<?> getMaskingFieldsOverview(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "expand", required = false) String expand,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize);
+
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/testsuites/certificates/{name}")
 	public ResponseEntity<?> getCertificate(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -416,6 +409,16 @@ public interface TestSuiteService {
 			@RequestHeader HttpHeaders headers, @RequestParam(value = "names", required = false) String expand,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, HttpServletRequest request,
 			HttpServletResponse response) throws ItorixException;
+
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/testsuites/certificates/overview", produces = {
+			"application/json"})
+	public ResponseEntity<?> getCertificatesOverview(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "expand", required = false) String expand,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize);
 
 	@PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN', 'TEST') and hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/testsuites/certificates/{name}")

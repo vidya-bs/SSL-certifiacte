@@ -1,20 +1,17 @@
 package com.itorix.apiwiz.testsuite.serviceimpl;
 
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
+import com.itorix.apiwiz.common.model.exception.ErrorObj;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
+import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
+import com.itorix.apiwiz.identitymanagement.model.TenantContext;
+import com.itorix.apiwiz.identitymanagement.model.User;
+import com.itorix.apiwiz.testsuite.dao.TestSuiteDAO;
+import com.itorix.apiwiz.testsuite.model.*;
+import com.itorix.apiwiz.testsuite.service.TestSuiteService;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -30,46 +27,28 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.itorix.apiwiz.common.model.exception.ErrorCodes;
-import com.itorix.apiwiz.common.model.exception.ErrorObj;
-import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.properties.ApplicationProperties;
-import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
-import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
-import com.itorix.apiwiz.identitymanagement.model.TenantContext;
-import com.itorix.apiwiz.identitymanagement.model.User;
-import com.itorix.apiwiz.testsuite.dao.TestSuiteDAO;
-import com.itorix.apiwiz.testsuite.model.Certificates;
-import com.itorix.apiwiz.testsuite.model.CertificatesResponse;
-import com.itorix.apiwiz.testsuite.model.Header;
-import com.itorix.apiwiz.testsuite.model.MaskFields;
-import com.itorix.apiwiz.testsuite.model.Scenario;
-import com.itorix.apiwiz.testsuite.model.TestCase;
-import com.itorix.apiwiz.testsuite.model.TestSuite;
-import com.itorix.apiwiz.testsuite.model.TestSuiteResponse;
-import com.itorix.apiwiz.testsuite.model.TestSuiteSchedule;
-import com.itorix.apiwiz.testsuite.model.Variables;
-import com.itorix.apiwiz.testsuite.service.TestSuiteService;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -631,6 +610,21 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 	}
 
 	@Override
+	public ResponseEntity<?> getMaskingFieldsOverview(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "expand", required = false) String expand,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) {
+		MaskFieldsOverviewResponse response = dao.getAllMaskFields(offset, pageSize);
+		if (Boolean.parseBoolean(expand)) {
+			return new ResponseEntity<>(response.getMaskFields(), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		}
+	}
+
+	@Override
 	public ResponseEntity<?> deleteCertificate(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(value = "name") String name)
@@ -699,6 +693,22 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 					HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(certificates, HttpStatus.OK);
+		}
+	}
+	@Override
+	public ResponseEntity<?> getCertificatesOverview(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "expand", required = false) String expand,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) {
+		CertificateOverviewResponse response = dao.getAllCertificates(offset, pageSize);
+		if (Boolean.parseBoolean(expand)) {
+			return new ResponseEntity<>(
+					response.getCertificates().stream().map(s -> s.getName()).collect(Collectors.toList()),
+					HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 	}
 

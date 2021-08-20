@@ -1,42 +1,8 @@
 package com.itorix.apiwiz.apimonitor.serviceimpl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itorix.apiwiz.apimonitor.dao.ApiMonitorDAO;
-import com.itorix.apiwiz.apimonitor.model.Certificates;
-import com.itorix.apiwiz.apimonitor.model.CertificatesResponse;
-import com.itorix.apiwiz.apimonitor.model.Header;
-import com.itorix.apiwiz.apimonitor.model.Requests;
-import com.itorix.apiwiz.apimonitor.model.SchedulerResponse;
-import com.itorix.apiwiz.apimonitor.model.Variables;
+import com.itorix.apiwiz.apimonitor.model.*;
 import com.itorix.apiwiz.apimonitor.model.collection.APIMonitorResponse;
 import com.itorix.apiwiz.apimonitor.model.collection.MonitorCollections;
 import com.itorix.apiwiz.apimonitor.model.collection.Schedulers;
@@ -49,6 +15,25 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.User;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -226,6 +211,21 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 		}
 		return new ResponseEntity<>(variables, HttpStatus.OK);
 	}
+	@Override
+	public ResponseEntity<?> getVariablesOverview(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "expand", required = false) String expand,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) {
+		VariablesOverviewResponse response = apiMonitorDAO.getAllVariables(offset, pageSize);
+		if (Boolean.parseBoolean(expand)) {
+			return new ResponseEntity<>(
+					response.getVariables().stream().map(v -> v.getName()).collect(Collectors.toList()), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		}
+	}
 
 	@Override
 	public ResponseEntity<?> deleteCertificate(
@@ -292,6 +292,22 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 					HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(certificates, HttpStatus.OK);
+		}
+	}
+	@Override
+	public ResponseEntity<?> getCertificatesOverView(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "expand", required = false) String expand,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) {
+		CertificatesOverviewResponse response = apiMonitorDAO.getAllCertificates(offset, pageSize);
+		if (Boolean.parseBoolean(expand)) {
+			return new ResponseEntity<>(
+					response.getCertificates().stream().map(c -> c.getName()).collect(Collectors.toList()),
+					HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 	}
 

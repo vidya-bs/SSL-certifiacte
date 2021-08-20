@@ -1,31 +1,21 @@
 package com.itorix.apiwiz.apimonitor.service;
 
-import java.util.Date;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.core.io.Resource;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itorix.apiwiz.apimonitor.model.Variables;
 import com.itorix.apiwiz.apimonitor.model.collection.MonitorCollections;
 import com.itorix.apiwiz.apimonitor.model.request.MonitorRequest;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import org.springframework.core.io.Resource;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 
 @CrossOrigin
 @RestController
@@ -161,6 +151,16 @@ public interface ApiMonitorService {
 			HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, ItorixException;
 
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/monitor/variables/overview", produces = {
+			"application/json"})
+	public ResponseEntity<?> getVariablesOverview(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "expand", required = false) String expand,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize);
+
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/monitor/certificates/{name}")
 	public ResponseEntity<?> getCertificate(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -174,6 +174,16 @@ public interface ApiMonitorService {
 			@RequestHeader HttpHeaders headers, @RequestParam(value = "names", required = false) String expand,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, HttpServletRequest request,
 			HttpServletResponse response) throws ItorixException;
+
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/monitor/certificates/overview", produces = {
+			"application/json"})
+	public ResponseEntity<?> getCertificatesOverView(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "expand", required = false) String expand,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize);
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/monitor/certificates/{name}")

@@ -1,48 +1,9 @@
 package com.itorix.apiwiz.apimonitor.dao;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.bson.Document;
-import org.bson.types.ObjectId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.query.BasicQuery;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.itorix.apiwiz.apimonitor.model.Certificates;
-import com.itorix.apiwiz.apimonitor.model.MonitorCollectionsResponse;
-import com.itorix.apiwiz.apimonitor.model.NotificationDetails;
-import com.itorix.apiwiz.apimonitor.model.SummaryNotification;
-import com.itorix.apiwiz.apimonitor.model.Variables;
+import com.itorix.apiwiz.apimonitor.model.*;
 import com.itorix.apiwiz.apimonitor.model.collection.APIMonitorResponse;
 import com.itorix.apiwiz.apimonitor.model.collection.ExecutionResult;
 import com.itorix.apiwiz.apimonitor.model.collection.MonitorCollections;
@@ -67,7 +28,36 @@ import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.identitymanagement.model.User;
-import com.mongodb.MongoClient;
+import org.bson.Document;
+import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class ApiMonitorDAO {
@@ -869,5 +859,36 @@ public class ApiMonitorDAO {
 		}
 		notificationDetails.setAvgLatency(latencyInt);
 		notificationDetails.setAvgUptime(uptime);
+	}
+	public VariablesOverviewResponse getAllVariables(int offset, int pageSize) {
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+				.limit(pageSize);
+		List<Variables> variables = mongoTemplate.find(query, Variables.class);
+
+		VariablesOverviewResponse response = new VariablesOverviewResponse();
+		Pagination pagination = new Pagination();
+		pagination.setOffset(offset);
+		pagination.setPageSize(pageSize);
+		pagination.setTotal(Long.valueOf(variables.size()));
+		response.setPagination(pagination);
+		response.setVariables(variables);
+
+		return response;
+	}
+
+	public CertificatesOverviewResponse getAllCertificates(int offset, int pageSize) {
+		Query query = new Query().with(Sort.by(Direction.DESC, "cts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+				.limit(pageSize);
+		query.fields().exclude("content").exclude("password");
+
+		List<Certificates> certificates = mongoTemplate.find(query, Certificates.class);
+		CertificatesOverviewResponse response = new CertificatesOverviewResponse();
+		Pagination pagination = new Pagination();
+		pagination.setTotal(Long.valueOf(certificates.size()));
+		pagination.setOffset(offset);
+		pagination.setPageSize(pageSize);
+		response.setPagination(pagination);
+		response.setCertificates(certificates);
+		return response;
 	}
 }

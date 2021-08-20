@@ -1,44 +1,5 @@
 package com.itorix.apiwiz.testsuite.dao;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.json.JSONException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.BasicQuery;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.support.BasicAuthorizationInterceptor;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestTemplate;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -53,34 +14,42 @@ import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.User;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
-import com.itorix.apiwiz.testsuite.business.gocd.beans.Attributes;
-import com.itorix.apiwiz.testsuite.business.gocd.beans.Job;
-import com.itorix.apiwiz.testsuite.business.gocd.beans.Material;
-import com.itorix.apiwiz.testsuite.business.gocd.beans.Pipeline;
-import com.itorix.apiwiz.testsuite.business.gocd.beans.PipelineGroup;
-import com.itorix.apiwiz.testsuite.business.gocd.beans.Stage;
-import com.itorix.apiwiz.testsuite.business.gocd.beans.Task;
-import com.itorix.apiwiz.testsuite.model.Certificates;
-import com.itorix.apiwiz.testsuite.model.Dashboard;
-import com.itorix.apiwiz.testsuite.model.DashboardStats;
-import com.itorix.apiwiz.testsuite.model.DashboardSummary;
-import com.itorix.apiwiz.testsuite.model.Header;
-import com.itorix.apiwiz.testsuite.model.MaskFields;
-import com.itorix.apiwiz.testsuite.model.Pagination;
-import com.itorix.apiwiz.testsuite.model.Response;
-import com.itorix.apiwiz.testsuite.model.Scenario;
-import com.itorix.apiwiz.testsuite.model.ScenarioStats;
-import com.itorix.apiwiz.testsuite.model.Stats;
-import com.itorix.apiwiz.testsuite.model.TestCase;
-import com.itorix.apiwiz.testsuite.model.TestCaseStats;
-import com.itorix.apiwiz.testsuite.model.TestSuite;
-import com.itorix.apiwiz.testsuite.model.TestSuiteAnalysis;
-import com.itorix.apiwiz.testsuite.model.TestSuiteHistoryResponse;
-import com.itorix.apiwiz.testsuite.model.TestSuiteOverviewResponse;
-import com.itorix.apiwiz.testsuite.model.TestSuiteResponse;
-import com.itorix.apiwiz.testsuite.model.TestSuiteSchedule;
-import com.itorix.apiwiz.testsuite.model.TestSuiteStats;
-import com.itorix.apiwiz.testsuite.model.Variables;
+import com.itorix.apiwiz.testsuite.business.gocd.beans.*;
+import com.itorix.apiwiz.testsuite.model.*;
+import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.*;
+import org.springframework.http.client.support.BasicAuthorizationInterceptor;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @EnableScheduling
@@ -1304,5 +1273,34 @@ public class TestSuiteDAO {
 			return certificate.getContent();
 		}
 		return null;
+	}
+
+	public CertificateOverviewResponse getAllCertificates(int offset, int pageSize) {
+		Query query = new Query().with(Sort.by(Direction.DESC, "cts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+				.limit(pageSize);
+		query.fields().exclude("content").exclude("password");
+		List<Certificates> certificates = mongoTemplate.find(query, Certificates.class);
+		CertificateOverviewResponse response = new CertificateOverviewResponse();
+		Pagination pagination = new Pagination();
+		pagination.setPageSize(pageSize);
+		pagination.setOffset(offset);
+		pagination.setTotal(Long.valueOf(certificates.size()));
+		response.setCertificates(certificates);
+		response.setPagination(pagination);
+		return response;
+	}
+
+	public MaskFieldsOverviewResponse getAllMaskFields(int offset, int pageSize) {
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+				.limit(pageSize);
+		List<MaskFields> maskFields = mongoTemplate.find(query, MaskFields.class);
+		MaskFieldsOverviewResponse response = new MaskFieldsOverviewResponse();
+		Pagination pagination = new Pagination();
+		pagination.setPageSize(pageSize);
+		pagination.setOffset(offset);
+		pagination.setTotal(Long.valueOf(maskFields.size()));
+		response.setMaskFields(maskFields);
+		response.setPagination(pagination);
+		return response;
 	}
 }
