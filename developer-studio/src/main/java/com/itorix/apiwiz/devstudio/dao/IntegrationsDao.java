@@ -45,6 +45,18 @@ public class IntegrationsDao {
 		}
 	}
 
+	public void updateApicIntegratoin(Integration integration) {
+		List<Integration> dbIntegrationList = getIntegration(integration.getType());
+		if (dbIntegrationList != null && dbIntegrationList.size() > 0) {
+			Integration dbIntegration = dbIntegrationList.get(0);
+			if (integration.getType().equalsIgnoreCase("APIC"))
+				dbIntegration.setApicIntegration(integration.getApicIntegration());
+			baseRepository.save(dbIntegration);
+		} else {
+			baseRepository.save(integration);
+		}
+	}
+
 	public void removeIntegratoin(Integration integration) {
 		mongoTemplate.remove(integration);
 	}

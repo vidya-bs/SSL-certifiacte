@@ -1,5 +1,7 @@
 package com.itorix.apiwiz.devstudio.model;
 
+import com.itorix.apiwiz.common.model.proxystudio.Scm;
+
 public class PromoteSCM {
 
 	private Scm scm;

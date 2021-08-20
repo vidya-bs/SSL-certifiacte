@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.itorix.apiwiz.common.model.integrations.Integration;
+import com.itorix.apiwiz.common.model.integrations.apic.ApicIntegration;
 import com.itorix.apiwiz.common.model.integrations.git.GitIntegration;
 import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
 import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
+import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
 import com.itorix.apiwiz.devstudio.dao.IntegrationsDao;
 import com.itorix.apiwiz.devstudio.service.ProxyIntegrations;
 
@@ -127,7 +129,6 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 		String version = integrationsDao.getGoServerVersion(goCDIntegration);
 		goCDIntegration.setVersion(version);
 		integrationsDao.updateIntegratoin(integration);
-
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
@@ -136,4 +137,35 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 		integrationsDao.removeIntegratoin(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
+
+	@Override
+	public ResponseEntity<?> getWorkspaceIntegratons(String interactionid, String jsessionid) throws Exception {
+		return null;
+	}
+
+	@Override
+	public ResponseEntity<?> createWorkspaceIntegratons(String interactionid, String jsessionid,
+			WorkspaceIntegration workspaceIntegration) throws Exception {
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	public ResponseEntity<?> getApicIntegratons(String interactionid, String jsessionid) throws Exception {
+		List<Integration> dbIntegrationList = integrationsDao.getIntegration("APIC");
+		Integration integration = new Integration();
+		if (dbIntegrationList != null && dbIntegrationList.size() > 0)
+			integration = dbIntegrationList.get(0);
+		return new ResponseEntity<>(integration.getApicIntegration(), HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> createApicIntegratons(String interactionid, String jsessionid,
+			ApicIntegration apicIntegration) throws Exception {
+		Integration integration = new Integration();
+		integration.setType("APIC");
+		integration.setApicIntegration(apicIntegration);
+		integrationsDao.updateApicIntegratoin(integration);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
 }

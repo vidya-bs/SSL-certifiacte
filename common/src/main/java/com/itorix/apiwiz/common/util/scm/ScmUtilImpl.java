@@ -168,6 +168,7 @@ public class ScmUtilImpl {
 			// ResponseEntity<String> response =
 			restTemplate.exchange(hostUrl, HttpMethod.POST, requestEntity, String.class);
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ItorixException("unable to create repo ", "", e);
 		}
 	}

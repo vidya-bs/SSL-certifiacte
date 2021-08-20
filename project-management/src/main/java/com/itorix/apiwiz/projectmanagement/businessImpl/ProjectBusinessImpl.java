@@ -235,7 +235,7 @@ public class ProjectBusinessImpl {
 			endpoint.setEndpoint(registryEndpoint);
 			endpointsList.add(endpoint);
 		}
-		endpoints.setEndpoints(endpointsList);
+		// endpoints.setEndpoints(endpointsList);
 		try {
 			String value = new ObjectMapper().writeValueAsString(endpoints);
 			value = value.replaceAll("\"endpoints\"", "\"Endpoints\"").replaceAll("\"endpoint\"", "\"Endpoint\"");

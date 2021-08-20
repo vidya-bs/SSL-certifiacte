@@ -52,7 +52,8 @@ public class ProxyGenerator {
 	private String dstTargets = "";
 	private List<String> proxyNames = new ArrayList<String>();
 
-	private final List<String> allowedTemplateExt = Arrays.asList("ba", "oa", "2w");
+	// private final List<String> allowedTemplateExt =
+	// Arrays.asList("ba","oa","2w");
 
 	public void generateProxyCode(Folder proxyFolders, CodeGenHistory cg, String dir, Project project)
 			throws IOException, TemplateException {
@@ -65,10 +66,12 @@ public class ProxyGenerator {
 		processPolicies(templateDir + "/Common/policies", data);
 		processProxyEndpoint(templateDir + "/Proxy/proxies", data, basPath);
 		processProxy(templateDir + "/Proxy", data);
-		if (project.getProxyByName(proxyName).getWsdlFiles() != null)
-			copyWSDLFiles(project.getName(), project.getProxyByName(proxyName));
-		if (project.getProxyByName(proxyName).getXsdFiles() != null)
-			copyXSDFiles(project.getName(), project.getProxyByName(proxyName));
+
+		// if(project.getProxyByName(proxyName).getWsdlFiles()!=null)
+		// copyWSDLFiles(project.getName(), project.getProxyByName(proxyName));
+		// if(project.getProxyByName(proxyName).getXsdFiles()!=null)
+		// copyXSDFiles(project.getName(), project.getProxyByName(proxyName));
+
 		processTargetEndpoint(templateDir + "/Target/targets", data);
 	}
 
@@ -111,10 +114,11 @@ public class ProxyGenerator {
 				TrueFileFilter.INSTANCE);
 		for (File file : files) {
 			String extn = FilenameUtils.getExtension(file.getName());
+
 			if (extn.equalsIgnoreCase("ftl")) {
 				for (String path : basePath) {
-					String ext = getExtension(path);
-					if (ext.equals("") && emptyCounter > 0)
+					String ext = "_default";
+					if (emptyCounter > 0)
 						ext = "_default" + Integer.toString(emptyCounter);
 					if (!ext.equals("") || emptyCounter == 0) {
 						Template template;
@@ -124,7 +128,7 @@ public class ProxyGenerator {
 							proxyMap.put("name", proxyName + ext);
 							data.put("proxy", proxyMap);
 							template = getTemplateFromFile(file.getAbsolutePath());
-							String endPointFileName = proxyName + (ext.equals("") ? ext : "_" + ext) + "Proxy"
+							String endPointFileName = proxyName + (ext.equals("") ? ext : "" + ext) + "Proxy"
 									+ ProxyConfig.ENDPOINT_XML_SUFFIX;
 							proxyNames.add(FilenameUtils.getBaseName(endPointFileName));
 							String dstFileName = dstProxies + File.separatorChar + endPointFileName;
@@ -142,13 +146,6 @@ public class ProxyGenerator {
 				}
 			}
 		}
-	}
-
-	private String getExtension(String path) {
-		for (String token : allowedTemplateExt)
-			if (path.contains("/" + token + "/"))
-				return token;
-		return "";
 	}
 
 	private void processProxy(String proxyDir, Map<String, Object> data) {
@@ -170,10 +167,8 @@ public class ProxyGenerator {
 				dstFile.flush();
 				dstFile.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (TemplateException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

@@ -8,11 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.mail.MessagingException;
 
@@ -29,7 +26,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -54,10 +50,6 @@ import com.itorix.apiwiz.servicerequest.model.ServiceRequest;
 import com.itorix.apiwiz.servicerequest.model.ServiceRequestComments;
 import com.itorix.apiwiz.servicerequest.model.ServiceRequestHistoryResponse;
 import com.itorix.apiwiz.servicerequest.model.ServiceRequestTypes;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.WriteResult;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.result.UpdateResult;
@@ -86,7 +78,7 @@ public class ServiceRequestDao {
 	@Autowired
 	private BaseRepository baseRepository;
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "unused"})
 	public ServiceRequest createServiceRequest(ServiceRequest config) throws ItorixException {
 		try {
 
@@ -322,7 +314,7 @@ public class ServiceRequestDao {
 		return 0;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "unused"})
 	public boolean updateServiceRequest(ServiceRequest serviceRequest) throws ItorixException {
 		try {
 			Query query = null;
@@ -359,6 +351,7 @@ public class ServiceRequestDao {
 		}
 	}
 
+	@SuppressWarnings({"unchecked", "unused"})
 	public void revertServiceRequest(String requestId) throws ItorixException, MessagingException {
 
 		boolean isRevertApplicable = true;
@@ -411,6 +404,7 @@ public class ServiceRequestDao {
 	@SuppressWarnings("unchecked")
 	public boolean changeServiceRequestStatus(ServiceRequest config, User user)
 			throws ItorixException, MessagingException {
+		@SuppressWarnings("unused")
 		boolean isCreatedorUpdated = false;
 		List<ServiceRequest> serviceRequests = (ArrayList<ServiceRequest>) getAllActiveServiceRequests(config);
 		if (serviceRequests.size() > 0) {
@@ -435,7 +429,6 @@ public class ServiceRequestDao {
 						targetConfig.setKeyStore(serviceRequest.getKeyStore());
 						targetConfig.setEnabled(serviceRequest.isEnabled());
 						targetConfig.setName(serviceRequest.getName());
-
 						if (serviceRequest.getIsSaaS()) {
 							targetConfig.setType("saas");
 						} else {

@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.itorix.apiwiz.common.model.integrations.apic.ApicIntegration;
 import com.itorix.apiwiz.common.model.integrations.git.GitIntegration;
 import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
 import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
+import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
 
 @CrossOrigin
 @RestController
@@ -101,4 +103,27 @@ public interface ProxyIntegrations {
 	public ResponseEntity<?> removeGocdIntegraton(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id) throws Exception;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/workspace", produces = {"application/json"})
+	public ResponseEntity<?> getWorkspaceIntegratons(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/integrations/workspace", produces = {"application/json"})
+	public ResponseEntity<?> createWorkspaceIntegratons(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody WorkspaceIntegration workspaceIntegration) throws Exception;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/apic", produces = {"application/json"})
+	public ResponseEntity<?> getApicIntegratons(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/integrations/apic", produces = {"application/json"})
+	public ResponseEntity<?> createApicIntegratons(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody ApicIntegration apicIntegration)
+			throws Exception;
+
 }

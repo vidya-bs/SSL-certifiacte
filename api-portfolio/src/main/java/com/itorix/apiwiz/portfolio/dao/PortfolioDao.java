@@ -23,6 +23,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +32,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.SearchItem;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.projectmanagement.Organization;
+import com.itorix.apiwiz.common.model.projectmanagement.ProjectProxyResponse;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyPortfolio;
+import com.itorix.apiwiz.common.model.proxystudio.Scm;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
@@ -39,6 +44,7 @@ import com.itorix.apiwiz.identitymanagement.model.User;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.portfolio.model.PipelineResponse;
 import com.itorix.apiwiz.portfolio.model.PortfolioRequest;
+import com.itorix.apiwiz.portfolio.model.PromoteProxyRequest;
 import com.itorix.apiwiz.portfolio.model.db.Metadata;
 import com.itorix.apiwiz.portfolio.model.db.Portfolio;
 import com.itorix.apiwiz.portfolio.model.db.PortfolioDocument;
@@ -73,6 +79,9 @@ public class PortfolioDao {
 
 	@Autowired
 	private IdentityManagementDao identityManagementDao;
+
+	@Autowired
+	private ProxyUtils proxyUttils;
 
 	public String createPortfolio(PortfolioRequest portfolioRequest) throws ItorixException {
 		Portfolio portfolio = new Portfolio();
@@ -267,6 +276,7 @@ public class PortfolioDao {
 
 		List<Portfolio> portfolios = mongoTemplate.find(new Query().with(Sort.by(Direction.DESC, "mts"))
 				.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize), Portfolio.class);
+
 		if (!CollectionUtils.isEmpty(portfolios)) {
 			Long counter = mongoTemplate.count(new Query(), Portfolio.class);
 			Pagination pagination = new Pagination();
@@ -905,7 +915,6 @@ public class PortfolioDao {
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getMatchedCount() == 0) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1015"), "Portfolio-1015");
 		}
-
 		return pipeline.getId();
 	}
 
@@ -916,10 +925,9 @@ public class PortfolioDao {
 		Query query = new Query(new Criteria().andOperator(Criteria.where("id").is(id),
 				Criteria.where("projects").elemMatch(Criteria.where("id").is(projectId)),
 				Criteria.where("projects.proxies").elemMatch(Criteria.where("id").is(proxyId))));
-
 		Update update = new Update();
-
 		update.set("projects.$[project].proxies.$[proxy].apigeeConfig.pipelines.$[pipeline]", pipeline)
+
 				.filterArray("project._id", new ObjectId(projectId)).filterArray("proxy._id", new ObjectId(proxyId))
 				.filterArray("pipeline._id", new ObjectId(pipelineId));
 
@@ -966,7 +974,6 @@ public class PortfolioDao {
 
 	public void deletePipeline(String id, String projectId, String proxyId, String pipelineId, String jsessionid)
 			throws ItorixException {
-
 		Query query = new Query(new Criteria().andOperator(Criteria.where("id").is(id),
 				Criteria.where("projects").elemMatch(Criteria.where("id").is(projectId)),
 				Criteria.where("projects.proxies").elemMatch(Criteria.where("id").is(proxyId)),
@@ -976,19 +983,16 @@ public class PortfolioDao {
 		Update update = new Update();
 
 		Query queryPipeline = new Query(new Criteria().andOperator(Criteria.where("id").is(pipelineId)));
-
 		update.pull("projects.$[project].proxies.$[proxy].apigeeConfig.pipelines", queryPipeline)
 				.filterArray("project._id", new ObjectId(projectId)).filterArray("proxy._id", new ObjectId(proxyId));
 
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1015"), "Portfolio-1015");
 		}
-
 		update = new Update();
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
 		update.set("mts", System.currentTimeMillis());
 		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
-
 		mongoTemplate.updateFirst(query, update, Portfolio.class);
 	}
 
@@ -1015,4 +1019,58 @@ public class PortfolioDao {
 				portfolioId + "/" + projectId + "/proxy/" + System.currentTimeMillis() + "/" + originalFilename,
 				documentBytes, jsessionid);
 	}
+
+	public List<Portfolio> getProxyDetails(String proxyName) throws ItorixException {
+		Query query = new Query(new Criteria().andOperator(Criteria.where("projects.proxies.name").is(proxyName)));
+		query.fields().include("_id");
+		query.fields().include("name");
+		query.fields().include("projects._id");
+		query.fields().include("projects.name");
+		query.fields().include("projects.proxies._id");
+		query.fields().include("projects.proxies.name");
+		List<Portfolio> portfolio = mongoTemplate.find(query, Portfolio.class);
+		if (CollectionUtils.isEmpty(portfolio)) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1013"), "Portfolio-1013");
+		}
+		return portfolio;
+	}
+
+	public Portfolio getPortfolio(String portfolioId, String projectId, String proxyId) throws ItorixException {
+		Query query = new Query(new Criteria().andOperator(Criteria.where("id").is(portfolioId),
+				Criteria.where("projects").elemMatch(Criteria.where("id").is(projectId)),
+				Criteria.where("projects.proxies").elemMatch(Criteria.where("id").is(proxyId))));
+		Portfolio portfolio = mongoTemplate.findOne(query, Portfolio.class);
+		if (ObjectUtils.isEmpty(portfolio)) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1013"), "Portfolio-1013");
+		}
+		return portfolio;
+	}
+
+	public ProjectProxyResponse generateProxy(String portfolioId, String projectId, String proxyId, String jsessionId)
+			throws ItorixException {
+		Portfolio portfolio = getPortfolio(portfolioId, projectId, proxyId);
+		return proxyUttils.generateProxy(portfolio, projectId, proxyId, jsessionId);
+	}
+
+	public void releaseProxy(String portfolioId, String projectId, String proxyId, String releaseTag, String jsessionId)
+			throws ItorixException {
+		Portfolio portfolio = getPortfolio(portfolioId, projectId, proxyId);
+		proxyUttils.createRelease(portfolio, projectId, proxyId, releaseTag, jsessionId);
+	}
+
+	public void promoteProxy(PromoteProxyRequest promoteProxyRequest, String jsessionid) throws ItorixException {
+		ProxyPortfolio proxyPortfolio = promoteProxyRequest.getPortfolio();
+		Scm scm = promoteProxyRequest.getScm();
+		String portfolioId = proxyPortfolio.getId();
+		String projectId = proxyPortfolio.getProjects().get(0).getId();
+		String proxyId = proxyPortfolio.getProjects().get(0).getProxies().get(0).getId();
+		Portfolio portfolio = getPortfolio(portfolioId, projectId, proxyId);
+		proxyUttils.promoteProxy(proxyPortfolio, scm, portfolio, jsessionid);
+	}
+
+	public void publishRegistry(Organization organization, String proxyName, String registryId, String jsessionId)
+			throws ItorixException {
+		proxyUttils.createServiceConfig(organization, proxyName, registryId, jsessionId);
+	}
+
 }

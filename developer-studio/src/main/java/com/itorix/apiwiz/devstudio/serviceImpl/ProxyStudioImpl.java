@@ -1,12 +1,10 @@
 package com.itorix.apiwiz.devstudio.serviceImpl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -255,8 +253,14 @@ public class ProxyStudioImpl implements ProxyStudio {
 	@Override
 	public ResponseEntity<?> getCategories(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "swaggerid", required = false) String swaggerid,
+			@RequestParam(value = "revision", required = false, defaultValue = "1") int revision,
+			@RequestParam(value = "oas", required = false, defaultValue = "2.0") String oas,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+		if(null != swaggerid){
+			return new ResponseEntity<>(codeGenService.getCategories(swaggerid, revision, oas), HttpStatus.OK);
+		}
 		return new ResponseEntity<>(codeGenService.getCategories(), HttpStatus.OK);
 	}
 

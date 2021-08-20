@@ -19,6 +19,7 @@ public class CodeGenHistory {
 	private String dateCreated;
 
 	private ProxySCMDetails proxySCMDetails;
+	private ProxyPortfolio portfolio;
 
 	public String getScmURL() {
 		return scmURL;
@@ -116,5 +117,13 @@ public class CodeGenHistory {
 
 	public void setScmType(String scmType) {
 		this.scmType = scmType;
+	}
+
+	public ProxyPortfolio getPortfolio() {
+		return portfolio;
+	}
+
+	public void setPortfolio(ProxyPortfolio portfolio) {
+		this.portfolio = portfolio;
 	}
 }

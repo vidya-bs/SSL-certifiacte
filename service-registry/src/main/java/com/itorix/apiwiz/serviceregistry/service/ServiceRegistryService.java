@@ -1,5 +1,7 @@
 package com.itorix.apiwiz.serviceregistry.service;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -68,6 +70,12 @@ public interface ServiceRegistryService {
 			@PathVariable("service-registry-id") String serviceRegistryId, @RequestBody ServiceRegistry serviceRegistry)
 			throws ItorixException;
 
+	@PreAuthorize("hasAnyRole('ADMIN','OPERATION','DEVELOPER','TEST') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/service-registry/{service-registry-id}/addrows")
+	public ResponseEntity<?> createServiceRegistryEntries(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("service-registry-id") String serviceRegistryId,
+			@RequestBody List<ServiceRegistry> serviceRegistryList) throws ItorixException;
+
 	// https://itorix.atlassian.net/browse/IE-162
 	@PreAuthorize("hasAnyRole('ADMIN','OPERATION','DEVELOPER','TEST') and hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/service-registry/{service-registry-id}/rows/{row-id}")
@@ -89,10 +97,16 @@ public interface ServiceRegistryService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("service-registry-id") String serviceRegistryId) throws ItorixException;
 
+	@PreAuthorize("hasAnyRole('ADMIN','OPERATION','DEVELOPER','TEST') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/service-registry/{service-registry-id}/publish")
+	public ResponseEntity<?> publishServiceRegistry(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("service-registry-id") String serviceRegistryId) throws ItorixException;
+
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "v1/service-registry/search", produces = {"application/json"})
 	public ResponseEntity<Object> swaggerSearch(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam("name") String name,
 			@RequestParam("limit") int limit) throws ItorixException;
+
 }

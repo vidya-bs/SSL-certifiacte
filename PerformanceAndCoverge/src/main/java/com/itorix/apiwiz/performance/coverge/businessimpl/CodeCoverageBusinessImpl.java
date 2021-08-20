@@ -1254,6 +1254,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		String testSuiteResponseString;
 		try {
 			testSuiteResponseString = mapper.writeValueAsString(testSuiteResponse);
+			System.out.println(testSuiteResponseString);
 			com.itorix.apiwiz.testsuite.model.TestSuiteResponse testSuiteExecutionResponse = mapper
 					.readValue(testSuiteResponseString, com.itorix.apiwiz.testsuite.model.TestSuiteResponse.class);
 			testSuiteExecutionResponse.setCounter(String.valueOf(System.currentTimeMillis()));

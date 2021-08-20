@@ -248,6 +248,21 @@ public class MongoConnection {
 		return mongoTemplate.findDistinct("proxyName", ProxyData.class, String.class);
 	}
 
+	public ProxyData getProxyDetailsById(String id) {
+		try {
+			ProxyData dbProxyData;
+			Query query = new Query();
+			query.addCriteria(Criteria.where("_id").is(id));
+			dbProxyData = mongoTemplate.findOne(query, ProxyData.class);
+			return dbProxyData;
+
+		} catch (MongoException e) {
+			e.printStackTrace();
+			logger.error("MongoConnection::getProxyHistory " + e.getMessage());
+			throw e;
+		}
+	}
+
 	public ProxyData getProxyHistory(String proxyName) {
 		try {
 			ProxyData dbProxyData = mongoTemplate.findById(proxyName, ProxyData.class);

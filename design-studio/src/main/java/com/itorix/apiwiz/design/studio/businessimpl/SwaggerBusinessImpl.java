@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -111,6 +110,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	@Autowired
 	private ScmUtilImpl scmImpl;
 
+	@Autowired
+	private ApicUtil apicUtil;
+
 	/**
 	 * createSwagger
 	 *
@@ -125,6 +127,18 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		swaggerVO.setLock(false);
 		swaggerVO.setId(null);
 		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
+
+		try {
+			Swagger swagger = convertToSwagger(swaggerVO.getSwagger());
+			if (swagger.getVendorExtensions() != null
+					&& swagger.getVendorExtensions().get("x-EndpointExtension") != null) {
+				swaggerVO.setSwagger(apicUtil.getPolicyTemplates(swaggerVO.getSwagger()));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		SwaggerVO details = baseRepository.save(swaggerVO);
 		log("createSwagger", swaggerVO.getInteractionid(), details);
 		return details;

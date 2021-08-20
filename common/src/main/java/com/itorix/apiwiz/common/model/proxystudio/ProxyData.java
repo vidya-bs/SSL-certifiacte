@@ -28,6 +28,7 @@ public class ProxyData {
 	private ProxyApigeeDetails proxyApigeeDetails;
 	private ProxyArtifacts proxyArtifacts = new ProxyArtifacts();
 	private List<ProxyConnection> proxyConnections;
+	private ProxyPortfolio portfolio;
 
 	public String getId() {
 		return id;
@@ -133,4 +134,13 @@ public class ProxyData {
 	public void setProxyConnections(List<ProxyConnection> proxyConnections) {
 		this.proxyConnections = proxyConnections;
 	}
+
+	public ProxyPortfolio getPortfolio() {
+		return portfolio;
+	}
+
+	public void setPortfolio(ProxyPortfolio portfolio) {
+		this.portfolio = portfolio;
+	}
+
 }

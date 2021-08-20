@@ -43,6 +43,14 @@
 			<groupId>com.itorix</groupId>
 			<artifactId>test-executor</artifactId>
 			<version>0.0.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.data</groupId>
+					<artifactId>spring-data-commons-core</artifactId>
+					
+				</exclusion>
+				
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>xml-apis</groupId>

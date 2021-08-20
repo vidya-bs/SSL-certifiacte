@@ -7,6 +7,7 @@ import java.util.Map;
 import org.bson.Document;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -15,8 +16,13 @@ import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -24,8 +30,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.SearchItem;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.projectmanagement.Organization;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
+import com.itorix.apiwiz.serviceregistry.model.documents.Metadata;
 import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistry;
 import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryColumns;
 import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryList;
@@ -37,7 +45,10 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class ServiceRegistryDao {
-
+	@Value("${server.port}")
+	private String port;
+	@Value("${server.contextPath}")
+	private String context;
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
@@ -206,6 +217,40 @@ public class ServiceRegistryDao {
 		return registryList;
 	}
 
+	public void publishServiceRegistry(String serviceRegistryId, String jsessionid) throws ItorixException {
+		ServiceRegistryList registry = mongoTemplate.findOne(new Query(Criteria.where("_id").is(serviceRegistryId)),
+				ServiceRegistryList.class);
+		if (null != registry) {
+			List<Metadata> metadata = registry.getMetadata();
+			String proxyName = null;
+			String org = null;
+			String env = null;
+			String type = null;
+			try {
+				proxyName = metadata.stream().filter(r -> r.getKey().equalsIgnoreCase("proxy")).findFirst().get()
+						.getValue();
+				org = metadata.stream().filter(r -> r.getKey().equalsIgnoreCase("organization")).findFirst().get()
+						.getValue();
+				env = metadata.stream().filter(r -> r.getKey().equalsIgnoreCase("environment")).findFirst().get()
+						.getValue();
+				type = metadata.stream().filter(r -> r.getKey().equalsIgnoreCase("type")).findFirst().get().getValue();
+			} catch (Exception e) {
+			}
+			if (null != proxyName && null != org && null != env && null != type) {
+				Organization organization = new Organization();
+				organization.setEnv(env);
+				organization.setName(org);
+				organization.setType(type);
+				publish(organization, proxyName, serviceRegistryId, jsessionid);
+			}
+		} else {
+			log.error("no record found in Service Registry for %", serviceRegistryId);
+			throw new ItorixException(
+					String.format(ErrorCodes.errorMessage.get("ServiceRegistry-1000"), serviceRegistryId),
+					"ServiceRegistry-1000");
+		}
+	}
+
 	public Object search(String name, int limit) {
 		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
 		query.limit(limit > 0 ? limit : 10);
@@ -221,5 +266,25 @@ public class ServiceRegistryDao {
 		}
 		response.set("serviceRegistries", responseFields);
 		return response;
+	}
+
+	private void publish(Organization organization, String proxyName, String registryId, String jsessionId)
+			throws ItorixException {
+		try {
+			String hostUrl = "http://localhost:#port#/#context#/v1/portfolios/promote/registry/#registryId#/proxies/#proxyName#";
+			hostUrl = hostUrl.replaceAll("#port#", port);
+			hostUrl = hostUrl.replaceAll("#context#", context.replaceAll("/", ""));
+			hostUrl = hostUrl.replaceAll("#registryId#", registryId);
+			hostUrl = hostUrl.replaceAll("#proxyName#", proxyName);
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			headers.set("JSESSIONID", jsessionId);
+			RestTemplate restTemplate = new RestTemplate();
+			HttpEntity<Organization> requestEntity = new HttpEntity<>(organization, headers);
+			// ResponseEntity<String> response =
+			restTemplate.exchange(hostUrl, HttpMethod.POST, requestEntity, String.class);
+		} catch (Exception e) {
+			throw new ItorixException("error publishing regitry", "", e);
+		}
 	}
 }

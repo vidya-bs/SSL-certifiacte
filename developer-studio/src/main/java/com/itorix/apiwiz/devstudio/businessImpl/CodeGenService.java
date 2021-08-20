@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.crypto.NoSuchPaddingException;
+import javax.mail.MessagingException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -35,6 +37,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.zeroturnaround.zip.ZipUtil;
@@ -48,32 +51,32 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.SearchItem;
 import com.itorix.apiwiz.common.model.apigee.VirtualHost;
-import com.itorix.apiwiz.common.model.configmanagement.CacheConfig;
-import com.itorix.apiwiz.common.model.configmanagement.KVMConfig;
+import com.itorix.apiwiz.common.model.configmanagement.KVMEntry;
 import com.itorix.apiwiz.common.model.configmanagement.ServiceRequest;
-import com.itorix.apiwiz.common.model.configmanagement.TargetConfig;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.integrations.Integration;
 import com.itorix.apiwiz.common.model.integrations.git.GitIntegration;
 import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
+import com.itorix.apiwiz.common.model.projectmanagement.Organization;
 import com.itorix.apiwiz.common.model.projectmanagement.Project;
 import com.itorix.apiwiz.common.model.projectmanagement.ProxyConnection;
 import com.itorix.apiwiz.common.model.proxystudio.Category;
 import com.itorix.apiwiz.common.model.proxystudio.CodeGenHistory;
-import com.itorix.apiwiz.common.model.proxystudio.DepricateProxy;
 import com.itorix.apiwiz.common.model.proxystudio.Env;
 import com.itorix.apiwiz.common.model.proxystudio.Folder;
 import com.itorix.apiwiz.common.model.proxystudio.OrgEnv;
 import com.itorix.apiwiz.common.model.proxystudio.OrgEnvs;
+import com.itorix.apiwiz.common.model.proxystudio.PromoteProxyRequest;
 import com.itorix.apiwiz.common.model.proxystudio.Proxy;
 import com.itorix.apiwiz.common.model.proxystudio.ProxyArtifacts;
 import com.itorix.apiwiz.common.model.proxystudio.ProxyData;
 import com.itorix.apiwiz.common.model.proxystudio.ProxyEndpoint;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyPortfolio;
+import com.itorix.apiwiz.common.model.proxystudio.Scm;
 import com.itorix.apiwiz.common.model.proxystudio.Swagger3VO;
 import com.itorix.apiwiz.common.model.proxystudio.SwaggerVO;
 import com.itorix.apiwiz.common.model.proxystudio.Target;
 import com.itorix.apiwiz.common.model.proxystudio.apigeeassociations.Deployments;
-import com.itorix.apiwiz.common.model.proxystudio.apigeeassociations.ProxyApigeeDetails;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
@@ -86,26 +89,34 @@ import com.itorix.apiwiz.devstudio.business.LoadWSDL;
 import com.itorix.apiwiz.devstudio.dao.IntegrationsDao;
 import com.itorix.apiwiz.devstudio.dao.MongoConnection;
 import com.itorix.apiwiz.devstudio.model.Artifact;
-import com.itorix.apiwiz.devstudio.model.BuildProxy;
 import com.itorix.apiwiz.devstudio.model.Operations;
 import com.itorix.apiwiz.devstudio.model.PromoteSCM;
 import com.itorix.apiwiz.devstudio.model.ProxyGenResponse;
 import com.itorix.apiwiz.devstudio.model.ProxyHistoryResponse;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
+import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
+import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
+import com.itorix.apiwiz.identitymanagement.model.User;
+import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.performance.coverge.businessimpl.CodeCoverageBusinessImpl;
 import com.itorix.apiwiz.performance.coverge.businessimpl.PolicyPerformanceBusinessImpl;
 import com.itorix.apiwiz.performance.coverge.model.History;
-import com.mongodb.WriteResult;
+import com.itorix.apiwiz.servicerequest.dao.ServiceRequestDao;
 import com.mongodb.client.result.DeleteResult;
 
 import freemarker.template.TemplateException;
+import io.swagger.models.Swagger;
 import io.swagger.util.Json;
-import net.sf.json.JSONSerializer;
+import io.swagger.util.Yaml;
 
 @Component("codeGenService")
 public class CodeGenService {
 	@Value("${itorix.core.apigee.proxy.templates.base}")
 	private String proxyGeneration;
+	@Value("${server.port}")
+	private String port;
+	@Value("${server.contextPath}")
+	private String context;
 
 	@Autowired
 	ApigeeProxyGeneration apigeeProxyGen;
@@ -137,6 +148,10 @@ public class CodeGenService {
 	private IntegrationsDao integrationsDao;
 	@Autowired
 	private ApigeeUtil apigeeUtil;
+	@Autowired
+	private IdentityManagementDao identityManagementDao;
+	@Autowired
+	private ServiceRequestDao serviceRequestDao;
 
 	public String uploadTemplates(MultipartFile file) {
 		String zipLocation = applicationProperties.getTempDir() + "unzip";
@@ -218,18 +233,19 @@ public class CodeGenService {
 				if (codeGen.getTarget() != null)
 					targetGen.generateTargetCode(targetFolder, codeGen, dir);
 			}
+			String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName() + "_"
+					+ codeGen.getProxy().getVersion() + "/apiproxy";
+			CleanUnused.clean(proxyDir + File.separatorChar);
+			proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
+			ZipUtil.pack(new File(dir), new File(operations.getDir() + time + ".zip"));
 		} else {
 			String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName() + "/apiproxy";
 			codeGen.setProjectName(project.getName());
 			proxyGenerator.generateProxyCode(null, codeGen, proxyDir, project);
 			CleanUnused.clean(proxyDir + File.separatorChar);
 			proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
+			ZipUtil.pack(new File(dir), new File(operations.getDir() + time + ".zip"));
 		}
-		String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName() + "_" + codeGen.getProxy().getVersion()
-				+ "/apiproxy";
-		CleanUnused.clean(proxyDir + File.separatorChar);
-		proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
-		ZipUtil.pack(new File(dir), new File(operations.getDir() + time + ".zip"));
 
 		try {
 			ProxyData data = new ProxyData();
@@ -265,6 +281,8 @@ public class CodeGenService {
 						jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
 				if (project != null)
 					data.setProjectName(project.getName());
+				if (null != codeGen.getPortfolio())
+					data.setPortfolio(codeGen.getPortfolio());
 				if (proxyArtifacts != null)
 					data.setProxyArtifacts(proxyArtifacts);
 				downloadURI = (String) obj.get("downloadURI");
@@ -291,6 +309,11 @@ public class CodeGenService {
 			saveHistory(data);
 			File tempFile = new File(dir);
 			tempFile.delete();
+			String swaggerStr = getSwagger(codeGen.getProxy().getBuildProxyArtifact(), codeGen.getProxy().getRevision(),
+					codeGen.getProxy().getOas());
+			if (null != swaggerStr && !CollectionUtils.isEmpty(proxyArtifacts.getTargetServers()))
+				createAPICTarget(swaggerStr,proxyArtifacts.getTargetServers());
+
 			ProxyGenResponse response = populateProxyArtifacts(proxyArtifacts);
 			response.setProxyName(data.getProxyName());
 			response.setVersion(codeGen.getProxy().getVersion());
@@ -381,18 +404,288 @@ public class CodeGenService {
 								request.get_id());
 					}
 				}
-				// List<TargetConfig> targetList =
-				// mongoConnection.getTarget(name);
-				// if(targetList != null){
-				// for(TargetConfig orgConfig : targetList){
-				// targetArtifact.setArtifactStatus(orgConfig.getOrg(),
-				// orgConfig.getType(),
-				// orgConfig.getEnv(), "created");
-				// }
-				// }
 			}
 		}
 		return response;
+	}
+
+	private String getSwagger(String swaggerName, String revision, String oas) {
+		if ("2.0".equals(oas)) {
+			Query query = new Query();
+			query.addCriteria(Criteria.where("name").is(swaggerName));
+			query.addCriteria(Criteria.where("revision").is(Integer.parseInt(revision)));
+			SwaggerVO swaggerVO = mongoTemplate.findOne(query, SwaggerVO.class);
+			if (null != swaggerVO) {
+				String swaggerStr = swaggerVO.getSwagger();
+				Swagger swagger;
+				try {
+					swagger = convertToSwagger(swaggerStr);
+					if (swagger.getVendorExtensions() != null
+							&& swagger.getVendorExtensions().get("x-EndpointExtension") != null) {
+						return swaggerStr;
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return null;
+	}
+
+	private Swagger convertToSwagger(String data) throws IOException {
+		ObjectMapper mapper;
+		if (data.trim().startsWith("{")) {
+			mapper = Json.mapper();
+		} else {
+			mapper = Yaml.mapper();
+		}
+		JsonNode rootNode = mapper.readTree(data);
+		JsonNode swaggerNode = rootNode.get("swagger");
+		if (swaggerNode == null) {
+			throw new IllegalArgumentException("Swagger String has an invalid format.");
+		} else {
+			return mapper.convertValue(rootNode, Swagger.class);
+		}
+	}
+
+
+	private void createAPICArtifacts(String swaggerString, ProxyArtifacts proxyArtifacts) {
+		try {
+			if (null != swaggerString && !CollectionUtils.isEmpty(proxyArtifacts.getTargetServers()))
+				createAPICTarget(swaggerString,proxyArtifacts.getTargetServers());
+
+		}catch (Exception e) {}
+	}
+
+	private void createAPICTarget(String swaggerString, List<String> targetServers) {
+		try {
+			List<OrgEnv> org = mongoConnection.getApigeeOrgs();
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode data = mapper.readTree(swaggerString);
+			Map<String, String> mapping = getApicMapping();
+			String targeType = mapping.get("x-ibm-target-type");
+			String targetPath = mapping.get("x-ibm-target-path");
+			if (null != targetPath) {
+				for (OrgEnv orgEnv : org) {
+					for (Env env : orgEnv.getEnvs()) {
+						String environment = getEnvironmet(mapping, orgEnv.getName(), env.getName(), orgEnv.getType());
+						Organization organization = new Organization();
+						organization.setName(orgEnv.getName());
+						organization.setEnv(env.getName());
+						organization.setType(orgEnv.getType());
+						if(targeType.equalsIgnoreCase("target")){
+						String target = getAPICTarget(data, targetPath, environment);
+						createTargetServiceConfig(organization, targetServers.get(0), target);
+						}
+						else if(targeType.equalsIgnoreCase("kvm")){
+							
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+
+		}
+	}
+
+	private String getAPICTarget(JsonNode data, String targetPath, String environmet) {
+		targetPath = targetPath.replaceAll("\\{environment\\}", environmet);
+		JsonNode node = parseNode(data, targetPath);
+		if (null != node) {
+			String target = node.asText();
+			return target;
+		}
+		return null;
+	}
+	
+	private String getAPICkvm(JsonNode data, Map<String, String> mapping){
+		return null;
+	}
+	
+
+	private String getEnvironmet(Map<String, String> mapping, String org, String env, String type) {
+		String path = org + ":" + env + ":" + type;
+		String environmet = mapping.get(path);
+		if (null != environmet) {
+			environmet = environmet.replaceAll("x-ibm-environment-", "");
+			return environmet;
+		}
+		return null;
+	}
+
+	private Map<String, String> getApicMapping() {
+		Map<String, String> mappings = null;
+		Query query = new Query();
+		query.addCriteria(Criteria.where("type").is("APIC"));
+		List<Integration> dbIntegrations = mongoTemplate.find(query, Integration.class);
+		if (!CollectionUtils.isEmpty(dbIntegrations)) {
+			mappings = dbIntegrations.get(0).getApicIntegration().getMappings();
+		}
+		return mappings;
+	}
+
+	private JsonNode parseNode(JsonNode node, String path) {
+		path = path.replace("x-ibm-policy/", "");
+		String[] paths = path.split("/");
+		try {
+			JsonNode jsonNode = node;
+			for (int i = 0; i < paths.length; i++) {
+				String pathToken = paths[i];
+				if (pathToken.contains("[")) {
+					String nodeName = pathToken.replaceAll("\\[.*?\\]", "");
+					String elementName = pathToken.substring(pathToken.indexOf("[") + 1, pathToken.indexOf("]"));
+					ArrayNode arrayNode = (ArrayNode) jsonNode.get(nodeName);
+					for (JsonNode elementNode : arrayNode) {
+						if (null != elementNode.get(getFieldName(elementName))) {
+							jsonNode = elementNode.get(getFieldName(elementName));
+						}
+					}
+				} else {
+					jsonNode = jsonNode.get(pathToken);
+				}
+			}
+			return jsonNode;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+
+
+	private JsonNode parseNodeforKVM(JsonNode node, String path) {
+		try {
+			List <String> pathsList = null;
+			if(path.contains("/")){
+				String[] paths = path.split("/");
+				pathsList = Arrays.asList(paths);
+			}
+			else{
+				pathsList = Arrays.asList(path);
+			}
+			JsonNode jsonNode = node;
+			for (String pathToken: pathsList) {
+				if (pathToken.contains("[")) {
+					String nodeName = pathToken.replaceAll("\\[.*?\\]", "");
+					String elementName = pathToken.substring(pathToken.indexOf("[") + 1, pathToken.indexOf("]"));
+					elementName = elementName.replaceAll("^", "/").replaceAll("'", "");
+					ArrayNode arrayNode = (ArrayNode) jsonNode.get(nodeName);
+					for (JsonNode elementNode : arrayNode) {
+						if(elementName.contains("/")){
+							jsonNode = getJsonNode(elementNode,elementName );
+							if(null != jsonNode){
+								return elementNode;
+							}
+						}else
+							if (null != elementNode.get(getFieldName(elementName))) {
+								jsonNode = elementNode.get(getFieldName(elementName));
+							}
+					}
+				} else {
+					jsonNode = jsonNode.get(pathToken);
+				}
+			}
+			return jsonNode;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private JsonNode getJsonNode(JsonNode elementNode , String path){
+		String[] paths = path.split("/");
+		List <String> pathsList = Arrays.asList(paths);
+		JsonNode jsonNode = null;
+		for (String pathToken: pathsList) {
+			jsonNode = elementNode.get(getKeyName(pathToken));
+			if(null != getValue(pathToken)){
+				if(jsonNode.findValue(getKeyName(pathToken)).asText().equals(getValue(pathToken))){
+					return jsonNode;
+				}
+			}
+		}
+		return jsonNode;
+	}
+
+
+	private String getKeyName(String name) {
+		if(name.contains("=")){
+			String[] tokens = name.split("=");
+			return tokens[0];
+		}
+		else{
+			return name;
+		}
+	}
+	private String getValue(String name) {
+		if(name.contains("=")){
+			String[] tokens = name.split("=");
+			return tokens[1];
+		}
+		else{
+			return null;
+		}
+	}
+
+
+
+
+
+
+	private String getFieldName(String name) {
+		String[] tokens = name.split("=");
+		return tokens[1].replaceAll("'", "").replaceAll("#", ".");
+	}
+
+	private void createTargetServiceConfig(Organization organization, String name, String targrtURL)
+			throws ItorixException {
+		try {
+			com.itorix.apiwiz.servicerequest.model.ServiceRequest config = new com.itorix.apiwiz.servicerequest.model.ServiceRequest();
+			config.setType("TargetServer");
+			config.setName(name);
+			String host = null;
+			String scheme = "http";
+			String port = null;
+			try {
+				String[] tokens = targrtURL.split("://");
+				if (tokens.length > 1) {
+					host = tokens[1];
+					scheme = tokens[0];
+				} else
+					host = tokens[0];
+				tokens = host.split(":");
+				if (tokens.length > 1) {
+					host = tokens[0];
+					port = tokens[1];
+				}
+
+			} catch (Exception ex) {
+
+			}
+			config.setOrg(organization.getName());
+			config.setHost(host);
+			if (null != port)
+				config.setPort(Integer.parseInt(port));
+			if ("https".equals(scheme)) {
+				config.setSslEnabled(true);
+			}
+			config.setEnv(organization.getEnv());
+			config.setIsSaaS(organization.getType().equalsIgnoreCase("saas") ? true : false);
+			UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+			User user = identityManagementDao.getUserById(userSessionToken.getUserId());
+			config.setCreatedUser(user.getFirstName() + " " + user.getLastName());
+			config.setCreatedUserEmailId(user.getEmail());
+			config.setCreatedDate(new Date(System.currentTimeMillis()));
+			config.setModifiedUser(user.getFirstName() + " " + user.getLastName());
+			config.setModifiedDate(new Date(System.currentTimeMillis()));
+			config.setStatus("Review");
+			config.setCreated(false);
+			config.setActiveFlag(Boolean.TRUE);
+			serviceRequestDao.createServiceRequest(config);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private JfrogIntegration getJfrogIntegration() {
@@ -421,15 +714,7 @@ public class CodeGenService {
 	private GitIntegration getScmIntegration(String type) {
 		GitIntegration gitIntegration = null;
 		Integration integration = integrationsDao.getGitIntegration(type, "proxy");
-		// if(type.equalsIgnoreCase("GITLAB"))
-		// gitLabIntegration =
-		// integrationsDao.getGitLabIntegration().get(0).getGitIntegration();
-		// if(type.equalsIgnoreCase("GIT"))
-		// gitLabIntegration =
-		// integrationsDao.getGitIntegration().get(0).getGitIntegration();
-		// if(type.equalsIgnoreCase("BITBUCKET"))
-		// gitLabIntegration =
-		// integrationsDao.getBitBucketIntegration().get(0).getGitIntegration();
+
 		if (integration != null)
 			gitIntegration = integration.getGitIntegration();
 		return gitIntegration;
@@ -538,11 +823,11 @@ public class CodeGenService {
 				ProxyData proxyData = mapper.readValue(dataElement, ProxyData.class);
 				for (CodeGenHistory history : proxyData.getCodeGenHistory())
 					if (history.getProxy().getBuildProxyArtifactType() != null
-							&& history.getProxy().getBuildProxyArtifactType().equals("swagger"))
+					&& history.getProxy().getBuildProxyArtifactType().equals("swagger"))
 						if (history.getProxy().getBuildProxyArtifact() != null
-								&& history.getProxy().getBuildProxyArtifact().equals(proxy))
+						&& history.getProxy().getBuildProxyArtifact().equals(proxy))
 							if (history.getProxy().getRevision() != null
-									&& history.getProxy().getRevision().equals(revision))
+							&& history.getProxy().getRevision().equals(revision))
 								listData.add(proxyData.getProxyName());
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -668,37 +953,65 @@ public class CodeGenService {
 	}
 
 	public void promoteProxy(PromoteSCM proxySCM) throws Exception {
-		String type = proxySCM.getScm().getScmType().toUpperCase();
-		GitIntegration gitIntegration = getScmIntegration(type);
-		if (gitIntegration != null) {
-			if (type.equalsIgnoreCase("GITLAB")) {
-				RSAEncryption rSAEncryption = new RSAEncryption();
-				if (gitIntegration.getAuthType().equalsIgnoreCase("TOKEN")) {
-					String scmPassword = rSAEncryption.decryptText(gitIntegration.getToken());
-					scmUtil.promoteToGitToken(proxySCM.getScm().getBaseBranch(),
-							proxySCM.getScm().getDestinationBranch(), proxySCM.getScm().getGitURL(),
-							proxySCM.getScm().getScmType(), scmPassword, proxySCM.getScm().getCommitMessage());
-				} else {
-					String scmPassword = rSAEncryption.decryptText(gitIntegration.getPassword());
-					scmUtil.promoteToGit(proxySCM.getScm().getBaseBranch(), proxySCM.getScm().getDestinationBranch(),
-							proxySCM.getScm().getGitURL(), gitIntegration.getUsername(), scmPassword,
-							proxySCM.getScm().getCommitMessage());
-				}
-			} else if (type.equalsIgnoreCase("GIT")) {
-				RSAEncryption rSAEncryption = new RSAEncryption();
+		String proxyId = proxySCM.getScm().getProxyId();
+		ProxyData proxyData = mongoConnection.getProxyDetailsById(proxyId);
+		if (proxyData != null && proxyData.getPortfolio() != null) {
+			promoteProxy(proxyData.getPortfolio(), proxySCM.getScm());
+		} else {
+			String type = proxySCM.getScm().getScmType().toUpperCase();
+			GitIntegration gitIntegration = getScmIntegration(type);
+			if (gitIntegration != null) {
+				if (type.equalsIgnoreCase("GITLAB")) {
+					RSAEncryption rSAEncryption = new RSAEncryption();
+					if (gitIntegration.getAuthType().equalsIgnoreCase("TOKEN")) {
+						String scmPassword = rSAEncryption.decryptText(gitIntegration.getToken());
+						scmUtil.promoteToGitToken(proxySCM.getScm().getBaseBranch(),
+								proxySCM.getScm().getDestinationBranch(), proxySCM.getScm().getGitURL(),
+								proxySCM.getScm().getScmType(), scmPassword, proxySCM.getScm().getCommitMessage());
+					} else {
+						String scmPassword = rSAEncryption.decryptText(gitIntegration.getPassword());
+						scmUtil.promoteToGit(proxySCM.getScm().getBaseBranch(),
+								proxySCM.getScm().getDestinationBranch(), proxySCM.getScm().getGitURL(),
+								gitIntegration.getUsername(), scmPassword, proxySCM.getScm().getCommitMessage());
+					}
+				} else if (type.equalsIgnoreCase("GIT")) {
+					RSAEncryption rSAEncryption = new RSAEncryption();
 
-				if (gitIntegration.getAuthType().equalsIgnoreCase("TOKEN")) {
-					String scmPassword = rSAEncryption.decryptText(gitIntegration.getToken());
-					scmUtil.promoteToGitToken(proxySCM.getScm().getBaseBranch(),
-							proxySCM.getScm().getDestinationBranch(), proxySCM.getScm().getGitURL(),
-							proxySCM.getScm().getScmType(), scmPassword, proxySCM.getScm().getCommitMessage());
-				} else {
-					String scmPassword = rSAEncryption.decryptText(gitIntegration.getPassword());
-					scmUtil.promoteToGit(proxySCM.getScm().getBaseBranch(), proxySCM.getScm().getDestinationBranch(),
-							proxySCM.getScm().getGitURL(), gitIntegration.getUsername(), scmPassword,
-							proxySCM.getScm().getCommitMessage());
+					if (gitIntegration.getAuthType().equalsIgnoreCase("TOKEN")) {
+						String scmPassword = rSAEncryption.decryptText(gitIntegration.getToken());
+						scmUtil.promoteToGitToken(proxySCM.getScm().getBaseBranch(),
+								proxySCM.getScm().getDestinationBranch(), proxySCM.getScm().getGitURL(),
+								proxySCM.getScm().getScmType(), scmPassword, proxySCM.getScm().getCommitMessage());
+					} else {
+						String scmPassword = rSAEncryption.decryptText(gitIntegration.getPassword());
+						scmUtil.promoteToGit(proxySCM.getScm().getBaseBranch(),
+								proxySCM.getScm().getDestinationBranch(), proxySCM.getScm().getGitURL(),
+								gitIntegration.getUsername(), scmPassword, proxySCM.getScm().getCommitMessage());
+					}
+
 				}
 			}
+		}
+	}
+
+	private void promoteProxy(ProxyPortfolio portfolio, Scm scm) throws ItorixException {
+		try {
+			PromoteProxyRequest promoteProxyRequest = new PromoteProxyRequest();
+			promoteProxyRequest.setPortfolio(portfolio);
+			promoteProxyRequest.setScm(scm);
+			UserSession userSession = UserSession.getCurrentSessionToken();
+			String hostUrl = "http://localhost:#port#/#context#/v1/portfolios/proxies/promote";
+			hostUrl = hostUrl.replaceAll("#port#", port);
+			hostUrl = hostUrl.replaceAll("#context#", context.replaceAll("/", ""));
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			headers.set("JSESSIONID", userSession.getId());
+			RestTemplate restTemplate = new RestTemplate();
+			HttpEntity<PromoteProxyRequest> requestEntity = new HttpEntity<>(promoteProxyRequest, headers);
+			// ResponseEntity<String> response =
+			restTemplate.exchange(hostUrl, HttpMethod.POST, requestEntity, String.class);
+		} catch (Exception e) {
+			throw new ItorixException("error creating pipeline", "", e);
 		}
 	}
 
@@ -1012,6 +1325,45 @@ public class CodeGenService {
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "ProxyGen-1000", ex);
 		}
+	}
+
+	public Object getCategories(String swaggerId, int revision, String oas) throws ItorixException {
+		try {
+			if(null != swaggerId && "2.0".equals(oas.trim())){
+				Swagger swagger = getSwaggerbyId(swaggerId, revision, oas);
+				if(null != swagger){
+					Object catagories = swagger.getVendorExtensions().get("x-policies");
+					if(null != catagories)
+						return catagories;
+				}
+			}
+			return getCategories(null);
+		} catch (Exception ex) {
+			throw new ItorixException(ex.getMessage(), "ProxyGen-1000", ex);
+		}
+	}
+
+	private Swagger getSwaggerbyId(String swaggerId,int revision, String oas) {
+		if ("2.0".equals(oas)) {
+			Query query = new Query();
+			query.addCriteria(Criteria.where("swaggerId").is(swaggerId));
+			query.addCriteria(Criteria.where("revision").is(revision));
+			SwaggerVO swaggerVO = mongoTemplate.findOne(query, SwaggerVO.class);
+			if (null != swaggerVO) {
+				String swaggerStr = swaggerVO.getSwagger();
+				Swagger swagger = null;
+				try {
+					swagger = convertToSwagger(swaggerStr);
+					if (swagger.getVendorExtensions() != null
+							&& swagger.getVendorExtensions().get("x-EndpointExtension") != null) {
+						return swagger;
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return null;
 	}
 
 	public Object getCategories(String name) throws ItorixException {

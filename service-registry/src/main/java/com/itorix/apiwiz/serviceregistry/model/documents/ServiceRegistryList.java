@@ -1,5 +1,7 @@
 package com.itorix.apiwiz.serviceregistry.model.documents;
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -24,4 +26,5 @@ public class ServiceRegistryList extends AbstractObject {
 	private String name;
 	private String environment;
 	private String summary;
+	private List<Metadata> metadata;
 }

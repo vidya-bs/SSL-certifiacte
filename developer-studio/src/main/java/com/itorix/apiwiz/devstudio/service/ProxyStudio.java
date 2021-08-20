@@ -184,7 +184,11 @@ public interface ProxyStudio {
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/proxies/category")
 	public ResponseEntity<?> getCategories(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, HttpServletRequest request,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "swaggerid", required = false) String swaggerid,
+			@RequestParam(value = "revision", required = false, defaultValue = "1") int revision,
+			@RequestParam(value = "oas", required = false, defaultValue = "2.0") String oas,
+			HttpServletRequest request,
 			HttpServletResponse response) throws Exception;
 
 	// @PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )

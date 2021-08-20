@@ -16,7 +16,10 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.itorix.apiwiz.common.model.projectmanagement.Organization;
 import com.itorix.apiwiz.portfolio.model.PortfolioRequest;
+import com.itorix.apiwiz.portfolio.model.PromoteProxyRequest;
+import com.itorix.apiwiz.portfolio.model.ReleaseProxyRequest;
 import com.itorix.apiwiz.portfolio.model.db.Metadata;
 import com.itorix.apiwiz.portfolio.model.db.Portfolio;
 import com.itorix.apiwiz.portfolio.model.db.ProductRequest;
@@ -359,4 +362,49 @@ public interface PortfolioService {
 			@PathVariable(value = "portfolioId") String portfolioId,
 			@PathVariable(value = "projectId") String projectId, @RequestHeader(value = "JSESSIONID") String jsessionid)
 			throws Exception;
+
+	@PreAuthorize("hasAnyRole('ADMIN', 'PROJECT-ADMIN', 'ANALYST') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = {RequestMethod.POST}, value = "/v1/portfolios/import", consumes = {"multipart/form-data"})
+	public ResponseEntity<Object> importDataFromExcel(@RequestPart(value = "file", required = true) MultipartFile file,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/portfolios/proxies/{proxy}", produces = {
+			"application/json"})
+	public ResponseEntity<Object> getProxyDetails(@PathVariable(value = "proxy") String proxy,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = {
+			RequestMethod.POST}, value = "/v1/portfolios/{portfolioId}/projects/{projectId}/proxies/{proxyId}/generateProxy", produces = {
+					"application/json"})
+	public ResponseEntity<Object> generateProxy(@PathVariable(value = "portfolioId") String id,
+			@PathVariable(value = "projectId") String projectId, @PathVariable(value = "proxyId") String proxyId,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = {
+			RequestMethod.POST}, value = "/v1/portfolios/{portfolioId}/projects/{projectId}/proxies/{proxyId}/release", produces = {
+					"application/json"})
+	public ResponseEntity<Object> promoteRelease(@PathVariable(value = "portfolioId") String id,
+			@PathVariable(value = "projectId") String projectId, @PathVariable(value = "proxyId") String proxyId,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody ReleaseProxyRequest releaseProxyRequest) throws Exception;
+
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = {RequestMethod.POST}, value = "/v1/portfolios/proxies/promote", produces = {
+			"application/json"})
+	public ResponseEntity<Object> promoteProxy(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody PromoteProxyRequest promoteProxyRequest) throws Exception;
+
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = {
+			RequestMethod.POST}, value = "/v1/portfolios/promote/registry/{registryId}/proxies/{proxyName}", produces = {
+					"application/json"})
+	public ResponseEntity<Object> promoteRegistry(@PathVariable(value = "registryId") String registryId,
+			@PathVariable(value = "proxyName") String proxyName, @RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody Organization organization) throws Exception;
+
 }
