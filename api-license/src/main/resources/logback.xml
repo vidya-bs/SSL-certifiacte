@@ -1,0 +1,113 @@
+<configuration>
+	<property file="${config.properties}" />
+	<appender name="consoleAppender"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<Pattern>
+				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [${app.name}] [%thread] %-5level %logger{35} - %msg %n
+			</Pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>DEBUG</level>
+		</filter>
+	</appender>
+
+	<appender name="FILE-DEBUG"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${itorix.log.location}/itorix-license-api-console.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+			<FileNamePattern>${itorix.log.location}/itorix-license-api-console.%d{yyyy-MM-dd}.%i.log
+			</FileNamePattern>
+
+			<maxHistory>30</maxHistory>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder>
+			<Pattern>
+				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [${app.name}] [%thread] %-5level %logger{35} - %msg %n
+			</Pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>DEBUG</level>
+			<!-- output messages of exact level only -->
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+
+	<appender name="FILE-INFO"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${itorix.log.location}/itorix-license-api.log</File>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+			<FileNamePattern>${itorix.log.location}/itorix-license-api.%d{yyyy-MM-dd}.%i.log
+			</FileNamePattern>
+
+			<maxHistory>30</maxHistory>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder>
+			<Pattern>
+				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [${app.name}] [%thread] %-5level %logger{35} - %msg %n
+			</Pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>INFO</level>
+			<!-- output messages of exact level only -->
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+
+	<appender name="FILE-ERROR"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${itorix.log.location}/itorix-license-api-error.log</File>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<Pattern>
+				%d{HH:mm:ss.SSS} [%X{X-B3-TraceId:-}] [${app.name}] [%thread] %-5level %logger{35} - %msg %n
+			</Pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			rollover daily
+			<fileNamePattern>${itorix.log.location}/itorix-license-api-error.%d{yyyy-MM-dd}.%i.log
+			</fileNamePattern>
+			<maxHistory>30</maxHistory>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+			<!-- output messages of exact level only -->
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+
+	<logger name="com.itorix" level="ERROR" additivity="true">
+		<level value="ERROR" />
+		<appender-ref ref="FILE-ERROR" />
+	</logger>
+	<logger name="com.itorix" level="INFO" additivity="true">
+		<level value="INFO" />
+		<appender-ref ref="FILE-INFO" />
+	</logger>
+	<logger name="com.itorix" level="DEBUG" additivity="true">
+		<level value="DEBUG" />
+		<appender-ref ref="FILE-DEBUG" />
+	</logger>
+	<root level="DEBUG" name="com.itorix">
+		<!-- <level value="INFO" /> -->
+		<!-- <level value="ERROR" />  -->
+		<appender-ref ref="consoleAppender" />
+		<!-- <appender-ref ref="STASH" /> -->
+	</root>
+</configuration>

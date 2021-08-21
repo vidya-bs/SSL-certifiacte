@@ -12,7 +12,6 @@ import io.swagger.models.Model;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.RefProperty;
 
-
 public class ModelDiff {
 
 	private List<ElProperty> increased;
@@ -26,8 +25,7 @@ public class ModelDiff {
 		missing = new ArrayList<ElProperty>();
 	}
 
-	public static ModelDiff buildWithDefinition(Map<String, Model> left,
-			Map<String, Model> right) {
+	public static ModelDiff buildWithDefinition(Map<String, Model> left, Map<String, Model> right) {
 		ModelDiff diff = new ModelDiff();
 		diff.oldDedinitions = left;
 		diff.newDedinitions = right;
@@ -39,7 +37,8 @@ public class ModelDiff {
 	}
 
 	public ModelDiff diff(Model leftModel, Model rightModel, String parentEl) {
-		if (null == leftModel && null == rightModel) return this;
+		if (null == leftModel && null == rightModel)
+			return this;
 		Map<String, Property> leftProperties = null == leftModel ? null : leftModel.getProperties();
 		Map<String, Property> rightProperties = null == rightModel ? null : rightModel.getProperties();
 		MapKeyDiff<String, Property> propertyDiff = MapKeyDiff.diff(leftProperties, rightProperties);
@@ -53,42 +52,36 @@ public class ModelDiff {
 		for (String key : sharedKey) {
 			Property left = leftProperties.get(key);
 			Property right = rightProperties.get(key);
-			if (left instanceof RefProperty
-					&& right instanceof RefProperty) {
+			if (left instanceof RefProperty && right instanceof RefProperty) {
 				String leftRef = ((RefProperty) left).getSimpleRef();
 				String rightRef = ((RefProperty) right).getSimpleRef();
-				diff(oldDedinitions.get(leftRef),
-						newDedinitions.get(rightRef),
+				diff(oldDedinitions.get(leftRef), newDedinitions.get(rightRef),
 						null == parentEl ? key : (parentEl + "." + key));
 			}
 		}
 		return this;
 	}
 
-	private Collection<? extends ElProperty> convert2ElPropertys(
-			Map<String, Property> propMap, String parentEl, boolean isLeft) {
+	private Collection<? extends ElProperty> convert2ElPropertys(Map<String, Property> propMap, String parentEl,
+			boolean isLeft) {
 		List<ElProperty> result = new ArrayList<ElProperty>();
-		if (null == propMap) return result;
+		if (null == propMap)
+			return result;
 		for (Entry<String, Property> entry : propMap.entrySet()) {
 			String propName = entry.getKey();
 			Property property = entry.getValue();
 			if (property instanceof RefProperty) {
 				String ref = ((RefProperty) property).getSimpleRef();
-				Model model = isLeft ? oldDedinitions.get(ref)
-						: newDedinitions.get(ref);
+				Model model = isLeft ? oldDedinitions.get(ref) : newDedinitions.get(ref);
 				if (model != null) {
 					Map<String, Property> properties = model.getProperties();
-					result.addAll(
-							convert2ElPropertys(properties,
-									null == parentEl ? propName
-											: (parentEl + "." + propName),
-									isLeft));
+					result.addAll(convert2ElPropertys(properties,
+							null == parentEl ? propName : (parentEl + "." + propName), isLeft));
 				}
 			} else {
 				ElProperty pWithPath = new ElProperty();
 				pWithPath.setProperty(property);
-				pWithPath.setEl(null == parentEl ? propName
-						: (parentEl + "." + propName));
+				pWithPath.setEl(null == parentEl ? propName : (parentEl + "." + propName));
 				result.add(pWithPath);
 			}
 		}
@@ -110,5 +103,4 @@ public class ModelDiff {
 	public void setMissing(List<ElProperty> missing) {
 		this.missing = missing;
 	}
-
 }

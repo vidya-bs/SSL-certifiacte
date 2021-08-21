@@ -10,41 +10,40 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-	"url",
-	"destination",
-	"filter",
-	"invert_filter",
-	"name",
-	"auto_update",
-	"branch",
-	"submodule_folder",
-	"shallow_clone",
-	"username",
-	"password"
-})
+@JsonPropertyOrder({"url", "destination", "filter", "invert_filter", "name", "auto_update", "branch",
+		"submodule_folder", "shallow_clone", "username", "password"})
 public class Attributes {
 
 	@JsonProperty("url")
 	private String url;
+
 	@JsonProperty("destination")
 	private Object destination;
+
 	@JsonProperty("filter")
 	private Object filter;
+
 	@JsonProperty("invert_filter")
 	private Boolean invertFilter;
+
 	@JsonProperty("name")
 	private String name;
+
 	@JsonProperty("auto_update")
 	private Boolean autoUpdate;
+
 	@JsonProperty("branch")
 	private String branch;
+
 	@JsonProperty("submodule_folder")
 	private Object submoduleFolder;
+
 	@JsonProperty("shallow_clone")
 	private Boolean shallowClone;
+
 	@JsonProperty("username")
 	private String username;
+
 	@JsonProperty("password")
 	private String password;
 
@@ -55,20 +54,21 @@ public class Attributes {
 	public String getUsername() {
 		return username;
 	}
+
 	@JsonProperty("username")
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
 	@JsonProperty("password")
 	public String getPassword() {
 		return password;
 	}
+
 	@JsonProperty("password")
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
-
 
 	@JsonProperty("url")
 	public String getUrl() {
@@ -169,5 +169,4 @@ public class Attributes {
 	public void setAdditionalProperty(String name, Object value) {
 		this.additionalProperties.put(name, value);
 	}
-
 }

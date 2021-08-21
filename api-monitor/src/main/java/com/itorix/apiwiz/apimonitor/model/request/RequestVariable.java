@@ -15,5 +15,4 @@ public class RequestVariable {
 	String requestId;
 	String requestName;
 	List<Variable> variables;
-
 }

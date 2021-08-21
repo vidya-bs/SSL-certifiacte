@@ -9,11 +9,11 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Variable {
-	public enum Ref {
-		header, path, queryParams, body
-	}
+    public enum Ref {
+        header, path, queryParams, body
+    }
 
-	Ref ref;
-	String name;
-	String path;
+    Ref ref;
+    String name;
+    String path;
 }

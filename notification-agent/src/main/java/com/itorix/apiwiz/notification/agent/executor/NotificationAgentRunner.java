@@ -19,37 +19,39 @@ import com.itorix.apiwiz.notification.agent.util.MailUtil;
 @Component
 public class NotificationAgentRunner {
 
-	private final static Logger logger = LoggerFactory.getLogger(NotificationAgentRunner.class);
+    private final static Logger logger = LoggerFactory.getLogger(NotificationAgentRunner.class);
 
-	private static final MustacheFactory mf = new DefaultMustacheFactory();
+    private static final MustacheFactory mf = new DefaultMustacheFactory();
 
-	@Autowired
-	private NotificationAgentExecutorSQLDao sqlDao;
+    @Autowired
+    private NotificationAgentExecutorSQLDao sqlDao;
 
-	@Autowired
-	LoggerService loggerService;
+    @Autowired
+    LoggerService loggerService;
 
-	@Autowired
-	MailUtil mailUtil;
+    @Autowired
+    MailUtil mailUtil;
 
-	ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = new ObjectMapper();
 
-	public enum API {
-		GET, PUT, POST, DELETE, OPTIONS, PATCH;
-	}
+    public enum API {
+        GET, PUT, POST, DELETE, OPTIONS, PATCH;
+    }
 
-	public void run(ExecutionContext context) {
-		loggerService.logServiceRequest();
-		try {
-			String identity = context.getNotificationExecutorEntity().getContent();
-			EmailTemplate template = mapper.readValue(identity, EmailTemplate.class);
-			mailUtil.sendEmail(template);
-			sqlDao.updateField(context.getNotificationExecutorEntity().getId(), "status", NotificationExecutorEntity.STATUSES.COMPLETED.getValue());
-		} catch (Exception ex) {
-			logger.error("error when executing monitor requests", ex);
-			sqlDao.updateField(context.getNotificationExecutorEntity().getId(), "status", NotificationExecutorEntity.STATUSES.ERROR.getValue());
-		} finally {
-			loggerService.logServiceResponse();
-		}
-	}
+    public void run(ExecutionContext context) {
+        loggerService.logServiceRequest();
+        try {
+            String identity = context.getNotificationExecutorEntity().getContent();
+            EmailTemplate template = mapper.readValue(identity, EmailTemplate.class);
+            mailUtil.sendEmail(template);
+            sqlDao.updateField(context.getNotificationExecutorEntity().getId(), "status",
+                    NotificationExecutorEntity.STATUSES.COMPLETED.getValue());
+        } catch (Exception ex) {
+            logger.error("error when executing monitor requests", ex);
+            sqlDao.updateField(context.getNotificationExecutorEntity().getId(), "status",
+                    NotificationExecutorEntity.STATUSES.ERROR.getValue());
+        } finally {
+            loggerService.logServiceResponse();
+        }
+    }
 }

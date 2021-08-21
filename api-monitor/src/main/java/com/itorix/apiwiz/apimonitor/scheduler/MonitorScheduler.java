@@ -58,7 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @Slf4j
-@FieldDefaults(level=AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class MonitorScheduler {
 
 	private static final String MONITOR_AGENT_EXECUTE = "/v1/execute";
@@ -111,7 +111,7 @@ public class MonitorScheduler {
 	private static final String TENANT_ID = "tenantId";
 
 	@PostConstruct
-	private void setRSAKey(){
+	private void setRSAKey() {
 		try {
 			rsaEncryption = new RSAEncryption();
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
@@ -131,7 +131,7 @@ public class MonitorScheduler {
 			keyStore.load(storeFile.getInputStream(), keyStorepassword.toCharArray());
 			SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
 					new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy())
-					.loadKeyMaterial(keyStore, keypassword.toCharArray()).build(),
+							.loadKeyMaterial(keyStore, keypassword.toCharArray()).build(),
 					NoopHostnameVerifier.INSTANCE);
 			HttpClient httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
 			requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
@@ -176,7 +176,7 @@ public class MonitorScheduler {
 
 		try {
 			if (!StringUtils.hasText(monitorSuitAgentPath)) {
-				throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-Api-2"), "Monitor-Api-2");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1001"), "Monitor-1001");
 			}
 
 			RestTemplate restTemplate = getRestTemplate();
@@ -191,16 +191,14 @@ public class MonitorScheduler {
 			body.put("schedulerId", schedulerId);
 			HttpEntity<Map<String, String>> httpEntity = new HttpEntity<>(body, headers);
 			String monitorUrl = monitorSuitAgentPath + monitorAgentContextPath + MONITOR_AGENT_EXECUTE;
-			ResponseEntity<String> result = restTemplate.postForEntity(monitorUrl , httpEntity, String.class);
+			ResponseEntity<String> result = restTemplate.postForEntity(monitorUrl, httpEntity, String.class);
 			if (!result.getStatusCode().is2xxSuccessful()) {
 				log.error("error returned from monitor agent", result.getBody());
 			}
 		} catch (Exception e) {
-			log.error("error returned from monitor agent",e);
+			log.error("error returned from monitor agent", e);
 		}
-
 	}
-
 
 	@Scheduled(cron = "0 0 1 * * *")
 	public void sendNotification()
@@ -210,7 +208,7 @@ public class MonitorScheduler {
 			while (dbsCursor.hasNext()) {
 				String workSpace = dbsCursor.next();
 				TenantContext.setCurrentTenant(workSpace);
-				if(apiMonitorDAO.canExecute()){
+				if (apiMonitorDAO.canExecute()) {
 					apiMonitorDAO.updateExecution();
 					List<NotificationDetails> notificationDetails = apiMonitorDAO.getNotificationDetails(workSpace);
 					for (NotificationDetails notificationDetail : notificationDetails) {
@@ -228,23 +226,24 @@ public class MonitorScheduler {
 			return;
 		}
 
-		if(CollectionUtils.isEmpty(notificationDetail.getNotifications())){
+		if (CollectionUtils.isEmpty(notificationDetail.getNotifications())) {
 			return;
 		}
 		for (Notifications notification : notificationDetail.getNotifications()) {
 			RequestModel requestModel = new RequestModel();
 			try {
 				if (!CollectionUtils.isEmpty(notification.getEmails())) {
-					String mailBody = MessageFormat.format(emailBody , notificationDetail.getWorkspaceName(),
-							notificationDetail.getCollectionname(),notificationDetail.getEnvironmentName() , notificationDetail.getDate(),
-							notificationDetail.getDailyUptime(),notificationDetail.getDailyLatency(),notificationDetail.getAvgUptime(),notificationDetail.getAvgLatency()
-							,notificationDetail.getSchedulerId());
+					String mailBody = MessageFormat.format(emailBody, notificationDetail.getWorkspaceName(),
+							notificationDetail.getCollectionname(), notificationDetail.getEnvironmentName(),
+							notificationDetail.getDate(), notificationDetail.getDailyUptime(),
+							notificationDetail.getDailyLatency(), notificationDetail.getAvgUptime(),
+							notificationDetail.getAvgLatency(), notificationDetail.getSchedulerId());
 
 					EmailTemplate emailTemplate = new EmailTemplate();
 					emailTemplate.setBody(mailBody);
 					emailTemplate.setToMailId(notification.getEmails());
-					String mailSubject = MessageFormat.format(subject , notificationDetail.getWorkspaceName(),
-							notificationDetail.getCollectionname(),notificationDetail.getEnvironmentName());
+					String mailSubject = MessageFormat.format(subject, notificationDetail.getWorkspaceName(),
+							notificationDetail.getCollectionname(), notificationDetail.getEnvironmentName());
 					emailTemplate.setSubject(mailSubject);
 					requestModel.setEmailContent(emailTemplate);
 					requestModel.setType(Type.email);
@@ -266,6 +265,5 @@ public class MonitorScheduler {
 				log.error("error returned from monitor agent", e);
 			}
 		}
-
 	}
 }

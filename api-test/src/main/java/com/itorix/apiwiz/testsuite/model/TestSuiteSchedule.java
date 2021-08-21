@@ -6,17 +6,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.itorix.apiwiz.common.model.AbstractObject;
 
-
-
 @Document(collection = "Test.Collections.Scheduler")
 public class TestSuiteSchedule extends AbstractObject {
 
 	private String testSuiteId;
 
 	private String configId;
-	
+
 	private String testSuiteName;
-	
+
 	private String envName;
 
 	private String recurrenceMode;
@@ -41,7 +39,7 @@ public class TestSuiteSchedule extends AbstractObject {
 
 	public void setConfigId(String configId) {
 		this.configId = configId;
-	}	
+	}
 
 	public String getRecurrenceMode() {
 		return recurrenceMode;

@@ -11,21 +11,23 @@ import lombok.Setter;
 @Setter
 public class MonitorRequest {
 
-	enum Schemes {
-		http, https;
-	}
+    enum Schemes {
+        http, https;
+    }
 
-	private String id;
-	private String name;
-	private String summary;
-	@JsonProperty("isPause")
-	private boolean pause;
-	private String host;
-	private String port;
-	private String schemes;
-	private String path;
-	private String verb;
-	private String sslReference;
-	private Request request;
-	private Response response;
+    private String id;
+    private String name;
+    private String summary;
+    @JsonProperty("isPause")
+    private boolean pause;
+    private String host;
+    private String port;
+    private String schemes;
+    private String path;
+    private String verb;
+    private String sslReference;
+    private Request request;
+    private Response response;
+    private long expectedLatency;
+    private boolean latencyAlert;
 }

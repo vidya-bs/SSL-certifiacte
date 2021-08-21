@@ -32,7 +32,6 @@ public class DiscriminatorDiff {
 					shared.put(k, right.getMapping().get(k));
 				}
 			});
-
 		}
 
 		return this;
@@ -69,5 +68,4 @@ public class DiscriminatorDiff {
 	public void setChangedDiscriminator(Discriminator changedDiscriminator) {
 		this.changedDiscriminator = changedDiscriminator;
 	}
-
 }

@@ -5,7 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.itorix.apiwiz.common.model.AbstractObject;
 
 @Document(collection = "SSO.Configurations.List")
-public class UIMetadata extends AbstractObject{
+public class UIMetadata extends AbstractObject {
 
 	public static String SAML_CONFIG = "sAMLConfig";
 	public static String ROLE_MAPPER = "roleMapper";

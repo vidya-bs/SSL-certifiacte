@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @PropertySource(value = "file:${config.properties}", ignoreResourceNotFound = true)
 public class NotificationAgentApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(NotificationAgentApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(NotificationAgentApplication.class, args);
+    }
 }

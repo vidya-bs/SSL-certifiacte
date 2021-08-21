@@ -10,9 +10,8 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Headers{
+public class Headers {
     @JsonProperty("content-type")
     String contentType;
     String id;
 }
-

@@ -1,8 +1,7 @@
 package com.itorix.apiwiz.servicerequest.model;
 
 public enum ServiceRequestTypes {
-
-	TARGETSERVER("TargetServer"), CACHE("Cache"), KVM("KVM"),PRODUCT("Product");
+	TARGETSERVER("TargetServer"), CACHE("Cache"), KVM("KVM"), PRODUCT("Product");
 
 	private String value;
 
@@ -22,6 +21,5 @@ public enum ServiceRequestTypes {
 			}
 		}
 		return false;
-
 	}
 }

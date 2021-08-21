@@ -8,11 +8,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
-@FieldDefaults(level=AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductServices {
 
 	enum ServiceStatus {
@@ -22,11 +21,12 @@ public class ProductServices {
 		@JsonProperty("Deprecated")
 		deprecated;
 	}
-	    private String name;
-	    private String summary;
-	    private String path;
-	    private String verb;
-	    private String swaggerName;
-	    private String oasVersion;
-	    private ServiceStatus serviceStatus;
+
+	private String name;
+	private String summary;
+	private String path;
+	private String verb;
+	private String swaggerName;
+	private String oasVersion;
+	private ServiceStatus serviceStatus;
 }

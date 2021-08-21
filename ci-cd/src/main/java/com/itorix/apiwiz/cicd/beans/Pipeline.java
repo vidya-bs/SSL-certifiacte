@@ -22,19 +22,19 @@ public class Pipeline {
 	@Id
 	@JsonProperty("name")
 	private String name;
-	
+
 	@JsonProperty("teams")
 	private List<String> teams = null;
-	
+
 	@JsonProperty("projectName")
 	private String projectName;
-	
+
 	@JsonProperty("portfolioId")
 	private String portfolioId;
-	
+
 	@JsonProperty("portfolioName")
 	private String portfolioName;
-	
+
 	@JsonProperty("defineName")
 	private String defineName;
 
@@ -46,7 +46,7 @@ public class Pipeline {
 
 	@JsonProperty("version")
 	private String version;
-	
+
 	@JsonProperty("type")
 	private String type;
 
@@ -57,7 +57,7 @@ public class Pipeline {
 	private List<Stage> stages = null;
 
 	private Metadata metadata;
-	
+
 	@JsonProperty("status")
 	private String status;
 
@@ -81,7 +81,7 @@ public class Pipeline {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	@JsonProperty("teams")
 	public List<String> getTeams() {
 		return teams;
@@ -91,7 +91,7 @@ public class Pipeline {
 	public void setTeams(List<String> teams) {
 		this.teams = teams;
 	}
-	
+
 	@JsonProperty("displayName")
 	public String getDisplayName() {
 		return displayName;
@@ -175,21 +175,20 @@ public class Pipeline {
 
 	@JsonProperty("projectName")
 	public void setProjectName(String projectName) {
-		if(this.defineName == null) this.defineName = projectName;
-		this.projectName = projectName;//.replaceAll(" " , "-");
+		if (this.defineName == null)
+			this.defineName = projectName;
+		this.projectName = projectName; // .replaceAll(" " , "-");
 	}
-	
-	
+
 	@JsonProperty("defineName")
 	public void setDefineName(String defineName) {
 		this.defineName = defineName;
 	}
-	
+
 	public String getDefineName() {
 		return defineName;
 	}
-	
-	
+
 	public String getPortfolioId() {
 		return portfolioId;
 	}

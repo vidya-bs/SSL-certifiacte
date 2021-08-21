@@ -22,5 +22,4 @@ public class RequestModel {
 	Type type;
 	EmailTemplate emailContent;
 	Map<String, String> metadata = new HashMap<>();
-
 }

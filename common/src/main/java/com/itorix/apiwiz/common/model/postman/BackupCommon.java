@@ -1,10 +1,9 @@
 package com.itorix.apiwiz.common.model.postman;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.springframework.data.annotation.Transient;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.itorix.apiwiz.common.model.AbstractObject;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.springframework.data.annotation.Transient;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class BackupCommon extends AbstractObject implements BackupInfo {

@@ -1,6 +1,5 @@
 package com.itorix.apiwiz.datamanagement.serviceimpl;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,19 +18,18 @@ import com.itorix.apiwiz.datamanagement.service.PolicyMappingService;
 public class PolicyMappingServiceImpl implements PolicyMappingService {
 	@Autowired
 	private PolicyMappingDAO policyMappingDAO;
-	
-	public ResponseEntity<Void>  updateEnvironmentSchedule(
+
+	public ResponseEntity<Void> updateEnvironmentSchedule(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestBody PolicyMappings policyMappings, 
-			@RequestHeader(value = "jsessionid") String jsessionid)throws Exception{
+			@RequestBody PolicyMappings policyMappings, @RequestHeader(value = "jsessionid") String jsessionid)
+			throws Exception {
 		policyMappingDAO.savePolicyMapping(policyMappings);
 		return new ResponseEntity<Void>(HttpStatus.CREATED);
 	}
-	
-	public ResponseEntity<PolicyMappings>  getEnvironmentSchedule(
+
+	public ResponseEntity<PolicyMappings> getEnvironmentSchedule(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "jsessionid") String jsessionid)throws Exception{
+			@RequestHeader(value = "jsessionid") String jsessionid) throws Exception {
 		return new ResponseEntity<PolicyMappings>(policyMappingDAO.getPolicyMappings(), HttpStatus.OK);
 	}
-
 }

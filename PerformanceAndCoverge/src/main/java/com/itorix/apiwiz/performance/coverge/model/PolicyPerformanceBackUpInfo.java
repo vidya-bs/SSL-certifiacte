@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.itorix.apiwiz.common.model.postman.BackupCommon;
 
-
 @Document(collection = "Connectors.Apigee.PolicyPerformance.List")
 public class PolicyPerformanceBackUpInfo extends BackupCommon {
 
@@ -76,8 +75,6 @@ public class PolicyPerformanceBackUpInfo extends BackupCommon {
 		this.htmlReportLoc = htmlReportLoc;
 	}
 
-	
-	
 	public Map<String, Object> getProxyStat() {
 		return proxyStat;
 	}
@@ -89,9 +86,8 @@ public class PolicyPerformanceBackUpInfo extends BackupCommon {
 	public String getUser() {
 		return user;
 	}
+
 	public void setUser(String user) {
 		this.user = user;
 	}
-	
-
 }

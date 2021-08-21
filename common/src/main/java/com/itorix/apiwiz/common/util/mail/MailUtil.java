@@ -25,7 +25,6 @@ import org.springframework.stereotype.Component;
 
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 
-
 @Component
 public class MailUtil {
 
@@ -40,81 +39,85 @@ public class MailUtil {
 	@Autowired
 	private JavaMailSender javaMailSender;
 
-
 	public void sendEmail(EmailTemplate emailTemplate) throws MessagingException {
-		try{
+		try {
 			MimeMessage msg = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(msg, true);
-			//SimpleMailMessage msg = new SimpleMailMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+			// SimpleMailMessage msg = new SimpleMailMessage();
 			String[] internetAddress = new String[emailTemplate.getToMailId().size()];
-			int i=0;
+			int i = 0;
 			for (String tomail : emailTemplate.getToMailId()) {
 				internetAddress[i] = tomail;
 				i++;
 			}
 			helper.setTo(internetAddress);
-			if(emailTemplate.getSubject()!=null){
+			if (emailTemplate.getSubject() != null) {
 				helper.setSubject(emailTemplate.getSubject());
-			}else{
+			} else {
 				helper.setSubject(applicationProperties.getMailSubject());
 			}
 			helper.setText(emailTemplate.getBody(), true);
 			javaMailSender.send(msg);
-		}catch (MessagingException e) {
+		} catch (MessagingException e) {
 			e.printStackTrace();
-			logger.error(e.getMessage(),e);
+			logger.error(e.getMessage(), e);
 			throw e;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			logger.error(e.getMessage(),e);
+			logger.error(e.getMessage(), e);
 		}
 	}
 
-
-//	public void sendEmail1(EmailTemplate emailTemplate) throws MessagingException {
-//
-//		try{
-//			mailServerProperties = System.getProperties();
-//
-//			mailServerProperties.put("mail.smtp.port", applicationProperties.getSmtpPort());
-//			mailServerProperties.put("mail.smtp.auth", applicationProperties.getSmtpAuth());
-//			mailServerProperties.put("mail.smtp.starttls.enable", applicationProperties.getSmtpStartttls());
-//
-//			List<String> toMailId = emailTemplate.getToMailId();
-//			InternetAddress[] internetAddress = new InternetAddress[toMailId.size()];
-//			int i=0;
-//			for (String tomail : toMailId) {
-//				internetAddress[i] = new InternetAddress(tomail);
-//				i++;
-//			}
-//			getMailSession = Session.getDefaultInstance(mailServerProperties, null);
-//			generateMailMessage = new MimeMessage(getMailSession);
-//			generateMailMessage.addRecipients(Message.RecipientType.TO, internetAddress);
-//
-//			if(emailTemplate.getSubject()!=null){
-//				generateMailMessage.setSubject(emailTemplate.getSubject());
-//			}else{
-//				generateMailMessage.setSubject(applicationProperties.getMailSubject());
-//			}
-//			generateMailMessage.setContent(emailTemplate.getBody(), "text/html; charset=utf-8");
-//			Transport transport = getMailSession.getTransport("smtp");
-//
-//			// if you have 2FA enabled then provide App Specific Password
-//			String password = applicationProperties.getPassWord();
-//			transport.connect(applicationProperties.getSmtphostName(), applicationProperties.getUserName(), applicationProperties.getPassWord());
-//			transport.sendMessage(generateMailMessage, generateMailMessage.getAllRecipients());
-//			transport.close();
-//		}catch (Exception e) {
-//			e.printStackTrace();
-//			//e.printStackTrace();
-//			logger.error(e);
-//		}
-//	}
-
+	// public void sendEmail1(EmailTemplate emailTemplate) throws
+	// MessagingException {
+	//
+	// try{
+	// mailServerProperties = System.getProperties();
+	//
+	// mailServerProperties.put("mail.smtp.port",
+	// applicationProperties.getSmtpPort());
+	// mailServerProperties.put("mail.smtp.auth",
+	// applicationProperties.getSmtpAuth());
+	// mailServerProperties.put("mail.smtp.starttls.enable",
+	// applicationProperties.getSmtpStartttls());
+	//
+	// List<String> toMailId = emailTemplate.getToMailId();
+	// InternetAddress[] internetAddress = new InternetAddress[toMailId.size()];
+	// int i=0;
+	// for (String tomail : toMailId) {
+	// internetAddress[i] = new InternetAddress(tomail);
+	// i++;
+	// }
+	// getMailSession = Session.getDefaultInstance(mailServerProperties, null);
+	// generateMailMessage = new MimeMessage(getMailSession);
+	// generateMailMessage.addRecipients(Message.RecipientType.TO,
+	// internetAddress);
+	//
+	// if(emailTemplate.getSubject()!=null){
+	// generateMailMessage.setSubject(emailTemplate.getSubject());
+	// }else{
+	// generateMailMessage.setSubject(applicationProperties.getMailSubject());
+	// }
+	// generateMailMessage.setContent(emailTemplate.getBody(), "text/html;
+	// charset=utf-8");
+	// Transport transport = getMailSession.getTransport("smtp");
+	//
+	// // if you have 2FA enabled then provide App Specific Password
+	// String password = applicationProperties.getPassWord();
+	// transport.connect(applicationProperties.getSmtphostName(),
+	// applicationProperties.getUserName(),
+	// applicationProperties.getPassWord());
+	// transport.sendMessage(generateMailMessage,
+	// generateMailMessage.getAllRecipients());
+	// transport.close();
+	// }catch (Exception e) {
+	// e.printStackTrace();
+	// //e.printStackTrace();
+	// logger.error(e);
+	// }
+	// }
 
 	public void sendEmailWithAttachments(EmailTemplate emailTemplate) throws MessagingException, IOException {
-
 
 		Multipart multipart = new MimeMultipart();
 
@@ -123,10 +126,9 @@ public class MailUtil {
 		mailServerProperties.put("mail.smtp.auth", applicationProperties.getCicdSmtpAuth());
 		mailServerProperties.put("mail.smtp.starttls.enable", applicationProperties.getCicdSmtpStartttls());
 
-
 		List<String> toMailId = emailTemplate.getToMailId();
 		InternetAddress[] internetAddress = new InternetAddress[toMailId.size()];
-		int i=0;
+		int i = 0;
 		for (String tomail : toMailId) {
 			internetAddress[i] = new InternetAddress(tomail);
 			i++;
@@ -135,13 +137,13 @@ public class MailUtil {
 		generateMailMessage = new MimeMessage(getMailSession);
 		generateMailMessage.addRecipients(Message.RecipientType.TO, internetAddress);
 
-		if(emailTemplate.getSubject()!=null){
+		if (emailTemplate.getSubject() != null) {
 			generateMailMessage.setSubject(emailTemplate.getSubject());
 		}
 
 		generateMailMessage.setContent(generateMailMessage, "text/html; charset=utf-8");
 
-		BodyPart  messageBodyPart = new MimeBodyPart();
+		BodyPart messageBodyPart = new MimeBodyPart();
 		messageBodyPart.setText(emailTemplate.getBody());
 		multipart.addBodyPart(messageBodyPart);
 
@@ -149,9 +151,11 @@ public class MailUtil {
 		Transport transport = getMailSession.getTransport("smtp");
 
 		// if you have 2FA enabled then provide App Specific Password
-//		transport.connect(applicationProperties.getSmtphostName(), applicationProperties.getCicdUserName(), applicationProperties.getCicdPassWord());
-//		transport.sendMessage(generateMailMessage, generateMailMessage.getAllRecipients());
+		// transport.connect(applicationProperties.getSmtphostName(),
+		// applicationProperties.getCicdUserName(),
+		// applicationProperties.getCicdPassWord());
+		// transport.sendMessage(generateMailMessage,
+		// generateMailMessage.getAllRecipients());
 		transport.close();
 	}
-
 }

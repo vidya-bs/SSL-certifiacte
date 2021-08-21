@@ -17,18 +17,18 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Method {
 
-	public enum Condition {
+    public enum Condition {
 
-		@JsonProperty("equalTo")
-		equalTo,
+        @JsonProperty("equalTo")
+        equalTo,
 
-		@JsonProperty("notEqualTo")
-		notEqualTo,
+        @JsonProperty("notEqualTo")
+        notEqualTo,
 
-		@JsonProperty("any")
-		any,
-	}
+        @JsonProperty("any")
+        any,
+    }
 
-	String name;
-	Condition condition;
+    String name;
+    Condition condition;
 }

@@ -16,28 +16,29 @@ public class ProductRequest {
 
 	enum ProductStatus {
 		@JsonProperty("New")
-		newStatus,
-		@JsonProperty("Published")
-		published,
-		@JsonProperty("Review")
+		newStatus, @JsonProperty("Published")
+		published, @JsonProperty("Review")
 		Review;
 	}
 
 	enum ProductAccess {
-		internal,external
+		internal, external
 	}
 
 	@JsonProperty("name")
 	String name;
+
 	@JsonProperty("summary")
 	String summary;
+
 	@JsonProperty("description")
 	String description;
+
 	@JsonProperty("owner")
 	String owner;
+
 	String ownerEmail;
 	ProductStatus productStatus;
 	ProductAccess productAccess;
 	boolean publishStatus;
-
 }

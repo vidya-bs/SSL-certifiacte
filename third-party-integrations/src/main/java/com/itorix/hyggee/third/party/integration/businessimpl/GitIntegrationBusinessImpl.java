@@ -39,21 +39,22 @@ public class GitIntegrationBusinessImpl implements GitIntegrationBusiness {
 		headers.set("Authorization", getToken(token));
 		return new HttpEntity<String>("parameters", headers);
 	}
-	
-	private String getToken(String token) throws Exception{
+
+	private String getToken(String token) throws Exception {
 		RSAEncryption rsaEncryption = new RSAEncryption();
 		String[] values = token.split(" ");
-		if(token.contains("Basic"))
+		if (token.contains("Basic"))
 			return token;
 		else
-			return "Token "+ rsaEncryption.decryptText(values[1]);
+			return "Token " + rsaEncryption.decryptText(values[1]);
 	}
-	
-	public GitHubUserResponse gitHubUser(String interactionid, String jsessionid, String token) throws ItorixException, Exception {
+
+	public GitHubUserResponse gitHubUser(String interactionid, String jsessionid, String token)
+			throws ItorixException, Exception {
 		GitHubUserResponse gitHubUserResponse = new GitHubUserResponse();
 		ResponseEntity<String> response = new RestTemplate().exchange(
-				applicationProperties.getThirdPartyIntegrationGitHubHost() + "/user", HttpMethod.GET, getHttpEntity(token),
-				new ParameterizedTypeReference<String>() {
+				applicationProperties.getThirdPartyIntegrationGitHubHost() + "/user", HttpMethod.GET,
+				getHttpEntity(token), new ParameterizedTypeReference<String>() {
 				});
 		String responseString = response.getBody();
 		ObjectMapper objectMapper = new ObjectMapper();
@@ -71,11 +72,13 @@ public class GitIntegrationBusinessImpl implements GitIntegrationBusiness {
 		return gitHubUserResponse;
 	}
 
-	public List<GitHubUserReposResponse> gitHubUserRepos(String interactionid, String jsessionid, String token) throws ItorixException, Exception {
+	public List<GitHubUserReposResponse> gitHubUserRepos(String interactionid, String jsessionid, String token)
+			throws ItorixException, Exception {
 		List<GitHubUserReposResponse> listGitHubUserReposResponse = new ArrayList<>();
 		ResponseEntity<String> response = new RestTemplate().exchange(
 				applicationProperties.getThirdPartyIntegrationGitHubHost() + "/user/repos", HttpMethod.GET,
-				getHttpEntity(token), new ParameterizedTypeReference<String>() {});
+				getHttpEntity(token), new ParameterizedTypeReference<String>() {
+				});
 		String responseString = response.getBody();
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
@@ -119,5 +122,4 @@ public class GitIntegrationBusinessImpl implements GitIntegrationBusiness {
 
 		return listGitHubUserReposResponse;
 	}
-
 }

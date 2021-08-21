@@ -14,31 +14,27 @@ import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.itorix.apiwiz.marketing.contactus.model.ContactUsNotification;
 import com.itorix.apiwiz.marketing.contactus.model.NotificatoinEvent;
 
-
 @CrossOrigin
 @RestController
 public interface CantactUsService {
-	
-	@UnSecure(ignoreValidation=true)
+
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/send-notification")
 	public ResponseEntity<?> createJobPosting(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value="x-apikey")String apikey,
-			@RequestBody ContactUsNotification contactUsNotification) throws Exception;
+			@RequestHeader(value = "x-apikey") String apikey, @RequestBody ContactUsNotification contactUsNotification)
+			throws Exception;
 
-	@UnSecure(ignoreValidation=true)
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/notifications/config")
 	public ResponseEntity<?> createNotificatonConfig(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value="x-apikey")String apikey,
-			@RequestBody List<NotificatoinEvent> notificatoinEvents) throws Exception;
-	
-	@UnSecure(ignoreValidation=true)
+			@RequestHeader(value = "x-apikey") String apikey, @RequestBody List<NotificatoinEvent> notificatoinEvents)
+			throws Exception;
+
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/notifications/events")
 	public ResponseEntity<?> getNotificatonConfig(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value="x-apikey")String apikey) throws Exception;
-
+			@RequestHeader(value = "x-apikey") String apikey) throws Exception;
 }
-
-	

@@ -1,4 +1,3 @@
-
 package com.itorix.apiwiz.testsuite.model;
 
 import java.util.List;
@@ -26,8 +25,10 @@ public class Dashboard {
 
 	@JsonProperty("stats")
 	private Stats stats;
-	
-	public Dashboard() {}
+
+	public Dashboard() {
+	}
+
 	public Dashboard(int totalExecution, int totalSuccess, int totalFail, int totalCancelled, Stats stats) {
 		super();
 		this.totalExecution = totalExecution;
@@ -103,5 +104,4 @@ public class Dashboard {
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

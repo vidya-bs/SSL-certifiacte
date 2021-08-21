@@ -6,39 +6,40 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MonitorAgentExecutorEntity {
-	public static final String TABLE_NAME = "monitor_executor";
+    public static final String TABLE_NAME = "monitor_executor";
 
-	public enum STATUSES {
+    public enum STATUSES {
 
-		SCHEDULED("Scheduled"), IN_PROGRESS("In Progress") , COMPLETED("Completed"),CANCELLED("Cancelled");
-		private String value;
+        SCHEDULED("Scheduled"), IN_PROGRESS("In Progress"), COMPLETED("Completed"), CANCELLED("Cancelled");
 
-		private STATUSES(String value) {
-			this.value = value;
-		}
+        private String value;
 
-		public String getValue() {
-			return value;
-		}
+        private STATUSES(String value) {
+            this.value = value;
+        }
 
-		public static String getStatus(STATUSES status) {
+        public String getValue() {
+            return value;
+        }
 
-			String userRoles = null;
-			for (STATUSES role : STATUSES.values()) {
-				if (role.equals(status)) {
-					userRoles = role.getValue();
-				}
-			}
-			return userRoles;
-		}
+        public static String getStatus(STATUSES status) {
 
-	}
+            String userRoles = null;
+            for (STATUSES role : STATUSES.values()) {
+                if (role.equals(status)) {
+                    userRoles = role.getValue();
+                }
+            }
+            return userRoles;
+        }
 
-	private Long id;
-	private String tenant;
-	private String schedulerId;
-	private String collectionId;
-	private String status;
-	private String errorDescription;
+    }
+
+    private Long id;
+    private String tenant;
+    private String schedulerId;
+    private String collectionId;
+    private String status;
+    private String errorDescription;
 
 }

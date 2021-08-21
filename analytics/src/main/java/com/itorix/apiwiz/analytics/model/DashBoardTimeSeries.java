@@ -11,9 +11,8 @@ public class DashBoardTimeSeries {
 	public static final String LABEL_DASH_BOARD_FUNCTIONNAME = "dashBoradFunctionName";
 	public static final String LABEL_DASH_BOARD_ENVIROMENT = "environment";
 	public static final String LABEL_DASH_BOARD_ORGANISATION = "organisation";
-	public static final String LABEL_DASH_BOARD_TYPE="type";
-	
-	
+	public static final String LABEL_DASH_BOARD_TYPE = "type";
+
 	private Object timeSeriesResponse;
 
 	private String dashBoradFunctionName;
@@ -22,10 +21,8 @@ public class DashBoardTimeSeries {
 
 	private String organisation;
 
-	
 	private String type;
-	
-	
+
 	public String getType() {
 		return type;
 	}
@@ -65,5 +62,4 @@ public class DashBoardTimeSeries {
 	public void setTimeSeriesResponse(Object timeSeriesResponse) {
 		this.timeSeriesResponse = timeSeriesResponse;
 	}
-
 }

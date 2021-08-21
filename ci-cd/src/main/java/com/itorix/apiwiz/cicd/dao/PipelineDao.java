@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -15,30 +16,26 @@ import com.itorix.apiwiz.cicd.beans.PipelineGroups;
 import com.itorix.apiwiz.cicd.beans.PipelineNameValidation;
 import com.itorix.apiwiz.identitymanagement.model.User;
 
-/**
- * 
- * @author vphani
- *
- */
+/** @author vphani */
 @Component
 public class PipelineDao {
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
-	
-	public boolean validateGroup(String name){
+
+	public boolean validateGroup(String name) {
 		Query query = new Query(Criteria.where("_id").is(name));
 		List<PipelineGroups> projects = mongoTemplate.find(query, PipelineGroups.class);
-		if(projects != null && projects.size() > 0)
+		if (projects != null && projects.size() > 0)
 			return false;
 		else
 			return true;
 	}
-	
-	public boolean validatePipelineName(PipelineNameValidation pipelineName){
+
+	public boolean validatePipelineName(PipelineNameValidation pipelineName) {
 		Query query = new Query(Criteria.where("_id").is(pipelineName.getPipelineName()));
 		List<Pipeline> pipeline = mongoTemplate.find(query, Pipeline.class);
-		if(pipeline != null && pipeline.size() > 0)
+		if (pipeline != null && pipeline.size() > 0)
 			return false;
 		else
 			return true;
@@ -56,10 +53,12 @@ public class PipelineDao {
 		} else {
 			metadata = manageMetadata(inputPipeline.getMetadata(), user);
 		}
-		String projectName = pipelineGroups.getDefineName()!=null? pipelineGroups.getDefineName() : pipelineGroups.getProjectName();
+		String projectName = pipelineGroups.getDefineName() != null
+				? pipelineGroups.getDefineName()
+				: pipelineGroups.getProjectName();
 		pipelineGroups.getPipelines().get(0).setMetadata(metadata);
 		inputPipeline = pipelineGroups.getPipelines().get(0);
-		inputPipeline.setProjectName( projectName );
+		inputPipeline.setProjectName(projectName);
 		mongoTemplate.save(inputPipeline);
 
 		// Save PipelineGroups
@@ -108,7 +107,8 @@ public class PipelineDao {
 
 	private Metadata manageMetadata(Metadata existing, User user) {
 		Metadata metadata = null;
-		String username = (user != null && user.getFirstName() != null) ? user.getFirstName() + " " + user.getLastName()
+		String username = (user != null && user.getFirstName() != null)
+				? user.getFirstName() + " " + user.getLastName()
 				: "";
 		if (existing == null || existing.getCreatedBy() == null) {
 			metadata = new Metadata(username, Instant.now().toEpochMilli(), username, Instant.now().toEpochMilli());
@@ -136,22 +136,22 @@ public class PipelineDao {
 	public PipelineGroups getPipelineGroups(String groupName, boolean minified) {
 		PipelineGroups pipelineGroups = null;
 		if (groupName != null) {
-			Query query = new Query(Criteria.where("_id").is(groupName));
+			Query query = new Query(Criteria.where("_id").is(groupName)).with(Sort.by(Sort.Direction.DESC, "mts"));
 			List<PipelineGroups> projects = mongoTemplate.find(query, PipelineGroups.class);
 			if (projects != null && projects.size() > 0) {
 				pipelineGroups = projects.get(0);
 			}
-			if(minified) {
-			    pipelineGroups = minifyPipelineGroupsResponse(pipelineGroups);
+			if (minified) {
+				pipelineGroups = minifyPipelineGroupsResponse(pipelineGroups);
 			}
 		}
 		return pipelineGroups;
 	}
 
 	public PipelineGroups getPipelineGroups(String groupName) {
-	    return getPipelineGroups(groupName, true);
+		return getPipelineGroups(groupName, true);
 	}
-	
+
 	private PipelineGroups minifyPipelineGroupsResponse(PipelineGroups pipelineGroups) {
 		List<Pipeline> pipelines = pipelineGroups.getPipelines();
 		for (Pipeline pipeline : pipelines) {
@@ -192,19 +192,21 @@ public class PipelineDao {
 	}
 
 	public List<PipelineGroups> getAvailablePipelines() {
-		List<PipelineGroups> pipelineGroups = mongoTemplate.findAll(PipelineGroups.class);
+		Query query = new Query().with(Sort.by(Sort.Direction.DESC, "mts"));
+		List<PipelineGroups> pipelineGroups = mongoTemplate.find(query, PipelineGroups.class);
 		for (PipelineGroups pipelineGroup : pipelineGroups) {
 			minifyPipelineGroupsResponse(pipelineGroup);
 		}
 		return pipelineGroups;
 	}
 
-    public void updatePipelineStatus(String groupName, String pipelineName, String status, User user) {
-        PipelineGroups pipelineGroups = getPipelineGroups(groupName, false);
-        if(pipelineGroups != null && pipelineGroups.getPipelines() != null && pipelineGroups.getPipelines().size() > 0) {
-            //Updating pipeline status in pipeline group
-            pipelineGroups.getPipelines().get(0).setStatus(status);
-            createOrEditPipeline(pipelineGroups, user);
-        }
-    }
+	public void updatePipelineStatus(String groupName, String pipelineName, String status, User user) {
+		PipelineGroups pipelineGroups = getPipelineGroups(groupName, false);
+		if (pipelineGroups != null && pipelineGroups.getPipelines() != null
+				&& pipelineGroups.getPipelines().size() > 0) {
+			// Updating pipeline status in pipeline group
+			pipelineGroups.getPipelines().get(0).setStatus(status);
+			createOrEditPipeline(pipelineGroups, user);
+		}
+	}
 }

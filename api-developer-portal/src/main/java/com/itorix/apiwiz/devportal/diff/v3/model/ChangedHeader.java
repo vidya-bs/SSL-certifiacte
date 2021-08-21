@@ -26,5 +26,4 @@ public class ChangedHeader extends Header {
 	public void setExampleDiff(ExampleDiff exampleDiff) {
 		this.exampleDiff = exampleDiff;
 	}
-
 }

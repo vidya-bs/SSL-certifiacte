@@ -54,5 +54,4 @@ public class VariableRef {
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

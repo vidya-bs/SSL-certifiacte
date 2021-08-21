@@ -13,15 +13,15 @@ import lombok.Setter;
 @Setter
 @Component("executionResult")
 @Document(collection = "Monitor.Collections.Events.History")
-public class ExecutionResult extends MonitorRequest{
+public class ExecutionResult extends MonitorRequest {
 
-	@Id
-	String id;
-	String requestId;
-	String collectionId;
-	String schedulerId;
-	long executedTime;
-	long latency;
-	String status;
-	int statusCode;
+    @Id
+    String id;
+    String requestId;
+    String collectionId;
+    String schedulerId;
+    long executedTime;
+    long latency;
+    String status;
+    int statusCode;
 }

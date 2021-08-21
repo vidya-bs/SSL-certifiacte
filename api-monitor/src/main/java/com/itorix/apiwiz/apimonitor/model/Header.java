@@ -1,4 +1,3 @@
-
 package com.itorix.apiwiz.apimonitor.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -10,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Header {
 
-    public Header(String name, String value , String description) {
+	public Header(String name, String value, String description) {
 		super();
 		this.name = name;
 		this.description = description;
@@ -25,47 +24,47 @@ public class Header {
 	}
 
 	@JsonProperty("name")
-    private String name;
+	private String name;
 
-    @JsonProperty("description")
-    private String description;
+	@JsonProperty("description")
+	private String description;
 
-    @JsonProperty("value")
-    private String value;
+	@JsonProperty("value")
+	private String value;
 
-    //@JsonProperty("isEncryption")
-    @JsonIgnore
-    private boolean encryption;
+	// @JsonProperty("isEncryption")
+	@JsonIgnore
+	private boolean encryption;
 
-    @JsonProperty("name")
-    public String getName() {
-        return name;
-    }
+	@JsonProperty("name")
+	public String getName() {
+		return name;
+	}
 
-    @JsonProperty("name")
-    public void setName(String name) {
-        this.name = name;
-    }
+	@JsonProperty("name")
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    @JsonProperty("description")
-    public String getDescription() {
-        return description;
-    }
+	@JsonProperty("description")
+	public String getDescription() {
+		return description;
+	}
 
-    @JsonProperty("description")
-    public void setDescription(String description) {
-        this.description = description;
-    }
+	@JsonProperty("description")
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
-    @JsonProperty("value")
-    public String getValue() {
-        return value;
-    }
+	@JsonProperty("value")
+	public String getValue() {
+		return value;
+	}
 
-    @JsonProperty("value")
-    public void setValue(String value) {
-        this.value = value;
-    }
+	@JsonProperty("value")
+	public void setValue(String value) {
+		this.value = value;
+	}
 
 	public boolean isEncryption() {
 		return encryption;

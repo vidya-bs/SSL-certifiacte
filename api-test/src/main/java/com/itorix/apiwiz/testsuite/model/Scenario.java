@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Scenario {
 
-
 	@JsonProperty("id")
 	private String id = UUID.randomUUID().toString();
 
@@ -96,10 +95,10 @@ public class Scenario {
 
 	public Long getDuration() {
 		duration = 0L;
-		if(testCases != null) {
-			for(TestCase testCase:testCases) {
-				if(testCase.getDuration() != null) {
-					duration+=testCase.getDuration();
+		if (testCases != null) {
+			for (TestCase testCase : testCases) {
+				if (testCase.getDuration() != null) {
+					duration += testCase.getDuration();
 				}
 			}
 		}
@@ -110,5 +109,9 @@ public class Scenario {
 		this.duration = duration;
 	}
 
-
+	public Boolean hasTestCases() {
+		if (this.testCases != null && this.testCases.size() > 0)
+			return Boolean.TRUE;
+		return Boolean.FALSE;
+	}
 }

@@ -13,11 +13,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(Include.NON_NULL)
-@EqualsAndHashCode(of={"projectId","proxyName"})
+@EqualsAndHashCode(of = {"projectId", "proxyName"})
 public class ServiceRegistriesResponseWrapper {
 
 	String projectId;
 	String proxyName;
 	List<NameIdContainer> serviceRegistryNames = new ArrayList<>();
-
 }

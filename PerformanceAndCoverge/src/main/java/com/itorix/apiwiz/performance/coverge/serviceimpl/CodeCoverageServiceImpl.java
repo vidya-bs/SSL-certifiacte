@@ -67,17 +67,19 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 	@Autowired
 	CodeCoverageBusinessImpl codeCoverageService;
 
-
 	@Autowired
 	PostManService postManService;
-	
+
 	@Autowired
 	private ApigeeUtil apigeeUtil;
 
 	/**
-	 * <h1>http://hostname:port/v1/buildconfig/codecoverage</h1> Using this we
-	 * can test the the code coverage how much we done
-	 * 
+	 *
+	 *
+	 * <h1>http://hostname:port/v1/buildconfig/codecoverage</h1>
+	 *
+	 * Using this we can test the the code coverage how much we done
+	 *
 	 * @param interactionid
 	 * @param postmanFile
 	 * @param envFile
@@ -89,28 +91,26 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 	 * @param jsessionid
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
+	 * 
 	 * @throws IOException
 	 * @throws JAXBException
 	 */
-	@ApiOperation(value = "Prepare CodeCoverage", notes = "", code=200)
-	@ApiResponses(value = { 
-			@ApiResponse(code = 200, message = "Ok", response = CodeCoverageBackUpInfo.class),
+	@ApiOperation(value = "Prepare CodeCoverage", notes = "", code = 200)
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = CodeCoverageBackUpInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
-	})
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/buildconfig/codecoverage", produces = {
-			MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Object> prepareCodeCoverage(@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestParam(value = "postmanFile",required = false ) MultipartFile postmanFile, 
-			@RequestParam(value = "envFile",required = false) MultipartFile envFile,
-			@RequestParam("org") String org, 
-			@RequestParam("env") String env, 
-			@RequestParam("proxy") String proxy,
-			@RequestParam(value = "testsuiteId", required = false) String testsuiteId, 
-			@RequestParam(value = "variableId", required = false) String variableId,  
-			@RequestParam(value = "type", required = false) String type,
-			@RequestHeader HttpHeaders headers,
+			MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<Object> prepareCodeCoverage(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "postmanFile", required = false) MultipartFile postmanFile,
+			@RequestParam(value = "envFile", required = false) MultipartFile envFile, @RequestParam("org") String org,
+			@RequestParam("env") String env, @RequestParam("proxy") String proxy,
+			@RequestParam(value = "testsuiteId", required = false) String testsuiteId,
+			@RequestParam(value = "variableId", required = false) String variableId,
+			@RequestParam(value = "type", required = false) String type, @RequestHeader HttpHeaders headers,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		CodeCoverageBackUpInfo codeCoverageBackUpInfo = null;
 		User user = codeCoverageService.getUserDetailsFromSessionID(jsessionid);
@@ -136,117 +136,136 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 	}
 
 	/**
+	 *
+	 *
 	 * <h1>http://hostname:port/v1/buildconfig/codecoverage</h1>
+	 *
 	 * <p>
 	 * This service fetches all the codecoverages that were ran
-	 * </p>
-	 * 
+	 *
 	 * @param interactionid
 	 * @param headers
 	 * @param jsessionid
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
 	 */
-	/*	@ApiOperation(value = "Get Code Coverages", notes = "", code=200)
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "Ok", response = History.class,responseContainer = "List"),
-        @ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
-       })
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/codecoverage", produces = {
-			MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Object> getCodeCoverages(@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid)throws Exception {
-		List<History> history = new ArrayList<History>();
-		history = codeCoverageService.getCodeCoverageList(interactionid);
-		return new ResponseEntity<Object>(history, HttpStatus.OK);
-	}*/
+	/*
+	 * @ApiOperation(value = "Get Code Coverages", notes = "", code=200)
+	 * 
+	 * @ApiResponses(value = {
+	 * 
+	 * @ApiResponse(code = 200, message = "Ok", response =
+	 * History.class,responseContainer = "List"),
+	 * 
+	 * @ApiResponse(code = 500, message =
+	 * "Internal server error. Please contact support for further instructions."
+	 * , response = ErrorObj.class) })
+	 * 
+	 * @RequestMapping(method = RequestMethod.GET, value =
+	 * "/v1/buildconfig/codecoverage", produces = {
+	 * MediaType.APPLICATION_JSON_VALUE }) public ResponseEntity<Object>
+	 * getCodeCoverages(@RequestHeader(value = "interactionid", required =
+	 * false) String interactionid,
+	 * 
+	 * @RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID")
+	 * String jsessionid)throws Exception { List<History> history = new
+	 * ArrayList<History>(); history =
+	 * codeCoverageService.getCodeCoverageList(interactionid); return new
+	 * ResponseEntity<Object>(history, HttpStatus.OK); }
+	 */
 
 	/**
+	 *
+	 *
 	 * <h1>http://hostname:port/v1/buildconfig/codecoverage/{id}</h1>
+	 *
 	 * <p>
 	 * This service fetches code coverage based on id that were ran
-	 * </p>
-	 * 
+	 *
 	 * @param interactionid
 	 * @param id
 	 * @param headers
 	 * @param jsessionid
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
 	 */
-	@ApiOperation(value = "Get Code Coverage Overview ForId", notes = "", code=200)
-	@ApiResponses(value = { 
-			@ApiResponse(code = 200, message = "Ok", response = CodeCoverageBackUpInfo.class),
-			@ApiResponse(code = 404, message = "Sorry! No records found for the given record id.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
-	})
+	@ApiOperation(value = "Get Code Coverage Overview ForId", notes = "", code = 200)
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = CodeCoverageBackUpInfo.class),
+			@ApiResponse(code = 404, message = "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/codecoverage/{id}", produces = {
-			MediaType.APPLICATION_JSON_VALUE })
+			MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Object> getCodeCoverageOverviewForId(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("id") String id, @RequestHeader HttpHeaders headers,
-			@RequestHeader(value = "JSESSIONID") String jsessionid)throws Exception {
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		CodeCoverageBackUpInfo codeCoverageBackUpInfo = null;
 		if (id == null || id.length() <= 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("CodeCoverage-1001"), "CodeCoverage-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("CodeCoverage-1000"), "CodeCoverage-1000");
 		}
 		codeCoverageBackUpInfo = codeCoverageService.getCodeCoverageOnId(id, interactionid);
 		if (codeCoverageBackUpInfo == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("CodeCoverage-1001"), "CodeCoverage-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("CodeCoverage-1000"), "CodeCoverage-1000");
 		}
 		return new ResponseEntity<Object>(codeCoverageBackUpInfo, HttpStatus.OK);
 	}
 
 	/**
+	 *
+	 *
 	 * <h1>http://hostname:port/v1/buildconfig/codecoverage/{id}</h1>
-	 * 
+	 *
 	 * @param interactionid
 	 * @param id
 	 * @param headers
 	 * @param jsessionid
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
 	 */
-	@ApiOperation(value = "Delete Code Coverage Overview ForId", notes = "", code=204)
-	@ApiResponses(value = { 
-			@ApiResponse(code = 204, message = "No Content", response = Void.class),
-			@ApiResponse(code = 404, message = "Sorry! No records found for the given record id.", response = ErrorObj.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
-	})
+	@ApiOperation(value = "Delete Code Coverage Overview ForId", notes = "", code = 204)
+	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
+			@ApiResponse(code = 404, message = "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/buildconfig/codecoverage/{id}")
 	public ResponseEntity<Void> deleteCodeCoverageOverviewForId(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("id") String id, @RequestHeader HttpHeaders headers,
-			@RequestHeader(value = "JSESSIONID") String jsessionid)throws Exception {
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		if (id == null || id.length() <= 0) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("CodeCoverage-1001"),"CodeCoverage-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("CodeCoverage-1000"), "CodeCoverage-1000");
 		}
 		codeCoverageService.deleteCodeCoverageOnId(id, interactionid);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-
 	}
-	@ApiOperation(value = "Get Code Coverages", notes = "", code=200)
-	@ApiResponses(value = { 
-			@ApiResponse(code = 200, message = "Ok", response = MonitorResponse.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class)
-	})
-	@RequestMapping(method = RequestMethod.GET,value = "/v1/buildconfig/codecoverage" )
-	public ResponseEntity<List<History>> getMonitoringStats(@RequestHeader(value="interactionid",required=false)String interactionid,@RequestHeader(value="JSESSIONID") String jsessionid,
-			@RequestParam(name="filter", required = false)boolean filter,@RequestParam(name="proxy", required = false)String proxy,@RequestParam(name="org", required = false)String org,
-			@RequestParam(name="env", required = false)String env,@RequestParam(name="daterange",required=false)String daterange)throws Exception
-	{
+
+	@ApiOperation(value = "Get Code Coverages", notes = "", code = 200)
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = MonitorResponse.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/codecoverage")
+	public ResponseEntity<List<History>> getMonitoringStats(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(name = "filter", required = false) boolean filter,
+			@RequestParam(name = "proxy", required = false) String proxy,
+			@RequestParam(name = "org", required = false) String org,
+			@RequestParam(name = "env", required = false) String env,
+			@RequestParam(name = "daterange", required = false) String daterange) throws Exception {
 		List<History> history = new ArrayList<History>();
-		history = codeCoverageService.getCodeCoverageList(interactionid,filter,proxy,org,env,daterange);
+		history = codeCoverageService.getCodeCoverageList(interactionid, filter, proxy, org, env, daterange);
 		return new ResponseEntity<List<History>>(history, HttpStatus.OK);
 	}
 
-
 	/**
+	 *
+	 *
 	 * <h1>http://hostname:port/v1/api/codecoverage/unittest</h1>
-	 * 
+	 *
 	 * @param interactionid
 	 * @param headers
 	 * @param org
@@ -255,34 +274,31 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 	 * @param isSaaS
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	public Object getUnitTests(@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader HttpHeaders headers, 
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestParam("org") String org,
-			@RequestParam("env") String env,
-			@RequestParam("proxy") String proxy, 
-			@RequestParam(value = "testsuitId", required = false) String testsuitId, 
-			@RequestParam(value = "artifactType", required = false) String artifactType, 
-			@RequestParam(value = "variableId", required = false) String variableId, 
-			@RequestParam("isSaaS") boolean isSaaS) throws Exception{
+			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam("org") String org, @RequestParam("env") String env, @RequestParam("proxy") String proxy,
+			@RequestParam(value = "testsuitId", required = false) String testsuitId,
+			@RequestParam(value = "artifactType", required = false) String artifactType,
+			@RequestParam(value = "variableId", required = false) String variableId,
+			@RequestParam("isSaaS") boolean isSaaS) throws Exception {
 		Object res = null;
 		try {
-			if(artifactType == null || artifactType.equalsIgnoreCase("Postman")) {
+			if (artifactType == null || artifactType.equalsIgnoreCase("Postman")) {
 				String postman = (String) postManService.getPostMan(org, env, proxy, interactionid,
 						PostManEnvFileInfo.UNIT_TEST, isSaaS);
 				String environment = (String) postManService.getEnvFile(org, env, proxy, interactionid,
 						PostManEnvFileInfo.UNIT_TEST, isSaaS);
 				res = codeCoverageService.executeUnitTests(postman, environment);
-			}
-			else if(artifactType != null && artifactType.equalsIgnoreCase("SoapUi")){
+			} else if (artifactType != null && artifactType.equalsIgnoreCase("SoapUi")) {
 				String soapUiFile = (String) postManService.getSoapUiInfoFile(org, env, proxy, interactionid,
 						SoapUiEnvFileInfo.UNIT_TEST, isSaaS);
 				res = codeCoverageService.executeSoapUi(soapUiFile, null);
-			}
-			else if(artifactType != null && artifactType.equalsIgnoreCase("testsuite")){
+			} else if (artifactType != null && artifactType.equalsIgnoreCase("testsuite")) {
 				res = codeCoverageService.executeTestsuiteUnittests(testsuitId, variableId);
 			}
 			return res;
@@ -290,12 +306,14 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 			throw e;
 		} catch (Exception e) {
 			throw e;
-		} 
+		}
 	}
 
 	/**
+	 *
+	 *
 	 * <h1>http://hostname:port/v1/api/codecoverage/execute</h1>
-	 * 
+	 *
 	 * @param interactionid
 	 * @param headers
 	 * @param codeCoverageVO
@@ -303,17 +321,16 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 	 * @param isSaaS
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public Object executeCodeCoverage(@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader HttpHeaders headers, 
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody CodeCoverageVO codeCoverageVO,
-			@RequestParam(value = "type", required = false) String type,
-			@RequestParam(value = "isSaaS", required = false) boolean isSaaS
-			) throws Exception {
+			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody CodeCoverageVO codeCoverageVO, @RequestParam(value = "type", required = false) String type,
+			@RequestParam(value = "isSaaS", required = false) boolean isSaaS) throws Exception {
 		CodeCoverageBackUpInfo res = null;
 		try {
 			ObjectMapper mapper = new ObjectMapper();
@@ -325,7 +342,7 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 				postmanFile = (String) postManService.getPostMan(org, env, proxy, null,
 						PostManEnvFileInfo.CODE_COVERAGE, isSaaS);
 				logger.debug(mapper.writeValueAsString(codeCoverageVO));
-			}catch(Exception e) {
+			} catch (Exception e) {
 
 			}
 			codeCoverageVO.setPostmanFile(postmanFile);
@@ -334,7 +351,7 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 			try {
 				envFile = (String) postManService.getEnvFile(codeCoverageVO.getOrg(), codeCoverageVO.getEnv(),
 						codeCoverageVO.getProxy(), interactionid, PostManEnvFileInfo.CODE_COVERAGE, isSaaS);
-			}catch(Exception e) {
+			} catch (Exception e) {
 
 			}
 			codeCoverageVO.setEnvFile(envFile);
@@ -347,12 +364,6 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 			throw e;
 		} catch (Exception e) {
 			throw e;
-		} 
+		}
 	}
-
-
-
-
-
-
 }

@@ -1,4 +1,3 @@
-
 package com.itorix.apiwiz.apimonitor.model.collection;
 
 import java.util.List;

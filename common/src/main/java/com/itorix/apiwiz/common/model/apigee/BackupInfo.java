@@ -1,7 +1,7 @@
 package com.itorix.apiwiz.common.model.apigee;
 
 public interface BackupInfo {
-	
+
 	public String getJfrogUrl();
 
 	public void setJfrogUrl(String jfrogUrl);
@@ -20,7 +20,7 @@ public interface BackupInfo {
 
 	public String getBackUpLevel();
 
-	public void setBackUpLevel(String backUpLevel) ;
+	public void setBackUpLevel(String backUpLevel);
 
 	public String getTempToken();
 

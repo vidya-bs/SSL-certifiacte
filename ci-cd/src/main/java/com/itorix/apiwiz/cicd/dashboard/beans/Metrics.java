@@ -1,35 +1,28 @@
 package com.itorix.apiwiz.cicd.dashboard.beans;
-public class Metrics
-{
-    private String buildNumber;
 
-    private Stages[] stages;
+public class Metrics {
+	private String buildNumber;
 
-    public String getBuildNumber ()
-    {
-        return buildNumber;
-    }
+	private Stages[] stages;
 
-    public void setBuildNumber (String buildNumber)
-    {
-        this.buildNumber = buildNumber;
-    }
+	public String getBuildNumber() {
+		return buildNumber;
+	}
 
-    public Stages[] getStages ()
-    {
-        return stages;
-    }
+	public void setBuildNumber(String buildNumber) {
+		this.buildNumber = buildNumber;
+	}
 
-    public void setStages (Stages[] stages)
-    {
-        this.stages = stages;
-    }
+	public Stages[] getStages() {
+		return stages;
+	}
 
-    @Override
-    public String toString()
-    {
-        return "ClassPojo [buildNumber = "+buildNumber+", stages = "+stages+"]";
-    }
+	public void setStages(Stages[] stages) {
+		this.stages = stages;
+	}
+
+	@Override
+	public String toString() {
+		return "ClassPojo [buildNumber = " + buildNumber + ", stages = " + stages + "]";
+	}
 }
-			
-			

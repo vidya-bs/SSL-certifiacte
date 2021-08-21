@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.itorix.apiwiz.common.model.apigee.CommonConfiguration;
@@ -18,17 +19,20 @@ import com.itorix.apiwiz.data.management.model.OrgBackUpInfo;
 import com.itorix.apiwiz.data.management.model.ProductsBackUpInfo;
 import com.itorix.apiwiz.data.management.model.ProxyBackUpInfo;
 import com.itorix.apiwiz.data.management.model.ResourceBackUpInfo;
+import com.itorix.apiwiz.data.management.model.overview.ApigeeOrganizationalVO;
 
 @Service
 public interface OrganizationBusiness {
 	/**
 	 * This method is used to get the list of environments for an organization.
-	 * 
+	 *
 	 * @param jsessionid
 	 * @param organization
 	 * @param interactionid
 	 * @param type
+	 * 
 	 * @return
+	 * 
 	 * @throws ItorixException
 	 */
 	public List<String> getEnvironmentNames(String jsessionid, String organization, String interactionid, String type)
@@ -36,12 +40,14 @@ public interface OrganizationBusiness {
 
 	/**
 	 * Using this we will get the list of proxies for an organization.
-	 * 
+	 *
 	 * @param jsessionid
 	 * @param organization
 	 * @param interactionid
 	 * @param type
+	 * 
 	 * @return
+	 * 
 	 * @throws ItorixException
 	 */
 	public List<String> listAPIProxies(String jsessionid, String organization, String interactionid, String type)
@@ -49,13 +55,15 @@ public interface OrganizationBusiness {
 
 	/**
 	 * This will return the deployed proxies for specified org & env.
-	 * 
+	 *
 	 * @param jsessionid
 	 * @param organization
 	 * @param environment
 	 * @param interactionid
 	 * @param type
+	 * 
 	 * @return
+	 * 
 	 * @throws ItorixException
 	 */
 	public String getAPIsDeployedToEnvironment(String jsessionid, String organization, String environment,
@@ -63,108 +71,132 @@ public interface OrganizationBusiness {
 
 	/**
 	 * This method will do the backup of api's or proxies.
-	 * 
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	public BackupInfo backupProxies(CommonConfiguration cfg) throws Exception;
 
 	/**
 	 * This method will do the backup of shared flows.
-	 * 
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	public BackupInfo backupSharedflows(CommonConfiguration cfg) throws Exception;
 
 	/**
 	 * This method will do the backup of apps.
-	 * 
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	public BackupInfo backUpApps(CommonConfiguration cfg) throws Exception;
 
 	/**
 	 * This method will do the backup of products.
-	 * 
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	public BackupInfo backupProducts(CommonConfiguration cfg) throws Exception;
 
 	/**
 	 * This method will do the backup of developers.
-	 * 
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	public BackupInfo backupDevelopers(CommonConfiguration cfg) throws Exception;
 
 	/**
 	 * This method will do the backup of resources.
-	 * 
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	public BackupInfo backupResources(CommonConfiguration cfg) throws Exception;
 
 	/**
 	 * This method will do the backup of Organization.
-	 * 
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	public BackupInfo backUpOrganization(CommonConfiguration cfg) throws Exception;
 
 	/**
 	 * This method will do the backup of Caches.
-	 * 
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	public BackupInfo backupCaches(CommonConfiguration cfg) throws Exception;
 
 	/**
 	 * This method will do the backup of KVM's.
-	 * 
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	public BackupInfo backupKVM(boolean delete, CommonConfiguration cfg) throws Exception;
 
 	/**
 	 * This method will do the backup of Target Servers.
-	 * 
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	public BackupInfo backupTargetServers(CommonConfiguration cfg) throws Exception;
 
 	/**
 	 * Using this method we can restore the developer's
-	 * 
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	public BackupInfo restoreAppDevelopers1(CommonConfiguration cfg) throws Exception;
 
 	/**
 	 * This method we can restore the developer's
-	 * 
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws ItorixException
@@ -174,9 +206,11 @@ public interface OrganizationBusiness {
 
 	/**
 	 * This method will restore the resources.
-	 * 
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws ItorixException
@@ -238,7 +272,10 @@ public interface OrganizationBusiness {
 	public <T> List<T> getOrgBackUpHistory(String sys, String backuplevel, String interactionid) throws Exception;
 
 	public CommonConfiguration deleteBackUp(CommonConfiguration cfg, String oid, String sys) throws IOException;
-	public JsonNode populateVoToJson(CommonConfiguration cfg) throws JsonGenerationException, JsonMappingException, IOException, ItorixException;
-	
 
+	public JsonNode populateVoToJson(CommonConfiguration cfg)
+			throws JsonGenerationException, JsonMappingException, IOException, ItorixException;
+
+	public ApigeeOrganizationalVO apigeeOrganizationalView(CommonConfiguration cfg, boolean refresh)
+			throws ItorixException, JsonProcessingException, IOException;
 }

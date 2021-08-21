@@ -1,44 +1,5 @@
 package com.itorix.apiwiz.testsuite.dao;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.json.JSONException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.BasicQuery;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.support.BasicAuthorizationInterceptor;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestTemplate;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -53,34 +14,42 @@ import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.User;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
-import com.itorix.apiwiz.testsuite.business.gocd.beans.Attributes;
-import com.itorix.apiwiz.testsuite.business.gocd.beans.Job;
-import com.itorix.apiwiz.testsuite.business.gocd.beans.Material;
-import com.itorix.apiwiz.testsuite.business.gocd.beans.Pipeline;
-import com.itorix.apiwiz.testsuite.business.gocd.beans.PipelineGroup;
-import com.itorix.apiwiz.testsuite.business.gocd.beans.Stage;
-import com.itorix.apiwiz.testsuite.business.gocd.beans.Task;
-import com.itorix.apiwiz.testsuite.model.Certificates;
-import com.itorix.apiwiz.testsuite.model.Dashboard;
-import com.itorix.apiwiz.testsuite.model.DashboardStats;
-import com.itorix.apiwiz.testsuite.model.DashboardSummary;
-import com.itorix.apiwiz.testsuite.model.Header;
-import com.itorix.apiwiz.testsuite.model.MaskFields;
-import com.itorix.apiwiz.testsuite.model.Pagination;
-import com.itorix.apiwiz.testsuite.model.Response;
-import com.itorix.apiwiz.testsuite.model.Scenario;
-import com.itorix.apiwiz.testsuite.model.ScenarioStats;
-import com.itorix.apiwiz.testsuite.model.Stats;
-import com.itorix.apiwiz.testsuite.model.TestCase;
-import com.itorix.apiwiz.testsuite.model.TestCaseStats;
-import com.itorix.apiwiz.testsuite.model.TestSuite;
-import com.itorix.apiwiz.testsuite.model.TestSuiteAnalysis;
-import com.itorix.apiwiz.testsuite.model.TestSuiteHistoryResponse;
-import com.itorix.apiwiz.testsuite.model.TestSuiteOverviewResponse;
-import com.itorix.apiwiz.testsuite.model.TestSuiteResponse;
-import com.itorix.apiwiz.testsuite.model.TestSuiteSchedule;
-import com.itorix.apiwiz.testsuite.model.TestSuiteStats;
-import com.itorix.apiwiz.testsuite.model.Variables;
+import com.itorix.apiwiz.testsuite.business.gocd.beans.*;
+import com.itorix.apiwiz.testsuite.model.*;
+import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.*;
+import org.springframework.http.client.support.BasicAuthorizationInterceptor;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @EnableScheduling
@@ -104,13 +73,12 @@ public class TestSuiteDAO {
 	public void createMetaData(String metadataStr) {
 		Query query = new Query().addCriteria(Criteria.where("key").is("testsuite"));
 		MetaData metaData = masterMongoTemplate.findOne(query, MetaData.class);
-		if(metaData != null)
-		{
+		if (metaData != null) {
 			Update update = new Update();
 			update.set("metadata", metadataStr);
 			masterMongoTemplate.updateFirst(query, update, MetaData.class);
-		}else
-			masterMongoTemplate.save(new MetaData("testsuite",metadataStr));
+		} else
+			masterMongoTemplate.save(new MetaData("testsuite", metadataStr));
 	}
 
 	public Object getMetaData() {
@@ -121,24 +89,24 @@ public class TestSuiteDAO {
 		return null;
 	}
 
-//	public void createMetaData(String metadata) {
-//		masterMongoTemplate.dropCollection(MetaData.class);
-//		masterMongoTemplate.save(new MetaData(metadata));
-//	}
-//
-//	public Object getMetaData() {
-//		List<MetaData> metaData = masterMongoTemplate.findAll(MetaData.class);
-//		if (metaData.size() > 0)
-//			return metaData.get(0).getMetadata();
-//		return null;
-//	}
+	// public void createMetaData(String metadata) {
+	// masterMongoTemplate.dropCollection(MetaData.class);
+	// masterMongoTemplate.save(new MetaData(metadata));
+	// }
+	//
+	// public Object getMetaData() {
+	// List<MetaData> metaData = masterMongoTemplate.findAll(MetaData.class);
+	// if (metaData.size() > 0)
+	// return metaData.get(0).getMetadata();
+	// return null;
+	// }
 
 	public void createVariables(Variables variables) throws ItorixException {
 		if (findByConfigName(variables.getName()) == null) {
 			String userId = null;
 			String username = null;
 			try {
-				UserSession userSession  = UserSession.getCurrentSessionToken();
+				UserSession userSession = UserSession.getCurrentSessionToken();
 				userId = userSession.getUserId();
 				username = userSession.getUsername();
 			} catch (Exception e) {
@@ -162,16 +130,17 @@ public class TestSuiteDAO {
 	public Object updateVariables(Variables variables, String id) throws ItorixException {
 		Query query = new Query(Criteria.where("_id").is(id));
 		Variables dbVariables = mongoTemplate.findOne(query, Variables.class);
-		//		DBObject dbDoc = new BasicDBObject();
-		//		mongoTemplate.getConverter().write(variables, dbDoc);
-		//		Update update = Update.fromDBObject(dbDoc, "_id");
-		//		UpdateResult result = mongoTemplate.updateFirst(query, update, Variables.class);
+		// DBObject dbDoc = new BasicDBObject();
+		// mongoTemplate.getConverter().write(variables, dbDoc);
+		// Update update = Update.fromDBObject(dbDoc, "_id");
+		// UpdateResult result = mongoTemplate.updateFirst(query, update,
+		// Variables.class);
 		if (dbVariables != null) {
 			variables.setId(id);
 			String userId = null;
 			String username = null;
 			try {
-				UserSession userSession  = UserSession.getCurrentSessionToken();
+				UserSession userSession = UserSession.getCurrentSessionToken();
 				userId = userSession.getUserId();
 				username = userSession.getUsername();
 			} catch (Exception e) {
@@ -189,12 +158,12 @@ public class TestSuiteDAO {
 			for (Header header : headerVariables) {
 				if (header.isEncryption()) {
 					Header dbHeader = getVariable(dbVariables.getVariables(), header.getName());
-					if((dbHeader == null) || !dbHeader.isEncryption() ||
-							(dbHeader != null && !dbHeader.getValue().equals(header.getValue()))){
+					if ((dbHeader == null) || !dbHeader.isEncryption()
+							|| (dbHeader != null && !dbHeader.getValue().equals(header.getValue()))) {
 						try {
 							header.setValue(new RSAEncryption().encryptText(header.getValue()));
 						} catch (Exception e) {
-							throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-9"), "Testsuite-9");
+							throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1007"), "Testsuite-1007");
 						}
 					}
 				}
@@ -205,7 +174,8 @@ public class TestSuiteDAO {
 			throw new ItorixException("No Record exists", "Config-1004");
 		}
 	}
-	private Header getVariable(List<Header> headerVariables, String name){
+
+	private Header getVariable(List<Header> headerVariables, String name) {
 		for (Header header : headerVariables)
 			if (header.getName().equals(name))
 				return header;
@@ -219,27 +189,27 @@ public class TestSuiteDAO {
 	}
 
 	public TestSuiteOverviewResponse getVariables(int offset, int pageSize) {
-		List<Variables> variables = mongoTemplate.findAll(Variables.class);
-		if(variables.size()>0){
-			for(Variables variable: variables )
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts"));
+		List<Variables> variables = mongoTemplate.find(query, Variables.class);
+		if (variables.size() > 0) {
+			for (Variables variable : variables)
 				variable.setVariables(null);
 			TestSuiteOverviewResponse response = new TestSuiteOverviewResponse();
-			response.setData( variables);
+			response.setData(variables);
 			com.itorix.apiwiz.identitymanagement.model.Pagination pagination = new com.itorix.apiwiz.identitymanagement.model.Pagination();
-			long total = mongoTemplate.count(new Query() ,Variables.class);
+			long total = mongoTemplate.count(new Query(), Variables.class);
 			pagination.setOffset(offset);
 			pagination.setTotal(total);
 			pagination.setPageSize(pageSize);
 			response.setPagination(pagination);
 			return response;
-		}
-		else
+		} else
 			return new TestSuiteOverviewResponse();
-
 	}
 
 	public List<Variables> getVariables() {
-		return mongoTemplate.findAll(Variables.class);
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts"));
+		return mongoTemplate.find(query, Variables.class);
 	}
 
 	public void deleteVariable(String id) {
@@ -247,11 +217,11 @@ public class TestSuiteDAO {
 	}
 
 	public String createTestSuite(TestSuite testSuite) throws ItorixException {
-		if (findBytestSuiteName(testSuite.getName()) == null) {
+		if (validateName(testSuite.getName()) == true) {
 			String userId = null;
 			String username = null;
 			try {
-				UserSession userSession  = UserSession.getCurrentSessionToken();
+				UserSession userSession = UserSession.getCurrentSessionToken();
 				userId = userSession.getUserId();
 				username = userSession.getUsername();
 			} catch (Exception e) {
@@ -268,10 +238,22 @@ public class TestSuiteDAO {
 			}
 			testSuite.setActive(true);
 			mongoTemplate.save(testSuite);
-			return findBytestSuiteName(testSuite.getName()).getId();
+			return testSuite.getId();
 		} else {
 			throw new ItorixException("Test suite exists with same name", "Config-1004");
 		}
+	}
+
+	private boolean validateName(String name) {
+		Boolean validName = true;
+		List<TestSuite> testSuites = findBytestSuiteName(name);
+		if (!CollectionUtils.isEmpty(testSuites)) {
+			for (TestSuite testsuite : testSuites) {
+				if (testsuite.getName().equalsIgnoreCase(name))
+					return false;
+			}
+		}
+		return validName;
 	}
 
 	public String createTestCase(String testsuiteid, String scenarioid, TestCase testCase) throws ItorixException {
@@ -314,16 +296,17 @@ public class TestSuiteDAO {
 		Query query = new Query(Criteria.where("_id").is(testsuiteid));
 		TestSuite testSuit = mongoTemplate.findOne(query, TestSuite.class);
 
-		//		DBObject dbDoc = new BasicDBObject();
-		//		mongoTemplate.getConverter().write(testSuite, dbDoc);
-		//		Update update = Update.fromDBObject(dbDoc, "_id");
-		//		WriteResult result = mongoTemplate.updateFirst(query, update, TestSuite.class);
+		// DBObject dbDoc = new BasicDBObject();
+		// mongoTemplate.getConverter().write(testSuite, dbDoc);
+		// Update update = Update.fromDBObject(dbDoc, "_id");
+		// WriteResult result = mongoTemplate.updateFirst(query, update,
+		// TestSuite.class);
 		if (testSuit != null) {
 			testSuite.setId(testsuiteid);
 			String userId = null;
 			String username = null;
 			try {
-				UserSession userSession  = UserSession.getCurrentSessionToken();
+				UserSession userSession = UserSession.getCurrentSessionToken();
 				userId = userSession.getUserId();
 				username = userSession.getUsername();
 			} catch (Exception e) {
@@ -370,25 +353,25 @@ public class TestSuiteDAO {
 	public TestSuite getTestSuite(String testsuiteid) {
 		return findBytestSuiteId(testsuiteid);
 	}
-	
+
 	public TestSuite getTestSuiteVaraibles(String testsuiteid) {
 		TestSuite dbTestsuite = findBytestSuiteId(testsuiteid);
 		TestSuite testsuite = new TestSuite();
-		if(dbTestsuite != null){
+		if (dbTestsuite != null) {
 			testsuite.setId(dbTestsuite.getId());
 			List<Scenario> scenarios = new ArrayList<>();
 			testsuite.setScenarios(scenarios);
-			for(Scenario dbScenario: dbTestsuite.getScenarios()){
+			for (Scenario dbScenario : dbTestsuite.getScenarios()) {
 				Scenario scenario = new Scenario();
 				scenarios.add(scenario);
 				scenario.setName(dbScenario.getName());
 				scenario.setId(dbScenario.getId());
-				for(TestCase dbTestCase: dbScenario.getTestCases()){
+				for (TestCase dbTestCase : dbScenario.getTestCases()) {
 					TestCase testCase = new TestCase();
 					Response response = new Response();
 					testCase.setId(dbTestCase.getId());
 					testCase.setName(dbTestCase.getName());
-					if(dbTestCase.getResponse() != null && dbTestCase.getResponse().getVariables() != null){
+					if (dbTestCase.getResponse() != null && dbTestCase.getResponse().getVariables() != null) {
 						response.setVariables(dbTestCase.getResponse().getVariables());
 					}
 					testCase.setResponse(response);
@@ -446,10 +429,12 @@ public class TestSuiteDAO {
 		return testSuite;
 	}
 
-	public TestSuite findBytestSuiteName(String testSuiteName) {
-		Query query = new Query(Criteria.where("name").is(testSuiteName));
-		TestSuite testSuite = mongoTemplate.findOne(query, TestSuite.class);
-		return testSuite;
+	public List<TestSuite> findBytestSuiteName(String testSuiteName) {
+		// Query query = new Query(Criteria.where("name").is(testSuiteName));
+		// TestSuite testSuite = mongoTemplate.findOne(query, TestSuite.class);
+		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + testSuiteName + "', $options: 'i'}}");
+		List<TestSuite> allTestSuite = mongoTemplate.find(query, TestSuite.class);
+		return allTestSuite;
 	}
 
 	public Variables findByConfigName(String configName) {
@@ -480,10 +465,9 @@ public class TestSuiteDAO {
 		return testSuites;
 	}
 
-
 	public TestSuiteOverviewResponse getAllTestSuite(String expand, int offset, int pageSize) {
-		Query query = new Query().with(Sort.by(Direction.DESC, "_id"))
-				.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+				.limit(pageSize);
 		TestSuiteOverviewResponse response = new TestSuiteOverviewResponse();
 		List<TestSuite> testSuites = mongoTemplate.find(query, TestSuite.class);
 		for (TestSuite testSuite : testSuites) {
@@ -517,73 +501,67 @@ public class TestSuiteDAO {
 	}
 
 	public List<TestSuite> getAllTestSuites() {
-		List<TestSuite> testSuites = mongoTemplate.findAll(TestSuite.class);
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts"));
+		List<TestSuite> testSuites = mongoTemplate.find(query, TestSuite.class);
 		for (TestSuite testSuite : testSuites) {
 			testSuite.setScenarios(null);
 		}
 		return testSuites;
 	}
 
-
-
 	public String executeTestSuite(String testSuiteId, String variableId, String userName, boolean isCron)
 			throws JsonProcessingException, JSONException, InterruptedException, ItorixException {
 		TestSuite testSuite = null;
 		Variables variables = null;
 		testSuite = getTestSuite(testSuiteId);
-		if(testSuite == null){
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-6"), "Testsuite-6");
+		if (testSuite == null) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1004"), "Testsuite-1004");
 		}
 
 		if (!testSuite.getActive()) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-2"), "Testsuite-2");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1001"), "Testsuite-1001");
 		}
 		variables = getVariablesById(variableId);
 
-		if(variables == null){
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-7"), "Testsuite-7");
+		if (variables == null) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1005"), "Testsuite-1005");
+		}
+
+		if (!testSuite.hasTestCases()) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-18"), "Testsuite-18");
 		}
 
 		return triggerPipeline(testSuiteId, variableId, testSuite, variables, userName, false, isCron);
-		//			createPipeline(testSuiteId, variableId, testSuite.getName(), variables.getName());
-		//			triggerPipeline(testSuiteId, variableId, testSuite, variables, userName, false);
+		// createPipeline(testSuiteId, variableId, testSuite.getName(),
+		// variables.getName());
+		// triggerPipeline(testSuiteId, variableId, testSuite, variables,
+		// userName, false);
 	}
 
 	public String triggerPipeline(String testSuiteId, String variableId, TestSuite testSuite, Variables variables,
-			String userName, boolean historyCallRequired, boolean isCron) throws JSONException, InterruptedException,ItorixException {
+			String userName, boolean historyCallRequired, boolean isCron)
+			throws JSONException, InterruptedException, ItorixException {
 		if (!isCron) {
 			Query query = new Query(Criteria.where("testSuiteId").is(testSuiteId).and("configId").is(variableId)
 					.and("status").is(TestSuiteResponse.STATUSES.SCHEDULED.getValue()));
 			List<TestSuiteResponse> response = mongoTemplate.find(query, TestSuiteResponse.class);
 			if (response != null && response.size() > 0) {
-				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1"), "Testsuite-1");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1000"), "Testsuite-1000");
 			}
 		}
-		TestSuiteResponse response = new TestSuiteResponse(testSuiteId, variableId, testSuite, TestSuiteResponse.STATUSES.SCHEDULED.getValue());
+		TestSuiteResponse response = new TestSuiteResponse(testSuiteId, variableId, testSuite,
+				TestSuiteResponse.STATUSES.SCHEDULED.getValue());
 		response.setCreatedBy(userName);
 		updateCount(response);
 		saveTestSuiteResponse(response);
 		return response.getId();
 	}
 
-	//	private String getBuildNumber(String historyResponse) throws JSONException {
-	//		return JsonPath.parse(historyResponse).read("pipelines[0].counter").toString();
-	//	}
-
 	private synchronized void updateCount(TestSuiteResponse response) {
 		Query query = new Query(
 				Criteria.where("testSuiteId").is(response.getTestSuiteId()).and("configId").is(response.getConfigId()));
-		response.setCounter("" + ( mongoTemplate.count(query, TestSuiteResponse.class) + 1 ));
+		response.setCounter("" + (mongoTemplate.count(query, TestSuiteResponse.class) + 1));
 	}
-
-	//	public void updateUser(User user, List<String> projectRoles) {
-	//		Query query = new Query(Criteria.where("id").is(user.getId()));
-	//		DBObject dbDoc = new BasicDBList();
-	//		mongoTemplate.getConverter().write(projectRoles, dbDoc);
-	//		Update update = Update.fromDBObject(dbDoc);
-	//		mongoTemplate.upsert(query, update, "workspaces.0.roles");
-	//
-	//	}
 
 	public void createPipeline(String testSuiteId, String variableId, String pipelineName, String configName)
 			throws JsonProcessingException {
@@ -637,7 +615,7 @@ public class TestSuiteDAO {
 		List<Task> tasks = new ArrayList<>();
 		tasks.add(new Task("exec", "passed", config.getTestSuiteTriggerScriptLocation(),
 				"-DtestSuiteId=" + testSuiteId + " -DconfigId=" + variableId + " -DappUrl=" + config.getAppUrl()
-				+ " -Dusername=" + config.getServiceUserName() + " -Dpassword=" + config.getServicePassword(),
+						+ " -Dusername=" + config.getServiceUserName() + " -Dpassword=" + config.getServicePassword(),
 				null, true));
 
 		triggerJob.setTasks(tasks);
@@ -654,7 +632,7 @@ public class TestSuiteDAO {
 		RestTemplate restTemplate = new RestTemplate();
 		ObjectMapper mapper = new ObjectMapper();
 		restTemplate.getInterceptors()
-		.add(new BasicAuthorizationInterceptor(config.getCicdAuthUserName(), config.getCicdAuthPassword()));
+				.add(new BasicAuthorizationInterceptor(config.getCicdAuthUserName(), config.getCicdAuthPassword()));
 		String response = null;
 		log.debug(mapper.writeValueAsString(pipelineGroup));
 		HttpEntity<PipelineGroup> requestEntity = new HttpEntity<>(pipelineGroup, getCommonHttpHeaders());
@@ -687,7 +665,7 @@ public class TestSuiteDAO {
 		headers.set("Confirm", "true");
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors()
-		.add(new BasicAuthorizationInterceptor(config.getCicdAuthUserName(), config.getCicdAuthPassword()));
+				.add(new BasicAuthorizationInterceptor(config.getCicdAuthUserName(), config.getCicdAuthPassword()));
 		HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
 		ResponseEntity<String> responseEntity = restTemplate.exchange(config.getPipelineBaseUrl()
 				+ config.getPipelineEndPoint() + File.separator + name + File.separator + action, HttpMethod.POST,
@@ -697,30 +675,37 @@ public class TestSuiteDAO {
 
 	public List<TestSuiteResponse> getTestSuiteEligibleForCancel(String testSuiteId, String variableId) {
 
-		Query query = new Query(Criteria.where("testSuiteId").is(testSuiteId).and("configId").is(variableId).and("status").in(TestSuiteResponse.STATUSES.IN_PROGRESS.getValue(),TestSuiteResponse.STATUSES.SCHEDULED.getValue()));
+		Query query = new Query(Criteria.where("testSuiteId").is(testSuiteId).and("configId").is(variableId)
+				.and("status").in(TestSuiteResponse.STATUSES.IN_PROGRESS.getValue(),
+						TestSuiteResponse.STATUSES.SCHEDULED.getValue()));
 
 		return mongoTemplate.find(query, TestSuiteResponse.class);
-		//		for(TestSuiteResponse testSuite : find ){
-		//			testSuite.getTestSuiteAgent()
-		//		}
+		// for(TestSuiteResponse testSuite : find ){
+		// testSuite.getTestSuiteAgent()
+		// }
 
-
-		//		TestSuite testSuite = getTestSuite(testSuiteId);
-		//		Variables variables = getVariablesById(variableId);
+		// TestSuite testSuite = getTestSuite(testSuiteId);
+		// Variables variables = getVariablesById(variableId);
 		//
-		//		HttpHeaders headers = new HttpHeaders();
-		//		headers.set("Confirm", "true");
-		//		RestTemplate restTemplate = new RestTemplate();
-		//		restTemplate.getInterceptors()
-		//		.add(new BasicAuthorizationInterceptor(config.getCicdAuthUserName(), config.getCicdAuthPassword()));
-		//		HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
-		//		ResponseEntity<String> responseEntity = restTemplate
-		//				.exchange(config.getPipelineBaseUrl() + config.getCancelPipelineEndPoint()
-		//				.replaceAll(":pipelineName", testSuite.getName() + "_" + variables.getName())
-		//				.replaceAll(":stageName", "Trigger"), HttpMethod.POST, requestEntity, String.class);
-		//		log.info(responseEntity.getBody());
-		//		saveTestSuiteResponse(new TestSuiteResponse(testSuiteId, variableId, testSuite, "Cancelled"));
-		//return null;
+		// HttpHeaders headers = new HttpHeaders();
+		// headers.set("Confirm", "true");
+		// RestTemplate restTemplate = new RestTemplate();
+		// restTemplate.getInterceptors()
+		// .add(new BasicAuthorizationInterceptor(config.getCicdAuthUserName(),
+		// config.getCicdAuthPassword()));
+		// HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
+		// ResponseEntity<String> responseEntity = restTemplate
+		// .exchange(config.getPipelineBaseUrl() +
+		// config.getCancelPipelineEndPoint()
+		// .replaceAll(":pipelineName", testSuite.getName() + "_" +
+		// variables.getName())
+		// .replaceAll(":stageName", "Trigger"), HttpMethod.POST, requestEntity,
+		// String.class);
+		// log.info(responseEntity.getBody());
+		// saveTestSuiteResponse(new TestSuiteResponse(testSuiteId, variableId,
+		// testSuite,
+		// "Cancelled"));
+		// return null;
 	}
 
 	public HttpHeaders getCommonHttpHeaders() {
@@ -767,8 +752,8 @@ public class TestSuiteDAO {
 
 	public TestSuiteHistoryResponse getTestSuiteResponse(String testsuiteid, int offset) {
 		TestSuiteHistoryResponse historyResponse = new TestSuiteHistoryResponse();
-		Query query = new Query(Criteria.where("testSuiteId").is(testsuiteid))
-				.with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * 10) : 0).limit(10);
+		Query query = new Query(Criteria.where("testSuiteId").is(testsuiteid)).with(Sort.by(Direction.DESC, "_id"))
+				.skip(offset > 0 ? ((offset - 1) * 10) : 0).limit(10);
 		List<TestSuiteResponse> responses = mongoTemplate.find(query, TestSuiteResponse.class);
 		if (responses != null) {
 			for (TestSuiteResponse response : responses) {
@@ -799,7 +784,8 @@ public class TestSuiteDAO {
 				|| (testSuiteExecutionStatus.equalsIgnoreCase(TestSuiteResponse.STATUSES.IN_PROGRESS.getValue())
 						&& testSuiteResponse.getCounter() != null)) {
 			Query query = new Query(Criteria.where("testSuiteId").is(testSuiteResponse.getTestSuiteId()).and("configId")
-					.is(testSuiteResponse.getConfigId()).and("status").is(TestSuiteResponse.STATUSES.IN_PROGRESS.getValue()));
+					.is(testSuiteResponse.getConfigId()).and("status")
+					.is(TestSuiteResponse.STATUSES.IN_PROGRESS.getValue()));
 			List<TestSuiteResponse> responses = mongoTemplate.find(query, TestSuiteResponse.class);
 			for (TestSuiteResponse response : responses) {
 				response.setMts(System.currentTimeMillis());
@@ -873,8 +859,7 @@ public class TestSuiteDAO {
 		TestSuiteHistoryResponse historyResponse = new TestSuiteHistoryResponse();
 		if (user == null && range == null) {
 			query = new Query(Criteria.where("testSuiteId").is(testSuiteId).and("configId").is(configId))
-					.with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * 10) : 0)
-					.limit(10);
+					.with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * 10) : 0).limit(10);
 			countQuery = new Query(Criteria.where("testSuiteId").is(testSuiteId));
 		} else if (range != null) {
 			String[] dates = range.split("~");
@@ -891,22 +876,22 @@ public class TestSuiteDAO {
 					query = new Query(Criteria.where("testSuiteId").is(testSuiteId).and("configId").is(configId)
 							.and("cts").gte(new Long(DateUtil.getStartOfDay(startDate).getTime() + ""))
 							.lte(new Long(DateUtil.getEndOfDay(endDate).getTime() + "")))
-							.with(Sort.by(Direction.DESC, "_id"))
-							.skip(offset > 0 ? ((offset - 1) * 10) : 0).limit(10);
+									.with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * 10) : 0)
+									.limit(10);
 					countQuery = new Query(Criteria.where("testSuiteId").is(testSuiteId).and("configId").is(configId)
 							.and("cts").gte(new Long(DateUtil.getStartOfDay(startDate).getTime() + ""))
 							.lte(new Long(DateUtil.getEndOfDay(endDate).getTime() + "")));
 				} else {
 					query = new Query(
 							Criteria.where("testSuiteId").is(testSuiteId).and("configId").is(configId).and("createdBy")
-							.is(user).and("cts").gte(new Long(DateUtil.getStartOfDay(startDate).getTime() + ""))
-							.lte(new Long(DateUtil.getEndOfDay(endDate).getTime() + "")))
-							.with(Sort.by(Direction.DESC, "_id"))
-							.skip(offset > 0 ? ((offset - 1) * 10) : 0).limit(10);
+									.is(user).and("cts").gte(new Long(DateUtil.getStartOfDay(startDate).getTime() + ""))
+									.lte(new Long(DateUtil.getEndOfDay(endDate).getTime() + "")))
+											.with(Sort.by(Direction.DESC, "_id"))
+											.skip(offset > 0 ? ((offset - 1) * 10) : 0).limit(10);
 					countQuery = new Query(
 							Criteria.where("testSuiteId").is(testSuiteId).and("configId").is(configId).and("createdBy")
-							.is(user).and("cts").gte(new Long(DateUtil.getStartOfDay(startDate).getTime() + ""))
-							.lte(new Long(DateUtil.getEndOfDay(endDate).getTime() + "")));
+									.is(user).and("cts").gte(new Long(DateUtil.getStartOfDay(startDate).getTime() + ""))
+									.lte(new Long(DateUtil.getEndOfDay(endDate).getTime() + "")));
 				}
 			}
 		} else if (user != null) {
@@ -985,10 +970,10 @@ public class TestSuiteDAO {
 		TestSuite testSuite = getTestSuite(testSuiteResponse.getTestSuiteId());
 		Variables variables = getVariablesById(testSuiteResponse.getConfigId());
 		restTemplate.getInterceptors()
-		.add(new BasicAuthorizationInterceptor(config.getCicdAuthUserName(), config.getCicdAuthPassword()));
+				.add(new BasicAuthorizationInterceptor(config.getCicdAuthUserName(), config.getCicdAuthPassword()));
 		return restTemplate.getForObject(config.getPipelineBaseUrl() + config.getTestSuitePipelineLogUrl()
-		.replaceAll(":pipelineName", testSuite.getName() + "_" + variables.getName())
-		.replaceAll(":buildNumber", testSuiteResponse.getCounter()), String.class);
+				.replaceAll(":pipelineName", testSuite.getName() + "_" + variables.getName())
+				.replaceAll(":buildNumber", testSuiteResponse.getCounter()), String.class);
 	}
 
 	public void createSchedule(TestSuiteSchedule schedule) {
@@ -1013,7 +998,6 @@ public class TestSuiteDAO {
 		mongoTemplate.remove(new Query(Criteria.where("testSuiteId").is(testSuiteId).and("configId").is(configId)),
 				TestSuiteSchedule.class);
 	}
-
 
 	public List<TestSuiteSchedule> getTestSuiteSchedule(String testSuiteId) {
 		List<TestSuiteSchedule> schedules = null;
@@ -1099,7 +1083,6 @@ public class TestSuiteDAO {
 				return new Dashboard(successCount + failureCount + cancelledCount, successCount, failureCount,
 						cancelledCount,
 						new Stats(getTestSuites(summaries, "topSuccess"), getTestSuites(summaries, "topFailures")));
-
 			}
 		}
 
@@ -1112,7 +1095,8 @@ public class TestSuiteDAO {
 			List<TestSuiteStats> stats = new ArrayList<>();
 			for (TestSuiteResponse response : responses) {
 				if (response != null && response.getStatus() != null
-						&& response.getStatus().equalsIgnoreCase(TestSuiteResponse.STATUSES.COMPLETED.getValue()) && response.getTestSuite() != null) {
+						&& response.getStatus().equalsIgnoreCase(TestSuiteResponse.STATUSES.COMPLETED.getValue())
+						&& response.getTestSuite() != null) {
 					List<ScenarioStats> scenarioStats = new ArrayList<>();
 					for (Scenario scenario : response.getTestSuite().getScenarios()) {
 						List<TestCaseStats> testCasestats = new ArrayList<>();
@@ -1171,9 +1155,7 @@ public class TestSuiteDAO {
 	}
 
 	public Object searchForTestSuite(String name, int limit) throws ItorixException {
-		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
-		query.limit(limit > 0 ? limit : 10);
-		List<TestSuite> allTestSuite = mongoTemplate.find(query, TestSuite.class);
+		List<TestSuite> allTestSuite = searchTestSuite(name, limit);
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode response = mapper.createObjectNode();
 		ArrayNode responseFields = mapper.createArrayNode();
@@ -1185,6 +1167,13 @@ public class TestSuiteDAO {
 		}
 		response.set("TestSuite", responseFields);
 		return response;
+	}
+
+	private List<TestSuite> searchTestSuite(String name, int limit) {
+		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
+		query.limit(limit > 0 ? limit : 10);
+		List<TestSuite> allTestSuite = mongoTemplate.find(query, TestSuite.class);
+		return allTestSuite;
 	}
 
 	public void deleteTestSuiteResponse(String id) {
@@ -1200,35 +1189,36 @@ public class TestSuiteDAO {
 	}
 
 	public MaskFields getMaskingFields() {
-		List<MaskFields> maskingFields = mongoTemplate.findAll(MaskFields.class);
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts"));
+		List<MaskFields> maskingFields = mongoTemplate.find(query, MaskFields.class);
 		return maskingFields.isEmpty() ? null : maskingFields.get(0);
 	}
 
 	public List<Certificates> getCertificates(boolean names) {
 		if (names) {
-			Query searchQuery = new Query();
+			Query searchQuery = new Query().with(Sort.by(Direction.DESC, "mts"));
 			searchQuery.fields().include("name");
 			return mongoTemplate.find(searchQuery, Certificates.class);
 		}
-		Query searchQuery = new Query();
+		Query searchQuery = new Query().with(Sort.by(Direction.DESC, "mts"));
 		searchQuery.fields().exclude("content").exclude("password");
 		return mongoTemplate.find(searchQuery, Certificates.class);
 	}
 
 	public void deleteCertificate(String name) throws ItorixException {
-		if(mongoTemplate.remove(new Query(Criteria.where("name").is(name)),
-				Certificates.class).getDeletedCount() == 0){
-			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-15"), "Testsuite-15");
+		if (mongoTemplate.remove(new Query(Criteria.where("name").is(name)), Certificates.class)
+				.getDeletedCount() == 0) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1012"), "Testsuite-1012");
 		}
 	}
 
-	public List<TestSuite> getCertificateReference(String name){
+	public List<TestSuite> getCertificateReference(String name) {
 		Query searchQuery = new Query(Criteria.where("certificateName").is(name));
 		searchQuery.fields().include("name");
 		return mongoTemplate.find(searchQuery, TestSuite.class);
 	}
 
-	public Certificates getCertificate(String name){
+	public Certificates getCertificate(String name) {
 		Query searchQuery = new Query(Criteria.where("name").is(name));
 		searchQuery.fields().exclude("content").exclude("password");
 		return mongoTemplate.findOne(searchQuery, Certificates.class);
@@ -1242,7 +1232,7 @@ public class TestSuiteDAO {
 				ks.load(new ByteArrayInputStream(jKSFile), password.toCharArray());
 			} catch (NoSuchAlgorithmException | CertificateException | IOException | KeyStoreException e) {
 				log.error("Issue in uploaded certificate", e);
-				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-12"), "Testsuite-12");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1010"), "Testsuite-1010");
 			}
 		}
 
@@ -1251,20 +1241,20 @@ public class TestSuiteDAO {
 		update.set("content", jKSFile);
 		update.set("description", description);
 		try {
-			if(StringUtils.hasText(password)){
+			if (StringUtils.hasText(password)) {
 				update.set("password", new RSAEncryption().encryptText(password));
 			} else {
 				update.set("password", password);
 			}
 		} catch (Exception e) {
-			log.error("exception during pwd encryption" , e);
+			log.error("exception during pwd encryption", e);
 		}
 		update.set("alias", alias);
 
 		Query query = new Query(Criteria.where("name").is(name));
 
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
-		if(CollectionUtils.isEmpty(mongoTemplate.find(query, Certificates.class))){
+		if (CollectionUtils.isEmpty(mongoTemplate.find(query, Certificates.class))) {
 			update.set("cts", System.currentTimeMillis());
 			update.set("createdBy", user.getFirstName() + " " + user.getLastName());
 		} else {
@@ -1279,9 +1269,38 @@ public class TestSuiteDAO {
 		Query searchQuery = new Query(Criteria.where("name").is(name));
 		searchQuery.fields().include("content");
 		Certificates certificate = mongoTemplate.findOne(searchQuery, Certificates.class);
-		if(certificate != null){
+		if (certificate != null) {
 			return certificate.getContent();
 		}
 		return null;
+	}
+
+	public CertificateOverviewResponse getAllCertificates(int offset, int pageSize) {
+		Query query = new Query().with(Sort.by(Direction.DESC, "cts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+				.limit(pageSize);
+		query.fields().exclude("content").exclude("password");
+		List<Certificates> certificates = mongoTemplate.find(query, Certificates.class);
+		CertificateOverviewResponse response = new CertificateOverviewResponse();
+		Pagination pagination = new Pagination();
+		pagination.setPageSize(pageSize);
+		pagination.setOffset(offset);
+		pagination.setTotal(Long.valueOf(certificates.size()));
+		response.setCertificates(certificates);
+		response.setPagination(pagination);
+		return response;
+	}
+
+	public MaskFieldsOverviewResponse getAllMaskFields(int offset, int pageSize) {
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+				.limit(pageSize);
+		List<MaskFields> maskFields = mongoTemplate.find(query, MaskFields.class);
+		MaskFieldsOverviewResponse response = new MaskFieldsOverviewResponse();
+		Pagination pagination = new Pagination();
+		pagination.setPageSize(pageSize);
+		pagination.setOffset(offset);
+		pagination.setTotal(Long.valueOf(maskFields.size()));
+		response.setMaskFields(maskFields);
+		response.setPagination(pagination);
+		return response;
 	}
 }

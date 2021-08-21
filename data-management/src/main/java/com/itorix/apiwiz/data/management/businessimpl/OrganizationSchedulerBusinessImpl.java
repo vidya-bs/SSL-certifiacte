@@ -20,7 +20,6 @@ import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.User;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
 
-
 @Component
 public class OrganizationSchedulerBusinessImpl implements OrganizationSchedulerBusiness {
 
@@ -32,29 +31,32 @@ public class OrganizationSchedulerBusinessImpl implements OrganizationSchedulerB
 	OrganizationBusinessImpl organizationService;
 
 	@Value("${itorix.core.scheduler.enable:false}")
-	private String scheduleEnable ;
-	@Value("${itorix.core.scheduler.primary}")
+	private String scheduleEnable;
+
+	@Value("${itorix.core.scheduler.primary:null}")
 	private String primary;
-	@Value("${itorix.core.scheduler.primary.host}")
+
+	@Value("${itorix.core.scheduler.primary.host:null}")
 	private String primaryHost;
-	
-	
+
 	@Autowired
 	ApplicationProperties applicationProperties;
 
 	/**
 	 * createOrganizationSchedule
+	 *
 	 * @param scheduleModel
+	 * 
 	 * @throws ItorixException
 	 */
 	public void createOrganizationSchedule(ScheduleModel scheduleModel) throws ItorixException {
-		logger.debug("OrganizationSchedulerService.createOrganizationSchedule : CorelationId="+scheduleModel.getInteractionid()+" : scheduleModel="
-				+ scheduleModel);
+		logger.debug("OrganizationSchedulerService.createOrganizationSchedule : CorelationId="
+				+ scheduleModel.getInteractionid() + " : scheduleModel=" + scheduleModel);
 		ScheduleModel model1 = baseRepository.findOne(ScheduleModel.LABEL_ORGANAIZATION,
-				scheduleModel.getOrganization(),  ScheduleModel.LABEL_PERIODICITY,
-				scheduleModel.getPeriodicity(), ScheduleModel.class);
+				scheduleModel.getOrganization(), ScheduleModel.LABEL_PERIODICITY, scheduleModel.getPeriodicity(),
+				ScheduleModel.class);
 		if (model1 != null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("DMB_0002"), "DMB_0002");
+			throw new ItorixException(ErrorCodes.errorMessage.get("DataBackup-1000"), "DataBackup-1000");
 		} else {
 			scheduleModel = baseRepository.save(scheduleModel);
 		}
@@ -62,15 +64,17 @@ public class OrganizationSchedulerBusinessImpl implements OrganizationSchedulerB
 
 	/**
 	 * updateOrganizationSchedule
+	 *
 	 * @param scheduleModel
+	 * 
 	 * @throws ItorixException
 	 */
 	public void updateOrganizationSchedule(ScheduleModel scheduleModel) throws ItorixException {
-		logger.debug("OrganizationSchedulerService.updateOrganizationSchedule : CorelationId="+scheduleModel.getInteractionid()+" : scheduleModel="
-				+ scheduleModel);
+		logger.debug("OrganizationSchedulerService.updateOrganizationSchedule : CorelationId="
+				+ scheduleModel.getInteractionid() + " : scheduleModel=" + scheduleModel);
 		ScheduleModel model1 = baseRepository.findById(scheduleModel.getId(), ScheduleModel.class);
 		if (model1 == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("DMB_0003"), "DMB_0003");
+			throw new ItorixException(ErrorCodes.errorMessage.get("DataBackup-1001"), "DataBackup-1001");
 		} else {
 			model1.setOrganization(scheduleModel.getOrganization());
 			model1.setPeriodicity(scheduleModel.getPeriodicity());
@@ -80,15 +84,17 @@ public class OrganizationSchedulerBusinessImpl implements OrganizationSchedulerB
 
 	/**
 	 * deleteOrganizationSchedule
+	 *
 	 * @param scheduleModel
+	 * 
 	 * @throws ItorixException
 	 */
 	public void deleteOrganizationSchedule(ScheduleModel scheduleModel) throws ItorixException {
-		logger.debug("OrganizationSchedulerService.deleteOrganizationSchedule : CorelationId="+scheduleModel.getInteractionid()+" : scheduleModel="
-				+ scheduleModel);
+		logger.debug("OrganizationSchedulerService.deleteOrganizationSchedule : CorelationId="
+				+ scheduleModel.getInteractionid() + " : scheduleModel=" + scheduleModel);
 		ScheduleModel model1 = baseRepository.findById(scheduleModel.getId(), ScheduleModel.class);
 		if (model1 == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("DMB_0003"), "DMB_0003");
+			throw new ItorixException(ErrorCodes.errorMessage.get("DataBackup-1001"), "DataBackup-1001");
 		} else {
 			baseRepository.delete(scheduleModel.getId(), ScheduleModel.class);
 		}
@@ -96,86 +102,94 @@ public class OrganizationSchedulerBusinessImpl implements OrganizationSchedulerB
 
 	/**
 	 * getOrganizationSchedule
+	 *
 	 * @param interactionid
+	 * 
 	 * @return
+	 * 
 	 * @throws ItorixException
 	 */
 	public List<ScheduleModel> getOrganizationSchedule(String interactionid) throws ItorixException {
-		logger.debug("OrganizationSchedulerService.getOrganizationSchedule : CorelationId="+interactionid);
+		logger.debug("OrganizationSchedulerService.getOrganizationSchedule : CorelationId=" + interactionid);
 		List<ScheduleModel> list = baseRepository.findAll(ScheduleModel.class);
-		logger.debug("OrganizationSchedulerService.getOrganizationSchedule : CorelationId="+interactionid+": list="+list);
+		logger.debug("OrganizationSchedulerService.getOrganizationSchedule : CorelationId=" + interactionid + ": list="
+				+ list);
 		return list;
 	}
 
 	@Scheduled(cron = "0 1 1 * * ?")
-	public void doDaily() throws Exception{
-		if(Schedule.isSchedulable(scheduleEnable, primary, primaryHost)) {
+	public void doDaily() throws Exception {
+		if (Schedule.isSchedulable(scheduleEnable, primary, primaryHost)) {
 			List<ScheduleModel> list = baseRepository.findAll(ScheduleModel.class);
-			for(ScheduleModel model:list){
-				User user=	getUser(model.getUserId());
-				if(user!=null){
-					CommonConfiguration cfg=new CommonConfiguration();
+			for (ScheduleModel model : list) {
+				User user = getUser(model.getUserId());
+				if (user != null) {
+					CommonConfiguration cfg = new CommonConfiguration();
 					cfg.setIsCleanUpAreBackUp(false);
-//					Apigee apigee=user.getApigee();
-//					if(apigee!=null){
-						/*cfg.setApigeeEmail(apigee.getUserName());
-						cfg.setApigeePassword(apigee.getDecryptedPassword());*/
-						
-						cfg.setApigeeEmail(applicationProperties.getApigeeServiceUsername());
-						cfg.setApigeePassword(applicationProperties.getApigeeServicePassword());
-//					}
-					organizationService.backUpOrganization( cfg);
+					// Apigee apigee=user.getApigee();
+					// if(apigee!=null){
+					/*
+					 * cfg.setApigeeEmail(apigee.getUserName());
+					 * cfg.setApigeePassword(apigee.getDecryptedPassword());
+					 */
+
+					cfg.setApigeeEmail(applicationProperties.getApigeeServiceUsername());
+					cfg.setApigeePassword(applicationProperties.getApigeeServicePassword());
+					// }
+					organizationService.backUpOrganization(cfg);
 				}
 			}
 		}
 	}
 
 	@Scheduled(cron = "1 0 0 ? * WED")
-	public void doWeekly() throws Exception{
-		if(Schedule.isSchedulable(scheduleEnable, primary, primaryHost)){
+	public void doWeekly() throws Exception {
+		if (Schedule.isSchedulable(scheduleEnable, primary, primaryHost)) {
 			List<ScheduleModel> list = baseRepository.findAll(ScheduleModel.class);
-			for(ScheduleModel model:list){
-				User user=	getUser(model.getUserId());
-				if(user!=null){
-					CommonConfiguration cfg=new CommonConfiguration();
+			for (ScheduleModel model : list) {
+				User user = getUser(model.getUserId());
+				if (user != null) {
+					CommonConfiguration cfg = new CommonConfiguration();
 					cfg.setIsCleanUpAreBackUp(false);
-//					Apigee apigee=user.getApigee();
-//					if(apigee!=null){
-						/*cfg.setApigeeEmail(apigee.getUserName());
-						cfg.setApigeePassword(apigee.getDecryptedPassword());*/
-						cfg.setApigeeEmail(applicationProperties.getApigeeServiceUsername());
-						cfg.setApigeePassword(applicationProperties.getApigeeServicePassword());
-//					}
-					organizationService.backUpOrganization( cfg);
+					// Apigee apigee=user.getApigee();
+					// if(apigee!=null){
+					/*
+					 * cfg.setApigeeEmail(apigee.getUserName());
+					 * cfg.setApigeePassword(apigee.getDecryptedPassword());
+					 */
+					cfg.setApigeeEmail(applicationProperties.getApigeeServiceUsername());
+					cfg.setApigeePassword(applicationProperties.getApigeeServicePassword());
+					// }
+					organizationService.backUpOrganization(cfg);
 				}
 			}
 		}
 	}
-	
+
 	private User getUser(String userId) {
 		return baseRepository.findById(userId, User.class);
-		
 	}
-	
-//	public Apigee getApigeeCredential(String jsessionid) {
-//		UserSession userSessionToken = baseRepository.findById(jsessionid, UserSession.class);
-//		User user = baseRepository.findById(userSessionToken.getUserId(), User.class);
-//		if (user != null) {
-//			Apigee apigee = user.getApigee();
-//			return apigee;
-//		} else {
-//			return null;
-//		}
-//	}
-	
-	  public String getUserId(String jsessionid) {
-		  UserSession userSessionToken = baseRepository.findById(jsessionid, UserSession.class);
-			User user = baseRepository.findById(userSessionToken.getUserId(), User.class);
-			if(user!=null){
-			return user.getId();
-			}else{
-			return null;
-			}
-		}
 
+	// public Apigee getApigeeCredential(String jsessionid) {
+	// UserSession userSessionToken = baseRepository.findById(jsessionid,
+	// UserSession.class);
+	// User user = baseRepository.findById(userSessionToken.getUserId(),
+	// User.class);
+	// if (user != null) {
+	// Apigee apigee = user.getApigee();
+	// return apigee;
+	// } else {
+	// return null;
+	// }
+	// }
+
+	public String getUserId(String jsessionid) {
+		UserSession userSessionToken = baseRepository.findById(jsessionid, UserSession.class);
+		User user = baseRepository.findById(userSessionToken.getUserId(), User.class);
+		if (user != null) {
+			return user.getId();
+		} else {
+			return null;
+		}
+	}
 }

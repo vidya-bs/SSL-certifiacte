@@ -10,16 +10,16 @@ import com.mongodb.client.MongoDatabase;
 
 public class MultiTenantMongoDbFactory extends SimpleMongoDbFactory {
 
-	public MultiTenantMongoDbFactory(MongoClient mongoClient, String databaseName) {
-		super(mongoClient, databaseName);
-	}
+    public MultiTenantMongoDbFactory(MongoClient mongoClient, String databaseName) {
+        super(mongoClient, databaseName);
+    }
 
-	@Override
-	public MongoDatabase getDb() throws DataAccessException {
+    @Override
+    public MongoDatabase getDb() throws DataAccessException {
 
-		if (StringUtils.hasText(TenantContext.getCurrentTenant())) {
-			return getDb(TenantContext.getCurrentTenant());
-		}
-		return super.getDb();
-	}
+        if (StringUtils.hasText(TenantContext.getCurrentTenant())) {
+            return getDb(TenantContext.getCurrentTenant());
+        }
+        return super.getDb();
+    }
 }

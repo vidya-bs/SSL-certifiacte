@@ -7,7 +7,6 @@ public class Operations {
 
 	private List<Metrics> metrics;
 
-	
 	public String getOperationName() {
 		return operationName;
 	}
@@ -23,5 +22,4 @@ public class Operations {
 	public void setMetrics(List<Metrics> metrics) {
 		this.metrics = metrics;
 	}
-
 }

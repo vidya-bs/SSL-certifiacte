@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 public class SingleValue {
 	public enum Condition {
-
 		@JsonProperty("equalTo")
 		equalTo,
 

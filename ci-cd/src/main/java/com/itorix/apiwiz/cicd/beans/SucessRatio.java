@@ -3,17 +3,16 @@ package com.itorix.apiwiz.cicd.beans;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SucessRatio {
-	
-	
+
 	@JsonProperty("name")
 	private String name;
-	
+
 	@JsonProperty("sucessRatio")
 	private int sucessRatio;
-	
+
 	@JsonProperty("total")
 	private int total;
-	
+
 	@JsonProperty("success")
 	private int success;
 
@@ -54,7 +53,4 @@ public class SucessRatio {
 		return "SucessRatio [name=" + name + ", sucessRatio=" + sucessRatio + ", total=" + total + ", success="
 				+ success + "]";
 	}
-	
-	
-	
 }

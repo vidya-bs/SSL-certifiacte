@@ -27,6 +27,7 @@ public class Proxy {
 	List<String> basePaths;
 	private boolean deprecate;
 	private String gwProvider;
+
 	@JsonProperty("apigeeConfig")
 	JSONObject apigeeConfig;
 }

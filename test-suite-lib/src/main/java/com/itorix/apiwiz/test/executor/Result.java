@@ -2,55 +2,56 @@ package com.itorix.apiwiz.test.executor;
 
 public class Result {
 
-	private String testCaseId;
+    private String testCaseId;
 
-	private String status;
+    private String status;
 
-	private String exception;
-	
-	public Result() {}
-	
-	public Result(String testCaseId, String status, String exception) {
-		this.testCaseId = testCaseId;
-		this.status = status;
-		this.exception = exception;
-	}
+    private String exception;
 
-	public String getTestCaseId() {
-		return testCaseId;
-	}
+    public Result() {
+    }
 
-	public void setTestCaseId(String testCaseId) {
-		this.testCaseId = testCaseId;
-	}
+    public Result(String testCaseId, String status, String exception) {
+        this.testCaseId = testCaseId;
+        this.status = status;
+        this.exception = exception;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public String getTestCaseId() {
+        return testCaseId;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public void setTestCaseId(String testCaseId) {
+        this.testCaseId = testCaseId;
+    }
 
-	public String getException() {
-		return exception;
-	}
+    public String getStatus() {
+        return status;
+    }
 
-	public void setException(String exception) {
-		this.exception = exception;
-	}
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Result [testCaseId=");
-		builder.append(testCaseId);
-		builder.append(", status=");
-		builder.append(status);
-		builder.append(", exception=");
-		builder.append(exception);
-		builder.append("]");
-		return builder.toString();
-	}
+    public String getException() {
+        return exception;
+    }
+
+    public void setException(String exception) {
+        this.exception = exception;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Result [testCaseId=");
+        builder.append(testCaseId);
+        builder.append(", status=");
+        builder.append(status);
+        builder.append(", exception=");
+        builder.append(exception);
+        builder.append("]");
+        return builder.toString();
+    }
 
 }

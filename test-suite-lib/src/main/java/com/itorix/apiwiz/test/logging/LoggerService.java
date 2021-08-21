@@ -1,21 +1,15 @@
 package com.itorix.apiwiz.test.logging;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-
+import brave.Tracer;
+import brave.propagation.TraceContext;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.test.executor.beans.ExecutionContext;
+import com.itorix.apiwiz.test.executor.beans.TestSuiteResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.sleuth.Span;
-import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -25,13 +19,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itorix.apiwiz.test.executor.beans.ExecutionContext;
-import com.itorix.apiwiz.test.executor.beans.TestSuiteResponse;
+import javax.annotation.PostConstruct;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 @Component
 public class LoggerService {
+
 
 	private Logger logger = LoggerFactory.getLogger(LoggingContext.class);
 
@@ -42,7 +41,8 @@ public class LoggerService {
 	private String awsPodURL;
 
 	@Autowired
-	Tracer tracer;
+	private Tracer tracer;
+
 
 	private String region= null;
 	private String availabilityZone= null;
@@ -109,7 +109,7 @@ public class LoggerService {
 
 	public void logServiceRequest() {
 		try {
-			Span span = tracer.getCurrentSpan();
+			TraceContext span = tracer.currentSpan().context();
 			Date date = new Date();
 			DateFormat df = new SimpleDateFormat(DATE_FORMAT);
 			df.setTimeZone(TimeZone.getDefault());
@@ -117,8 +117,8 @@ public class LoggerService {
 			logMessage.put("timestamp", String.valueOf(System.currentTimeMillis()));
 			logMessage.put("date", df.format(date));
 			log.debug("span object {} " , span);
-			log.debug("span.getTraceId() {} " , span.getTraceId());
-			logMessage.put("guid", String.valueOf(Span.idToHex(span.getTraceId())));
+			log.debug("span.getTraceId() {} " , span.traceId());
+			logMessage.put("guid", String.valueOf(Long.toHexString(span.traceId())));
 			//logMessage.put("guid", UUID.randomUUID().toString());
 			logMessage.put("regionCode", region);
 			logMessage.put("availabilityZone", availabilityZone);
@@ -143,4 +143,5 @@ public class LoggerService {
 		logMessage.put("responseTime", String.valueOf(System.currentTimeMillis()));
 		logMethod(logMessage);
 	}
+
 }

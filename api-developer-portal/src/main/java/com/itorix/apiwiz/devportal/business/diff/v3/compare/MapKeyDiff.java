@@ -55,5 +55,4 @@ public class MapKeyDiff<K, V> {
 	public List<K> getSharedKey() {
 		return sharedKey;
 	}
-
 }

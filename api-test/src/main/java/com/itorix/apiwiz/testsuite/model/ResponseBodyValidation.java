@@ -21,7 +21,7 @@ public class ResponseBodyValidation {
 
 	@JsonProperty("condition")
 	private String condition;
-		
+
 	@JsonProperty("status")
 	private String status = "Did Not Execute";
 
@@ -30,7 +30,7 @@ public class ResponseBodyValidation {
 
 	@JsonProperty("continueOnError")
 	private boolean continueOnError;
-	
+
 	@JsonProperty("continueOnError")
 	public boolean isContinueOnError() {
 		return continueOnError;

@@ -16,5 +16,4 @@ import lombok.Setter;
 public class ServiceRegistriesResponse {
 
 	List<ServiceRegistriesResponseWrapper> serviceRegistries = new ArrayList<>();
-
 }

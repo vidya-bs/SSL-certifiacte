@@ -29,5 +29,4 @@ public class ChangedSchema extends Schema {
 	public void setDiscriminatorDiff(DiscriminatorDiff discriminatorDiff) {
 		this.discriminatorDiff = discriminatorDiff;
 	}
-
 }

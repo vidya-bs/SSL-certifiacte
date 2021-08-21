@@ -17,8 +17,8 @@ public class ServerVariablesDiff {
 	Map<String, ServerVariable> changed = new LinkedHashMap<>();
 
 	public ServerVariablesDiff diff(ServerVariables leftVariables, ServerVariables rightVariables) {
-		
-		if(Objects.isNull(leftVariables) && Objects.isNull(rightVariables)) {
+
+		if (Objects.isNull(leftVariables) && Objects.isNull(rightVariables)) {
 			return null;
 		}
 
@@ -88,5 +88,4 @@ public class ServerVariablesDiff {
 	public void setChanged(Map<String, ServerVariable> changed) {
 		this.changed = changed;
 	}
-
 }

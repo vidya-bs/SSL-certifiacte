@@ -15,7 +15,8 @@ import com.itorix.apiwiz.notification.agent.model.RequestModel;
 @RestController
 public interface NotificationAgentService {
 
-	@RequestMapping(method = RequestMethod.POST, value = "/v1/notification", consumes = { "application/json" }, produces = {
-			"application/json" })
-	public ResponseEntity<?> createNotification(@RequestHeader HttpHeaders headers , @RequestBody RequestModel model) throws Exception;
+    @RequestMapping(method = RequestMethod.POST, value = "/v1/notification", consumes = {
+            "application/json" }, produces = { "application/json" })
+    public ResponseEntity<?> createNotification(@RequestHeader HttpHeaders headers, @RequestBody RequestModel model)
+            throws Exception;
 }

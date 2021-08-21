@@ -71,14 +71,14 @@ public class TestSuiteScheduler {
 							}
 						}
 
-						Query query = new Query(
-								Criteria.where("id").is(schedule.getId()).orOperator
-								(Criteria.where("executedDay").ne(LocalDate.now().getDayOfMonth()) , Criteria.where("executedDay").
-										exists(false)));
+						Query query = new Query(Criteria.where("id").is(schedule.getId()).orOperator(
+								Criteria.where("executedDay").ne(LocalDate.now().getDayOfMonth()),
+								Criteria.where("executedDay").exists(false)));
 
 						Update update = new Update();
 						update.set("executedDay", LocalDate.now().getDayOfMonth());
-						if (canExecuteTestSuite && mongoTemplate.updateFirst(query, update , TestSuiteSchedule.class).getModifiedCount()!=0) {
+						if (canExecuteTestSuite && mongoTemplate.updateFirst(query, update, TestSuiteSchedule.class)
+								.getModifiedCount() != 0) {
 							testService.triggerTestSuite(schedule.getTestSuiteId(), schedule.getConfigId(), null, null,
 									null, true);
 						}

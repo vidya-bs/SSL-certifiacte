@@ -17,7 +17,7 @@ public class ApigeeVO implements Serializable {
 	private String password;
 	private String tempToken;
 	private String testType;
-	
+
 	private MultipartFile postmanFile;
 	private MultipartFile envFile;
 
@@ -108,7 +108,4 @@ public class ApigeeVO implements Serializable {
 	public void setEnvFile(MultipartFile envFile) {
 		this.envFile = envFile;
 	}
-	
-	
-
 }

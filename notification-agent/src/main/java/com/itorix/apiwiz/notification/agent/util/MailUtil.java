@@ -19,31 +19,31 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MailUtil {
 
-	static Properties mailServerProperties;
-	static Session getMailSession;
-	static MimeMessage generateMailMessage;
+    static Properties mailServerProperties;
+    static Session getMailSession;
+    static MimeMessage generateMailMessage;
 
-	@Autowired
-	private JavaMailSender javaMailSender;
+    @Autowired
+    private JavaMailSender javaMailSender;
 
-	public void sendEmail(EmailTemplate emailTemplate) throws MessagingException {
-		try {
-			MimeMessage msg = javaMailSender.createMimeMessage();
-			MimeMessageHelper helper = new MimeMessageHelper(msg, true);
-			// SimpleMailMessage msg = new SimpleMailMessage();
-			String[] internetAddress = new String[emailTemplate.getToMailId().size()];
-			int i = 0;
-			for (String tomail : emailTemplate.getToMailId()) {
-				internetAddress[i] = tomail;
-				i++;
-			}
-			helper.setTo(internetAddress);
-			helper.setSubject(emailTemplate.getSubject());
-			helper.setText(emailTemplate.getBody(), true);
-			javaMailSender.send(msg);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-		}
-	}
+    public void sendEmail(EmailTemplate emailTemplate) throws MessagingException {
+        try {
+            MimeMessage msg = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+            // SimpleMailMessage msg = new SimpleMailMessage();
+            String[] internetAddress = new String[emailTemplate.getToMailId().size()];
+            int i = 0;
+            for (String tomail : emailTemplate.getToMailId()) {
+                internetAddress[i] = tomail;
+                i++;
+            }
+            helper.setTo(internetAddress);
+            helper.setSubject(emailTemplate.getSubject());
+            helper.setText(emailTemplate.getBody(), true);
+            javaMailSender.send(msg);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
 
 }

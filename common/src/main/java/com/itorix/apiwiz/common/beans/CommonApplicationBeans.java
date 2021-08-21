@@ -19,40 +19,38 @@ import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 
 @Configuration
 public class CommonApplicationBeans {
-	
+
 	@Bean(name = "restTemplate")
 	public RestTemplate restTemplateBean() {
-		RestTemplate restTemplate= new RestTemplate();
+		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.setErrorHandler(new HttpErrorHandler());
 		return restTemplate;
 	}
-	
+
 	@Bean(name = "hTTPUtil")
 	public HTTPUtil hTTPUtilBean() {
-		HTTPUtil hTTPUtil= new HTTPUtil();
+		HTTPUtil hTTPUtil = new HTTPUtil();
 		return hTTPUtil;
 	}
-	
+
 	@Bean(name = "mapper")
 	public ObjectMapper objectMapperBean() {
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper;
 	}
-	
-	
-	
+
 	@Bean(name = "applicationProperties")
 	public ApplicationProperties capplicationPropertiesBean() {
 		ApplicationProperties applicationProperties = new ApplicationProperties();
 		return applicationProperties;
 	}
-	
+
 	@Bean(name = "mailUtils")
 	public MailUtil mailUtilBean() {
 		MailUtil mailUtil = new MailUtil();
 		return mailUtil;
 	}
-	
+
 	@Bean(name = "rSAEncryption")
 	public RSAEncryption rSAEncryptionBean() {
 		RSAEncryption rSAEncryption;
@@ -68,14 +66,10 @@ public class CommonApplicationBeans {
 		}
 		return null;
 	}
-	
-	
-	
-	
+
 	@Bean(name = "apigeeUtil")
 	public ApigeeUtil apigeeUtilBean() {
 		ApigeeUtil apigeeUtil = new ApigeeUtil();
 		return apigeeUtil;
 	}
-	
 }

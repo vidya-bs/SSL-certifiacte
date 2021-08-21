@@ -14,10 +14,10 @@ public class SoapUiFileInfo extends AbstractObject {
 	public static final String LABEL_PROXY_INFO = "proxy";
 	public static final String LABEL_ORG_NAME = "organization";
 	public static final String LABEL_TYPE = "type";
-	public static final String IS_SAAS="isSaaS";
-	
-	public static final String UNIT_TEST="unitest";
-	public static final String CODE_COVERAGE="codecoverage";
+	public static final String IS_SAAS = "isSaaS";
+
+	public static final String UNIT_TEST = "unitest";
+	public static final String CODE_COVERAGE = "codecoverage";
 
 	private String environment;
 	private String proxy;
@@ -30,30 +30,34 @@ public class SoapUiFileInfo extends AbstractObject {
 	private String type;
 	private String originalPostManFileName;
 	private String originalEnvFileName;
-	
+
 	public String getOriginalPostManFileName() {
 		return originalPostManFileName;
 	}
+
 	public void setOriginalPostManFileName(String originalPostManFileName) {
 		this.originalPostManFileName = originalPostManFileName;
 	}
+
 	public String getOriginalEnvFileName() {
 		return originalEnvFileName;
 	}
+
 	public void setOriginalEnvFileName(String originalEnvFileName) {
 		this.originalEnvFileName = originalEnvFileName;
 	}
 
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private boolean isSaaS;
-	
+
 	public Boolean getIsSaaS() {
 		return isSaaS;
 	}
+
 	public void setIsSaaS(Boolean isSaaS) {
 		this.isSaaS = isSaaS;
 	}
-	
+
 	public String getType() {
 		return type;
 	}
@@ -81,9 +85,11 @@ public class SoapUiFileInfo extends AbstractObject {
 	public String getOrgId() {
 		return orgId;
 	}
+
 	public void setOrgId(String orgId) {
 		this.orgId = orgId;
 	}
+
 	@JsonProperty("organization")
 	public String getOrganization() {
 		return organization;
@@ -133,5 +139,4 @@ public class SoapUiFileInfo extends AbstractObject {
 	public void setEnvFileContent(String envFileContent) {
 		this.envFileContent = envFileContent;
 	}
-	
 }

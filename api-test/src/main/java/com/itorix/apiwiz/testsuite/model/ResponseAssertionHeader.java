@@ -11,8 +11,10 @@ public class ResponseAssertionHeader {
 
 	@JsonProperty("name")
 	private String name;
+
 	@JsonProperty("value")
 	private String value;
+
 	@JsonProperty("condition")
 	private String condition;
 

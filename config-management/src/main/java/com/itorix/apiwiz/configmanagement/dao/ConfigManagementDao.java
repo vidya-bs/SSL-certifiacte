@@ -97,7 +97,7 @@ public class ConfigManagementDao {
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -111,7 +111,7 @@ public class ConfigManagementDao {
 			logger.info("inside getTargetSummary(): end");
 			return targets;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -121,7 +121,7 @@ public class ConfigManagementDao {
 	 * targetList = mongoTemplate.findAll(TargetConfig.class);
 	 * logger.info("inside getTargets(): end"); return targetList; } catch
 	 * (Exception ex) { throw new ItorixException(ex.getMessage(),
-	 * "Config-1000", ex); } }
+	 * "Configuration-1000", ex); } }
 	 */
 
 	public List<TargetConfig> getTargets(TargetConfig config) throws ItorixException {
@@ -131,10 +131,10 @@ public class ConfigManagementDao {
 						.and("name").is(config.getName()).and("type").is(config.getType()));
 				return mongoTemplate.find(query, TargetConfig.class);
 			} else {
-				throw new ItorixException("", "Config-1000");
+				throw new ItorixException("", "Configuration-1000");
 			}
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -150,7 +150,7 @@ public class ConfigManagementDao {
 				return mongoTemplate.find(query, TargetConfig.class);
 			}
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -171,14 +171,14 @@ public class ConfigManagementDao {
 				update.set("modifiedDate", config.getModifiedDate());
 				Query query = new Query(
 						Criteria.where("resourceType").is(config.getResourceType()).and("name").is(config.getName()));
-//				DBObject dbDoc = new BasicDBObject();
-//				mongoTemplate.getConverter().write(config, dbDoc);
-//				Update update = Update.fromDBObject(dbDoc, "_id");
+				// DBObject dbDoc = new BasicDBObject();
+				// mongoTemplate.getConverter().write(config, dbDoc);
+				// Update update = Update.fromDBObject(dbDoc, "_id");
 				mongoTemplate.updateFirst(query, update, ConfigMetadata.class);
 			}
 			return true;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -203,12 +203,12 @@ public class ConfigManagementDao {
 			if (result.getDeletedCount() > 0)
 				return result.wasAcknowledged();
 			else
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ConfigMgmt-1025"), targetName),
-						"ConfigMgmt-1025");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Configuration-1023"), targetName),
+						"Configuration-1023");
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -220,12 +220,12 @@ public class ConfigManagementDao {
 			if (result.getDeletedCount() > 0)
 				return result.wasAcknowledged();
 			else
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ConfigMgmt-1023"),
-						config.getName(), config.getOrg(), config.getEnv()), "ConfigMgmt-1023");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Configuration-1022"),
+						config.getName(), config.getOrg(), config.getEnv()), "Configuration-1022");
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -238,7 +238,7 @@ public class ConfigManagementDao {
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -267,7 +267,7 @@ public class ConfigManagementDao {
 			}
 			return listData;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -279,14 +279,14 @@ public class ConfigManagementDao {
 				if (obj.size() > 0)
 					return obj;
 				else
-					throw new ItorixException("No Record exists", "Config-1004");
+					throw new ItorixException("No Record exists", "Configuration-1003");
 			} else {
-				throw new ItorixException("No Record exists", "Config-1004");
+				throw new ItorixException("No Record exists", "Configuration-1003");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -309,16 +309,18 @@ public class ConfigManagementDao {
 				if (statusCode.is2xxSuccessful())
 					return true;
 				else if (statusCode.value() >= 401 && statusCode.value() <= 403)
-					// throw new ItorixException("Invalid Apigee Credentials " +
-					// statusCode.value(), "Config-1007");
-					throw new ItorixException(ErrorCodes.errorMessage.get("ConfigMgmt-1026"), "ConfigMgmt-1026");
+					// throw new ItorixException("Request validation failed.
+					// Exception connecting to apigee
+					// connector. " +
+					// statusCode.value(), "Configuration-1006");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1025"), "Configuration-1025");
 				else
-					throw new ItorixException("invalid request data " + statusCode.value(), "Config-1000");
+					throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -350,13 +352,15 @@ public class ConfigManagementDao {
 			if (statusCode.is2xxSuccessful())
 				return true;
 			else if (statusCode.value() >= 401 && statusCode.value() <= 403)
-				throw new ItorixException("Invalid Apigee Credentials " + statusCode.value(), "Config-1007");
+				throw new ItorixException(
+						"Request validation failed. Exception connecting to apigee connector. " + statusCode.value(),
+						"Configuration-1006");
 			else
-				throw new ItorixException("invalid request data " + statusCode.value(), "Config-1000");
+				throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -384,7 +388,7 @@ public class ConfigManagementDao {
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -398,7 +402,7 @@ public class ConfigManagementDao {
 				return mongoTemplate.findAll(CacheConfig.class);
 			}
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -414,7 +418,7 @@ public class ConfigManagementDao {
 				return mongoTemplate.find(query, CacheConfig.class);
 			}
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -438,15 +442,15 @@ public class ConfigManagementDao {
 			 * (result.isUpdateOfExisting()) { saveMetadata(metadata); return
 			 * result.isUpdateOfExisting(); } else throw new
 			 * ItorixException(String.format(ErrorCodes.errorMessage.get(
-			 * "ConfigMgmt-1003"),config.getName(),config.getOrg(),config.getEnv
-			 * () ),"ConfigMgmt-1003");
+			 * "Configuration-1012"),config.getName(),config.getOrg(),config.
+			 * getEnv () ),"Configuration-1012");
 			 */
 			config.setActiveFlag(Boolean.TRUE);
 			return saveCache(config);
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -458,13 +462,13 @@ public class ConfigManagementDao {
 			if (result.getDeletedCount() > 0)
 				return result.wasAcknowledged();
 			else
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ConfigMgmt-1003"),
-						config.getName(), config.getOrg(), config.getEnv()), "ConfigMgmt-1003");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Configuration-1012"),
+						config.getName(), config.getOrg(), config.getEnv()), "Configuration-1012");
 
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -475,13 +479,13 @@ public class ConfigManagementDao {
 			if (result.getDeletedCount() > 0)
 				return result.wasAcknowledged();
 			else
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ConfigMgmt-1004"), cache),
-						"ConfigMgmt-1004");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Configuration-1013"), cache),
+						"Configuration-1013");
 
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -504,7 +508,7 @@ public class ConfigManagementDao {
 				}
 			return cacheList;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -531,7 +535,7 @@ public class ConfigManagementDao {
 			}
 			return listData;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -543,14 +547,14 @@ public class ConfigManagementDao {
 				if (obj.size() > 0)
 					return obj;
 				else
-					throw new ItorixException("No Record exists", "Config-1004");
+					throw new ItorixException("No Record exists", "Configuration-1003");
 			} else {
-				throw new ItorixException("No Record exists", "Config-1004");
+				throw new ItorixException("No Record exists", "Configuration-1003");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -573,19 +577,21 @@ public class ConfigManagementDao {
 				if (statusCode.is2xxSuccessful())
 					return true;
 				else if (statusCode.value() >= 401 && statusCode.value() <= 403)
-					// throw new ItorixException("Invalid Apigee Credentials " +
-					// statusCode.value(), "Config-1007");
-					throw new ItorixException(ErrorCodes.errorMessage.get("ConfigMgmt-1007"), "ConfigMgmt-1007");
+					// throw new ItorixException("Request validation failed.
+					// Exception connecting to apigee
+					// connector. " +
+					// statusCode.value(), "Configuration-1006");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1015"), "Configuration-1015");
 				else if (statusCode.value() == 409)
 					throw new ItorixException("Request resource already available in Apigee " + statusCode.value(),
-							"Config-1008");
+							"Configuration-1007");
 				else
-					throw new ItorixException("invalid request data " + statusCode.value(), "Config-1000");
+					throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -603,16 +609,18 @@ public class ConfigManagementDao {
 			if (statusCode.is2xxSuccessful())
 				return true;
 			else if (statusCode.value() >= 401 && statusCode.value() <= 403)
-				// throw new ItorixException("Invalid Apigee Credentials " +
-				// statusCode.value(), "Config-1007");
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ConfigMgmt-1007")),
-						"ConfigMgmt-1007");
+				// throw new ItorixException("Request validation failed.
+				// Exception connecting to apigee
+				// connector. " +
+				// statusCode.value(), "Configuration-1006");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Configuration-1015")),
+						"Configuration-1015");
 			else
-				throw new ItorixException("invalid request data " + statusCode.value(), "Config-1000");
+				throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -636,7 +644,7 @@ public class ConfigManagementDao {
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -648,7 +656,7 @@ public class ConfigManagementDao {
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -662,7 +670,7 @@ public class ConfigManagementDao {
 				return mongoTemplate.findAll(KVMConfig.class);
 			}
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -678,7 +686,7 @@ public class ConfigManagementDao {
 				return mongoTemplate.find(query, KVMConfig.class);
 			}
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -690,12 +698,12 @@ public class ConfigManagementDao {
 			if (result.getDeletedCount() > 0)
 				return result.wasAcknowledged();
 			else
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ConfigMgmt-1013"),
-						config.getName(), config.getOrg(), config.getEnv()), "ConfigMgmt-1013");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Configuration-1017"),
+						config.getName(), config.getOrg(), config.getEnv()), "Configuration-1017");
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -706,12 +714,12 @@ public class ConfigManagementDao {
 			if (result.getDeletedCount() > 0)
 				return result.wasAcknowledged();
 			else
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ConfigMgmt-1015"), kvm),
-						"ConfigMgmt-1015");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Configuration-1018"), kvm),
+						"Configuration-1018");
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -734,7 +742,7 @@ public class ConfigManagementDao {
 				}
 			return kvmList;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -763,7 +771,7 @@ public class ConfigManagementDao {
 			}
 			return listData;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -775,14 +783,14 @@ public class ConfigManagementDao {
 				if (obj.size() > 0)
 					return obj;
 				else
-					throw new ItorixException("No Record exists", "Config-1004");
+					throw new ItorixException("No Record exists", "Configuration-1003");
 			} else {
-				throw new ItorixException("No Record exists", "Config-1004");
+				throw new ItorixException("No Record exists", "Configuration-1003");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -804,22 +812,24 @@ public class ConfigManagementDao {
 				if (statusCode.is2xxSuccessful())
 					return true;
 				else if (statusCode.value() >= 401 && statusCode.value() <= 403)
-					// throw new ItorixException("Invalid Apigee Credentials " +
-					// statusCode.value(), "Config-1007");
-					throw new ItorixException(ErrorCodes.errorMessage.get("ConfigMgmt-1016"), "ConfigMgmt-1016");
+					// throw new ItorixException("Request validation failed.
+					// Exception connecting to apigee
+					// connector. " +
+					// statusCode.value(), "Configuration-1006");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1020"), "Configuration-1020");
 				else if (statusCode.value() == 409)
 					throw new ItorixException("Request resource already available in Apigee " + statusCode.value(),
-							"Config-1008");
+							"Configuration-1007");
 				else
 					// throw new
-					// ItorixException(ErrorCodes.errorMessage.get("ConfigMgmt-1007")
-					// ,"ConfigMgmt-1007");
-					throw new ItorixException("invalid request data " + statusCode.value(), "Config-1000");
+					// ItorixException(ErrorCodes.errorMessage.get("Configuration-1015")
+					// ,"Configuration-1015");
+					throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -841,14 +851,15 @@ public class ConfigManagementDao {
 				if (statusCode.is2xxSuccessful())
 					return true;
 				else if (statusCode.value() >= 401 && statusCode.value() <= 403)
-					throw new ItorixException("Invalid Apigee Credentials " + statusCode.value(), "Config-1007");
+					throw new ItorixException("Request validation failed. Exception connecting to apigee connector. "
+							+ statusCode.value(), "Configuration-1006");
 				else
-					throw new ItorixException("invalid request data " + statusCode.value(), "Config-1000");
+					throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -883,13 +894,15 @@ public class ConfigManagementDao {
 				}
 				return cps;
 			} else if (statusCode.value() >= 401 && statusCode.value() <= 403)
-				throw new ItorixException("Invalid Apigee Credentials " + statusCode.value(), "Config-1007");
+				throw new ItorixException(
+						"Request validation failed. Exception connecting to apigee connector. " + statusCode.value(),
+						"Configuration-1006");
 			else
-				throw new ItorixException("invalid request data " + statusCode.value(), "Config-1000");
+				throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -910,13 +923,15 @@ public class ConfigManagementDao {
 				}
 				return true;
 			} else if (statusCode.value() >= 401 && statusCode.value() <= 403)
-				throw new ItorixException("Invalid Apigee Credentials " + statusCode.value(), "Config-1007");
+				throw new ItorixException(
+						"Request validation failed. Exception connecting to apigee connector. " + statusCode.value(),
+						"Configuration-1006");
 			else
-				throw new ItorixException("invalid request data " + statusCode.value(), "Config-1000");
+				throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -931,15 +946,16 @@ public class ConfigManagementDao {
 				if (statusCode.is2xxSuccessful()) {
 
 				} else if (statusCode.value() >= 401 && statusCode.value() <= 403)
-					throw new ItorixException("Invalid Apigee Credentials " + statusCode.value(), "Config-1007");
+					throw new ItorixException("Request validation failed. Exception connecting to apigee connector. "
+							+ statusCode.value(), "Configuration-1006");
 				else
-					throw new ItorixException("invalid request data " + statusCode.value(), "Config-1000");
+					throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
 			}
 			return true;
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -962,7 +978,7 @@ public class ConfigManagementDao {
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -983,7 +999,7 @@ public class ConfigManagementDao {
 				return mongoTemplate.findAll(ProductConfig.class);
 			}
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -1006,7 +1022,7 @@ public class ConfigManagementDao {
 				return mongoTemplate.find(query, ProductConfig.class);
 			}
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -1018,7 +1034,7 @@ public class ConfigManagementDao {
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -1029,14 +1045,14 @@ public class ConfigManagementDao {
 			if (result.getDeletedCount() > 0)
 				return result.wasAcknowledged();
 			else
-				throw new ItorixException("No Record exists", "Config-1004");
+				throw new ItorixException("No Record exists", "Configuration-1003");
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
-	
+
 	public boolean deleteProduct(String productName, String org, String type) throws ItorixException {
 		try {
 			Query query = new Query(Criteria.where("name").is(productName).and("org").is(org).and("type").is(type));
@@ -1044,11 +1060,11 @@ public class ConfigManagementDao {
 			if (result.getDeletedCount() > 0)
 				return result.wasAcknowledged();
 			else
-				throw new ItorixException("No Record exists", "Config-1004");
+				throw new ItorixException("No Record exists", "Configuration-1003");
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -1075,7 +1091,7 @@ public class ConfigManagementDao {
 			}
 			return listData;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -1096,17 +1112,18 @@ public class ConfigManagementDao {
 				if (statusCode.is2xxSuccessful())
 					return true;
 				else if (statusCode.value() >= 401 && statusCode.value() <= 403)
-					throw new ItorixException("Invalid Apigee Credentials " + statusCode.value(), "Config-1007");
+					throw new ItorixException("Request validation failed. Exception connecting to apigee connector. "
+							+ statusCode.value(), "Configuration-1006");
 				else if (statusCode.value() == 409)
 					throw new ItorixException("Request resource already available in Apigee " + statusCode.value(),
-							"Config-1008");
+							"Configuration-1007");
 				else
-					throw new ItorixException("invalid request data " + statusCode.value(), "Config-1000");
+					throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -1125,13 +1142,15 @@ public class ConfigManagementDao {
 			if (statusCode.is2xxSuccessful())
 				return true;
 			else if (statusCode.value() >= 401 && statusCode.value() <= 403)
-				throw new ItorixException("Invalid Apigee Credentials " + statusCode.value(), "Config-1007");
+				throw new ItorixException(
+						"Request validation failed. Exception connecting to apigee connector. " + statusCode.value(),
+						"Configuration-1006");
 			else
-				throw new ItorixException("invalid request data " + statusCode.value(), "Config-1000");
+				throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -1165,7 +1184,7 @@ public class ConfigManagementDao {
 			config.setType(isSaaS);
 			return getProducts(config);
 		} else {
-			throw new ItorixException("Not a valid ServiceRequest type!!", "Config-1000");
+			throw new ItorixException("Not a valid ServiceRequest type!!", "Configuration-1000");
 		}
 	}
 
@@ -1242,7 +1261,6 @@ public class ConfigManagementDao {
 			UpdateResult result = mongoTemplate.updateMulti(query, update, ProductConfig.class);
 			createApigeeProduct(config, null);
 		}
-
 	}
 
 	public CacheConfig findCacheByRequestId(String requestId) {
@@ -1276,7 +1294,6 @@ public class ConfigManagementDao {
 		}
 		response.set("Caches", responseFields);
 		return response;
-
 	}
 
 	public Object configProductSearch(String name, int limit) throws ItorixException {
@@ -1294,7 +1311,6 @@ public class ConfigManagementDao {
 		}
 		response.set("Caches", responseFields);
 		return response;
-
 	}
 
 	public Object configKvmSearch(String name, int limit) throws ItorixException {
@@ -1312,7 +1328,6 @@ public class ConfigManagementDao {
 		}
 		response.set("Kvms", responseFields);
 		return response;
-
 	}
 
 	public Object configTargetServerSearch(String name, int limit) throws ItorixException {
@@ -1330,7 +1345,5 @@ public class ConfigManagementDao {
 		}
 		response.set("Targets", responseFields);
 		return response;
-
 	}
-
 }

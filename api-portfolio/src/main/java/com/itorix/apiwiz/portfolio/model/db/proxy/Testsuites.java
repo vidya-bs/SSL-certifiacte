@@ -12,5 +12,4 @@ public class Testsuites {
 
 	private String testSuiteId;
 	private String environmentId;
-
 }

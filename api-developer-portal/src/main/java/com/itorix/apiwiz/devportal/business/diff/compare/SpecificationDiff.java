@@ -19,7 +19,6 @@ import io.swagger.models.Swagger;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.properties.Property;
 
-
 public class SpecificationDiff {
 	private String swaggerName;
 	private String swaggerDescription;
@@ -103,7 +102,6 @@ public class SpecificationDiff {
 		}
 
 		return instance;
-
 	}
 
 	private static Property getResponseProperty(Operation operation) {
@@ -184,5 +182,4 @@ public class SpecificationDiff {
 	public void setSwaggerDescription(String swaggerDescription) {
 		this.swaggerDescription = swaggerDescription;
 	}
-
 }

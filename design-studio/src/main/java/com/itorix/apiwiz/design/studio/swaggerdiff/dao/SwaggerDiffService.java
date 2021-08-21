@@ -37,10 +37,7 @@ import com.itorix.hyggee.oas2.changelog.output.MarkdownRender;
 import com.itorix.hyggee.oas3.changelog.output.Swagger3MarkdownRender;
 import com.itorix.hyggee.oas3.changelog.compare.OpenAPIDiff;
 
-/**
- * @author sudhakar
- *
- */
+/** @author sudhakar */
 @Service
 public class SwaggerDiffService {
 	@Autowired
@@ -51,27 +48,30 @@ public class SwaggerDiffService {
 
 	@Autowired
 	private ObjectMapper mapper = new ObjectMapper();
-	
+
 	@Autowired
 	private MongoTemplate mongoTemplate;
-	
+
 	/**
 	 * @param name
 	 * @param revision
+	 * 
 	 * @return
 	 */
 	private String getSwagger(String name, int revision, String oas) {
 		try {
-			String swagger ;
-			if(oas.equals("3.0")){
+			String swagger;
+			if (oas.equals("3.0")) {
 				Swagger3VO vo = swaggerService.getSwagger3(name, null);
 				Swagger3VO swagger3VO = swaggerService.getSwagger3WithVersionNumber(vo.getName(), revision, null);
-				//swagger = mapper.readValue(swagger3VO.getSwagger(), JsonNode.class);
+				// swagger = mapper.readValue(swagger3VO.getSwagger(),
+				// JsonNode.class);
 				return swagger3VO.getSwagger();
-			} else{
+			} else {
 				SwaggerVO vo = swaggerService.getSwagger(name, null);
 				SwaggerVO swaggerVO = swaggerService.getSwaggerWithVersionNumber(vo.getName(), revision, null);
-				//swagger = mapper.readValue(swaggerVO.getSwagger(), JsonNode.class);
+				// swagger = mapper.readValue(swaggerVO.getSwagger(),
+				// JsonNode.class);
 				return swaggerVO.getSwagger();
 			}
 		} catch (ItorixException e) {
@@ -79,14 +79,14 @@ public class SwaggerDiffService {
 		}
 		return null;
 	}
-	
+
 	private JsonNode getSwagger3(String name, int revision, String oas) {
 		try {
-			JsonNode swagger ;
-				Swagger3VO vo = swaggerService.getSwagger3(name, null);
-				Swagger3VO swagger3VO = swaggerService.getSwagger3WithVersionNumber(vo.getName(), revision, null);
-				swagger = mapper.readValue(swagger3VO.getSwagger(), JsonNode.class);
-				return swagger;
+			JsonNode swagger;
+			Swagger3VO vo = swaggerService.getSwagger3(name, null);
+			Swagger3VO swagger3VO = swaggerService.getSwagger3WithVersionNumber(vo.getName(), revision, null);
+			swagger = mapper.readValue(swagger3VO.getSwagger(), JsonNode.class);
+			return swagger;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -97,20 +97,26 @@ public class SwaggerDiffService {
 	 * @param name
 	 * @param oldRevision
 	 * @param newRevision
+	 * 
 	 * @return
 	 */
 	public String getDiff(String name, int oldRevision, int newRevision, String oas) {
-		if(oas.equals("3.0")){
-			return new Swagger3MarkdownRender(OpenAPIDiff.compare(getSwagger3(name, oldRevision, oas),getSwagger3(name, newRevision,oas))).render();
+		if (oas.equals("3.0")) {
+			return new Swagger3MarkdownRender(
+					OpenAPIDiff.compare(getSwagger3(name, oldRevision, oas), getSwagger3(name, newRevision, oas)))
+							.render();
 		}
-		return new MarkdownRender(SwaggerDiff.compareV2Raw(getSwagger(name, oldRevision, oas),getSwagger(name, newRevision,oas))).render();
+		return new MarkdownRender(
+				SwaggerDiff.compareV2Raw(getSwagger(name, oldRevision, oas), getSwagger(name, newRevision, oas)))
+						.render();
 	};
 
 	/**
 	 * @param notes
+	 * 
 	 * @return
 	 */
-	public boolean saveUpdateReleaseNotes(ReleaseNotesVO notes){
+	public boolean saveUpdateReleaseNotes(ReleaseNotesVO notes) {
 		ReleaseNotesVO note = getReleaseNotes(notes.getYear(), notes.getOas());
 		if (note != null) {
 			note.setNotes(notes.getNotes());
@@ -124,28 +130,28 @@ public class SwaggerDiffService {
 
 	/**
 	 * @param year
+	 * 
 	 * @return
 	 */
-	public ReleaseNotesVO getReleaseNotes(String year, String oas){
-		if(year == null)
+	public ReleaseNotesVO getReleaseNotes(String year, String oas) {
+		if (year == null)
 			year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
-		return baseRepository.findOne("year",year, "oas", oas, ReleaseNotesVO.class);
+		return baseRepository.findOne("year", year, "oas", oas, ReleaseNotesVO.class);
 	}
 
 	/**
 	 * @param year
+	 * 
 	 * @return
 	 */
-	public SwaggerChangeLog getSwaggerChangeLog(String id){
-		return baseRepository.findOne("id",id, SwaggerChangeLog.class);
+	public SwaggerChangeLog getSwaggerChangeLog(String id) {
+		return baseRepository.findOne("id", id, SwaggerChangeLog.class);
 	}
 
-	/**
-	 * @return
-	 */
-	public List<String> getYears(){
+	/** @return */
+	public List<String> getYears() {
 		List<String> years = new ArrayList<String>();
-		for(ReleaseNotesVO releaseNotesVO: baseRepository.findAll("year","-",ReleaseNotesVO.class)){
+		for (ReleaseNotesVO releaseNotesVO : baseRepository.findAll("year", "-", ReleaseNotesVO.class)) {
 			years.add(releaseNotesVO.getYear());
 		}
 		return years;
@@ -155,9 +161,10 @@ public class SwaggerDiffService {
 	 * @param notes
 	 * @param oas
 	 * @param swagger
+	 * 
 	 * @return
 	 */
-	public boolean saveReleaseNotes(String notes, String oas){
+	public boolean saveReleaseNotes(String notes, String oas) {
 		String yearInString = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
 		ReleaseNotesVO note = getReleaseNotes(yearInString, oas);
 		if (note != null) {
@@ -175,123 +182,120 @@ public class SwaggerDiffService {
 		}
 	}
 
-	public void saveReleaseNotes(String text, String oas, String swaggerId, String oldRevision, String newRevision, String summary) throws ItorixException{
+	public void saveReleaseNotes(String text, String oas, String swaggerId, String oldRevision, String newRevision,
+			String summary) throws ItorixException {
 		saveReleaseNotes(text, oas);
 		saveSwaggerReleaseNotes(text, oas, swaggerId, oldRevision, newRevision, summary);
-
 	}
 
-	public void saveSwaggerReleaseNotes(String text, String oas, String swaggerId, String oldRevision, String newRevision, String summary) throws ItorixException{
+	public void saveSwaggerReleaseNotes(String text, String oas, String swaggerId, String oldRevision,
+			String newRevision, String summary) throws ItorixException {
 		String swaggerName = null;
-		if(oas.equals("2.0")){
+		if (oas.equals("2.0")) {
 			SwaggerVO vo = getSwagger(swaggerId);
 			swaggerName = vo != null ? vo.getName() : null;
-		}else {
+		} else {
 			Swagger3VO vo = getSwagger3(swaggerId);
 			swaggerName = vo != null ? vo.getName() : null;
 		}
-		if(swaggerName != null){
+		if (swaggerName != null) {
 			String yearInString = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
-			SwaggerChangeLog swaggerChangeLog = new SwaggerChangeLog (yearInString, oas, text, swaggerName, oldRevision,
+			SwaggerChangeLog swaggerChangeLog = new SwaggerChangeLog(yearInString, oas, text, swaggerName, oldRevision,
 					newRevision, swaggerId, summary);
 			baseRepository.save(swaggerChangeLog);
-		}
-		else
-		{
+		} else {
 			System.out.println("no swagger");
-			throw new ItorixException(
-					String.format(ErrorCodes.errorMessage.get("Swagger-1001")),"Swagger-1001");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 		}
 	}
 
-
-	public void updateSwaggerReleaseNotes( String id, String text, String oas,String summary) throws ItorixException{
+	public void updateSwaggerReleaseNotes(String id, String text, String oas, String summary) throws ItorixException {
 		SwaggerChangeLog swaggerChangeLog = getSwaggerChangeLog(id);
-		if(swaggerChangeLog != null){
-			if(text!=null && text.trim()!="")
+		if (swaggerChangeLog != null) {
+			if (text != null && text.trim() != "")
 				swaggerChangeLog.setNotes(text);
-			if(summary!=null && summary.trim()!="")
+			if (summary != null && summary.trim() != "")
 				swaggerChangeLog.setSummary(summary);
 			baseRepository.save(swaggerChangeLog);
-		}
-		else
-			throw new ItorixException(
-					String.format(ErrorCodes.errorMessage.get("Swagger-1001")),"Swagger-1001");
+		} else
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 	}
 
 	/**
 	 * @param year
+	 * 
 	 * @return
-	 * @throws ParseException 
-	 * @throws ItorixException 
+	 * 
+	 * @throws ParseException
+	 * @throws ItorixException
 	 */
-	public SwaggerChangeLogResponse getSwaggerIdReleaseNotes(String timeRange, String oas, String swaggerId, int offset) throws ParseException, ItorixException{
+	public SwaggerChangeLogResponse getSwaggerIdReleaseNotes(String timeRange, String oas, String swaggerId, int offset)
+			throws ParseException, ItorixException {
 		String swaggerName = null;
-		if(oas.equals("2.0")){
+		if (oas.equals("2.0")) {
 			SwaggerVO vo = getSwagger(swaggerId);
 			swaggerName = vo != null ? vo.getName() : null;
-		}else {
+		} else {
 			Swagger3VO vo = getSwagger3(swaggerId);
 			swaggerName = vo != getSwagger3(swaggerName) ? vo.getName() : null;
 		}
 
-		if(swaggerName != null){
-			Query query =  null;
-			if(timeRange != null){
+		if (swaggerName != null) {
+			Query query = null;
+			if (timeRange != null) {
 				SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
 				String timeRanges[] = timeRange.split("~");
 				Date startDate = format.parse(timeRanges[0]);
 				Date endDate = format.parse(timeRanges[1]);
-				long StartTime =DateUtil.getStartOfDay(startDate).getTime();
-				long endDateTime =DateUtil.getEndOfDay(endDate).getTime();
-				query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas)
-						.and("mts").gte(StartTime).lte(endDateTime))
-						.with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * 10) : 0).limit(10);
-			}
-			else{
+				long StartTime = DateUtil.getStartOfDay(startDate).getTime();
+				long endDateTime = DateUtil.getEndOfDay(endDate).getTime();
+				query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas).and("mts").gte(StartTime)
+						.lte(endDateTime)).with(Sort.by(Direction.DESC, "mts"))
+								.skip(offset > 0 ? ((offset - 1) * 10) : 0).limit(10);
+			} else {
 				query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas))
 						.with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * 10) : 0).limit(10);
 			}
 			List<SwaggerChangeLog> list = baseRepository.find(query, SwaggerChangeLog.class);
-			for (SwaggerChangeLog log:list)
+			for (SwaggerChangeLog log : list)
 				log.setNotes(null);
 			long counter;
-			if(timeRange != null){
+			if (timeRange != null) {
 				SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
 				String timeRanges[] = timeRange.split("~");
 				Date startDate = format.parse(timeRanges[0]);
 				Date endDate = format.parse(timeRanges[1]);
-				long StartTime =DateUtil.getStartOfDay(startDate).getTime();
-				long endDateTime =DateUtil.getEndOfDay(endDate).getTime();
-				 counter = mongoTemplate.count(new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas).and("mts").gte(StartTime).lte(endDateTime)), SwaggerChangeLog.class);
-			}
-			else
-				 counter = mongoTemplate.count(new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas)), SwaggerChangeLog.class);
+				long StartTime = DateUtil.getStartOfDay(startDate).getTime();
+				long endDateTime = DateUtil.getEndOfDay(endDate).getTime();
+				counter = mongoTemplate.count(new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas)
+						.and("mts").gte(StartTime).lte(endDateTime)), SwaggerChangeLog.class);
+			} else
+				counter = mongoTemplate.count(new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas)),
+						SwaggerChangeLog.class);
 			Pagination pagination = new Pagination();
 			pagination.setOffset(offset);
 			pagination.setTotal(counter);
 			pagination.setPageSize(10);
-			
+
 			SwaggerChangeLogResponse response = new SwaggerChangeLogResponse();
-			if(list == null)
+			if (list == null)
 				response.setData(new ArrayList());
 			else
 				response.setData(list);
 			response.setPagination(pagination);
 			return response;
 		}
-		throw new ItorixException(
-				String.format(ErrorCodes.errorMessage.get("Swagger-1001")),"Swagger-1001");
-
+		throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 	}
 
 	/**
 	 * @param notes
 	 * @param year
+	 * 
 	 * @return
 	 */
-	public boolean updateReleaseNotes(String notes, String year, String oas){
-		if(year == null)
+	public boolean updateReleaseNotes(String notes, String year, String oas) {
+		if (year == null)
 			year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
 		ReleaseNotesVO note = getReleaseNotes(year, oas);
 		if (note != null) {
@@ -308,17 +312,18 @@ public class SwaggerDiffService {
 
 	/**
 	 * getSwagger
-	 * 
+	 *
 	 * @param name
+	 * 
 	 * @return
 	 */
 	public SwaggerVO getSwagger(String name) {
 		SwaggerVO vo = null;
 		vo = baseRepository.findOne("id", name, SwaggerVO.class);
-		if(vo!= null)
+		if (vo != null)
 			return vo;
 		vo = baseRepository.findOne("swaggerId", name, SwaggerVO.class);
-		if(vo!= null)
+		if (vo != null)
 			return vo;
 		vo = baseRepository.findOne("name", name, SwaggerVO.class);
 		return vo;
@@ -326,22 +331,22 @@ public class SwaggerDiffService {
 
 	/**
 	 * getSwagger3
-	 * 
+	 *
 	 * @param name
+	 * 
 	 * @return
 	 */
 	public Swagger3VO getSwagger3(String name) {
 		Swagger3VO vo = null;
 		vo = baseRepository.findOne("id", name, Swagger3VO.class);
-		if(vo!= null)
+		if (vo != null)
 			return vo;
 		vo = baseRepository.findOne("swaggerId", name, Swagger3VO.class);
-		if(vo!= null)
+		if (vo != null)
 			return vo;
 		vo = baseRepository.findOne("name", name, Swagger3VO.class);
-		if(vo != null)
+		if (vo != null)
 			return vo;
 		return vo;
 	}
-
 }

@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "name", "displayName", "proxyName", "version", "materials", "stages" })
+@JsonPropertyOrder({"name", "displayName", "proxyName", "version", "materials", "stages"})
 public class Pipeline {
 
 	@Id
@@ -34,7 +34,7 @@ public class Pipeline {
 
 	@JsonProperty("version")
 	private String version;
-	
+
 	@JsonProperty("type")
 	private String type;
 
@@ -45,7 +45,7 @@ public class Pipeline {
 	private List<Stage> stages = null;
 
 	private Metadata metadata;
-	
+
 	@JsonProperty("status")
 	private String status;
 

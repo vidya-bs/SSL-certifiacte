@@ -23,6 +23,19 @@
 			<artifactId>cloud-identity-management</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.itorix.hyggee.cloud</groupId>
+			<artifactId>developer-studio</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.itorix.hyggee.cloud</groupId>
+			<artifactId>ci-cd</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.itorix.hyggee.cloud</groupId>
+			<artifactId>service-registry</artifactId>
+		</dependency>
+		
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 		</dependency>

@@ -1,11 +1,11 @@
 package com.itorix.apiwiz.testsuite.model;
 
 public class Pagination {
-	
+
 	private Long total;
 
 	private int offset;
-	
+
 	private int pageSize;
 
 	public Long getTotal() {
@@ -31,5 +31,4 @@ public class Pagination {
 	public void setPageSize(int pageSize) {
 		this.pageSize = pageSize;
 	}
-	
 }

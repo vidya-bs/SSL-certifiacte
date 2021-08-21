@@ -12,8 +12,7 @@ public class PropertyReader {
 		Properties prop = new Properties();
 		InputStream input = null;
 		try {
-			input = this.getClass().getClassLoader()
-					.getResourceAsStream(filePath);
+			input = this.getClass().getClassLoader().getResourceAsStream(filePath);
 
 			prop.load(input);
 		} catch (IOException ex) {
@@ -49,5 +48,4 @@ public class PropertyReader {
 		}
 		return prop;
 	}
-
 }

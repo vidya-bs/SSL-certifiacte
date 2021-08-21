@@ -2,32 +2,33 @@ package com.itorix.apiwiz.sso.model;
 
 public enum Roles {
 
-	DEVELOPER("Developer"), ADMIN("Admin"), PORTAL("Portal"),ANALYST("Analyst"),PROJECT_ADMIN("Project-Admin"),QA("QA"),OPERATION("Operation"),TEST("Test"),DEFAULT("Default");;
-	private String value;
+    DEVELOPER("Developer"), ADMIN("Admin"), PORTAL("Portal"), ANALYST("Analyst"), PROJECT_ADMIN("Project-Admin"),
+    QA("QA"), OPERATION("Operation"), TEST("Test"), DEFAULT("Default");
+    ;
 
-	private Roles(String value) {
-		this.value = value;
-	}
+    private String value;
 
-	public String getValue() {
-		return value;
-	}
+    private Roles(String value) {
+        this.value = value;
+    }
 
-	public void setValue(String value) {
-		this.value = value;
-	}
+    public String getValue() {
+        return value;
+    }
 
-	public static  String  getStatus(Roles status) {
+    public void setValue(String value) {
+        this.value = value;
+    }
 
-		String userRoles = null;
-		for (Roles role : Roles.values()) {
-			if (role.equals(status)) {
-				userRoles = role.getValue();
-			}
-		}
-		return userRoles;
-	}
+    public static String getStatus(Roles status) {
+
+        String userRoles = null;
+        for (Roles role : Roles.values()) {
+            if (role.equals(status)) {
+                userRoles = role.getValue();
+            }
+        }
+        return userRoles;
+    }
 
 }
-
-

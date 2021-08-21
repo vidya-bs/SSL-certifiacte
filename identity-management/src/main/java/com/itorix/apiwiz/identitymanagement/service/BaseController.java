@@ -13,9 +13,8 @@ public class BaseController {
 	protected HttpServletResponse response;
 
 	public static final String SESSION_TOKEN_NAME = "JSESSIONID";
-	
-	public static final String API_KEY_NAME = "x-apikey";
-	
-	public static final String INTERACTION_ID="interactionId";
 
+	public static final String API_KEY_NAME = "x-apikey";
+
+	public static final String INTERACTION_ID = "interactionId";
 }

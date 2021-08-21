@@ -6,13 +6,13 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@ComponentScan("com.itorix.apiwiz.test")
+@ComponentScan({"com.itorix.apiwiz.test", "com.itorix.apiwiz.validator"})
 @EnableScheduling
 @SpringBootApplication
 @PropertySource(value = "file:${config.properties}", ignoreResourceNotFound = true)
 public class TestSuiteApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(TestSuiteApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(TestSuiteApplication.class, args);
+    }
 }

@@ -10,47 +10,45 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-    "type",
-    "attributes"
-})
+@JsonPropertyOrder({"type", "attributes"})
 public class Material {
 
-    @JsonProperty("type")
-    private String type;
-    @JsonProperty("attributes")
-    private Attributes attributes;
-    @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	@JsonProperty("type")
+	private String type;
 
-    @JsonProperty("type")
-    public String getType() {
-        return type;
-    }
+	@JsonProperty("attributes")
+	private Attributes attributes;
 
-    @JsonProperty("type")
-    public void setType(String type) {
-        this.type = type;
-    }
+	@JsonIgnore
+	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("attributes")
-    public Attributes getAttributes() {
-        return attributes;
-    }
+	@JsonProperty("type")
+	public String getType() {
+		return type;
+	}
 
-    @JsonProperty("attributes")
-    public void setAttributes(Attributes attributes) {
-        this.attributes = attributes;
-    }
+	@JsonProperty("type")
+	public void setType(String type) {
+		this.type = type;
+	}
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
+	@JsonProperty("attributes")
+	public Attributes getAttributes() {
+		return attributes;
+	}
 
-    @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-    }
+	@JsonProperty("attributes")
+	public void setAttributes(Attributes attributes) {
+		this.attributes = attributes;
+	}
 
+	@JsonAnyGetter
+	public Map<String, Object> getAdditionalProperties() {
+		return this.additionalProperties;
+	}
+
+	@JsonAnySetter
+	public void setAdditionalProperty(String name, Object value) {
+		this.additionalProperties.put(name, value);
+	}
 }

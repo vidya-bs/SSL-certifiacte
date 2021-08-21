@@ -3,47 +3,39 @@ package com.itorix.apiwiz.collaboration.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SwaggerTeamPermissionVO
-{
-    private String name;
+public class SwaggerTeamPermissionVO {
+	private String name;
 
-    private String[] roles;
+	private String[] roles;
 
-    private String type;
+	private String type;
 
-    public String getName ()
-    {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setName (String name)
-    {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public String[] getRoles ()
-    {
-        return roles;
-    }
+	public String[] getRoles() {
+		return roles;
+	}
 
-    public void setRoles (String[] roles)
-    {
-        this.roles = roles;
-    }
+	public void setRoles(String[] roles) {
+		this.roles = roles;
+	}
 
-    public String getType ()
-    {
-        return type;
-    }
+	public String getType() {
+		return type;
+	}
 
-    public void setType (String type)
-    {
-        this.type = type;
-    }
+	public void setType(String type) {
+		this.type = type;
+	}
 
-    @Override
-    public String toString()
-    {
-        return "ClassPojo [name = "+name+", roles = "+roles+", type = "+type+"]";
-    }
+	@Override
+	public String toString() {
+		return "ClassPojo [name = " + name + ", roles = " + roles + ", type = " + type + "]";
+	}
 }

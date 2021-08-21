@@ -76,5 +76,4 @@ public class ComparisonUtils {
 	public static Boolean isNull(Object o1, Object o2) {
 		return Objects.isNull(o1) && Objects.isNull(o2);
 	}
-
 }

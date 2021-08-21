@@ -11,30 +11,30 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import net.sf.json.JSONArray;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Component
 public class CommonConfiguration {
-	
+
 	private String apigeeEmail;
 	private String apigeePassword;
 	private String apigeeCred;
 	private String apiName;
 	private String sharedflowName;
-	
+
 	private String organization;
 	private String environment;
-	
+
 	private String jsessionId;
-	
-	
+
 	private Boolean isCleanUpAndBackUp;
-	
+
 	private String jfrogUrl;
-	
+
 	private String newOrg;
-	
+
 	private String backUpLocation;
-	
+
 	private Boolean isDepoyedOnly;
 	private List<String> selectedEnvironments;
 	private List<String> selectedProxies;
@@ -45,20 +45,17 @@ public class CommonConfiguration {
 	private String oldEnv;
 	private String operationId;
 	private String interactionid;
-	
-	//Unused
 
-	
-	
+	// Unused
+
 	private String userName;
 	private String password;
 	private String url = "";
 
-	//private String apiProxyName;
-	
+	// private String apiProxyName;
+
 	private String revision;
 
-	
 	private String newEnv;
 
 	private String dir;
@@ -72,109 +69,90 @@ public class CommonConfiguration {
 	private Object developersInfo;
 	private Object productsInfo;
 	private Object appsInfo;
-	
 
 	private List<String> proxiesList;
 
 	private List<EnvironmentVO> environments;
 
-	//Apigee path variables
-	
+	// Apigee path variables
+
 	private String appID;
 	private String apiProductName;
-	
+
 	private String revisionNumber;
-	private  String developerId;
+	private String developerId;
 	private String developerEmail;
 	private String appName;
 	private String consumerKey;
-	
+
 	private String cacheName;
 	private String keyValueMapName;
 	private String virtualHostName;
 	private String targetServerName;
-	
-	
+
 	private String apiProduct;
 	private String appDeveloper;
 	private String resource;
-	
+
 	private List<String> envApiList;
 	private JSONArray jsonArray;
 	private String sys;
-	
-	
-	private Long startTime; 
-	
+
+	private Long startTime;
+
 	private String organizations[];
-	
-   private String timeRangestartDate;
-	
+
+	private String timeRangestartDate;
+
 	private String timeRangeendDate;
-	
+
 	private String timeRange;
-	
+
 	private String timeUnit;
-	
+
 	private String testsuiteId;
-	
+
 	private String variableId;
-	
-	
+
 	@JsonIgnore
 	private MultipartFile postmanFile;
 	@JsonIgnore
 	private MultipartFile envFile;
-	
+
 	private boolean isCodeCoverage;
 	private boolean isPolicyPerformance;
-	
-	
 
-	//properties to passed from ui as extra parameters
+	// properties to passed from ui as extra parameters
 	Set<String> developersToBackup;
-	
+
 	private boolean expand;
 
 	public CommonConfiguration() {
-
 	}
 
-	/*public CommonConfiguration(String backUpLocation, String organization, String userName, String password, String url,
-			String apiProxyName, String environment, String revision) {
-		super();
-		this.backUpLocation = backUpLocation;
-		this.organization = organization;
-		this.userName = userName;
-		this.password = password;
-		this.url = "https://api.enterprise.apigee.com";
-		//this.apiProxyName = apiProxyName;
-		this.environment = environment;
-		this.revision = revision;
-	}
-
-	public CommonConfiguration(String backUpLocation, String organization, String userName, String password, String url,
-			String apiProxyName, String environment, String revision, String restoreFrom, boolean rollOver,
-			boolean activate) {
-		super();
-		this.backUpLocation = backUpLocation;
-		this.organization = organization;
-		this.userName = userName;
-		this.password = password;
-		this.url = "https://api.enterprise.apigee.com";
-		//this.apiProxyName = apiProxyName;
-		this.environment = environment;
-		this.revision = revision;
-		this.restoreFrom = restoreFrom;
-		this.rollOver = rollOver;
-		this.activate = activate;
-	}*/
+	/*
+	 * public CommonConfiguration(String backUpLocation, String organization,
+	 * String userName, String password, String url, String apiProxyName, String
+	 * environment, String revision) { super(); this.backUpLocation =
+	 * backUpLocation; this.organization = organization; this.userName =
+	 * userName; this.password = password; this.url =
+	 * "https://api.enterprise.apigee.com"; //this.apiProxyName = apiProxyName;
+	 * this.environment = environment; this.revision = revision; }
+	 * 
+	 * public CommonConfiguration(String backUpLocation, String organization,
+	 * String userName, String password, String url, String apiProxyName, String
+	 * environment, String revision, String restoreFrom, boolean rollOver,
+	 * boolean activate) { super(); this.backUpLocation = backUpLocation;
+	 * this.organization = organization; this.userName = userName; this.password
+	 * = password; this.url = "https://api.enterprise.apigee.com";
+	 * //this.apiProxyName = apiProxyName; this.environment = environment;
+	 * this.revision = revision; this.restoreFrom = restoreFrom; this.rollOver =
+	 * rollOver; this.activate = activate; }
+	 */
 
 	public String getRestoreFrom() {
 		return restoreFrom;
 	}
-
-	
 
 	public String getTimeUnit() {
 		return timeUnit;
@@ -268,13 +246,12 @@ public class CommonConfiguration {
 		this.url = url;
 	}
 
-	/*public String getApiProxyName() {
-		return apiProxyName;
-	}
-
-	public void setApiProxyName(String apiProxyName) {
-		this.apiProxyName = apiProxyName;
-	}*/
+	/*
+	 * public String getApiProxyName() { return apiProxyName; }
+	 * 
+	 * public void setApiProxyName(String apiProxyName) { this.apiProxyName =
+	 * apiProxyName; }
+	 */
 
 	public String getEnvironment() {
 		return environment;
@@ -435,6 +412,7 @@ public class CommonConfiguration {
 	public void setDeveloperId(String developerId) {
 		this.developerId = developerId;
 	}
+
 	public String getDeveloperEmail() {
 		return developerEmail;
 	}
@@ -530,7 +508,7 @@ public class CommonConfiguration {
 	public void setResource(String resource) {
 		this.resource = resource;
 	}
-	
+
 	public List<String> getEnvApiList() {
 		return envApiList;
 	}
@@ -602,9 +580,11 @@ public class CommonConfiguration {
 	public void setApigeePassword(String apigeePassword) {
 		this.apigeePassword = apigeePassword;
 	}
+
 	public String getApigeeCred() {
 		return apigeeCred;
 	}
+
 	public void setApigeeCred(String apigeeCred) {
 		this.apigeeCred = apigeeCred;
 	}
@@ -628,20 +608,23 @@ public class CommonConfiguration {
 	public String getJfrogUrl() {
 		return jfrogUrl;
 	}
+
 	public void setJfrogUrl(String jfrogUrl) {
 		this.jfrogUrl = jfrogUrl;
 	}
-	
+
 	public Boolean getIsDepoyedOnly() {
 		return isDepoyedOnly;
 	}
+
 	public void setIsDepoyedOnly(Boolean isDepoyedOnly) {
 		this.isDepoyedOnly = isDepoyedOnly;
 	}
+
 	public String getBackUpLevel() {
 		return backUpLevel;
 	}
-	
+
 	public void setBackUpLevel(String backUpLevel) {
 		this.backUpLevel = backUpLevel;
 	}
@@ -702,7 +685,6 @@ public class CommonConfiguration {
 		this.isPolicyPerformance = isPolicyPerformance;
 	}
 
-	
 	public boolean isExpand() {
 		return expand;
 	}
@@ -752,10 +734,4 @@ public class CommonConfiguration {
 	public void setVariableId(String variableId) {
 		this.variableId = variableId;
 	}
-
-	
-	
-	
-	
-	
 }

@@ -1,6 +1,5 @@
 package com.itorix.apiwiz.analytics.model;
 
-
 import org.json.simple.JSONObject;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
@@ -13,7 +12,7 @@ public class DashBoardOverview {
 	public static final String LABEL_DASH_BOARD_FUNCTIONNAME = "dashBoradFunctionName";
 	public static final String LABEL_DASH_BOARD_ENVIROMENT = "environment";
 	public static final String LABEL_DASH_BOARD_ORGANISATION = "organisation";
-	public static final String LABEL_DASH_BOARD_TYPE="type";
+	public static final String LABEL_DASH_BOARD_TYPE = "type";
 
 	private JSONObject overviewResponse;
 
@@ -22,11 +21,7 @@ public class DashBoardOverview {
 	private String environment;
 	private String organisation;
 	private String type;
-	
-	
-	
-	
-	
+
 	public String getType() {
 		return type;
 	}
@@ -66,5 +61,4 @@ public class DashBoardOverview {
 	public void setOverviewResponse(JSONObject overviewResponse) {
 		this.overviewResponse = overviewResponse;
 	}
-
 }

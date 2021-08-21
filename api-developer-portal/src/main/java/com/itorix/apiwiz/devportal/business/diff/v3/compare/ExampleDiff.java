@@ -16,12 +16,12 @@ public class ExampleDiff {
 
 	public ExampleDiff diff(Map<String, Example> left, Map<String, Example> right) {
 		MapKeyDiff<String, Example> diffMap = MapKeyDiff.diff(left, right);
-		
-		if(Objects.nonNull(diffMap.getIncreased())) {
+
+		if (Objects.nonNull(diffMap.getIncreased())) {
 			this.added = diffMap.getIncreased();
 		}
-		
-		if(Objects.nonNull(diffMap.getMissing())) {
+
+		if (Objects.nonNull(diffMap.getMissing())) {
 			this.missing = diffMap.getMissing();
 		}
 

@@ -10,58 +10,58 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Execution {
 
-	@JsonProperty("executionID")
-	private String id;
+    @JsonProperty("executionID")
+    private String id;
 
-	@JsonProperty("date")
-	private String date;
+    @JsonProperty("date")
+    private String date;
 
-	@JsonProperty("status")
-	private String status;
+    @JsonProperty("status")
+    private String status;
 
-	@JsonProperty("variables")
-	private Map<String, String> vars;
+    @JsonProperty("variables")
+    private Map<String, String> vars;
 
-	public Execution() {
-	}
+    public Execution() {
+    }
 
-	public Execution(String id, String date, String status, Map<String, String> vars) {
-		super();
-		this.id = id;
-		this.date = date;
-		this.status = status;
-		this.vars = vars;
-	}
+    public Execution(String id, String date, String status, Map<String, String> vars) {
+        super();
+        this.id = id;
+        this.date = date;
+        this.status = status;
+        this.vars = vars;
+    }
 
-	public String getId() {
-		return id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public String getDate() {
-		return date;
-	}
+    public String getDate() {
+        return date;
+    }
 
-	public void setDate(String date) {
-		this.date = date;
-	}
+    public void setDate(String date) {
+        this.date = date;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public String getStatus() {
+        return status;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	public Map<String, String> getVars() {
-		return vars;
-	}
+    public Map<String, String> getVars() {
+        return vars;
+    }
 
-	public void setVars(Map<String, String> vars) {
-		this.vars = vars;
-	}
+    public void setVars(Map<String, String> vars) {
+        this.vars = vars;
+    }
 }

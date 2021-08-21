@@ -57,7 +57,7 @@ public class ConfigManagementService implements ConfigManagement {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid, @RequestBody TargetConfig config)
 			throws Exception {
-		User user = new com.itorix.apiwiz.identitymanagement.model.User();// commonServices.getUserDetailsFromSessionID(jsessionid);
+		User user = new com.itorix.apiwiz.identitymanagement.model.User(); // commonServices.getUserDetailsFromSessionID(jsessionid);
 		config.setCreatedUser(user.getFirstName() + Constants.SPACE + user.getLastName());
 		config.setCreatedDate(Instant.now().toString());
 		config.setModifiedUser(user.getFirstName() + Constants.SPACE + user.getLastName());
@@ -89,7 +89,6 @@ public class ConfigManagementService implements ConfigManagement {
 			throws Exception {
 		configManagementDAO.deleteTarget(config);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-
 	}
 
 	@Override
@@ -108,14 +107,14 @@ public class ConfigManagementService implements ConfigManagement {
 		return new ResponseEntity<Object>(configManagementDAO.getTargetList(), HttpStatus.OK);
 	}
 
-//	@UnSecure
+	// @UnSecure
 	@Override
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/config/targets/{target}")
 	public ResponseEntity<Object> getTarget(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("target") String target, @RequestParam(value = "org", required = false) String org,
 			@RequestParam(value = "env", required = false) String env,
-			@RequestParam(value = "type", required=false) String type) throws Exception {
+			@RequestParam(value = "type", required = false) String type) throws Exception {
 		if (target != null && org != null && env != null) {
 			TargetConfig config = new TargetConfig();
 			config.setName(target);
@@ -124,8 +123,8 @@ public class ConfigManagementService implements ConfigManagement {
 			config.setType(type);
 			List data = (ArrayList) configManagementDAO.getAllActiveTargets(config);
 			if (data.size() == 0)
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ConfigMgmt-1023"),
-						config.getName(), config.getOrg(), config.getEnv()), "ConfigMgmt-1023");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Configuration-1022"),
+						config.getName(), config.getOrg(), config.getEnv()), "Configuration-1022");
 			return new ResponseEntity<Object>(data.get(0), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<Object>(configManagementDAO.getTarget(target), HttpStatus.OK);
@@ -137,7 +136,7 @@ public class ConfigManagementService implements ConfigManagement {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("target") String target, @RequestParam(value = "org", required = false) String org,
 			@RequestParam(value = "env", required = false) String env,
-			@RequestParam(value = "type", required=false) String type,
+			@RequestParam(value = "type", required = false) String type,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		if (!target.equals("") && !org.equals("") && !env.equals("")) {
 			TargetConfig config = new TargetConfig();
@@ -149,7 +148,7 @@ public class ConfigManagementService implements ConfigManagement {
 			configManagementDAO.createApigeeTarget(config, user);
 			return new ResponseEntity<Void>(HttpStatus.CREATED);
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("ConfigMgmt-1021"), "ConfigMgmt-1021");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1024"), "Configuration-1024");
 		}
 	}
 
@@ -158,7 +157,7 @@ public class ConfigManagementService implements ConfigManagement {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("target") String target, @RequestParam(value = "org", required = false) String org,
 			@RequestParam(value = "env", required = false) String env,
-			@RequestParam(value = "type", required=false) String type,
+			@RequestParam(value = "type", required = false) String type,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		if (!target.equals("") && !org.equals("") && !env.equals("")) {
 			TargetConfig config = new TargetConfig();
@@ -170,7 +169,7 @@ public class ConfigManagementService implements ConfigManagement {
 			configManagementDAO.updateApigeeTarget(config, user);
 			return new ResponseEntity<Void>(HttpStatus.CREATED);
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("ConfigMgmt-1021"), "ConfigMgmt-1021");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1024"), "Configuration-1024");
 		}
 	}
 
@@ -194,7 +193,7 @@ public class ConfigManagementService implements ConfigManagement {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody CacheConfig config) throws Exception {
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
-		
+
 		config.setCreatedUser(user.getFirstName() + " " + user.getLastName());
 		config.setCreatedDate(Instant.now().toString());
 		config.setModifiedUser(user.getFirstName() + " " + user.getLastName());
@@ -234,13 +233,13 @@ public class ConfigManagementService implements ConfigManagement {
 		return new ResponseEntity<Object>(configManagementDAO.getCacheList(), HttpStatus.OK);
 	}
 
-//	@UnSecure
+	// @UnSecure
 	@Override
 	public ResponseEntity<Object> getCache(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("cache") String cache, @RequestParam(value = "org", required = false) String org,
 			@RequestParam(value = "env", required = false) String env,
-			@RequestParam(value = "type", required=false) String type) throws Exception {
+			@RequestParam(value = "type", required = false) String type) throws Exception {
 		if (cache != null && org != null && env != null) {
 			CacheConfig config = new CacheConfig();
 			config.setName(cache);
@@ -249,8 +248,8 @@ public class ConfigManagementService implements ConfigManagement {
 			config.setType(type);
 			List<CacheConfig> data = (ArrayList<CacheConfig>) configManagementDAO.getAllActiveCaches(config);
 			if (data.size() == 0)
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ConfigMgmt-1003"),
-						config.getName(), config.getOrg(), config.getEnv()), "ConfigMgmt-1003");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Configuration-1012"),
+						config.getName(), config.getOrg(), config.getEnv()), "Configuration-1012");
 			return new ResponseEntity<Object>(data.get(0), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<Object>(configManagementDAO.getCache(cache), HttpStatus.OK);
@@ -262,7 +261,7 @@ public class ConfigManagementService implements ConfigManagement {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("cache") String cache, @RequestParam(value = "org", required = false) String org,
 			@RequestParam(value = "env", required = false) String env,
-			@RequestParam(value = "type", required=false) String type,
+			@RequestParam(value = "type", required = false) String type,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		if (cache != null && org != null && env != null) {
 			CacheConfig config = new CacheConfig();
@@ -274,7 +273,7 @@ public class ConfigManagementService implements ConfigManagement {
 			configManagementDAO.createApigeeCache(config, user);
 			return new ResponseEntity<Void>(HttpStatus.CREATED);
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("ConfigMgmt-1006"), "ConfigMgmt-1006");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1014"), "Configuration-1014");
 		}
 	}
 
@@ -283,7 +282,7 @@ public class ConfigManagementService implements ConfigManagement {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("cache") String cache, @RequestParam(value = "org", required = false) String org,
 			@RequestParam(value = "env", required = false) String env,
-			@RequestParam(value = "type", required=false) String type,
+			@RequestParam(value = "type", required = false) String type,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		if (cache != null && org != null && env != null) {
 			CacheConfig config = new CacheConfig();
@@ -295,7 +294,7 @@ public class ConfigManagementService implements ConfigManagement {
 			configManagementDAO.updateApigeeCache(config, user);
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("ConfigMgmt-1006"), "ConfigMgmt-1006");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1014"), "Configuration-1014");
 		}
 	}
 
@@ -359,7 +358,7 @@ public class ConfigManagementService implements ConfigManagement {
 	public ResponseEntity<Object> getKVM(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("kvm") String kvm, @RequestParam(value = "org", required = false) String org,
 			@RequestParam(value = "env", required = false) String env,
-			@RequestParam(value = "type", required=false) String type) throws Exception {
+			@RequestParam(value = "type", required = false) String type) throws Exception {
 		if (kvm != null && org != null && env != null) {
 			KVMConfig config = new KVMConfig();
 			config.setName(kvm);
@@ -368,8 +367,8 @@ public class ConfigManagementService implements ConfigManagement {
 			config.setType(type);
 			List data = (ArrayList) configManagementDAO.getKVMs(config);
 			if (data.size() == 0)
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ConfigMgmt-1013"),
-						config.getName(), config.getOrg(), config.getEnv()), "ConfigMgmt-1013");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Configuration-1017"),
+						config.getName(), config.getOrg(), config.getEnv()), "Configuration-1017");
 			return new ResponseEntity<Object>(data.get(0), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<Object>(configManagementDAO.getKVM(kvm), HttpStatus.OK);
@@ -381,7 +380,7 @@ public class ConfigManagementService implements ConfigManagement {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("kvm") String kvm, @RequestParam(value = "org", required = false) String org,
 			@RequestParam(value = "env", required = false) String env,
-			@RequestParam(value = "type", required=false) String type,
+			@RequestParam(value = "type", required = false) String type,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		if (kvm != null && org != null && env != null) {
 			KVMConfig config = new KVMConfig();
@@ -393,7 +392,7 @@ public class ConfigManagementService implements ConfigManagement {
 			configManagementDAO.createApigeeKVM(config, user);
 			return new ResponseEntity<Void>(HttpStatus.CREATED);
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("ConfigMgmt-1011"), "ConfigMgmt-1011");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1019"), "Configuration-1019");
 		}
 	}
 
@@ -402,7 +401,7 @@ public class ConfigManagementService implements ConfigManagement {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("kvm") String kvm, @RequestParam(value = "org", required = false) String org,
 			@RequestParam(value = "env", required = false) String env,
-			@RequestParam(value = "type", required=false) String type,
+			@RequestParam(value = "type", required = false) String type,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		if (kvm != null && org != null && env != null) {
 			KVMConfig config = new KVMConfig();
@@ -414,7 +413,7 @@ public class ConfigManagementService implements ConfigManagement {
 			configManagementDAO.updateApigeeKVM(config, user);
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("ConfigMgmt-1011"), "ConfigMgmt-1011");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1019"), "Configuration-1019");
 		}
 	}
 
@@ -450,12 +449,10 @@ public class ConfigManagementService implements ConfigManagement {
 	@Override
 	public ResponseEntity<Void> deleteProduct(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, 
-			@PathVariable("product_name") String productname,
-			@RequestParam(value = "org", required=false) String org,
-			@RequestParam(value = "type", required=false) String type)
-			throws Exception {
-		if(org!=null && type!=null)
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("product_name") String productname,
+			@RequestParam(value = "org", required = false) String org,
+			@RequestParam(value = "type", required = false) String type) throws Exception {
+		if (org != null && type != null)
 			configManagementDAO.deleteProduct(productname, org, type);
 		else
 			configManagementDAO.deleteProduct(productname);
@@ -469,7 +466,7 @@ public class ConfigManagementService implements ConfigManagement {
 		return new ResponseEntity<Object>(configManagementDAO.getProductList(), HttpStatus.OK);
 	}
 
-//	@UnSecure
+	// @UnSecure
 	@Override
 	public ResponseEntity<List<ProductConfig>> getProductByName(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -480,12 +477,12 @@ public class ConfigManagementService implements ConfigManagement {
 		return new ResponseEntity<List<ProductConfig>>(data, HttpStatus.OK);
 	}
 
-//	@UnSecure
+	// @UnSecure
 	@Override
 	public ResponseEntity<ProductConfig> getProductByOrg(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("product_name") String productname, @RequestParam("org") String org,
-			@RequestParam(value="type",required=false) String type) throws Exception {
+			@RequestParam(value = "type", required = false) String type) throws Exception {
 		ProductConfig config = new ProductConfig();
 		config.setName(productname);
 		config.setOrg(org);
@@ -509,7 +506,7 @@ public class ConfigManagementService implements ConfigManagement {
 			configManagementDAO.createApigeeProduct(config, user);
 			return new ResponseEntity<Void>(HttpStatus.CREATED);
 		} else {
-			throw new ItorixException("Insufficient Data in the Request ", "Config-1006");
+			throw new ItorixException("Insufficient Data in the Request ", "Configuration-1005");
 		}
 	}
 
@@ -526,55 +523,53 @@ public class ConfigManagementService implements ConfigManagement {
 			configManagementDAO.updateApigeeProduct(config, user);
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		} else {
-			throw new ItorixException("Insufficient Data in the Request ", "Config-1006");
+			throw new ItorixException("Insufficient Data in the Request ", "Configuration-1005");
 		}
 	}
 
 	@Override
-	public ResponseEntity<Object> getHistory(@RequestHeader(value="interactionid",required=false)String interactionid,
+	public ResponseEntity<Object> getHistory(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable(value = "serviceRequestType") String serviceRequestType,
-			@RequestParam(value = "org") String org, 
-			@RequestParam(value = "env", required = false) String env,
-			@RequestParam(value = "type") String type,
-			@RequestParam(value = "name") String name,
-			@RequestHeader(value="JSESSIONID") String jsessionid) throws Exception {
-		return new ResponseEntity<Object>(configManagementDAO.getHistory(serviceRequestType, org, env, type, name), HttpStatus.OK);
-		
+			@RequestParam(value = "org") String org, @RequestParam(value = "env", required = false) String env,
+			@RequestParam(value = "type") String type, @RequestParam(value = "name") String name,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
+		return new ResponseEntity<Object>(configManagementDAO.getHistory(serviceRequestType, org, env, type, name),
+				HttpStatus.OK);
 	}
 
 	@Override
-	public ResponseEntity<Void> revertConfig(@RequestHeader(value="interactionid",required=false)String interactionid,
+	public ResponseEntity<Void> revertConfig(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable(value = "serviceRequestType") String serviceRequestType,
-			@PathVariable(value = "requestId") String requestId, 
-			@RequestHeader(value="JSESSIONID") String jsessionid) throws Exception {
-		configManagementDAO.revertConfig(serviceRequestType,requestId);
-		return new ResponseEntity<Void>( HttpStatus.NO_CONTENT);
+			@PathVariable(value = "requestId") String requestId, @RequestHeader(value = "JSESSIONID") String jsessionid)
+			throws Exception {
+		configManagementDAO.revertConfig(serviceRequestType, requestId);
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
-		
-		
-		public ResponseEntity<Object> configCacheSearch(
-				@RequestHeader(value = "interactionid", required = false) String interactionid,
-				@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception {
 
-			return new ResponseEntity<Object>(configManagementDAO.configCacheSearch(name, limit), HttpStatus.OK);
-		}
+	public ResponseEntity<Object> configCacheSearch(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception {
 
-		public ResponseEntity<Object> configKvmSearch(
-				@RequestHeader(value = "interactionid", required = false) String interactionid,
-				@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception {
-			return new ResponseEntity<Object>(configManagementDAO.configKvmSearch(name, limit), HttpStatus.OK);
-		}
+		return new ResponseEntity<Object>(configManagementDAO.configCacheSearch(name, limit), HttpStatus.OK);
+	}
 
-		public ResponseEntity<Object> configTargetServerSearch(
-				@RequestHeader(value = "interactionid", required = false) String interactionid,
-				@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception {
-			return new ResponseEntity<Object>(configManagementDAO.configTargetServerSearch(name, limit), HttpStatus.OK);
-		}
+	public ResponseEntity<Object> configKvmSearch(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception {
+		return new ResponseEntity<Object>(configManagementDAO.configKvmSearch(name, limit), HttpStatus.OK);
+	}
 
-		public ResponseEntity<Object> configProductServerSearch(@RequestHeader(value="interactionid",required=false)String interactionid,
-				@RequestParam(value = "name") String name,
-				@RequestParam(value = "limit") int limit) throws Exception{
-			return new ResponseEntity<Object>(configManagementDAO.configProductSearch(name, limit), HttpStatus.OK);
-		}
+	public ResponseEntity<Object> configTargetServerSearch(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception {
+		return new ResponseEntity<Object>(configManagementDAO.configTargetServerSearch(name, limit), HttpStatus.OK);
+	}
 
+	public ResponseEntity<Object> configProductServerSearch(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception {
+		return new ResponseEntity<Object>(configManagementDAO.configProductSearch(name, limit), HttpStatus.OK);
+	}
 }

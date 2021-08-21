@@ -71,11 +71,11 @@ import com.itorix.apiwiz.performance.coverge.model.Transform;
 import net.sf.json.JSONArray;
 
 @Component
-public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness{
+public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness {
 	private static final Logger logger = LoggerFactory.getLogger(PolicyPerformanceBusinessImpl.class);
 	@Autowired
 	ApplicationProperties applicationProperties;
-	
+
 	@Autowired
 	BaseRepository baseRepository;
 
@@ -83,12 +83,12 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness{
 	CommonServices commonServices;
 	@Autowired
 	ApigeeUtil apigeeUtil;
-	
+
 	@Qualifier("masterMongoTemplate")
 	@Autowired
 	private MongoTemplate masterMongoTemplate;
 
-	public Object executePolicyPerformance(CommonConfiguration cfg) throws ItorixException,Exception {
+	public Object executePolicyPerformance(CommonConfiguration cfg) throws ItorixException, Exception {
 		log("executePolicyPerformance", cfg.getInteractionid(), cfg);
 		long startTime = System.nanoTime();
 		long timeStamp = System.currentTimeMillis();
@@ -114,12 +114,13 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness{
 		}
 
 		try {
-			List<Object> tracesObjects = commonServices.executeLivePostmanCollectionXMLTraceAsObject(cfg, backUpLocation);
+			List<Object> tracesObjects = commonServices.executeLivePostmanCollectionXMLTraceAsObject(cfg,
+					backUpLocation);
 			log("executePolicyPerformance", cfg.getInteractionid(), "step5: getTransactionData:" + tracesObjects);
 			Root root = new Root();
 			List<Debug> dbgLst = new ArrayList<Debug>();
 			for (Object traceObj : tracesObjects) {
-				String trace=(String)traceObj;
+				String trace = (String) traceObj;
 				log("executePolicyPerformance", cfg.getInteractionid(), "step 6: do policy performance :" + trace);
 				Document doc = getDoc(trace);
 				XPath xPath = XPathFactory.newInstance().newXPath();
@@ -149,7 +150,7 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness{
 		String result = mapper.writeValueAsString(policyPerformanceInfo);
 		return result;
 	}
-	
+
 	public Apigee getApigeeCredential(String jsessionid) {
 		UserSession userSessionToken = baseRepository.findById(jsessionid, UserSession.class);
 		User user = baseRepository.findById(userSessionToken.getUserId(), User.class);
@@ -161,16 +162,19 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness{
 		}
 	}
 
-	public User getUserDetailsFromSessionID(String jsessionid){
+	public User getUserDetailsFromSessionID(String jsessionid) {
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
-		//UserSession userSessionToken = baseRepository.findById(jsessionid,UserSession.class);
-		User user = masterMongoTemplate.findById(userSessionToken.getUserId(),User.class);
+		// UserSession userSessionToken =
+		// baseRepository.findById(jsessionid,UserSession.class);
+		User user = masterMongoTemplate.findById(userSessionToken.getUserId(), User.class);
 		return user;
-		}
+	}
+
 	/**
 	 * getDoc
-	 * 
+	 *
 	 * @param content
+	 * 
 	 * @return
 	 */
 	private static Document getDoc(String content) {
@@ -188,8 +192,9 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness{
 
 	/**
 	 * nodeToString
-	 * 
+	 *
 	 * @param node
+	 * 
 	 * @return
 	 */
 	private static String nodeToString(Node node) {
@@ -206,17 +211,21 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness{
 
 	/**
 	 * getPolicyTimes
-	 * 
+	 *
 	 * @param trace
+	 * 
 	 * @return
 	 */
 	public Debug getPolicyTimes(String trace) {
 		try {
 
-			/*String xslt = org.apache.commons.io.IOUtils
-					.toString(new FileInputStream(new ClassPathResource("policyPerformance.xslt").getFile()));*/
-			String xslt = org.apache.commons.io.IOUtils
-					.toString(CodeCoverageBusinessImpl.class.getClassLoader().getResourceAsStream("policyPerformance.xslt"));
+			/*
+			 * String xslt = org.apache.commons.io.IOUtils .toString(new
+			 * FileInputStream(new
+			 * ClassPathResource("policyPerformance.xslt").getFile()));
+			 */
+			String xslt = org.apache.commons.io.IOUtils.toString(
+					CodeCoverageBusinessImpl.class.getClassLoader().getResourceAsStream("policyPerformance.xslt"));
 			StreamSource xmlSource = new StreamSource(new StringReader(trace));
 			StreamSource xslSource = new StreamSource(new StringReader(xslt));
 			StreamResult stream = Transform.simpleTransform(xmlSource, xslSource);
@@ -242,11 +251,12 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness{
 
 	/**
 	 * getPolicyPerformanceList
-	 * 
+	 *
 	 * @param interactionid
+	 * 
 	 * @return
 	 */
-	public List<History> getPolicyPerformanceList(String interactionid)throws Exception {
+	public List<History> getPolicyPerformanceList(String interactionid) throws Exception {
 		log("getPolicyPerformanceList", interactionid, "");
 		List<PolicyPerformanceBackUpInfo> policyPerformanceInfo = baseRepository
 				.findAll(PolicyPerformanceBackUpInfo.LABEL_CREATED_TIME, "-", PolicyPerformanceBackUpInfo.class);
@@ -266,43 +276,41 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness{
 		return history;
 	}
 
-	
-	public List<History> getPolicyPerformanceList(String interactionid,boolean filter,String proxy,String org,String env,String daterange)throws Exception{
+	public List<History> getPolicyPerformanceList(String interactionid, boolean filter, String proxy, String org,
+			String env, String daterange) throws Exception {
 		log("getPolicyPerformanceList", interactionid, "");
-		List<PolicyPerformanceBackUpInfo> policyPerformanceInfo =new ArrayList<>();
+		List<PolicyPerformanceBackUpInfo> policyPerformanceInfo = new ArrayList<>();
 		List<History> history = new ArrayList<History>();
-		Criteria criteria=new Criteria();
-		if(filter){
-		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-		Query query = new Query();
-		if(proxy!=null){
-			criteria.and("proxy").is(proxy);
-		}else{
-			throw new ItorixException(ErrorCodes.errorMessage.get("PolicyPerformance-1003"), "PolicyPerformance-1003");
-		}
-		if(org!=null){
-			criteria.and("organization").is(org);
-		}
-		if(env!=null){
-			criteria.and("environment").is(env);
-		}
-		if(daterange!=null){
-		String dates[]=	daterange.split("~");
-		String date0=dates[0];
-		String date1=dates[1];
-		Date startDate=dateFormat.parse(date0);
-		Date endDate=dateFormat.parse(date1);
-		criteria.andOperator(
-				Criteria.where("cts")
-				.gt(getStartOfDay(startDate).getTime()),
-		Criteria.where("cts")
-				.lt(getEndOfDay(endDate).getTime()));
-		}
-		query.addCriteria(criteria);
-		policyPerformanceInfo = baseRepository.find(query, PolicyPerformanceBackUpInfo.class);
-		}else{
-			 policyPerformanceInfo = baseRepository
-					.findAll(PolicyPerformanceBackUpInfo.LABEL_CREATED_TIME, "-", PolicyPerformanceBackUpInfo.class);
+		Criteria criteria = new Criteria();
+		if (filter) {
+			SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+			Query query = new Query();
+			if (proxy != null) {
+				criteria.and("proxy").is(proxy);
+			} else {
+				throw new ItorixException(ErrorCodes.errorMessage.get("PolicyPerformance-1003"),
+						"PolicyPerformance-1003");
+			}
+			if (org != null) {
+				criteria.and("organization").is(org);
+			}
+			if (env != null) {
+				criteria.and("environment").is(env);
+			}
+			if (daterange != null) {
+				String dates[] = daterange.split("~");
+				String date0 = dates[0];
+				String date1 = dates[1];
+				Date startDate = dateFormat.parse(date0);
+				Date endDate = dateFormat.parse(date1);
+				criteria.andOperator(Criteria.where("cts").gt(getStartOfDay(startDate).getTime()),
+						Criteria.where("cts").lt(getEndOfDay(endDate).getTime()));
+			}
+			query.addCriteria(criteria);
+			policyPerformanceInfo = baseRepository.find(query, PolicyPerformanceBackUpInfo.class);
+		} else {
+			policyPerformanceInfo = baseRepository.findAll(PolicyPerformanceBackUpInfo.LABEL_CREATED_TIME, "-",
+					PolicyPerformanceBackUpInfo.class);
 		}
 		for (PolicyPerformanceBackUpInfo info : policyPerformanceInfo) {
 			History h = new History();
@@ -317,11 +325,13 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness{
 		log("getPolicyPerformanceList", interactionid, history);
 		return history;
 	}
+
 	/**
 	 * getPolicyPerformanceOnId
-	 * 
+	 *
 	 * @param id
 	 * @param interactionid
+	 * 
 	 * @return
 	 */
 	public PolicyPerformanceBackUpInfo getPolicyPerformanceOnId(String id, String interactionid) {
@@ -333,7 +343,7 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness{
 
 	/**
 	 * deletePolicyPerformanceOnId
-	 * 
+	 *
 	 * @param id
 	 * @param interactionid
 	 */
@@ -344,7 +354,7 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness{
 
 	/**
 	 * log
-	 * 
+	 *
 	 * @param methodName
 	 * @param interactionid
 	 * @param body
@@ -354,7 +364,7 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness{
 		logger.debug("PolicyPerformanceService." + methodName + " : CorelationId=" + interactionid
 				+ " : request/response Body =" + body);
 	}
-	
+
 	public static Date getEndOfDay(Date date) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
@@ -370,6 +380,7 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness{
 		LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
 		return localDateTimeToDate(startOfDay);
 	}
+
 	private static Date localDateTimeToDate(LocalDateTime startOfDay) {
 		return Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
 	}
@@ -377,5 +388,4 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness{
 	private static LocalDateTime dateToLocalDateTime(Date date) {
 		return LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getTime()), ZoneId.systemDefault());
 	}
-
 }

@@ -13,10 +13,10 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level=AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class MockResponse {
-	MultiValueMap<String, String> headers;
-	String body;
-	int statusCode;
-	String statusMessage;
+    MultiValueMap<String, String> headers;
+    String body;
+    int statusCode;
+    String statusMessage;
 }

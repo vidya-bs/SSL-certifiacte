@@ -22,5 +22,4 @@ public class Dimensions {
 	public void setMetrics(List<Metrics> metrics) {
 		this.metrics = metrics;
 	}
-
 }

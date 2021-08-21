@@ -11,10 +11,9 @@ import com.itorix.apiwiz.configmanagement.dao.ConfigManagementDao;
 import com.itorix.apiwiz.identitymanagement.cofiguration.IdentityBeans;
 
 @Configuration
-@Import({ CommonApplicationBeans.class, IdentityBeans.class })
+@Import({CommonApplicationBeans.class, IdentityBeans.class})
 public class ConfigApplicationConfig {
 	@Autowired
-
 	@Bean(name = "configManagementDAO")
 	public ConfigManagementDao configManagementdao() {
 		ConfigManagementDao configManagementDao = new ConfigManagementDao();

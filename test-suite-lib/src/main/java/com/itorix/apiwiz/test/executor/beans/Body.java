@@ -11,10 +11,10 @@ public class Body {
 
     @JsonProperty("type")
     private String type;
-    
+
     @JsonProperty("data")
     private String data;
-    
+
     @JsonProperty("type")
     public String getType() {
         return type;

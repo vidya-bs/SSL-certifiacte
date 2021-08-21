@@ -14,5 +14,4 @@ public class Metadata {
 	private String name;
 
 	private String value;
-
 }

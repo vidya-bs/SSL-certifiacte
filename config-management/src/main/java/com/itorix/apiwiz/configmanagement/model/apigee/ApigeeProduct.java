@@ -4,35 +4,32 @@ import java.util.List;
 
 import com.itorix.apiwiz.common.model.configmanagement.ProductAttributes;
 
-
-
-
 public class ApigeeProduct {
 
 	private String name;
-	
+
 	private String org;
-	
+
 	private String displayName;
-	
+
 	private String approvalType;
-	
+
 	private String description;
-	
+
 	private List<String> apiResources;
-	
+
 	private List<String> environments;
-	
+
 	private List<String> proxies;
-	
+
 	private String quota;
-	
+
 	private String quotaInterval;
-	
+
 	private String quotaTimeUnit;
-	
+
 	private List<String> scopes;
-	
+
 	private List<ProductAttributes> attributes;
 
 	public String getName() {
@@ -107,8 +104,6 @@ public class ApigeeProduct {
 		this.quota = quota;
 	}
 
-	
-
 	public String getQuotaInterval() {
 		return quotaInterval;
 	}
@@ -140,8 +135,4 @@ public class ApigeeProduct {
 	public void setAttributes(List<ProductAttributes> attributes) {
 		this.attributes = attributes;
 	}
-	
-	
-	
-	
 }

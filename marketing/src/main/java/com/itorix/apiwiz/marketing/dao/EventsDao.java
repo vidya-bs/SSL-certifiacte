@@ -24,97 +24,96 @@ import com.itorix.apiwiz.marketing.events.model.EventRegistration;
 
 @Component
 public class EventsDao {
-	
+
 	@Qualifier("masterMongoTemplate")
 	@Autowired
 	private MongoTemplate masterMongoTemplate;
-	
+
 	@Autowired
 	JfrogUtilImpl jfrogUtilImpl;
 
-	public String createUpdateEvent(Event event){
+	public String createUpdateEvent(Event event) {
 		Query query = new Query().addCriteria(Criteria.where("name").is(event.getName()));
 		Event dbEvent = masterMongoTemplate.findOne(query, Event.class);
-		if(dbEvent != null){
+		if (dbEvent != null) {
 			event.setId(dbEvent.getId());
-		}
-		else{
+		} else {
 			masterMongoTemplate.save(event);
 		}
 		return event.getId();
 	}
-	
-	public List<Event> getAllEvents(){
+
+	public List<Event> getAllEvents() {
 		return masterMongoTemplate.findAll(Event.class);
 	}
-	
-	public List<Event> getAllEvents(String status, List<String> categoryList){
-		if(status == null){
+
+	public List<Event> getAllEvents(String status, List<String> categoryList) {
+		if (status == null) {
 			Query query = new Query();
-			if(categoryList != null)
+			if (categoryList != null)
 				query.addCriteria(Criteria.where("category").in(categoryList));
-			return masterMongoTemplate.find(query,Event.class);
-		}
-		else{
-			if(status.equalsIgnoreCase("active")){
+			return masterMongoTemplate.find(query, Event.class);
+		} else {
+			if (status.equalsIgnoreCase("active")) {
 				Query query = new Query();
-				if(categoryList != null)
+				if (categoryList != null)
 					query.addCriteria(Criteria.where("category").in(categoryList));
 				query.with(Sort.by(Direction.DESC, "eventDate"));
-				List<Event> events = masterMongoTemplate.find(query,Event.class);
+				List<Event> events = masterMongoTemplate.find(query, Event.class);
 				CollectionUtils.filter(events, o -> ((Event) o).getStatus().equalsIgnoreCase("active"));
 				Collections.sort(events);
 				Collections.reverse(events);
 				return events;
-			}else if(status.equalsIgnoreCase("expired")){
+			} else if (status.equalsIgnoreCase("expired")) {
 				List<Event> events = masterMongoTemplate.findAll(Event.class);
 				CollectionUtils.filter(events, o -> ((Event) o).getStatus().equalsIgnoreCase("expired"));
 				Collections.sort(events);
 				Collections.reverse(events);
 				return events;
-			}else
+			} else
 				return masterMongoTemplate.findAll(Event.class);
 		}
 	}
-	
-	public Event getEvent(String eventId){
+
+	public Event getEvent(String eventId) {
 		Query query = new Query().addCriteria(Criteria.where("id").is(eventId));
 		return masterMongoTemplate.findOne(query, Event.class);
 	}
-	
-	public void deleteEvent(String eventId){
+
+	public void deleteEvent(String eventId) {
 		Query query = new Query().addCriteria(Criteria.where("id").is(eventId));
 		masterMongoTemplate.remove(query, Event.class);
 	}
-	
-	public String updateEventFile(String eventName, String filename, byte[] bytes) throws ItorixException{
+
+	public String updateEventFile(String eventName, String filename, byte[] bytes) throws ItorixException {
 		return updateToJfrog(eventName + "/" + filename, bytes);
 	}
-	
-	public void deleteEventFile(String eventName, String imagePath) throws ItorixException{
-		 deleteFileJfrogFile("/marketing/events/" + eventName);
+
+	public void deleteEventFile(String eventName, String imagePath) throws ItorixException {
+		deleteFileJfrogFile("/marketing/events/" + eventName);
 	}
-	
-	public void createRegistration(EventRegistration eventRegistration){
+
+	public void createRegistration(EventRegistration eventRegistration) {
 		masterMongoTemplate.save(eventRegistration);
 	}
-	
-	public List<EventRegistration> getEventRegistrations(String eventId){
+
+	public List<EventRegistration> getEventRegistrations(String eventId) {
 		Query query = new Query().addCriteria(Criteria.where("eventId").is(eventId));
 		List<EventRegistration> registrations = masterMongoTemplate.find(query, EventRegistration.class);
-		if(registrations != null)
+		if (registrations != null)
 			return registrations;
-		else 
+		else
 			return new ArrayList<EventRegistration>();
 	}
-	
+
 	private String updateToJfrog(String folderPath, byte[] bytes) throws ItorixException {
 		try {
-			JSONObject uploadFiles = jfrogUtilImpl.uploadFiles(new ByteArrayInputStream(bytes), "/marketing/events/" + folderPath);
+			JSONObject uploadFiles = jfrogUtilImpl.uploadFiles(new ByteArrayInputStream(bytes),
+					"/marketing/events/" + folderPath);
 			return uploadFiles.getString("downloadURI");
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ItorixException(ErrorCodes.errorMessage.get("Marketing-2"), "Marketing-2");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Marketing-1000"), "Marketing-1000");
 		}
 	}
 
@@ -122,8 +121,7 @@ public class EventsDao {
 		try {
 			jfrogUtilImpl.deleteFileIgnore404(folderPath);
 		} catch (Exception e) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Marketing-2"), "Marketing-2");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Marketing-1000"), "Marketing-1000");
 		}
 	}
-
 }

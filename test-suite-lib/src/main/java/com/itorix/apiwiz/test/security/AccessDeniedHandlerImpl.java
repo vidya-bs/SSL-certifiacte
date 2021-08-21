@@ -1,4 +1,5 @@
 package com.itorix.apiwiz.test.security;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -17,17 +18,18 @@ import com.itorix.apiwiz.test.executor.model.ErrorObj;
 @Component
 public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 
-	public static final String TEST_SUITE_AGENT_1 = "TestSuiteAgent-1";
+    public static final String TEST_SUITE_AGENT_1 = "TestSuiteAgent-1";
 
     @Override
-    public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) throws IOException, ServletException {
+    public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+            AccessDeniedException e) throws IOException, ServletException {
 
         ErrorObj error = new ErrorObj();
-		error.setErrorMessage(ErrorCodes.errorMessage.get(TEST_SUITE_AGENT_1), TEST_SUITE_AGENT_1);
-		httpServletResponse.setStatus(ErrorCodes.responseCode.get(TEST_SUITE_AGENT_1));
-		OutputStream out = httpServletResponse.getOutputStream();
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.writeValue(out, error);
-		out.flush();
+        error.setErrorMessage(ErrorCodes.errorMessage.get(TEST_SUITE_AGENT_1), TEST_SUITE_AGENT_1);
+        httpServletResponse.setStatus(ErrorCodes.responseCode.get(TEST_SUITE_AGENT_1));
+        OutputStream out = httpServletResponse.getOutputStream();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(out, error);
+        out.flush();
     }
 }

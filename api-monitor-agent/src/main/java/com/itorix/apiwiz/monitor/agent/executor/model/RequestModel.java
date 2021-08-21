@@ -9,15 +9,15 @@ import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
-@FieldDefaults(level=AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class RequestModel {
 
-	public enum Type {
-		@JsonProperty("EMAIL")
-		email, @JsonProperty("SLACK")
-		slack;
-	}
+    public enum Type {
+        @JsonProperty("EMAIL")
+        email, @JsonProperty("SLACK")
+        slack;
+    }
 
-	Type type;
-	EmailTemplate emailContent;
+    Type type;
+    EmailTemplate emailContent;
 }

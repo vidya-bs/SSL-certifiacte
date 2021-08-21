@@ -1,4 +1,3 @@
-
 package com.itorix.apiwiz.testsuite.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -29,7 +28,8 @@ public class DashboardStats {
 	private String testSuiteName;
 
 	public DashboardStats(String testSuiteId, String configId, Long cts, Long mts, String createdUserName,
-			String modifiedUserName, String createdBy, String modifiedBy, int successRatio, String status, String testSuiteName) {
+			String modifiedUserName, String createdBy, String modifiedBy, int successRatio, String status,
+			String testSuiteName) {
 		super();
 		this.testSuiteId = testSuiteId;
 		this.configId = configId;
@@ -131,7 +131,4 @@ public class DashboardStats {
 	public void setTestSuiteName(String testSuiteName) {
 		this.testSuiteName = testSuiteName;
 	}
-
-
-
 }

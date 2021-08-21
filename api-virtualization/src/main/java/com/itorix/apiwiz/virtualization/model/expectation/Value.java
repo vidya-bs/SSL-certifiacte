@@ -15,7 +15,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Value {
 	public enum Condition {
-
 		@JsonProperty("equalTo")
 		equalTo,
 

@@ -3,7 +3,6 @@ package com.itorix.apiwiz.data.management.model;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -12,7 +11,7 @@ public class EnvironmentBackUpInfo extends BackupCommon {
 
 	public static final String LABEL_APP_INFO = "envProxyInfo";
 	public static final String LABEL_RESOURCE_INFO = "resourceInfo";
-	public static final String LABEL_OPERATION_ID="operationId";
+	public static final String LABEL_OPERATION_ID = "operationId";
 
 	private JSONObject envProxyInfo;
 	private JSONArray resourceInfo;
@@ -74,14 +73,14 @@ public class EnvironmentBackUpInfo extends BackupCommon {
 	public void setDevelopersInfo(String developersInfo) {
 		this.developersInfo = developersInfo;
 	}
-	
+
 	@JsonProperty("operationId")
 	public String getOperationId() {
 		return operationId;
 	}
+
 	@JsonProperty("operationId")
 	public void setOperationId(String operationId) {
 		this.operationId = operationId;
 	}
-
 }

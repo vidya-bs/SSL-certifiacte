@@ -123,7 +123,6 @@ public class ValidateSchema {
 		return parser.readWithInfo(content);
 	}
 
-
 	private JsonSchema getSchema(boolean isVersion2) throws Exception {
 		if (isVersion2) {
 			return getSchemaV2();
@@ -131,13 +130,11 @@ public class ValidateSchema {
 			return getSchemaV3();
 		}
 	}
-	
+
 	private SwaggerParseResult readOpenApi(String content) throws IllegalArgumentException {
-        OpenAPIV3Parser parser = new OpenAPIV3Parser();
-        return parser.readContents(content, null, null);
-
-    }
-
+		OpenAPIV3Parser parser = new OpenAPIV3Parser();
+		return parser.readContents(content, null, null);
+	}
 
 	private JsonSchema getSchemaV3() throws Exception {
 		if (schemaV3 != null && (System.currentTimeMillis() - LAST_FETCH_V3) < 600000) {
@@ -146,12 +143,13 @@ public class ValidateSchema {
 		try {
 			LOGGER.debug("returning online schema v3");
 			LAST_FETCH_V3 = System.currentTimeMillis();
-			//schemaV3 = resolveJsonSchema(getUrlContents(SCHEMA_URL), true);
+			// schemaV3 = resolveJsonSchema(getUrlContents(SCHEMA_URL), true);
 			schemaV3 = resolveJsonSchema(getResourceFileAsString(SCHEMA_FILE), true);
 			return schemaV3;
 		} catch (Exception e) {
 			LOGGER.warn("error fetching schema v3 from GitHub, using local copy");
-			// schemaV3 = resolveJsonSchema(getResourceFileAsString(SCHEMA_FILE), true);
+			// schemaV3 =
+			// resolveJsonSchema(getResourceFileAsString(SCHEMA_FILE), true);
 			LAST_FETCH_V3 = System.currentTimeMillis();
 			return schemaV3;
 		}
@@ -193,7 +191,6 @@ public class ValidateSchema {
 		}
 		JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
 		return factory.getJsonSchema(schemaObject);
-
 	}
 
 	private JsonNode readNode(String text) {

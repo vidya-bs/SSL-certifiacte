@@ -18,31 +18,30 @@ import org.springframework.http.ResponseEntity;
 @Aspect
 @Configuration
 public class LoggerAspect {
-	private static Logger logger = LoggerFactory.getLogger(LoggerAspect.class);
-	@Autowired
-	LoggerService loggerService;
+    private static Logger logger = LoggerFactory.getLogger(LoggerAspect.class);
+    @Autowired
+    LoggerService loggerService;
 
-	@Autowired
-	HttpServletResponse httpServletResponse;
+    @Autowired
+    HttpServletResponse httpServletResponse;
 
+    // @Before("(within(com.itorix.hyggee..*.service..*) || within(com.itorix.hyggee..*.serviceImpl..*)) &&
+    // execution(public * *(..))")
+    @Before("execution(* com.itorix.apiwiz..*.service..*(..)) || execution(* com.itorix.apiwiz..*.serviceImpl..*(..))")
+    public void logControllerInput(JoinPoint joinPoint) throws IOException {
+        loggerService.logServiceRequest();
 
-	//@Before("(within(com.itorix.hyggee..*.service..*) || within(com.itorix.hyggee..*.serviceImpl..*)) && execution(public * *(..))")
-	@Before("execution(* com.itorix.apiwiz..*.service..*(..)) || execution(* com.itorix.apiwiz..*.serviceImpl..*(..))")
-	public void logControllerInput(JoinPoint joinPoint) throws IOException {
-		loggerService.logServiceRequest();
+    }
 
-	}
+    @AfterReturning(pointcut = "execution(public * com.itorix.apiwiz..*.service.*.*(..)) || execution(public * com.itorix.apiwiz..*.serviceImpl.*.*(..))", returning = "result")
+    public void loggingMethodResponse(JoinPoint joinPoint, Object result) throws IOException {
 
-
-	@AfterReturning(pointcut = "execution(public * com.itorix.apiwiz..*.service.*.*(..)) || execution(public * com.itorix.apiwiz..*.serviceImpl.*.*(..))", returning = "result")
-	public void loggingMethodResponse(JoinPoint joinPoint,Object result) throws IOException {
-
-		ResponseEntity responseEntity = null;
-		if (result instanceof ResponseEntity) {
-			responseEntity = (ResponseEntity) result;
-			loggerService.logServiceResponse(responseEntity.getStatusCode());
-		}
-		loggerService.logServiceResponse(HttpStatus.ACCEPTED);
-	}
+        ResponseEntity responseEntity = null;
+        if (result instanceof ResponseEntity) {
+            responseEntity = (ResponseEntity) result;
+            loggerService.logServiceResponse(responseEntity.getStatusCode());
+        }
+        loggerService.logServiceResponse(HttpStatus.ACCEPTED);
+    }
 
 }

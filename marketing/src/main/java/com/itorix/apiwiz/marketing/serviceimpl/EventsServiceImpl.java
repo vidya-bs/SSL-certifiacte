@@ -21,38 +21,40 @@ import com.itorix.apiwiz.marketing.service.EventsService;
 @CrossOrigin
 @RestController
 public class EventsServiceImpl implements EventsService {
-	
+
 	@Autowired
 	private EventsDao eventsDao;
-	
+
 	@Override
-	@UnSecure(ignoreValidation=true)
-	public ResponseEntity<?> createEvent(String interactionid, String jsessionid, String apikey, MultipartFile image, String name,
-			String eventDate, String location, String category, String summary, String description, String bannerImage) throws Exception {
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<?> createEvent(String interactionid, String jsessionid, String apikey, MultipartFile image,
+			String name, String eventDate, String location, String category, String summary, String description,
+			String bannerImage) throws Exception {
 		String filePath = null;
-		if(image != null){
+		if (image != null) {
 			byte[] bytes = image.getBytes();
 			String filename = image.getOriginalFilename();
 			filePath = eventsDao.updateEventFile(name, filename, bytes);
 		}
-		Date date=new SimpleDateFormat("MM/dd/yyyy").parse(eventDate); 
-		Event event = new Event(name, date, location, category, summary,description, bannerImage);
+		Date date = new SimpleDateFormat("MM/dd/yyyy").parse(eventDate);
+		Event event = new Event(name, date, location, category, summary, description, bannerImage);
 		event.setImage(filePath);
 		eventsDao.createUpdateEvent(event);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
 	@Override
-	@UnSecure(ignoreValidation=true)
-	public ResponseEntity<?> updateEvent(String interactionid, String jsessionid, String apikey, MultipartFile image, String name,
-			String eventDate, String location, String category, String summary, String description, String bannerImage, String eventId) throws Exception {
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<?> updateEvent(String interactionid, String jsessionid, String apikey, MultipartFile image,
+			String name, String eventDate, String location, String category, String summary, String description,
+			String bannerImage, String eventId) throws Exception {
 		String filePath = null;
-		if(image != null){
+		if (image != null) {
 			byte[] bytes = image.getBytes();
 			String filename = image.getOriginalFilename();
 			filePath = eventsDao.updateEventFile(name, filename, bytes);
 		}
-		Date date=new SimpleDateFormat("MM/dd/yyyy").parse(eventDate); 
+		Date date = new SimpleDateFormat("MM/dd/yyyy").parse(eventDate);
 		Event event = new Event(name, date, location, category, summary, description, bannerImage);
 		event.setImage(filePath);
 		event.setId(eventId);
@@ -61,43 +63,44 @@ public class EventsServiceImpl implements EventsService {
 	}
 
 	@Override
-	@UnSecure(ignoreValidation=true)
-	public ResponseEntity<?> getAllEvents(String interactionid, String jsessionid, String apikey, 
-			String status, String category) throws Exception {
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<?> getAllEvents(String interactionid, String jsessionid, String apikey, String status,
+			String category) throws Exception {
 		List<String> categoryList = null;
-		if(category != null){
+		if (category != null) {
 			categoryList = Arrays.asList(category.split(","));
 		}
 		return new ResponseEntity<>(eventsDao.getAllEvents(status, categoryList), HttpStatus.OK);
 	}
 
 	@Override
-	@UnSecure(ignoreValidation=true)
-	public ResponseEntity<?> getEvent(String interactionid, String jsessionid, String apikey, String eventId) throws Exception {
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<?> getEvent(String interactionid, String jsessionid, String apikey, String eventId)
+			throws Exception {
 		return new ResponseEntity<>(eventsDao.getEvent(eventId), HttpStatus.OK);
 	}
 
 	@Override
-	@UnSecure(ignoreValidation=true)
-	public ResponseEntity<?> deleteEvent(String interactionid, String jsessionid, String apikey, String eventId) throws Exception {
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<?> deleteEvent(String interactionid, String jsessionid, String apikey, String eventId)
+			throws Exception {
 		eventsDao.deleteEvent(eventId);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
-	@UnSecure(ignoreValidation=true)
-	public ResponseEntity<?> registerEvent(String interactionid, String jsessionid, String apikey, String eventId, EventRegistration eventRegistration)
-			throws Exception {
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<?> registerEvent(String interactionid, String jsessionid, String apikey, String eventId,
+			EventRegistration eventRegistration) throws Exception {
 		eventRegistration.setEventId(eventId);
 		eventsDao.createRegistration(eventRegistration);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
-	@UnSecure(ignoreValidation=true)
-	public ResponseEntity<?> getEventRegistrations(String interactionid, String jsessionid, String apikey, String eventId)
-			throws Exception {
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<?> getEventRegistrations(String interactionid, String jsessionid, String apikey,
+			String eventId) throws Exception {
 		return new ResponseEntity<>(eventsDao.getEventRegistrations(eventId), HttpStatus.OK);
 	}
-
 }

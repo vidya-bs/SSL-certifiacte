@@ -8,11 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.mail.MessagingException;
 
@@ -29,7 +26,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -54,10 +50,6 @@ import com.itorix.apiwiz.servicerequest.model.ServiceRequest;
 import com.itorix.apiwiz.servicerequest.model.ServiceRequestComments;
 import com.itorix.apiwiz.servicerequest.model.ServiceRequestHistoryResponse;
 import com.itorix.apiwiz.servicerequest.model.ServiceRequestTypes;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.WriteResult;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.result.UpdateResult;
@@ -68,7 +60,7 @@ public class ServiceRequestDao {
 	@Qualifier("masterMongoTemplate")
 	@Autowired
 	private MongoTemplate masterMongoTemplate;
-	
+
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
@@ -86,7 +78,7 @@ public class ServiceRequestDao {
 	@Autowired
 	private BaseRepository baseRepository;
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "unused"})
 	public ServiceRequest createServiceRequest(ServiceRequest config) throws ItorixException {
 		try {
 
@@ -120,7 +112,7 @@ public class ServiceRequestDao {
 									&& StringUtils.isNotBlank(config.getName())) {
 								query = new Query(
 										Criteria.where("org").is(config.getOrg()).and("name").is(config.getName())
-										.and("type").is(config.getType()).and("isSaaS").is(config.getIsSaaS()));
+												.and("type").is(config.getType()).and("isSaaS").is(config.getIsSaaS()));
 							}
 
 							Update update = new Update();
@@ -131,18 +123,19 @@ public class ServiceRequestDao {
 							sendEmailTo(config);
 							return config;
 						} else
-							throw new ItorixException(ErrorCodes.errorMessage.get("CONFIG-1102"), "CONFIG-1102");
+							throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1026"),
+									"Configuration-1026");
 					}
 					// throw new
-					// ItorixException(ErrorCodes.errorMessage.get("CONFIG-1103"),"CONFIG-1103");
+					// ItorixException(ErrorCodes.errorMessage.get("Configuration-1027"),"Configuration-1027");
 				}
 			} else {
-				throw new ItorixException(ErrorCodes.errorMessage.get("CONFIG-1101"), "CONFIG-1101");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1028"), "Configuration-1028");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 		return null;
 	}
@@ -169,7 +162,7 @@ public class ServiceRequestDao {
 				return mongoTemplate.findAll(ServiceRequest.class);
 			}
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -198,7 +191,7 @@ public class ServiceRequestDao {
 				// return mongoTemplate.findAll(ServiceRequest.class);
 			}
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -206,9 +199,10 @@ public class ServiceRequestDao {
 		try {
 			ServiceRequestHistoryResponse response = new ServiceRequestHistoryResponse();
 			Query countquery = new Query(Criteria.where("activeFlag").is(Boolean.TRUE));
-			Query query = new Query(Criteria.where("activeFlag").is(Boolean.TRUE)).with(Sort.by(Direction.DESC, "_id"))
-					.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
-			
+			Query query = new Query(Criteria.where("activeFlag").is(Boolean.TRUE))
+					.with(Sort.by(Direction.DESC, "modifiedDate")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+					.limit(pageSize);
+
 			if (config != null && StringUtils.isNotBlank(config.getType())) {
 				query.addCriteria(Criteria.where("type").is(config.getType()));
 				countquery.addCriteria(Criteria.where("type").is(config.getType()));
@@ -216,15 +210,15 @@ public class ServiceRequestDao {
 			if (config != null && StringUtils.isNotBlank(config.getStatus())) {
 				query.addCriteria(Criteria.where("status").is(config.getStatus()));
 				countquery.addCriteria(Criteria.where("status").is(config.getStatus()));
-			} 
+			}
 			if (config != null && StringUtils.isNotBlank(config.getName())) {
 				query.addCriteria(Criteria.where("name").is(config.getName()));
 				countquery.addCriteria(Criteria.where("name").is(config.getName()));
 			}
-			response.setData( mongoTemplate.find(query, ServiceRequest.class));
-			
+			response.setData(mongoTemplate.find(query, ServiceRequest.class));
+
 			Pagination pagination = new Pagination();
-			Long counter ;
+			Long counter;
 			counter = mongoTemplate.count(countquery, ServiceRequest.class);
 			pagination.setOffset(offset);
 			pagination.setTotal(counter);
@@ -232,7 +226,7 @@ public class ServiceRequestDao {
 			response.setPagination(pagination);
 			return response;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -242,7 +236,7 @@ public class ServiceRequestDao {
 			ArrayList<String> toMailId = new ArrayList<String>();
 			String body = getMailBody(config);
 			if (config.getStatus().equalsIgnoreCase("Review")) {
-				List<String> allUsers =  new ArrayList<String>();
+				List<String> allUsers = new ArrayList<String>();
 				allUsers = identityManagementDao.getAllUsersWithRoleDevOPS();
 				toMailId.addAll(allUsers);
 			} else if (config.getStatus().equalsIgnoreCase("Approved")) {
@@ -259,66 +253,68 @@ public class ServiceRequestDao {
 					MessageFormat.format(applicationProperties.getServiceRequestSubject(), config.getName()));
 			mailUtil.sendEmail(emailTemplate);
 		} catch (Exception e) {
-			
+
 			e.printStackTrace();
 		}
 	}
-	
-	private String getMailBody(ServiceRequest config){
+
+	private String getMailBody(ServiceRequest config) {
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
-		User user = masterMongoTemplate.findById(userSessionToken.getUserId(),User.class);
+		User user = masterMongoTemplate.findById(userSessionToken.getUserId(), User.class);
 		String userName = user.getFirstName() + " " + user.getLastName();
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date = new Date();
 		String formatedDate = dateFormat.format(date);
-		return MessageFormat.format(applicationProperties.getServiceRequestReviewBody(),
-				formatedDate, config.getName(), getRequestCount(),
-				config.getType(), getCountbyType(config.getType()),
-				config.getStatus(), getCountbyStatus(config.getStatus()),
-				userName, getCountbyuserId(userName));
+		return MessageFormat.format(applicationProperties.getServiceRequestReviewBody(), formatedDate, config.getName(),
+				getRequestCount(), config.getType(), getCountbyType(config.getType()), config.getStatus(),
+				getCountbyStatus(config.getStatus()), userName, getCountbyuserId(userName));
 	}
 
-	private long getRequestCount(){
-		try{
+	private long getRequestCount() {
+		try {
 			Query query = new Query(Criteria.where("activeFlag").is(true));
-			return mongoTemplate.getCollection(mongoTemplate.getCollectionName(ServiceRequest.class)).countDocuments(query.getQueryObject());
-		}catch(Exception e){
+			return mongoTemplate.getCollection(mongoTemplate.getCollectionName(ServiceRequest.class))
+					.countDocuments(query.getQueryObject());
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return 0;
 	}
-	
-	private long getCountbyType(String type){
-		try{
+
+	private long getCountbyType(String type) {
+		try {
 			Query query = new Query(Criteria.where("activeFlag").is(true).and("type").is(type));
-			return mongoTemplate.getCollection(mongoTemplate.getCollectionName(ServiceRequest.class)).countDocuments(query.getQueryObject());
-		}catch(Exception e){
+			return mongoTemplate.getCollection(mongoTemplate.getCollectionName(ServiceRequest.class))
+					.countDocuments(query.getQueryObject());
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return 0;
 	}
-	
-	private long getCountbyStatus(String status){
-		try{
+
+	private long getCountbyStatus(String status) {
+		try {
 			Query query = new Query(Criteria.where("activeFlag").is(true).and("status").is(status));
-			return mongoTemplate.getCollection(mongoTemplate.getCollectionName(ServiceRequest.class)).countDocuments(query.getQueryObject());
-		}catch(Exception e){
+			return mongoTemplate.getCollection(mongoTemplate.getCollectionName(ServiceRequest.class))
+					.countDocuments(query.getQueryObject());
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return 0;
 	}
-	
-	private long getCountbyuserId(String userId){
-		try{
+
+	private long getCountbyuserId(String userId) {
+		try {
 			Query query = new Query(Criteria.where("activeFlag").is(true).and("createdUser").is(userId));
-			return mongoTemplate.getCollection(mongoTemplate.getCollectionName(ServiceRequest.class)).countDocuments(query.getQueryObject());
-		}catch(Exception e){
+			return mongoTemplate.getCollection(mongoTemplate.getCollectionName(ServiceRequest.class))
+					.countDocuments(query.getQueryObject());
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return 0;
 	}
-	
-	@SuppressWarnings("unchecked")
+
+	@SuppressWarnings({"unchecked", "unused"})
 	public boolean updateServiceRequest(ServiceRequest serviceRequest) throws ItorixException {
 		try {
 			Query query = null;
@@ -344,7 +340,6 @@ public class ServiceRequestDao {
 				Update update = new Update();
 				update.set("activeFlag", Boolean.FALSE);
 				UpdateResult result = mongoTemplate.updateMulti(query, update, ServiceRequest.class);
-
 			}
 			mongoTemplate.insert(serviceRequest);
 			sendEmailTo(serviceRequest);
@@ -352,11 +347,11 @@ public class ServiceRequestDao {
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
-
 	}
 
+	@SuppressWarnings({"unchecked", "unused"})
 	public void revertServiceRequest(String requestId) throws ItorixException, MessagingException {
 
 		boolean isRevertApplicable = true;
@@ -392,7 +387,6 @@ public class ServiceRequestDao {
 				Update update = new Update();
 				update.set("activeFlag", Boolean.FALSE);
 				UpdateResult result = mongoTemplate.updateMulti(query, update, ServiceRequest.class);
-
 			}
 
 			Query query = new Query(Criteria.where("_id").is(requestId));
@@ -400,9 +394,7 @@ public class ServiceRequestDao {
 			update.set("activeFlag", true);
 			UpdateResult result = mongoTemplate.updateMulti(query, update, ServiceRequest.class);
 			sendEmailTo(serviceRequest);
-
 		}
-
 	}
 
 	public ServiceRequest findServiceRequestByRequestId(String requestId) {
@@ -412,13 +404,14 @@ public class ServiceRequestDao {
 	@SuppressWarnings("unchecked")
 	public boolean changeServiceRequestStatus(ServiceRequest config, User user)
 			throws ItorixException, MessagingException {
+		@SuppressWarnings("unused")
 		boolean isCreatedorUpdated = false;
 		List<ServiceRequest> serviceRequests = (ArrayList<ServiceRequest>) getAllActiveServiceRequests(config);
 		if (serviceRequests.size() > 0) {
 			ServiceRequest serviceRequest = serviceRequests.get(0);
 			Query query = null;
-			if (config.getStatus().equalsIgnoreCase("Approved") &&((config.getUserRole().contains("Operation")
-					|| config.getUserRole().contains("Admin")))) {
+			if (config.getStatus().equalsIgnoreCase("Approved")
+					&& ((config.getUserRole().contains("Operation") || config.getUserRole().contains("Admin")))) {
 				if (serviceRequest.isCreated()) {
 					if ("TargetServer".equalsIgnoreCase(serviceRequest.getType())) {
 						TargetConfig targetConfig = new TargetConfig();
@@ -436,7 +429,6 @@ public class ServiceRequestDao {
 						targetConfig.setKeyStore(serviceRequest.getKeyStore());
 						targetConfig.setEnabled(serviceRequest.isEnabled());
 						targetConfig.setName(serviceRequest.getName());
-
 						if (serviceRequest.getIsSaaS()) {
 							targetConfig.setType("saas");
 						} else {
@@ -517,17 +509,20 @@ public class ServiceRequestDao {
 					} else {
 						query = new Query(
 								Criteria.where("org").is(serviceRequest.getOrg()).and("env").is(serviceRequest.getEnv())
-								.and("name").is(config.getName()).and("type").is(serviceRequest.getType())
-								.and("isSaaS").is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
+										.and("name").is(config.getName()).and("type").is(serviceRequest.getType())
+										.and("isSaaS").is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
 					}
-					//					DBObject dbDoc = new BasicDBObject();
-					//					mongoTemplate.getConverter().write(serviceRequest, dbDoc);
-					//					Update update = Update.fromDBObject(dbDoc, "_id");
-					//					WriteResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
+					// DBObject dbDoc = new BasicDBObject();
+					// mongoTemplate.getConverter().write(serviceRequest,
+					// dbDoc);
+					// Update update = Update.fromDBObject(dbDoc, "_id");
+					// WriteResult result = mongoTemplate.updateFirst(query,
+					// update,
+					// ServiceRequest.class);
 
-					Document dbDoc = new Document(); 
+					Document dbDoc = new Document();
 					mongoTemplate.getConverter().write(serviceRequest, dbDoc);
-					Update update = Update.fromDocument(dbDoc,"_id");
+					Update update = Update.fromDocument(dbDoc, "_id");
 					UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
 					return result.isModifiedCountAvailable();
 				} else {
@@ -639,18 +634,21 @@ public class ServiceRequestDao {
 					} else {
 						query = new Query(
 								Criteria.where("org").is(serviceRequest.getOrg()).and("env").is(serviceRequest.getEnv())
-								.and("name").is(config.getName()).and("type").is(serviceRequest.getType())
-								.and("isSaaS").is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
+										.and("name").is(config.getName()).and("type").is(serviceRequest.getType())
+										.and("isSaaS").is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
 					}
-					//					DBObject dbDoc = new BasicDBObject();
-					//					mongoTemplate.getConverter().write(serviceRequest, dbDoc);
-					//					Update update = Update.fromDBObject(dbDoc, "_id");
-					//					WriteResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
-					//					return result.isUpdateOfExisting();
+					// DBObject dbDoc = new BasicDBObject();
+					// mongoTemplate.getConverter().write(serviceRequest,
+					// dbDoc);
+					// Update update = Update.fromDBObject(dbDoc, "_id");
+					// WriteResult result = mongoTemplate.updateFirst(query,
+					// update,
+					// ServiceRequest.class);
+					// return result.isUpdateOfExisting();
 
-					Document dbDoc = new Document(); 
+					Document dbDoc = new Document();
 					mongoTemplate.getConverter().write(serviceRequest, dbDoc);
-					Update update = Update.fromDocument(dbDoc,"_id");
+					Update update = Update.fromDocument(dbDoc, "_id");
 					UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
 					return result.isModifiedCountAvailable();
 				}
@@ -663,30 +661,30 @@ public class ServiceRequestDao {
 				} else {
 					query = new Query(
 							Criteria.where("org").is(serviceRequest.getOrg()).and("env").is(serviceRequest.getEnv())
-							.and("name").is(config.getName()).and("type").is(serviceRequest.getType())
-							.and("isSaaS").is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
+									.and("name").is(config.getName()).and("type").is(serviceRequest.getType())
+									.and("isSaaS").is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
 				}
 				serviceRequest.setStatus("Change Required");
 				serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
 				sendEmailTo(serviceRequest);
-				//				DBObject dbDoc = new BasicDBObject();
-				//				mongoTemplate.getConverter().write(serviceRequest, dbDoc);
-				//				Update update = Update.fromDBObject(dbDoc, "_id");
+				// DBObject dbDoc = new BasicDBObject();
+				// mongoTemplate.getConverter().write(serviceRequest, dbDoc);
+				// Update update = Update.fromDBObject(dbDoc, "_id");
 
-				Document dbDoc = new Document(); 
+				Document dbDoc = new Document();
 				mongoTemplate.getConverter().write(serviceRequest, dbDoc);
-				Update update = Update.fromDocument(dbDoc,"_id");
+				Update update = Update.fromDocument(dbDoc, "_id");
 				UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
 				return result.isModifiedCountAvailable();
 			} else {
 				if ((!config.getStatus().equalsIgnoreCase("Change Required")
 						|| config.getStatus().equalsIgnoreCase("Approved")))
-					throw new ItorixException(ErrorCodes.errorMessage.get("CONFIG-1105"), "CONFIG-1105");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1030"), "Configuration-1030");
 
-				throw new ItorixException(ErrorCodes.errorMessage.get("CONFIG-1106"), "CONFIG-1106");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1031"), "Configuration-1031");
 			}
 		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("CONFIG-1104"), "CONFIG-1104");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1029"), "Configuration-1029");
 		}
 	}
 
@@ -716,7 +714,7 @@ public class ServiceRequestDao {
 			}
 			return mongoTemplate.find(query, ServiceRequestComments.class);
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
 
@@ -748,11 +746,9 @@ public class ServiceRequestDao {
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
-
-
 
 	@SuppressWarnings("unchecked")
 	public Object getservicerequests(ServiceRequest serviceRequest) throws ItorixException {
@@ -780,15 +776,14 @@ public class ServiceRequestDao {
 				listData.add(map);
 			}
 			if (listData.size() == 0) {
-				throw new ItorixException("No Record exists", "Config-1004");
+				throw new ItorixException("No Record exists", "Configuration-1003");
 			}
 			return listData;
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
-
 	}
 
 	@SuppressWarnings("unchecked")
@@ -797,14 +792,13 @@ public class ServiceRequestDao {
 			List<ServiceRequest> serviceRequests = (ArrayList<ServiceRequest>) getAllActiveServiceRequests(
 					serviceRequest);
 			if (serviceRequests.size() == 0)
-				throw new ItorixException("No Record exists", "Config-1004");
+				throw new ItorixException("No Record exists", "Configuration-1003");
 			return serviceRequests;
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
-			throw new ItorixException(ex.getMessage(), "Config-1000", ex);
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
-
 	}
 
 	public ObjectNode getServiceRequestStats(String timeunit, String timerange) throws Exception {
@@ -836,7 +830,7 @@ public class ServiceRequestDao {
 				Query query = new Query();
 				query.addCriteria(
 						Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(DateUtil.getStartOfDay(startDate))
-						.lt(DateUtil.getEndOfDay(startDate)).and("type").is(type));
+								.lt(DateUtil.getEndOfDay(startDate)).and("type").is(type));
 				List<ServiceRequest> list = baseRepository.find(query, ServiceRequest.class);
 				// if(list!=null && list.size()>0){
 				ObjectNode valueNode = mapper.createObjectNode();
@@ -892,17 +886,16 @@ public class ServiceRequestDao {
 		query.limit(limit > 0 ? limit : 10);
 		query.addCriteria(Criteria.where("type").is(type));
 		List<String> allServiceRequests = getList(mongoTemplate.getCollection("Config.ServiceRequests").distinct("name",
-				query.getQueryObject(),String.class));
+				query.getQueryObject(), String.class));
 		net.sf.json.JSONObject serviceRequestList = new net.sf.json.JSONObject();
 		Collections.sort(allServiceRequests);
 		serviceRequestList.put("ServiceRequest", allServiceRequests);
 		return serviceRequestList;
-
 	}
 
-	private List<String> getList(DistinctIterable<String> iterable){
+	private List<String> getList(DistinctIterable<String> iterable) {
 		List<String> list = new ArrayList<>();
-		if(iterable != null){
+		if (iterable != null) {
 			MongoCursor<String> cursor = iterable.iterator();
 			while (cursor.hasNext()) {
 				list.add(cursor.next());
@@ -910,5 +903,4 @@ public class ServiceRequestDao {
 		}
 		return list;
 	}
-
 }

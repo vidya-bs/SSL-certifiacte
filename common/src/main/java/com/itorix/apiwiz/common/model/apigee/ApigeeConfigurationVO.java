@@ -2,29 +2,28 @@ package com.itorix.apiwiz.common.model.apigee;
 
 import java.util.List;
 
-
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.itorix.apiwiz.common.model.AbstractObject;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "Connectors.Apigee.Configuration")
-public class ApigeeConfigurationVO extends AbstractObject
-{
-    private String port;
+public class ApigeeConfigurationVO extends AbstractObject {
+	private String port;
 
-    private String orgname;
+	private String orgname;
 
-    private String hostname;
+	private String hostname;
 
-    private String type;
-    
-    private String scheme;
-    
-    private List<String> environments;
-    
-    private ApigeeServiceUser apigeeServiceUser;
+	private String type;
+
+	private String scheme;
+
+	private List<String> environments;
+
+	private ApigeeServiceUser apigeeServiceUser;
 
 	public String getPort() {
 		return port;
@@ -78,13 +77,9 @@ public class ApigeeConfigurationVO extends AbstractObject
 	public ApigeeServiceUser getApigeeServiceUser() {
 		return apigeeServiceUser;
 	}
-	
+
 	@JsonIgnore
 	public void setApigeeServiceUser(ApigeeServiceUser apigeeServiceUser) {
 		this.apigeeServiceUser = apigeeServiceUser;
 	}
-
-    
-    
-
 }

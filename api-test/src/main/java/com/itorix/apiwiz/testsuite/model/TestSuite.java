@@ -28,7 +28,7 @@ public class TestSuite extends AbstractObject {
 	private String status;
 
 	@JsonProperty("variables")
-	private List<Header> vars ;
+	private List<Header> vars;
 
 	@JsonProperty("scenarios")
 	private List<Scenario> scenarios = null;
@@ -70,7 +70,7 @@ public class TestSuite extends AbstractObject {
 
 	@JsonProperty("name")
 	public void setName(String name) {
-		this.name = name;
+		this.name = name.trim();
 	}
 
 	public String getExecutionStatus() {
@@ -126,7 +126,7 @@ public class TestSuite extends AbstractObject {
 	}
 
 	public int getSuccessRate() {
-		return successRate ;
+		return successRate;
 	}
 
 	public void setSuccessRate(int successRate) {
@@ -183,10 +183,10 @@ public class TestSuite extends AbstractObject {
 
 	public Long getDuration() {
 		duration = 0L;
-		if(scenarios != null) {
-			for(Scenario scenario:scenarios) {
-				if(scenario.getDuration() != null) {
-					duration+=scenario.getDuration();
+		if (scenarios != null) {
+			for (Scenario scenario : scenarios) {
+				if (scenario.getDuration() != null) {
+					duration += scenario.getDuration();
 				}
 			}
 		}
@@ -205,4 +205,13 @@ public class TestSuite extends AbstractObject {
 		this.successRatio = successRatio;
 	}
 
+	public Boolean hasTestCases() {
+		if (null != this.scenarios && scenarios.size() > 0) {
+			for (Scenario scenario : scenarios) {
+				if (scenario.hasTestCases())
+					return Boolean.TRUE;
+			}
+		}
+		return Boolean.FALSE;
+	}
 }

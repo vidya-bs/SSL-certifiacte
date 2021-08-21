@@ -5,7 +5,7 @@ import java.util.Map;
 import io.swagger.models.HttpMethod;
 import io.swagger.models.Operation;
 
-public class ChangedEndpoint implements Changed{
+public class ChangedEndpoint implements Changed {
 
 	private String pathUrl;
 
@@ -26,18 +26,15 @@ public class ChangedEndpoint implements Changed{
 		return missingOperations;
 	}
 
-	public void setMissingOperations(
-			Map<HttpMethod, Operation> missingOperations) {
+	public void setMissingOperations(Map<HttpMethod, Operation> missingOperations) {
 		this.missingOperations = missingOperations;
 	}
-	
 
 	public Map<HttpMethod, ChangedOperation> getChangedOperations() {
 		return changedOperations;
 	}
 
-	public void setChangedOperations(
-			Map<HttpMethod, ChangedOperation> changedOperations) {
+	public void setChangedOperations(Map<HttpMethod, ChangedOperation> changedOperations) {
 		this.changedOperations = changedOperations;
 	}
 
@@ -50,10 +47,9 @@ public class ChangedEndpoint implements Changed{
 	}
 
 	public boolean isDiff() {
-//		newOperations.isEmpty() 
-//		|| !missingOperations.isEmpty()
-//		|| 
+		// newOperations.isEmpty()
+		// || !missingOperations.isEmpty()
+		// ||
 		return !changedOperations.isEmpty();
 	}
-
 }

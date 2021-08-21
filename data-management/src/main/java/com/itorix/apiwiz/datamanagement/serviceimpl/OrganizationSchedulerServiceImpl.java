@@ -30,28 +30,31 @@ import io.swagger.annotations.ApiResponses;
 @CrossOrigin
 @RestController
 @Api(value = "DMB", tags = "DMB")
-public class OrganizationSchedulerServiceImpl implements OrganizationSchedulerService{
+public class OrganizationSchedulerServiceImpl implements OrganizationSchedulerService {
 	private static final Logger logger = LoggerFactory.getLogger(OrganizationSchedulerServiceImpl.class);
 
 	@Autowired
 	OrganizationSchedulerBusiness OrganizationSchedulerBusiness;
 
 	/**
+	 *
+	 *
 	 * <h1>http://hostname:port/v1/api/apigee/organization/schedules</h1>
+	 *
 	 * <p>
 	 * createOrganizationSchedule.
-	 * </p>
-	 * 
+	 *
 	 * @param interactionid
 	 * @param scheduleModel
 	 * @param jsessionid
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
 	 */
 	@ApiOperation(value = "Create Organization Schedule", notes = "", code = 201)
-	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = Void.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Created", response = Void.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.POST, value = "v1/api/apigee/organization/schedules")
 	public ResponseEntity<Void> createOrganizationSchedule(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -68,21 +71,24 @@ public class OrganizationSchedulerServiceImpl implements OrganizationSchedulerSe
 	}
 
 	/**
+	 *
+	 *
 	 * <h1>http://hostname:port/v1/api/apigee/organization/schedules</h1>
+	 *
 	 * <p>
 	 * updateOrganizationSchedule.
-	 * </p>
-	 * 
+	 *
 	 * @param interactionid
 	 * @param scheduleModel
 	 * @param jsessionid
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
 	 */
 	@ApiOperation(value = "Update Organization Schedule", notes = "", code = 204)
-	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content", response = Void.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.PUT, value = "v1/api/apigee/organization/schedules")
 	public ResponseEntity<Void> updateOrganizationSchedule(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -94,23 +100,26 @@ public class OrganizationSchedulerServiceImpl implements OrganizationSchedulerSe
 	}
 
 	/**
+	 *
+	 *
 	 * <h1>http://hostname:port/v1/api/apigee/organization/schedules</h1>
+	 *
 	 * <p>
 	 * deleteOrganizationSchedule.
-	 * </p>
-	 * 
+	 *
 	 * @param interactionid
 	 * @param scheduleModel
 	 * @param jsessionid
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
 	 */
 	@ApiOperation(value = "Delete Organization Schedule", notes = "", code = 201)
-	@ApiResponses(value = { @ApiResponse(code = 201, message = "Success", response = Void.class),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
-	@RequestMapping(method = { RequestMethod.DELETE,
-			RequestMethod.PATCH }, value = "v1/api/apigee/organization/schedules")
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Success", response = Void.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@RequestMapping(method = {RequestMethod.DELETE,
+			RequestMethod.PATCH}, value = "v1/api/apigee/organization/schedules")
 	public ResponseEntity<Void> deleteOrganizationSchedule(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestBody ScheduleModel scheduleModel, @RequestHeader(value = "jsessionid") String jsessionid)
@@ -121,22 +130,26 @@ public class OrganizationSchedulerServiceImpl implements OrganizationSchedulerSe
 	}
 
 	/**
+	 *
+	 *
 	 * <h1>http://hostname:port/v1/api/apigee/organization/schedules</h1>
+	 *
 	 * <p>
 	 * getOrganizationSchedule.
-	 * </p>
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param request
 	 * @param response
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "Get Organization Schedule", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = ScheduleModel.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Sorry! Internal server error. Please try again later.", response = ErrorObj.class) })
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "v1/api/apigee/organization/schedules")
 	public ResponseEntity<List<ScheduleModel>> getOrganizationSchedule(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -145,5 +158,4 @@ public class OrganizationSchedulerServiceImpl implements OrganizationSchedulerSe
 		list = OrganizationSchedulerBusiness.getOrganizationSchedule(interactionid);
 		return new ResponseEntity<List<ScheduleModel>>(list, HttpStatus.OK);
 	}
-
 }

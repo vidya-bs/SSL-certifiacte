@@ -46,5 +46,4 @@ public class Status {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-
 }

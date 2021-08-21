@@ -14,27 +14,25 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Generated("org.jsonschema2pojo")
-@JsonPropertyOrder({ "environment", "revision" })
+@JsonPropertyOrder({"environment", "revision"})
 public class Environment {
 
 	@JsonProperty("environment")
 	private String environment;
+
 	@JsonProperty("revision")
 	private String revision;
+
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-	/**
-	 * 
-	 * @return The environment
-	 */
+	/** @return The environment */
 	@JsonProperty("environment")
 	public String getEnvironment() {
 		return environment;
 	}
 
 	/**
-	 * 
 	 * @param environment
 	 *            The environment
 	 */
@@ -43,17 +41,13 @@ public class Environment {
 		this.environment = environment;
 	}
 
-	/**
-	 * 
-	 * @return The revision
-	 */
+	/** @return The revision */
 	@JsonProperty("revision")
 	public String getRevision() {
 		return revision;
 	}
 
 	/**
-	 * 
 	 * @param revision
 	 *            The revision
 	 */
@@ -71,5 +65,4 @@ public class Environment {
 	public void setAdditionalProperty(String name, Object value) {
 		this.additionalProperties.put(name, value);
 	}
-
 }

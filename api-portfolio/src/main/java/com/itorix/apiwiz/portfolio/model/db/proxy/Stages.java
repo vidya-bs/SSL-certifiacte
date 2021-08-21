@@ -9,25 +9,23 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
-public class Stages
-{
+public class Stages {
 	private String orgId;
-	
-    private String orgName;
 
-    private String envName;
+	private String orgName;
 
-    private int sequenceID;
+	private String envName;
 
-    private UnitTests unitTests;
+	private int sequenceID;
 
-    private CodeCoverage codeCoverage;
+	private UnitTests unitTests;
 
-    private String name;
+	private CodeCoverage codeCoverage;
 
-    private String type;
+	private String name;
 
-    @JsonProperty("isSaaS")
-    private boolean isSaaS;
+	private String type;
 
+	@JsonProperty("isSaaS")
+	private boolean isSaaS;
 }

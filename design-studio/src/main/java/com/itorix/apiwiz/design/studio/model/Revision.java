@@ -6,7 +6,6 @@ public class Revision implements Comparable<Revision> {
 	private String status;
 
 	public Revision() {
-
 	}
 
 	public Revision(Integer revision, String status) {
@@ -43,5 +42,4 @@ public class Revision implements Comparable<Revision> {
 	public void setId(String id) {
 		this.id = id;
 	}
-
 }

@@ -9,5 +9,5 @@ import lombok.Setter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ServiceRegistryNames {
-String name;
+	String name;
 }

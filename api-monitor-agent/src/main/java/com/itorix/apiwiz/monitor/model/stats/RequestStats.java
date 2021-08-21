@@ -11,12 +11,12 @@ import lombok.Setter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RequestStats {
-	public String collectionID;
-	public String collectionName;
-	public String requestID;
-	public String requestName;
-	public String environmentId;
-	public int interval;
-	public List<Long> timeseries;
-	public List<Event> events;
+    public String collectionID;
+    public String collectionName;
+    public String requestID;
+    public String requestName;
+    public String environmentId;
+    public int interval;
+    public List<Long> timeseries;
+    public List<Event> events;
 }

@@ -1,8 +1,10 @@
 package com.itorix.apiwiz.identitymanagement.model;
 
 public enum Roles {
+	DEVELOPER("Developer"), ADMIN("Admin"), PORTAL("Portal"), ANALYST("Analyst"), PROJECT_ADMIN("Project-Admin"), QA(
+			"QA"), OPERATION("Operation"), TEST("Test"), DEFAULT("Default");
+	;
 
-	DEVELOPER("Developer"), ADMIN("Admin"), PORTAL("Portal"),ANALYST("Analyst"),PROJECT_ADMIN("Project-Admin"),QA("QA"),OPERATION("Operation"),TEST("Test"),DEFAULT("Default");;
 	private String value;
 
 	private Roles(String value) {
@@ -17,7 +19,7 @@ public enum Roles {
 		this.value = value;
 	}
 
-	public static  String  getStatus(Roles status) {
+	public static String getStatus(Roles status) {
 
 		String userRoles = null;
 		for (Roles role : Roles.values()) {
@@ -27,7 +29,4 @@ public enum Roles {
 		}
 		return userRoles;
 	}
-
 }
-
-

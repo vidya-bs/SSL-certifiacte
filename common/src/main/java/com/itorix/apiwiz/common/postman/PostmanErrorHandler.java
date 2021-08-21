@@ -11,16 +11,15 @@ import org.springframework.http.HttpStatus.Series;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 
-
 public class PostmanErrorHandler extends DefaultResponseErrorHandler {
 	private static final Logger logger = LoggerFactory.getLogger(PostmanErrorHandler.class);
-	
+
 	boolean haltOnError = false;
-	
+
 	public PostmanErrorHandler(boolean haltOnError) {
 		this.haltOnError = haltOnError;
 	}
-	
+
 	@Override
 	public void handleError(ClientHttpResponse response) throws IOException {
 		if (response != null) {

@@ -1,20 +1,19 @@
 package com.itorix.apiwiz.common.model.apigee;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.itorix.apiwiz.common.model.AbstractObject;
+import java.util.List;
 
-public class ApigeeIntegrationVO extends AbstractObject{
+public class ApigeeIntegrationVO extends AbstractObject {
 
 	private String orgname;
-	
+
 	private String type;
-	
+
 	private String scheme;
-	
+
 	private String hostname;
-	
+
 	private String port;
 
 	private String userName;
@@ -126,9 +125,9 @@ public class ApigeeIntegrationVO extends AbstractObject{
 	public void setEnvironments(List<String> environments) {
 		this.environments = environments;
 	}
-	
+
 	@JsonIgnore
-	public ApigeeConfigurationVO getApigeeConfigObject(){
+	public ApigeeConfigurationVO getApigeeConfigObject() {
 		ApigeeConfigurationVO apigeeConfigurationVO = new ApigeeConfigurationVO();
 		ApigeeServiceUser apigeeServiceUser = new ApigeeServiceUser();
 		apigeeConfigurationVO.setId(this.getId());
@@ -154,11 +153,10 @@ public class ApigeeIntegrationVO extends AbstractObject{
 		apigeeServiceUser.setType(this.type);
 		apigeeConfigurationVO.setApigeeServiceUser(apigeeServiceUser);
 		return apigeeConfigurationVO;
-		
 	}
-	
+
 	@JsonIgnore
-	public void setApigeeConfigObject(ApigeeConfigurationVO apigeeConfigurationVO){
+	public void setApigeeConfigObject(ApigeeConfigurationVO apigeeConfigurationVO) {
 		this.setId(apigeeConfigurationVO.getId());
 		this.setCreatedBy(apigeeConfigurationVO.getCreatedBy());
 		this.setModifiedBy(apigeeConfigurationVO.getModifiedBy());
@@ -173,7 +171,7 @@ public class ApigeeIntegrationVO extends AbstractObject{
 		this.scheme = apigeeConfigurationVO.getScheme();
 		this.environments = apigeeConfigurationVO.getEnvironments();
 		ApigeeServiceUser apigeeServiceUser = apigeeConfigurationVO.getApigeeServiceUser();
-		if(apigeeServiceUser != null){
+		if (apigeeServiceUser != null) {
 			this.userName = apigeeServiceUser.getUserName();
 			this.password = apigeeServiceUser.getPassword();
 			this.authType = apigeeServiceUser.getAuthType();
@@ -182,12 +180,12 @@ public class ApigeeIntegrationVO extends AbstractObject{
 			this.basicToken = apigeeServiceUser.getBasicToken();
 		}
 	}
-	
-	public ApigeeIntegrationVO(){
+
+	public ApigeeIntegrationVO() {
 		super();
 	}
-	
-	public ApigeeIntegrationVO(ApigeeConfigurationVO apigeeConfigurationVO){
+
+	public ApigeeIntegrationVO(ApigeeConfigurationVO apigeeConfigurationVO) {
 		super();
 		this.setId(apigeeConfigurationVO.getId());
 		this.setCreatedBy(apigeeConfigurationVO.getCreatedBy());
@@ -203,7 +201,7 @@ public class ApigeeIntegrationVO extends AbstractObject{
 		this.scheme = apigeeConfigurationVO.getScheme();
 		this.environments = apigeeConfigurationVO.getEnvironments();
 		ApigeeServiceUser apigeeServiceUser = apigeeConfigurationVO.getApigeeServiceUser();
-		if(apigeeServiceUser != null){
+		if (apigeeServiceUser != null) {
 			this.userName = apigeeServiceUser.getUserName();
 			this.password = apigeeServiceUser.getPassword();
 			this.authType = apigeeServiceUser.getAuthType();

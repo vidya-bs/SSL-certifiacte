@@ -19,7 +19,7 @@ public class PolicyMappingDAO {
 	private MongoTemplate mongoTemplate;
 
 	public PolicyMappings savePolicyMapping(PolicyMappings policyMappings) {
-		for(PolicyMapping policyMapping : policyMappings.getPolicyMapping()) {
+		for (PolicyMapping policyMapping : policyMappings.getPolicyMapping()) {
 			Query query = new Query(Criteria.where("name").is(policyMapping.getName()));
 			Update update = new Update();
 			update.set("value", policyMapping.getValue());
@@ -31,7 +31,7 @@ public class PolicyMappingDAO {
 	public PolicyMappings getPolicyMappings() {
 		List<PolicyMapping> mappings = mongoTemplate.findAll(PolicyMapping.class);
 		PolicyMappings policyMappings = new PolicyMappings();
-		if(mappings!=null)
+		if (mappings != null)
 			policyMappings.setPolicyMapping(mappings);
 		return policyMappings;
 	}
@@ -41,5 +41,4 @@ public class PolicyMappingDAO {
 		PolicyMapping mapping = mongoTemplate.findOne(query, PolicyMapping.class);
 		return mapping;
 	}
-
 }

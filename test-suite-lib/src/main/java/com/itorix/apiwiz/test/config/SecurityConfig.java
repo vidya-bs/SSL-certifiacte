@@ -18,29 +18,30 @@ import com.itorix.apiwiz.test.security.JsessionAuthFilter;
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig {
 
-	@Autowired
-	private JsessionAuthFilter jsessionAuthFilter;
+    @Autowired
+    private JsessionAuthFilter jsessionAuthFilter;
 
-	@Autowired
-	private AuthenticationEntryPointImpl authenticationEntryPointImpl;
+    @Autowired
+    private AuthenticationEntryPointImpl authenticationEntryPointImpl;
 
-	@Autowired
-	private AccessDeniedHandlerImpl accessDeniedHandler;
+    @Autowired
+    private AccessDeniedHandlerImpl accessDeniedHandler;
 
-	@Configuration
-	public class DefaultWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+    @Configuration
+    public class DefaultWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
 
-			// @formatter:off
-			http.csrf().disable().authorizeRequests().antMatchers("/actuator/**").permitAll().anyRequest().authenticated().and().exceptionHandling()
-					.authenticationEntryPoint(authenticationEntryPointImpl).accessDeniedHandler(accessDeniedHandler)
-					.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-			http.addFilterBefore(jsessionAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            // @formatter:off
+            http.csrf().disable().authorizeRequests().antMatchers("/actuator/**").permitAll().anyRequest()
+                    .authenticated().and().exceptionHandling().authenticationEntryPoint(authenticationEntryPointImpl)
+                    .accessDeniedHandler(accessDeniedHandler).and().sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+            http.addFilterBefore(jsessionAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-			// @formatter:on
-		}
-	}
+            // @formatter:on
+        }
+    }
 
 }

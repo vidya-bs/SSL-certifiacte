@@ -14,38 +14,38 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Variables {
 
-	@JsonProperty("name")
-	private String name;
-	
-	@JsonProperty("description")
-	private String description;
+    @JsonProperty("name")
+    private String name;
 
-	@JsonProperty("variables")
-	private List<Header> variables;
+    @JsonProperty("description")
+    private String description;
 
-	@JsonProperty("variables")
-	public List<Header> getVariables() {
-		return variables;
-	}
+    @JsonProperty("variables")
+    private List<Header> variables;
 
-	@JsonProperty("variables")
-	public void setVariables(List<Header> headers) {
-		this.variables = headers;
-	}
+    @JsonProperty("variables")
+    public List<Header> getVariables() {
+        return variables;
+    }
 
-	public String getName() {
-		return name;
-	}
+    @JsonProperty("variables")
+    public void setVariables(List<Header> headers) {
+        this.variables = headers;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

@@ -21,9 +21,9 @@ public class CantactUsServiceImpl implements CantactUsService {
 
 	@Autowired
 	private ContactUsDao contactUsDao;
-	
+
 	@Override
-	@UnSecure(ignoreValidation=true)
+	@UnSecure(ignoreValidation = true)
 	public ResponseEntity<?> createJobPosting(String interactionid, String apikey,
 			ContactUsNotification contactUsNotification) throws Exception {
 		contactUsDao.invokeNotificationAgent(contactUsNotification);
@@ -31,7 +31,7 @@ public class CantactUsServiceImpl implements CantactUsService {
 	}
 
 	@Override
-	@UnSecure(ignoreValidation=true)
+	@UnSecure(ignoreValidation = true)
 	public ResponseEntity<?> createNotificatonConfig(String interactionid, String apikey,
 			List<NotificatoinEvent> notificatoinEvents) throws Exception {
 		contactUsDao.updateNotificationConfigs(notificatoinEvents);
@@ -39,12 +39,10 @@ public class CantactUsServiceImpl implements CantactUsService {
 	}
 
 	@Override
-	@UnSecure(ignoreValidation=true)
+	@UnSecure(ignoreValidation = true)
 	public ResponseEntity<?> getNotificatonConfig(String interactionid, String apikey) throws Exception {
-		List<String> configs = contactUsDao.getNotificationConfigs().stream().filter(o -> !o.getName().isEmpty()).map(o -> o.getName()).collect(Collectors.toList());
+		List<String> configs = contactUsDao.getNotificationConfigs().stream().filter(o -> !o.getName().isEmpty())
+				.map(o -> o.getName()).collect(Collectors.toList());
 		return new ResponseEntity<>(configs, HttpStatus.OK);
 	}
-	
-	
-	
 }

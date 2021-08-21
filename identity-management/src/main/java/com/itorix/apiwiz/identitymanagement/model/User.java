@@ -22,7 +22,7 @@ public class User extends AbstractObject {
 	public static final String LABEL_PASSWORD = "password";
 	public static final String LABEL_PASSWORD_HASH = "passwordHash";
 	public static final String LABEL_MEMBER = "Member";
-	public static final String LABEL_SITEADMIN= "organizationInfo";
+	public static final String LABEL_SITEADMIN = "organizationInfo";
 	public static final String LABEL_ROLES = "roles";
 	public static final String LABEL_STATUS = "userStatus";
 	public static final String LABEL_USER_ID = "userId";
@@ -50,10 +50,8 @@ public class User extends AbstractObject {
 	private boolean invited;
 	private Map<String, String> metadata;
 
-
 	@Transient
 	private String verificationStatus;
-
 
 	public String getVerificationStatus() {
 		return verificationStatus;
@@ -209,6 +207,7 @@ public class User extends AbstractObject {
 	public void setWorkspaces(List<UserWorkspace> workspaces) {
 		this.workspaces = workspaces;
 	}
+
 	public String getWorkPhone() {
 		return workPhone;
 	}
@@ -232,76 +231,78 @@ public class User extends AbstractObject {
 	public void setCompany(String company) {
 		this.company = company;
 	}
+
 	@JsonIgnore
-	public boolean containsWorkspace(String workspaceId){
-		try{
-			for(UserWorkspace workspace : workspaces)
-				if(workspace.getWorkspace().getName().equals(workspaceId))
+	public boolean containsWorkspace(String workspaceId) {
+		try {
+			for (UserWorkspace workspace : workspaces)
+				if (workspace.getWorkspace().getName().equals(workspaceId))
 					return true;
-		}catch(Exception e){
+		} catch (Exception e) {
 		}
 		return false;
 	}
+
 	@JsonIgnore
-	public UserWorkspace getUserWorkspace(String workspaceId){
-		try{
-			for(UserWorkspace workspace : workspaces)
-				if(workspace.getWorkspace().getName().equals(workspaceId))
+	public UserWorkspace getUserWorkspace(String workspaceId) {
+		try {
+			for (UserWorkspace workspace : workspaces)
+				if (workspace.getWorkspace().getName().equals(workspaceId))
 					return workspace;
-		}catch(Exception e){
+		} catch (Exception e) {
 		}
 		return null;
 	}
-	@JsonIgnore
-	public boolean isWorkspaceAdmin(String workspaceId){
-		try{
-			for(UserWorkspace workspace : workspaces)
-				if(workspace.getWorkspace().getName().equals(workspaceId)){
-					if(workspace.getUserType() != null
-							&& workspace.getUserType().equalsIgnoreCase("Site-Admin"))
-					return Boolean.TRUE;
-					if(workspace.getRoles() != null
-							&& workspace.getRoles().contains("Admin"))
-					return Boolean.TRUE;
 
-				}
-		}catch(Exception e){}
-		return Boolean.FALSE;
-	}
-	
 	@JsonIgnore
-	public boolean isWorkspaceSuperAdmin(String workspaceId){
-		try{
-			for(UserWorkspace workspace : workspaces)
-				if(workspace.getWorkspace().getName().equals(workspaceId)){
-					if(workspace.getUserType() != null
-							&& workspace.getUserType().equalsIgnoreCase("Super-Admin"))
-					return Boolean.TRUE;
+	public boolean isWorkspaceAdmin(String workspaceId) {
+		try {
+			for (UserWorkspace workspace : workspaces)
+				if (workspace.getWorkspace().getName().equals(workspaceId)) {
+					if (workspace.getUserType() != null && workspace.getUserType().equalsIgnoreCase("Site-Admin"))
+						return Boolean.TRUE;
+					if (workspace.getRoles() != null && workspace.getRoles().contains("Admin"))
+						return Boolean.TRUE;
 				}
-		}catch(Exception e){}
+		} catch (Exception e) {
+		}
 		return Boolean.FALSE;
 	}
 
 	@JsonIgnore
-	public boolean canLogin(){
-		if(userStatus != null && userStatus.trim() != "")
-			if(userStatus.equalsIgnoreCase("Active"))
+	public boolean isWorkspaceSuperAdmin(String workspaceId) {
+		try {
+			for (UserWorkspace workspace : workspaces)
+				if (workspace.getWorkspace().getName().equals(workspaceId)) {
+					if (workspace.getUserType() != null && workspace.getUserType().equalsIgnoreCase("Super-Admin"))
+						return Boolean.TRUE;
+				}
+		} catch (Exception e) {
+		}
+		return Boolean.FALSE;
+	}
+
+	@JsonIgnore
+	public boolean canLogin() {
+		if (userStatus != null && userStatus.trim() != "")
+			if (userStatus.equalsIgnoreCase("Active"))
 				return true;
 			else
 				return false;
 		else
 			return true;
 	}
-	@JsonIgnore
-	public boolean isNew(){
 
-		try{
-			if(workspaces .size() == 1)
-				if(workspaces.get(0).getAcceptInvite() == true)
+	@JsonIgnore
+	public boolean isNew() {
+
+		try {
+			if (workspaces.size() == 1)
+				if (workspaces.get(0).getAcceptInvite() == true)
 					return false;
 				else
 					return true;
-		}catch(Exception e){
+		} catch (Exception e) {
 		}
 		return false;
 	}
@@ -313,7 +314,7 @@ public class User extends AbstractObject {
 	public void setSubscribeNewsLetter(boolean subscribeNewsLetter) {
 		this.subscribeNewsLetter = subscribeNewsLetter;
 	}
-	
+
 	@JsonIgnore
 	public Apigee getApigee() {
 		return apigee;
@@ -330,5 +331,4 @@ public class User extends AbstractObject {
 	public void setMetadata(Map<String, String> metadata) {
 		this.metadata = metadata;
 	}
-	
 }

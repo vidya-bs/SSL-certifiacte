@@ -33,8 +33,7 @@ public class ApplicationProperties {
 
 	@Value("${spring.data.mongodb.uri}")
 	private String mongoURI;
-	
-	
+
 	@Value("${itorix.core.security.apikey}")
 	private String apiKey;
 
@@ -45,7 +44,7 @@ public class ApplicationProperties {
 	public void setApiKey(String apiKey) {
 		this.apiKey = apiKey;
 	}
-	
+
 	@Value("${itorix.core.security.apikey.update:null}")
 	private String updateApiKey;
 
@@ -57,11 +56,11 @@ public class ApplicationProperties {
 		this.updateApiKey = updateApiKey;
 	}
 
-	//@Value("${app.sourcefiles.dir}")
+	// @Value("${app.sourcefiles.dir}")
 	private String fileDir;
 
-//	@Value("${app.mailutil.subject}")
-	private String mailSubject ="";
+	// @Value("${app.mailutil.subject}")
+	private String mailSubject = "";
 
 	@Value("${itorix.core.user.management.register.notification.email.subject}")
 	private String registerSubject;
@@ -69,7 +68,7 @@ public class ApplicationProperties {
 	@Value("${itorix.core.user.management.register.confirm.email.body}")
 	private String registermailBody;
 
-	//@Value("${app.mailutil.signature}")
+	// @Value("${app.mailutil.signature}")
 	private String mailSignature;
 
 	@Value("${itorix.core.user.management.resetpassword.notification.email.subject}")
@@ -80,11 +79,11 @@ public class ApplicationProperties {
 
 	@Value("${itorix.core.application.url}")
 	private String VerificationLinkHostName;
-	
+
 	@Value("${itorix.core.accounts.ui}")
 	private String appURL;
 
-	//@Value("${app.mailutil.activationLink.port}")
+	// @Value("${app.mailutil.activationLink.port}")
 	@Value("${server.contextPath}")
 	private String VerificationLinkPort;
 
@@ -94,33 +93,33 @@ public class ApplicationProperties {
 	@Value("${spring.mail.password}")
 	private String passWord;
 
-//	@Value("${app.resetpassword.redirection.url}")
-//	private String resetPasswordRedirectionLink;
+	// @Value("${app.resetpassword.redirection.url}")
+	// private String resetPasswordRedirectionLink;
 
-//	@Value("${app.resendVerification.redirection.url}")
+	// @Value("${app.resendVerification.redirection.url}")
 	private String resendVerificationRedirectionLink;
 
 	@Value("${itorix.core.user.management.redirection.activation:null}")
 	private String userActivationRedirectionLink;
 
-	//@Value("${app.blockUser.redirection.url}")
+	// @Value("${app.blockUser.redirection.url}")
 	private String userBlockingRedirectionLink;
-	
+
 	@Value("${itorix.core.user.management.invitation.notification.email.body}")
 	private String addWorkspaceUserBody;
-	
+
 	@Value("${itorix.core.user.management.invitation.notification.email.subject}")
 	private String addWorkspaceUserSubject;
-	
+
 	@Value("${itorix.core.user.management.inviteworkspace.notification.email.body}")
 	private String inviteWorkspaceUserBody;
-	
+
 	@Value("${itorix.core.user.management.inviteworkspace.notification.email.subject}")
 	private String inviteWorkspaceUserSubject;
 
 	@Value("${itorix.core.user.management.recoverworkspace.notification.email.body}")
 	private String recoverWorkspaceBody;
-	
+
 	@Value("${itorix.core.user.management.recoverworkspace.notification.email.subject}")
 	private String recoverWorkspaceSubject;
 
@@ -136,31 +135,31 @@ public class ApplicationProperties {
 	@Value("${itorix.core.jfrog.password}")
 	private String jfrogPassword;
 
-//	@Value("${itorix.core.mail.smtp.port:null}")
-//	private String smtpPort;
-//
-//	@Value("${itorix.core.mail.smtp.auth:null}")
-//	private String smtpAuth;
-//
-//	@Value("${itorix.core.mail.smtp.starttls.enable:null}")
-//	private String smtpStartttls;
-//
-//	@Value("${itorix.core.mail.smtp.hostname:null}")
-//	private String smtphostName;
+	// @Value("${itorix.core.mail.smtp.port:null}")
+	// private String smtpPort;
+	//
+	// @Value("${itorix.core.mail.smtp.auth:null}")
+	// private String smtpAuth;
+	//
+	// @Value("${itorix.core.mail.smtp.starttls.enable:null}")
+	// private String smtpStartttls;
+	//
+	// @Value("${itorix.core.mail.smtp.hostname:null}")
+	// private String smtphostName;
 
-	//@Value("${app.mailutil.serviceRequest.subject}")
+	// @Value("${app.mailutil.serviceRequest.subject}")
 	@Value("${itorix.core.apigee.service.request.notification.subject}")
 	private String serviceRequestSubject;
 
-	//@Value("${app.mailutil.serviceRequestReview.body}")
+	// @Value("${app.mailutil.serviceRequestReview.body}")
 	@Value("${itorix.core.apigee.service.request.notification.email.body}")
 	private String serviceRequestReviewBody;
 
-	//@Value("${app.mailutil.serviceRequestApprove.body}")
+	// @Value("${app.mailutil.serviceRequestApprove.body}")
 	@Value("${itorix.core.apigee.service.request.notification.approve.email.body:@null}")
 	private String serviceRequestApproveBody;
 
-	//@Value("${app.mailutil.serviceRequestReject.body}")
+	// @Value("${app.mailutil.serviceRequestReject.body}")
 	@Value("${itorix.core.apigee.service.request.notification.reject.email.body:@null}")
 	private String serviceRequestRejecteBody;
 
@@ -193,11 +192,11 @@ public class ApplicationProperties {
 
 	@Value("${spring.mail.password}")
 	private String cicdPassWord;
-	
+
 	@Value("${itorix.core.application.url}")
 	private String appUrl;
-	
-	//@Value("${itorix.app.domain}")
+
+	// @Value("${itorix.app.domain}")
 	@Value("${server.contextPath}")
 	private String appDomain;
 
@@ -213,10 +212,10 @@ public class ApplicationProperties {
 	@Value("${itorix.core.gocd.dashboard.offset}")
 	private String cicddashBoardOffSet;
 
-	//@Value("${itorix.service.username}")
+	// @Value("${itorix.service.username}")
 	private String serviceUserName;
 
-	//@Value("${itorix.service.password}")
+	// @Value("${itorix.service.password}")
 	private String servicePassword;
 
 	@Value("${itorix.core.apigee.edge.default.serviceaccount.username:@null}")
@@ -225,10 +224,10 @@ public class ApplicationProperties {
 	@Value("${itorix.core.apigee.edge.default.serviceaccount.password:@null}")
 	private String apigeeServicePassword;
 
-	//@Value("${itorix.testsuite.triggerscript.location}")
+	// @Value("${itorix.testsuite.triggerscript.location}")
 	private String testSuiteTriggerScriptLocation;
 
-	//@Value("${itorix.testsuite.pipeline.log.url}")
+	// @Value("${itorix.testsuite.pipeline.log.url}")
 	private String testSuitePipelineLogUrl;
 
 	@Value("${itorix.core.jfrog.repos.api_portfolio}")
@@ -257,16 +256,16 @@ public class ApplicationProperties {
 
 	@Value("${itorix.core.jfrog.repos.pipeline_codecoverage}")
 	private String pipelineCodecoverage;
-	
+
 	@Value("${itorix.core.jfrog.repos.swagger.xpath}")
 	private String swaggerXpath;
-	
+
 	@Value("${itorix.core.jfrog.repos.application}")
 	private String artifactoryName;
-	
-//	@Value("${itorix.redirect.url}")
-//	private String appRedirectUrl;
-	
+
+	// @Value("${itorix.redirect.url}")
+	// private String appRedirectUrl;
+
 	public String getArtifactoryName() {
 		return artifactoryName;
 	}
@@ -277,16 +276,16 @@ public class ApplicationProperties {
 
 	@Value("${itorix.core.github.default.host.url}")
 	private String thirdPartyIntegrationGitHubHost;
-	
+
 	@Value("${itorix.core.user.blocked.domain.list}")
 	private String blockedMailDomains;
-	
+
 	@Value("${itorix.core.aws.admin.url}")
 	private String awsURL;
-	
+
 	@Value("${itorix.core.aws.pod.url}")
 	private String awsPodURL;
-	
+
 	@Value("${itorix.core.gocd.pipelines.cancel.url}")
 	private String cancelPipelineEndPoint;
 
@@ -310,7 +309,7 @@ public class ApplicationProperties {
 
 	@Value("${itorix.core.gocd.pipelines.build.artifacts.url}")
 	private String cicdArtifactUrl;
-	
+
 	@Value("$itorix.core.gocd.build.apigee.base.directory}")
 	private String cicdBaseDir;
 
@@ -334,55 +333,54 @@ public class ApplicationProperties {
 
 	@Value("${itorix.core.gocd.gradle.home}")
 	private String gradleHomeDir;
-	
+
 	@Value("${itorix.core.gocd.pipelines.base.url}")
 	private String pipelineBaseUrl;
-	
+
 	@Value("${itorix.core.gocd.version}")
 	private String gocdVersion;
 
-	//@Value("${ci.cd.apigee.username}")
+	// @Value("${ci.cd.apigee.username}")
 	private String apigeeUserName;
 
-	//@Value("${ci.cd.apigee.password}")
+	// @Value("${ci.cd.apigee.password}")
 	private String apigeePassword;
 
-	//@Value("${ci.cd.pipeline.proxy.scm.username}")
+	// @Value("${ci.cd.pipeline.proxy.scm.username}")
 	private String proxyScmUserName;
 
-	//@Value("${ci.cd.pipeline.proxy.scm.password}")
+	// @Value("${ci.cd.pipeline.proxy.scm.password}")
 	private String proxyScmPassword;
-	
+
 	private String proxyScmToken;
-	
+
 	private String proxyScmUserType;
 
-	//@Value("${ci.cd.pipeline.build.scm.type}")
+	// @Value("${ci.cd.pipeline.build.scm.type}")
 	private String buildScmType;
 
-	//@Value("${ci.cd.pipeline.build.scm.url}")
+	// @Value("${ci.cd.pipeline.build.scm.url}")
 	private String buildScmUrl;
 
-	//@Value("${ci.cd.pipeline.build.scm.username}")
+	// @Value("${ci.cd.pipeline.build.scm.username}")
 	private String buildScmUserName;
 
-	//@Value("${ci.cd.pipeline.build.scm.password}")
+	// @Value("${ci.cd.pipeline.build.scm.password}")
 	private String buildScmPassword;
-	
+
 	private String buildScmToken;
-	
+
 	private String buildScmUserType;
 
-	//@Value("${ci.cd.pipeline.build.scm.branch}")
+	// @Value("${ci.cd.pipeline.build.scm.branch}")
 	private String buildScmBranch;
 
-	
 	private String availabilityZone = null;
-	
+
 	private String podHost = null;
-	
+
 	private String region = null;
-	
+
 	private String podIP = null;
 
 	public String getCicdBaseDir() {
@@ -592,37 +590,37 @@ public class ApplicationProperties {
 		this.swageerGenDir = swageerGenDir;
 	}
 
-//	public String getSmtphostName() {
-//		return smtphostName;
-//	}
-//
-//	public void setSmtphostName(String smtphostName) {
-//		this.smtphostName = smtphostName;
-//	}
-//
-//	public String getSmtpPort() {
-//		return smtpPort;
-//	}
-//
-//	public void setSmtpPort(String smtpPort) {
-//		this.smtpPort = smtpPort;
-//	}
-//
-//	public String getSmtpAuth() {
-//		return smtpAuth;
-//	}
-//
-//	public void setSmtpAuth(String smtpAuth) {
-//		this.smtpAuth = smtpAuth;
-//	}
-//
-//	public String getSmtpStartttls() {
-//		return smtpStartttls;
-//	}
-//
-//	public void setSmtpStartttls(String smtpStartttls) {
-//		this.smtpStartttls = smtpStartttls;
-//	}
+	// public String getSmtphostName() {
+	// return smtphostName;
+	// }
+	//
+	// public void setSmtphostName(String smtphostName) {
+	// this.smtphostName = smtphostName;
+	// }
+	//
+	// public String getSmtpPort() {
+	// return smtpPort;
+	// }
+	//
+	// public void setSmtpPort(String smtpPort) {
+	// this.smtpPort = smtpPort;
+	// }
+	//
+	// public String getSmtpAuth() {
+	// return smtpAuth;
+	// }
+	//
+	// public void setSmtpAuth(String smtpAuth) {
+	// this.smtpAuth = smtpAuth;
+	// }
+	//
+	// public String getSmtpStartttls() {
+	// return smtpStartttls;
+	// }
+	//
+	// public void setSmtpStartttls(String smtpStartttls) {
+	// this.smtpStartttls = smtpStartttls;
+	// }
 
 	public String getResendVerificationRedirectionLink() {
 		return resendVerificationRedirectionLink;
@@ -655,8 +653,7 @@ public class ApplicationProperties {
 	public void setVerificationLinkHostName(String verificationLinkHostName) {
 		VerificationLinkHostName = verificationLinkHostName;
 	}
-	
-	
+
 	public String getAppURL() {
 		return appURL;
 	}
@@ -699,7 +696,7 @@ public class ApplicationProperties {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.apigeeServicePassword);
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 		return decryptedPassword;
 	}
@@ -944,7 +941,7 @@ public class ApplicationProperties {
 		}
 		return decryptedPassword;
 	}
-	
+
 	public String getProxyScmEncryptedPassword() {
 		return this.proxyScmPassword;
 	}
@@ -952,7 +949,7 @@ public class ApplicationProperties {
 	public void setProxyScmPassword(String proxyScmPassword) {
 		this.proxyScmPassword = proxyScmPassword;
 	}
-	
+
 	public String getProxyScmToken() {
 		String decryptedToken = "";
 		try {
@@ -967,7 +964,7 @@ public class ApplicationProperties {
 	public void setProxyScmUserType(String proxyScmUserType) {
 		this.proxyScmUserType = proxyScmUserType;
 	}
-	
+
 	public String getProxyScmUserType() {
 		return this.proxyScmUserType;
 	}
@@ -983,7 +980,7 @@ public class ApplicationProperties {
 	public void setPipelineBaseUrl(String pipelineBaseUrl) {
 		this.pipelineBaseUrl = pipelineBaseUrl;
 	}
-	
+
 	public String getGocdVersion() {
 		return gocdVersion;
 	}
@@ -1026,7 +1023,7 @@ public class ApplicationProperties {
 		}
 		return decryptedPassword;
 	}
-	
+
 	public void setBuildScmPassword(String buildScmPassword) {
 		this.buildScmPassword = buildScmPassword;
 	}
@@ -1041,7 +1038,7 @@ public class ApplicationProperties {
 		}
 		return decryptedToken;
 	}
-	
+
 	public void setBuildScmToken(String buildScmToken) {
 		this.buildScmToken = buildScmToken;
 	}
@@ -1053,7 +1050,7 @@ public class ApplicationProperties {
 	public void setBuildScmUserType(String buildScmUserType) {
 		this.buildScmUserType = buildScmUserType;
 	}
-	
+
 	public String getBuildScmBranch() {
 		return buildScmBranch;
 	}
@@ -1213,7 +1210,7 @@ public class ApplicationProperties {
 	public void setSwaggerXpath(String swaggerXpath) {
 		this.swaggerXpath = swaggerXpath;
 	}
-	
+
 	public String getTestSuitePipelineLogUrl() {
 		return testSuitePipelineLogUrl;
 	}
@@ -1230,14 +1227,14 @@ public class ApplicationProperties {
 		this.cicdArtifactUrl = cicdArtifactUrl;
 	}
 
-//	public String getAppRedirectUrl() {
-//		return appRedirectUrl;
-//	}
-//
-//	public void setAppRedirectUrl(String appRedirectUrl) {
-//		this.appRedirectUrl = appRedirectUrl;
-//	}
-	
+	// public String getAppRedirectUrl() {
+	// return appRedirectUrl;
+	// }
+	//
+	// public void setAppRedirectUrl(String appRedirectUrl) {
+	// this.appRedirectUrl = appRedirectUrl;
+	// }
+
 	public String getAddWorkspaceUserBody() {
 		return addWorkspaceUserBody;
 	}
@@ -1285,7 +1282,7 @@ public class ApplicationProperties {
 	public void setRecoverWorkspaceSubject(String recoverWorkspaceSubject) {
 		this.recoverWorkspaceSubject = recoverWorkspaceSubject;
 	}
-	
+
 	public String getThirdPartyIntegrationGitHubHost() {
 		return thirdPartyIntegrationGitHubHost;
 	}
@@ -1293,7 +1290,7 @@ public class ApplicationProperties {
 	public void setThirdPartyIntegrationGitHubHost(String thirdPartyIntegrationGitHubHost) {
 		this.thirdPartyIntegrationGitHubHost = thirdPartyIntegrationGitHubHost;
 	}
-	
+
 	public String getBlockedMailDomains() {
 		return blockedMailDomains;
 	}
@@ -1349,6 +1346,4 @@ public class ApplicationProperties {
 	public void setPodIP(String podIP) {
 		this.podIP = podIP;
 	}
-	
-	
 }

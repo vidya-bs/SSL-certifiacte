@@ -20,5 +20,4 @@ public class GenrateClientRequest {
 	public void setRevision(Integer revision) {
 		this.revision = revision;
 	}
-
 }

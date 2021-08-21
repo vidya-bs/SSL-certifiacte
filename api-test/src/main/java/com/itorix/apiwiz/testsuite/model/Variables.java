@@ -16,7 +16,7 @@ public class Variables extends AbstractObject {
 
 	@JsonProperty("name")
 	private String name;
-	
+
 	@JsonProperty("description")
 	private String description;
 

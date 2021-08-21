@@ -7,8 +7,6 @@ import net.sf.json.JSONArray;
 
 public class JSONUtil {
 
-
-
 	public static List<String> convertJSONObjectToList(JSONArray array) {
 
 		List<String> names = new ArrayList<String>();
@@ -18,7 +16,6 @@ public class JSONUtil {
 		}
 
 		return names;
-
 	}
 
 	public static JSONArray converListToJSONArray(List<String> al) {
@@ -28,5 +25,4 @@ public class JSONUtil {
 		}
 		return array;
 	}
-
 }

@@ -3,71 +3,62 @@ package com.itorix.apiwiz.common.model.proxystudio;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class Proxy
-{
+public class Proxy {
 	public static final String path_seperator = "$#$";
-	
-    private String basePath;
 
-    private String name;
+	private String basePath;
 
-    private Flows flows;
-    
-    private String description;
-    
-    private String oas;
-    
-    private String buildProxyArtifact;
-    
-    private String buildProxyArtifactType;
-    
-    private String version;
-    
-    private String revision;
-    
-    private String branchType;
+	private String name;
 
-    private String isMaster = "false";
-    
-    public String getBasePath ()
-    {
-        return basePath;
-    }
+	private Flows flows;
 
-    public void setBasePath (String basePath)
-    {
-        this.basePath = basePath;
-    }
+	private String description;
 
-    public String getName ()
-    {
-        return name;
-    }
+	private String oas;
 
-    public void setName (String name)
-    {
-        this.name = name;
-    }
+	private String buildProxyArtifact;
 
-    public Flows getFlows ()
-    {
-        return flows;
-    }
+	private String buildProxyArtifactType;
 
-    public void setFlows (Flows flows)
-    {
-        this.flows = flows;
-    }
-    
-    public String getDescription ()
-    {
-        return description;
-    }
+	private String version;
 
-    public void setDescription (String description)
-    {
-        this.description = description;
-    }
+	private String revision;
+
+	private String branchType;
+
+	private String isMaster = "false";
+
+	public String getBasePath() {
+		return basePath;
+	}
+
+	public void setBasePath(String basePath) {
+		this.basePath = basePath;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Flows getFlows() {
+		return flows;
+	}
+
+	public void setFlows(Flows flows) {
+		this.flows = flows;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
 	public String getBuildProxyArtifact() {
 		return buildProxyArtifact;
@@ -116,7 +107,7 @@ public class Proxy
 	public void setIsMaster(String isMaster) {
 		this.isMaster = isMaster;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Proxy [basePath=" + basePath + ", name=" + name + ", flows=" + flows + ", description=" + description

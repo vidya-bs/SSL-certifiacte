@@ -1,19 +1,17 @@
 package com.itorix.apiwiz.performance.coverge.model;
-public class Values
-{
-    private String timestamp;
 
-    private long value;
+public class Values {
+	private String timestamp;
 
-    public String getTimestamp ()
-    {
-        return timestamp;
-    }
+	private long value;
 
-    public void setTimestamp (String timestamp)
-    {
-        this.timestamp = timestamp;
-    }
+	public String getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(String timestamp) {
+		this.timestamp = timestamp;
+	}
 
 	public long getValue() {
 		return value;
@@ -22,10 +20,4 @@ public class Values
 	public void setValue(long value) {
 		this.value = value;
 	}
-
-	
-
-  
-
-   
 }

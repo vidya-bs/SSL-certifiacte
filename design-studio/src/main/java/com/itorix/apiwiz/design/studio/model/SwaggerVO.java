@@ -8,24 +8,23 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.itorix.apiwiz.identitymanagement.model.AbstractObject;
 
-
 @Document(collection = "Design.Swagger.List")
 public class SwaggerVO extends AbstractObject {
 
 	private Integer revision;
 
 	private String status;
-	
+
 	private String swaggerId;
 
 	private String name;
 
 	private Boolean lock;
-	
+
 	private String lockedBy;
-	
+
 	private Long lockedAt;
-	
+
 	private String lockedByUserId;
 
 	private String description;
@@ -38,25 +37,26 @@ public class SwaggerVO extends AbstractObject {
 	private Set<String> products;
 	private Set<String> portfolios;
 	private List<String> roles;
-	
+
 	private String scm_folder;
 
-    private String scm_url;
+	private String scm_url;
 
-    private String scm_authorizationType;
+	private String scm_authorizationType;
 
-    private String scm_branch;
+	private String scm_branch;
 
-    private String scm_repository;
+	private String scm_repository;
 
-    private String scm_username;
+	private String scm_username;
 
-    private String scm_token;
+	private String scm_token;
 
-    private String scm_type;
+	private String scm_type;
 
-    private String scm_password;
+	private String scm_password;
 
+	private List<String> partners;
 
 	public Integer getRevision() {
 		return revision;
@@ -105,7 +105,7 @@ public class SwaggerVO extends AbstractObject {
 	public void setLockedAt(Long lockedAt) {
 		this.lockedAt = lockedAt;
 	}
-	
+
 	public String getLockedByUserId() {
 		return lockedByUserId;
 	}
@@ -169,7 +169,7 @@ public class SwaggerVO extends AbstractObject {
 	public void setRoles(List<String> roles) {
 		this.roles = roles;
 	}
-	
+
 	public String getScm_folder() {
 		return scm_folder;
 	}
@@ -249,7 +249,12 @@ public class SwaggerVO extends AbstractObject {
 	public void setSwaggerId(String swaggerId) {
 		this.swaggerId = swaggerId;
 	}
-	
-	
 
+	public List<String> getPartners() {
+		return partners;
+	}
+
+	public void setPartners(List<String> partners) {
+		this.partners = partners;
+	}
 }

@@ -1,4 +1,3 @@
-
 package com.itorix.apiwiz.virtualization.model.expectation;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -15,7 +14,6 @@ import lombok.Setter;
 public class FormParam {
 
 	public enum Condition {
-
 		@JsonProperty("equalTo")
 		equalTo,
 

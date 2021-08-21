@@ -1,4 +1,3 @@
-
 package com.itorix.apiwiz.testsuite.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -9,42 +8,42 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FormParam {
 
-    @JsonProperty("name")
-    private String name;
-    
-    @JsonProperty("description")
-    private String description;
-    
-    @JsonProperty("value")
-    private String value;
+	@JsonProperty("name")
+	private String name;
 
-    @JsonProperty("name")
-    public String getName() {
-        return name;
-    }
+	@JsonProperty("description")
+	private String description;
 
-    @JsonProperty("name")
-    public void setName(String name) {
-        this.name = name;
-    }
+	@JsonProperty("value")
+	private String value;
 
-    @JsonProperty("description")
-    public String getDescription() {
-        return description;
-    }
+	@JsonProperty("name")
+	public String getName() {
+		return name;
+	}
 
-    @JsonProperty("description")
-    public void setDescription(String description) {
-        this.description = description;
-    }
+	@JsonProperty("name")
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    @JsonProperty("value")
-    public String getValue() {
-        return value;
-    }
+	@JsonProperty("description")
+	public String getDescription() {
+		return description;
+	}
 
-    @JsonProperty("value")
-    public void setValue(String value) {
-        this.value = value;
-    }
+	@JsonProperty("description")
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@JsonProperty("value")
+	public String getValue() {
+		return value;
+	}
+
+	@JsonProperty("value")
+	public void setValue(String value) {
+		this.value = value;
+	}
 }

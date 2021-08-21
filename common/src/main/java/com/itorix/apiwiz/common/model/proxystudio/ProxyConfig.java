@@ -29,4 +29,4 @@ public class ProxyConfig {
 	public static final String STR_ALL = "ALL_";
 	public static final String STR_GET = "GET_";
 	public static final String TARGET_LOC = "C:\\CodeGen\\GeneratedCode";
-}	
+}

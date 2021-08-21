@@ -20,10 +20,10 @@ public class SecurityRequirementDiff {
 
 	public SecurityRequirementDiff diff(List<SecurityRequirement> left, List<SecurityRequirement> right) {
 
-		if((Objects.isNull(left) && Objects.isNull(right)) || (left.isEmpty() && right.isEmpty())) {
+		if ((Objects.isNull(left) && Objects.isNull(right)) || (left.isEmpty() && right.isEmpty())) {
 			return null;
 		}
-		
+
 		ListDiff<SecurityRequirement> diffList = ListDiff.diff(left, right, (t, param) -> {
 			for (SecurityRequirement securityRequirement : t) {
 				for (String k : securityRequirement.keySet()) {
@@ -51,9 +51,8 @@ public class SecurityRequirementDiff {
 
 		return this;
 	}
-	
+
 	public Boolean isNotEmpty() {
 		return !this.added.isEmpty() || !this.missing.isEmpty() || !this.changed.isEmpty();
 	}
-
 }

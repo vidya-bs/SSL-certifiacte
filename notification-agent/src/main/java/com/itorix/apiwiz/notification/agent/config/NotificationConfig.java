@@ -10,16 +10,16 @@ import org.sqlite.SQLiteOpenMode;
 @Configuration
 public class NotificationConfig {
 
-	@Value("${datasource.url}")
-	private String url;
-	
-	 @Bean
-	 public SQLiteDataSource dataSource() {
-	 SQLiteDataSource dataSource = new SQLiteDataSource();
-	 dataSource.setUrl(url);
-	 SQLiteConfig config = new SQLiteConfig();
-	 config.setOpenMode(SQLiteOpenMode.FULLMUTEX);
-	 dataSource.setConfig(config);
-	 return dataSource;
-	 }
+    @Value("${datasource.url}")
+    private String url;
+
+    @Bean
+    public SQLiteDataSource dataSource() {
+        SQLiteDataSource dataSource = new SQLiteDataSource();
+        dataSource.setUrl(url);
+        SQLiteConfig config = new SQLiteConfig();
+        config.setOpenMode(SQLiteOpenMode.FULLMUTEX);
+        dataSource.setConfig(config);
+        return dataSource;
+    }
 }

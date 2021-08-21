@@ -106,9 +106,8 @@ import com.itorix.test.executor.beans.TestSuite;
 import com.itorix.test.executor.beans.TestSuiteResponse;
 import com.itorix.test.executor.beans.Variables;
 
-
 @Component
-public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
+public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 
 	private static final Logger logger = LoggerFactory.getLogger(CodeCoverageBusinessImpl.class);
 
@@ -126,7 +125,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 	@Autowired
 	ApigeeUtil apigeeUtil;
-	
+
 	@Qualifier("masterMongoTemplate")
 	@Autowired
 	private MongoTemplate masterMongoTemplate;
@@ -141,12 +140,13 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 	@Autowired
 	TestSuiteDAO testsuitDAO;
 
-
 	/**
 	 * executeCodeCoverage
-	 * 
+	 *
 	 * @param cfg
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	public CodeCoverageBackUpInfo executeCodeCoverage(CommonConfiguration cfg) throws Exception {
@@ -164,7 +164,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 		String rev = null;
 
-		//		JSONArray txIds = null;
+		// JSONArray txIds = null;
 		// step 1: getProxyDeployedRevision
 		rev = commonServices.getLatestDeploymentForAPIProxy(cfg);
 		log("executeCodeCoverage", cfg.getInteractionid(), "step 1: getProxyDeployedRevision ::" + rev);
@@ -242,9 +242,9 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 		JSONObject obj = null;
 		try {
 			obj = jfrogUtilImpl.uploadFiles(zipFileName, applicationProperties.getApigeeCodecoverage(),
-					applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
-					+ "/artifactory/",
-					"Codecoverage/" + timeStamp + "", applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+					applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort() + "/artifactory/",
+					"Codecoverage/" + timeStamp + "", applicationProperties.getJfrogUserName(),
+					applicationProperties.getJfrogPassword());
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();
@@ -267,8 +267,9 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 	/**
 	 * executeXslts
-	 * 
+	 *
 	 * @param string
+	 * 
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 * @throws TransformerException
@@ -300,14 +301,14 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 				DocumentBuilder docBuilder;
 				System.out.println(f.getAbsolutePath());
-				String root= "";
+				String root = "";
 				try {
 					docBuilder = dbFactory.newDocumentBuilder();
 					Document xmlDom = docBuilder.parse(f);
 					Node node = xmlDom.getDocumentElement();
 					root = node.getNodeName();
 					xmlDom.getElementsByTagName("TargetEndpoint");
-					//System.out.println("");
+					// System.out.println("");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -319,7 +320,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 				if (root.equalsIgnoreCase("TargetEndpoint")) {
 					String fileName = string + "Target_" + FilenameUtils.getBaseName(f.getAbsolutePath()) + ".html";
 					r = new StreamResult(new File(fileName));
-				} else if(root.equalsIgnoreCase("ProxyEndpoint")){
+				} else if (root.equalsIgnoreCase("ProxyEndpoint")) {
 					String fileName = string + "Proxy_" + FilenameUtils.getBaseName(f.getAbsolutePath()) + ".html";
 					r = new StreamResult(new File(fileName));
 				}
@@ -330,11 +331,13 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 	/**
 	 * getCodeCoverageReport
-	 * 
+	 *
 	 * @param cfg
 	 * @param executedFlowAndPolicies
 	 * @param fileLoc
+	 * 
 	 * @return
+	 * 
 	 * @throws JAXBException
 	 * @throws IOException
 	 * @throws ItorixException
@@ -373,7 +376,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 		}
 		// process codecoverage for targetendpoints
 		List<TargetEndpoint> targetEndPoints = commonServices.fetchTargetEndPoints(cfg.getOrganization(),
-				cfg.getApigeeEmail(), cfg.getApigeePassword(), cfg.getRevision(), cfg.getApiName(),cfg.getType());
+				cfg.getApigeeEmail(), cfg.getApigeePassword(), cfg.getRevision(), cfg.getApiName(), cfg.getType());
 		List<EndpointStat> t = new ArrayList<EndpointStat>();
 		for (TargetEndpoint temp : targetEndPoints) {
 			TargetEndpoint updatedEndpoint = markExecutedPoliciesForTarget(temp, executedFlowAndPolicies);
@@ -420,9 +423,10 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 	/**
 	 * markExecutedPoliciesForProxy
-	 * 
+	 *
 	 * @param endpoint
 	 * @param executedFlowAndPolicies
+	 * 
 	 * @return
 	 */
 	public ProxyEndpoint markExecutedPoliciesForProxy(ProxyEndpoint endpoint,
@@ -512,14 +516,14 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 		}
 
 		return endpoint;
-
 	}
 
 	/**
 	 * markExecutedPoliciesForTarget
-	 * 
+	 *
 	 * @param endpoint
 	 * @param executedFlowAndPolicies
+	 * 
 	 * @return
 	 */
 	public TargetEndpoint markExecutedPoliciesForTarget(TargetEndpoint endpoint,
@@ -540,75 +544,84 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 		if (allExecutedFlows.contains("TARGET_" + endpoint.getName())) {
 			// PreFlow
-			for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step r : endpoint.getPreFlow().getRequest().getStep()) {
+			for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step r : endpoint.getPreFlow()
+					.getRequest().getStep()) {
 				if (allExecutedPolicies.contains(r.getName())) {
 					r.setExecuted("true");
 				}
 			}
 
-			for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step r : endpoint.getPreFlow().getResponse().getStep()) {
+			for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step r : endpoint.getPreFlow()
+					.getResponse().getStep()) {
 				if (allExecutedPolicies.contains(r.getName())) {
 					r.setExecuted("true");
 				}
 			}
 
 			// PostFlow
-			for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step r : endpoint.getPostFlow().getRequest().getStep()) {
+			for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step r : endpoint.getPostFlow()
+					.getRequest().getStep()) {
 				if (allExecutedPolicies.contains(r.getName())) {
 					r.setExecuted("true");
 				}
 			}
 
-			for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step r : endpoint.getPostFlow().getResponse().getStep()) {
+			for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step r : endpoint.getPostFlow()
+					.getResponse().getStep()) {
 				if (allExecutedPolicies.contains(r.getName())) {
 					r.setExecuted("true");
 				}
 			}
 
 			// FaultHandling
-			com.itorix.apiwiz.common.model.policyperformance.target.endpoint.FaultRules faultRules = endpoint.getFaultRules();
+			com.itorix.apiwiz.common.model.policyperformance.target.endpoint.FaultRules faultRules = endpoint
+					.getFaultRules();
 			if (faultRules != null) {
-				for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.FaultRule faultRule : faultRules.getFaultRule()) {
+				for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.FaultRule faultRule : faultRules
+						.getFaultRule()) {
 					if (allExecutedFlows.contains("FAULT_" + faultRule.getName())) {
-						for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step r : faultRule.getStep()) {
+						for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step r : faultRule
+								.getStep()) {
 							if (allExecutedPolicies.contains(r.getName())) {
 								r.setExecuted("true");
 							}
 						}
 					}
 				}
-
 			}
 
 			// Flows
 
-			for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Flow f : endpoint.getFlows().getFlow()) {
+			for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Flow f : endpoint.getFlows()
+					.getFlow()) {
 				if (allExecutedFlows.contains(f.getName() + "_REQUEST_FLOW")
 						|| allExecutedFlows.contains(f.getName() + "_RESPONSE_FLOW")) {
-					for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step r : f.getRequest().getStep()) {
+					for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step r : f.getRequest()
+							.getStep()) {
 						if (allExecutedPolicies.contains(r.getName())) {
 							r.setExecuted("true");
 						}
 					}
 
-					for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step r : f.getResponse().getStep()) {
+					for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step r : f.getResponse()
+							.getStep()) {
 						if (allExecutedPolicies.contains(r.getName())) {
 							r.setExecuted("true");
 						}
 					}
 				}
 			}
-
 		}
 		return endpoint;
-
 	}
 
 	/**
 	 * doAnalyticsForProxyEndpoint
-	 * 
+	 *
 	 * @param updatedEndpoint
+	 * 
 	 * @return
+	 * 
 	 * @throws JAXBException
 	 */
 	public EndpointStatVO doAnalyticsForProxyEndpoint(ProxyEndpoint updatedEndpoint) throws JAXBException {
@@ -687,10 +700,9 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 			float cov = 0;
 			if (flowReq.totalPolicies > 0 || flowRes.executedPolicies > 0)
 				cov = ((flowReq.executedPolicies + flowRes.executedPolicies) * 100)
-				/ (flowReq.totalPolicies + flowRes.totalPolicies);
+						/ (flowReq.totalPolicies + flowRes.totalPolicies);
 			flowFlowStat.setCoverage(cov + "");
 			flowsStatsList.add(flowFlowStat);
-
 		}
 		// PostClientFlow
 		FlowStat postClientFlowStat = new FlowStat();
@@ -731,9 +743,11 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 	/**
 	 * doAnalyticsForTargetEndpoint
-	 * 
+	 *
 	 * @param updatedEndpoint
+	 * 
 	 * @return
+	 * 
 	 * @throws JAXBException
 	 */
 	public EndpointStatVO doAnalyticsForTargetEndpoint(TargetEndpoint updatedEndpoint) throws JAXBException {
@@ -782,8 +796,8 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 		// fault
 
-		for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.FaultRule faultRule : updatedEndpoint.getFaultRules()
-				.getFaultRule()) {
+		for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.FaultRule faultRule : updatedEndpoint
+				.getFaultRules().getFaultRule()) {
 			FlowStat faultFlowStat = new FlowStat();
 			PolicyCount fault = getCountForFlowTargetSteps(faultRule.getStep());
 			faultFlowStat.setFlowType("Flow");
@@ -797,10 +811,10 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 				faultcov = (fault.executedPolicies * 100) / fault.totalPolicies;
 			faultFlowStat.setCoverage(faultcov + "");
 			flowsStatsList.add(faultFlowStat);
-
 		}
 		// flows
-		for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Flow f : updatedEndpoint.getFlows().getFlow()) {
+		for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Flow f : updatedEndpoint.getFlows()
+				.getFlow()) {
 
 			FlowStat flowFlowStat = new FlowStat();
 
@@ -817,10 +831,9 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 			float cov = 0;
 			if (flowReq.totalPolicies > 0 || flowRes.executedPolicies > 0)
 				cov = ((flowReq.executedPolicies + flowRes.executedPolicies) * 100)
-				/ (flowReq.totalPolicies + flowRes.totalPolicies);
+						/ (flowReq.totalPolicies + flowRes.totalPolicies);
 			flowFlowStat.setCoverage(cov + "");
 			flowsStatsList.add(flowFlowStat);
-
 		}
 
 		statsTypeFlows.setFlowStat(flowsStatsList);
@@ -841,9 +854,10 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 	/**
 	 * getFinalCoverage
-	 * 
+	 *
 	 * @param executedFlowAndPoliciesMap
 	 * @param actualPolicies
+	 * 
 	 * @return
 	 */
 	@SuppressWarnings("unused")
@@ -921,7 +935,6 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 				f.setPolicyStatus(al);
 				report.setPostFlow(f);
 			}
-
 		}
 
 		return report;
@@ -929,8 +942,9 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 	/**
 	 * getCountForFlowProxySteps
-	 * 
+	 *
 	 * @param step
+	 * 
 	 * @return
 	 */
 	private PolicyCount getCountForFlowProxySteps(List<Step> step) {
@@ -952,16 +966,17 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 		pc.totalPoliciesMap = totalPoliciesMap;
 		pc.executedPoliciesMap = executedPoliciesMap;
 		return pc;
-
 	}
 
 	/**
 	 * getCountForFlowTargetSteps
-	 * 
+	 *
 	 * @param step
+	 * 
 	 * @return
 	 */
-	private PolicyCount getCountForFlowTargetSteps(List<com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step> step) {
+	private PolicyCount getCountForFlowTargetSteps(
+			List<com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step> step) {
 		int total = step.size();
 		int executed = 0;
 		Set<String> totalPoliciesMap = new HashSet<>();
@@ -979,15 +994,16 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 		pc.totalPoliciesMap = totalPoliciesMap;
 		pc.executedPoliciesMap = executedPoliciesMap;
 		return pc;
-
 	}
 
 	/**
 	 * fetchPoliciesInBundle
-	 * 
+	 *
 	 * @param proxyFile
 	 * @param executedFlowAndPoliciesMap
+	 * 
 	 * @return
+	 * 
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 * @throws JAXBException
@@ -995,7 +1011,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 	@SuppressWarnings("unused")
 	private CoverageDetailsHelper fetchPoliciesInBundle(File proxyFile,
 			Map<String, List<String>> executedFlowAndPoliciesMap)
-					throws FileNotFoundException, IOException, JAXBException {
+			throws FileNotFoundException, IOException, JAXBException {
 
 		Map<String, List<String>> actualPolicies = new HashMap<String, List<String>>();
 
@@ -1039,13 +1055,13 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 		helper.coveragePercentage = codeCoveragePercentage;
 
 		return helper;
-
 	}
 
 	/**
 	 * getCodeCoverageList
-	 * 
+	 *
 	 * @param interactionid
+	 * 
 	 * @return
 	 */
 	public List<History> getCodeCoverageList(String interactionid) throws ItorixException {
@@ -1069,13 +1085,15 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 	/**
 	 * getCodeCoverageList
-	 * 
+	 *
 	 * @param interactionid
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
-	public List<History> getCodeCoverageList(String interactionid, boolean filter, String proxy, String org,
-			String env, String daterange) throws Exception {
+	public List<History> getCodeCoverageList(String interactionid, boolean filter, String proxy, String org, String env,
+			String daterange) throws Exception {
 		log("getCodeCoverageList", interactionid, "");
 		List<CodeCoverageBackUpInfo> codeCoverageInfo = new ArrayList<>();
 		List<History> history = new ArrayList<History>();
@@ -1085,7 +1103,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 			Query query = new Query();
 			if (proxy != null) {
 				criteria.and("proxy").is(proxy);
-			}else{
+			} else {
 				throw new ItorixException(ErrorCodes.errorMessage.get("CodeCoverage-1003"), "CodeCoverage-1003");
 			}
 			if (org != null) {
@@ -1119,7 +1137,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 			h.setUser(info.getApigeeUser());
 			h.setOrganization(info.getOrganization());
 			h.setEnvironment(info.getEnvironment());
-			h.setPercentage( info.getProxyStat() != null ? info.getProxyStat().getCoverage() : "0" );
+			h.setPercentage(info.getProxyStat() != null ? info.getProxyStat().getCoverage() : "0");
 			history.add(h);
 		}
 		log("getCodeCoverageList", interactionid, history);
@@ -1128,9 +1146,10 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 	/**
 	 * getCodeCoverageOnId
-	 * 
+	 *
 	 * @param id
 	 * @param interactionid
+	 * 
 	 * @return
 	 */
 	public CodeCoverageBackUpInfo getCodeCoverageOnId(String id, String interactionid) throws ItorixException {
@@ -1142,7 +1161,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 	/**
 	 * deleteCodeCoverageOnId
-	 * 
+	 *
 	 * @param id
 	 * @param interactionid
 	 */
@@ -1153,10 +1172,12 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 	/**
 	 * executeUnitTests
-	 * 
+	 *
 	 * @param postman
 	 * @param env
+	 * 
 	 * @return
+	 * 
 	 * @throws ItorixException
 	 */
 	@SuppressWarnings("unchecked")
@@ -1172,17 +1193,20 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 			response.put("total", result.totalTest);
 			response.put("failed", result.failedTest);
 			response.put("html", getUnitTestReport(result));
-			//logger.debug((String) response.get("html"));
-			//logger.debug("total : "+(String) response.get("total"));
-			//logger.debug("failed : "+(String) response.get("failed"));
+			// logger.debug((String) response.get("html"));
+			// logger.debug("total : "+(String) response.get("total"));
+			// logger.debug("failed : "+(String) response.get("failed"));
 			return response;
 		} catch (Exception e) {
 			throw new ItorixException(e.getMessage(), "General-1000", e);
 		}
 	}
+
 	public Object executeSoapUi(String soapUiFile, String soapUiEnv) throws IOException {
-		//Map<String, String> map = new SOAPUITestReportExecutor().soapUIProjectTestReportExecutor(FileUtils.readFileToString(new File("/Users/sudhakar/Desktop/REST-Itorix-soapui-project.xml")),null);
-		Map<String, String> map = new SOAPUITestReportExecutor().soapUIProjectTestReportExecutor(soapUiFile,null);
+		// Map<String, String> map = new
+		// SOAPUITestReportExecutor().soapUIProjectTestReportExecutor(FileUtils.readFileToString(new
+		// File("/Users/sudhakar/Desktop/REST-Itorix-soapui-project.xml")),null);
+		Map<String, String> map = new SOAPUITestReportExecutor().soapUIProjectTestReportExecutor(soapUiFile, null);
 		return map;
 	}
 
@@ -1193,20 +1217,20 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 		String stringvariables = mapper.writeValueAsString(testsuitDAO.getVariablesById(variableId));
 		TestSuite testSuite = mapper.readValue(stringTestSuite, TestSuite.class);
 		Variables variables = mapper.readValue(stringvariables, Variables.class);
-		TestSuiteResponse testSuiteResponse=TestExecutor.executeTestSuite(testSuite, variables, false, false);
+		TestSuiteResponse testSuiteResponse = TestExecutor.executeTestSuite(testSuite, variables, false, false);
 		testSuiteResponse.setConfigId(variableId);
 		return getUnitTestTestsuiteReport(testSuiteResponse);
 	}
 
-	private Object getUnitTestTestsuiteReport(TestSuiteResponse testSuiteResponse){
+	private Object getUnitTestTestsuiteReport(TestSuiteResponse testSuiteResponse) {
 		saveExecutionData(testSuiteResponse);
 		int total = 0;
 		int failed = 0;
 		StringBuilder testNames = new StringBuilder();
-		for (Scenario scenario:testSuiteResponse.getTestSuite().getScenarios()) {
+		for (Scenario scenario : testSuiteResponse.getTestSuite().getScenarios()) {
 			for (TestCase testCase : scenario.getTestCases()) {
 				total++;
-				if(!testCase.getStatus().equalsIgnoreCase("PASS")) {
+				if (!testCase.getStatus().equalsIgnoreCase("PASS")) {
 					failed++;
 					testNames.append("<li>" + scenario.getName() + "_" + testCase.getName() + "</li>");
 				}
@@ -1217,7 +1241,8 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 		reportMap.put("failed", Integer.toString(failed));
 		String passed = String.valueOf(total - failed);
 		String htmlContent = "<html><body><p style=\"text-align: left;\"><span style=\"color: #33cccc;\"><strong>Unit Test Summary&nbsp;</strong></span></p><table border=\"1\" width=\"246\"><tbody><tr style=\"text-align:left;\"><td style=\"width: 115px;\">Total&nbsp;</td><td style=\"width: 115px; text-align: center;\">#total#</td></tr><tr style=\"text-align: left;\"><td style=\"width: 115px;\">Passed</td><td style=\"width: 115px; text-align: center;\">#passed#</td></tr><tr><td style=\"width: 115px;\">Failed</td><td style=\"width: 115px; text-align: center;\">#failed#</td></tr></tbody></table><p>&nbsp;</p><p style=\"text-align: left;\">&nbsp;<span style=\"color: #33cccc;\"><strong>Failed Requests</strong></span></p><ul>#requests#</ul><p>&nbsp;</p></body></html>";
-		htmlContent = htmlContent.replaceAll("#total#", Integer.toString(total)).replaceAll("#failed#", Integer.toString(failed)).replaceAll("#passed#",passed);
+		htmlContent = htmlContent.replaceAll("#total#", Integer.toString(total))
+				.replaceAll("#failed#", Integer.toString(failed)).replaceAll("#passed#", passed);
 		htmlContent = htmlContent.replaceAll("#requests#", testNames.toString());
 		reportMap.put("html", htmlContent);
 		return reportMap;
@@ -1229,7 +1254,9 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 		String testSuiteResponseString;
 		try {
 			testSuiteResponseString = mapper.writeValueAsString(testSuiteResponse);
-			com.itorix.apiwiz.testsuite.model.TestSuiteResponse testSuiteExecutionResponse = mapper.readValue(testSuiteResponseString, com.itorix.apiwiz.testsuite.model.TestSuiteResponse.class);
+			System.out.println(testSuiteResponseString);
+			com.itorix.apiwiz.testsuite.model.TestSuiteResponse testSuiteExecutionResponse = mapper
+					.readValue(testSuiteResponseString, com.itorix.apiwiz.testsuite.model.TestSuiteResponse.class);
 			testSuiteExecutionResponse.setCounter(String.valueOf(System.currentTimeMillis()));
 			testSuiteExecutionResponse.setStatus("Completed");
 			testSuiteExecutionResponse.setManual(true);
@@ -1247,12 +1274,11 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 		}
 	}
 
-
-
 	/**
 	 * getUnitTestReport
-	 * 
+	 *
 	 * @param result
+	 * 
 	 * @return
 	 */
 	private Object getUnitTestReport(PostmanRunResult result) {
@@ -1272,9 +1298,11 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 	/**
 	 * codeCoverageTest
-	 * 
+	 *
 	 * @param codeCoverageVO
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
 	 */
 	public CodeCoverageBackUpInfo codeCoverageTest(CodeCoverageVO codeCoverageVO) throws Exception {
@@ -1284,7 +1312,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 		cfg.setOrganization(codeCoverageVO.getOrg());
 		cfg.setEnvironment(codeCoverageVO.getEnv());
 		cfg.setApiName(codeCoverageVO.getProxy());
-		cfg.setType(codeCoverageVO.getType()!=null ? codeCoverageVO.getType() : "onprem");
+		cfg.setType(codeCoverageVO.getType() != null ? codeCoverageVO.getType() : "onprem");
 		cfg.setCodeCoverage(true);
 		cfg.setInteractionid(RandomStringUtils.randomAlphanumeric(15).toUpperCase());
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
@@ -1314,12 +1342,12 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 		// step 3: execute postman
 
 		InputStream collectionStream = null;
-		if(codeCoverageVO.getPostmanFile()!= null)
+		if (codeCoverageVO.getPostmanFile() != null)
 			collectionStream = new ByteArrayInputStream(
 					codeCoverageVO.getPostmanFile().getBytes(StandardCharsets.UTF_8));
 
 		InputStream envStream = null;
-		if(codeCoverageVO.getEnvFile()!= null) 
+		if (codeCoverageVO.getEnvFile() != null)
 			envStream = new ByteArrayInputStream(codeCoverageVO.getEnvFile().getBytes(StandardCharsets.UTF_8));
 
 		// step5: getTransactionData
@@ -1327,9 +1355,9 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 				backUpLocation);
 
 		log("codeCoverageTest", cfg.getInteractionid(), " step5: getTransactionData ::" + traces);
-		if(collectionStream !=null)
+		if (collectionStream != null)
 			collectionStream.close();
-		if(envStream != null)
+		if (envStream != null)
 			envStream.close();
 		// step6: get ExecutedFlowAnd PoliciesMap's in DTO
 		ExecutedFlowAndPolicies executedFlowAndPolicies = commonServices.getExecutedFlowAndPolicies(traces);
@@ -1375,9 +1403,9 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 		JSONObject obj = null;
 		try {
 			obj = jfrogUtilImpl.uploadFiles(zipFileName, applicationProperties.getPipelineCodecoverage(),
-					applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
-					+ "/artifactory/",
-					"codecoverage-pipeline/" + codeCoverageVO.getProxy()+"/"+timeStamp + "", applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+					applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort() + "/artifactory/",
+					"codecoverage-pipeline/" + codeCoverageVO.getProxy() + "/" + timeStamp + "",
+					applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
 		} catch (Exception e) {
 			logger.error("Error Storing file in Artifactory : " + e.getMessage());
 			e.printStackTrace();
@@ -1399,7 +1427,6 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 		return codeCoverageBackUpInfo;
 	}
 
-
 	public Apigee getApigeeCredential(String jsessionid) {
 		UserSession userSessionToken = baseRepository.findById(jsessionid, UserSession.class);
 		User user = baseRepository.findById(userSessionToken.getUserId(), User.class);
@@ -1411,18 +1438,21 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 		}
 	}
 
-	public User getUserDetailsFromSessionID(String jsessionid){
+	public User getUserDetailsFromSessionID(String jsessionid) {
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
-		//UserSession userSessionToken = baseRepository.findById(jsessionid,UserSession.class);
-		User user = masterMongoTemplate.findById(userSessionToken.getUserId(),User.class);
+		// UserSession userSessionToken =
+		// baseRepository.findById(jsessionid,UserSession.class);
+		User user = masterMongoTemplate.findById(userSessionToken.getUserId(), User.class);
 		return user;
 	}
 	/**
 	 * executeUnitTests
-	 * 
+	 *
 	 * @param postman
 	 * @param env
+	 * 
 	 * @return
+	 * 
 	 * @throws ItorixException
 	 */
 	/*
@@ -1435,7 +1465,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 	 * ByteArrayInputStream(env.getBytes(StandardCharsets.UTF_8));
 	 * PostmanRunResult result; result =
 	 * runner.executePostManCollection(collectionStream, envStream);
-	 * 
+	 *
 	 * @SuppressWarnings("rawtypes") Map response = new HashMap();
 	 * response.put("total", result.totalTest); response.put("failed",
 	 * result.failedTest); response.put("html", getUnitTestReport(result));
@@ -1445,47 +1475,49 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 	/**
 	 * codeCoverageTest
-	 * 
+	 *
 	 * @param codeCoverageVO
+	 * 
 	 * @return
+	 * 
 	 * @throws Exception
-	 *//*
+	 */
+	/*
 	 * public CodeCoverageBackUpInfo codeCoverageTest(CodeCoverageVO
 	 * codeCoverageVO) throws Exception { CommonConfiguration cfg = new
-	 * CommonConfiguration();
-	 * cfg.setApigeeEmail(codeCoverageVO.getUserName());
+	 * CommonConfiguration(); cfg.setApigeeEmail(codeCoverageVO.getUserName());
 	 * cfg.setApigeePassword(codeCoverageVO.getPassword());
 	 * cfg.setOrganization(codeCoverageVO.getOrg());
 	 * cfg.setEnvironment(codeCoverageVO.getEnv());
 	 * cfg.setApiName(codeCoverageVO.getProxy());
 	 * cfg.setType(codeCoverageVO.getType());
-	 * 
+	 *
 	 * cfg.setInteractionid(RandomStringUtils.randomAlphanumeric(15).
 	 * toUpperCase());
 	 * cfg.setJsessionId(RandomStringUtils.randomAlphanumeric(10).
 	 * toUpperCase());
-	 * 
+	 *
 	 * long timeBegin = System.currentTimeMillis(); long timeStamp =
 	 * System.currentTimeMillis(); String backUpLocation =
 	 * applicationProperties.getMonitorDir() + timeStamp;
-	 * 
+	 *
 	 * CodeCoverageBackUpInfo codeCoverageBackUpInfo = new
 	 * CodeCoverageBackUpInfo();
 	 * codeCoverageBackUpInfo.setOrganization(cfg.getOrganization());
 	 * codeCoverageBackUpInfo.setEnvironment(cfg.getEnvironment());
 	 * codeCoverageBackUpInfo.setProxy(cfg.getApiName());
 	 * codeCoverageBackUpInfo.setApigeeUser(cfg.getApigeeEmail());
-	 * codeCoverageBackUpInfo.setStatus(Constants.STATUS_INPROGRESS); String
-	 * rev = null;
-	 * 
+	 * codeCoverageBackUpInfo.setStatus(Constants.STATUS_INPROGRESS); String rev
+	 * = null;
+	 *
 	 * JSONArray txIds = null; // step 1: getProxyDeployedRevision rev =
 	 * commonServices.getLatestDeploymentForAPIProxy(cfg);
 	 * log("codeCoverageTest", "step 1: getProxyDeployedRevision ::" + rev);
 	 * cfg.setRevision(rev); // step 2: create session with filter String
 	 * sessionID = apigeeUtil.createSession(cfg); log("codeCoverageTest",
 	 * cfg.getInteractionid(),
-	 * "step 2: create session with filter  sessionID ::" + sessionID); //
-	 * step 3: execute postman PostmanCollectionRunner runner = new
+	 * "step 2: create session with filter  sessionID ::" + sessionID); // step
+	 * 3: execute postman PostmanCollectionRunner runner = new
 	 * PostmanCollectionRunner(); InputStream collectionStream = new
 	 * ByteArrayInputStream(
 	 * codeCoverageVO.getPostmanFile().getBytes(StandardCharsets.UTF_8));
@@ -1494,36 +1526,31 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 	 * StandardCharsets.UTF_8)); PostmanRunResult result; result =
 	 * runner.executePostManCollection(collectionStream, envStream);
 	 * log("codeCoverageTest", cfg.getInteractionid(),
-	 * "step 3: execute postman ::" + result); // step4: getTransactionIds
-	 * if (sessionID != null) { txIds =
-	 * commonServices.getTransactionIds(cfg, sessionID);
-	 * log("codeCoverageTest", cfg.getInteractionid(),
+	 * "step 3: execute postman ::" + result); // step4: getTransactionIds if
+	 * (sessionID != null) { txIds = commonServices.getTransactionIds(cfg,
+	 * sessionID); log("codeCoverageTest", cfg.getInteractionid(),
 	 * " step4: getTransactionIds ::" + txIds); }
-	 * 
+	 *
 	 * // step5: getTransactionData //List<Trace> traces =
-	 * commonServices.getTransactionData(cfg, sessionID, txIds);
-	 * List<Object> traces =
-	 * commonServices.executeLivePostmanCollectionTraceAsObject(cfg,
+	 * commonServices.getTransactionData(cfg, sessionID, txIds); List<Object>
+	 * traces = commonServices.executeLivePostmanCollectionTraceAsObject(cfg,
 	 * backUpLocation); log("codeCoverageTest", cfg.getInteractionid(),
-	 * " step5: getTransactionData ::" + traces); // step6: get
-	 * ExecutedFlowAnd PoliciesMap's in DTO ExecutedFlowAndPolicies
-	 * executedFlowAndPolicies =
+	 * " step5: getTransactionData ::" + traces); // step6: get ExecutedFlowAnd
+	 * PoliciesMap's in DTO ExecutedFlowAndPolicies executedFlowAndPolicies =
 	 * commonServices.getExecutedFlowAndPolicies(traces);
 	 * log("codeCoverageTest", cfg.getInteractionid(),
-	 * " step6: get ExecutedFlowAnd PoliciesMap ::" +
-	 * executedFlowAndPolicies); // Step 7: Generate Codecoverage report
-	 * ProxyStat proxyStat = getCodeCoverageReport(cfg,
-	 * executedFlowAndPolicies, new File(backUpLocation));
-	 * log("codeCoverageTest", cfg.getInteractionid(),
-	 * "Step 7: Generate Codecoverage report ::" + proxyStat); // step 8:
-	 * delete session String sessionStatus =
-	 * commonServices.deleteSession(cfg, sessionID); log("codeCoverageTest",
-	 * cfg.getInteractionid(), " step 8: delete session ::" +
-	 * sessionStatus); // step 9: execute xslt try {
-	 * executeXslts(applicationProperties.getMonitorDir() + timeStamp +
-	 * "/"); } catch (TransformerException e) {
-	 * logger.error(e.getMessage()); e.printStackTrace(); throw e; }
-	 * 
+	 * " step6: get ExecutedFlowAnd PoliciesMap ::" + executedFlowAndPolicies);
+	 * // Step 7: Generate Codecoverage report ProxyStat proxyStat =
+	 * getCodeCoverageReport(cfg, executedFlowAndPolicies, new
+	 * File(backUpLocation)); log("codeCoverageTest", cfg.getInteractionid(),
+	 * "Step 7: Generate Codecoverage report ::" + proxyStat); // step 8: delete
+	 * session String sessionStatus = commonServices.deleteSession(cfg,
+	 * sessionID); log("codeCoverageTest", cfg.getInteractionid(),
+	 * " step 8: delete session ::" + sessionStatus); // step 9: execute xslt
+	 * try { executeXslts(applicationProperties.getMonitorDir() + timeStamp +
+	 * "/"); } catch (TransformerException e) { logger.error(e.getMessage());
+	 * e.printStackTrace(); throw e; }
+	 *
 	 * // step 10: copy supporting files File bootStrap = new
 	 * ClassPathResource("bootstrap.min.css").getFile(); String fileName =
 	 * bootStrap.getName(); FileUtils.copyFile(bootStrap, new
@@ -1533,19 +1560,19 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 	 * File(applicationProperties.getRestoreDir() + timeStamp + "/" +
 	 * cfg.getOrganization() + "-" + cfg.getEnvironment() + "-" +
 	 * cfg.getApiName() + "/"));
-	 * 
+	 *
 	 * // zip dist foler and save to db String zipFileName =
 	 * applicationProperties.getRestoreDir() + timeStamp + "/" +
 	 * cfg.getOrganization() + "-" + cfg.getEnvironment() + "-" +
 	 * cfg.getApiName() + ".zip"; ZipUtil.pack(new
 	 * File(applicationProperties.getRestoreDir() + timeStamp + "/" +
 	 * cfg.getOrganization() + "-" + cfg.getEnvironment() + "-" +
-	 * cfg.getApiName()), new File(zipFileName)); JSONObject obj = null; try
-	 * { obj = jfrogUtil.uploadFiles(zipFileName,
+	 * cfg.getApiName()), new File(zipFileName)); JSONObject obj = null; try {
+	 * obj = jfrogUtil.uploadFiles(zipFileName,
 	 * "apigee-pipeline-codecoverage-repo", "http://" +
 	 * applicationProperties.getJfrogHost() + ":" +
-	 * applicationProperties.getJfrogPort() + "/artifactory/", timeStamp +
-	 * "", applicationProperties.getJfrogUserName(),
+	 * applicationProperties.getJfrogPort() + "/artifactory/", timeStamp + "",
+	 * applicationProperties.getJfrogUserName(),
 	 * applicationProperties.getJfrogPassword()); } catch (Exception e) {
 	 * logger.error(e.getMessage()); e.printStackTrace(); throw e; } // TODO
 	 * need to implement the delete the zip directory. long end =
@@ -1564,28 +1591,29 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 
 	/**
 	 * writeToFile
-	 * 
+	 *
 	 * @param uploadedInputStream
 	 * @param uploadedFileLocation
 	 */
-	//	private void writeToFile(InputStream uploadedInputStream, String uploadedFileLocation) {
+	// private void writeToFile(InputStream uploadedInputStream, String
+	// uploadedFileLocation) {
 	//
-	//		try {
-	//			OutputStream out = new FileOutputStream(new File(uploadedFileLocation));
-	//			int read = 0;
-	//			byte[] bytes = new byte[1024];
+	// try {
+	// OutputStream out = new FileOutputStream(new File(uploadedFileLocation));
+	// int read = 0;
+	// byte[] bytes = new byte[1024];
 	//
-	//			out = new FileOutputStream(new File(uploadedFileLocation));
-	//			while ((read = uploadedInputStream.read(bytes)) != -1) {
-	//				out.write(bytes, 0, read);
-	//			}
-	//			out.flush();
-	//			out.close();
-	//		} catch (IOException e) {
+	// out = new FileOutputStream(new File(uploadedFileLocation));
+	// while ((read = uploadedInputStream.read(bytes)) != -1) {
+	// out.write(bytes, 0, read);
+	// }
+	// out.flush();
+	// out.close();
+	// } catch (IOException e) {
 	//
-	//			e.printStackTrace();
-	//		}
-	//	}
+	// e.printStackTrace();
+	// }
+	// }
 
 	@SuppressWarnings("unused")
 	protected static class CoverageDetailsHelper {
@@ -1601,7 +1629,6 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 	}
 
 	/**
-	 * 
 	 * @param methodName
 	 * @param interactionid
 	 * @param body
@@ -1634,6 +1661,4 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness{
 	private static LocalDateTime dateToLocalDateTime(Date date) {
 		return LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getTime()), ZoneId.systemDefault());
 	}
-
-
 }
