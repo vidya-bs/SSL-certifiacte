@@ -13,6 +13,7 @@ import com.itorix.apiwiz.data.management.business.EnvironmentSchedulerBusiness;
 import com.itorix.apiwiz.data.management.model.ScheduleModel;
 import com.itorix.apiwiz.datamanagement.service.PolicyMappingService;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
+
 @Service
 public class EnvironmentSchedulerBusinessImpl implements EnvironmentSchedulerBusiness {
 
@@ -22,12 +23,14 @@ public class EnvironmentSchedulerBusinessImpl implements EnvironmentSchedulerBus
 
 	/**
 	 * createEnvironmentSchedule
+	 *
 	 * @param scheduleModel
+	 * 
 	 * @throws ItorixException
 	 */
 	public void createEnvironmentSchedule(ScheduleModel scheduleModel) throws ItorixException {
-		logger.info("EnvironmentSchedulerService.createEnvironmentSchedule : CorelationId="+scheduleModel.getInteractionid()+" : scheduleModel="
-				+ scheduleModel);
+		logger.info("EnvironmentSchedulerService.createEnvironmentSchedule : CorelationId="
+				+ scheduleModel.getInteractionid() + " : scheduleModel=" + scheduleModel);
 		ScheduleModel model1 = baseRepository.findOne(ScheduleModel.LABEL_ORGANAIZATION,
 				scheduleModel.getOrganization(), ScheduleModel.LABEL_SELECTED_ENVIRONMENTS,
 				scheduleModel.getSelectedEnvironments(), ScheduleModel.LABEL_PERIODICITY,
@@ -41,12 +44,14 @@ public class EnvironmentSchedulerBusinessImpl implements EnvironmentSchedulerBus
 
 	/**
 	 * updateEnvironmentSchedule
+	 *
 	 * @param scheduleModel
+	 * 
 	 * @throws ItorixException
 	 */
 	public void updateEnvironmentSchedule(ScheduleModel scheduleModel) throws ItorixException {
-		logger.info("EnvironmentSchedulerService.updateEnvironmentSchedule : CorelationId="+scheduleModel.getInteractionid()+" : scheduleModel="
-				+ scheduleModel);
+		logger.info("EnvironmentSchedulerService.updateEnvironmentSchedule : CorelationId="
+				+ scheduleModel.getInteractionid() + " : scheduleModel=" + scheduleModel);
 		ScheduleModel model1 = baseRepository.findById(scheduleModel.getId(), ScheduleModel.class);
 		if (model1 == null) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("DataBackup-1001"), "DataBackup-1001");
@@ -60,12 +65,14 @@ public class EnvironmentSchedulerBusinessImpl implements EnvironmentSchedulerBus
 
 	/**
 	 * deleteEnvironmentSchedule
+	 *
 	 * @param scheduleModel
+	 * 
 	 * @throws ItorixException
 	 */
 	public void deleteEnvironmentSchedule(ScheduleModel scheduleModel) throws ItorixException {
-		logger.info("EnvironmentSchedulerService.deleteEnvironmentSchedule : CorelationId="+scheduleModel.getInteractionid()+" : scheduleModel="
-				+ scheduleModel);
+		logger.info("EnvironmentSchedulerService.deleteEnvironmentSchedule : CorelationId="
+				+ scheduleModel.getInteractionid() + " : scheduleModel=" + scheduleModel);
 		ScheduleModel model1 = baseRepository.findById(scheduleModel.getId(), ScheduleModel.class);
 		if (model1 == null) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("DataBackup-1001"), "DataBackup-1001");
@@ -76,15 +83,18 @@ public class EnvironmentSchedulerBusinessImpl implements EnvironmentSchedulerBus
 
 	/**
 	 * getEnvironmentSchedule
+	 *
 	 * @param interactionid
+	 * 
 	 * @return
+	 * 
 	 * @throws ItorixException
 	 */
 	public List<ScheduleModel> getEnvironmentSchedule(String interactionid) throws ItorixException {
-		logger.info("EnvironmentSchedulerService.getEnvironmentSchedule : CorelationId="+interactionid);
+		logger.info("EnvironmentSchedulerService.getEnvironmentSchedule : CorelationId=" + interactionid);
 		List<ScheduleModel> list = baseRepository.findAll(ScheduleModel.class);
-		logger.info("EnvironmentSchedulerService.getEnvironmentSchedule : CorelationId="+interactionid+": list="+list);
+		logger.info("EnvironmentSchedulerService.getEnvironmentSchedule : CorelationId=" + interactionid + ": list="
+				+ list);
 		return list;
 	}
-
 }

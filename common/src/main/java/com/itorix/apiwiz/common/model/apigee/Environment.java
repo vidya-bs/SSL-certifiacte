@@ -3,17 +3,16 @@ package com.itorix.apiwiz.common.model.apigee;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Environment
-{
-    private Revision[] revision;
+public class Environment {
+	private Revision[] revision;
 
-    private String name;
-    
-    private String state;
+	private String name;
 
-    private Server[] server;
+	private String state;
 
-    private Configuration configuration;
+	private Server[] server;
+
+	private Configuration configuration;
 
 	public Revision[] getRevision() {
 		return revision;
@@ -54,6 +53,4 @@ public class Environment
 	public void setConfiguration(Configuration configuration) {
 		this.configuration = configuration;
 	}
-
-   
 }

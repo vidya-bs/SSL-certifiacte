@@ -7,9 +7,9 @@ import lombok.Setter;
 @Setter
 public class ExecutionContext {
 
-	private long executionId;
-	private String tenant;
-	private int globalTimeout = 4000;
-	private String schedulerId;
-	private String collectionId;
+    private long executionId;
+    private String tenant;
+    private int globalTimeout = 4000;
+    private String schedulerId;
+    private String collectionId;
 }

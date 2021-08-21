@@ -9,6 +9,6 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 class QueryParam {
-	Name name;
-	Value value;
+    Name name;
+    Value value;
 }

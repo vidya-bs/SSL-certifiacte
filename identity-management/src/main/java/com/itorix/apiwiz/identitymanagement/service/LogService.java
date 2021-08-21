@@ -16,12 +16,11 @@ import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 @CrossOrigin
 @RestController
 public interface LogService {
-	
+
 	@UnSecure
-	@RequestMapping(method = RequestMethod.POST, value = "/v1/ui/error-logs",
-			consumes = {"application/json" })
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/ui/error-logs", consumes = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> register(
-			@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestHeader(value="x-apikey")String apikey,
-			@RequestBody ErrorLog errorLog) throws ItorixException,Exception;
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey, @RequestBody ErrorLog errorLog)
+			throws ItorixException, Exception;
 }

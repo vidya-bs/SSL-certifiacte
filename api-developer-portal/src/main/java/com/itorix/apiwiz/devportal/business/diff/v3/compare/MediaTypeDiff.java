@@ -29,7 +29,7 @@ public class MediaTypeDiff {
 			}
 
 			ExampleDiff exampleDiff = new ExampleDiff().diff(left.getExamples(), right.getExamples());
-			if(Objects.nonNull(exampleDiff)) {
+			if (Objects.nonNull(exampleDiff)) {
 				if (exampleDiff.isNotEmpty()) {
 					changedMediaType.setExampleDiff(exampleDiff);
 				}
@@ -45,5 +45,4 @@ public class MediaTypeDiff {
 
 		return changedMediaType;
 	}
-
 }

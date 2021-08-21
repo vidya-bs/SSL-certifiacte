@@ -16,11 +16,11 @@ public class EncodingDiff {
 
 	public EncodingDiff diff(Map<String, Encoding> left, Map<String, Encoding> right) {
 		MapKeyDiff<String, Encoding> diffMap = MapKeyDiff.diff(left, right);
-		if(Objects.nonNull(diffMap.getIncreased())) {
+		if (Objects.nonNull(diffMap.getIncreased())) {
 			this.added = diffMap.getIncreased();
 		}
-		
-		if(Objects.nonNull(diffMap.getMissing())) {
+
+		if (Objects.nonNull(diffMap.getMissing())) {
 			this.missing = diffMap.getMissing();
 		}
 

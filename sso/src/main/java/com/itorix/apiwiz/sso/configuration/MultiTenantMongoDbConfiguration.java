@@ -16,52 +16,53 @@ import org.springframework.util.StringUtils;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 
-
 @Configuration
 public class MultiTenantMongoDbConfiguration {
 
-	@Autowired(required = false)
-	private MongoClientOptions options;
+    @Autowired(required = false)
+    private MongoClientOptions options;
 
-	@Autowired
-	private Environment environment;
+    @Autowired
+    private Environment environment;
 
-	@Autowired
-	private MongoProperties properties;
+    @Autowired
+    private MongoProperties properties;
 
-	@Bean
-	public MongoClient createMongoClient() throws UnknownHostException {
-		return properties.createMongoClient(options, environment);
-	}
+    @Bean
+    public MongoClient createMongoClient() throws UnknownHostException {
+        return properties.createMongoClient(options, environment);
+    }
 
-	@Primary
-	@Bean
-	public MongoDbFactory multitenantFactory() throws UnknownHostException {
-		String dbName = properties.getDatabase();
-		if(!StringUtils.hasText(dbName)){
-			dbName = properties.getUri().substring(properties.getUri().lastIndexOf("/")+1,properties.getUri().length());
-		}
-		return new MultiTenantMongoDbFactory(createMongoClient(), dbName);
-	}
+    @Primary
+    @Bean
+    public MongoDbFactory multitenantFactory() throws UnknownHostException {
+        String dbName = properties.getDatabase();
+        if (!StringUtils.hasText(dbName)) {
+            dbName = properties.getUri().substring(properties.getUri().lastIndexOf("/") + 1,
+                    properties.getUri().length());
+        }
+        return new MultiTenantMongoDbFactory(createMongoClient(), dbName);
+    }
 
-	@Primary
-	@Bean
-	public MongoTemplate mongoTemplate() throws Exception {
-		return new MongoTemplate(multitenantFactory());
-	}
+    @Primary
+    @Bean
+    public MongoTemplate mongoTemplate() throws Exception {
+        return new MongoTemplate(multitenantFactory());
+    }
 
-	@Bean(name = "masterMongoTemplate")
-	public MongoTemplate secondaryMongoTemplate() throws Exception {
-		return new MongoTemplate(masterFactory());
-	}
+    @Bean(name = "masterMongoTemplate")
+    public MongoTemplate secondaryMongoTemplate() throws Exception {
+        return new MongoTemplate(masterFactory());
+    }
 
-	@Bean
-	public MongoDbFactory masterFactory() throws Exception {
-		String dbName = properties.getDatabase();
-		if(!StringUtils.hasText(dbName)){
-			dbName = properties.getUri().substring(properties.getUri().lastIndexOf("/")+1,properties.getUri().length());
-		}
-		return new SimpleMongoDbFactory(createMongoClient(), dbName);
-	}
+    @Bean
+    public MongoDbFactory masterFactory() throws Exception {
+        String dbName = properties.getDatabase();
+        if (!StringUtils.hasText(dbName)) {
+            dbName = properties.getUri().substring(properties.getUri().lastIndexOf("/") + 1,
+                    properties.getUri().length());
+        }
+        return new SimpleMongoDbFactory(createMongoClient(), dbName);
+    }
 
 }

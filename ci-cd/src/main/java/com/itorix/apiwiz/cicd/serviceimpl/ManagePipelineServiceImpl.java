@@ -40,17 +40,14 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 
-
 /**
- * 
  * CI/CD Services implementation
- * 
- * @author vphani
  *
+ * @author vphani
  */
 @CrossOrigin
 @RestController
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class ManagePipelineServiceImpl implements ManagePipelineService {
 
 	@Autowired
@@ -63,28 +60,25 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 	private IdentityManagementDao commonServices;
 
 	private static final Logger log = LoggerFactory.getLogger(ManagePipelineServiceImpl.class);
-	
-	@RequestMapping(method = RequestMethod.POST, value = "/v1/pipelines/validate",
-			produces = { "application/json" })
-			public ResponseEntity<?> validatePipelineName(
-			@RequestHeader(value = "JSESSIONID") String jsessionId,
+
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/pipelines/validate", produces = {"application/json"})
+	public ResponseEntity<?> validatePipelineName(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestBody PipelineNameValidation pipelineName){
+			@RequestBody PipelineNameValidation pipelineName) {
 		Map response = new HashMap();
 		response.put("isValid", pipelineDao.validatePipelineName(pipelineName));
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-	
+
 	@Override
-	public ResponseEntity<?> validateGroup(
-			@RequestHeader(value = "JSESSIONID") String jsessionId,
+	public ResponseEntity<?> validateGroup(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@PathVariable("groupName") String groupName){
+			@PathVariable("groupName") String groupName) {
 		Map response = new HashMap();
 		response.put("isValid", pipelineDao.validateGroup(groupName));
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-	
+
 	@Override
 	public ResponseEntity<?> createPipeline(@RequestBody PipelineGroups pipelineGroups,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -101,7 +95,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			HttpServletRequest request) {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
-				+ jsessionId + ": requestUrl " + request.getRequestURI() );
+				+ jsessionId + ": requestUrl " + request.getRequestURI());
 		return managePipeline(pipelineGroups, jsessionId, interactionid, false, HttpStatus.NO_CONTENT);
 	}
 
@@ -131,12 +125,13 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 		String pipelineName = pipelineDao.getPipelineName(pipelineGroups);
 		String displayName = pipelineGroups.getPipelines().get(0).getDisplayName();
 		pipelineGroups.getPipelines().get(0).setStatus("Active");
-		pipelineGroups = pipelineDao.createOrEditPipeline(pipelineGroups, commonServices.getUserDetailsFromSessionID(jsessionId));
+		pipelineGroups = pipelineDao.createOrEditPipeline(pipelineGroups,
+				commonServices.getUserDetailsFromSessionID(jsessionId));
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("x-displayname", displayName);
 		headers.add("x-pipelinename", pipelineName);
 		headers.add("Access-Control-Expose-Headers", "x-displayname, x-pipelinename");
-		return new ResponseEntity<>(headers,status);
+		return new ResponseEntity<>(headers, status);
 	}
 
 	@Override
@@ -145,7 +140,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			HttpServletRequest request) {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
-				+ jsessionId + ": requestUrl " + request.getRequestURI() );
+				+ jsessionId + ": requestUrl " + request.getRequestURI());
 		if (StringUtils.isEmpty(groupName)) {
 			return new ResponseEntity<>(new ErrorObj("Invalid pipeline Group", ""), HttpStatus.BAD_REQUEST);
 		}
@@ -165,7 +160,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			HttpServletRequest request) {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
-				+ jsessionId + ": requestUrl " + request.getRequestURI() );
+				+ jsessionId + ": requestUrl " + request.getRequestURI());
 		if (StringUtils.isEmpty(groupName) || StringUtils.isEmpty(name)) {
 			return new ResponseEntity<>(new ErrorObj("Invalid pipeline", "CI-CD-D500"), HttpStatus.BAD_REQUEST);
 		}
@@ -206,7 +201,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			HttpServletRequest request) {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
-				+ jsessionId + ": requestUrl " + request.getRequestURI() );
+				+ jsessionId + ": requestUrl " + request.getRequestURI());
 		if (StringUtils.isEmpty(groupName)) {
 			return new ResponseEntity<>(new ErrorObj("Invalid pipeline Group Name", "CI-CD-GG400"),
 					HttpStatus.BAD_REQUEST);
@@ -228,7 +223,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			HttpServletRequest request) {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
-				+ jsessionId + ": requestUrl " + request.getRequestURI() );
+				+ jsessionId + ": requestUrl " + request.getRequestURI());
 		if (StringUtils.isEmpty(name)) {
 			return new ResponseEntity<>(new ErrorObj("Invalid pipeline Name", "CI-CD-GP400"), HttpStatus.BAD_REQUEST);
 		}
@@ -258,7 +253,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 		}
 		String response = null;
 		Pipeline pipeline = pipelineDao.getPipeline(name);
-		
+
 		try {
 			response = cicdIntegrationApi.getPipelineHistory(groupName, name, offset);
 		} catch (Exception ex) {
@@ -280,7 +275,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request)
 			throws ParseException {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
-				+ jsessionId + ": requestUrl " + request.getRequestURI() );
+				+ jsessionId + ": requestUrl " + request.getRequestURI());
 		if (StringUtils.isEmpty(groupName) || StringUtils.isEmpty(pipelineName) || StringUtils.isEmpty(pipelineCounter)
 				|| StringUtils.isEmpty(stageName) || StringUtils.isEmpty(stageCounter)
 				|| StringUtils.isEmpty(jobName)) {
@@ -296,53 +291,52 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 		}
 		return new ResponseEntity<>(new JSONParser().parse(response), HttpStatus.OK);
 	}
-	
+
 	@Override
-	@UnSecure(ignoreValidation=true)
-	public ResponseEntity<Resource> getArtifacts(@PathVariable("pipelineName") String pipelineName, @PathVariable("pipelineCounter") String pipelineCounter,
-			@PathVariable("stageName") String stageName, @PathVariable("stageCounter") String stageCounter,
-			@PathVariable("artifactName") String artifactName,
-			@RequestHeader(value = "JSESSIONID", required=false) String jsessionId,
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<Resource> getArtifacts(@PathVariable("pipelineName") String pipelineName,
+			@PathVariable("pipelineCounter") String pipelineCounter, @PathVariable("stageName") String stageName,
+			@PathVariable("stageCounter") String stageCounter, @PathVariable("artifactName") String artifactName,
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request)
 			throws ParseException {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
 				+ jsessionId + ": requestUrl " + request.getRequestURI());
-		if (StringUtils.isEmpty(pipelineName) || StringUtils.isEmpty(pipelineCounter)
-				|| StringUtils.isEmpty(stageName) || StringUtils.isEmpty(stageCounter)
-				|| StringUtils.isEmpty(artifactName)) {
+		if (StringUtils.isEmpty(pipelineName) || StringUtils.isEmpty(pipelineCounter) || StringUtils.isEmpty(stageName)
+				|| StringUtils.isEmpty(stageCounter) || StringUtils.isEmpty(artifactName)) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		Resource response = null;
 		try {
-			response = cicdIntegrationApi.getArtifacts(pipelineName, pipelineCounter, stageName,
-					stageCounter, artifactName);
+			response = cicdIntegrationApi.getArtifacts(pipelineName, pipelineCounter, stageName, stageCounter,
+					artifactName);
 		} catch (Exception ex) {
 			log.error("Error while retrieving build and test artifacts", ex.getCause());
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
-		return ResponseEntity.ok()
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + artifactName) 
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .body(response);
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + artifactName)
+				.contentType(MediaType.parseMediaType("application/octet-stream")).body(response);
 	}
-	
-	
+
 	@UnSecure
 	@Override
 	public ResponseEntity<String> getConsoleLogs(@PathVariable("pipelineName") String pipelineName,
 			@PathVariable("pipelineCounter") String pipelineCounter, @PathVariable("stageName") String stageName,
-			@PathVariable("stageCounter") String stageCounter, @RequestHeader(value = "JSESSIONID", required=false) String jsessionId,
-			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request) {
+			@PathVariable("stageCounter") String stageCounter,
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			HttpServletRequest request) {
 
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
 				+ jsessionId + ": requestUrl " + request.getRequestURI());
-		if (StringUtils.isEmpty(pipelineName) || StringUtils.isEmpty(pipelineCounter)
-				|| StringUtils.isEmpty(stageName) || StringUtils.isEmpty(stageCounter)) {
+		if (StringUtils.isEmpty(pipelineName) || StringUtils.isEmpty(pipelineCounter) || StringUtils.isEmpty(stageName)
+				|| StringUtils.isEmpty(stageCounter)) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		String response = null;
 		try {
-			response = cicdIntegrationApi.getRuntimeLogs("", pipelineName, pipelineCounter, stageName, stageCounter, "BuildAndDeploy");
+			response = cicdIntegrationApi.getRuntimeLogs("", pipelineName, pipelineCounter, stageName, stageCounter,
+					"BuildAndDeploy");
 		} catch (Exception ex) {
 			log.error("Error while retrieving build and test artifacts", ex.getCause());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -356,7 +350,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			HttpServletRequest request) {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
-				+ jsessionId + ": requestUrl " + request.getRequestURI() );
+				+ jsessionId + ": requestUrl " + request.getRequestURI());
 		if (StringUtils.isEmpty(groupName) || StringUtils.isEmpty(pipelineName)) {
 			return new ResponseEntity<>(new ErrorObj("Invalid Request", ""), HttpStatus.BAD_REQUEST);
 		}
@@ -377,7 +371,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			HttpServletRequest request) {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
-				+ jsessionId + ": requestUrl " + request.getRequestURI() );
+				+ jsessionId + ": requestUrl " + request.getRequestURI());
 		if (StringUtils.isEmpty(groupName) || StringUtils.isEmpty(pipelineName)) {
 			return new ResponseEntity<>(new ErrorObj("Invalid Request", ""), HttpStatus.BAD_REQUEST);
 		}
@@ -398,7 +392,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			HttpServletRequest request) {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
-				+ jsessionId + ": requestUrl " + request.getRequestURI() );
+				+ jsessionId + ": requestUrl " + request.getRequestURI());
 		if (StringUtils.isEmpty(groupName) || StringUtils.isEmpty(pipelineName) || StringUtils.isEmpty(stageName)) {
 			return new ResponseEntity<>(new ErrorObj("Invalid Request", ""), HttpStatus.BAD_REQUEST);
 		}
@@ -439,9 +433,9 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 	public ResponseEntity<?> sendNotifications(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestBody String emailBody, @RequestParam("pipelineName") String pipelineName,
-			@RequestParam(value = "projectName" , required = false) String projectName,
+			@RequestParam(value = "projectName", required = false) String projectName,
 			@RequestParam("subject") String subject) throws Exception {
-		cicdIntegrationApi.sendNotification(emailBody, pipelineName, projectName , subject, interactionid);
+		cicdIntegrationApi.sendNotification(emailBody, pipelineName, projectName, subject, interactionid);
 		return new ResponseEntity(HttpStatus.OK);
 	}
 
@@ -503,7 +497,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			HttpServletRequest request) {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
-				+ jsessionId + ": requestUrl " + request.getRequestURI() );
+				+ jsessionId + ": requestUrl " + request.getRequestURI());
 		if (StringUtils.isEmpty(groupName) || StringUtils.isEmpty(pipelineName)) {
 			return new ResponseEntity<>(new ErrorObj("Invalid pipeline Group or Pipeline Name", "CI-CD-D500"),
 					HttpStatus.BAD_REQUEST);
@@ -527,7 +521,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			HttpServletRequest request) {
 
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
-				+ jsessionId + ": requestUrl " + request.getRequestURI() );
+				+ jsessionId + ": requestUrl " + request.getRequestURI());
 		if (StringUtils.isEmpty(groupName) || StringUtils.isEmpty(pipelineName)) {
 			return new ResponseEntity<>(new ErrorObj("Invalid pipeline Group or Pipeline Name", "CI-CD-D500"),
 					HttpStatus.BAD_REQUEST);
@@ -602,14 +596,14 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 	public ResponseEntity<?> getcicdBackUp(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
-		return new ResponseEntity(cicdIntegrationApi.getcicdBackUpDetails(),HttpStatus.OK);
-		
+		return new ResponseEntity(cicdIntegrationApi.getcicdBackUpDetails(), HttpStatus.OK);
 	}
-	
+
 	@Override
-	public ResponseEntity<?> getcicdBackUpHistory(@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception  {
-		return new ResponseEntity(cicdIntegrationApi.getcicdBackUpHistory(),HttpStatus.OK);
+	public ResponseEntity<?> getcicdBackUpHistory(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
+		return new ResponseEntity(cicdIntegrationApi.getcicdBackUpHistory(), HttpStatus.OK);
 	}
 
 	@Override

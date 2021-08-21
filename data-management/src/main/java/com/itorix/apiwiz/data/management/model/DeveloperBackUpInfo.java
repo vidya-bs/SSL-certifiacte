@@ -9,7 +9,7 @@ import net.sf.json.JSONObject;
 public class DeveloperBackUpInfo extends BackupCommon {
 
 	public static final String LABEL_APP_INFO = "developerInfo";
-	public static final String LABEL_OPERATION_ID="operationId";
+	public static final String LABEL_OPERATION_ID = "operationId";
 
 	private JSONObject developerInfo;
 	private JSONObject appsInfo;
@@ -28,7 +28,7 @@ public class DeveloperBackUpInfo extends BackupCommon {
 	public void setDeveloperInfo(JSONObject developerInfo) {
 		this.developerInfo = developerInfo;
 	}
-	
+
 	@JsonProperty("appsInfo")
 	public JSONObject getAppsInfo() {
 		return appsInfo;
@@ -38,14 +38,14 @@ public class DeveloperBackUpInfo extends BackupCommon {
 	public void setAppsInfo(JSONObject appsInfo) {
 		this.appsInfo = appsInfo;
 	}
-	
+
 	@JsonProperty("operationId")
 	public String getOperationId() {
 		return operationId;
 	}
+
 	@JsonProperty("operationId")
 	public void setOperationId(String operationId) {
 		this.operationId = operationId;
 	}
-
 }

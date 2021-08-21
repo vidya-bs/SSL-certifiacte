@@ -13,8 +13,9 @@ import java.security.NoSuchAlgorithmException;
 public class HmacSHA256 {
 	public static final String HMAC_SHA256 = "HmacSHA256";
 
-	public static String generate( String key, String data) throws NoSuchAlgorithmException, InvalidKeyException {
-		if (key == null || data == null) throw new NullPointerException();
+	public static String generate(String key, String data) throws NoSuchAlgorithmException, InvalidKeyException {
+		if (key == null || data == null)
+			throw new NullPointerException();
 		final Mac hMacSHA256 = Mac.getInstance(HMAC_SHA256);
 		byte[] hmacKeyBytes = key.getBytes(StandardCharsets.UTF_8);
 		final SecretKeySpec secretKey = new SecretKeySpec(hmacKeyBytes, HMAC_SHA256);
@@ -24,7 +25,8 @@ public class HmacSHA256 {
 		return Base64.encodeBase64String(res);
 	}
 
-	public static String hmacDigest(String msg, String keyString) throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException{
+	public static String hmacDigest(String msg, String keyString)
+			throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
 		String digest = null;
 		SecretKeySpec key = new SecretKeySpec((keyString).getBytes("UTF-8"), HMAC_SHA256);
 		Mac mac = Mac.getInstance(HMAC_SHA256);

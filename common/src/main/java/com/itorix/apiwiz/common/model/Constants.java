@@ -31,5 +31,4 @@ public interface Constants {
 	public static final String APIGEE_CLEANUP = "CLEANUP";
 	public static final String APIGEE_RESTORE = "RESTORE";
 	public static final String APIGEE_MIGRATE = "MIGRATE";
-
 }

@@ -8,32 +8,30 @@ import org.springframework.security.saml.log.SAMLLogger;
 import org.springframework.security.saml.metadata.MetadataManager;
 import org.springframework.security.saml.websso.WebSSOProfile;
 
-
 public class SAMLCustomEntryPoint extends SAMLEntryPoint {
 
-	@Autowired(required = false)
-	@Override
-	public void setMetadata(MetadataManager metadata) {
-		super.setMetadata(metadata);
-	}
+    @Autowired(required = false)
+    @Override
+    public void setMetadata(MetadataManager metadata) {
+        super.setMetadata(metadata);
+    }
 
+    @Autowired(required = false)
+    @Override
+    public void setSamlLogger(SAMLLogger samlLogger) {
+        super.setSamlLogger(samlLogger);
+    }
 
-	@Autowired(required = false)
-	@Override
-	public void setSamlLogger(SAMLLogger samlLogger) {
-		super.setSamlLogger(samlLogger);
-	}
+    @Autowired(required = false)
+    @Qualifier("webSSOprofile")
+    @Override
+    public void setWebSSOprofile(WebSSOProfile webSSOprofile) {
+        super.setWebSSOprofile(webSSOprofile);
+    }
 
-	@Autowired(required = false)
-	@Qualifier("webSSOprofile")
-	@Override
-	public void setWebSSOprofile(WebSSOProfile webSSOprofile) {
-		super.setWebSSOprofile(webSSOprofile);
-	}
-
-	@Autowired(required = false)
-	@Override
-	public void setContextProvider(SAMLContextProvider contextProvider) {
-		super.setContextProvider(contextProvider);
-	}
+    @Autowired(required = false)
+    @Override
+    public void setContextProvider(SAMLContextProvider contextProvider) {
+        super.setContextProvider(contextProvider);
+    }
 }

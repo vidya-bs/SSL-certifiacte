@@ -12,14 +12,14 @@ import lombok.Setter;
 @Setter
 public class RequestModel {
 
-	public enum Type {
-		@JsonProperty("EMAIL")
-		email, @JsonProperty("SLACK")
-		slack;
-	}
+    public enum Type {
+        @JsonProperty("EMAIL")
+        email, @JsonProperty("SLACK")
+        slack;
+    }
 
-	Type type;
-	EmailTemplate emailContent;
-	Map<String, String> metadata = new HashMap<>();
+    Type type;
+    EmailTemplate emailContent;
+    Map<String, String> metadata = new HashMap<>();
 
 }

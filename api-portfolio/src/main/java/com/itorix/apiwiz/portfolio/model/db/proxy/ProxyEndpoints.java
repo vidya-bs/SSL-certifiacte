@@ -9,22 +9,17 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
-public class ProxyEndpoints
-{
+public class ProxyEndpoints {
 	private String orgId;
-	
-    private String orgName;
 
-    private String envName;
+	private String orgName;
 
-    @JsonProperty("isSaaS")
-    private boolean isSaaS;
+	private String envName;
 
-    private String proxyEndpoint;
+	@JsonProperty("isSaaS")
+	private boolean isSaaS;
 
-    private String proxyUrl;
+	private String proxyEndpoint;
 
+	private String proxyUrl;
 }
-
-
-

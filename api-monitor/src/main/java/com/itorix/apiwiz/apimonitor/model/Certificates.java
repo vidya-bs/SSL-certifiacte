@@ -15,14 +15,13 @@ import lombok.Setter;
  * The following configuration is used to store customer certificates.
  *
  * @author kishan
- *
  */
 @Component("MonitorCertificates")
 @Document(collection = "Monitor.SSL.List")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
-public class Certificates extends AbstractObject{
+public class Certificates extends AbstractObject {
 
 	@JsonProperty("name")
 	private String name;
@@ -38,5 +37,4 @@ public class Certificates extends AbstractObject{
 
 	@JsonProperty("alias")
 	private String alias;
-
 }

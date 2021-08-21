@@ -11,42 +11,42 @@ import lombok.Setter;
 @Setter
 public class FormParam {
 
-    @JsonProperty("name")
-    private String name;
+	@JsonProperty("name")
+	private String name;
 
-    @JsonProperty("description")
-    private String description;
+	@JsonProperty("description")
+	private String description;
 
-    @JsonProperty("value")
-    private String value;
+	@JsonProperty("value")
+	private String value;
 
-    @JsonProperty("name")
-    public String getName() {
-        return name;
-    }
+	@JsonProperty("name")
+	public String getName() {
+		return name;
+	}
 
-    @JsonProperty("name")
-    public void setName(String name) {
-        this.name = name;
-    }
+	@JsonProperty("name")
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    @JsonProperty("description")
-    public String getDescription() {
-        return description;
-    }
+	@JsonProperty("description")
+	public String getDescription() {
+		return description;
+	}
 
-    @JsonProperty("description")
-    public void setDescription(String description) {
-        this.description = description;
-    }
+	@JsonProperty("description")
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
-    @JsonProperty("value")
-    public String getValue() {
-        return value;
-    }
+	@JsonProperty("value")
+	public String getValue() {
+		return value;
+	}
 
-    @JsonProperty("value")
-    public void setValue(String value) {
-        this.value = value;
-    }
+	@JsonProperty("value")
+	public void setValue(String value) {
+		this.value = value;
+	}
 }

@@ -10,19 +10,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "scmType", "scmURL", "scmRepo", "scmBranch", "scmCredentials" })
+@JsonPropertyOrder({"scmType", "scmURL", "scmRepo", "scmBranch", "scmCredentials"})
 public class Material {
 
 	@JsonProperty("scmType")
 	private String scmType;
+
 	@JsonProperty("scmURL")
 	private String scmURL;
+
 	@JsonProperty("scmRepo")
 	private String scmRepo;
+
 	@JsonProperty("scmBranch")
 	private String scmBranch;
+
 	@JsonProperty("scmCredentials")
 	private ScmCredentials scmCredentials;
+
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -85,5 +90,4 @@ public class Material {
 	public void setAdditionalProperty(String name, Object value) {
 		this.additionalProperties.put(name, value);
 	}
-
 }

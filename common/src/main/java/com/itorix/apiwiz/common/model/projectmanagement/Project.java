@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.itorix.apiwiz.common.model.AbstractObject;
 
-
 @Component("project")
 @Document(collection = "Plan.Projects")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -129,9 +128,9 @@ public class Project extends AbstractObject {
 
 	@JsonIgnore
 	public Proxies getProxyByName(String proxyName) {
-		if(this.proxies != null)
-			for(Proxies proxy : this.proxies)
-				if(proxy.getName().contentEquals(proxyName))
+		if (this.proxies != null)
+			for (Proxies proxy : this.proxies)
+				if (proxy.getName().contentEquals(proxyName))
 					return proxy;
 		return null;
 	}
@@ -143,7 +142,4 @@ public class Project extends AbstractObject {
 				+ ", contacts=" + contacts + ", proxies=" + proxies + ", swaggers=" + swaggers + ", sharedflow="
 				+ sharedflow + ", teams=" + teams + "]";
 	}
-
-
-
 }

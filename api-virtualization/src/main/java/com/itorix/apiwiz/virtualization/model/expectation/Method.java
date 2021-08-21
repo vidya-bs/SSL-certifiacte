@@ -18,7 +18,6 @@ import lombok.experimental.FieldDefaults;
 public class Method {
 
 	public enum Condition {
-
 		@JsonProperty("equalTo")
 		equalTo,
 

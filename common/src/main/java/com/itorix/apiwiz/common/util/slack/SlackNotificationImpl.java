@@ -29,19 +29,18 @@ public class SlackNotificationImpl {
 
 	@Autowired
 	MongoTemplate mongoTemplate;
-	
-	private static Logger logger =Logger.getLogger(SlackNotificationImpl.class);
+
+	private static Logger logger = Logger.getLogger(SlackNotificationImpl.class);
 
 	public static String SLACK_CHATPOST_URL = "https://slack.com/api/chat.postMessage";
-	private HttpPost createPostRequest=null;
+	private HttpPost createPostRequest = null;
 	CloseableHttpClient httpClient;
-	
-	
-	SlackNotificationImpl(){
-		
-		httpClient=createHttpClient();
+
+	SlackNotificationImpl() {
+
+		httpClient = createHttpClient();
 	}
-	
+
 	public static CloseableHttpClient createHttpClient() {
 		return HttpClients.custom().setRetryHandler(new SlackHttpRetryHandler())
 				.setDefaultRequestConfig(getDefaultRequestConfig()).build();
@@ -63,82 +62,77 @@ public class SlackNotificationImpl {
 		URI build = uriBuilder.build();
 		return new HttpPost(build);
 	}
-	
-	
 
-	public void sendMessage(String text,List<String> channelList) throws IOException{
-		
-		Boolean messageSent=true;
-		//CloseableHttpClient httpClient = createHttpClient();
-		CloseableHttpResponse respone =null;
-		for(String channelName : channelList ){
+	public void sendMessage(String text, List<String> channelList) throws IOException {
+
+		Boolean messageSent = true;
+		// CloseableHttpClient httpClient = createHttpClient();
+		CloseableHttpResponse respone = null;
+		for (String channelName : channelList) {
 			try {
-				
+
 				createPostRequest = createPostRequest(channelName, text);
-					 respone=httpClient.execute(createPostRequest);
-					int statusCode =respone.getStatusLine().getStatusCode();
-			
-					if(statusCode == HttpStatus.SC_OK){
-						logger.debug("Message Sent ::" +text + "for channel::"+channelName);
-						
-					}
-					if(statusCode != HttpStatus.SC_OK){
-						
-						HttpEntity entity = respone.getEntity();
-						String message=EntityUtils.toString(entity);
-						ObjectMapper mapper = new ObjectMapper();
-						JsonNode readTree = mapper.readTree(message);
-						String errorMessage =(String)(readTree.get("error")).asText();
-						messageSent=false;
-					}
-					
-		
+				respone = httpClient.execute(createPostRequest);
+				int statusCode = respone.getStatusLine().getStatusCode();
+
+				if (statusCode == HttpStatus.SC_OK) {
+					logger.debug("Message Sent ::" + text + "for channel::" + channelName);
+				}
+				if (statusCode != HttpStatus.SC_OK) {
+
+					HttpEntity entity = respone.getEntity();
+					String message = EntityUtils.toString(entity);
+					ObjectMapper mapper = new ObjectMapper();
+					JsonNode readTree = mapper.readTree(message);
+					String errorMessage = (String) (readTree.get("error")).asText();
+					messageSent = false;
+				}
+
 			} catch (IOException | URISyntaxException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-			finally{
-				
-				if(respone!=null ){
+			} finally {
+
+				if (respone != null) {
 					respone.close();
 				}
 			}
-			//return messageSent;
+			// return messageSent;
 		}
 	}
 
-	/*public static void main(String[] args) throws URISyntaxException, ClientProtocolException, IOException {
-
-		List<String> channelsList = new ArrayList();
-		channelsList.add("plan");
-		channelsList.add("goals");
-
-		SlackNotificationImpl slack =new SlackNotificationImpl();
-		
-		slack.sendMessage("Hello testingg via API", channelsList);
-		
-		for (String channel : channelsList) {
-
-			URIBuilder uriBuilder = new URIBuilder("https://slack.com/api/chat.postMessage");
-			uriBuilder.setParameter("token",
-					"xoxp-288910944438-288084131044-558914235234-89af90cdc2f0ef57e96668da65af81a0");
-			uriBuilder.setParameter("channel", channel);
-			uriBuilder.setParameter("text", "Hello Welcome");
-			URI build = uriBuilder.build();
-
-			HttpClient builder = HttpClientBuilder.create().build();
-
-			HttpPost post = new HttpPost(build);
-
-			HttpResponse execute = builder.execute(post);
-			InputStream content = execute.getEntity().getContent();
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(content));
-
-			System.out.println(bufferedReader.readLine());
-
-			System.out.println(execute.getEntity().toString());
-			;
-		}
-	}*/
+	/*
+	 * public static void main(String[] args) throws URISyntaxException,
+	 * ClientProtocolException, IOException {
+	 * 
+	 * List<String> channelsList = new ArrayList(); channelsList.add("plan");
+	 * channelsList.add("goals");
+	 * 
+	 * SlackNotificationImpl slack =new SlackNotificationImpl();
+	 * 
+	 * slack.sendMessage("Hello testingg via API", channelsList);
+	 * 
+	 * for (String channel : channelsList) {
+	 * 
+	 * URIBuilder uriBuilder = new
+	 * URIBuilder("https://slack.com/api/chat.postMessage");
+	 * uriBuilder.setParameter("token",
+	 * "xoxp-288910944438-288084131044-558914235234-89af90cdc2f0ef57e96668da65af81a0"
+	 * ); uriBuilder.setParameter("channel", channel);
+	 * uriBuilder.setParameter("text", "Hello Welcome"); URI build =
+	 * uriBuilder.build();
+	 * 
+	 * HttpClient builder = HttpClientBuilder.create().build();
+	 * 
+	 * HttpPost post = new HttpPost(build);
+	 * 
+	 * HttpResponse execute = builder.execute(post); InputStream content =
+	 * execute.getEntity().getContent(); BufferedReader bufferedReader = new
+	 * BufferedReader(new InputStreamReader(content));
+	 * 
+	 * System.out.println(bufferedReader.readLine());
+	 * 
+	 * System.out.println(execute.getEntity().toString()); ; } }
+	 */
 
 }

@@ -6,10 +6,10 @@ import lombok.Setter;
 
 @Data
 public class SwaggerCloneDetails {
-    private String name;
-    private String version;
-    private String description;
-    private String basePath;
-    private String currentSwaggerID;
-    private Integer revision;
+	private String name;
+	private String version;
+	private String description;
+	private String basePath;
+	private String currentSwaggerID;
+	private Integer revision;
 }

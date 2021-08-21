@@ -1,84 +1,70 @@
 package com.itorix.apiwiz.cicd.dashboard.beans;
-                 
-public class Pipelines
-{
-    private String total;
 
-    private Metrics[] metrics;
+public class Pipelines {
+	private String total;
 
-    private String proxy_name;
+	private Metrics[] metrics;
 
-    private PipelineSuccessRatio pipelineSuccessRatio;
+	private String proxy_name;
 
-    private StageSuccessRatios[] stageSuccessRatios;
+	private PipelineSuccessRatio pipelineSuccessRatio;
 
-    private String pipelineName;
+	private StageSuccessRatios[] stageSuccessRatios;
 
-    public String getTotal ()
-    {
-        return total;
-    }
+	private String pipelineName;
 
-    public void setTotal (String total)
-    {
-        this.total = total;
-    }
+	public String getTotal() {
+		return total;
+	}
 
-    public Metrics[] getMetrics ()
-    {
-        return metrics;
-    }
+	public void setTotal(String total) {
+		this.total = total;
+	}
 
-    public void setMetrics (Metrics[] metrics)
-    {
-        this.metrics = metrics;
-    }
+	public Metrics[] getMetrics() {
+		return metrics;
+	}
 
-    public String getProxy_name ()
-    {
-        return proxy_name;
-    }
+	public void setMetrics(Metrics[] metrics) {
+		this.metrics = metrics;
+	}
 
-    public void setProxy_name (String proxy_name)
-    {
-        this.proxy_name = proxy_name;
-    }
+	public String getProxy_name() {
+		return proxy_name;
+	}
 
-    public PipelineSuccessRatio getPipelineSuccessRatio ()
-    {
-        return pipelineSuccessRatio;
-    }
+	public void setProxy_name(String proxy_name) {
+		this.proxy_name = proxy_name;
+	}
 
-    public void setPipelineSuccessRatio (PipelineSuccessRatio pipelineSuccessRatio)
-    {
-        this.pipelineSuccessRatio = pipelineSuccessRatio;
-    }
+	public PipelineSuccessRatio getPipelineSuccessRatio() {
+		return pipelineSuccessRatio;
+	}
 
-    public StageSuccessRatios[] getStageSuccessRatios ()
-    {
-        return stageSuccessRatios;
-    }
+	public void setPipelineSuccessRatio(PipelineSuccessRatio pipelineSuccessRatio) {
+		this.pipelineSuccessRatio = pipelineSuccessRatio;
+	}
 
-    public void setStageSuccessRatios (StageSuccessRatios[] stageSuccessRatios)
-    {
-        this.stageSuccessRatios = stageSuccessRatios;
-    }
+	public StageSuccessRatios[] getStageSuccessRatios() {
+		return stageSuccessRatios;
+	}
 
-    public String getPipelineName ()
-    {
-        return pipelineName;
-    }
+	public void setStageSuccessRatios(StageSuccessRatios[] stageSuccessRatios) {
+		this.stageSuccessRatios = stageSuccessRatios;
+	}
 
-    public void setPipelineName (String pipelineName)
-    {
-        this.pipelineName = pipelineName;
-    }
+	public String getPipelineName() {
+		return pipelineName;
+	}
 
-    @Override
-    public String toString()
-    {
-        return "ClassPojo [total = "+total+", metrics = "+metrics+", proxy_name = "+proxy_name+", pipelineSuccessRatio = "+pipelineSuccessRatio+", stageSuccessRatios = "+stageSuccessRatios+", pipelineName = "+pipelineName+"]";
-    }
+	public void setPipelineName(String pipelineName) {
+		this.pipelineName = pipelineName;
+	}
+
+	@Override
+	public String toString() {
+		return "ClassPojo [total = " + total + ", metrics = " + metrics + ", proxy_name = " + proxy_name
+				+ ", pipelineSuccessRatio = " + pipelineSuccessRatio + ", stageSuccessRatios = " + stageSuccessRatios
+				+ ", pipelineName = " + pipelineName + "]";
+	}
 }
-			
-		

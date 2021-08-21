@@ -157,7 +157,8 @@ public class ChangedOperation extends Operation implements Changed {
 	public boolean isDiff() {
 		return !tagDiff.isEmpty() || !Objects.isNull(deprecated) || !Objects.isNull(summary)
 				|| !Objects.isNull(description) || !Objects.isNull(operationId) || !addParameters.isEmpty()
-				|| !missingParameters.isEmpty() || !changedParameter.isEmpty() || Objects.nonNull(serverDiff) || Objects.nonNull(requestBody);
+				|| !missingParameters.isEmpty() || !changedParameter.isEmpty() || Objects.nonNull(serverDiff)
+				|| Objects.nonNull(requestBody);
 	}
 
 	public boolean isDiffProp() {
@@ -175,5 +176,4 @@ public class ChangedOperation extends Operation implements Changed {
 	public void setSecurityRequirementDiff(SecurityRequirementDiff securityRequirementDiff) {
 		this.securityRequirementDiff = securityRequirementDiff;
 	}
-
 }

@@ -12,8 +12,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-
-
 @Document(collection = "Users.Sessions.List")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserSession implements Serializable {
@@ -131,8 +129,7 @@ public class UserSession implements Serializable {
 	public UserSession() {
 		super();
 	}
-	
-	
+
 	public UserSession(User user) {
 		super();
 		this.setUserId(user.getId());
@@ -143,7 +140,7 @@ public class UserSession implements Serializable {
 		this.setUsername(user.getFirstName() + " " + user.getLastName());
 		this.setUserStatus(user.getUserStatus());
 	}
-	
+
 	public void setRequestAttributes(HttpServletRequest request) {
 		String ipAddress = request.getHeader("X-FORWARDED-FOR");
 		if (ipAddress == null) {
@@ -155,7 +152,7 @@ public class UserSession implements Serializable {
 		this.setUserAgent(request.getHeader("User-Agent"));
 	}
 
-	public synchronized static UserSession getCurrentSessionToken() {
+	public static synchronized UserSession getCurrentSessionToken() {
 		UserSession userSessionToken = null;
 		try {
 			userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();

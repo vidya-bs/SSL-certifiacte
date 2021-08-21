@@ -22,141 +22,192 @@ import com.itorix.apiwiz.identitymanagement.model.Apigee;
 @RestController
 public interface AnalyticsService {
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/proxy-performance/level-1")
-	public ResponseEntity<?> evaluateProxyPerformace(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> evaluateProxyPerformace(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/proxy-performance/level-2")
-	public ResponseEntity<?> evaluateAverageResponseTime(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> evaluateAverageResponseTime(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/proxy-performance/level-3")
-	public ResponseEntity<?> evaluateAverageResponseTimeAtProxy(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> evaluateAverageResponseTimeAtProxy(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/proxy-performance/level-4")
-	public ResponseEntity<?> evaluateTrafficeByProxy(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> evaluateTrafficeByProxy(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/target-performance/level-1")
-	public ResponseEntity<?> evaluateTrafficeByTarget(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> evaluateTrafficeByTarget(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/target-performance/level-2")
-	public ResponseEntity<?> evaluateTotalErrorComposition(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> evaluateTotalErrorComposition(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/target-performance/level-3")
-	public ResponseEntity<?> evaluateResponseTimeComposition(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> evaluateResponseTimeComposition(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/target-performance/level-4")
-	public ResponseEntity<?> evaluateTargetRequestPayLoadSize(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> evaluateTargetRequestPayLoadSize(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/latency")
-	public ResponseEntity<?> latencyAnalysis(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> latencyAnalysis(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/error-analysis/level-1")
-	public ResponseEntity<?> totalTrafficVsProxyErrorVsTargetError(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> totalTrafficVsProxyErrorVsTargetError(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/error-analysis/level-2")
-	public ResponseEntity<?> proxyErrorVsResponseCode(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> proxyErrorVsResponseCode(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/error-analysis/level-3")
-	public ResponseEntity<?> targetErrorVsResponseCode(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> targetErrorVsResponseCode(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/error-analysis/level-4")
-	public ResponseEntity<?> errorVsProxyName(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> errorVsProxyName(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/error-analysis/level-5")
-	public ResponseEntity<?> errorVsTargetName(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> errorVsTargetName(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/developer-analysis/level-1")
-	public ResponseEntity<?> evaluateTrafficCountVsErrorCodes(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> evaluateTrafficCountVsErrorCodes(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/developer-analysis/level-2")
-	public ResponseEntity<?> evalAvgTotalResponseTimeVsAvgRequestSize(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> evalAvgTotalResponseTimeVsAvgRequestSize(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/developer-analysis/level-3")
-	public ResponseEntity<?> evalTotalTrafficSucessVsErrorCountByApp(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> evalTotalTrafficSucessVsErrorCountByApp(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/developer-analysis/level-4")
-	public ResponseEntity<?> evalAvgTotalResponseTimeVsAvgRequestSizeByApp(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> evalAvgTotalResponseTimeVsAvgRequestSizeByApp(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/developer-analysis/level-5")
-	public ResponseEntity<?> evalTotalSucessVsErrorAtProxyLevel(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> evalTotalSucessVsErrorAtProxyLevel(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/developer-analysis/level-6")
-	public ResponseEntity<?> evalTotalSucessVsErrorAtProduct(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> evalTotalSucessVsErrorAtProduct(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/developer-analysis/level-7")
-	public ResponseEntity<?> evalTotalSucessVsErrorAtProductVsApp(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
+	public ResponseEntity<?> evalTotalSucessVsErrorAtProductVsApp(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analyze/developer-analysis/level-8")
-	public ResponseEntity<?> evalAvgTotalResponseTimeVsAvgRequestSizeByProduct(@RequestHeader(value="interactionid",required=false)String interactionid,
-			@RequestBody PerformanceMetrics performanceMetrics, 
-			@RequestHeader HttpHeaders headers,@RequestHeader(value="JSESSIONID") String jsessionid)throws Exception;
-	
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/analytics/dashboard", produces = { "application/json" })
+	public ResponseEntity<?> evalAvgTotalResponseTimeVsAvgRequestSizeByProduct(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestBody PerformanceMetrics performanceMetrics, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/analytics/dashboard", produces = {"application/json"})
 	public ResponseEntity<Object> getdashBoardOverview(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestParam("org") String org, @RequestParam("env") String env,
 			@RequestParam(value = "type", required = false) String type, @RequestHeader HttpHeaders headers,
-			@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException, InterruptedException, ExecutionException;
-	
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/analytics/timeseries", produces = { "application/json" })
+			@RequestHeader(value = "JSESSIONID") String jsessionid)
+			throws ItorixException, InterruptedException, ExecutionException;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/analytics/timeseries", produces = {"application/json"})
 	public ResponseEntity<Object> getdashBoardTimeSeries(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestParam("org") String org, @RequestParam("env") String env,
 			@RequestParam(value = "type", required = false) String type, @RequestHeader HttpHeaders headers,
-			@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException, InterruptedException, ExecutionException;
+			@RequestHeader(value = "JSESSIONID") String jsessionid)
+			throws ItorixException, InterruptedException, ExecutionException;
 
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/analytics/dashboard/setup", consumes = {
-	"application/json" }, produces = { "application/json" })
+			"application/json"}, produces = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> dashBoardSetUp(
 			@RequestHeader(value = "interactionid", required = false) String interactionid, @RequestBody Apigee apigee,
-			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception ;
-	
+			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid)
+			throws Exception;
+
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/analytics/dashboard/setup", produces = {
-	"application/json" })
+			"application/json"})
 	public @ResponseBody ResponseEntity<Object> getDashBoardDetails(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
-	
+			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid)
+			throws Exception;
+
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/analytics/dashboard/setup", consumes = {
-	"application/json" }, produces = { "application/json" })
+			"application/json"}, produces = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> updateDashBoardSetUp(
 			@RequestHeader(value = "interactionid", required = false) String interactionid, @RequestBody Apigee apigee,
-			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception ;
-	
+			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid)
+			throws Exception;
+
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/analytics/dashboard/organisations", produces = {
-	"application/json" })
+			"application/json"})
 	public @ResponseBody ResponseEntity<Object> getOrganisationsList(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
-	
+			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid)
+			throws Exception;
+
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/analytics/dashboard/{org}/environments", produces = {
-	"application/json" })
+			"application/json"})
 	public @ResponseBody ResponseEntity<Object> getEnvListForOrganisation(
-		@RequestHeader(value = "interactionid", required = false) String interactionid,
-		@PathVariable("org") String org, @RequestHeader HttpHeaders headers,
-		@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception ;
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@PathVariable("org") String org, @RequestHeader HttpHeaders headers,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/analytics/dashboard/refresh/environments", produces = {
-	"application/json" })
+			"application/json"})
 	public @ResponseBody ResponseEntity<Object> refreshEnvironments(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid)
+			throws Exception;
 }

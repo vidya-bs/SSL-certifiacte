@@ -13,5 +13,5 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExpectationResPathNotFound {
-	String message;
+    String message;
 }

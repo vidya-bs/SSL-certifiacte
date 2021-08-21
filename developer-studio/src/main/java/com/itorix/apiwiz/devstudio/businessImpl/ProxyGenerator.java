@@ -52,32 +52,37 @@ public class ProxyGenerator {
 	private String dstTargets = "";
 	private List<String> proxyNames = new ArrayList<String>();
 
-	private final List<String> allowedTemplateExt = Arrays.asList("ba","oa","2w");
+	// private final List<String> allowedTemplateExt =
+	// Arrays.asList("ba","oa","2w");
 
-	public void generateProxyCode(Folder proxyFolders, CodeGenHistory cg , String dir, Project project) throws IOException, TemplateException{
+	public void generateProxyCode(Folder proxyFolders, CodeGenHistory cg, String dir, Project project)
+			throws IOException, TemplateException {
 		proxyName = cg.getProxy().getName();
 		dstRootFolder = dir;
 		String templateDir = "/opt/itorix/templates/API";
-		List<String> basPath =  Arrays.asList(cg.getProxy().getBasePath().split(","));
+		List<String> basPath = Arrays.asList(cg.getProxy().getBasePath().split(","));
 		createDestinationFolderStructure(dstRootFolder);
 		Map<String, Object> data = populateProxyData(cg, project.getProxyByName(proxyName));
 		processPolicies(templateDir + "/Common/policies", data);
 		processProxyEndpoint(templateDir + "/Proxy/proxies", data, basPath);
 		processProxy(templateDir + "/Proxy", data);
-		if(project.getProxyByName(proxyName).getWsdlFiles()!=null)
-		copyWSDLFiles(project.getName(), project.getProxyByName(proxyName));
-		if(project.getProxyByName(proxyName).getXsdFiles()!=null)
-		copyXSDFiles(project.getName(), project.getProxyByName(proxyName));
+
+		// if(project.getProxyByName(proxyName).getWsdlFiles()!=null)
+		// copyWSDLFiles(project.getName(), project.getProxyByName(proxyName));
+		// if(project.getProxyByName(proxyName).getXsdFiles()!=null)
+		// copyXSDFiles(project.getName(), project.getProxyByName(proxyName));
+
 		processTargetEndpoint(templateDir + "/Target/targets", data);
 	}
 
-
 	private void processPolicies(String policiesDir, Map<String, Object> data) {
-		List<File> files = (List<File>) FileUtils.listFiles(new File(policiesDir), TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
-		for(File file :files) {
+		List<File> files = (List<File>) FileUtils.listFiles(new File(policiesDir), TrueFileFilter.INSTANCE,
+				TrueFileFilter.INSTANCE);
+		for (File file : files) {
 			String extn = FilenameUtils.getExtension(file.getName());
-			String dstPolicyFileName = dstPolicies + File.separatorChar + file.getName().replace(ProxyConfig.FTL_FILE_EXT, "");
-			if(extn.equalsIgnoreCase("ftl")) {
+			String dstPolicyFileName = dstPolicies + File.separatorChar
+					+ file.getName().replace(ProxyConfig.FTL_FILE_EXT, "");
+			if (extn.equalsIgnoreCase("ftl")) {
 				try {
 					Template template = getTemplateFromFile(file.getAbsolutePath());
 					Writer dstFile = new FileWriter(dstPolicyFileName);
@@ -91,8 +96,7 @@ public class ProxyGenerator {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}
-			else {
+			} else {
 				try {
 					FileUtils.copyFile(file, new File(dstPolicyFileName));
 				} catch (IOException e) {
@@ -106,30 +110,33 @@ public class ProxyGenerator {
 	@SuppressWarnings("unchecked")
 	private void processProxyEndpoint(String proxyEndPntDir, Map<String, Object> data, List<String> basePath) {
 		int emptyCounter = 0;
-		List<File> files = (List<File>) FileUtils.listFiles(new File(proxyEndPntDir), TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
-		for(File file :files) {
+		List<File> files = (List<File>) FileUtils.listFiles(new File(proxyEndPntDir), TrueFileFilter.INSTANCE,
+				TrueFileFilter.INSTANCE);
+		for (File file : files) {
 			String extn = FilenameUtils.getExtension(file.getName());
-			if(extn.equalsIgnoreCase("ftl")) {
-				for(String path : basePath) {
-					String ext = getExtension(path);
-					if(ext.equals("") && emptyCounter>0)
+
+			if (extn.equalsIgnoreCase("ftl")) {
+				for (String path : basePath) {
+					String ext = "_default";
+					if (emptyCounter > 0)
 						ext = "_default" + Integer.toString(emptyCounter);
-					if(!ext.equals("") || emptyCounter == 0) {
+					if (!ext.equals("") || emptyCounter == 0) {
 						Template template;
 						try {
-							data.put("basePath" , path);
-							Map<String, Object>proxyMap = (Map<String, Object>) data.get("proxy");
-							proxyMap.put("name",proxyName + ext );
+							data.put("basePath", path);
+							Map<String, Object> proxyMap = (Map<String, Object>) data.get("proxy");
+							proxyMap.put("name", proxyName + ext);
 							data.put("proxy", proxyMap);
 							template = getTemplateFromFile(file.getAbsolutePath());
-							String endPointFileName = proxyName + (ext.equals("")? ext : "_" + ext ) + "Proxy" + ProxyConfig.ENDPOINT_XML_SUFFIX;
+							String endPointFileName = proxyName + (ext.equals("") ? ext : "" + ext) + "Proxy"
+									+ ProxyConfig.ENDPOINT_XML_SUFFIX;
 							proxyNames.add(FilenameUtils.getBaseName(endPointFileName));
 							String dstFileName = dstProxies + File.separatorChar + endPointFileName;
 							Writer dstFile = new FileWriter(dstFileName);
 							template.process(data, dstFile);
 							dstFile.flush();
 							dstFile.close();
-							emptyCounter = ext.equals("") || ext.contains("default")? emptyCounter + 1 : emptyCounter;
+							emptyCounter = ext.equals("") || ext.contains("default") ? emptyCounter + 1 : emptyCounter;
 						} catch (IOException e) {
 							e.printStackTrace();
 						} catch (TemplateException e) {
@@ -141,50 +148,43 @@ public class ProxyGenerator {
 		}
 	}
 
-	private String getExtension(String path) {
-		for(String token : allowedTemplateExt) 
-			if(path.contains("/"+token+"/"))
-				return token;
-		return "";
-	}
-
 	private void processProxy(String proxyDir, Map<String, Object> data) {
 		data.put("proxyList", proxyNames);
-		
-		Map<String, Object>proxyMap = (Map<String, Object>) data.get("proxy");
-		proxyMap.put("name",proxyName);
+
+		Map<String, Object> proxyMap = (Map<String, Object>) data.get("proxy");
+		proxyMap.put("name", proxyName);
 		data.put("proxy", proxyMap);
-		
+
 		File file = new File(proxyDir + File.separatorChar + "Proxy.xml.ftl");
 		String extn = FilenameUtils.getExtension(file.getName());
-		if(extn.equalsIgnoreCase("ftl")) {
+		if (extn.equalsIgnoreCase("ftl")) {
 			Template template;
 			try {
 				template = getTemplateFromFile(file.getAbsolutePath());
-				String dstFileName = dstRootFolder + File.separatorChar+ proxyName + "Proxy.xml";
+				String dstFileName = dstRootFolder + File.separatorChar + proxyName + "Proxy.xml";
 				Writer dstFile = new FileWriter(dstFileName);
 				template.process(data, dstFile);
 				dstFile.flush();
 				dstFile.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (TemplateException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
 
 	private void processTargetEndpoint(String targetEndPntDir, Map<String, Object> data) {
-		List<File> files = (List<File>) FileUtils.listFiles(new File(targetEndPntDir), TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
-		for(File file :files) {
+		List<File> files = (List<File>) FileUtils.listFiles(new File(targetEndPntDir), TrueFileFilter.INSTANCE,
+				TrueFileFilter.INSTANCE);
+		for (File file : files) {
 			String extn = FilenameUtils.getExtension(file.getName());
-			if(extn.equalsIgnoreCase("ftl")) {
+			if (extn.equalsIgnoreCase("ftl")) {
 				Template template;
 				try {
 					template = getTemplateFromFile(file.getAbsolutePath());
-					String dstFileName = dstTargets + File.separatorChar	+ "default" + "Target" + ProxyConfig.ENDPOINT_XML_SUFFIX;
+					String dstFileName = dstTargets + File.separatorChar + "default" + "Target"
+							+ ProxyConfig.ENDPOINT_XML_SUFFIX;
 					Writer dstFile = new FileWriter(dstFileName);
 					template.process(data, dstFile);
 					dstFile.flush();
@@ -201,41 +201,43 @@ public class ProxyGenerator {
 	}
 
 	private void copyWSDLFiles(String projectName, Proxies proxies) {
-		for(ProjectFile file : proxies.getWsdlFiles()) {
-			mongoConnection.getResourceFile(projectName, proxyName, "WSDL", file.getFileName(), dstResourcesWsdl + File.separatorChar);
+		for (ProjectFile file : proxies.getWsdlFiles()) {
+			mongoConnection.getResourceFile(projectName, proxyName, "WSDL", file.getFileName(),
+					dstResourcesWsdl + File.separatorChar);
 		}
 	}
 
 	private void copyXSDFiles(String projectName, Proxies proxies) {
-		for(ProjectFile file : proxies.getXsdFiles()) {
-			mongoConnection.getResourceFile(projectName, proxyName, "XSD", file.getFileName(), dstResourcesXsd + File.separatorChar);
+		for (ProjectFile file : proxies.getXsdFiles()) {
+			mongoConnection.getResourceFile(projectName, proxyName, "XSD", file.getFileName(),
+					dstResourcesXsd + File.separatorChar);
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	private Map<String, Object> populateProxyData(CodeGenHistory cg, Proxies proxies) {
 		Map<String, Object> data = new HashMap<String, Object>();
 		Map<String, Object> proxy = new HashMap<String, Object>();
 		Map<String, Object> target = new HashMap<String, Object>();
-		data.put("basePath" , cg.getProxy().getBasePath());
+		data.put("basePath", cg.getProxy().getBasePath());
 		List<String> virtualHostList = new ArrayList<String>();
-		if(proxies.getApigeeVirtualHosts() != null )
-			for(String vHost : proxies.getApigeeVirtualHosts())
+		if (proxies.getApigeeVirtualHosts() != null)
+			for (String vHost : proxies.getApigeeVirtualHosts())
 				virtualHostList.add(vHost);
-		data.put("proxy" , proxy);
-		proxy.put("virtualHostList" , virtualHostList);
-		proxy.put("name" , proxyName);
-		proxy.put("description" , cg.getProxy().getDescription());
+		data.put("proxy", proxy);
+		proxy.put("virtualHostList", virtualHostList);
+		proxy.put("name", proxyName);
+		proxy.put("description", cg.getProxy().getDescription());
 
-		data.put("target" , target);
-		target.put("name" , "default");
-		target.put("description" , "default target endpoint");
+		data.put("target", target);
+		target.put("name", "default");
+		target.put("description", "default target endpoint");
 
 		List<Object> apiDetails = new ArrayList<Object>();
 		data.put("apis", apiDetails);
-		if(cg.getProxy().getFlows() != null) {
+		if (cg.getProxy().getFlows() != null) {
 			Flow[] flows = cg.getProxy().getFlows().getFlow();
-			for(Flow flow: flows){
+			for (Flow flow : flows) {
 				Map<String, Object> mapApi = new HashMap<String, Object>();
 				apiDetails.add(mapApi);
 				mapApi.put("pathSuffix", flow.getPath());
@@ -243,41 +245,41 @@ public class ProxyGenerator {
 				mapApi.put("name", flow.getName());
 				mapApi.put("description", flow.getDescription());
 			}
-		} 
-		if(cg.getPolicyTemplates()!=null){
+		}
+		if (cg.getPolicyTemplates() != null) {
 			Map commonMap = createMap(cg.getPolicyTemplates());
 			data.put("policyTemplate", commonMap.get("policyTemplate"));
 			data.put("policyName", commonMap.get("policyName"));
 		}
 		List<Object> projectMetadataList = new ArrayList<Object>();
 		data.put("projectMetadataList", projectMetadataList);
-		if(proxies.getProjectMetaData() != null) {
-			for(ProjectMetaData metadata: proxies.getProjectMetaData()){
+		if (proxies.getProjectMetaData() != null) {
+			for (ProjectMetaData metadata : proxies.getProjectMetaData()) {
 				Map<String, Object> projectMetadata = new HashMap<String, Object>();
 				projectMetadataList.add(projectMetadata);
 				projectMetadata.put("name", metadata.getName());
-				projectMetadata.put("value", metadata.getValue()!=null ? metadata.getValue(): " ");
+				projectMetadata.put("value", metadata.getValue() != null ? metadata.getValue() : " ");
 			}
 		}
-		if(proxies.getWsdlFiles() != null)
+		if (proxies.getWsdlFiles() != null)
 			data.put("wsdlList", getFileList(proxies.getWsdlFiles()));
-		if(proxies.getXsdFiles() != null)
+		if (proxies.getXsdFiles() != null)
 			data.put("xsdList", getFileList(proxies.getXsdFiles()));
 		return data;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private List<String> getFileList(List<ProjectFile> files){
-		List <String> fileList = new ArrayList();
-		for(ProjectFile file : files) {
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	private List<String> getFileList(List<ProjectFile> files) {
+		List<String> fileList = new ArrayList();
+		for (ProjectFile file : files) {
 			fileList.add(file.getFileName());
 		}
 		return fileList;
 	}
 
-	private List<Object> createMetadataMap(List<ProjectMetaData> list){
+	private List<Object> createMetadataMap(List<ProjectMetaData> list) {
 		List<Object> projectMetadataList = new ArrayList<Object>();
-		for(ProjectMetaData metadata: list){
+		for (ProjectMetaData metadata : list) {
 			Map<String, Object> projectMetadata = new HashMap<String, Object>();
 			projectMetadataList.add(projectMetadata);
 			projectMetadata.put("name", metadata.getName());
@@ -286,23 +288,22 @@ public class ProxyGenerator {
 		return projectMetadataList;
 	}
 
-	private Map<String, Object> createMap(List<Category> policyTemplates){
+	private Map<String, Object> createMap(List<Category> policyTemplates) {
 		Map<String, Object> apiDtls = null;
-		if(policyTemplates!=null){
+		if (policyTemplates != null) {
 			apiDtls = new HashMap<String, Object>();
 			Map<String, Object> templateMap = new HashMap<String, Object>();
 			Map<String, Object> policyMap = new HashMap<String, Object>();
 			apiDtls.put("policyTemplate", templateMap);
 			apiDtls.put("policyName", policyMap);
-			for(Category category: policyTemplates){
+			for (Category category : policyTemplates) {
 				String categoryEnabled = "false";
 				String categoryType = category.getType();
-				for(Policy policy: category.getPolicies()){
-					if(policy.isEnabled()){
+				for (Policy policy : category.getPolicies()) {
+					if (policy.isEnabled()) {
 						policyMap.put(policy.getName(), "true");
 						categoryEnabled = "true";
-					}
-					else 
+					} else
 						policyMap.put(policy.getName(), "false");
 				}
 				templateMap.put(categoryType, categoryEnabled);
@@ -310,12 +311,13 @@ public class ProxyGenerator {
 		}
 		return apiDtls;
 	}
+
 	@SuppressWarnings("deprecation")
-	private Template getTemplateFromFile(String file) throws IOException{
+	private Template getTemplateFromFile(String file) throws IOException {
 		File templateFile = new File(file);
 		String fileName = templateFile.getName();
 		String reader = FileUtils.readFileToString(templateFile);
-		Configuration conf= new Configuration();
+		Configuration conf = new Configuration();
 		StringTemplateLoader tloader = new StringTemplateLoader();
 		conf.setTemplateLoader(tloader);
 		tloader.putTemplate(fileName, reader);
@@ -338,25 +340,29 @@ public class ProxyGenerator {
 		dir = new File(dstTargets);
 		dir.mkdirs();
 
-		dstResourcesXSL = proxyRootFolder + File.separatorChar + ProxyConfig.FLDR_RESOURCES + File.separatorChar + ProxyConfig.FLDR_XSL;
+		dstResourcesXSL = proxyRootFolder + File.separatorChar + ProxyConfig.FLDR_RESOURCES + File.separatorChar
+				+ ProxyConfig.FLDR_XSL;
 		dir = new File(dstResourcesXSL);
 		dir.mkdirs();
 
-		dstResourcesJSC = proxyRootFolder + File.separatorChar + ProxyConfig.FLDR_RESOURCES + File.separatorChar + ProxyConfig.FLDR_JSC;
+		dstResourcesJSC = proxyRootFolder + File.separatorChar + ProxyConfig.FLDR_RESOURCES + File.separatorChar
+				+ ProxyConfig.FLDR_JSC;
 		dir = new File(dstResourcesJSC);
 		dir.mkdirs();
 
-		dstResourcesJava = proxyRootFolder + File.separatorChar + ProxyConfig.FLDR_RESOURCES + File.separatorChar + ProxyConfig.FLDR_JAVA;
+		dstResourcesJava = proxyRootFolder + File.separatorChar + ProxyConfig.FLDR_RESOURCES + File.separatorChar
+				+ ProxyConfig.FLDR_JAVA;
 		dir = new File(dstResourcesJava);
 		dir.mkdirs();
 
-		dstResourcesXsd = proxyRootFolder + File.separatorChar + ProxyConfig.FLDR_RESOURCES + File.separatorChar + ProxyConfig.FLDR_XSD;
+		dstResourcesXsd = proxyRootFolder + File.separatorChar + ProxyConfig.FLDR_RESOURCES + File.separatorChar
+				+ ProxyConfig.FLDR_XSD;
 		dir = new File(dstResourcesXsd);
 		dir.mkdirs();
 
-		dstResourcesWsdl = proxyRootFolder + File.separatorChar + ProxyConfig.FLDR_RESOURCES + File.separatorChar + ProxyConfig.FLDR_WSDL;
+		dstResourcesWsdl = proxyRootFolder + File.separatorChar + ProxyConfig.FLDR_RESOURCES + File.separatorChar
+				+ ProxyConfig.FLDR_WSDL;
 		dir = new File(dstResourcesWsdl);
 		dir.mkdirs();
 	}
-
 }

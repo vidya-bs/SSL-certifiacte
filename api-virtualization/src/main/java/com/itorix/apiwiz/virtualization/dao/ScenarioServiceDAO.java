@@ -31,7 +31,6 @@ import com.itorix.apiwiz.virtualization.model.logging.MockLog;
 import com.itorix.hyggee.mockserver.client.serialization.ObjectMapperFactory;
 import com.mongodb.client.result.DeleteResult;
 
-
 @Component("scenarioServiceDAO")
 public class ScenarioServiceDAO {
 	@Autowired
@@ -42,7 +41,7 @@ public class ScenarioServiceDAO {
 
 	private ObjectMapper objectMapper = ObjectMapperFactory.createObjectMapper();
 
-	public boolean saveScenario(ExpectationDTO expectationDTO)  {
+	public boolean saveScenario(ExpectationDTO expectationDTO) {
 		try {
 			ExpectationVO expectationVO = new ExpectationVO();
 			expectationVO.setName(expectationDTO.getScenarioName());
@@ -57,13 +56,12 @@ public class ScenarioServiceDAO {
 		return false;
 	}
 
-
-	public ExpectationVO saveScenarioDTO(MockDTO mockDTO)  {
+	public ExpectationVO saveScenarioDTO(MockDTO mockDTO) {
 		try {
 			ExpectationVO expectationVO = null;
 			Query query = new Query(Criteria.where("name").is(mockDTO.getName()));
 			expectationVO = mongoTemplate.findOne(query, ExpectationVO.class);
-			if(expectationVO == null){
+			if (expectationVO == null) {
 				expectationVO = new ExpectationVO();
 				expectationVO.setName(mockDTO.getName());
 				expectationVO.setDescription(mockDTO.getDescription());
@@ -75,8 +73,7 @@ public class ScenarioServiceDAO {
 				mongoTemplate.save(expectationVO);
 
 				return expectationVO;
-			}
-			else{
+			} else {
 				throw new ItorixException("Record exists", "General-1000");
 			}
 		} catch (Exception ex) {
@@ -85,9 +82,9 @@ public class ScenarioServiceDAO {
 		return null;
 	}
 
-	public boolean updateScenario(MockDTO mockDTO, String id)  {
+	public boolean updateScenario(MockDTO mockDTO, String id) {
 		try {
-			if(id!= null && id !="") {
+			if (id != null && id != "") {
 				Query query = new Query(Criteria.where("_id").is(id));
 				ExpectationVO expectationVO = mongoTemplate.findOne(query, ExpectationVO.class);
 				expectationVO.setName(mockDTO.getName());
@@ -104,8 +101,8 @@ public class ScenarioServiceDAO {
 		return false;
 	}
 
-	public List<Expectation> getExpectationDTOs()  {
-		List <Expectation> expectationDTOs = new ArrayList<Expectation>();
+	public List<Expectation> getExpectationDTOs() {
+		List<Expectation> expectationDTOs = new ArrayList<Expectation>();
 		try {
 			expectationDTOs = mongoTemplate.findAll(Expectation.class);
 			return expectationDTOs;
@@ -115,7 +112,7 @@ public class ScenarioServiceDAO {
 		return null;
 	}
 
-	public Expectation getExpectationDTOs(String id)  {
+	public Expectation getExpectationDTOs(String id) {
 		try {
 			Query query = new Query(Criteria.where("_id").is(id));
 			Expectation expectation = mongoTemplate.findOne(query, Expectation.class);
@@ -126,8 +123,7 @@ public class ScenarioServiceDAO {
 		return null;
 	}
 
-
-	public Expectation getExpectationsByGroup(String group)  {
+	public Expectation getExpectationsByGroup(String group) {
 		try {
 			Query query = new Query(Criteria.where("group").is(group));
 			Expectation expectation = mongoTemplate.findOne(query, Expectation.class);
@@ -138,7 +134,7 @@ public class ScenarioServiceDAO {
 		return null;
 	}
 
-	public List<Expectation> getExpectationByGroup(String group)  {
+	public List<Expectation> getExpectationByGroup(String group) {
 		try {
 			Query query = new Query(Criteria.where("groupId").is(group));
 			List<Expectation> expectation = mongoTemplate.find(query, Expectation.class);
@@ -149,31 +145,30 @@ public class ScenarioServiceDAO {
 		return null;
 	}
 
-	public boolean deletetExpectation(String scenarioId)  {
+	public boolean deletetExpectation(String scenarioId) {
 		try {
 			Query query = new Query(Criteria.where("_id").is(scenarioId));
-			DeleteResult result = mongoTemplate.remove(query,ExpectationVO.class);
-			return  result.wasAcknowledged();
+			DeleteResult result = mongoTemplate.remove(query, ExpectationVO.class);
+			return result.wasAcknowledged();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 		return false;
 	}
 
-	public List<MockLog> getLogEntries(String expectationId)  {
+	public List<MockLog> getLogEntries(String expectationId) {
 		try {
-			if(expectationId !=null){
+			if (expectationId != null) {
 				Query query = new Query(Criteria.where("expectationId").is(expectationId));
-				List <MockLog> logentries = mongoTemplate.find(query, MockLog.class);
-				for(int i=0 ;i<logentries.size();i++) {
+				List<MockLog> logentries = mongoTemplate.find(query, MockLog.class);
+				for (int i = 0; i < logentries.size(); i++) {
 					logentries.get(i).setHttpRequest(null);
 					logentries.get(i).setHttpResponse(null);
 				}
 				return logentries;
-			}
-			else{
+			} else {
 				List<MockLog> logentries = mongoTemplate.findAll(MockLog.class);
-				for(int i=0 ;i<logentries.size();i++) {
+				for (int i = 0; i < logentries.size(); i++) {
 					logentries.get(i).setHttpRequest(null);
 					logentries.get(i).setHttpResponse(null);
 				}
@@ -186,48 +181,62 @@ public class ScenarioServiceDAO {
 		return null;
 	}
 
-	public GroupHistoryResponse getLogEntries(String expectationName, String path, String match, int offset, int pageSize)  {
+	public GroupHistoryResponse getLogEntries(String expectationName, String path, String match, int offset,
+			int pageSize) {
 		try {
-			Query query ;
-			if(expectationName !=null)
-				if(match != null){
-					if(match.equalsIgnoreCase("true"))
-						query = new Query(Criteria.where("expectationName").is(expectationName).and("wasMatched").is(true)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+			Query query;
+			if (expectationName != null)
+				if (match != null) {
+					if (match.equalsIgnoreCase("true"))
+						query = new Query(
+								Criteria.where("expectationName").is(expectationName).and("wasMatched").is(true))
+										.with(Sort.by(Direction.DESC, "_id"))
+										.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 					else
-						query = new Query(Criteria.where("expectationName").is(expectationName).and("wasMatched").is(false)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
-				}else{
-					query = new Query(Criteria.where("expectationName").is(expectationName)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+						query = new Query(
+								Criteria.where("expectationName").is(expectationName).and("wasMatched").is(false))
+										.with(Sort.by(Direction.DESC, "_id"))
+										.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+				} else {
+					query = new Query(Criteria.where("expectationName").is(expectationName))
+							.with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+							.limit(pageSize);
 				}
-			else if(path != null )
-				if(match != null){
-					if(match.equalsIgnoreCase("true"))
-						query = new Query(Criteria.where("path").is(path).and("wasMatched").is(true)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+			else if (path != null)
+				if (match != null) {
+					if (match.equalsIgnoreCase("true"))
+						query = new Query(Criteria.where("path").is(path).and("wasMatched").is(true))
+								.with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+								.limit(pageSize);
 					else
-						query = new Query(Criteria.where("path").is(path).and("wasMatched").is(false)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
-	
-				}else{
-					query = new Query(Criteria.where("path").is(path)).with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+						query = new Query(Criteria.where("path").is(path).and("wasMatched").is(false))
+								.with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+								.limit(pageSize);
+
+				} else {
+					query = new Query(Criteria.where("path").is(path)).with(Sort.by(Direction.DESC, "_id"))
+							.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 				}
 			else
-				query = new Query().with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+				query = new Query().with(Sort.by(Direction.DESC, "_id"))
+						.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 
-			List <MockLog> logentries = mongoTemplate.find(query, MockLog.class);
-			for(int i=0 ;i<logentries.size();i++) {
+			List<MockLog> logentries = mongoTemplate.find(query, MockLog.class);
+			for (int i = 0; i < logentries.size(); i++) {
 				logentries.get(i).setHttpRequest(null);
 				logentries.get(i).setHttpResponse(null);
 			}
-			if(logentries.size()>0){
+			if (logentries.size() > 0) {
 				GroupHistoryResponse response = new GroupHistoryResponse();
-				response.setData( logentries);
+				response.setData(logentries);
 				Pagination pagination = new Pagination();
-				long total = mongoTemplate.count(query,MockLog.class);
+				long total = mongoTemplate.count(query, MockLog.class);
 				pagination.setOffset(offset);
 				pagination.setTotal(total);
 				pagination.setPageSize(pageSize);
 				response.setPagination(pagination);
 				return response;
-			}
-			else
+			} else
 				return new GroupHistoryResponse();
 
 		} catch (Exception ex) {
@@ -236,8 +245,7 @@ public class ScenarioServiceDAO {
 		return null;
 	}
 
-
-	public MockLog getLogEntrie(String id)  {
+	public MockLog getLogEntrie(String id) {
 		try {
 			Query query = new Query(Criteria.where("_id").is(id));
 			MockLog logEntry = mongoTemplate.findOne(query, MockLog.class);
@@ -248,8 +256,8 @@ public class ScenarioServiceDAO {
 		return null;
 	}
 
-	public Map<String,Object> getLogExpectationNames()  {
-		Map<String,Object> searchItems = new HashMap<>();
+	public Map<String, Object> getLogExpectationNames() {
+		Map<String, Object> searchItems = new HashMap<>();
 		try {
 			List<String> names = mongoTemplate.findDistinct("expectationName", MockLog.class, String.class);
 			List<String> paths = mongoTemplate.findDistinct("path", MockLog.class, String.class);
@@ -280,14 +288,15 @@ public class ScenarioServiceDAO {
 		throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-1000"), "MockServer-1000");
 	}
 
-	public void updateScenario(Expectation expectationRequest, String scenarioId, String jsessionId) throws ItorixException {
+	public void updateScenario(Expectation expectationRequest, String scenarioId, String jsessionId)
+			throws ItorixException {
 
 		expectationRequest.setId(scenarioId);
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionId);
 		expectationRequest.setModifiedBy(user.getFirstName() + " " + user.getLastName());
 		expectationRequest.setMts(System.currentTimeMillis());
 		Expectation expectation = mongoTemplate.findById(scenarioId, Expectation.class);
-		if(expectation == null){
+		if (expectation == null) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-1001"), "MockServer-1001");
 		}
 		String pathValue = expectationRequest.getRequest().getPath().getValue();
@@ -301,7 +310,7 @@ public class ScenarioServiceDAO {
 		List<String> pathList = new ArrayList<>();
 
 		for (String path : pathSplit) {
-			if(StringUtils.isEmpty(path)){
+			if (StringUtils.isEmpty(path)) {
 				continue;
 			}
 			if ((path.startsWith("{") && path.contains(":")) || path.contains("?") || path.contains("*")) {
@@ -317,22 +326,20 @@ public class ScenarioServiceDAO {
 
 	public void deleteScenario(String scenarioId) throws ItorixException {
 		Query query = new Query(Criteria.where("id").is(scenarioId));
-		if(mongoTemplate.remove(query, Expectation.class).getDeletedCount() == 0){
+		if (mongoTemplate.remove(query, Expectation.class).getDeletedCount() == 0) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-1001"), "MockServer-1001");
 		}
 	}
 
-
 	public Expectation getScenario(String scenarioId) throws ItorixException {
 		Query query = new Query(Criteria.where("id").is(scenarioId));
 		query.fields().exclude("pathArray");
-		 Expectation expectation = mongoTemplate.findOne(query, Expectation.class);
-		 if(expectation != null){
-			 return expectation;
-		 }
-		 throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-1001"), "MockServer-1001");
+		Expectation expectation = mongoTemplate.findOne(query, Expectation.class);
+		if (expectation != null) {
+			return expectation;
+		}
+		throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-1001"), "MockServer-1001");
 	}
-
 
 	public ExpectationResponse getScenarios(String groupId, int offset, int pageSize) {
 
@@ -354,6 +361,4 @@ public class ScenarioServiceDAO {
 		response.setPagination(pagination);
 		return response;
 	}
-
-
 }

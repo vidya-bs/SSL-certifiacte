@@ -1,6 +1,5 @@
 package com.itorix.apiwiz.testsuite.model;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +50,7 @@ public class Request {
 	}
 
 	public void addHeader(Header header) {
-		if(this.headers == null)
+		if (this.headers == null)
 			this.headers = new ArrayList<Header>();
 		this.addHeader(header);
 	}

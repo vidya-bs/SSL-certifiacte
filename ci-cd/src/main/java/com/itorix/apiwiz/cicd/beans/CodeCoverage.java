@@ -7,11 +7,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "enabled", "acceptance" })
+@JsonPropertyOrder({"enabled", "acceptance"})
 public class CodeCoverage {
 	@JsonProperty("enabled")
 	private String enabled;
-	
+
 	@JsonProperty("acceptance")
 	private Integer acceptance;
 
@@ -20,7 +20,7 @@ public class CodeCoverage {
 
 	@JsonProperty("testsuites")
 	List<TestSuiteAndConfig> testSuites;
-	
+
 	@JsonProperty("enabled")
 	public String getEnabled() {
 		return enabled;

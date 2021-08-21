@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public interface TestSuiteAgentService {
 
-	@RequestMapping(method = RequestMethod.POST, value = "/v1/execute", consumes = { "application/json" }, produces = {
-			"application/json" })
-	public ResponseEntity<?> storeExecutionId(@RequestBody Map<String, String> requestBody) throws Exception;
+    @RequestMapping(method = RequestMethod.POST, value = "/v1/execute", consumes = { "application/json" }, produces = {
+            "application/json" })
+    public ResponseEntity<?> storeExecutionId(@RequestBody Map<String, String> requestBody) throws Exception;
 
-	@RequestMapping(method = RequestMethod.POST, value = "/v1/cancelExecution", consumes = { "application/json" }, produces = {
-			"application/json" })
-	public ResponseEntity<?> cancelExecution(@RequestBody Map<String, String> requestBody) throws Exception;
+    @RequestMapping(method = RequestMethod.POST, value = "/v1/cancelExecution", consumes = {
+            "application/json" }, produces = { "application/json" })
+    public ResponseEntity<?> cancelExecution(@RequestBody Map<String, String> requestBody) throws Exception;
 }

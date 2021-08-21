@@ -131,5 +131,4 @@ public class DeveloperDetails {
 	public void setLastModifiedBy(String lastModifiedBy) {
 		this.lastModifiedBy = lastModifiedBy;
 	}
-
 }

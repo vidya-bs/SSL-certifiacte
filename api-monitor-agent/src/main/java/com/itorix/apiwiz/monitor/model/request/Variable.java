@@ -9,15 +9,15 @@ import lombok.Setter;
 @Setter
 public class Variable {
 
-	@JsonProperty("name")
-	private String name;
+    @JsonProperty("name")
+    private String name;
 
-	@JsonProperty("reference")
-	private String reference;
+    @JsonProperty("reference")
+    private String reference;
 
-	@JsonProperty("value")
-	private String value;
+    @JsonProperty("value")
+    private String value;
 
-	@JsonProperty("runTimevalue")
-	private String runTimevalue;
+    @JsonProperty("runTimevalue")
+    private String runTimevalue;
 }

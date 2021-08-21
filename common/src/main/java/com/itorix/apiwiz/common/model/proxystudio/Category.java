@@ -16,38 +16,45 @@ public class Category {
 	private String name;
 	private String description;
 	private List<Policy> policies;
+
 	public String getType() {
 		return type;
 	}
+
 	public void setType(String type) {
 		this.type = type;
 	}
+
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	public List<Policy> getPolicies() {
 		return policies;
 	}
+
 	public void setPolicies(List<Policy> policies) {
 		this.policies = policies;
 	}
-	
+
 	public void addPolicy(Policy policy) {
-		if(this.policies != null)
+		if (this.policies != null)
 			this.policies.add(policy);
-		else{
-			this.policies= new ArrayList<Policy>();
+		else {
+			this.policies = new ArrayList<Policy>();
 			this.policies.add(policy);
 		}
 	}
+
 	public String getDescription() {
 		return description;
 	}
+
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
 }

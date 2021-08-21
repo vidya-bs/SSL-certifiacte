@@ -1,4 +1,3 @@
-
 package com.itorix.apiwiz.testsuite.model;
 
 import java.util.List;
@@ -87,5 +86,4 @@ public class TestSuiteAnalysis {
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

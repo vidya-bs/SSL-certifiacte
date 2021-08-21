@@ -3,11 +3,7 @@ package com.itorix.apiwiz.testsuite.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- *
- * @author vphani
- *
- */
+/** @author vphani */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Variable {
 
@@ -21,10 +17,12 @@ public class Variable {
 	private String value;
 
 	@JsonProperty("isEncryption")
-    private boolean encryption;
+	private boolean encryption;
 
 	@JsonProperty("runTimevalue")
 	private String runTimevalue;
+
+	private boolean ignoreCase;
 
 	@JsonProperty("name")
 	public String getName() {
@@ -65,6 +63,8 @@ public class Variable {
 		builder.append(reference);
 		builder.append(", value=");
 		builder.append(value);
+		builder.append(", ignoreCase=");
+		builder.append(ignoreCase);
 		builder.append("]");
 		return builder.toString();
 	}
@@ -85,4 +85,11 @@ public class Variable {
 		this.runTimevalue = runTimevalue;
 	}
 
+	public boolean isIgnoreCase() {
+		return ignoreCase;
+	}
+
+	public void setIgnoreCase(boolean ignoreCase) {
+		this.ignoreCase = ignoreCase;
+	}
 }

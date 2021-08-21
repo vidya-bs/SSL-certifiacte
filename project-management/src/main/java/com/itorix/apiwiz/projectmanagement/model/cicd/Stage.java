@@ -8,25 +8,33 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "orgName", "envName", "sequenceID", "unitTests", "codeCoverage" })
+@JsonPropertyOrder({"orgName", "envName", "sequenceID", "unitTests", "codeCoverage"})
 public class Stage {
 
 	@JsonProperty("name")
 	private String name;
+
 	@JsonProperty("orgName")
 	private String orgName;
+
 	@JsonProperty("envName")
 	private String envName;
+
 	@JsonProperty("sequenceID")
 	private Integer sequenceID;
+
 	@JsonProperty("unitTests")
 	private UnitTests unitTests;
+
 	@JsonProperty("codeCoverage")
 	private CodeCoverage codeCoverage;
+
 	@JsonProperty("type")
 	private String type;
+
 	@JsonProperty("isSaaS")
 	private Boolean isSaas;
+
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 

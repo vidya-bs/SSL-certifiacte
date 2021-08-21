@@ -10,8 +10,8 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 public class RequestBodyDiff {
 
 	public ChangedRequestBody diff(RequestBody left, RequestBody right) {
-		
-		if(Objects.isNull(left) && Objects.isNull(right)) {
+
+		if (Objects.isNull(left) && Objects.isNull(right)) {
 			return null;
 		}
 
@@ -42,5 +42,4 @@ public class RequestBodyDiff {
 
 		return changedReqBody;
 	}
-
 }

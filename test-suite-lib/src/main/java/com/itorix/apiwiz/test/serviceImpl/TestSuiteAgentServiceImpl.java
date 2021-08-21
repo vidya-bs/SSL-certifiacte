@@ -31,78 +31,80 @@ import com.itorix.apiwiz.test.service.TestSuiteAgentService;
 @RestController
 public class TestSuiteAgentServiceImpl implements TestSuiteAgentService {
 
-	private static final Logger log = LoggerFactory.getLogger(TestSuiteAgentServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(TestSuiteAgentServiceImpl.class);
 
-	@Autowired
-	TestSuitExecutorSQLDao executorSQLDao;
+    @Autowired
+    TestSuitExecutorSQLDao executorSQLDao;
 
-	@Autowired
-	TestSuiteExecutorDao testSuiteExecutorDao;
+    @Autowired
+    TestSuiteExecutorDao testSuiteExecutorDao;
 
-	@Autowired
-	CancellationExecutor cancellationExecutor;
+    @Autowired
+    CancellationExecutor cancellationExecutor;
 
-	@Autowired HttpServletRequest request;
+    @Autowired
+    HttpServletRequest request;
 
-	@Value("${includeAgentPort:true}")
-	boolean includeAgentPort;
+    @Value("${includeAgentPort:true}")
+    boolean includeAgentPort;
 
-	@Override
-	public ResponseEntity<?> storeExecutionId(@RequestBody Map<String, String> requestBody) throws Exception {
+    @Override
+    public ResponseEntity<?> storeExecutionId(@RequestBody Map<String, String> requestBody) throws Exception {
 
-		String executionId = requestBody.get("testSuiteExecutionId");
-		if (!StringUtils.hasText(executionId)) {
-			log.error("testSuiteExecutionId is empty");
-			throw new ItorixException(ErrorCodes.errorMessage.get("TestSuiteAgent-5"), "TestSuiteAgent-5");
-		}
+        String executionId = requestBody.get("testSuiteExecutionId");
+        if (!StringUtils.hasText(executionId)) {
+            log.error("testSuiteExecutionId is empty");
+            throw new ItorixException(ErrorCodes.errorMessage.get("TestSuiteAgent-5"), "TestSuiteAgent-5");
+        }
 
-		TestSuiteResponse testSuiteResponse = testSuiteExecutorDao.getTestSuiteResponseById(executionId);
-		if (testSuiteResponse == null) {
-			log.error("There is no entry found in TestSuiteResponse for executionId " + executionId);
-			throw new ItorixException(ErrorCodes.errorMessage.get("TestSuiteAgent-8"), "TestSuiteAgent-8");
-		}
+        TestSuiteResponse testSuiteResponse = testSuiteExecutorDao.getTestSuiteResponseById(executionId);
+        if (testSuiteResponse == null) {
+            log.error("There is no entry found in TestSuiteResponse for executionId " + executionId);
+            throw new ItorixException(ErrorCodes.errorMessage.get("TestSuiteAgent-8"), "TestSuiteAgent-8");
+        }
 
-		List<TestExecutorEntity> executionEntity = executorSQLDao.getExecutorEntityByColumn("testSuiteExecutionId",
-				executionId, 1);
-		if (!executionEntity.isEmpty()) {
-			log.error("A request is already processed for executionId");
-			throw new ItorixException(ErrorCodes.errorMessage.get("TestSuiteAgent-6"), "TestSuiteAgent-6");
-		}
+        List<TestExecutorEntity> executionEntity = executorSQLDao.getExecutorEntityByColumn("testSuiteExecutionId",
+                executionId, 1);
+        if (!executionEntity.isEmpty()) {
+            log.error("A request is already processed for executionId");
+            throw new ItorixException(ErrorCodes.errorMessage.get("TestSuiteAgent-6"), "TestSuiteAgent-6");
+        }
 
-		String tenantName = TenantContext.getCurrentTenant();
-		if (StringUtils.hasText(tenantName)) {
-			String agent;
-			if(includeAgentPort){
-				agent = InetAddress.getLocalHost().getHostName() + ":" + request.getServerPort();
-			} else {
-				agent = InetAddress.getLocalHost().getHostName();
-			}
-			//String host  = request.getRequestURL().substring(0,request.getRequestURL().indexOf(request.getContextPath())+request.getContextPath().length());
-			executorSQLDao.insertIntoTestExecutorEntity(tenantName, executionId,
-					TestExecutorEntity.STATUSES.SCHEDULED.getValue());
-			testSuiteExecutorDao.updateTestSuiteField(executionId,"testSuiteAgent",agent);
-			return new ResponseEntity<>(HttpStatus.OK);
-		}
+        String tenantName = TenantContext.getCurrentTenant();
+        if (StringUtils.hasText(tenantName)) {
+            String agent;
+            if (includeAgentPort) {
+                agent = InetAddress.getLocalHost().getHostName() + ":" + request.getServerPort();
+            } else {
+                agent = InetAddress.getLocalHost().getHostName();
+            }
+            // String host =
+            // request.getRequestURL().substring(0,request.getRequestURL().indexOf(request.getContextPath())+request.getContextPath().length());
+            executorSQLDao.insertIntoTestExecutorEntity(tenantName, executionId,
+                    TestExecutorEntity.STATUSES.SCHEDULED.getValue());
+            testSuiteExecutorDao.updateTestSuiteField(executionId, "testSuiteAgent", agent);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
 
-		log.error("Couldn't find tenant");
-		throw new ItorixException(ErrorCodes.errorMessage.get("TestSuiteAgent-4"), "TestSuiteAgent-4");
-	}
+        log.error("Couldn't find tenant");
+        throw new ItorixException(ErrorCodes.errorMessage.get("TestSuiteAgent-4"), "TestSuiteAgent-4");
+    }
 
-	@Override
-	public ResponseEntity<?> cancelExecution(@RequestBody Map<String, String> requestBody) throws Exception {
-		String executionId = requestBody.get("testSuiteExecutionId");
-		if (!StringUtils.hasText(executionId)) {
-			log.error("testSuiteExecutionId is empty");
-			throw new ItorixException(ErrorCodes.errorMessage.get("TestSuiteAgent-5"), "TestSuiteAgent-5");
-		}
+    @Override
+    public ResponseEntity<?> cancelExecution(@RequestBody Map<String, String> requestBody) throws Exception {
+        String executionId = requestBody.get("testSuiteExecutionId");
+        if (!StringUtils.hasText(executionId)) {
+            log.error("testSuiteExecutionId is empty");
+            throw new ItorixException(ErrorCodes.errorMessage.get("TestSuiteAgent-5"), "TestSuiteAgent-5");
+        }
 
-		TestSuiteResponse testSuiteResponse = testSuiteExecutorDao.getTestSuiteResponseById(executionId);
-		if (testSuiteResponse == null) {
-			log.error("There is no entry found in TestSuiteResponse for executionId " + executionId);
-			throw new ItorixException(ErrorCodes.errorMessage.get("TestSuiteAgent-8"), "TestSuiteAgent-8");
-		}
+        TestSuiteResponse testSuiteResponse = testSuiteExecutorDao.getTestSuiteResponseById(executionId);
+        if (testSuiteResponse == null) {
+            log.error("There is no entry found in TestSuiteResponse for executionId " + executionId);
+            throw new ItorixException(ErrorCodes.errorMessage.get("TestSuiteAgent-8"), "TestSuiteAgent-8");
+        }
 
-		cancellationExecutor.cancelTestSuite(executionId);
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
+        cancellationExecutor.cancelTestSuite(executionId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

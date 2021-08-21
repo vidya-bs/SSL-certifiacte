@@ -7,8 +7,6 @@ public class ApigeeMetaData {
 	private String[] errors;
 	private String[] notices;
 
-	
-
 	public String[] getErrors() {
 		return errors;
 	}
@@ -24,7 +22,4 @@ public class ApigeeMetaData {
 	public void setNotices(String[] notices) {
 		this.notices = notices;
 	}
-	
-	
-	
 }

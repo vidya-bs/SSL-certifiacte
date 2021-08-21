@@ -10,17 +10,15 @@ import org.springframework.stereotype.Component;
 import com.itorix.apiwiz.sso.dao.SSODao;
 import com.itorix.apiwiz.sso.model.SAMLUserDetails;
 
-
-
 @Component
 public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 
-	@Autowired
-	private SSODao ssoDao;
+    @Autowired
+    private SSODao ssoDao;
 
-	@Override
-	public Object loadUserBySAML(SAMLCredential credential) throws UsernameNotFoundException {
-		UserDetails userDetails = new SAMLUserDetails(credential, ssoDao);
-		return userDetails;
-	}
+    @Override
+    public Object loadUserBySAML(SAMLCredential credential) throws UsernameNotFoundException {
+        UserDetails userDetails = new SAMLUserDetails(credential, ssoDao);
+        return userDetails;
+    }
 }

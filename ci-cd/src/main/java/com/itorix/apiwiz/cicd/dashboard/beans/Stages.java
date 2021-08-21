@@ -1,57 +1,49 @@
 package com.itorix.apiwiz.cicd.dashboard.beans;
-public class Stages
-{
-    private String result;
 
-    private String duration;
+public class Stages {
+	private String result;
 
-    private String name;
+	private String duration;
 
-    private String scheduled_date;
+	private String name;
 
-    public String getResult ()
-    {
-        return result;
-    }
+	private String scheduled_date;
 
-    public void setResult (String result)
-    {
-        this.result = result;
-    }
+	public String getResult() {
+		return result;
+	}
 
-    public String getDuration ()
-    {
-        return duration;
-    }
+	public void setResult(String result) {
+		this.result = result;
+	}
 
-    public void setDuration (String duration)
-    {
-        this.duration = duration;
-    }
+	public String getDuration() {
+		return duration;
+	}
 
-    public String getName ()
-    {
-        return name;
-    }
+	public void setDuration(String duration) {
+		this.duration = duration;
+	}
 
-    public void setName (String name)
-    {
-        this.name = name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public String getScheduled_date ()
-    {
-        return scheduled_date;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public void setScheduled_date (String scheduled_date)
-    {
-        this.scheduled_date = scheduled_date;
-    }
+	public String getScheduled_date() {
+		return scheduled_date;
+	}
 
-    @Override
-    public String toString()
-    {
-        return "ClassPojo [result = "+result+", duration = "+duration+", name = "+name+", scheduled_date = "+scheduled_date+"]";
-    }
+	public void setScheduled_date(String scheduled_date) {
+		this.scheduled_date = scheduled_date;
+	}
+
+	@Override
+	public String toString() {
+		return "ClassPojo [result = " + result + ", duration = " + duration + ", name = " + name + ", scheduled_date = "
+				+ scheduled_date + "]";
+	}
 }

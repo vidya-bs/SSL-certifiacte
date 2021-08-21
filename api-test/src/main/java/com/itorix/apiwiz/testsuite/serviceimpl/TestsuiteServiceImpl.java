@@ -1,20 +1,17 @@
 package com.itorix.apiwiz.testsuite.serviceimpl;
 
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
+import com.itorix.apiwiz.common.model.exception.ErrorObj;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
+import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
+import com.itorix.apiwiz.identitymanagement.model.TenantContext;
+import com.itorix.apiwiz.identitymanagement.model.User;
+import com.itorix.apiwiz.testsuite.dao.TestSuiteDAO;
+import com.itorix.apiwiz.testsuite.model.*;
+import com.itorix.apiwiz.testsuite.service.TestSuiteService;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -30,46 +27,28 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.itorix.apiwiz.common.model.exception.ErrorCodes;
-import com.itorix.apiwiz.common.model.exception.ErrorObj;
-import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.properties.ApplicationProperties;
-import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
-import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
-import com.itorix.apiwiz.identitymanagement.model.TenantContext;
-import com.itorix.apiwiz.identitymanagement.model.User;
-import com.itorix.apiwiz.testsuite.dao.TestSuiteDAO;
-import com.itorix.apiwiz.testsuite.model.Certificates;
-import com.itorix.apiwiz.testsuite.model.CertificatesResponse;
-import com.itorix.apiwiz.testsuite.model.Header;
-import com.itorix.apiwiz.testsuite.model.MaskFields;
-import com.itorix.apiwiz.testsuite.model.Scenario;
-import com.itorix.apiwiz.testsuite.model.TestCase;
-import com.itorix.apiwiz.testsuite.model.TestSuite;
-import com.itorix.apiwiz.testsuite.model.TestSuiteResponse;
-import com.itorix.apiwiz.testsuite.model.TestSuiteSchedule;
-import com.itorix.apiwiz.testsuite.model.Variables;
-import com.itorix.apiwiz.testsuite.service.TestSuiteService;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -85,7 +64,6 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 
 	@Autowired
 	private IdentityManagementDao commonServices;
-
 
 	@Value("${itorix.testsuit.agent:null}")
 	private String testSuitAgentPath;
@@ -162,12 +140,12 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 		String testId = dao.createTestCase(testsuiteid, scenarioid, testCase);
 		return new ResponseEntity<>("{\"id\": \"" + testId + "\"}", HttpStatus.CREATED);
 	}
-	
+
 	public ResponseEntity<?> getTestSuiteVariables(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid,
 			HttpServletRequest request, HttpServletResponse response, @PathVariable("testsuiteid") String testsuiteid)
-					throws ItorixException{
+			throws ItorixException {
 		return new ResponseEntity<>(dao.getTestSuiteVaraibles(testsuiteid), HttpStatus.OK);
 	}
 
@@ -186,8 +164,7 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 			@PathVariable("testsuiteid") String testsuiteid) throws ItorixException {
 		User user = commonServices.getUserDetailsFromSessionID(jsessionid);
 		testSuite.setModifiedBy(user.getFirstName() + " " + user.getLastName());
-		return new ResponseEntity<>(dao.updateTestSuite(testSuite, testsuiteid),
-				HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(dao.updateTestSuite(testSuite, testsuiteid), HttpStatus.NO_CONTENT);
 	}
 
 	public ResponseEntity<?> updateTestCase(
@@ -230,18 +207,18 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 
 	public ResponseEntity<Object> getAllTestSuiteDetails(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader HttpHeaders headers,
-			@RequestParam(value = "expand", required = false) String expand,
+			@RequestHeader HttpHeaders headers, @RequestParam(value = "expand", required = false) String expand,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, HttpServletRequest request,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) throws ItorixException{
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize)
+			throws ItorixException {
 		expand = "false";
 		return new ResponseEntity<>(dao.getAllTestSuite(expand, offset, pageSize), HttpStatus.OK);
 	}
 
 	public ResponseEntity<Object> getAllTestSuiteList(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException{
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException {
 		return new ResponseEntity<Object>(dao.getAllTestSuites(), HttpStatus.OK);
 	}
 
@@ -307,7 +284,7 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
 			@RequestParam(value = "expand", required = false, defaultValue = "false") String expand,
 			HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, ItorixException {
-		if(expand !=null && expand.equalsIgnoreCase("true"))
+		if (expand != null && expand.equalsIgnoreCase("true"))
 			return new ResponseEntity<>(dao.getVariables(), HttpStatus.OK);
 		else
 			return new ResponseEntity<>(dao.getVariables(offset, pageSize), HttpStatus.OK);
@@ -327,10 +304,8 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid,
 			HttpServletRequest request, @PathVariable("testsuiteid") String testsuiteid,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-			HttpServletResponse response)
-			throws JsonProcessingException, ItorixException {
-		return new ResponseEntity<>(
-				dao.getTestSuiteResponse(testsuiteid, offset), HttpStatus.OK);
+			HttpServletResponse response) throws JsonProcessingException, ItorixException {
+		return new ResponseEntity<>(dao.getTestSuiteResponse(testsuiteid, offset), HttpStatus.OK);
 	}
 
 	public ResponseEntity<?> getTestSuiteResponseById(
@@ -338,8 +313,7 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid,
 			HttpServletRequest request, @PathVariable("testsuiteresponseid") String testsuiteresponseid,
 			HttpServletResponse response) throws JsonProcessingException, ItorixException {
-		return new ResponseEntity<>(dao.getTestSuiteResponseById(testsuiteresponseid),
-				HttpStatus.OK);
+		return new ResponseEntity<>(dao.getTestSuiteResponseById(testsuiteresponseid), HttpStatus.OK);
 	}
 
 	public RestTemplate getRestTemplate() {
@@ -368,7 +342,6 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 			logger.error("exception when creating rest template", e);
 		}
 		return null;
-
 	}
 
 	public ResponseEntity<?> triggerTestSuite(@PathVariable("testsuiteId") String testSuiteId,
@@ -378,9 +351,9 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 		return triggerTestSuite(testSuiteId, variableId, jsessionId, interactionid, request, false);
 	}
 
-	public ResponseEntity<?> triggerTestSuite(String testSuiteId,
-			 String variableId, @RequestHeader(value = "JSESSIONID") String jsessionId,
-			String interactionid, HttpServletRequest request, boolean isSchedulerCall )
+	public ResponseEntity<?> triggerTestSuite(String testSuiteId, String variableId,
+			@RequestHeader(value = "JSESSIONID") String jsessionId, String interactionid, HttpServletRequest request,
+			boolean isSchedulerCall)
 			throws JsonProcessingException, JSONException, InterruptedException, ItorixException {
 
 		String testSuitRespId = null;
@@ -420,13 +393,13 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 			}
 		} catch (HttpServerErrorException e) {
 			dao.deleteTestSuiteResponse(testSuitRespId);
-			logger.error("error executing test suit agent " +  e.getResponseBodyAsString());
+			logger.error("error executing test suit agent " + e.getResponseBodyAsString());
 			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100803"), "Testsuite-100803");
 		} catch (Exception e) {
-			logger.error("error executing test suit agent ",  e);
+			logger.error("error executing test suit agent ", e);
 			dao.deleteTestSuiteResponse(testSuitRespId);
-			if(e instanceof ItorixException){
-				throw (ItorixException)e;
+			if (e instanceof ItorixException) {
+				throw (ItorixException) e;
 			}
 			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100803"), "Testsuite-100803");
 		}
@@ -435,10 +408,9 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 
 	public ResponseEntity<?> cancelTestSuite(@PathVariable("testsuiteId") String testSuiteId,
 			@PathVariable("variableId") String variableId, @RequestHeader(value = "JSESSIONID") String jsessionId,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			HttpServletRequest request) throws ItorixException {
-		List<TestSuiteResponse> cancelTestSuite = dao.getTestSuiteEligibleForCancel(testSuiteId,
-				variableId);
+			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request)
+			throws ItorixException {
+		List<TestSuiteResponse> cancelTestSuite = dao.getTestSuiteEligibleForCancel(testSuiteId, variableId);
 		if (cancelTestSuite.isEmpty()) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100806"), "Testsuite-100806");
 		}
@@ -453,7 +425,8 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 			body.put("testSuiteExecutionId", testSuite.getId());
 			HttpEntity<Map<String, String>> httpEntity = new HttpEntity<>(body, headers);
 
-			String url = testSuitAgentPath.substring(0,testSuitAgentPath.indexOf(":")) + "://" + testSuite.getTestSuiteAgent() + "/" + testSuitContextPath + TEST_SUITE_CANCEL;
+			String url = testSuitAgentPath.substring(0, testSuitAgentPath.indexOf(":")) + "://"
+					+ testSuite.getTestSuiteAgent() + "/" + testSuitContextPath + TEST_SUITE_CANCEL;
 			ResponseEntity<String> result;
 			try {
 				result = restTemplate.postForEntity(url, httpEntity, String.class);
@@ -518,12 +491,10 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request)
 			throws ParseException, java.text.ParseException {
 		if (range == null && user == null)
-			return new ResponseEntity<>(
-					dao.getTestSuiteHistory(testSuiteId, variableId, offset),
-					HttpStatus.OK);
+			return new ResponseEntity<>(dao.getTestSuiteHistory(testSuiteId, variableId, offset), HttpStatus.OK);
 		else
-			return new ResponseEntity<>(dao.getTestSuiteHistory(testSuiteId, variableId,
-					offset, user, range), HttpStatus.OK);
+			return new ResponseEntity<>(dao.getTestSuiteHistory(testSuiteId, variableId, offset, user, range),
+					HttpStatus.OK);
 	}
 
 	public ResponseEntity<?> pauseTestSuite(@PathVariable("testsuiteId") String testSuiteId,
@@ -606,8 +577,7 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 			@PathVariable(value = "testSuiteId") String testSuiteId, @PathVariable(value = "configId") String configId,
 			@RequestParam(value = "daterange", required = false) String daterange, HttpServletRequest request,
 			HttpServletResponse response) throws ItorixException, java.text.ParseException {
-		return new ResponseEntity<>(dao.getAnalysis(testSuiteId, configId, daterange),
-				HttpStatus.OK);
+		return new ResponseEntity<>(dao.getAnalysis(testSuiteId, configId, daterange), HttpStatus.OK);
 	}
 
 	public ResponseEntity<?> getDashboardInfo(
@@ -619,12 +589,10 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 		return new ResponseEntity<>(dao.getDashboardDetails(daterange, timeunit), HttpStatus.OK);
 	}
 
-	public ResponseEntity<Object> searchForTestSuite(
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
+	public ResponseEntity<Object> searchForTestSuite(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception{
+			@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception {
 		return new ResponseEntity<Object>(dao.searchForTestSuite(name, limit), HttpStatus.OK);
-
 	}
 
 	@Override
@@ -635,20 +603,37 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 	}
 
 	@Override
-	public ResponseEntity<?> getMaskingFields(String interactionid,  @RequestHeader(value = "JSESSIONID") String jsessionid) {
+	public ResponseEntity<?> getMaskingFields(String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) {
 		MaskFields maskingFields = dao.getMaskingFields();
 		return new ResponseEntity<>(maskingFields, HttpStatus.OK);
 	}
 
-
+	@Override
+	public ResponseEntity<?> getMaskingFieldsOverview(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "expand", required = false) String expand,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) {
+		MaskFieldsOverviewResponse response = dao.getAllMaskFields(offset, pageSize);
+		if (Boolean.parseBoolean(expand)) {
+			return new ResponseEntity<>(response.getMaskFields(), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		}
+	}
 
 	@Override
-	public ResponseEntity<?> deleteCertificate(@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable(value = "name") String name) throws ItorixException{
+	public ResponseEntity<?> deleteCertificate(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(value = "name") String name)
+			throws ItorixException {
 		List<TestSuite> certificateReferences = dao.getCertificateReference(name);
-		if(!CollectionUtils.isEmpty(certificateReferences)){
-			String testSuites = certificateReferences.stream().map(s->s.getName()).collect(Collectors.joining(","));
-			throw new ItorixException((String.format(ErrorCodes.errorMessage.get("Testsuite-1008006"),testSuites)), "Testsuite-1008006");
+		if (!CollectionUtils.isEmpty(certificateReferences)) {
+			String testSuites = certificateReferences.stream().map(s -> s.getName()).collect(Collectors.joining(","));
+			throw new ItorixException((String.format(ErrorCodes.errorMessage.get("Testsuite-1008006"), testSuites)),
+					"Testsuite-1008006");
 		}
 
 		dao.deleteCertificate(name);
@@ -656,8 +641,10 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 	}
 
 	@Override
-	public ResponseEntity<?> getCertificate(@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable(value = "name") String name) throws ItorixException {
+	public ResponseEntity<?> getCertificate(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(value = "name") String name)
+			throws ItorixException {
 
 		Certificates certificate = dao.getCertificate(name);
 		if (certificate == null) {
@@ -665,17 +652,17 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 		}
 
 		String url = request.getRequestURL().toString();
-		StringBuilder downloadLocation =  new StringBuilder(url.substring(0,url.indexOf(request.getContextPath())+request.getContextPath().length()+1));
+		StringBuilder downloadLocation = new StringBuilder(
+				url.substring(0, url.indexOf(request.getContextPath()) + request.getContextPath().length() + 1));
 		downloadLocation.append("/v1/testsuites/certificates/").append(name).append("/download");
-		CertificatesResponse  certificatesResponse = new CertificatesResponse();
+		CertificatesResponse certificatesResponse = new CertificatesResponse();
 		BeanUtils.copyProperties(certificate, certificatesResponse);
 		certificatesResponse.setDownloadLocation(downloadLocation.toString());
-		return new ResponseEntity<>(certificatesResponse,HttpStatus.OK);
+		return new ResponseEntity<>(certificatesResponse, HttpStatus.OK);
 	}
 
 	@Override
-	public ResponseEntity<Object> createOrUpdateCertificate(
-			@RequestPart(value = "name", required = true) String name,
+	public ResponseEntity<Object> createOrUpdateCertificate(@RequestPart(value = "name", required = true) String name,
 			@RequestPart(value = "jksFile", required = false) MultipartFile jksFile,
 			@RequestPart(value = "description", required = false) String description,
 			@RequestPart(value = "password", required = false) String password,
@@ -708,21 +695,35 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 			return new ResponseEntity<>(certificates, HttpStatus.OK);
 		}
 	}
+	@Override
+	public ResponseEntity<?> getCertificatesOverview(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "expand", required = false) String expand,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) {
+		CertificateOverviewResponse response = dao.getAllCertificates(offset, pageSize);
+		if (Boolean.parseBoolean(expand)) {
+			return new ResponseEntity<>(
+					response.getCertificates().stream().map(s -> s.getName()).collect(Collectors.toList()),
+					HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		}
+	}
 
-	public ResponseEntity<Resource> downloadCertificate(@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable(name = "name") String name) throws ItorixException{
+	public ResponseEntity<Resource> downloadCertificate(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(name = "name") String name)
+			throws ItorixException {
 
 		byte[] content = dao.downloadCertificate(name);
-		if(content == null || content.length == 0){
+		if (content == null || content.length == 0) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1008005"), "Testsuite-1008005");
 		}
 
 		ByteArrayResource resource = new ByteArrayResource(content);
 
-	    return ResponseEntity.ok()
-	            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-	            .body(resource);
-
+		return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(resource);
 	}
-
 }

@@ -11,16 +11,15 @@ public class PathParam {
 
     @JsonProperty("name")
     private String name;
-    
+
     @JsonProperty("description")
     private String description;
-    
+
     @JsonProperty("value")
     private String value;
-    
+
     @JsonProperty("type")
     private String type;
-    
 
     @JsonProperty("name")
     public String getName() {

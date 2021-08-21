@@ -58,5 +58,4 @@ public class ListDiff<K> {
 	public Map<K, K> getShared() {
 		return shared;
 	}
-
 }

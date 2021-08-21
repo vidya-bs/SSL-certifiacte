@@ -21,57 +21,57 @@ import com.itorix.apiwiz.monitor.model.request.Variable;
 
 public class ResponseManager {
 
-	public ResponseValidator gatherResponseData(HttpResponse actualResponse, Response response,
-			Map<String, String> vars, Map<String, String> encryptedVariables)
-			throws ParseException, IOException, ParserConfigurationException, SAXException {
+    public ResponseValidator gatherResponseData(HttpResponse actualResponse, Response response,
+            Map<String, String> vars, Map<String, String> encryptedVariables)
+            throws ParseException, IOException, ParserConfigurationException, SAXException {
 
-		ResponseValidator validator = null;
-		if (response.getBody() != null && response.getBody().getType() != null) {
-			if (actualResponse.getEntity() != null) {
-				response.getBody().setData(EntityUtils.toString(actualResponse.getEntity(), "UTF-8"));
-			}
+        ResponseValidator validator = null;
+        if (response.getBody() != null && response.getBody().getType() != null) {
+            if (actualResponse.getEntity() != null) {
+                response.getBody().setData(EntityUtils.toString(actualResponse.getEntity(), "UTF-8"));
+            }
 
-			if (response.getBody() != null && response.getBody().getData() != null
-					&& !response.getBody().getData().isEmpty()) {
-				if (response.getBody().getType().equalsIgnoreCase("json")) {
-					validator = new JsonValidator(response.getBody().getData());
-				}
-				if (response.getBody().getType().equalsIgnoreCase("xml")) {
-					validator = new XmlValidator(response.getBody().getData());
-				}
-			}
-		}
+            if (response.getBody() != null && response.getBody().getData() != null
+                    && !response.getBody().getData().isEmpty()) {
+                if (response.getBody().getType().equalsIgnoreCase("json")) {
+                    validator = new JsonValidator(response.getBody().getData());
+                }
+                if (response.getBody().getType().equalsIgnoreCase("xml")) {
+                    validator = new XmlValidator(response.getBody().getData());
+                }
+            }
+        }
 
-		Map<String, String> headerMap = Arrays.stream(actualResponse.getAllHeaders())
-				.collect(Collectors.toMap(Header::getName, Header::getValue));
-		response.setHeaders(headerMap);
-		//response.setStatus(actualResponse.getStatusLine().getStatusCode());
-		response.setMessage(actualResponse.getStatusLine().getReasonPhrase());
+        Map<String, String> headerMap = Arrays.stream(actualResponse.getAllHeaders())
+                .collect(Collectors.toMap(Header::getName, Header::getValue));
+        response.setHeaders(headerMap);
+        // response.setStatus(actualResponse.getStatusLine().getStatusCode());
+        response.setMessage(actualResponse.getStatusLine().getReasonPhrase());
 
-		if (response.getVariables() != null) {
-			for (Variable variable : response.getVariables()) {
-				if (variable.getReference() != null) {
-					if (variable.getReference().equalsIgnoreCase("headers")) {
-						vars.put(variable.getName(), headerMap.get(variable.getName()));
-					} else if (variable.getReference().equalsIgnoreCase("body")) {
-						try {
-							vars.put(variable.getName(), validator.getAttributeValue(variable.getValue()).toString());
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-					if (variable.getReference().equalsIgnoreCase("status")) {
-						if (variable.getName().equals("code"))
-							vars.put(variable.getName(),
-									Integer.toString(actualResponse.getStatusLine().getStatusCode()));
-						else
-							vars.put(variable.getName(), actualResponse.getStatusLine().getReasonPhrase());
-					}
-				}
-				encryptedVariables.put(variable.getName(), vars.get(variable.getName()));
-			}
-		}
+        if (response.getVariables() != null) {
+            for (Variable variable : response.getVariables()) {
+                if (variable.getReference() != null) {
+                    if (variable.getReference().equalsIgnoreCase("headers")) {
+                        vars.put(variable.getName(), headerMap.get(variable.getName()));
+                    } else if (variable.getReference().equalsIgnoreCase("body")) {
+                        try {
+                            vars.put(variable.getName(), validator.getAttributeValue(variable.getValue()).toString());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (variable.getReference().equalsIgnoreCase("status")) {
+                        if (variable.getName().equals("code"))
+                            vars.put(variable.getName(),
+                                    Integer.toString(actualResponse.getStatusLine().getStatusCode()));
+                        else
+                            vars.put(variable.getName(), actualResponse.getStatusLine().getReasonPhrase());
+                    }
+                }
+                encryptedVariables.put(variable.getName(), vars.get(variable.getName()));
+            }
+        }
 
-		return validator;
-	}
+        return validator;
+    }
 }

@@ -6,21 +6,19 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class ProxySCMDetails {
 
 	private String reponame;
-	
+
 	private String username;
-	
+
 	private String password;
-	
+
 	private String branch;
 
 	private String hostUrl;
-	
+
 	private String scmSource;
-	
+
 	private String commitMessage;
-	
-	
-	
+
 	public String getCommitMessage() {
 		return commitMessage;
 	}
@@ -76,5 +74,4 @@ public class ProxySCMDetails {
 	public void setBranch(String branch) {
 		this.branch = branch;
 	}
-	
 }

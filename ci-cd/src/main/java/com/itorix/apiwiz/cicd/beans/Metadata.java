@@ -5,34 +5,42 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "createdBy", "createdUserEmail", "modifiedBy", "modifiedUserEmail", "cts", "mts", "status" })
+@JsonPropertyOrder({"createdBy", "createdUserEmail", "modifiedBy", "modifiedUserEmail", "cts", "mts", "status"})
 public class Metadata {
 
 	@JsonProperty("createdBy")
 	private String createdBy;
+
 	@JsonProperty("modifiedBy")
 	private String modifiedBy;
+
 	@JsonProperty("createdUserEmail")
 	private String createdUserEmail;
+
 	@JsonProperty("modifiedUserEmail")
 	private String modifiedUserEmail;
+
 	@JsonProperty("cts")
 	private Long cts;
+
 	@JsonProperty("mts")
 	private Long mts;
+
 	@JsonProperty("status")
 	private String status;
 
-	public Metadata() {}
-	
+	public Metadata() {
+	}
+
 	public Metadata(String createdBy, Long cts, String modifiedBy, Long mts) {
 		this.createdBy = createdBy;
 		this.cts = cts;
 		this.modifiedBy = modifiedBy;
 		this.mts = mts;
 	}
-	
-	public Metadata(String createdBy, String createdUserEmail, Long cts, String modifiedBy, String modifiedUserEmail, Long mts) {
+
+	public Metadata(String createdBy, String createdUserEmail, Long cts, String modifiedBy, String modifiedUserEmail,
+			Long mts) {
 		this.createdBy = createdBy;
 		this.createdUserEmail = createdUserEmail;
 		this.cts = cts;
@@ -40,7 +48,7 @@ public class Metadata {
 		this.mts = mts;
 		this.modifiedUserEmail = modifiedUserEmail;
 	}
-	
+
 	@JsonProperty("createdUserEmail")
 	public String getCreatedUserEmail() {
 		return createdUserEmail;

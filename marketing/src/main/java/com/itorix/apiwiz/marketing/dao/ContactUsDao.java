@@ -51,7 +51,7 @@ public class ContactUsDao {
 	RSAEncryption rsaEncryption;
 
 	@PostConstruct
-	private void setRSAKey(){
+	private void setRSAKey() {
 		try {
 			rsaEncryption = new RSAEncryption();
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
@@ -60,11 +60,11 @@ public class ContactUsDao {
 	}
 
 	public void invokeNotificationAgent(ContactUsNotification contactUsNotification) {
-		try{
+		try {
 			NotificatoinEvent notificatoinEvent = null;
-			if(contactUsNotification.getEmailContent().getEvent() != null)
+			if (contactUsNotification.getEmailContent().getEvent() != null)
 				notificatoinEvent = getNotificationConfig(contactUsNotification.getEmailContent().getEvent());
-			if(notificatoinEvent != null){
+			if (notificatoinEvent != null) {
 				RequestModel requestModel = new RequestModel();
 				EmailTemplate emailTemplate = new EmailTemplate();
 				emailTemplate.setBody(contactUsNotification.getEmailContent().getBody().toHTML());
@@ -88,21 +88,20 @@ public class ContactUsDao {
 		}
 	}
 
-
-	public void updateNotificationConfigs(List<NotificatoinEvent> notificatoinEvents){
-		for(NotificatoinEvent notificatoinEvent : notificatoinEvents){
+	public void updateNotificationConfigs(List<NotificatoinEvent> notificatoinEvents) {
+		for (NotificatoinEvent notificatoinEvent : notificatoinEvents) {
 			masterMongoTemplate.save(notificatoinEvent);
 		}
 	}
 
-	public List<NotificatoinEvent> getNotificationConfigs(){
+	public List<NotificatoinEvent> getNotificationConfigs() {
 		Query query = new Query();
 		query.fields().include("name");
 		List<NotificatoinEvent> notificatoinEvents = masterMongoTemplate.find(query, NotificatoinEvent.class);
 		return notificatoinEvents;
 	}
 
-	public NotificatoinEvent getNotificationConfig(String name){
+	public NotificatoinEvent getNotificationConfig(String name) {
 		NotificatoinEvent notificatoinEvent = masterMongoTemplate.findById(name, NotificatoinEvent.class);
 		return notificatoinEvent;
 	}

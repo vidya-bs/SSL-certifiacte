@@ -1,6 +1,5 @@
 package com.itorix.apiwiz.testsuite.model;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,10 +10,10 @@ public class Assertion {
 
 	@JsonProperty("name")
 	private String name;
-	
+
 	@JsonProperty("value")
 	private String value;
-	
+
 	@JsonProperty("condition")
 	private String condition;
 
@@ -26,7 +25,10 @@ public class Assertion {
 
 	@JsonProperty("continueOnError")
 	private boolean continueOnError;
-	
+
+	@JsonProperty("ignoreCase")
+	private boolean ignoreCase;
+
 	@JsonProperty("continueOnError")
 	public boolean isContinueOnError() {
 		return continueOnError;
@@ -83,5 +85,13 @@ public class Assertion {
 
 	public void setMessage(String message) {
 		this.message = message;
+	}
+
+	public boolean isIgnoreCase() {
+		return ignoreCase;
+	}
+
+	public void setIgnoreCase(boolean ignoreCase) {
+		this.ignoreCase = ignoreCase;
 	}
 }

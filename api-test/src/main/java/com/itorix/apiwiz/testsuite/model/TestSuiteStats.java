@@ -1,4 +1,3 @@
-
 package com.itorix.apiwiz.testsuite.model;
 
 import java.util.List;
@@ -20,9 +19,8 @@ public class TestSuiteStats {
 
 	private List<ScenarioStats> scenarios;
 
-	public TestSuiteStats() {}
-
-
+	public TestSuiteStats() {
+	}
 
 	public TestSuiteStats(Long timeStamp, String testSuiteId, String name, int testSuiteCoverage, Double latency,
 			List<ScenarioStats> scenarios) {
@@ -34,8 +32,6 @@ public class TestSuiteStats {
 		this.latency = latency;
 		this.scenarios = scenarios;
 	}
-
-
 
 	public Long getTimeStamp() {
 		return timeStamp;
@@ -101,5 +97,4 @@ public class TestSuiteStats {
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

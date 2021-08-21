@@ -17,7 +17,7 @@ import lombok.experimental.FieldDefaults;
 public class ServiceRegistry {
 
 	enum Schemes {
-		http,https;
+		http, https;
 	}
 
 	enum ServiceStatus {

@@ -26,28 +26,27 @@ public class LokiLogger {
 	@Autowired
 	private ObjectMapper mapper;
 
-
-	public  void postLog(ErrorLog errorLog) {
-		if(notificationAgentPath != null){
+	public void postLog(ErrorLog errorLog) {
+		if (notificationAgentPath != null) {
 			String stream = "{\"streams\":[{\"stream\":{\"application\":\"appValue\"},\"values\":[[\"epocTime\",\"content\"]]}]}";
 			try {
 				String content = mapper.writeValueAsString(errorLog).replaceAll("\"", "\\\\\\\"");
 				content = content.replaceAll("\"", "\\\\\\\"");
 				System.out.println(content);
-				stream = stream.replaceAll("appValue", errorLog.getApplicationName()).
-						replaceAll("content",  content).
-						replaceAll("epocTime", String.valueOf(System.currentTimeMillis())+"000000");
+				stream = stream.replaceAll("appValue", errorLog.getApplicationName()).replaceAll("content", content)
+						.replaceAll("epocTime", String.valueOf(System.currentTimeMillis()) + "000000");
 				System.out.println(stream);
 				HttpHeaders headers = new HttpHeaders();
 				headers.setContentType(MediaType.APPLICATION_JSON);
 				RestTemplate restTemplate = new RestTemplate();
 				HttpEntity<Object> requestEntity = new HttpEntity<>(stream, headers);
-				ResponseEntity<String> response = restTemplate.exchange(notificationAgentPath, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<String>() {});
+				ResponseEntity<String> response = restTemplate.exchange(notificationAgentPath, HttpMethod.POST,
+						requestEntity, new ParameterizedTypeReference<String>() {
+						});
 				response.getBody();
 			} catch (Exception e) {
 				log.error("error connecting to loki: ", e);
-			} 
+			}
 		}
 	}
-
 }

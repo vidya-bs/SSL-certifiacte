@@ -11,38 +11,36 @@ import lombok.Setter;
 @Setter
 public class Body {
 
+	public enum Type {
+		@JsonProperty("JSON")
+		json,
 
-		public enum Type {
+		@JsonProperty("JSON_SCHEMA")
+		jsonSchema,
 
-			@JsonProperty("JSON")
-			json,
+		@JsonProperty("XML")
+		xml,
 
-			@JsonProperty("JSON_SCHEMA")
-			jsonSchema,
+		@JsonProperty("XML_SCHEMA")
+		xmlSchema,
 
-			@JsonProperty("XML")
-			xml,
+		@JsonProperty("FORM_PARAMS")
+		formParams,
 
-			@JsonProperty("XML_SCHEMA")
-			xmlSchema,
+		@JsonProperty("FORM_URL_ENCODED")
+		formURLEncoded,
+	}
 
-			@JsonProperty("FORM_PARAMS")
-			formParams,
+	@JsonProperty("formParams")
+	private List<NameMultiValue> formParams = null;
 
-			@JsonProperty("FORM_URL_ENCODED")
-			formURLEncoded,
-		}
+	@JsonProperty("formURLEncoded")
+	private List<NameMultiValue> formURLEncoded = null;
 
-		@JsonProperty("formParams")
-		private List<NameMultiValue> formParams = null;
+	private Type type;
+	private List<Data> data;
+	private String value;
 
-		@JsonProperty("formURLEncoded")
-		private List<NameMultiValue> formURLEncoded = null;
-
-		private Type type;
-		private List<Data> data;
-		private String value;
-
-		@JsonProperty("isStrict")
-		private boolean strict;
+	@JsonProperty("isStrict")
+	private boolean strict;
 }

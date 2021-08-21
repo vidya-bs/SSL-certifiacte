@@ -10,10 +10,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDomains extends AbstractObject {
 
-	public static final String NAME="userDomains";
-	
+	public static final String NAME = "userDomains";
+
 	private List<String> domains;
-	
+
 	private String name;
 
 	public String getName() {
@@ -31,7 +31,4 @@ public class UserDomains extends AbstractObject {
 	public void setDomains(List<String> domains) {
 		this.domains = domains;
 	}
-	
-	
-	
 }

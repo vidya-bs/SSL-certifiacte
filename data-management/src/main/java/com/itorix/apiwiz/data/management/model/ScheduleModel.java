@@ -16,42 +16,52 @@ public class ScheduleModel extends AbstractObject {
 	private String jsessionId;
 	private String selectedEnvironments;
 	private String userId;
-	
+
 	public String getOrganization() {
 		return organization;
 	}
+
 	public void setOrganization(String organization) {
 		this.organization = organization;
 	}
+
 	public String getEnvironment() {
 		return environment;
 	}
+
 	public void setEnvironment(String environment) {
 		this.environment = environment;
 	}
+
 	public String getPeriodicity() {
 		return periodicity;
 	}
+
 	public void setPeriodicity(String periodicity) {
 		this.periodicity = periodicity;
 	}
+
 	public String getJsessionId() {
 		return jsessionId;
 	}
+
 	public void setJsessionId(String jsessionId) {
 		this.jsessionId = jsessionId;
 	}
+
 	public String getSelectedEnvironments() {
 		return selectedEnvironments;
 	}
+
 	public void setSelectedEnvironments(String selectedEnvironments) {
 		this.selectedEnvironments = selectedEnvironments;
 	}
+
 	public String getUserId() {
 		return userId;
 	}
+
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
-	
 }

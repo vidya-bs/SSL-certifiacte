@@ -1,13 +1,10 @@
 package com.itorix.apiwiz.devportal.business.diff.compare;
 
-
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 
 public class MapKeyDiff<K, V> {
 
@@ -19,10 +16,10 @@ public class MapKeyDiff<K, V> {
 		this.sharedKey = new ArrayList<K>();
 	}
 
-	public static <K, V> MapKeyDiff<K, V> diff(Map<K, V> mapLeft,
-			Map<K, V> mapRight) {
+	public static <K, V> MapKeyDiff<K, V> diff(Map<K, V> mapLeft, Map<K, V> mapRight) {
 		MapKeyDiff<K, V> instance = new MapKeyDiff<K, V>();
-		if (null == mapLeft && null == mapRight) return instance;
+		if (null == mapLeft && null == mapRight)
+			return instance;
 		if (null == mapLeft) {
 			instance.increased = mapRight;
 			return instance;
@@ -43,7 +40,6 @@ public class MapKeyDiff<K, V> {
 			} else {
 				instance.missing.put(leftKey, leftValue);
 			}
-
 		}
 		return instance;
 	}
@@ -59,5 +55,4 @@ public class MapKeyDiff<K, V> {
 	public List<K> getSharedKey() {
 		return sharedKey;
 	}
-
 }

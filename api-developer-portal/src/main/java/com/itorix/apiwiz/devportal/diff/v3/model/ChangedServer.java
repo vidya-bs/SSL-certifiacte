@@ -15,5 +15,4 @@ public class ChangedServer extends Server {
 	public void setServerVariableDiff(ServerVariablesDiff serverVariableDiff) {
 		this.serverVariableDiff = serverVariableDiff;
 	}
-
 }

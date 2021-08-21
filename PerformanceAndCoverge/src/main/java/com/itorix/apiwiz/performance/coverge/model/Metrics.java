@@ -74,5 +74,4 @@ public class Metrics {
 	public void setNotification(Notification notification) {
 		this.notification = notification;
 	}
-
 }

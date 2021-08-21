@@ -11,7 +11,7 @@ public class ServiceRequestContextHolder {
 		contextHolder.set(null);
 	}
 
-	public synchronized static ServiceRequestContext getContext() {
+	public static synchronized ServiceRequestContext getContext() {
 		if (contextHolder.get() == null) {
 			ServiceRequestContext ctx = new ServiceRequestContext();
 			contextHolder.set(ctx);
@@ -22,5 +22,4 @@ public class ServiceRequestContextHolder {
 	public static void setContext(ServiceRequestContext context) {
 		contextHolder.set(context);
 	}
-
 }

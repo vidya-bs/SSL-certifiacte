@@ -13,25 +13,24 @@ public class OpenAPIDiff {
 
 	public static final String SWAGGER_VERSION_V3 = "3.0";
 
-
 	private OpenAPI oldSpecification;
 	private OpenAPI newSpecification;
 
 	public static ChangedOpenAPI compare(String oldSpec, String newSpec) {
 		return new OpenAPIDiff(oldSpec, newSpec, null, SWAGGER_VERSION_V3).compare();
 	}
-	
+
 	public static ChangedOpenAPI compare(JsonNode oldSpec, JsonNode newSpec) {
 		return new OpenAPIDiff(oldSpec, newSpec).compare();
 	}
-	
+
 	private OpenAPIDiff(JsonNode oldSpec, JsonNode newSpec) {
 		OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
 		oldSpecification = openAPIV3Parser.readWithInfo(null, oldSpec).getOpenAPI();
 		newSpecification = openAPIV3Parser.readWithInfo(null, oldSpec).getOpenAPI();
-				
-//		oldSpecification = openAPIV3Parser.read(oldSpec, true);
-//		newSpecification = openAPIV3Parser.read(newSpec, true);
+
+		// oldSpecification = openAPIV3Parser.read(oldSpec, true);
+		// newSpecification = openAPIV3Parser.read(newSpec, true);
 
 		if (null == oldSpec || null == newSpec) {
 			throw new RuntimeException("cannot read api-doc from spec.");
@@ -50,7 +49,7 @@ public class OpenAPIDiff {
 	}
 
 	private ChangedOpenAPI compare() {
-		ChangedOpenAPI changedOpenAPI =  SpecificationDiff.diff(oldSpecification, newSpecification);
+		ChangedOpenAPI changedOpenAPI = SpecificationDiff.diff(oldSpecification, newSpecification);
 		changedOpenAPI.setSwaggerName(newSpecification.getInfo().getTitle());
 		changedOpenAPI.setSwaggerDescription(newSpecification.getInfo().getDescription());
 		changedOpenAPI.setOldVersion(oldSpecification.getInfo().getVersion());

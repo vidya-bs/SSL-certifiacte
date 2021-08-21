@@ -5,29 +5,23 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Metrics {
 
-	
-	 private Values[] values;
+	private Values[] values;
 
-	    private String name;
+	private String name;
 
-	    public Values[] getValues ()
-	    {
-	        return values;
-	    }
+	public Values[] getValues() {
+		return values;
+	}
 
-	    public void setValues (Values[] values)
-	    {
-	        this.values = values;
-	    }
+	public void setValues(Values[] values) {
+		this.values = values;
+	}
 
-	    public String getName ()
-	    {
-	        return name;
-	    }
+	public String getName() {
+		return name;
+	}
 
-	    public void setName (String name)
-	    {
-	        this.name = name;
-	    }
-
+	public void setName(String name) {
+		this.name = name;
+	}
 }

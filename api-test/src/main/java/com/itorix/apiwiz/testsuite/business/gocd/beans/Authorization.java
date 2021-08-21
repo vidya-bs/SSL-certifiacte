@@ -1,6 +1,5 @@
 package com.itorix.apiwiz.testsuite.business.gocd.beans;
 
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,47 +11,45 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-    "roles",
-    "users"
-})
+@JsonPropertyOrder({"roles", "users"})
 public class Authorization {
 
-    @JsonProperty("roles")
-    private List<Object> roles = null;
-    @JsonProperty("users")
-    private List<Object> users = null;
-    @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	@JsonProperty("roles")
+	private List<Object> roles = null;
 
-    @JsonProperty("roles")
-    public List<Object> getRoles() {
-        return roles;
-    }
+	@JsonProperty("users")
+	private List<Object> users = null;
 
-    @JsonProperty("roles")
-    public void setRoles(List<Object> roles) {
-        this.roles = roles;
-    }
+	@JsonIgnore
+	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("users")
-    public List<Object> getUsers() {
-        return users;
-    }
+	@JsonProperty("roles")
+	public List<Object> getRoles() {
+		return roles;
+	}
 
-    @JsonProperty("users")
-    public void setUsers(List<Object> users) {
-        this.users = users;
-    }
+	@JsonProperty("roles")
+	public void setRoles(List<Object> roles) {
+		this.roles = roles;
+	}
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
+	@JsonProperty("users")
+	public List<Object> getUsers() {
+		return users;
+	}
 
-    @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-    }
+	@JsonProperty("users")
+	public void setUsers(List<Object> users) {
+		this.users = users;
+	}
 
+	@JsonAnyGetter
+	public Map<String, Object> getAdditionalProperties() {
+		return this.additionalProperties;
+	}
+
+	@JsonAnySetter
+	public void setAdditionalProperty(String name, Object value) {
+		this.additionalProperties.put(name, value);
+	}
 }

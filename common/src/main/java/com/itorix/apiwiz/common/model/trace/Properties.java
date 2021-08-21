@@ -14,44 +14,37 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Generated("org.jsonschema2pojo")
-@JsonPropertyOrder({
-"property"
-})
+@JsonPropertyOrder({"property"})
 public class Properties {
 
-@JsonProperty("property")
-private List<Property> property = new ArrayList<Property>();
-@JsonIgnore
-private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	@JsonProperty("property")
+	private List<Property> property = new ArrayList<Property>();
 
-/**
-* 
-* @return
-* The property
-*/
-@JsonProperty("property")
-public List<Property> getProperty() {
-return property;
-}
+	@JsonIgnore
+	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-/**
-* 
-* @param property
-* The property
-*/
-@JsonProperty("property")
-public void setProperty(List<Property> property) {
-this.property = property;
-}
+	/** @return The property */
+	@JsonProperty("property")
+	public List<Property> getProperty() {
+		return property;
+	}
 
-@JsonAnyGetter
-public Map<String, Object> getAdditionalProperties() {
-return this.additionalProperties;
-}
+	/**
+	 * @param property
+	 *            The property
+	 */
+	@JsonProperty("property")
+	public void setProperty(List<Property> property) {
+		this.property = property;
+	}
 
-@JsonAnySetter
-public void setAdditionalProperty(String name, Object value) {
-this.additionalProperties.put(name, value);
-}
+	@JsonAnyGetter
+	public Map<String, Object> getAdditionalProperties() {
+		return this.additionalProperties;
+	}
 
+	@JsonAnySetter
+	public void setAdditionalProperty(String name, Object value) {
+		this.additionalProperties.put(name, value);
+	}
 }

@@ -10,5 +10,5 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class LogEvent {
 	public Request request;
-    public Response response;
+	public Response response;
 }

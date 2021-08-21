@@ -1,13 +1,11 @@
 package com.itorix.apiwiz.test.security;
 
+import com.itorix.apiwiz.test.executor.model.TenantContext;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoDatabase;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
-
-import com.itorix.apiwiz.test.executor.model.TenantContext;
-import com.mongodb.DB;
-import com.mongodb.MongoClient;
 
 public class MultiTenantMongoDbFactory extends SimpleMongoDbFactory {
 
@@ -16,7 +14,7 @@ public class MultiTenantMongoDbFactory extends SimpleMongoDbFactory {
 	}
 
 	@Override
-	public DB getDb() throws DataAccessException {
+	public MongoDatabase getDb() throws DataAccessException {
 
 		if (StringUtils.hasText(TenantContext.getCurrentTenant())) {
 			return getDb(TenantContext.getCurrentTenant());

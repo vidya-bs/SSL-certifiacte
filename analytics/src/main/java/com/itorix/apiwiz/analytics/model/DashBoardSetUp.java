@@ -8,7 +8,7 @@ import com.itorix.apiwiz.identitymanagement.model.Apigee;
 
 @Component("DashBoardSetUp")
 @Document(collection = "Apigee.DashboardSetup")
-public class DashBoardSetUp extends AbstractObject{
+public class DashBoardSetUp extends AbstractObject {
 
 	public static final String DASH_BOARD_SETUP = "dashBoardSetUpDetails";
 	public static final String DASH_BOARD_FUNCTION_NAME = "dashBoardSetUpDetails";
@@ -31,5 +31,4 @@ public class DashBoardSetUp extends AbstractObject{
 	public void setApigee(Apigee apigee) {
 		this.apigee = apigee;
 	}
-
 }

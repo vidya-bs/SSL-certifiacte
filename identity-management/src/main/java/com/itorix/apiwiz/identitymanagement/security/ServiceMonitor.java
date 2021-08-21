@@ -42,12 +42,12 @@ import com.itorix.apiwiz.identitymanagement.service.BaseController;
 @Component
 public class ServiceMonitor extends LoggerAspect {
 
-	public final static long MILLIS_PER_DAY = 24 * 60 * 60 * 1000L;
+	public static final long MILLIS_PER_DAY = 24 * 60 * 60 * 1000L;
 
 	@Autowired
 	private BaseRepository baseRepository;
-	//	@Autowired
-	//	private UserSessionRepository userSessionRepository;
+	// @Autowired
+	// private UserSessionRepository userSessionRepository;
 	@Autowired
 	private HttpServletRequest request;
 	@Autowired
@@ -72,10 +72,9 @@ public class ServiceMonitor extends LoggerAspect {
 				secureCallValidations(thisJoinPoint);
 			} else {
 				if (!ignoreUnSecuredValidation(thisJoinPoint)) {
-					if(useUpdateKey(thisJoinPoint)){
+					if (useUpdateKey(thisJoinPoint)) {
 						unSecureUpdateCallValidations(thisJoinPoint);
-					}
-					else{
+					} else {
 						unSecureCallValidations(thisJoinPoint);
 					}
 				}
@@ -101,7 +100,7 @@ public class ServiceMonitor extends LoggerAspect {
 	@After("execution(* com.itorix.apiwiz..*.service..*(..))  || execution(* com.itorix.apiwiz..*.serviceImpl..*(..))")
 	public void Activitylog(JoinPoint thisJoinPoint) {
 		try {
-			if(!request.getRequestURI().contains("activitylog")){
+			if (!request.getRequestURI().contains("activitylog")) {
 				Date dateobj = new Date();
 				String sessionId = getSessionId(thisJoinPoint);
 				// check if session is valid or not
@@ -117,10 +116,10 @@ public class ServiceMonitor extends LoggerAspect {
 				activityLog.setId_user(dbUser.getId());
 				if (userSessionToken != null && userSessionToken.getUserId() != null) {
 					mongoTemplate.save(activityLog);
-				} 
-				//			else {
-				//				System.out.println("NO Activity log as JsessionId is null");
-				//			}
+				}
+				// else {
+				// System.out.println("NO Activity log as JsessionId is null");
+				// }
 			}
 		} catch (Throwable ex) {
 		}
@@ -138,14 +137,16 @@ public class ServiceMonitor extends LoggerAspect {
 		return signature.getMethod().getAnnotation(UnSecure.class) == null;
 	}
 
-	private boolean ignoreUnSecuredValidation(JoinPoint thisJoinPoint){
+	private boolean ignoreUnSecuredValidation(JoinPoint thisJoinPoint) {
 		MethodSignature signature = (MethodSignature) thisJoinPoint.getSignature();
-		return signature.getMethod().getAnnotation(UnSecure.class) != null && signature.getMethod().getAnnotation(UnSecure.class).ignoreValidation();
+		return signature.getMethod().getAnnotation(UnSecure.class) != null
+				&& signature.getMethod().getAnnotation(UnSecure.class).ignoreValidation();
 	}
 
-	private boolean useUpdateKey(JoinPoint thisJoinPoint){
+	private boolean useUpdateKey(JoinPoint thisJoinPoint) {
 		MethodSignature signature = (MethodSignature) thisJoinPoint.getSignature();
-		return signature.getMethod().getAnnotation(UnSecure.class) != null && signature.getMethod().getAnnotation(UnSecure.class).useUpdateKey();
+		return signature.getMethod().getAnnotation(UnSecure.class) != null
+				&& signature.getMethod().getAnnotation(UnSecure.class).useUpdateKey();
 	}
 
 	private RequestId createRequestId() {
@@ -167,15 +168,17 @@ public class ServiceMonitor extends LoggerAspect {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1033"), "Identity-1033");
 		} else {
 			if (System.currentTimeMillis() - userSessionToken.getLoginTimestamp() <= MILLIS_PER_DAY) {
-				//if(userSessionToken.getStatus().equalsIgnoreCase("active")){
+				// if(userSessionToken.getStatus().equalsIgnoreCase("active")){
 				User user = masterMongoTemplate.findById(userSessionToken.getUserId(), User.class);
 				userSessionToken.setUser(user);
 				ServiceRequestContext ctx = ServiceRequestContextHolder.getContext();
 				ctx.setUserSessionToken(userSessionToken);
-				//				}else{
-				//					response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-				//					throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1032"), "Identity-1032");
-				//				}
+				// }else{
+				// response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+				// throw new
+				// ItorixException(ErrorCodes.errorMessage.get("Identity-1032"),
+				// "Identity-1032");
+				// }
 			} else {
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1032"), "Identity-1032");
@@ -184,37 +187,35 @@ public class ServiceMonitor extends LoggerAspect {
 	}
 
 	// Unsecure Call Validations
-	private void unSecureCallValidations(JoinPoint thisJoinPoint)
-			throws Exception {
+	private void unSecureCallValidations(JoinPoint thisJoinPoint) throws Exception {
 		String apiKey = getSessionAPIKey(thisJoinPoint);
 		apiKey = this.rsaEncryption.decryptText(apiKey);
-		if(apiKey == null){
+		if (apiKey == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1033"), "Identity-1033");
-		}else{
-			if(apiKey.equals(rsaEncryption.decryptText(applicationProperties.getApiKey()))){
+		} else {
+			if (apiKey.equals(rsaEncryption.decryptText(applicationProperties.getApiKey()))) {
 				ServiceRequestContextHolder.setContext(getSystemContext());
-			}else{
+			} else {
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1034"), "Identity-1034");
 			}
 		}
 	}
 
-
 	private void unSecureUpdateCallValidations(JoinPoint thisJoinPoint) throws Exception {
 		String apiKey = getSessionAPIKey(thisJoinPoint);
 		apiKey = this.rsaEncryption.decryptText(apiKey);
-		if(apiKey == null){
+		if (apiKey == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1033"), "Identity-1033");
-		}else{
+		} else {
 			String key = applicationProperties.getUpdateApiKey();
-			if(key == null)
+			if (key == null)
 				key = applicationProperties.getApiKey();
-			if(apiKey.equals(rsaEncryption.decryptText(key))){
+			if (apiKey.equals(rsaEncryption.decryptText(key))) {
 				ServiceRequestContextHolder.setContext(getSystemContext());
-			}else{
+			} else {
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1034"), "Identity-1034");
 			}
@@ -253,7 +254,6 @@ public class ServiceMonitor extends LoggerAspect {
 		// try to get value of session token from headers
 		if (apiKey == null) {
 			apiKey = request.getHeader(BaseController.API_KEY_NAME);
-
 		}
 		// try to get value of session token from cookies if not found in
 		// headers
@@ -286,9 +286,8 @@ public class ServiceMonitor extends LoggerAspect {
 	}
 
 	private UserSession findUserSession(String sessionId) {
-		Query query  = new Query().addCriteria(new Criteria().orOperator(Criteria.where("id").is(sessionId)));
+		Query query = new Query().addCriteria(new Criteria().orOperator(Criteria.where("id").is(sessionId)));
 		return masterMongoTemplate.findOne(query, UserSession.class);
-		//return  userSessionRepository.findOne(sessionId);
+		// return userSessionRepository.findOne(sessionId);
 	}
-
 }

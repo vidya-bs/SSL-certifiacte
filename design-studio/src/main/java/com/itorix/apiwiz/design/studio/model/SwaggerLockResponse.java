@@ -37,9 +37,4 @@ public class SwaggerLockResponse {
 	public void setLockedByUserId(String lockedByUserId) {
 		this.lockedByUserId = lockedByUserId;
 	}
-	
-	
-
-	
-
 }

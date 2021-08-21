@@ -35,8 +35,7 @@ public class PostmanJsVariables {
 	private Scriptable scope;
 	private PostmanEnvironment env;
 
-	public PostmanJsVariables(Context ctx, Scriptable scope,
-			PostmanEnvironment env) {
+	public PostmanJsVariables(Context ctx, Scriptable scope, PostmanEnvironment env) {
 		this.ctx = ctx;
 		this.scope = scope;
 		this.env = env;
@@ -51,8 +50,7 @@ public class PostmanJsVariables {
 
 		this.responseCode = new NativeObject();
 		if (httpResponse != null) {
-			Map<String, String> headers = httpResponse.getHeaders()
-					.toSingleValueMap();
+			Map<String, String> headers = httpResponse.getHeaders().toSingleValueMap();
 			List<Object> headerList = new ArrayList<Object>(headers.size());
 			for (Map.Entry h : headers.entrySet()) {
 				NativeObject hobj = new NativeObject();
@@ -63,14 +61,11 @@ public class PostmanJsVariables {
 			this.responseHeaders = new NativeArray(headerList.toArray());
 			this.responseBody = Context.javaToJS(httpResponse.getBody(), scope);
 
-			this.responseCode.put("code", responseCode, httpResponse
-					.getStatusCode().value());
-			this.responseCode.put("name", responseCode, httpResponse
-					.getStatusCode().name());
-			this.responseCode.put("detail", responseCode, httpResponse
-					.getStatusCode().toString());
+			this.responseCode.put("code", responseCode, httpResponse.getStatusCode().value());
+			this.responseCode.put("name", responseCode, httpResponse.getStatusCode().name());
+			this.responseCode.put("detail", responseCode, httpResponse.getStatusCode().toString());
 		} else {
-			this.responseHeaders = new NativeArray(new Object[] {});
+			this.responseHeaders = new NativeArray(new Object[]{});
 			this.responseBody = Context.javaToJS("", scope);
 
 			this.responseCode.put("code", responseCode, 0);
@@ -88,8 +83,7 @@ public class PostmanJsVariables {
 		this.postman = Context.javaToJS(this.env, scope);
 
 		this.environment = new NativeObject();
-		Set<Map.Entry<String, PostmanEnvValue>> map = this.env.lookup
-				.entrySet();
+		Set<Map.Entry<String, PostmanEnvValue>> map = this.env.lookup.entrySet();
 		for (Map.Entry<String, PostmanEnvValue> e : map) {
 			this.environment.put(e.getKey(), environment, e.getValue().value);
 		}
@@ -107,11 +101,9 @@ public class PostmanJsVariables {
 		ScriptableObject.putProperty(scope, "postman", postman);
 		ScriptableObject.putProperty(scope, "environment", environment);
 		ScriptableObject.putProperty(scope, "tests", tests);
-		ScriptableObject.putProperty(scope, "preRequestScript",
-				preRequestScript);
+		ScriptableObject.putProperty(scope, "preRequestScript", preRequestScript);
 	}
 
 	public void extractEnvironmentVariables() {
-
 	}
 }

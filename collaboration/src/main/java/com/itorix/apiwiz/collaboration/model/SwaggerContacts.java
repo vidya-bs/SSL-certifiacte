@@ -3,6 +3,7 @@ package com.itorix.apiwiz.collaboration.model;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SwaggerContacts {
 	private String name;
@@ -37,5 +38,4 @@ public class SwaggerContacts {
 	public String toString() {
 		return "SwaggerContacts [name=" + name + ", email=" + email + ", role=" + role + "]";
 	}
-
 }

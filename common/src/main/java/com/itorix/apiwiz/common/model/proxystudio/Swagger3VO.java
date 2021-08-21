@@ -8,7 +8,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.itorix.apiwiz.common.model.AbstractObject;
 
-
 @Document(collection = "Design.Swagger3.List")
 public class Swagger3VO extends AbstractObject {
 
@@ -17,15 +16,15 @@ public class Swagger3VO extends AbstractObject {
 	private String status;
 
 	private String name;
-	
+
 	private String swaggerId;
-	
+
 	private Boolean lock;
-	
+
 	private String lockedBy;
-	
+
 	private Long lockedAt;
-	
+
 	private String lockedByUserId;
 
 	private String description;
@@ -38,25 +37,24 @@ public class Swagger3VO extends AbstractObject {
 	private Set<String> products;
 	private Set<String> portfolios;
 	private List<String> roles;
-	
+
 	private String scm_folder;
 
-    private String scm_url;
+	private String scm_url;
 
-    private String scm_authorizationType;
+	private String scm_authorizationType;
 
-    private String scm_branch;
+	private String scm_branch;
 
-    private String scm_repository;
+	private String scm_repository;
 
-    private String scm_username;
+	private String scm_username;
 
-    private String scm_token;
+	private String scm_token;
 
-    private String scm_type;
+	private String scm_type;
 
-    private String scm_password;
-
+	private String scm_password;
 
 	public Integer getRevision() {
 		return revision;
@@ -98,7 +96,6 @@ public class Swagger3VO extends AbstractObject {
 		this.lockedBy = lockedBy;
 	}
 
-	
 	public Long getLockedAt() {
 		return lockedAt;
 	}
@@ -106,7 +103,7 @@ public class Swagger3VO extends AbstractObject {
 	public void setLockedAt(Long lockedAt) {
 		this.lockedAt = lockedAt;
 	}
-	
+
 	public String getLockedByUserId() {
 		return lockedByUserId;
 	}
@@ -242,7 +239,7 @@ public class Swagger3VO extends AbstractObject {
 	public void setScm_password(String scm_password) {
 		this.scm_password = scm_password;
 	}
-	
+
 	public String getSwaggerId() {
 		return swaggerId;
 	}
@@ -250,6 +247,4 @@ public class Swagger3VO extends AbstractObject {
 	public void setSwaggerId(String swaggerId) {
 		this.swaggerId = swaggerId;
 	}
-	
-
 }

@@ -23,16 +23,18 @@ public interface PolicyPerformanceBusiness {
 
 	/**
 	 * getPolicyTimes
-	 * 
+	 *
 	 * @param trace
+	 * 
 	 * @return
 	 */
 	public Debug getPolicyTimes(String trace);
 
 	/**
 	 * getPolicyPerformanceList
-	 * 
+	 *
 	 * @param interactionid
+	 * 
 	 * @return
 	 */
 	public List<History> getPolicyPerformanceList(String interactionid) throws Exception;
@@ -42,19 +44,19 @@ public interface PolicyPerformanceBusiness {
 
 	/**
 	 * getPolicyPerformanceOnId
-	 * 
+	 *
 	 * @param id
 	 * @param interactionid
+	 * 
 	 * @return
 	 */
 	public PolicyPerformanceBackUpInfo getPolicyPerformanceOnId(String id, String interactionid);
 
 	/**
 	 * deletePolicyPerformanceOnId
-	 * 
+	 *
 	 * @param id
 	 * @param interactionid
 	 */
 	public void deletePolicyPerformanceOnId(String id, String interactionid);
-
 }

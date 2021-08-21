@@ -1,17 +1,16 @@
 package com.itorix.apiwiz.test.dao;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.List;
-
+import com.itorix.apiwiz.test.db.TestExecutorEntity;
+import com.itorix.apiwiz.test.executor.beans.*;
+import com.itorix.apiwiz.test.executor.exception.ItorixException;
+import com.itorix.apiwiz.test.executor.model.DashboardStats;
+import com.itorix.apiwiz.test.executor.model.DashboardSummary;
+import com.itorix.apiwiz.test.executor.model.ErrorCodes;
+import com.itorix.apiwiz.test.util.RSAEncryption;
+import com.mongodb.client.result.UpdateResult;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -28,24 +26,14 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import com.itorix.apiwiz.test.db.TestExecutorEntity;
-import com.itorix.apiwiz.test.executor.beans.Certificates;
-import com.itorix.apiwiz.test.executor.beans.MaskFields;
-import com.itorix.apiwiz.test.executor.beans.TestSuite;
-import com.itorix.apiwiz.test.executor.beans.TestSuiteResponse;
-import com.itorix.apiwiz.test.executor.beans.Variables;
-import com.itorix.apiwiz.test.executor.exception.ItorixException;
-import com.itorix.apiwiz.test.executor.model.DashboardStats;
-import com.itorix.apiwiz.test.executor.model.DashboardSummary;
-import com.itorix.apiwiz.test.executor.model.ErrorCodes;
-import com.itorix.apiwiz.test.util.RSAEncryption;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.WriteResult;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.util.List;
 
 @Component
 public class TestSuiteExecutorDao {
-
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
@@ -71,7 +59,7 @@ public class TestSuiteExecutorDao {
 	private static final Logger log = LoggerFactory.getLogger(TestSuiteExecutorDao.class);
 
 	public List<TestSuiteResponse> getPendingTestSuites(int rows) {
-		Query query = new Query(Criteria.where("status").is(TestExecutorEntity.STATUSES.SCHEDULED.getValue())).with(new Sort(new Order(Direction.ASC, "_id")))
+		Query query = new Query(Criteria.where("status").is(TestExecutorEntity.STATUSES.SCHEDULED.getValue())).with(Sort.by(Direction.ASC, "_id"))
 				.limit(rows);
 		return mongoTemplate.find(query, TestSuiteResponse.class);
 	}
@@ -104,11 +92,11 @@ public class TestSuiteExecutorDao {
 		response.setModifiedUserName("itorix");
 		response.setModifiedBy("itorix");
 		response.setMts(System.currentTimeMillis());
-		DBObject dbDoc = new BasicDBObject();
+		Document dbDoc = new Document();
 		mongoTemplate.getConverter().write(response, dbDoc);
-		Update update = Update.fromDBObject(dbDoc, "_id");
-		WriteResult result = mongoTemplate.updateFirst(query, update, TestSuiteResponse.class);
-		if (!result.isUpdateOfExisting()) {
+		Update update = Update.fromDocument(dbDoc, "_id");
+		UpdateResult result = mongoTemplate.updateFirst(query, update, TestSuiteResponse.class);
+		if (result.getModifiedCount() == 0) {
 			throw new Exception("Error while updating the testsuite response");
 		}
 		if (response.getStatus().equalsIgnoreCase(TestSuiteResponse.STATUSES.COMPLETED.getValue())
@@ -218,4 +206,5 @@ public class TestSuiteExecutorDao {
 
 		}
 	}
+
 }

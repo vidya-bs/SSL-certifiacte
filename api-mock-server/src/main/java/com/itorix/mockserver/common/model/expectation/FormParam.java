@@ -14,22 +14,22 @@ import lombok.Setter;
 @Setter
 public class FormParam {
 
-	public enum Condition {
+    public enum Condition {
 
-		@JsonProperty("equalTo")
-		equalTo,
+        @JsonProperty("equalTo")
+        equalTo,
 
-		@JsonProperty("notEqualTo")
-		notEqualTo,
+        @JsonProperty("notEqualTo")
+        notEqualTo,
 
-		@JsonProperty("contains")
-		contains,
+        @JsonProperty("contains")
+        contains,
 
-		@JsonProperty("regEx")
-		regEx,
-	}
+        @JsonProperty("regEx")
+        regEx,
+    }
 
-	private Condition condition;
-	private String name;
-	private String value;
+    private Condition condition;
+    private String name;
+    private String value;
 }

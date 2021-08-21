@@ -40,11 +40,11 @@ public class UserInfo {
 	private List<SwaggerTeam> teams;
 	private Map<String, String> metadata;
 	private boolean isTrial;
-	
-	
+
 	public boolean getIsTrial() {
 		return isTrial;
 	}
+
 	public boolean isTrial() {
 		return isTrial;
 	}
@@ -52,10 +52,11 @@ public class UserInfo {
 	public void setTrial(boolean isTrial) {
 		this.isTrial = isTrial;
 	}
-	
+
 	public void setIsTrial(boolean isTrial) {
 		this.isTrial = isTrial;
 	}
+
 	public String getPaymentSchedule() {
 		return paymentSchedule;
 	}
@@ -71,20 +72,20 @@ public class UserInfo {
 	public void setTrialPeriod(String trialPeriod) {
 		this.trialPeriod = trialPeriod;
 	}
-	
-//	@JsonIgnore
-//	public boolean getIsTrial() {
-//		return isTrial;
-//	}
-//
-//	public void setIsTrial(boolean isTrial) {
-//		this.isTrial = isTrial;
-//	}
-//
-//
-//	public void setTrial(boolean isTrial) {
-//		this.isTrial = isTrial;
-//	}
+
+	// @JsonIgnore
+	// public boolean getIsTrial() {
+	// return isTrial;
+	// }
+	//
+	// public void setIsTrial(boolean isTrial) {
+	// this.isTrial = isTrial;
+	// }
+	//
+	//
+	// public void setTrial(boolean isTrial) {
+	// this.isTrial = isTrial;
+	// }
 
 	public String getWorkPhone() {
 		return workPhone;
@@ -109,7 +110,6 @@ public class UserInfo {
 	public void setCompany(String company) {
 		this.company = company;
 	}
-
 
 	public UserInfo() {
 		// TODO Auto-generated constructor stub
@@ -168,7 +168,7 @@ public class UserInfo {
 	}
 
 	public void setWorkspaceId(String workspaceId) {
-		this.workspaceId = workspaceId;
+		this.workspaceId = workspaceId.toLowerCase();
 	}
 
 	public String getPlanId() {
@@ -202,7 +202,7 @@ public class UserInfo {
 	public void setUserType(String userType) {
 		this.userType = userType;
 	}
-	
+
 	public String getSubscriptionId() {
 		return subscriptionId;
 	}
@@ -210,137 +210,134 @@ public class UserInfo {
 	public void setSubscriptionId(String subscriptionId) {
 		this.subscriptionId = subscriptionId;
 	}
-	
+
 	@JsonIgnore
-	public boolean allowUserRegistration() throws ItorixException{
+	public boolean allowUserRegistration() throws ItorixException {
 		List<String> missingFields = new ArrayList<>();
-		if(loginId == null || loginId.trim()=="")
+		if (loginId == null || loginId.trim() == "")
 			missingFields.add("loginId");
-		if(password == null || password.trim()=="")
+		if (password == null || password.trim() == "")
 			missingFields.add("password");
-//		if(email == null || email.trim()=="")
-//			missingFields.add("email");
-		if(firstName == null || firstName.trim()=="")
+		// if(email == null || email.trim()=="")
+		// missingFields.add("email");
+		if (firstName == null || firstName.trim() == "")
 			missingFields.add("firstName");
-		if(lastName == null || lastName.trim()=="")
+		if (lastName == null || lastName.trim() == "")
 			missingFields.add("lastName");
-		if(workspaceId == null || workspaceId.trim()=="")
+		if (workspaceId == null || workspaceId.trim() == "")
 			missingFields.add("workspaceId");
-		if(planId == null || planId.trim()=="")
+		if (planId == null || planId.trim() == "")
 			missingFields.add("planId");
-		if(missingFields.size() > 0)
+		if (missingFields.size() > 0)
 			raiseException(missingFields);
 		return true;
 	}
-	
+
 	@JsonIgnore
-	public boolean allowInviteRegistration() throws ItorixException{
+	public boolean allowInviteRegistration() throws ItorixException {
 		List<String> missingFields = new ArrayList<>();
-		if(loginId == null || loginId.trim()=="")
+		if (loginId == null || loginId.trim() == "")
 			missingFields.add("loginId");
-		if(password == null || password.trim()=="")
+		if (password == null || password.trim() == "")
 			missingFields.add("password");
-		if(firstName == null || firstName.trim()=="")
+		if (firstName == null || firstName.trim() == "")
 			missingFields.add("firstName");
-		if(lastName == null || lastName.trim()=="")
+		if (lastName == null || lastName.trim() == "")
 			missingFields.add("lastName");
-		if(missingFields.size() > 0)
+		if (missingFields.size() > 0)
 			raiseException(missingFields);
 		return true;
 	}
-	
+
 	@JsonIgnore
-	public boolean allowInviteUser() throws ItorixException{
+	public boolean allowInviteUser() throws ItorixException {
 		List<String> missingFields = new ArrayList<>();
-		if(email == null || email.trim()=="")
+		if (email == null || email.trim() == "")
 			missingFields.add("email");
-		if(roles == null || roles.size() == 0)
+		if (roles == null || roles.size() == 0)
 			missingFields.add("roles");
-		if(workspaceId == null || workspaceId.trim()=="")
+		if (workspaceId == null || workspaceId.trim() == "")
 			missingFields.add("workspaceId");
-		if(missingFields.size() > 0)
+		if (missingFields.size() > 0)
 			raiseException(missingFields);
 		return true;
 	}
-	
+
 	@JsonIgnore
-	public boolean allowLogin() throws ItorixException{
+	public boolean allowLogin() throws ItorixException {
 		List<String> missingFields = new ArrayList<>();
-		if(loginId == null || loginId.trim()=="")
+		if (loginId == null || loginId.trim() == "")
 			missingFields.add("loginId");
-		if(password == null || password.trim()=="")
+		if (password == null || password.trim() == "")
 			missingFields.add("password");
-		if(workspaceId == null || workspaceId.trim()=="")
+		if (workspaceId == null || workspaceId.trim() == "")
 			missingFields.add("workspaceId");
-		if(missingFields.size() > 0)
+		if (missingFields.size() > 0)
 			raiseException(missingFields);
 		return true;
 	}
-	
+
 	@JsonIgnore
-	public boolean allowEditUser() throws ItorixException{
+	public boolean allowEditUser() throws ItorixException {
 		List<String> missingFields = new ArrayList<>();
-		if(loginId != null && loginId.trim()=="")
+		if (loginId != null && loginId.trim() == "")
 			missingFields.add("loginId");
-		if(email != null && email.trim()=="")
+		if (email != null && email.trim() == "")
 			missingFields.add("email");
-		if(firstName != null && firstName.trim()=="")
+		if (firstName != null && firstName.trim() == "")
 			missingFields.add("firstName");
-		if(lastName != null && lastName.trim()=="")
+		if (lastName != null && lastName.trim() == "")
 			missingFields.add("lastName");
-		if(missingFields.size() > 0)
+		if (missingFields.size() > 0)
 			raiseException(missingFields);
 		return true;
 	}
-	
+
 	@JsonIgnore
-	public boolean allowCreateToken() throws ItorixException{
+	public boolean allowCreateToken() throws ItorixException {
 		List<String> missingFields = new ArrayList<>();
-		
-		if(type != null && type.equals("password-reset"))
-		{
-			if(email != null && email.trim()=="")
+
+		if (type != null && type.equals("password-reset")) {
+			if (email != null && email.trim() == "")
 				missingFields.add("email");
 		}
-		if(type != null && type.equals("register"))
-		{
-			if(email != null && email.trim()=="")
+		if (type != null && type.equals("register")) {
+			if (email != null && email.trim() == "")
 				missingFields.add("email");
-			
 		}
-		if(missingFields.size() > 0)
+		if (missingFields.size() > 0)
 			raiseException(missingFields);
 		return true;
 	}
-	
+
 	@JsonIgnore
-	public boolean allowChangeSubscription() throws ItorixException{
+	public boolean allowChangeSubscription() throws ItorixException {
 		List<String> missingFields = new ArrayList<>();
-		if(planId != null && planId.trim()=="")
+		if (planId != null && planId.trim() == "")
 			missingFields.add("planId");
-		if(paymentSchedule != null && paymentSchedule.trim()=="")
+		if (paymentSchedule != null && paymentSchedule.trim() == "")
 			missingFields.add("paymentSchedule");
-		if(subscriptionId != null && subscriptionId.trim()=="")
+		if (subscriptionId != null && subscriptionId.trim() == "")
 			missingFields.add("subscriptionId");
-		if(workspaceId != null && workspaceId.trim()=="")
+		if (workspaceId != null && workspaceId.trim() == "")
 			missingFields.add("workspaceId");
-		if(missingFields.size() > 0)
+		if (missingFields.size() > 0)
 			raiseException(missingFields);
 		return true;
 	}
-	
-	private void raiseException(List<String> fileds) throws ItorixException{
+
+	private void raiseException(List<String> fileds) throws ItorixException {
 		try {
 			String message = new ObjectMapper().writeValueAsString(fileds);
 			message = message.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\"", "").replaceAll(",", ", ");
-			message = "Invalid request data! Missing mandatory data: " + message ;
-			throw new ItorixException(message,"Identity-1007");
+			message = "Invalid request data! Missing mandatory data: " + message;
+			throw new ItorixException(message, "Identity-1007");
 		} catch (JsonProcessingException e) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1007"),"Identity-1007");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1007"), "Identity-1007");
 		}
 	}
-	
-	//@JsonIgnore
+
+	// @JsonIgnore
 	public boolean getSubscribeNewsLetter() {
 		return subscribeNewsLetter;
 	}
@@ -380,13 +377,12 @@ public class UserInfo {
 	public void setMetadata(Map<String, String> metadata) {
 		this.metadata = metadata;
 	}
+
 	public long getSeats() {
 		return seats;
 	}
+
 	public void setSeats(long seats) {
 		this.seats = seats;
 	}
-
-	
-
 }

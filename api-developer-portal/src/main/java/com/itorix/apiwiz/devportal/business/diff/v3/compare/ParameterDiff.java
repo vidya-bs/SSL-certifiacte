@@ -101,7 +101,6 @@ public class ParameterDiff {
 			if (changedParameter.isDiff()) {
 				this.changed.add(changedParameter);
 			}
-
 		});
 
 		return this;
@@ -130,5 +129,4 @@ public class ParameterDiff {
 	public void setChanged(List<ChangedParameter> changed) {
 		this.changed = changed;
 	}
-
 }

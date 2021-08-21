@@ -32,7 +32,4 @@ public class Environments {
 	public void setMetrics(Metrics[] metrics) {
 		this.metrics = metrics;
 	}
-	
-	
-	
 }

@@ -32,95 +32,96 @@ public class CareersDao {
 	@Autowired
 	JfrogUtilImpl jfrogUtilImpl;
 
-	public String createUpdatePosting(JobPosting jobPosting){
-		Query query = new Query().addCriteria(Criteria.where("name").is(jobPosting.getName()).and("location").is(jobPosting.getLocation()));
+	public String createUpdatePosting(JobPosting jobPosting) {
+		Query query = new Query().addCriteria(
+				Criteria.where("name").is(jobPosting.getName()).and("location").is(jobPosting.getLocation()));
 		JobPosting dbJobPosting = masterMongoTemplate.findOne(query, JobPosting.class);
-		if(dbJobPosting != null){
+		if (dbJobPosting != null) {
 			jobPosting.setId(dbJobPosting.getId());
 			masterMongoTemplate.save(jobPosting);
-		}
-		else{
+		} else {
 			masterMongoTemplate.save(jobPosting);
 		}
 		return jobPosting.getId();
 	}
 
-	public void deletePosting(String jobId){
+	public void deletePosting(String jobId) {
 		Query query = new Query().addCriteria(Criteria.where("id").is(jobId));
 		masterMongoTemplate.remove(query, JobPosting.class);
 	}
 
-	public List<JobPosting> getAllPostings(){
-		List<JobPosting> postings =  masterMongoTemplate.findAll(JobPosting.class);
-		for(JobPosting posting :  postings){
-			posting.setAboutUs(null);
-			posting.setDetail(null);
-		}
-		return postings;
-	}
-	
-	public List<JobPosting> getAllPostings(List<String> categoryList, List<String> locationList, List<String> rollList){
-		Query query = new Query();
-		if(categoryList != null)
-			query.addCriteria(Criteria.where("category").in(categoryList));
-		if(locationList != null)
-			query.addCriteria(Criteria.where("location").in(locationList));
-		if(rollList != null)
-			query.addCriteria(Criteria.where("role").in(rollList));
-		List<JobPosting> postings =  masterMongoTemplate.find(query, JobPosting.class);
-		for(JobPosting posting :  postings){
+	public List<JobPosting> getAllPostings() {
+		List<JobPosting> postings = masterMongoTemplate.findAll(JobPosting.class);
+		for (JobPosting posting : postings) {
 			posting.setAboutUs(null);
 			posting.setDetail(null);
 		}
 		return postings;
 	}
 
-	public JobPosting getPosting(String jobId){
+	public List<JobPosting> getAllPostings(List<String> categoryList, List<String> locationList,
+			List<String> rollList) {
+		Query query = new Query();
+		if (categoryList != null)
+			query.addCriteria(Criteria.where("category").in(categoryList));
+		if (locationList != null)
+			query.addCriteria(Criteria.where("location").in(locationList));
+		if (rollList != null)
+			query.addCriteria(Criteria.where("role").in(rollList));
+		List<JobPosting> postings = masterMongoTemplate.find(query, JobPosting.class);
+		for (JobPosting posting : postings) {
+			posting.setAboutUs(null);
+			posting.setDetail(null);
+		}
+		return postings;
+	}
+
+	public JobPosting getPosting(String jobId) {
 		Query query = new Query().addCriteria(Criteria.where("id").is(jobId));
-		JobPosting posting =  masterMongoTemplate.findOne(query,JobPosting.class);
+		JobPosting posting = masterMongoTemplate.findOne(query, JobPosting.class);
 		return posting;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Map getCategories(){
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public Map getCategories() {
 		List<String> categoryList = new ArrayList<>();
 		List<String> rollList = new ArrayList<>();
 		List<String> locationList = new ArrayList<>();
-		try{
-		String collectionName = masterMongoTemplate.getCollectionName(JobPosting.class);
-		MongoCollection mongoCollection = masterMongoTemplate.getCollection(collectionName);
-		DistinctIterable distinctIterable = mongoCollection.distinct("category",String.class);
-		if(distinctIterable != null){
-			MongoCursor cursor = distinctIterable.iterator();
-			if(cursor != null){
-				while (cursor.hasNext()) {
-					String category = (String)cursor.next();
-					categoryList.add(category);
+		try {
+			String collectionName = masterMongoTemplate.getCollectionName(JobPosting.class);
+			MongoCollection mongoCollection = masterMongoTemplate.getCollection(collectionName);
+			DistinctIterable distinctIterable = mongoCollection.distinct("category", String.class);
+			if (distinctIterable != null) {
+				MongoCursor cursor = distinctIterable.iterator();
+				if (cursor != null) {
+					while (cursor.hasNext()) {
+						String category = (String) cursor.next();
+						categoryList.add(category);
+					}
 				}
 			}
-		}
-		distinctIterable = mongoCollection.distinct("location",String.class);
-		if(distinctIterable != null){
-			MongoCursor cursor = distinctIterable.iterator();
-			if(cursor != null){
-				while (cursor.hasNext()) {
-					String category = (String)cursor.next();
-					locationList.add(category);
+			distinctIterable = mongoCollection.distinct("location", String.class);
+			if (distinctIterable != null) {
+				MongoCursor cursor = distinctIterable.iterator();
+				if (cursor != null) {
+					while (cursor.hasNext()) {
+						String category = (String) cursor.next();
+						locationList.add(category);
+					}
 				}
 			}
-		}
-		distinctIterable = mongoCollection.distinct("role",String.class);
-		if(distinctIterable != null){
-			MongoCursor cursor = distinctIterable.iterator();
-			if(cursor != null){
-				while (cursor.hasNext()) {
-					String category = (String)cursor.next();
-					rollList.add(category);
+			distinctIterable = mongoCollection.distinct("role", String.class);
+			if (distinctIterable != null) {
+				MongoCursor cursor = distinctIterable.iterator();
+				if (cursor != null) {
+					while (cursor.hasNext()) {
+						String category = (String) cursor.next();
+						rollList.add(category);
+					}
 				}
 			}
-		}
-		}catch(Exception ex){
-			
+		} catch (Exception ex) {
+
 		}
 		Map categories = new HashMap();
 		categories.put("category", categoryList);
@@ -129,29 +130,29 @@ public class CareersDao {
 		return categories;
 	}
 
-	public String createUpdateJobApplication(JobApplication jobApplication){
+	public String createUpdateJobApplication(JobApplication jobApplication) {
 		masterMongoTemplate.save(jobApplication);
 		return jobApplication.getId();
 	}
 
-	public JobApplication getJobApplication(String emailId){
+	public JobApplication getJobApplication(String emailId) {
 		Query query = new Query().addCriteria(Criteria.where("emailId").is(emailId));
-		JobApplication application = masterMongoTemplate.findOne(query,JobApplication.class);
+		JobApplication application = masterMongoTemplate.findOne(query, JobApplication.class);
 		return application;
 	}
 
-	public String updateProfileFile(String userId, String filename, byte[] bytes) throws ItorixException{
+	public String updateProfileFile(String userId, String filename, byte[] bytes) throws ItorixException {
 		return updateToJfrog(userId + "/" + filename, bytes);
 	}
 
-	public void deleteProfileFile(String userId, String imagePath) throws ItorixException{
+	public void deleteProfileFile(String userId, String imagePath) throws ItorixException {
 		deleteFileJfrogFile("/marketing/careers/" + userId);
 	}
 
-	private String updateToJfrog(String folderPath, byte[] bytes)
-			throws ItorixException {
+	private String updateToJfrog(String folderPath, byte[] bytes) throws ItorixException {
 		try {
-			JSONObject uploadFiles = jfrogUtilImpl.uploadFiles(new ByteArrayInputStream(bytes), "/marketing/careers/" + folderPath);
+			JSONObject uploadFiles = jfrogUtilImpl.uploadFiles(new ByteArrayInputStream(bytes),
+					"/marketing/careers/" + folderPath);
 			return uploadFiles.getString("downloadURI");
 		} catch (Exception e) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1009"), "Marketing-1000");
@@ -165,5 +166,4 @@ public class CareersDao {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1016"), "Marketing-3");
 		}
 	}
-
 }

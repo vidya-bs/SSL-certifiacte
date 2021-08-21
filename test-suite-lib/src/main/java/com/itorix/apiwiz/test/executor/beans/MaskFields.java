@@ -1,4 +1,5 @@
 package com.itorix.apiwiz.test.executor.beans;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,17 +15,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MaskFields {
 
-	@Id
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
-	private String id;
+    @Id
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String id;
 
-	private List<String> fields = new ArrayList<>();
+    private List<String> fields = new ArrayList<>();
 
-	public List<String> getMaskingFields() {
-		return fields;
-	}
+    public List<String> getMaskingFields() {
+        return fields;
+    }
 
-	public void setMaskingFields(List<String> maskingFields) {
-		this.fields = maskingFields;
-	}
+    public void setMaskingFields(List<String> maskingFields) {
+        this.fields = maskingFields;
+    }
 }

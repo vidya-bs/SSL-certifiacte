@@ -46,14 +46,16 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
+
 	@Qualifier("masterMongoTemplate")
 	@Autowired
 	private MongoTemplate masterMongoTemplate;
 
 	/**
 	 * findSwaggerTeam
-	 * 
+	 *
 	 * @param swaggerTeam
+	 * 
 	 * @return
 	 */
 	public SwaggerTeam findSwaggerTeam(SwaggerTeam swaggerTeam) {
@@ -63,8 +65,9 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 
 	/**
 	 * createTeam
-	 * 
+	 *
 	 * @param swaggerTeam
+	 * 
 	 * @throws ItorixException
 	 */
 	public void createTeam(SwaggerTeam swaggerTeam) throws ItorixException {
@@ -106,9 +109,10 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 
 	/**
 	 * updateTeam
-	 * 
+	 *
 	 * @param swaggerTeam
 	 * @param name
+	 * 
 	 * @throws ItorixException
 	 */
 	public void updateTeam(SwaggerTeam swaggerTeam, String name) throws ItorixException {
@@ -127,31 +131,31 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 			}
 			if (isTeamAdmin || isAdmin) {
 				Set<String> removeSet = symmetricDifference(team.getSwaggers(), swaggerTeam.getSwaggers());
-				if(removeSet != null && removeSet.size() >0)
-				for (String s : removeSet) {
-					Query query = new Query(Criteria.where("swaggerName").is(s).and("oas").is("2.0"));
-					SwaggerMetadata metadata = mongoTemplate.findOne(query, SwaggerMetadata.class);
-					if (metadata != null && metadata.getTeams() != null) {
-						Set<String> swaggerTeams = metadata.getTeams();
-						swaggerTeams.remove(name);
-						metadata.setTeams(swaggerTeams);
+				if (removeSet != null && removeSet.size() > 0)
+					for (String s : removeSet) {
+						Query query = new Query(Criteria.where("swaggerName").is(s).and("oas").is("2.0"));
+						SwaggerMetadata metadata = mongoTemplate.findOne(query, SwaggerMetadata.class);
+						if (metadata != null && metadata.getTeams() != null) {
+							Set<String> swaggerTeams = metadata.getTeams();
+							swaggerTeams.remove(name);
+							metadata.setTeams(swaggerTeams);
+						}
+						if (metadata != null)
+							mongoTemplate.save(metadata);
 					}
-					if(metadata != null)
-					mongoTemplate.save(metadata);
-				}
 				removeSet = symmetricDifference(team.getSwagger3(), swaggerTeam.getSwagger3());
-				if(removeSet != null && removeSet.size() >0)
-				for (String s : removeSet) {
-					Query query = new Query(Criteria.where("swaggerName").is(s).and("oas").is("3.0"));
-					SwaggerMetadata metadata = mongoTemplate.findOne(query, SwaggerMetadata.class);
-					if (metadata != null && metadata.getTeams() != null) {
-						Set<String> swaggerTeams = metadata.getTeams();
-						swaggerTeams.remove(name);
-						metadata.setTeams(swaggerTeams);
+				if (removeSet != null && removeSet.size() > 0)
+					for (String s : removeSet) {
+						Query query = new Query(Criteria.where("swaggerName").is(s).and("oas").is("3.0"));
+						SwaggerMetadata metadata = mongoTemplate.findOne(query, SwaggerMetadata.class);
+						if (metadata != null && metadata.getTeams() != null) {
+							Set<String> swaggerTeams = metadata.getTeams();
+							swaggerTeams.remove(name);
+							metadata.setTeams(swaggerTeams);
+						}
+						if (metadata != null)
+							mongoTemplate.save(metadata);
 					}
-					if(metadata != null)
-					mongoTemplate.save(metadata);
-				}
 				Set<String> addSet = symmetricDifference(swaggerTeam.getSwaggers(), team.getSwaggers());
 				for (String s : addSet) {
 					Query query = new Query(Criteria.where("swaggerName").is(s).and("oas").is("2.0"));
@@ -165,8 +169,8 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 					swaggerTeams = metadata.getTeams() == null ? new HashSet<String>() : metadata.getTeams();
 					swaggerTeams.add(name);
 					metadata.setTeams(swaggerTeams);
-					if(metadata != null)
-					mongoTemplate.save(metadata);
+					if (metadata != null)
+						mongoTemplate.save(metadata);
 				}
 				addSet = symmetricDifference(swaggerTeam.getSwagger3(), team.getSwagger3());
 				for (String s : addSet) {
@@ -181,8 +185,8 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 					swaggerTeams = metadata.getTeams() == null ? new HashSet<String>() : metadata.getTeams();
 					swaggerTeams.add(name);
 					metadata.setTeams(swaggerTeams);
-					if(metadata != null)
-					mongoTemplate.save(metadata);
+					if (metadata != null)
+						mongoTemplate.save(metadata);
 				}
 				team.setContacts(swaggerTeam.getContacts());
 				team.setSwaggers(swaggerTeam.getSwaggers());
@@ -207,10 +211,11 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 
 	/**
 	 * deleteTeam
-	 * 
+	 *
 	 * @param teamName
 	 * @param interactionid
 	 * @param jsessionid
+	 * 
 	 * @throws ItorixException
 	 */
 	public void deleteTeam(String teamName, String interactionid, String jsessionid) throws ItorixException {
@@ -232,7 +237,8 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 					}
 				}
 			} else {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Teams-1001"), teamName), "Teams-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Teams-1001"), teamName),
+						"Teams-1001");
 			}
 		if (isAdmin || isTeamAdmin) {
 			if (team.getSwaggers() != null)
@@ -263,10 +269,11 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 
 	/**
 	 * associateTeam
-	 * 
+	 *
 	 * @param swaggerName
 	 * @param teamSet
 	 * @param interactionId
+	 * 
 	 * @throws ItorixException
 	 */
 	public void associateTeam(String swaggerName, Set<String> teamSet, String interactionId) throws ItorixException {
@@ -365,8 +372,8 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 		metadata.setTeams(teamSet);
 		mongoTemplate.save(metadata);
 	}
-	
-	public List<SwaggerTeam> getTeamsBySwaggerName(String swaggerName, String oas){
+
+	public List<SwaggerTeam> getTeamsBySwaggerName(String swaggerName, String oas) {
 		Query query = new Query();
 		if (oas.equals("2.0"))
 			query.addCriteria(Criteria.where("swaggers").is(swaggerName));
@@ -375,41 +382,43 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 		List<SwaggerTeam> teamlist = baseRepository.find(query, SwaggerTeam.class);
 		return teamlist;
 	}
-	
+
 	/**
 	 * findSwaggerTeames
-	 * 
+	 *
 	 * @param jsessionid
 	 * @param interactionid
+	 * 
 	 * @return
 	 */
-	public TeamsHistoryResponse findSwaggerTeames(String jsessionid, String interactionid, int offset, int pageSize, String name) {
+	public TeamsHistoryResponse findSwaggerTeames(String jsessionid, String interactionid, int offset, int pageSize,
+			String name) {
 		log("findSwaggerTeames", interactionid);
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		User user = getUserDetailsFromSessionID(jsessionid);
 		boolean isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
-		
+
 		TeamsHistoryResponse historyResponse = new TeamsHistoryResponse();
 		List<SwaggerTeam> swaggerTeams = new ArrayList<SwaggerTeam>();
 		if (isAdmin) {
 			Query query;
-			if(name != null)
-				query = new Query(Criteria.where("name").is(name)).with(Sort.by(Direction.DESC, "_id"))
-					.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+			if (name != null)
+				query = new Query(Criteria.where("name").is(name)).with(Sort.by(Direction.DESC, "mts"))
+						.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 			else
-				query = new Query().with(Sort.by(Direction.DESC, "_id"))
-				.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+				query = new Query().with(Sort.by(Direction.DESC, "mts"))
+						.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 			swaggerTeams = baseRepository.find(query, SwaggerTeam.class);
 		} else {
 			Query query;
-			if(name != null)
-			query = new Query(Criteria.where("contacts.email").is(user.getEmail()).and("name").is(name))
-					.with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
-					.limit(pageSize);
+			if (name != null)
+				query = new Query(Criteria.where("contacts.email").is(user.getEmail()).and("name").is(name))
+						.with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+						.limit(pageSize);
 			else
 				query = new Query(Criteria.where("contacts.email").is(user.getEmail()))
-				.with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
-				.limit(pageSize);
+						.with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
+						.limit(pageSize);
 			swaggerTeams = baseRepository.find(query, SwaggerTeam.class);
 		}
 		if (swaggerTeams != null) {
@@ -431,9 +440,10 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 
 	/**
 	 * findSwaggerTeameNames
-	 * 
+	 *
 	 * @param jsessionid
 	 * @param interactionid
+	 * 
 	 * @return
 	 */
 	public List<String> findSwaggerTeameNames(String jsessionid, String interactionid) {
@@ -460,10 +470,12 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 
 	/**
 	 * getTeamPermissions
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
+	 * 
 	 * @return
+	 * 
 	 * @throws JsonProcessingException
 	 */
 	public String getTeamPermissions(String interactionid, String jsessionid)
@@ -479,7 +491,10 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 				List<SwaggerTeam> list = baseRepository.findAll(SwaggerTeam.class);
 				for (SwaggerTeam st : list) {
 					ObjectNode objectNode = mapper.createObjectNode();
-					objectNode.put("type", user.getUserWorkspace(userSessionToken.getWorkspaceId()).getUserType() != null ? user.getUserWorkspace(userSessionToken.getWorkspaceId()).getUserType() : "Admin");
+					objectNode.put("type",
+							user.getUserWorkspace(userSessionToken.getWorkspaceId()).getUserType() != null
+									? user.getUserWorkspace(userSessionToken.getWorkspaceId()).getUserType()
+									: "Admin");
 					objectNode.putPOJO("roles", Arrays.asList("Admin", "Write", "Read"));
 					objectNode.put("name", st.getName());
 					arrayNode.add(objectNode);
@@ -490,7 +505,10 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 				List<SwaggerTeam> list = baseRepository.find(query, SwaggerTeam.class);
 				for (SwaggerTeam st : list) {
 					ObjectNode objectNode = mapper.createObjectNode();
-					objectNode.put("type", user.getUserWorkspace(userSessionToken.getWorkspaceId()).getUserType() != null ? user.getUserWorkspace(userSessionToken.getWorkspaceId()).getUserType() : "Non_Admin");
+					objectNode.put("type",
+							user.getUserWorkspace(userSessionToken.getWorkspaceId()).getUserType() != null
+									? user.getUserWorkspace(userSessionToken.getWorkspaceId()).getUserType()
+									: "Non_Admin");
 					for (SwaggerContacts sc : st.getContacts())
 						if (sc.getEmail().equals(user.getEmail()))
 							if (sc.getRole() != null) {
@@ -507,15 +525,16 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 
 	/**
 	 * findSwagger
-	 * 
+	 *
 	 * @param name
 	 * @param interactionid
+	 * 
 	 * @return
 	 */
 	public SwaggerVO findSwagger(String name, String interactionid) throws ItorixException {
 		log("findSwagger", interactionid, name);
 		SwaggerVO vo = baseRepository.findOne("id", name, SwaggerVO.class);
-		if(vo == null)
+		if (vo == null)
 			vo = baseRepository.findOne("swaggerId", name, SwaggerVO.class);
 		if (vo == null)
 			vo = baseRepository.findOne("name", name, SwaggerVO.class);
@@ -525,7 +544,7 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 	public Swagger3VO findSwagger3(String name, String interactionid) throws ItorixException {
 		log("findSwagger", interactionid, name);
 		Swagger3VO vo = baseRepository.findOne("id", name, Swagger3VO.class);
-		if(vo == null)
+		if (vo == null)
 			vo = baseRepository.findOne("swaggerId", name, Swagger3VO.class);
 		if (vo == null)
 			vo = baseRepository.findOne("name", name, Swagger3VO.class);
@@ -534,9 +553,10 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 
 	/**
 	 * symmetricDifference
-	 * 
+	 *
 	 * @param existing
 	 * @param newSet
+	 * 
 	 * @return
 	 */
 	private Set<String> symmetricDifference(Set<String> existing, Set<String> newSet) {
@@ -559,9 +579,11 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 
 	/**
 	 * teamSearch
-	 * 
+	 *
 	 * @param interactionid
+	 * 
 	 * @return
+	 * 
 	 * @throws JsonProcessingException
 	 */
 	public Object teamSearch(String interactionid, String name, int limit)
@@ -585,7 +607,7 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 
 	/**
 	 * log
-	 * 
+	 *
 	 * @param methodName
 	 * @param interactionid
 	 * @param body
@@ -594,5 +616,4 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 		logger.debug("CollaborationBusinessImpl." + methodName + " | CorelationId=" + interactionid
 				+ " | request/response Body =" + body);
 	}
-
 }

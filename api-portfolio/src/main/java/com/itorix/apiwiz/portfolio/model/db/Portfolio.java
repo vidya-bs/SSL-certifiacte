@@ -21,23 +21,29 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Portfolio extends AbstractObject{
+public class Portfolio extends AbstractObject {
 	String name;
 	String summary;
 	String description;
 	String owner;
 	String ownerEmail;
 	String portfolioImage;
+
 	@JsonProperty("metadata")
 	List<Metadata> metadata;
+
 	@JsonProperty("teams")
 	List<String> teams;
+
 	@JsonProperty("document")
 	List<PortfolioDocument> document;
+
 	@JsonProperty("products")
 	List<Products> products;
+
 	@JsonProperty("projects")
 	List<Projects> projects;
+
 	@JsonProperty("serviceRegistry")
 	List<ServiceRegistry> serviceRegistry;
 }

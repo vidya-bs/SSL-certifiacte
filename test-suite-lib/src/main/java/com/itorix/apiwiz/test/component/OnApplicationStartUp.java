@@ -14,25 +14,23 @@ import com.itorix.apiwiz.test.db.TestExecutorEntity;
 @Component
 public class OnApplicationStartUp {
 
-	@Autowired
-	JdbcTemplate jdbcTemplate;
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
-	@Autowired
-	TestSuitExecutorSQLDao executorSQLDao;
+    @Autowired
+    TestSuitExecutorSQLDao executorSQLDao;
 
+    @EventListener
+    public void onApplicationEvent(ContextRefreshedEvent event) {
 
-	@EventListener
-	public void onApplicationEvent(ContextRefreshedEvent event) {
+        String createTable = "CREATE TABLE IF NOT EXISTS " + TestExecutorEntity.TABLE_NAME
+                + "  (id  INTEGER PRIMARY KEY," + "   tenant            TEXT," + "   testSuiteExecutionId   TEXT,"
+                + "   errorDescription            TEXT," + "   status TEXT)";
 
-		String createTable = "CREATE TABLE IF NOT EXISTS " + TestExecutorEntity.TABLE_NAME
-				+ "  (id  INTEGER PRIMARY KEY," + "   tenant            TEXT," + "   testSuiteExecutionId   TEXT,"
-				+ "   errorDescription            TEXT," + "   status TEXT)";
+        jdbcTemplate.execute(createTable);
 
-		jdbcTemplate.execute(createTable);
-
-		executorSQLDao.updateStatus(
-				Arrays.asList(TestExecutorEntity.STATUSES.IN_PROGRESS.getValue()),
-				TestExecutorEntity.STATUSES.SCHEDULED.getValue());
-	}
+        executorSQLDao.updateStatus(Arrays.asList(TestExecutorEntity.STATUSES.IN_PROGRESS.getValue()),
+                TestExecutorEntity.STATUSES.SCHEDULED.getValue());
+    }
 
 }

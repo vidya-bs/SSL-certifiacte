@@ -14,23 +14,28 @@ public class NotificatoinEvent {
 	private String name;
 	private String subject;
 	private List<String> email;
+
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	public String getSubject() {
 		return subject;
 	}
+
 	public void setSubject(String subject) {
 		this.subject = subject;
 	}
+
 	public List<String> getEmail() {
 		return email;
 	}
+
 	public void setEmail(List<String> email) {
 		this.email = email;
 	}
-		
 }

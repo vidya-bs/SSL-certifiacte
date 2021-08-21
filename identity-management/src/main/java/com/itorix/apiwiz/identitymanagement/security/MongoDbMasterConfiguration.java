@@ -12,9 +12,9 @@ import lombok.Setter;
 @Setter
 public class MongoDbMasterConfiguration {
 
-//	private String host;
-//	private int port;
-//	private String userName;
-//	private String password;
-//	private String database;
+	// private String host;
+	// private int port;
+	// private String userName;
+	// private String password;
+	// private String database;
 }

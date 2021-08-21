@@ -12,8 +12,8 @@ import com.itorix.apiwiz.common.model.AbstractObject;
 public class TestSuiteResponse extends AbstractObject {
 
 	public enum STATUSES {
+		SCHEDULED("Scheduled"), IN_PROGRESS("In Progress"), COMPLETED("Completed"), CANCELLED("Cancelled");
 
-		SCHEDULED("Scheduled"),IN_PROGRESS("In Progress") , COMPLETED("Completed"),CANCELLED("Cancelled");
 		private String value;
 
 		private STATUSES(String value) {
@@ -34,7 +34,6 @@ public class TestSuiteResponse extends AbstractObject {
 			}
 			return userRoles;
 		}
-
 	}
 
 	private String testSuiteId;
@@ -90,7 +89,7 @@ public class TestSuiteResponse extends AbstractObject {
 	}
 
 	public String getTestSuiteName() {
-		if(testSuite != null) {
+		if (testSuite != null) {
 			return testSuite.getName();
 		}
 		return testSuiteName;

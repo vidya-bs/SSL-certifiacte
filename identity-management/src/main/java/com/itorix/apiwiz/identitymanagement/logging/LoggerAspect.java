@@ -26,7 +26,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
 
-
 public class LoggerAspect {
 	private static Logger logger = LoggerFactory.getLogger(LoggerAspect.class);
 	@Autowired
@@ -35,7 +34,9 @@ public class LoggerAspect {
 	@Autowired
 	HttpServletResponse httpServletResponse;
 
-	//@Before("(within(com.itorix.hyggee..*.service..*) || within(com.itorix.hyggee..*.serviceImpl..*)) && execution(public * *(..))")
+	// @Before("(within(com.itorix.hyggee..*.service..*) ||
+	// within(com.itorix.hyggee..*.serviceImpl..*)) && execution(public *
+	// *(..))")
 	@Before("execution(* com.itorix.apiwiz..*.service..*(..)) || execution(* com.itorix.apiwiz..*.serviceImpl..*(..))")
 	public void logControllerInput(JoinPoint joinPoint) throws IOException {
 		HashMap<String, String> keyValuePair = new HashMap<>();
@@ -58,11 +59,11 @@ public class LoggerAspect {
 		request.setAttribute("interactionid", headerMap.get("interactionid"));
 		headerMap.put("X-FORWARDED-FOR", remoteAddress);
 		request.setAttribute("startTime", System.currentTimeMillis());
-		String body=null;
+		String body = null;
 		UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		loggerService.logServiceRequest(className, methodName, body, headerMap, keyValuePair, userSession);
-
 	}
+
 	private String extractPostRequestBody(HttpServletRequest request) throws IOException {
 		if ("POST".equalsIgnoreCase(request.getMethod())) {
 			Scanner s = new Scanner(request.getInputStream(), "UTF-8").useDelimiter("\\A");
@@ -74,6 +75,7 @@ public class LoggerAspect {
 		}
 		return "";
 	}
+
 	private Map<String, String> getHeadersInfo(HttpServletRequest request) {
 		Map<String, String> map = new HashMap<String, String>();
 		if (request != null) {
@@ -86,6 +88,7 @@ public class LoggerAspect {
 		}
 		return map;
 	}
+
 	private HashMap<String, String> getHeadersInfo(HttpServletResponse response) {
 		HashMap<String, String> map = new HashMap<String, String>();
 		if (response != null) {
@@ -100,12 +103,11 @@ public class LoggerAspect {
 		return map;
 	}
 
-
 	@AfterReturning(pointcut = "execution(public * com.itorix.apiwiz..*.service.*.*(..)) || execution(public * com.itorix.apiwiz..*.serviceImpl.*.*(..))", returning = "result")
-	public void loggingMethodResponse(JoinPoint joinPoint,Object result) throws IOException {
+	public void loggingMethodResponse(JoinPoint joinPoint, Object result) throws IOException {
 		RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-		HttpServletRequest request = ((ServletRequestAttributes)requestAttributes).getRequest();
-		HttpServletResponse response = ((ServletRequestAttributes)requestAttributes).getResponse();
+		HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+		HttpServletResponse response = ((ServletRequestAttributes) requestAttributes).getResponse();
 		String className = null;
 		String methodName = null;
 		HashMap<String, String> headerMap = null;
@@ -123,31 +125,31 @@ public class LoggerAspect {
 		boolean isSuccess = false;
 		if (responseEntity != null) {
 			httpStatus = responseEntity.getStatusCode();
-			if(httpStatus.is2xxSuccessful())
+			if (httpStatus.is2xxSuccessful())
 				isSuccess = true;
 		}
-		Object responseBody =null;
+		Object responseBody = null;
 		String reqbody = "";
 		Map<String, String> requestHeaderMap = null;
-		if(isSuccess == false){
+		if (isSuccess == false) {
 			headerMap = getHeadersInfo(response);
-			headerMap.put("interactionid", (String)request.getAttribute("interactionid"));
-			responseBody= result;
+			headerMap.put("interactionid", (String) request.getAttribute("interactionid"));
+			responseBody = result;
 
 			requestHeaderMap = getHeadersInfo(request);
 			String uri = request.getRequestURI();
 		}
 		Long elapsedTime = System.currentTimeMillis();
-		loggerService.logServiceResponse(className, methodName, responseBody, elapsedTime,
-				headerMap, httpStatus, reqbody, requestHeaderMap);
+		loggerService.logServiceResponse(className, methodName, responseBody, elapsedTime, headerMap, httpStatus,
+				reqbody, requestHeaderMap);
 	}
 
 	@AfterReturning(pointcut = "execution(public * com.itorix.apiwiz.common.model.exception..handle*(..))", returning = "result")
 	public void loggingErrorResponse(JoinPoint joinPoint, Object result) {
 		logger.debug("Inside loggingErrorResponse...[{}] , [{}]", joinPoint, result);
 		RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-		HttpServletRequest request = ((ServletRequestAttributes)requestAttributes).getRequest();
-		HttpServletResponse response = ((ServletRequestAttributes)requestAttributes).getResponse();
+		HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+		HttpServletResponse response = ((ServletRequestAttributes) requestAttributes).getResponse();
 		String className = null;
 		String methodName = null;
 
@@ -165,6 +167,7 @@ public class LoggerAspect {
 		if (responseEntity != null) {
 			httpStatus = responseEntity.getStatusCode();
 		}
-		loggerService.logServiceResponse(className, methodName, result, System.currentTimeMillis(), null, httpStatus, null, null);
+		loggerService.logServiceResponse(className, methodName, result, System.currentTimeMillis(), null, httpStatus,
+				null, null);
 	}
 }

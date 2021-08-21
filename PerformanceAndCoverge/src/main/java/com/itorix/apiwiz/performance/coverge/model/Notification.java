@@ -21,5 +21,4 @@ public class Notification {
 	public void setAlert(List<Alert> alert) {
 		this.alert = alert;
 	}
-
 }

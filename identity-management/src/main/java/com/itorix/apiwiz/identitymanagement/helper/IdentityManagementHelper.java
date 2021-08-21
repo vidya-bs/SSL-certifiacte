@@ -15,16 +15,16 @@ public class IdentityManagementHelper {
 	public Map<String, String> getRoleMapper(UserDefinedRoles roles) {
 
 		Map<String, String> mapper = new HashMap<>();
-		if(roles != null){
-		mapper.put(roles.getAdmin(), Roles.ADMIN.getValue());
-		mapper.put(roles.getAnalyst(), Roles.ANALYST.getValue());
-		mapper.put(roles.getDeveloper(), Roles.DEVELOPER.getValue());
-		mapper.put(roles.getOperation(), Roles.OPERATION.getValue());
-		mapper.put(roles.getPortal(), Roles.PORTAL.getValue());
-		mapper.put(roles.getProjectAdmin(), Roles.PROJECT_ADMIN.getValue());
-		mapper.put(roles.getQa(), Roles.QA.getValue());
-		mapper.put(roles.getTest(), Roles.TEST.getValue());
-		mapper.remove(null);
+		if (roles != null) {
+			mapper.put(roles.getAdmin(), Roles.ADMIN.getValue());
+			mapper.put(roles.getAnalyst(), Roles.ANALYST.getValue());
+			mapper.put(roles.getDeveloper(), Roles.DEVELOPER.getValue());
+			mapper.put(roles.getOperation(), Roles.OPERATION.getValue());
+			mapper.put(roles.getPortal(), Roles.PORTAL.getValue());
+			mapper.put(roles.getProjectAdmin(), Roles.PROJECT_ADMIN.getValue());
+			mapper.put(roles.getQa(), Roles.QA.getValue());
+			mapper.put(roles.getTest(), Roles.TEST.getValue());
+			mapper.remove(null);
 		}
 		return mapper;
 	}
@@ -36,6 +36,4 @@ public class IdentityManagementHelper {
 			return "Non_Admin";
 		}
 	}
-
-
 }

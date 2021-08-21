@@ -18,19 +18,19 @@ import com.itorix.apiwiz.sso.exception.ErrorObj;
 @Component
 public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
 
-	public static final String SSO_2 = "SSO-2";
+    public static final String SSO_2 = "SSO-2";
 
-	@Override
-	public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-			AuthenticationException e) throws IOException, ServletException {
-		//InsufficientAuthenticationException
-		 ErrorObj error = new ErrorObj();
-			error.setErrorMessage(ErrorCodes.errorMessage.get(SSO_2), SSO_2);
-			httpServletResponse.setStatus(ErrorCodes.responseCode.get(SSO_2));
-			OutputStream out = httpServletResponse.getOutputStream();
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.writeValue(out, error);
-			out.flush();
+    @Override
+    public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
+            AuthenticationException e) throws IOException, ServletException {
+        // InsufficientAuthenticationException
+        ErrorObj error = new ErrorObj();
+        error.setErrorMessage(ErrorCodes.errorMessage.get(SSO_2), SSO_2);
+        httpServletResponse.setStatus(ErrorCodes.responseCode.get(SSO_2));
+        OutputStream out = httpServletResponse.getOutputStream();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(out, error);
+        out.flush();
 
-	}
+    }
 }

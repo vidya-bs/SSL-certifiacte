@@ -54,5 +54,4 @@ public class TestCaseStats {
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

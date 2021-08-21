@@ -55,8 +55,7 @@ public class SpecificationDiff {
 		if (Objects.nonNull(pathsDiff)) {
 			changedOpenAPI.setPathsDiff(pathsDiff);
 		}
-		
+
 		return changedOpenAPI;
 	}
-
 }

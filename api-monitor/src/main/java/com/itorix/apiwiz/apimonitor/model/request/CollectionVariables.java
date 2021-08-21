@@ -15,5 +15,4 @@ public class CollectionVariables {
 
 	String collectionID;
 	List<RequestVariable> requests = new ArrayList();
-
 }

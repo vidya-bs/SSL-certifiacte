@@ -10,54 +10,53 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-    "id",
-    "version"
-})
+@JsonPropertyOrder({"id", "version"})
 public class PluginConfiguration {
 
-    @JsonProperty("id")
-    private String id;
-    @JsonProperty("version")
-    private String version;
-    @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+	@JsonProperty("id")
+	private String id;
 
-    public PluginConfiguration() {}
-    
-    public PluginConfiguration(String id, String version) {
-    		this.id = id;
-    		this.version = version;
-    }
-    
-    @JsonProperty("id")
-    public String getId() {
-        return id;
-    }
+	@JsonProperty("version")
+	private String version;
 
-    @JsonProperty("id")
-    public void setId(String id) {
-        this.id = id;
-    }
+	@JsonIgnore
+	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("version")
-    public String getVersion() {
-        return version;
-    }
+	public PluginConfiguration() {
+	}
 
-    @JsonProperty("version")
-    public void setVersion(String version) {
-        this.version = version;
-    }
+	public PluginConfiguration(String id, String version) {
+		this.id = id;
+		this.version = version;
+	}
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
+	@JsonProperty("id")
+	public String getId() {
+		return id;
+	}
 
-    @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-    }
+	@JsonProperty("id")
+	public void setId(String id) {
+		this.id = id;
+	}
 
+	@JsonProperty("version")
+	public String getVersion() {
+		return version;
+	}
+
+	@JsonProperty("version")
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	@JsonAnyGetter
+	public Map<String, Object> getAdditionalProperties() {
+		return this.additionalProperties;
+	}
+
+	@JsonAnySetter
+	public void setAdditionalProperty(String name, Object value) {
+		this.additionalProperties.put(name, value);
+	}
 }

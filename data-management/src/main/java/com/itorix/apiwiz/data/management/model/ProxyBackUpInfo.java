@@ -13,7 +13,7 @@ public class ProxyBackUpInfo extends BackupCommon {
 	public static final String LABEL_PRODUCTS_INFO = "productsInfo";
 	public static final String LABEL_APPS_INFO = "appsInfo";
 	public static final String LABEL_SHAREDFLOW_INFO = "sharedflowInfo";
-	public static final String LABEL_OPERATION_ID="operationId";
+	public static final String LABEL_OPERATION_ID = "operationId";
 
 	private JSONObject proxyInfo;
 	private JSONObject developersInfo;
@@ -25,7 +25,7 @@ public class ProxyBackUpInfo extends BackupCommon {
 	public ProxyBackUpInfo() {
 		super();
 	}
-	
+
 	@JsonProperty("proxyInfo")
 	public JSONObject getProxyInfo() {
 		return proxyInfo;
@@ -65,22 +65,24 @@ public class ProxyBackUpInfo extends BackupCommon {
 	public void setAppsInfo(JSONObject appsInfo) {
 		this.appsInfo = appsInfo;
 	}
+
 	@JsonProperty("sharedflowInfo")
 	public JSONObject getSharedflowInfo() {
 		return sharedflowInfo;
 	}
+
 	@JsonProperty("sharedflowInfo")
 	public void setSharedflowInfo(JSONObject sharedflowInfo) {
 		this.sharedflowInfo = sharedflowInfo;
 	}
+
 	@JsonProperty("operationId")
 	public String getOperationId() {
 		return operationId;
 	}
+
 	@JsonProperty("operationId")
 	public void setOperationId(String operationId) {
 		this.operationId = operationId;
 	}
-	
-	
 }

@@ -4,21 +4,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class APIProxyDeploymentEnvResponse {
-	 private APIProxyDeployment APIProxyDeployment;
+	private APIProxyDeployment APIProxyDeployment;
 
-	    public APIProxyDeployment getAPIProxyDeployment ()
-	    {
-	        return APIProxyDeployment;
-	    }
+	public APIProxyDeployment getAPIProxyDeployment() {
+		return APIProxyDeployment;
+	}
 
-	    public void setAPIProxyDeployment (APIProxyDeployment APIProxyDeployment)
-	    {
-	        this.APIProxyDeployment = APIProxyDeployment;
-	    }
+	public void setAPIProxyDeployment(APIProxyDeployment APIProxyDeployment) {
+		this.APIProxyDeployment = APIProxyDeployment;
+	}
 
-	    @Override
-	    public String toString()
-	    {
-	        return "ClassPojo [APIProxyDeployment = "+APIProxyDeployment+"]";
-	    }
+	@Override
+	public String toString() {
+		return "ClassPojo [APIProxyDeployment = " + APIProxyDeployment + "]";
+	}
 }

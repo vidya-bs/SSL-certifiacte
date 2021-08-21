@@ -7,60 +7,76 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-
 @Component("ProductConfig")
 @Document(collection = "Connectors.Apigee.Configure.Products.List")
 public class ProductConfig {
 
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String createdUser;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String modifiedUser;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String createdDate;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String modifiedDate;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String name;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String org;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
-	private String type="saas";
+	private String type = "saas";
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String displayName;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String approvalType;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String description;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private List<String> apiResources;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private List<String> environments;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private List<String> proxies;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String quota;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String quotaInterval;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String quotaTimeUnit;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private List<String> scopes;
+
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private List<ProductAttributes> attributes;
 
 	private boolean activeFlag;
-	
+
 	private String _id;
-	
-	
+
 	public String get_id() {
 		return _id;
 	}
+
 	public void set_id(String _id) {
 		this._id = _id;
 	}
-	
+
 	public boolean isActiveFlag() {
 		return activeFlag;
 	}
@@ -181,8 +197,6 @@ public class ProductConfig {
 		this.quota = quota;
 	}
 
-	
-
 	public String getQuotaInterval() {
 		return quotaInterval;
 	}
@@ -214,9 +228,8 @@ public class ProductConfig {
 	public void setAttributes(List<ProductAttributes> attributes) {
 		this.attributes = attributes;
 	}
-	
-	
-	public ConfigMetadata getMetadata(){
+
+	public ConfigMetadata getMetadata() {
 		ConfigMetadata metadata = new ConfigMetadata();
 		metadata.setName(this.name);
 		metadata.setCreatedUser(this.createdUser);
@@ -225,5 +238,4 @@ public class ProductConfig {
 		metadata.setModifiedDate(this.modifiedDate);
 		return metadata;
 	}
-	
 }

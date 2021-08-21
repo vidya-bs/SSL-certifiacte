@@ -5,7 +5,6 @@ import org.springframework.data.mongodb.core.index.Indexed;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-
 public abstract class AbstractObject implements BaseObject {
 
 	@Indexed
@@ -14,14 +13,14 @@ public abstract class AbstractObject implements BaseObject {
 	private Long cts;
 	private String createdUserName;
 	private String modifiedUserName;
-	
+
 	private Long mts;
 	private String createdBy;
 	private String modifiedBy;
-	
+
 	@JsonIgnore
 	private String interactionid;
-	
+
 	@JsonIgnore
 	private String jsessionid;
 
@@ -128,8 +127,4 @@ public abstract class AbstractObject implements BaseObject {
 	public void setJsessionid(String jsessionid) {
 		this.jsessionid = jsessionid;
 	}
-	
-	
-	
-
 }

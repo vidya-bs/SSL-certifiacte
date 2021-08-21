@@ -1,59 +1,49 @@
 package com.itorix.apiwiz.cicd.dashboard.beans;
-public class ProjectSuccessRatio
-{
-    private String total;
 
-    private String sucessRatio;
+public class ProjectSuccessRatio {
+	private String total;
 
-    private String name;
+	private String sucessRatio;
 
-    private String success;
+	private String name;
 
-    public String getTotal ()
-    {
-        return total;
-    }
+	private String success;
 
-    public void setTotal (String total)
-    {
-        this.total = total;
-    }
+	public String getTotal() {
+		return total;
+	}
 
-    public String getSucessRatio ()
-    {
-        return sucessRatio;
-    }
+	public void setTotal(String total) {
+		this.total = total;
+	}
 
-    public void setSucessRatio (String sucessRatio)
-    {
-        this.sucessRatio = sucessRatio;
-    }
+	public String getSucessRatio() {
+		return sucessRatio;
+	}
 
-    public String getName ()
-    {
-        return name;
-    }
+	public void setSucessRatio(String sucessRatio) {
+		this.sucessRatio = sucessRatio;
+	}
 
-    public void setName (String name)
-    {
-        this.name = name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public String getSuccess ()
-    {
-        return success;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public void setSuccess (String success)
-    {
-        this.success = success;
-    }
+	public String getSuccess() {
+		return success;
+	}
 
-    @Override
-    public String toString()
-    {
-        return "ClassPojo [total = "+total+", sucessRatio = "+sucessRatio+", name = "+name+", success = "+success+"]";
-    }
+	public void setSuccess(String success) {
+		this.success = success;
+	}
+
+	@Override
+	public String toString() {
+		return "ClassPojo [total = " + total + ", sucessRatio = " + sucessRatio + ", name = " + name + ", success = "
+				+ success + "]";
+	}
 }
-			
-		
