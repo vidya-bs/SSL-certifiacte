@@ -3611,21 +3611,28 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			if (vo == null) {
 				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")), "Swagger-1001");
 			}
-			return parseSwaggerInfoNodes(vo.getSwagger());
+			Map<String, Object> json = parseSwaggerInfoNodes(vo.getSwagger(), oas);
+			json.put("swaggerId", vo.getSwaggerId());
+			json.put("status", vo.getStatus());
+			return json;
 		} else {
 			SwaggerVO vo = getSwagger(swaggerid, null);
 			if (vo == null) {
 				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")), "Swagger-1001");
 			}
-			return parseSwaggerInfoNodes(vo.getSwagger());
+			Map<String, Object> json = parseSwaggerInfoNodes(vo.getSwagger(), oas);
+			json.put("swaggerId", vo.getSwaggerId());
+			json.put("status", vo.getStatus());
+			return json;
 		}
 	}
 
 	@SneakyThrows
-	private Map<String, Object> parseSwaggerInfoNodes(String swaggerJson) {
+	private Map<String, Object> parseSwaggerInfoNodes(String swaggerJson, String oas) {
 		Object version = null;
 		Object name = null;
 		Object description = null;
+		Object basePath = null;
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		JsonNode swaggerNode = objectMapper.readTree(swaggerJson);
@@ -3633,23 +3640,28 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		name = swaggerInfoNode.get("title");
 		version = swaggerInfoNode.get("version");
 		description = swaggerInfoNode.get("description");
+		
+		if (oas.equals("2.0")) 
+			basePath= swaggerNode.get("basePath");
 
 		if (null == name)
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")), "Swagger-1001");
 
-		ObjectNode jsonNode = objectMapper.createObjectNode();
-		Map<String, Object> json = new HashMap();
+		Map<String, Object> json = new HashMap<>();
 		json.put("name", name);
 		json.put("description", description);
 		json.put("version", version);
+		json.put("oas", oas);
+		if(null != basePath)
+			json.put("basePath", basePath);
 		return json;
 	}
 
 	@SneakyThrows
 	@Override
-	public boolean cloneSwagger(SwaggerCloneDetails swaggerCloneDetails, String oas) {
+	public String cloneSwagger(SwaggerCloneDetails swaggerCloneDetails, String oas) {
 		// find existing swagger
-		boolean isSwaggerCloneSuccess = false;
+		String isSwaggerCloneSuccess = null;
 		if ("3.0".equals(oas)) {
 			isSwaggerCloneSuccess = cloneSwagger3(swaggerCloneDetails);
 		} else {
@@ -3659,7 +3671,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	@SneakyThrows
-	private boolean cloneSwagger2(SwaggerCloneDetails swaggerCloneDetails) throws ItorixException {
+	private String cloneSwagger2(SwaggerCloneDetails swaggerCloneDetails) throws ItorixException {
 		boolean isSwaggerCloneSuccess;
 		// Check Swagger Already Exists with the same name of clone
 		SwaggerVO swaggerObj = getSwagger(swaggerCloneDetails.getName(), null);
@@ -3685,10 +3697,10 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		SwaggerUtil.copyAllSwaggerFields(newSwaggerForClone, vo);
 		SwaggerUtil.setCloneDetailsFromReq(newSwaggerForClone, swaggerCloneDetails, vo.getSwagger());
 		isSwaggerCloneSuccess = baseRepository.save(newSwaggerForClone) != null ? true : false;
-		return isSwaggerCloneSuccess;
+		return isSwaggerCloneSuccess?newSwaggerForClone.getSwaggerId():null;
 	}
 
-	private boolean cloneSwagger3(SwaggerCloneDetails swaggerCloneDetails) throws ItorixException {
+	private String cloneSwagger3(SwaggerCloneDetails swaggerCloneDetails) throws ItorixException {
 		boolean isSwaggerCloneSuccess;
 		// Check Swagger Already Exists with the same name of clone
 		Swagger3VO swaggerObj = getSwagger3(swaggerCloneDetails.getName(), null);
@@ -3714,7 +3726,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		SwaggerUtil.copyAllSwaggerFields(newSwaggerForClone, vo);
 		SwaggerUtil.setCloneDetailsFromReq(newSwaggerForClone, swaggerCloneDetails);
 		isSwaggerCloneSuccess = baseRepository.save(newSwaggerForClone) != null ? true : false;
-		return isSwaggerCloneSuccess;
+		return isSwaggerCloneSuccess?newSwaggerForClone.getSwaggerId():null;
 	}
 
 	public List<String> getProxies(String swagger, String oas) {
