@@ -2184,6 +2184,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 				? HttpStatus.CREATED
 				: HttpStatus.INTERNAL_SERVER_ERROR;
 		HttpHeaders headers = new HttpHeaders();
+		headers.add("Access-Control-Expose-Headers", "X-Swagger-id");
 		headers.add("X-Swagger-id", swaggerId);
 		return new ResponseEntity<Void>(headers,httpStatus);
 	}
