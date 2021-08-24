@@ -724,7 +724,7 @@ public interface SwaggerBusiness {
 
 	public Map<String, Object> getSwaggerInfo(String jsessionid, String swaggerid, String oas);
 
-	public boolean cloneSwagger(SwaggerCloneDetails swaggerCloneDetails, String oas);
+	public String cloneSwagger(SwaggerCloneDetails swaggerCloneDetails, String oas);
 
 	public List<String> getProxies(String swagger, String oas);
 

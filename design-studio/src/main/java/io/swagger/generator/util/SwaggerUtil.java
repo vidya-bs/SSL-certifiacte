@@ -1,5 +1,6 @@
 package io.swagger.generator.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -52,6 +53,7 @@ public class SwaggerUtil {
 		Swagger swagger = swaggerParser.parse(swaggerStr);
 		swagger.setBasePath(orig.getBasePath());
 		ObjectMapper objMapper = new ObjectMapper();
+		objMapper.setSerializationInclusion(Include.NON_NULL);
 		dest.setSwagger(objMapper.writeValueAsString(swagger));
 	}
 }

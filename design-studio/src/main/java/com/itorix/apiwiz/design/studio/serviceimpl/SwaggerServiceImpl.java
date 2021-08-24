@@ -2179,10 +2179,14 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<?> cloneSwagger(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestBody SwaggerCloneDetails swaggerCloneDetails) throws Exception {
-		HttpStatus httpStatus = swaggerBusiness.cloneSwagger(swaggerCloneDetails, oas)
+		String swaggerId = swaggerBusiness.cloneSwagger(swaggerCloneDetails, oas);
+		HttpStatus httpStatus = swaggerId != null
 				? HttpStatus.CREATED
 				: HttpStatus.INTERNAL_SERVER_ERROR;
-		return new ResponseEntity<Void>(httpStatus);
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Access-Control-Expose-Headers", "X-Swagger-id");
+		headers.add("X-Swagger-id", swaggerId);
+		return new ResponseEntity<Void>(headers,httpStatus);
 	}
 
 	@Override
