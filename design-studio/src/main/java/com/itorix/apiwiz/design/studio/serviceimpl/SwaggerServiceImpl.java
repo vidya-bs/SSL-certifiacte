@@ -1,45 +1,5 @@
 package com.itorix.apiwiz.design.studio.serviceimpl;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
-import com.itorix.apiwiz.design.studio.model.*;
-import org.apache.commons.io.FileUtils;
-import org.bson.types.ObjectId;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -58,6 +18,7 @@ import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
 import com.itorix.apiwiz.design.studio.businessimpl.Swagger3SDK;
 import com.itorix.apiwiz.design.studio.businessimpl.ValidateSchema;
 import com.itorix.apiwiz.design.studio.businessimpl.XlsUtil;
+import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.design.studio.service.SwaggerService;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
@@ -65,7 +26,6 @@ import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.opencsv.CSVReader;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
-
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -73,11 +33,32 @@ import io.swagger.codegen.Codegen;
 import io.swagger.codegen.CodegenConfig;
 import io.swagger.codegen.CodegenType;
 import io.swagger.generator.exception.ApiException;
-import io.swagger.generator.model.Generated;
 import io.swagger.generator.model.GeneratorInput;
 import io.swagger.generator.model.ResponseCode;
 import io.swagger.generator.online.Generator;
 import io.swagger.models.Swagger;
+import org.apache.commons.io.FileUtils;
+import org.bson.types.ObjectId;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
 @CrossOrigin
 @RestController
@@ -183,6 +164,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 				swaggerVO.setSwagger(json);
 				swaggerVO = swaggerBusiness.createSwagger(swaggerVO);
 			}
+
+			swaggerBusiness.updateSwaggerBasePath(vo.getName(), swaggerVO); //update the base path collection
+
 			headers.add("Access-Control-Expose-Headers", "X-Swagger-Version, X-Swagger-id");
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
 			headers.add("X-Swagger-id", swaggerVO.getSwaggerId());
@@ -198,6 +182,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 				swaggerVO.setSwagger(json);
 				swaggerVO = swaggerBusiness.createSwagger(swaggerVO);
 			}
+
+			swaggerBusiness.updateSwagger3BasePath(vo.getName(), swaggerVO);
+
 			headers.add("Access-Control-Expose-Headers", "X-Swagger-Version, X-Swagger-id");
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
 			headers.add("X-Swagger-id", swaggerVO.getSwaggerId());
@@ -2127,7 +2114,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas) throws Exception {
-		return new ResponseEntity<Object>(swaggerBusiness.getSwagger2BasePathsObj(), HttpStatus.OK);
+		if(oas != null && "3.0".equalsIgnoreCase(oas)) {
+			return new ResponseEntity<Object>(swaggerBusiness.getSwagger3BasePathsObj(), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<Object>(swaggerBusiness.getSwagger2BasePathsObj(), HttpStatus.OK);
+		}
+
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swagger-id}/git-integrations")

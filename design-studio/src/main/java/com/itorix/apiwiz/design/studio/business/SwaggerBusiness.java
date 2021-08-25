@@ -1,23 +1,21 @@
 package com.itorix.apiwiz.design.studio.business;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.mail.MessagingException;
-
-import com.itorix.apiwiz.design.studio.model.*;
-import org.json.JSONException;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.design.studio.model.*;
+import org.json.JSONException;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.mail.MessagingException;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 public interface SwaggerBusiness {
@@ -713,6 +711,8 @@ public interface SwaggerBusiness {
 
 	public Object getSwagger2BasePathsObj();
 
+	public Object getSwagger3BasePathsObj();
+
 	public void createOrUpdateGitIntegrations(String interactionid, String jsessionid, String swaggerid, String oas,
 			SwaggerIntegrations swaggerIntegrations) throws ItorixException;
 
@@ -739,5 +739,9 @@ public interface SwaggerBusiness {
 	public void associatePartners(String swaggerId, String oas, List<String> partners);
 
 	public List<SwaggerPartner> getAssociatedPartners(String swaggerId, String oas);
+
+	public void updateSwaggerBasePath(String name, SwaggerVO vo);
+
+	public void updateSwagger3BasePath(String name, Swagger3VO vo);
 
 }
