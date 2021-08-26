@@ -165,7 +165,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 				swaggerVO = swaggerBusiness.createSwagger(swaggerVO);
 			}
 
-			swaggerBusiness.updateSwaggerBasePath(vo.getName(), swaggerVO); //update the base path collection
+			swaggerBusiness.updateSwaggerBasePath(swaggerVO.getName(), swaggerVO); //update the base path collection
 
 			headers.add("Access-Control-Expose-Headers", "X-Swagger-Version, X-Swagger-id");
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
@@ -183,7 +183,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 				swaggerVO = swaggerBusiness.createSwagger(swaggerVO);
 			}
 
-			swaggerBusiness.updateSwagger3BasePath(vo.getName(), swaggerVO);
+			swaggerBusiness.updateSwagger3BasePath(swaggerVO.getName(), swaggerVO);
 
 			headers.add("Access-Control-Expose-Headers", "X-Swagger-Version, X-Swagger-id");
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
@@ -227,6 +227,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setInteractionid(interactionid);
 			swaggerVO.setSwagger(json);
 			swaggerVO = swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid);
+			swaggerBusiness.updateSwaggerBasePath(swaggerVO.getName(), swaggerVO); //update the base path collection
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggerVO.getName(), oas);
 			if (integrations != null && integrations.getScm_authorizationType().equalsIgnoreCase("basic")) {
@@ -252,6 +253,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setInteractionid(interactionid);
 			swaggerVO.setSwagger(json);
 			swaggerVO = swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid);
+			swaggerBusiness.updateSwagger3BasePath(swaggerVO.getName(), swaggerVO); //update the base path collection
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggerVO.getName(), oas);
 			if (integrations != null && integrations.getScm_authorizationType().equalsIgnoreCase("basic")) {
