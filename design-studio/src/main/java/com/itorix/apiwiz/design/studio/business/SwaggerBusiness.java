@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.design.studio.model.*;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import org.json.JSONException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -744,4 +746,9 @@ public interface SwaggerBusiness {
 
 	public void updateSwagger3BasePath(String name, Swagger3VO vo);
 
+	public void updateSwaggerDictionary(SwaggerDictionary swaggerDictionary);
+
+	public SwaggerDictionary getSwaggerDictionary(String swaggerId, Integer revision);
+
+	public DictionarySwagger getSwaggerAssociatedWithDictionary(String dictionaryId, String schemaName);
 }

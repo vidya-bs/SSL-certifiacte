@@ -19,6 +19,8 @@ import com.itorix.apiwiz.design.studio.businessimpl.Swagger3SDK;
 import com.itorix.apiwiz.design.studio.businessimpl.ValidateSchema;
 import com.itorix.apiwiz.design.studio.businessimpl.XlsUtil;
 import com.itorix.apiwiz.design.studio.model.*;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import com.itorix.apiwiz.design.studio.service.SwaggerService;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
@@ -165,7 +167,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 				swaggerVO = swaggerBusiness.createSwagger(swaggerVO);
 			}
 
-			swaggerBusiness.updateSwaggerBasePath(swaggerVO.getName(), swaggerVO); //update the base path collection
+			swaggerBusiness.updateSwaggerBasePath(swaggerVO.getName(), swaggerVO); // update
+																					// the
+																					// base
+																					// path
+																					// collection
 
 			headers.add("Access-Control-Expose-Headers", "X-Swagger-Version, X-Swagger-id");
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
@@ -227,7 +233,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setInteractionid(interactionid);
 			swaggerVO.setSwagger(json);
 			swaggerVO = swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid);
-			swaggerBusiness.updateSwaggerBasePath(swaggerVO.getName(), swaggerVO); //update the base path collection
+			swaggerBusiness.updateSwaggerBasePath(swaggerVO.getName(), swaggerVO); // update
+																					// the
+																					// base
+																					// path
+																					// collection
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggerVO.getName(), oas);
 			if (integrations != null && integrations.getScm_authorizationType().equalsIgnoreCase("basic")) {
@@ -253,7 +263,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setInteractionid(interactionid);
 			swaggerVO.setSwagger(json);
 			swaggerVO = swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid);
-			swaggerBusiness.updateSwagger3BasePath(swaggerVO.getName(), swaggerVO); //update the base path collection
+			swaggerBusiness.updateSwagger3BasePath(swaggerVO.getName(), swaggerVO); // update
+																					// the
+																					// base
+																					// path
+																					// collection
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggerVO.getName(), oas);
 			if (integrations != null && integrations.getScm_authorizationType().equalsIgnoreCase("basic")) {
@@ -2116,7 +2130,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas) throws Exception {
-		if(oas != null && "3.0".equalsIgnoreCase(oas)) {
+		if (oas != null && "3.0".equalsIgnoreCase(oas)) {
 			return new ResponseEntity<Object>(swaggerBusiness.getSwagger3BasePathsObj(), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<Object>(swaggerBusiness.getSwagger2BasePathsObj(), HttpStatus.OK);
@@ -2174,13 +2188,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestBody SwaggerCloneDetails swaggerCloneDetails) throws Exception {
 		String swaggerId = swaggerBusiness.cloneSwagger(swaggerCloneDetails, oas);
-		HttpStatus httpStatus = swaggerId != null
-				? HttpStatus.CREATED
-				: HttpStatus.INTERNAL_SERVER_ERROR;
+		HttpStatus httpStatus = swaggerId != null ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Access-Control-Expose-Headers", "X-Swagger-id");
 		headers.add("X-Swagger-id", swaggerId);
-		return new ResponseEntity<Void>(headers,httpStatus);
+		return new ResponseEntity<Void>(headers, httpStatus);
 	}
 
 	@Override
@@ -2244,4 +2256,43 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas) throws Exception {
 		return new ResponseEntity<Object>(swaggerBusiness.getAssociatedPartners(swaggerId, oas), HttpStatus.OK);
 	}
+
+	@Override
+	public ResponseEntity<?> updateSwaggerDictionary(@RequestHeader String jsessionid,
+			@RequestBody SwaggerDictionary swaggerDictionary) {
+		swaggerBusiness.updateSwaggerDictionary(swaggerDictionary);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
+	}
+
+	@Override
+	public ResponseEntity<?> getSwaggerDictionary(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("swaggerId") String swaggerId, @PathVariable("revision") Integer revision) {
+		return new ResponseEntity<>(swaggerBusiness.getSwaggerDictionary(swaggerId, revision), HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getSwaggerAssociatedWithDataDictionary(
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable String dictionaryId) {
+		DictionarySwagger swaggerAssociatedWithDictionary = swaggerBusiness
+				.getSwaggerAssociatedWithDictionary(dictionaryId, null);
+		if(swaggerAssociatedWithDictionary != null) {
+			return new ResponseEntity<>(swaggerAssociatedWithDictionary,
+					HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	@Override
+	public ResponseEntity<?> getSwaggerAssociatedWithSchemaName(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable String dictionaryId, @PathVariable String schemaName) {
+		DictionarySwagger swaggerAssociatedWithDictionary = swaggerBusiness
+				.getSwaggerAssociatedWithDictionary(dictionaryId, schemaName);
+		if( swaggerAssociatedWithDictionary != null) {
+			return new ResponseEntity<>(swaggerAssociatedWithDictionary, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
 }

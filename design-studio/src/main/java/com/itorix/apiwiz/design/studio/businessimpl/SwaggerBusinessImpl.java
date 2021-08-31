@@ -23,6 +23,10 @@ import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.common.util.zip.ZIPUtil;
 import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
 import com.itorix.apiwiz.design.studio.model.*;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.SchemaInfo;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerData;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
@@ -49,6 +53,8 @@ import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -3292,8 +3298,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		}
 	}
 
-
-
 	public void updateSwaggerBasePath(String name, SwaggerVO vo) {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode swaggerJson = null;
@@ -3322,7 +3326,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		for (Server server : servers) {
 			String urlStr = getReplacedURLStr(server);
 			try {
-				URL	url = new URL(urlStr);
+				URL url = new URL(urlStr);
 				basePaths.add(url.getPath());
 			} catch (MalformedURLException e) {
 				logger.error("Error while getting basePath for Swagger: {} URL {} ", vo.getName(), e.getMessage());
@@ -3340,7 +3344,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		ServerVariables variables = server.getVariables();
 		String urlStr = server.getUrl();
 
-		if(variables != null) {
+		if (variables != null) {
 			for (String k : variables.keySet()) {
 				if (server.getUrl().contains("{" + k + "}")) {
 					urlStr = urlStr.replace("{" + k + "}", variables.get(k).getDefault());
@@ -3391,7 +3395,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return mappings;
 	}
 
-
 	public Object getSwagger2BasePathsObj() {
 		List<Swagger2BasePath> mappings = getSwagger2BasePaths();
 		ObjectMapper mapper = new ObjectMapper();
@@ -3433,7 +3436,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			return "/";
 		}
 	}
-
 
 	private JsonNode getJsonNode(Object mappings) {
 		ObjectMapper mapper = new ObjectMapper();
@@ -3728,9 +3730,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		name = swaggerInfoNode.get("title");
 		version = swaggerInfoNode.get("version");
 		description = swaggerInfoNode.get("description");
-		
-		if (oas.equals("2.0")) 
-			basePath= swaggerNode.get("basePath");
+
+		if (oas.equals("2.0"))
+			basePath = swaggerNode.get("basePath");
 
 		if (null == name)
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")), "Swagger-1001");
@@ -3740,7 +3742,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		json.put("description", description);
 		json.put("version", version);
 		json.put("oas", oas);
-		if(null != basePath)
+		if (null != basePath)
 			json.put("basePath", basePath);
 		return json;
 	}
@@ -3785,7 +3787,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		SwaggerUtil.copyAllSwaggerFields(newSwaggerForClone, vo);
 		SwaggerUtil.setCloneDetailsFromReq(newSwaggerForClone, swaggerCloneDetails, vo.getSwagger());
 		isSwaggerCloneSuccess = baseRepository.save(newSwaggerForClone) != null ? true : false;
-		return isSwaggerCloneSuccess?newSwaggerForClone.getSwaggerId():null;
+		return isSwaggerCloneSuccess ? newSwaggerForClone.getSwaggerId() : null;
 	}
 
 	private String cloneSwagger3(SwaggerCloneDetails swaggerCloneDetails) throws ItorixException {
@@ -3814,7 +3816,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		SwaggerUtil.copyAllSwaggerFields(newSwaggerForClone, vo);
 		SwaggerUtil.setCloneDetailsFromReq(newSwaggerForClone, swaggerCloneDetails);
 		isSwaggerCloneSuccess = baseRepository.save(newSwaggerForClone) != null ? true : false;
-		return isSwaggerCloneSuccess?newSwaggerForClone.getSwaggerId():null;
+		return isSwaggerCloneSuccess ? newSwaggerForClone.getSwaggerId() : null;
 	}
 
 	public List<String> getProxies(String swagger, String oas) {
@@ -3937,4 +3939,91 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		}
 		return partners;
 	}
+
+	@Override
+	public void updateSwaggerDictionary(SwaggerDictionary swaggerDictionary) {
+		SwaggerDictionary swaggerDictForUpdate = baseRepository.findOne("swaggerId", swaggerDictionary.getSwaggerId(),
+				"revision", swaggerDictionary.getRevision(), "oasVersion", swaggerDictionary.getOasVersion(),
+				SwaggerDictionary.class);
+
+		if (swaggerDictForUpdate != null) {
+			swaggerDictForUpdate.setDictionary(swaggerDictionary.getDictionary());
+			baseRepository.save(swaggerDictForUpdate);
+		} else { // Save a new Swagger Dictionary Obj
+			baseRepository.save(swaggerDictionary);
+		}
+
+	}
+
+	@Override
+	public SwaggerDictionary getSwaggerDictionary(String swaggerId, Integer revision) {
+		return baseRepository.findOne("swaggerId", swaggerId, "revision", revision, SwaggerDictionary.class);
+	}
+
+	@Override
+	public DictionarySwagger getSwaggerAssociatedWithDictionary(String dictionaryId, String schemaName) {
+		List<Document> documents = null;
+		if (schemaName == null || "".equals(schemaName)) {
+			documents = baseRepository.getSwaggerAssociatedWithDictionary(dictionaryId, SwaggerDictionary.class);
+		} else {
+			documents = baseRepository.getSwaggerAssociatedWithSchemaName(dictionaryId, schemaName,
+					SwaggerDictionary.class);
+		}
+		DictionarySwagger dictionarySwagger = new DictionarySwagger();
+
+		if (documents.size() > 0) {
+			Document dictionaryObj = documents.get(0).get("dictionary", Document.class);
+			dictionarySwagger.setId(dictionaryObj.get("_id", ObjectId.class).toString());
+			dictionarySwagger.setName(dictionaryObj.getString("name"));
+		} else {
+			return null;
+		}
+
+		for (Document doc : documents) {
+			Document dictionaryObj = doc.get("dictionary", Document.class);
+			Document modelsObj = dictionaryObj.get("models", Document.class);
+			String modelName = modelsObj.getString("name");
+
+			if (dictionarySwagger.getSchemas() != null && dictionarySwagger.getSchemas().size() > 0) {
+				Optional<SchemaInfo> schemaInfoOptional = dictionarySwagger.getSchemas().stream()
+						.filter(s -> s.getName().equals(modelName)).findFirst();
+				if (schemaInfoOptional.isPresent()) {
+					SwaggerData swaggerData = getSwaggerData(doc);
+					schemaInfoOptional.get().getSwaggers().add(swaggerData);
+				} else {
+					ArrayList<SwaggerData> swaggers = new ArrayList<>();
+					SwaggerData swaggerData = getSwaggerData(doc);
+					SchemaInfo schemaInfo = new SchemaInfo();
+					schemaInfo.setName(modelName);
+					swaggers.add(swaggerData);
+					schemaInfo.setSwaggers(swaggers);
+					dictionarySwagger.getSchemas().add(schemaInfo);
+
+				}
+			} else {
+				ArrayList<SchemaInfo> schemaInfos = new ArrayList<>();
+				SchemaInfo schemaInfo = new SchemaInfo();
+				schemaInfo.setName(modelName);
+				ArrayList<SwaggerData> swaggers = new ArrayList<>();
+				SwaggerData swaggerData = getSwaggerData(doc);
+				swaggers.add(swaggerData);
+				schemaInfo.setSwaggers(swaggers);
+				schemaInfos.add(schemaInfo);
+				dictionarySwagger.setSchemas(schemaInfos);
+			}
+
+		}
+		return dictionarySwagger;
+	}
+
+	private SwaggerData getSwaggerData(Document doc) {
+		SwaggerData swaggerData = new SwaggerData();
+		swaggerData.setId(doc.getString("swaggerId"));
+		swaggerData.setName(doc.getString("name"));
+		swaggerData.setOasVersion(doc.getString("oasVersion"));
+		swaggerData.setRevision(doc.getInteger("revision"));
+		swaggerData.setStatus(doc.getString("status"));
+		return swaggerData;
+	}
+
 }

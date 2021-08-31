@@ -1,31 +1,24 @@
 package com.itorix.apiwiz.datadictionary.serviceimpl;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.datadictionary.business.DictionaryBusiness;
+import com.itorix.apiwiz.datadictionary.model.ModelStatus;
 import com.itorix.apiwiz.datadictionary.model.PortfolioHistoryResponse;
 import com.itorix.apiwiz.datadictionary.model.PortfolioModel;
 import com.itorix.apiwiz.datadictionary.model.PortfolioVO;
 import com.itorix.apiwiz.datadictionary.service.DictionaryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -218,6 +211,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 			PortfolioModel model = new PortfolioModel();
 			model.setInteractionid(interactionid);
 			model.setPortfolioID(id);
+			model.setMts(System.currentTimeMillis());
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(body);
 			String name = (String) jsonNode.get("name").asText();
@@ -327,5 +321,13 @@ public class DictionaryServiceImpl implements DictionaryService {
 			@RequestParam("limit") int limit) throws ItorixException, JsonProcessingException {
 		return new ResponseEntity<Object>(dictionaryBusiness.portfolioSearch(interactionid, name, limit),
 				HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> updatePortfolioModelStatus(@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,  @PathVariable("id") String id,
+			@PathVariable("model_name") String model_name, @PathVariable("modelStatus") ModelStatus modelStatus) {
+		dictionaryBusiness.updatePortfolioModelStatus(id, model_name, modelStatus);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 }
