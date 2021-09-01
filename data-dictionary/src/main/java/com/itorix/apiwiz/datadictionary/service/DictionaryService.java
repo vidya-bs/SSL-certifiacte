@@ -248,6 +248,7 @@ public interface DictionaryService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam("name") String name,
 			@RequestParam("limit") int limit) throws ItorixException, JsonProcessingException;
 
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/data-dictionary/{id}/schemas/{model_name}/{modelStatus}")
 	public ResponseEntity<?> updatePortfolioModelStatus(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,  @PathVariable("id") String id,

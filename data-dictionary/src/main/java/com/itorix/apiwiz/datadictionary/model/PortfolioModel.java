@@ -15,7 +15,7 @@ public class PortfolioModel extends AbstractObject {
 
 	private String model;
 
-	private ModelStatus status;
+	private ModelStatus status = ModelStatus.Active;
 
 	public String getPortfolioID() {
 		return portfolioID;
