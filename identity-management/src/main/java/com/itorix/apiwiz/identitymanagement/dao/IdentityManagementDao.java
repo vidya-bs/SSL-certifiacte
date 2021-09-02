@@ -539,7 +539,6 @@ public class IdentityManagementDao {
 				User user = new User();
 				user.setEmail(userInfo.getEmail());
 				VerificationToken token = createVerificationToken("registerUser", user.getEmail());
-				token.setWorkspaceId(userInfo.getWorkspaceId().toLowerCase());
 				saveVerificationToken(token);
 				if (sendRegistrationEmail(token, user))
 					user = saveUser(user);
