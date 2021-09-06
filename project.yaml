@@ -10,7 +10,7 @@ deployment:
     jarLocation: /app/target
     environments:
       - env: local
-        branch: main
+        branch: develop
         deployFlag: enable
         approval: disable
         host: 3.128.86.36
@@ -59,7 +59,7 @@ deployment:
     jarName: api-mock-server-0.0.1-SNAPSHOT.jar
     environments:
       - env: local
-        branch: main
+        branch: develop
         container: disable
         deployFlag: enable
         approval: disable
@@ -108,7 +108,7 @@ deployment:
     jarName: test-suite-lib-1.5.10.RELEASE.jar
     environments:
       - env: local
-        branch: main
+        branch: develop
         deployFlag: enable
         container: disable
         approval: disable
@@ -157,7 +157,7 @@ deployment:
     jarLocation: /sso/target
     environments:
       - env: local
-        branch: main
+        branch: develop
         deployFlag: enable
         spaceName: NA
         container: disable
@@ -206,7 +206,7 @@ deployment:
     jarLocation: /api-monitor-agent/target
     environments:
       - env: local
-        branch: main
+        branch: develop
         deployFlag: enable
         container: disable
         approval: disable
@@ -255,7 +255,7 @@ deployment:
     jarLocation: /notification-agent/target
     environments:
       - env: local
-        branch: main
+        branch: develop
         container: disable
         deployFlag: enable
         approval: disable
@@ -304,7 +304,7 @@ deployment:
     jarLocation: /api-license/target
     environments:
       - env: local
-        branch: main
+        branch: develop
         container: disable
         deployFlag: disable
         approval: disable
