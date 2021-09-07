@@ -190,7 +190,7 @@ public interface SwaggerService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('BASIC','PRO','TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/history", produces = {
 			MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Object> getListOfSwaggerDetails(
