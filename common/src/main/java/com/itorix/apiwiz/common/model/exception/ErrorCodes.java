@@ -164,6 +164,7 @@ public enum ErrorCodes {
 
 			put("Swagger-1000",
 					"Resource not found. Request validation failed. Please check the mandatory data fields and retry again.");
+			put("Swagger-1001", "Request validation failed. Swagger Id - %s doesn't exist.");
 			put("Swagger-1002", "Request validation failed. Swagger name - %s already exists.");
 			put("Swagger-1003", "Request validation failed. Missing XSD document.");
 			put("Swagger-1004", "Request validation failed. Missing XSD element name.");

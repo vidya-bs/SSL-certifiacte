@@ -3809,7 +3809,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		}
 
 		if (vo == null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")), "Swagger-1001");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), swaggerCloneDetails.getCurrentSwaggerID()), "Swagger-1001");
 		}
 
 		Swagger3VO newSwaggerForClone = new Swagger3VO();

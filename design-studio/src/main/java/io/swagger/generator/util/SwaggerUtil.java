@@ -13,10 +13,14 @@ import io.swagger.parser.SwaggerParser;
 import io.swagger.v3.oas.models.OpenAPI;
 import lombok.SneakyThrows;
 import org.apache.commons.beanutils.BeanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
 public class SwaggerUtil {
+
+	private static final Logger logger = LoggerFactory.getLogger(SwaggerUtil.class);
 
 	@SneakyThrows
 	private SwaggerUtil() {
@@ -65,7 +69,7 @@ public class SwaggerUtil {
 		ObjectMapper objMapper = new ObjectMapper();
 		objMapper.setSerializationInclusion(Include.NON_NULL);
 		String swaggerJson = objMapper.writeValueAsString(swagger);
-		removeResponseSchemaTag(swaggerJson);
+		swaggerJson = removeResponseSchemaTag(swaggerJson);
 		dest.setSwagger(swaggerJson);
 	}
 
@@ -76,10 +80,10 @@ public class SwaggerUtil {
 		Object responseSchema = documentContext.read(responseSchemaPath);
 
 		if (responseSchema != null) {
-			return documentContext.delete(responseSchemaPath).jsonString();
-		} else {
-			return json;
+			json = documentContext.delete(responseSchemaPath).jsonString();
 		}
+
+		return json;
 
 	}
 
