@@ -3731,8 +3731,15 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		version = swaggerInfoNode.get("version");
 		description = swaggerInfoNode.get("description");
 
-		if (oas.equals("2.0"))
+		if (oas.equals("2.0")) {
 			basePath = swaggerNode.get("basePath");
+		} else {
+			List<Swagger3BasePath> swagger3BasePaths = getSwagger3BasePaths();
+			String swaggerName = swaggerInfoNode.get("title").asText();
+			Optional<Swagger3BasePath> swagger3BasePath = swagger3BasePaths.stream().filter(s -> s.getName().equals(swaggerName))
+					.findAny();
+			basePath = swagger3BasePath.isPresent() ? swagger3BasePath.get().getBasePath() : null;
+		}
 
 		if (null == name)
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")), "Swagger-1001");

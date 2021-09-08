@@ -14,6 +14,9 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
 import java.util.UUID;
 
 public class SwaggerUtil {
@@ -41,7 +44,9 @@ public class SwaggerUtil {
 
 		String replacedSwaggerJson = replaceSwagger3Title(swaggerStr, clone.getName());
 
-		dest.setSwagger(replacedSwaggerJson);
+		String replaceSwagger3BasePath = replaceSwagger3BasePath(replacedSwaggerJson, clone.getBasePath());
+
+		dest.setSwagger(replaceSwagger3BasePath);
 	}
 
 	@SneakyThrows
@@ -85,6 +90,36 @@ public class SwaggerUtil {
 
 	public static String replaceSwagger3Title(String swaggerJson, String newTitle) {
 		return JsonPath.parse(swaggerJson).set("$.info.title", newTitle).jsonString();
+	}
+
+
+	public static String replaceSwagger3BasePath(String swaggerJson, String pathToReplace) throws MalformedURLException {
+		String serverPath = "$.servers[*].url";;
+
+		DocumentContext parse = JsonPath.parse(swaggerJson);
+		List<String> servers = parse.read(serverPath, List.class);
+
+		for(int i = 0 ; i < servers.size(); i++ ) {
+			parse.set("$.servers[" + i + "].url", replaceURL(servers.get(i), pathToReplace));
+		}
+		return parse.jsonString();
+	}
+
+	private static String replaceURL(String urlStr, String pathToReplace) throws MalformedURLException {
+		URL url = new URL(urlStr);
+		StringBuilder newUrl = new StringBuilder();
+		newUrl.append(url.getProtocol() + "://" + replaceNull(url.getHost()) + replaceNull(pathToReplace));
+		if(url.getPort() > 0 ) {
+			newUrl.append(":" + url.getPort());
+		}
+		if(url.getQuery() != null) {
+			newUrl.append("?" + url.getQuery());
+		}
+		return newUrl.toString();
+	}
+
+	private static String replaceNull(String str) {
+		return str !=null ? str : "";
 	}
 
 }
