@@ -8,9 +8,7 @@ import com.itorix.apiwiz.design.studio.model.SwaggerVO;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import io.swagger.models.Swagger;
-import io.swagger.parser.OpenAPIParser;
 import io.swagger.parser.SwaggerParser;
-import io.swagger.v3.oas.models.OpenAPI;
 import lombok.SneakyThrows;
 import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
@@ -41,11 +39,9 @@ public class SwaggerUtil {
 		String swaggerId = UUID.randomUUID().toString().replaceAll("-", "");
 		dest.setSwaggerId(swaggerId);
 
-		OpenAPI openAPI = new OpenAPIParser().readContents(swaggerStr, null, null).getOpenAPI();
-		openAPI.getInfo().setTitle(clone.getName());
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.setSerializationInclusion(Include.NON_NULL);
-		dest.setSwagger(objectMapper.writeValueAsString(openAPI));
+		String replacedSwaggerJson = replaceSwagger3Title(swaggerStr, clone.getName());
+
+		dest.setSwagger(replacedSwaggerJson);
 	}
 
 	@SneakyThrows
@@ -85,6 +81,10 @@ public class SwaggerUtil {
 
 		return json;
 
+	}
+
+	public static String replaceSwagger3Title(String swaggerJson, String newTitle) {
+		return JsonPath.parse(swaggerJson).set("$.info.title", newTitle).jsonString();
 	}
 
 }
