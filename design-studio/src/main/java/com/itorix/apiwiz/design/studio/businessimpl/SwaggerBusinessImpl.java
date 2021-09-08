@@ -3814,7 +3814,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 		Swagger3VO newSwaggerForClone = new Swagger3VO();
 		SwaggerUtil.copyAllSwaggerFields(newSwaggerForClone, vo);
-		SwaggerUtil.setCloneDetailsFromReq(newSwaggerForClone, swaggerCloneDetails);
+		SwaggerUtil.setCloneDetailsFromReq(newSwaggerForClone, swaggerCloneDetails, vo.getSwagger());
 		isSwaggerCloneSuccess = baseRepository.save(newSwaggerForClone) != null ? true : false;
 		return isSwaggerCloneSuccess ? newSwaggerForClone.getSwaggerId() : null;
 	}
