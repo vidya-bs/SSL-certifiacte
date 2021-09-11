@@ -16,13 +16,15 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 @Component
 public class S3Utils {
 
+	/**
 	public static void main(String[] args) throws IOException {
 		S3Utils s3Utils = new S3Utils();
-		s3Utils.uplaodFile("AKIA6H4UPGBSV4FKTIXV", "bnRJ8YVg5OSsabDKB9EzpvDO+S+edx8ZfwcGvTzp",
-				Regions.fromName("us-west-2"), "development-space", "Document-1/1551935259542.zip",
+		s3Utils.uplaodFile("AKIA24SOXSG7ZZH23ZDA", "7p2duuU+sGjyWoEhKS6y+nGwaKCu4WDgwVRbjXL2",
+				Regions.fromName("us-west-2"), "apiwiz-workspace-assets", "Document-test/1551935259542.zip",
 				"/Itorix/temp/1551935259542.zip");
 	}
-
+	*/
+	
 	public String uplaodFile(String key, String secret, Regions region, String bucketName, String path, String filePath)
 			throws IOException {
 		AWSCredentials credentials = new BasicAWSCredentials(key, secret);
