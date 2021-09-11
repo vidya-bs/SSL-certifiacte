@@ -3736,8 +3736,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		} else {
 			List<Swagger3BasePath> swagger3BasePaths = getSwagger3BasePaths();
 			String swaggerName = swaggerInfoNode.get("title").asText();
-			Optional<Swagger3BasePath> swagger3BasePath = swagger3BasePaths.stream().filter(s -> s.getName().equals(swaggerName))
-					.findAny();
+			Optional<Swagger3BasePath> swagger3BasePath = swagger3BasePaths.stream()
+					.filter(s -> s.getName().equals(swaggerName)).findAny();
 			basePath = swagger3BasePath.isPresent() ? swagger3BasePath.get().getBasePath() : null;
 		}
 
@@ -3816,7 +3816,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		}
 
 		if (vo == null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), swaggerCloneDetails.getCurrentSwaggerID()), "Swagger-1001");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
+					swaggerCloneDetails.getCurrentSwaggerID()), "Swagger-1001");
 		}
 
 		Swagger3VO newSwaggerForClone = new Swagger3VO();

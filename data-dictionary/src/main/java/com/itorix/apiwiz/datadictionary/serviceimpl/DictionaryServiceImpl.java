@@ -324,8 +324,9 @@ public class DictionaryServiceImpl implements DictionaryService {
 	}
 
 	@Override
-	public ResponseEntity<?> updatePortfolioModelStatus(@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,  @PathVariable("id") String id,
+	public ResponseEntity<?> updatePortfolioModelStatus(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
 			@PathVariable("model_name") String model_name, @PathVariable("modelStatus") ModelStatus modelStatus) {
 		dictionaryBusiness.updatePortfolioModelStatus(id, model_name, modelStatus);
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);

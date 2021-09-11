@@ -1,5 +1,47 @@
 package com.itorix.apiwiz.identitymanagement.dao;
 
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,40 +55,34 @@ import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.mail.EmailTemplate;
 import com.itorix.apiwiz.common.util.mail.MailUtil;
-import com.itorix.apiwiz.identitymanagement.model.*;
+import com.itorix.apiwiz.identitymanagement.model.ActivityLog;
+import com.itorix.apiwiz.identitymanagement.model.ActivitylogResponse;
+import com.itorix.apiwiz.identitymanagement.model.CancelSubscriptions;
+import com.itorix.apiwiz.identitymanagement.model.Constants;
+import com.itorix.apiwiz.identitymanagement.model.DBConfig;
+import com.itorix.apiwiz.identitymanagement.model.Pagination;
+import com.itorix.apiwiz.identitymanagement.model.Plan;
+import com.itorix.apiwiz.identitymanagement.model.ResetUserToken;
+import com.itorix.apiwiz.identitymanagement.model.Roles;
+import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
+import com.itorix.apiwiz.identitymanagement.model.Subscription;
+import com.itorix.apiwiz.identitymanagement.model.SubscriptionPrice;
+import com.itorix.apiwiz.identitymanagement.model.UIMetadata;
+import com.itorix.apiwiz.identitymanagement.model.User;
+import com.itorix.apiwiz.identitymanagement.model.UserDetails;
+import com.itorix.apiwiz.identitymanagement.model.UserDomains;
+import com.itorix.apiwiz.identitymanagement.model.UserInfo;
+import com.itorix.apiwiz.identitymanagement.model.UserSession;
+import com.itorix.apiwiz.identitymanagement.model.UserStatus;
+import com.itorix.apiwiz.identitymanagement.model.UserWorkspace;
+import com.itorix.apiwiz.identitymanagement.model.Users;
+import com.itorix.apiwiz.identitymanagement.model.VerificationToken;
+import com.itorix.apiwiz.identitymanagement.model.Workspace;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.time.DateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
-import javax.annotation.PostConstruct;
-import javax.mail.MessagingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class IdentityManagementDao {
@@ -71,8 +107,7 @@ public class IdentityManagementDao {
 	private ApplicationProperties applicationProperties;
 	@Autowired
 	private MailUtil mailUtil;
-	@Autowired
-	JfrogUtilImpl jfrogUtilImpl;
+
 	@Autowired
 	private WorkspaceDao workspaceDao;
 
@@ -158,11 +193,11 @@ public class IdentityManagementDao {
 			UserWorkspace userWorkspace = user.getUserWorkspace(userInfo.getWorkspaceId().toLowerCase());
 			if (userWorkspace == null
 					|| (userWorkspace.getActive() != true && userWorkspace.getAcceptInvite() == true)) { // (!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1030"), "Identity-1030");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1045"), "Identity-1045");
 			}
 
 			if (userWorkspace == null || userWorkspace.getActive() != true) { // (!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1039"), "Identity-1039");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1044"), "Identity-1044");
 			}
 
 			if (user.canLogin() != true) {
@@ -503,6 +538,7 @@ public class IdentityManagementDao {
 				User user = new User();
 				user.setEmail(userInfo.getEmail());
 				VerificationToken token = createVerificationToken("registerUser", user.getEmail());
+
 				saveVerificationToken(token);
 				if (sendRegistrationEmail(token, user))
 					user = saveUser(user);

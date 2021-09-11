@@ -256,9 +256,9 @@ public class ProxyStudioImpl implements ProxyStudio {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "swaggerid", required = false) String swaggerid,
 			@RequestParam(value = "revision", required = false, defaultValue = "1") int revision,
-			@RequestParam(value = "oas", required = false, defaultValue = "2.0") String oas,
-			HttpServletRequest request, HttpServletResponse response) throws Exception {
-		if(null != swaggerid){
+			@RequestParam(value = "oas", required = false, defaultValue = "2.0") String oas, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		if (null != swaggerid) {
 			return new ResponseEntity<>(codeGenService.getCategories(swaggerid, revision, oas), HttpStatus.OK);
 		}
 		return new ResponseEntity<>(codeGenService.getCategories(), HttpStatus.OK);

@@ -24,7 +24,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-		
+
 		<!-- Micormeter core dependecy -->
 		<dependency>
 			<groupId>io.micrometer</groupId>
@@ -62,12 +62,12 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
@@ -118,7 +118,7 @@
 			<artifactId>springfox-swagger2</artifactId>
 			<version>3.0.0</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger-ui</artifactId>
@@ -196,6 +196,18 @@
 			<artifactId>poi-ooxml</artifactId>
 			<version>3.10-FINAL</version>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>1.11.163</version>
+		</dependency>
+
+
+		<!-- <dependency> <groupId>com.amazonaws</groupId> <artifactId>aws-java-sdk</artifactId> 
+			<version>1.9.6</version> </dependency> -->
+
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

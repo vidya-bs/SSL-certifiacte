@@ -142,6 +142,8 @@ public enum ErrorCodes {
 			put("Identity-1041", "Internal server error. Please contact support for further instructions.");
 			put("Identity-1042", "Trial period expired. Please contact support to assist you further.");
 			put("Identity-1043", "Resource authorization validation failed. Please contact your workspace admin.");
+			put("Identity-1044", "Request validation failed. Invalid workspace details provided.");
+			put("Identity-1045", "Request validation failed. The user is not mapped to the workspace provided.");
 
 			put("PROJECT_PLAN_TRACK_001", "Project already exist");
 			put("ProjectPlan-1001", "Project with name %s does not exists.");
@@ -164,7 +166,6 @@ public enum ErrorCodes {
 
 			put("Swagger-1000",
 					"Resource not found. Request validation failed. Please check the mandatory data fields and retry again.");
-			put("Swagger-1001", "Request validation failed. Swagger Id - %s doesn't exist.");
 			put("Swagger-1002", "Request validation failed. Swagger name - %s already exists.");
 			put("Swagger-1003", "Request validation failed. Missing XSD document.");
 			put("Swagger-1004", "Request validation failed. Missing XSD element name.");
@@ -360,6 +361,8 @@ public enum ErrorCodes {
 			put("Identity-1041", 500);
 			put("Identity-1042", 403);
 			put("Identity-1043", 400);
+			put("Identity-1044", 400);
+			put("Identity-1045", 400);
 			put("Connector-1000", 400);
 			put("Connector-1001", 400);
 			put("Connector-1002", 400);

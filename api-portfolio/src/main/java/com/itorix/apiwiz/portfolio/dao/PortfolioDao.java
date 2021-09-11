@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.portfolio.dao;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,18 +27,23 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.SearchItem;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.integrations.Integration;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.model.projectmanagement.Organization;
 import com.itorix.apiwiz.common.model.projectmanagement.ProjectProxyResponse;
 import com.itorix.apiwiz.common.model.proxystudio.ProxyPortfolio;
 import com.itorix.apiwiz.common.model.proxystudio.Scm;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
+import com.itorix.apiwiz.common.util.s3.S3Connection;
+import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.identitymanagement.model.User;
@@ -82,6 +88,12 @@ public class PortfolioDao {
 
 	@Autowired
 	private ProxyUtils proxyUttils;
+
+	@Autowired
+	private S3Connection s3Connection;
+
+	@Autowired
+	private S3Utils s3Utils;
 
 	public String createPortfolio(PortfolioRequest portfolioRequest) throws ItorixException {
 		Portfolio portfolio = new Portfolio();
@@ -631,14 +643,25 @@ public class PortfolioDao {
 	}
 
 	private String updateToJfrog(String folderPath, byte[] bytes, String jsession) throws ItorixException {
-
+		S3Integration s3Integration = s3Connection.getS3Integration();
 		String workspace = masterMongoTemplate.findById(jsession, UserSession.class).getWorkspaceId();
-		try {
-			JSONObject uploadFiles = jfrogUtilImpl.uploadFiles(new ByteArrayInputStream(bytes),
-					"/" + workspace + "/portfolio/" + folderPath);
-			return uploadFiles.getString("downloadURI");
-		} catch (Exception e) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1009"), "Portfolio-1009");
+
+		if (s3Integration != null) {
+			try {
+				return s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+						 workspace + "/portfolio/" + folderPath, new ByteArrayInputStream(bytes));
+			} catch (IOException e) {
+				throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1009"), "Portfolio-1009");
+			}
+		} else {
+			try {
+				JSONObject uploadFiles = jfrogUtilImpl.uploadFiles(new ByteArrayInputStream(bytes),
+						"/" + workspace + "/portfolio/" + folderPath);
+				return uploadFiles.getString("downloadURI");
+			} catch (Exception e) {
+				throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1009"), "Portfolio-1009");
+			}
 		}
 	}
 

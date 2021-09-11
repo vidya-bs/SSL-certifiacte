@@ -202,8 +202,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 
 	@Override
 	public void updatePortfolioModelStatus(String id, String model_name, ModelStatus modelStatus) {
-		Query query = new Query(
-				Criteria.where("modelName").is(model_name).and("portfolioID").is(id));
+		Query query = new Query(Criteria.where("modelName").is(model_name).and("portfolioID").is(id));
 		Update update = new Update();
 		update.set("status", modelStatus);
 		mongoTemplate.upsert(query, update, PortfolioModel.class);

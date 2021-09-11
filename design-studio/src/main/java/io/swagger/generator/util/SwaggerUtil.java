@@ -92,14 +92,14 @@ public class SwaggerUtil {
 		return JsonPath.parse(swaggerJson).set("$.info.title", newTitle).jsonString();
 	}
 
-
-	public static String replaceSwagger3BasePath(String swaggerJson, String pathToReplace) throws MalformedURLException {
+	public static String replaceSwagger3BasePath(String swaggerJson, String pathToReplace)
+			throws MalformedURLException {
 		String serverPath = "$.servers[*].url";;
 
 		DocumentContext parse = JsonPath.parse(swaggerJson);
 		List<String> servers = parse.read(serverPath, List.class);
 
-		for(int i = 0 ; i < servers.size(); i++ ) {
+		for (int i = 0; i < servers.size(); i++) {
 			parse.set("$.servers[" + i + "].url", replaceURL(servers.get(i), pathToReplace));
 		}
 		return parse.jsonString();
@@ -109,17 +109,17 @@ public class SwaggerUtil {
 		URL url = new URL(urlStr);
 		StringBuilder newUrl = new StringBuilder();
 		newUrl.append(url.getProtocol() + "://" + replaceNull(url.getHost()) + replaceNull(pathToReplace));
-		if(url.getPort() > 0 ) {
+		if (url.getPort() > 0) {
 			newUrl.append(":" + url.getPort());
 		}
-		if(url.getQuery() != null) {
+		if (url.getQuery() != null) {
 			newUrl.append("?" + url.getQuery());
 		}
 		return newUrl.toString();
 	}
 
 	private static String replaceNull(String str) {
-		return str !=null ? str : "";
+		return str != null ? str : "";
 	}
 
 }

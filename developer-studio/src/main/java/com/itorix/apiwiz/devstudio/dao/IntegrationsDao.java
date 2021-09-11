@@ -115,6 +115,14 @@ public class IntegrationsDao {
 		return integration;
 	}
 
+	public Integration getS3Integration() {
+		List<Integration> dbIntegrationList = getIntegration("S3");
+		Integration integration = new Integration();
+		if (dbIntegrationList != null && dbIntegrationList.size() > 0)
+			return dbIntegrationList.get(0);
+		return integration;
+	}
+
 	public void updateJfrogIntegratoin(Integration integration) {
 		List<Integration> dbIntegrationList = getIntegration("JFROG");
 		if (dbIntegrationList != null && dbIntegrationList.size() > 0) {
