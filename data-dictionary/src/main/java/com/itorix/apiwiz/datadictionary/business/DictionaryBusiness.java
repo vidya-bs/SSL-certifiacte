@@ -1,14 +1,14 @@
 package com.itorix.apiwiz.datadictionary.business;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.datadictionary.model.ModelStatus;
 import com.itorix.apiwiz.datadictionary.model.PortfolioHistoryResponse;
 import com.itorix.apiwiz.datadictionary.model.PortfolioModel;
 import com.itorix.apiwiz.datadictionary.model.PortfolioVO;
 import com.mongodb.client.result.DeleteResult;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public interface DictionaryBusiness {
@@ -40,4 +40,6 @@ public interface DictionaryBusiness {
 	public DeleteResult deletePortfolioModelByportfolioIDAndModelName(PortfolioModel model);
 
 	public Object portfolioSearch(String interactionid, String name, int limit) throws ItorixException;
+
+	public void updatePortfolioModelStatus(String id, String model_name, ModelStatus modelStatus);
 }

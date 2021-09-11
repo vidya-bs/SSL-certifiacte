@@ -13,6 +13,7 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import com.itorix.apiwiz.common.model.proxystudio.CodeGenHistory;
 import com.itorix.apiwiz.common.model.proxystudio.Flow;
@@ -84,9 +85,11 @@ public class ProxyGen {
 		for (Folder file : files)
 			if (!file.isFolder())
 				processProxyEndpointTemplate(cg, file.getName());
-		processAPIFlowTemplates(proxyList, cg);
+		if (!ObjectUtils.isEmpty(proxyList.getFlow()))
+			processAPIFlowTemplates(proxyList, cg);
 		processRouteRuleTemplate(cg.getTarget());
-		processPolicyTemplates(proxy.getFlows(), proxyFolder.getFile("policies"), cg);
+		if (!ObjectUtils.isEmpty(proxy.getFlows()))
+			processPolicyTemplates(proxy.getFlows(), proxyFolder.getFile("policies"), cg);
 	}
 
 	private void processProxyTemplate(String destRootFolder, String fileName) throws IOException, TemplateException {

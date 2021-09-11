@@ -1,40 +1,33 @@
 package com.itorix.apiwiz.datadictionary.businessimpl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.data.mongodb.core.query.BasicQuery;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.itorix.apiwiz.common.model.SearchItem;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.datadictionary.business.DictionaryBusiness;
+import com.itorix.apiwiz.datadictionary.model.ModelStatus;
 import com.itorix.apiwiz.datadictionary.model.PortfolioHistoryResponse;
 import com.itorix.apiwiz.datadictionary.model.PortfolioModel;
 import com.itorix.apiwiz.datadictionary.model.PortfolioVO;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
-import com.mongodb.WriteResult;
 import com.mongodb.client.result.DeleteResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class DictionaryBusinessImpl implements DictionaryBusiness {
@@ -161,6 +154,8 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 				Criteria.where("modelName").is(model.getModelName()).and("portfolioID").is(model.getPortfolioID()));
 		Update update = new Update();
 		update.set("model", model.getModel());
+		update.set("mts", model.getMts());
+		update.set("status", model.getStatus());
 		mongoTemplate.upsert(query, update, PortfolioModel.class);
 		return model;
 	}
@@ -203,5 +198,13 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		}
 		portfolioList.put("dataDictionaries", responseFields);
 		return portfolioList;
+	}
+
+	@Override
+	public void updatePortfolioModelStatus(String id, String model_name, ModelStatus modelStatus) {
+		Query query = new Query(Criteria.where("modelName").is(model_name).and("portfolioID").is(id));
+		Update update = new Update();
+		update.set("status", modelStatus);
+		mongoTemplate.upsert(query, update, PortfolioModel.class);
 	}
 }

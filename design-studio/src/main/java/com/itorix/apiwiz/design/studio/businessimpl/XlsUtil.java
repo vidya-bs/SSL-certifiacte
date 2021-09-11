@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.design.studio.businessimpl;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,8 +22,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.amazonaws.regions.Regions;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
+import com.itorix.apiwiz.common.util.s3.S3Connection;
+import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.design.studio.model.EmptyXlsRows;
 import com.itorix.apiwiz.design.studio.model.RowData;
 import com.itorix.apiwiz.design.studio.model.XmlSchemaVo;
@@ -37,8 +42,16 @@ public class XlsUtil {
 	// }
 	@Autowired
 	JfrogUtilImpl jfrogUtilImpl;
+
+	@Autowired
+	private S3Connection s3Connection;
+
+	@Autowired
+	private S3Utils s3Utils;
+
 	@Autowired
 	ApplicationProperties applicationProperties;
+
 
 	public List<RowData> readExcel(String filePath, String sheetNname) throws EmptyXlsRows {
 		List<RowData> listRowDatas = new ArrayList<RowData>();
@@ -130,15 +143,27 @@ public class XlsUtil {
 		fileOut.close();
 		JSONObject obj = null;
 		try {
-			obj = jfrogUtilImpl.uploadFiles(file.getAbsolutePath(), applicationProperties.getSwaggerXpath(),
-					applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort() + "/artifactory/",
-					timeStamp + "", // change
-									// the
-									// repo
-									// name
-									// and
-									// path
-					applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+			S3Integration s3Integration = s3Connection.getS3Integration();
+			String downloadURI = null;
+			if(null != s3Integration){
+				downloadURI =  s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+						"temp/" + timeStamp  + "/workbook.xls" , xsdFileBackUpLocation + "/workbook.xls");
+				obj = new JSONObject();	
+				obj.put("filename", "workbook.xls");
+				obj.put("downloadURI", downloadURI);
+			}
+			else{
+				obj = jfrogUtilImpl.uploadFiles(file.getAbsolutePath(), applicationProperties.getSwaggerXpath(),
+						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort() + "/artifactory/",
+						timeStamp + "", // change
+						// the
+						// repo
+						// name
+						// and
+						// path
+						applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

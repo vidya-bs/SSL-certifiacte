@@ -42,6 +42,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.zeroturnaround.zip.ZipUtil;
 
+import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -57,6 +58,7 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.integrations.Integration;
 import com.itorix.apiwiz.common.model.integrations.git.GitIntegration;
 import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.model.projectmanagement.Organization;
 import com.itorix.apiwiz.common.model.projectmanagement.Project;
 import com.itorix.apiwiz.common.model.projectmanagement.ProxyConnection;
@@ -81,6 +83,7 @@ import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
+import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.common.util.zip.ZIPUtil;
 import com.itorix.apiwiz.devstudio.business.LoadSwagger;
@@ -101,6 +104,8 @@ import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.performance.coverge.businessimpl.CodeCoverageBusinessImpl;
 import com.itorix.apiwiz.performance.coverge.businessimpl.PolicyPerformanceBusinessImpl;
 import com.itorix.apiwiz.performance.coverge.model.History;
+import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryColumnEntry;
+import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryColumns;
 import com.itorix.apiwiz.servicerequest.dao.ServiceRequestDao;
 import com.mongodb.client.result.DeleteResult;
 
@@ -138,6 +143,8 @@ public class CodeGenService {
 	ProxyGenerator proxyGenerator;
 	@Autowired
 	private JfrogUtilImpl ufile;
+	@Autowired
+	private S3Utils s3Utils;
 	@Autowired
 	private ScmUtilImpl scmUtil;
 	@Autowired
@@ -276,16 +283,24 @@ public class CodeGenService {
 			}
 			try {
 				JfrogIntegration jfrogIntegration = getJfrogIntegration();
-				obj = ufile.uploadFiles(operations.getDir() + time + ".zip", applicationProperties.getProxyGenerate(),
-						jfrogIntegration.getHostURL() + "/artifactory/", "proxy-generation/API",
-						jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
+				S3Integration s3Integration = getS3Integration();
+				if (null != s3Integration) {
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"proxy-generation/API/" + time + ".zip", operations.getDir() + time + ".zip");
+				} else if (null != jfrogIntegration) {
+					obj = ufile.uploadFiles(operations.getDir() + time + ".zip",
+							applicationProperties.getProxyGenerate(), jfrogIntegration.getHostURL() + "/artifactory/",
+							"proxy-generation/API", jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
+					downloadURI = (String) obj.get("downloadURI");
+				}
 				if (project != null)
 					data.setProjectName(project.getName());
 				if (null != codeGen.getPortfolio())
 					data.setPortfolio(codeGen.getPortfolio());
 				if (proxyArtifacts != null)
 					data.setProxyArtifacts(proxyArtifacts);
-				downloadURI = (String) obj.get("downloadURI");
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -312,7 +327,7 @@ public class CodeGenService {
 			String swaggerStr = getSwagger(codeGen.getProxy().getBuildProxyArtifact(), codeGen.getProxy().getRevision(),
 					codeGen.getProxy().getOas());
 			if (null != swaggerStr && !CollectionUtils.isEmpty(proxyArtifacts.getTargetServers()))
-				createAPICTarget(swaggerStr,proxyArtifacts.getTargetServers());
+				createAPICTarget(swaggerStr, proxyArtifacts.getTargetServers());
 
 			ProxyGenResponse response = populateProxyArtifacts(proxyArtifacts);
 			response.setProxyName(data.getProxyName());
@@ -448,15 +463,6 @@ public class CodeGenService {
 		}
 	}
 
-
-	private void createAPICArtifacts(String swaggerString, ProxyArtifacts proxyArtifacts) {
-		try {
-			if (null != swaggerString && !CollectionUtils.isEmpty(proxyArtifacts.getTargetServers()))
-				createAPICTarget(swaggerString,proxyArtifacts.getTargetServers());
-
-		}catch (Exception e) {}
-	}
-
 	private void createAPICTarget(String swaggerString, List<String> targetServers) {
 		try {
 			List<OrgEnv> org = mongoConnection.getApigeeOrgs();
@@ -473,12 +479,11 @@ public class CodeGenService {
 						organization.setName(orgEnv.getName());
 						organization.setEnv(env.getName());
 						organization.setType(orgEnv.getType());
-						if(targeType.equalsIgnoreCase("target")){
-						String target = getAPICTarget(data, targetPath, environment);
-						createTargetServiceConfig(organization, targetServers.get(0), target);
-						}
-						else if(targeType.equalsIgnoreCase("kvm")){
-							
+						if (targeType.equalsIgnoreCase("target")) {
+							String target = getAPICTarget(data, targetPath, environment);
+							createTargetServiceConfig(organization, targetServers.get(0), target);
+						} else if (targeType.equalsIgnoreCase("kvm")) {
+
 						}
 					}
 				}
@@ -486,6 +491,68 @@ public class CodeGenService {
 		} catch (Exception e) {
 
 		}
+	}
+
+	private void createAPICKvm(Organization orgEnv, JsonNode data, Map<String, String> mapping,
+			ProxyArtifacts proxyArtifacts, String name) {
+		try {
+			List<String> registryColumns = getRegistryColumns();
+			Map<String, String> columnMap = getColumnMap(mapping, registryColumns);
+			String rootNodePath = mapping.get("x-ibm-kvm-root");
+			String environment = getEnvironmet(mapping, orgEnv.getName(), orgEnv.getName(), orgEnv.getType());
+			rootNodePath = rootNodePath.replaceAll("\\{environment\\}", environment).replaceAll("#", "\\.");
+			JsonNode rootNode = new ParseNode().parse(data, rootNodePath);
+			if (null != rootNode) {
+
+			}
+		} catch (Exception e) {
+
+		}
+	}
+
+	private Map<String, JsonNode> getMapValuesNode(JsonNode node, Map<String, String> columnMap) {
+		Map<String, JsonNode> dataMap = new HashMap<>();
+		for (String name : columnMap.keySet()) {
+			JsonNode nodeData = new ParseNode().parse(node, columnMap.get(name));
+			dataMap.put(name, nodeData);
+		}
+		return dataMap;
+	}
+
+	private Map<String, String> getMap(List<String> registryColumns) {
+		Map<String, String> dataMap = new HashMap<>();
+		for (String name : registryColumns) {
+			dataMap.put(name, null);
+		}
+		return dataMap;
+	}
+
+	private List<String> getRegistryColumns() {
+		List<ServiceRegistryColumns> registryColumns = mongoTemplate.findAll(ServiceRegistryColumns.class);
+		ServiceRegistryColumns registryColumnNames = registryColumns.isEmpty() ? null : registryColumns.get(0);
+		List<String> names = new ArrayList<>();
+		for (ServiceRegistryColumnEntry entry : registryColumnNames.getColumns()) {
+			names.add(entry.getColumnId());
+		}
+		if (CollectionUtils.isEmpty(names))
+			return null;
+		return names;
+	}
+
+	private Map<String, String> getColumnMap(Map<String, String> mapping, List<String> registryColumns) {
+		Map<String, String> columnMapping = new HashMap<>();
+		for (String name : registryColumns)
+			columnMapping.put(name, null);
+		for (String name : mapping.keySet()) {
+			if (name.contains("x-ibm-kvm-column-")) {
+				String key = name.replaceAll("x-ibm-kvm-column-", "");
+				String value = mapping.get(name);
+				if (registryColumns.contains(key.trim())) {
+					columnMapping.put(key, value);
+				}
+			}
+		}
+		return columnMapping;
 	}
 
 	private String getAPICTarget(JsonNode data, String targetPath, String environmet) {
@@ -497,11 +564,6 @@ public class CodeGenService {
 		}
 		return null;
 	}
-	
-	private String getAPICkvm(JsonNode data, Map<String, String> mapping){
-		return null;
-	}
-	
 
 	private String getEnvironmet(Map<String, String> mapping, String org, String env, String type) {
 		String path = org + ":" + env + ":" + type;
@@ -550,87 +612,6 @@ public class CodeGenService {
 		}
 		return null;
 	}
-
-
-
-	private JsonNode parseNodeforKVM(JsonNode node, String path) {
-		try {
-			List <String> pathsList = null;
-			if(path.contains("/")){
-				String[] paths = path.split("/");
-				pathsList = Arrays.asList(paths);
-			}
-			else{
-				pathsList = Arrays.asList(path);
-			}
-			JsonNode jsonNode = node;
-			for (String pathToken: pathsList) {
-				if (pathToken.contains("[")) {
-					String nodeName = pathToken.replaceAll("\\[.*?\\]", "");
-					String elementName = pathToken.substring(pathToken.indexOf("[") + 1, pathToken.indexOf("]"));
-					elementName = elementName.replaceAll("^", "/").replaceAll("'", "");
-					ArrayNode arrayNode = (ArrayNode) jsonNode.get(nodeName);
-					for (JsonNode elementNode : arrayNode) {
-						if(elementName.contains("/")){
-							jsonNode = getJsonNode(elementNode,elementName );
-							if(null != jsonNode){
-								return elementNode;
-							}
-						}else
-							if (null != elementNode.get(getFieldName(elementName))) {
-								jsonNode = elementNode.get(getFieldName(elementName));
-							}
-					}
-				} else {
-					jsonNode = jsonNode.get(pathToken);
-				}
-			}
-			return jsonNode;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	private JsonNode getJsonNode(JsonNode elementNode , String path){
-		String[] paths = path.split("/");
-		List <String> pathsList = Arrays.asList(paths);
-		JsonNode jsonNode = null;
-		for (String pathToken: pathsList) {
-			jsonNode = elementNode.get(getKeyName(pathToken));
-			if(null != getValue(pathToken)){
-				if(jsonNode.findValue(getKeyName(pathToken)).asText().equals(getValue(pathToken))){
-					return jsonNode;
-				}
-			}
-		}
-		return jsonNode;
-	}
-
-
-	private String getKeyName(String name) {
-		if(name.contains("=")){
-			String[] tokens = name.split("=");
-			return tokens[0];
-		}
-		else{
-			return name;
-		}
-	}
-	private String getValue(String name) {
-		if(name.contains("=")){
-			String[] tokens = name.split("=");
-			return tokens[1];
-		}
-		else{
-			return null;
-		}
-	}
-
-
-
-
-
 
 	private String getFieldName(String name) {
 		String[] tokens = name.split("=");
@@ -709,6 +690,31 @@ public class CodeGenService {
 			jfrogIntegration.setPassword(password);
 		}
 		return jfrogIntegration;
+	}
+
+	private S3Integration getS3Integration() {
+		S3Integration s3Integration = integrationsDao.getS3Integration().getS3Integration();
+		if (s3Integration != null) {
+			String decryptedPassword = "";
+			try {
+				decryptedPassword = s3Integration.getDecryptedSecret();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			String key = applicationProperties.getS3key();
+			String secret = applicationProperties.getS3secret();
+			String bucketName = applicationProperties.getS3bucketName();
+			String region = applicationProperties.getS3region();
+			if (null != key && null != secret && null != bucketName && null != region) {
+				s3Integration = new S3Integration();
+				s3Integration.setKey(key);
+				s3Integration.setSecret(secret);
+				s3Integration.setRegion(region);
+				s3Integration.setBucketName(bucketName);
+			}
+		}
+		return s3Integration;
 	}
 
 	private GitIntegration getScmIntegration(String type) {
@@ -823,11 +829,11 @@ public class CodeGenService {
 				ProxyData proxyData = mapper.readValue(dataElement, ProxyData.class);
 				for (CodeGenHistory history : proxyData.getCodeGenHistory())
 					if (history.getProxy().getBuildProxyArtifactType() != null
-					&& history.getProxy().getBuildProxyArtifactType().equals("swagger"))
+							&& history.getProxy().getBuildProxyArtifactType().equals("swagger"))
 						if (history.getProxy().getBuildProxyArtifact() != null
-						&& history.getProxy().getBuildProxyArtifact().equals(proxy))
+								&& history.getProxy().getBuildProxyArtifact().equals(proxy))
 							if (history.getProxy().getRevision() != null
-							&& history.getProxy().getRevision().equals(revision))
+									&& history.getProxy().getRevision().equals(revision))
 								listData.add(proxyData.getProxyName());
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -1329,11 +1335,11 @@ public class CodeGenService {
 
 	public Object getCategories(String swaggerId, int revision, String oas) throws ItorixException {
 		try {
-			if(null != swaggerId && "2.0".equals(oas.trim())){
+			if (null != swaggerId && "2.0".equals(oas.trim())) {
 				Swagger swagger = getSwaggerbyId(swaggerId, revision, oas);
-				if(null != swagger){
+				if (null != swagger) {
 					Object catagories = swagger.getVendorExtensions().get("x-policies");
-					if(null != catagories)
+					if (null != catagories)
 						return catagories;
 				}
 			}
@@ -1343,7 +1349,7 @@ public class CodeGenService {
 		}
 	}
 
-	private Swagger getSwaggerbyId(String swaggerId,int revision, String oas) {
+	private Swagger getSwaggerbyId(String swaggerId, int revision, String oas) {
 		if ("2.0".equals(oas)) {
 			Query query = new Query();
 			query.addCriteria(Criteria.where("swaggerId").is(swaggerId));

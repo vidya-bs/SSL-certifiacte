@@ -16,9 +16,13 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import com.amazonaws.regions.Regions;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
+import com.itorix.apiwiz.common.util.s3.S3Connection;
+import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.marketing.events.model.Event;
 import com.itorix.apiwiz.marketing.events.model.EventRegistration;
 
@@ -31,6 +35,12 @@ public class EventsDao {
 
 	@Autowired
 	JfrogUtilImpl jfrogUtilImpl;
+
+	@Autowired
+	private S3Connection s3Connection;
+
+	@Autowired
+	private S3Utils s3Utils;
 
 	public String createUpdateEvent(Event event) {
 		Query query = new Query().addCriteria(Criteria.where("name").is(event.getName()));
@@ -108,9 +118,18 @@ public class EventsDao {
 
 	private String updateToJfrog(String folderPath, byte[] bytes) throws ItorixException {
 		try {
-			JSONObject uploadFiles = jfrogUtilImpl.uploadFiles(new ByteArrayInputStream(bytes),
-					"/marketing/events/" + folderPath);
-			return uploadFiles.getString("downloadURI");
+			S3Integration s3Integration = s3Connection.getS3Integration();
+			String downloadURI = null;
+			if(null != s3Integration)
+				downloadURI =  s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+						"marketing/events/" + folderPath, new ByteArrayInputStream(bytes));
+			else{
+				JSONObject uploadFiles = jfrogUtilImpl.uploadFiles(new ByteArrayInputStream(bytes),
+						"/marketing/events/" + folderPath);
+				downloadURI = uploadFiles.getString("downloadURI");
+			}
+			return downloadURI;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ItorixException(ErrorCodes.errorMessage.get("Marketing-1000"), "Marketing-1000");

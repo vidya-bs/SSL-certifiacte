@@ -187,8 +187,7 @@ public interface ProxyStudio {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "swaggerid", required = false) String swaggerid,
 			@RequestParam(value = "revision", required = false, defaultValue = "1") int revision,
-			@RequestParam(value = "oas", required = false, defaultValue = "2.0") String oas,
-			HttpServletRequest request,
+			@RequestParam(value = "oas", required = false, defaultValue = "2.0") String oas, HttpServletRequest request,
 			HttpServletResponse response) throws Exception;
 
 	// @PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )

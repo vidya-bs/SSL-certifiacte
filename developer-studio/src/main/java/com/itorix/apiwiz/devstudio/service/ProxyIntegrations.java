@@ -13,6 +13,7 @@ import com.itorix.apiwiz.common.model.integrations.apic.ApicIntegration;
 import com.itorix.apiwiz.common.model.integrations.git.GitIntegration;
 import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
 import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
 
 @CrossOrigin
@@ -126,4 +127,14 @@ public interface ProxyIntegrations {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody ApicIntegration apicIntegration)
 			throws Exception;
 
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/s3", produces = {"application/json"})
+	public ResponseEntity<?> getS3Integratons(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/integrations/s3", produces = {"application/json"})
+	public ResponseEntity<?> createS3Integratons(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody S3Integration s3Integration)
+			throws Exception;
 }

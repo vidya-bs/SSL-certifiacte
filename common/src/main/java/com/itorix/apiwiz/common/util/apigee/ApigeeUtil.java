@@ -1593,7 +1593,7 @@ public class ApigeeUtil {
 	}
 
 	private HttpEntity<String> getHttpEntityAndXmlAcceptType(CommonConfiguration cfg) {
-		String auth = getApigeeAuth( cfg.getOrganization(),cfg.getType());
+		String auth = getApigeeAuth(cfg.getOrganization(), cfg.getType());
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		String encodedCredentials = Base64

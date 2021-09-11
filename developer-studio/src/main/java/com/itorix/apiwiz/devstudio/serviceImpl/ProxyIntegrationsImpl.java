@@ -13,6 +13,7 @@ import com.itorix.apiwiz.common.model.integrations.apic.ApicIntegration;
 import com.itorix.apiwiz.common.model.integrations.git.GitIntegration;
 import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
 import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
 import com.itorix.apiwiz.devstudio.dao.IntegrationsDao;
 import com.itorix.apiwiz.devstudio.service.ProxyIntegrations;
@@ -167,5 +168,25 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 		integrationsDao.updateApicIntegratoin(integration);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
+	
+	@Override
+	public ResponseEntity<?> getS3Integratons(String interactionid, String jsessionid) throws Exception {
+		List<Integration> dbIntegrationList = integrationsDao.getIntegration("S3");
+		Integration integration = new Integration();
+		if (dbIntegrationList != null && dbIntegrationList.size() > 0)
+			integration = dbIntegrationList.get(0);
+		return new ResponseEntity<>(integration.getApicIntegration(), HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> createS3Integratons(String interactionid, String jsessionid,
+			S3Integration s3Integration) throws Exception {
+		Integration integration = new Integration();
+		integration.setType("S3");
+		integration.setS3Integration(s3Integration);
+		integrationsDao.updateApicIntegratoin(integration);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
 
 }

@@ -8,6 +8,7 @@ import com.itorix.apiwiz.common.model.integrations.apic.ApicIntegration;
 import com.itorix.apiwiz.common.model.integrations.git.GitIntegration;
 import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
 import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegrations;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -20,6 +21,7 @@ public class Integration extends AbstractObject {
 	private GoCDIntegration goCDIntegration;
 	private WorkspaceIntegrations workspaceIntegration;
 	private ApicIntegration apicIntegration;
+	private S3Integration s3Integration;
 
 	public String getType() {
 		return type;
@@ -67,5 +69,13 @@ public class Integration extends AbstractObject {
 
 	public void setApicIntegration(ApicIntegration apicIntegration) {
 		this.apicIntegration = apicIntegration;
+	}
+
+	public S3Integration getS3Integration() {
+		return s3Integration;
+	}
+
+	public void setS3Integration(S3Integration s3Integration) {
+		this.s3Integration = s3Integration;
 	}
 }

@@ -71,8 +71,7 @@ public class IdentityManagementDao {
 	private ApplicationProperties applicationProperties;
 	@Autowired
 	private MailUtil mailUtil;
-	@Autowired
-	JfrogUtilImpl jfrogUtilImpl;
+
 	@Autowired
 	private WorkspaceDao workspaceDao;
 
@@ -158,11 +157,11 @@ public class IdentityManagementDao {
 			UserWorkspace userWorkspace = user.getUserWorkspace(userInfo.getWorkspaceId().toLowerCase());
 			if (userWorkspace == null
 					|| (userWorkspace.getActive() != true && userWorkspace.getAcceptInvite() == true)) { // (!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1030"), "Identity-1030");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1045"), "Identity-1045");
 			}
 
 			if (userWorkspace == null || userWorkspace.getActive() != true) { // (!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1039"), "Identity-1039");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1044"), "Identity-1044");
 			}
 
 			if (user.canLogin() != true) {

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.design.studio.model.*;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -1123,4 +1125,42 @@ public interface SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas) throws Exception;
+
+	// EN-356
+	@ApiOperation(value = "Create or update swagger data dictionary", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 201, message = "Create or update swagger data dictionary", response = Void.class),
+			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/associate-data-dictionary")
+	public ResponseEntity<?> updateSwaggerDictionary(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody SwaggerDictionary swaggerDictionary);
+
+	@ApiOperation(value = "Get swagger data dictionary", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Get swagger data dictionary", response = SwaggerDictionary.class),
+			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggerId}/{revision}/associate-data-dictionary")
+	public ResponseEntity<?> getSwaggerDictionary(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("swaggerId") String swaggerId, @PathVariable("revision") Integer revision);
+
+	@ApiOperation(value = "Get swaggers associated with a data dictionary", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Get swaggers associated with a data dictionary", response = DictionarySwagger.class),
+			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/associate-data-dictionary/{dictionaryId}")
+	public ResponseEntity<?> getSwaggerAssociatedWithDataDictionary(
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("dictionaryId") String dictionaryId);
+
+	@ApiOperation(value = "Get swaggers associated with a schema name", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Get swaggers associated with a schema name", response = DictionarySwagger.class),
+			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/associate-data-dictionary/{dictionaryId}/schemas/{schemaName}")
+	public ResponseEntity<?> getSwaggerAssociatedWithSchemaName(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("dictionaryId") String dictionaryId, @PathVariable("schemaName") String schemaName);
+
 }
