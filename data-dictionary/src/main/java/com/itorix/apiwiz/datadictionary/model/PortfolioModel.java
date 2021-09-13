@@ -15,6 +15,8 @@ public class PortfolioModel extends AbstractObject {
 
 	private String model;
 
+	private ModelStatus status = ModelStatus.Active;
+
 	public String getPortfolioID() {
 		return portfolioID;
 	}
@@ -37,5 +39,12 @@ public class PortfolioModel extends AbstractObject {
 
 	public void setModel(String model) {
 		this.model = model;
+	}
+
+	public ModelStatus getStatus() {
+		return status;
+	}
+	public void setStatus(ModelStatus status) {
+		this.status = status;
 	}
 }

@@ -1,8 +1,12 @@
 package com.itorix.apiwiz.identitymanagement.dao;
 
-import java.util.*;
-
+import com.itorix.apiwiz.common.model.BaseObject;
+import com.itorix.apiwiz.identitymanagement.model.UserSession;
+import com.mongodb.client.DistinctIterable;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.result.DeleteResult;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -12,12 +16,10 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import com.itorix.apiwiz.common.model.BaseObject;
-import com.itorix.apiwiz.identitymanagement.model.UserSession;
-import com.mongodb.WriteResult;
-import com.mongodb.client.DistinctIterable;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.result.DeleteResult;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import static com.itorix.apiwiz.identitymanagement.model.Constants.SWAGGER_PROJECTION_FIELDS;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
@@ -257,5 +259,28 @@ public class BaseRepository {
 		}
 
 		return sortOperation;
+	}
+
+	public List<Document> getSwaggerAssociatedWithDictionary(String dictionaryId, Class clazz) {
+		UnwindOperation unwindDictionary = unwind("dictionary");
+		UnwindOperation unwindDictionaryModels = unwind("dictionary.models");
+		MatchOperation matchOperation = match(Criteria.where("dictionary._id").is(new ObjectId(dictionaryId)));
+
+		AggregationResults<Document> aggregate = mongoTemplate.aggregate(
+				newAggregation(unwindDictionary, unwindDictionaryModels, matchOperation), clazz, Document.class);
+
+		return aggregate.getMappedResults();
+	}
+
+	public List<Document> getSwaggerAssociatedWithSchemaName(String dictionaryId, String schemaName, Class clazz) {
+		UnwindOperation unwindDictionary = unwind("dictionary");
+		UnwindOperation unwindDictionaryModels = unwind("dictionary.models");
+		MatchOperation matchOperation = match(Criteria.where("dictionary._id").is(new ObjectId(dictionaryId))
+				.and("dictionary.models.name").is(schemaName));
+
+		AggregationResults<Document> aggregate = mongoTemplate.aggregate(
+				newAggregation(unwindDictionary, unwindDictionaryModels, matchOperation), clazz, Document.class);
+
+		return aggregate.getMappedResults();
 	}
 }

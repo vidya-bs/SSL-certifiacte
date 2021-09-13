@@ -60,6 +60,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.zeroturnaround.zip.ZipUtil;
 
+import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,6 +68,7 @@ import com.itorix.apiwiz.common.model.Constants;
 import com.itorix.apiwiz.common.model.apigee.CommonConfiguration;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.model.policyperformance.ExecutedFlowAndPolicies;
 import com.itorix.apiwiz.common.model.policyperformance.proxy.endpoint.FaultRule;
 import com.itorix.apiwiz.common.model.policyperformance.proxy.endpoint.FaultRules;
@@ -81,6 +83,8 @@ import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.service.GridFsRepository;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
+import com.itorix.apiwiz.common.util.s3.S3Connection;
+import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.Apigee;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
@@ -122,6 +126,12 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 
 	@Autowired
 	JfrogUtilImpl jfrogUtilImpl;
+
+	@Autowired
+	private S3Connection s3Connection;
+
+	@Autowired
+	private S3Utils s3Utils;
 
 	@Autowired
 	ApigeeUtil apigeeUtil;
@@ -1400,16 +1410,29 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 				+ cfg.getEnvironment() + "-" + cfg.getApiName() + ".zip";
 		ZipUtil.pack(new File(applicationProperties.getRestoreDir() + timeStamp + "/" + cfg.getOrganization() + "-"
 				+ cfg.getEnvironment() + "-" + cfg.getApiName()), new File(zipFileName));
-		JSONObject obj = null;
+		String downloadURI = null;
 		try {
-			obj = jfrogUtilImpl.uploadFiles(zipFileName, applicationProperties.getPipelineCodecoverage(),
-					applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort() + "/artifactory/",
-					"codecoverage-pipeline/" + codeCoverageVO.getProxy() + "/" + timeStamp + "",
-					applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+			S3Integration s3Integration = s3Connection.getS3Integration();
+			if (null != s3Integration) {
+				String workspace = userSessionToken.getWorkspaceId();
+				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+						workspace + "/codecoverage/" + cfg.getOrganization() + "-" + cfg.getEnvironment() + "-"
+								+ cfg.getApiName() + ".zip",
+						zipFileName);
+
+			} else {
+				org.json.JSONObject obj = jfrogUtilImpl.uploadFiles(zipFileName,
+						applicationProperties.getPipelineCodecoverage(),
+						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
+								+ "/artifactory/",
+						"codecoverage-pipeline/" + codeCoverageVO.getProxy() + "/" + timeStamp + "",
+						applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+				downloadURI = obj.getString("downloadURI");
+			}
 		} catch (Exception e) {
 			logger.error("Error Storing file in Artifactory : " + e.getMessage());
 			e.printStackTrace();
-			// throw e;
 		}
 		// TODO We need to delete the hard copy of zipFileName
 		long end = System.currentTimeMillis();
@@ -1417,8 +1440,8 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		codeCoverageBackUpInfo.setEnvironment(cfg.getEnvironment());
 		codeCoverageBackUpInfo.setProxy(cfg.getApiName());
 		codeCoverageBackUpInfo.setTimeTaken((end - timeBegin) / 1000);
-		if (obj != null)
-			codeCoverageBackUpInfo.setUrl(obj.getString("downloadURI"));
+		if (downloadURI != null)
+			codeCoverageBackUpInfo.setUrl(downloadURI);
 		else
 			codeCoverageBackUpInfo.setUrl("N/A");
 		codeCoverageBackUpInfo.setProxyStat(proxyStat);

@@ -123,17 +123,29 @@ public class ApplicationProperties {
 	@Value("${itorix.core.user.management.recoverworkspace.notification.email.subject}")
 	private String recoverWorkspaceSubject;
 
-	@Value("${itorix.core.jfrog.port}")
+	@Value("${itorix.core.jfrog.port:@null}")
 	private String jfrogPort;
 
-	@Value("${itorix.core.jfrog.host}")
+	@Value("${itorix.core.jfrog.host:@null}")
 	private String jfrogHost;
 
-	@Value("${itorix.core.jfrog.username}")
+	@Value("${itorix.core.jfrog.username:@null}")
 	private String jfrogUserName;
 
-	@Value("${itorix.core.jfrog.password}")
+	@Value("${itorix.core.jfrog.password:@null}")
 	private String jfrogPassword;
+
+	@Value("${itorix.core.s3.access.key:@null}")
+	private String s3key;
+
+	@Value("${itorix.core.s3.access.secret:@null}")
+	private String s3secret;
+
+	@Value("${itorix.core.s3.bucket.name:@null}")
+	private String s3bucketName;
+
+	@Value("${itorix.core.s3.region:@null}")
+	private String s3region;
 
 	// @Value("${itorix.core.mail.smtp.port:null}")
 	// private String smtpPort;
@@ -230,37 +242,37 @@ public class ApplicationProperties {
 	// @Value("${itorix.testsuite.pipeline.log.url}")
 	private String testSuitePipelineLogUrl;
 
-	@Value("${itorix.core.jfrog.repos.api_portfolio}")
+	@Value("${itorix.core.jfrog.repos.api_portfolio:@null}")
 	private String apiPortfolio;
 
-	@Value("${itorix.core.jfrog.repos.apigee_codecoverage}")
+	@Value("${itorix.core.jfrog.repos.apigee_codecoverage:@null}")
 	private String apigeeCodecoverage;
 
-	@Value("${itorix.core.jfrog.repos.proxy_generate}")
+	@Value("${itorix.core.jfrog.repos.proxy_generate:@null}")
 	private String proxyGenerate;
 
-	@Value("${itorix.core.jfrog.repos.data_restore_backup}")
+	@Value("${itorix.core.jfrog.repos.data_restore_backup:@null}")
 	private String dataRestoreBackup;
 
-	@Value("${itorix.core.jfrog.repos.swaggergen_clients}")
+	@Value("${itorix.core.jfrog.repos.swaggergen_clients:@null}")
 	private String swaggergenClients;
 
-	@Value("${itorix.core.jfrog.repos.swaggergen_servers}")
+	@Value("${itorix.core.jfrog.repos.swaggergen_servers:@null}")
 	private String swaggergenServers;
 
-	@Value("${itorix.core.jfrog.repos.apigee_sharedflow_build}")
+	@Value("${itorix.core.jfrog.repos.apigee_sharedflow_build:@null}")
 	private String apigeeSharedflowBuild;
 
-	@Value("${itorix.core.jfrog.repos.apigee_proxy_build}")
+	@Value("${itorix.core.jfrog.repos.apigee_proxy_build:@null}")
 	private String apigeeProxyBuild;
 
-	@Value("${itorix.core.jfrog.repos.pipeline_codecoverage}")
+	@Value("${itorix.core.jfrog.repos.pipeline_codecoverage:@null}")
 	private String pipelineCodecoverage;
 
-	@Value("${itorix.core.jfrog.repos.swagger.xpath}")
+	@Value("${itorix.core.jfrog.repos.swagger.xpath:@null}")
 	private String swaggerXpath;
 
-	@Value("${itorix.core.jfrog.repos.application}")
+	@Value("${itorix.core.jfrog.repos.application:@null}")
 	private String artifactoryName;
 
 	// @Value("${itorix.redirect.url}")
@@ -838,7 +850,7 @@ public class ApplicationProperties {
 	}
 
 	public String getJfrogPassword() {
-		String decryptedPassword = "";
+		String decryptedPassword = null;
 		try {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.jfrogPassword);
@@ -850,6 +862,49 @@ public class ApplicationProperties {
 
 	public void setJfrogPassword(String jfrogPassword) {
 		this.jfrogPassword = jfrogPassword;
+	}
+
+	public String getS3key() {
+		return s3key;
+	}
+
+	public void setS3key(String s3key) {
+		this.s3key = s3key;
+	}
+
+	public String getS3secret() {
+		return s3secret;
+	}
+
+	public void setS3secret(String s3secret) {
+		this.s3secret = s3secret;
+	}
+
+	public String getDecryptedS3secret() {
+		String decryptedPassword = null;
+		try {
+			RSAEncryption rSAEncryption = new RSAEncryption();
+			decryptedPassword = rSAEncryption.decryptText(this.s3secret);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return decryptedPassword;
+	}
+
+	public String getS3bucketName() {
+		return s3bucketName;
+	}
+
+	public void setS3bucketName(String s3bucketName) {
+		this.s3bucketName = s3bucketName;
+	}
+
+	public String getS3region() {
+		return s3region;
+	}
+
+	public void setS3region(String s3region) {
+		this.s3region = s3region;
 	}
 
 	public String getPipelinesHistoryEndPoint() {

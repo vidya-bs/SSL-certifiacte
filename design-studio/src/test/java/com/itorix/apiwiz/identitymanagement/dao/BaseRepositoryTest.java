@@ -1,45 +1,32 @@
 package com.itorix.apiwiz.identitymanagement.dao;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.design.studio.model.SwaggerVO;
-import com.itorix.apiwiz.identitymanagement.security.MongoDbConfiguration;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.SchemaInfo;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerData;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import com.mongodb.ConnectionString;
-import com.mongodb.MongoClient;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.MongoCredential;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
-import jdk.nashorn.internal.ir.ObjectNode;
-import org.bson.BsonDocument;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-
-import static com.itorix.apiwiz.identitymanagement.model.Constants.SWAGGER_PROJECTION_FIELDS;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
-
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
+import java.util.*;
+
+import static com.itorix.apiwiz.identitymanagement.model.Constants.SWAGGER_PROJECTION_FIELDS;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 import static org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter.filter;
 import static org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Eq.valueOf;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import static org.junit.Assert.*;
 
 public class BaseRepositoryTest {
 
@@ -139,4 +126,107 @@ public class BaseRepositoryTest {
 	}
 
 	GroupOperation groupByName = group("name").max("mts").as("mts");
+
+	@Test
+	public void getDDTest() throws JsonProcessingException {
+		String ddId = "603d820ec001f044e3934f3e";
+
+		UnwindOperation unwindDictionary = unwind("dictionary");
+		UnwindOperation unwindDictionaryModels = unwind("dictionary.models");
+		MatchOperation matchOperation = match(Criteria.where("dictionary._id").is(new ObjectId(ddId))
+				.and("dictionary.models.name").is("GeographicLocation"));
+
+		AggregationResults<Document> aggregate = mongoTemplate.aggregate(
+				newAggregation(unwindDictionary, unwindDictionaryModels, matchOperation), SwaggerDictionary.class,
+				Document.class);
+
+		List<Document> mappedResults = aggregate.getMappedResults();
+		System.out.println(mappedResults);
+		HashMap<String, List<String>> output = new HashMap<>();
+		DictionarySwagger dictionarySwagger = new DictionarySwagger();
+
+		if (mappedResults.size() > 0) {
+			Document dictionaryObj = mappedResults.get(0).get("dictionary", Document.class);
+			dictionarySwagger.setId(dictionaryObj.get("_id", ObjectId.class).toString());
+			dictionarySwagger.setName(dictionaryObj.getString("name"));
+		} else {
+			return;
+		}
+
+		for (Document doc : mappedResults) {
+			Document dictionaryObj = doc.get("dictionary", Document.class);
+			Document modelsObj = dictionaryObj.get("models", Document.class);
+			String modelName = modelsObj.getString("name");
+
+			if (dictionarySwagger.getSchemas() != null && dictionarySwagger.getSchemas().size() > 0) {
+				Optional<SchemaInfo> schemaInfoOptional = dictionarySwagger.getSchemas().stream()
+						.filter(s -> s.getName().equals(modelName)).findFirst();
+				if (schemaInfoOptional.isPresent()) {
+					SwaggerData swaggerData = new SwaggerData();
+					swaggerData.setId(doc.getString("swaggerId"));
+					swaggerData.setName(doc.getString("name"));
+					swaggerData.setOasVersion(doc.getString("oasVersion"));
+					swaggerData.setRevision(doc.getInteger("revision"));
+					swaggerData.setStatus(doc.getString("status"));
+					schemaInfoOptional.get().getSwaggers().add(swaggerData);
+				} else {
+					ArrayList<SwaggerData> swaggers = new ArrayList<>();
+					SwaggerData swaggerData = new SwaggerData();
+					swaggerData.setId(doc.getString("swaggerId"));
+					swaggerData.setName(doc.getString("name"));
+					swaggerData.setOasVersion(doc.getString("oasVersion"));
+					swaggerData.setRevision(doc.getInteger("revision"));
+					swaggerData.setStatus(doc.getString("status"));
+					SchemaInfo schemaInfo = new SchemaInfo();
+					schemaInfo.setName(modelName);
+					swaggers.add(swaggerData);
+					schemaInfo.setSwaggers(swaggers);
+					dictionarySwagger.getSchemas().add(schemaInfo);
+
+				}
+			} else {
+				ArrayList<SchemaInfo> schemaInfos = new ArrayList<>();
+				SchemaInfo schemaInfo = new SchemaInfo();
+				schemaInfo.setName(modelName);
+				ArrayList<SwaggerData> swaggers = new ArrayList<>();
+				SwaggerData swaggerData = new SwaggerData();
+				swaggerData.setId(doc.getString("swaggerId"));
+				swaggerData.setName(doc.getString("name"));
+				swaggerData.setOasVersion(doc.getString("oasVersion"));
+				swaggerData.setRevision(doc.getInteger("revision"));
+				swaggerData.setStatus(doc.getString("status"));
+				swaggers.add(swaggerData);
+				schemaInfo.setSwaggers(swaggers);
+				schemaInfos.add(schemaInfo);
+				dictionarySwagger.setSchemas(schemaInfos);
+			}
+
+			// if(swaggerDataMap.containsKey(modelName)) {
+			// List<SwaggerData> swaggerDataList =
+			// swaggerDataMap.get(modelName);
+			// SwaggerData swaggerData = new SwaggerData();
+			// swaggerData.setId(doc.getString("swaggerId"));
+			// swaggerData.setName(doc.getString("name"));
+			// swaggerData.setOasVersion(doc.getString("oasVersion"));
+			// swaggerData.setRevision(doc.getInteger("revision"));
+			// swaggerData.setStatus(doc.getString("status"));
+			// swaggerDataList.add(swaggerData);
+			// } else {
+			// List<SwaggerData> swaggerDataList = new ArrayList<>();
+			// SwaggerData swaggerData = new SwaggerData();
+			// swaggerData.setId(doc.getString("swaggerId"));
+			// swaggerData.setName(doc.getString("name"));
+			// swaggerData.setOasVersion(doc.getString("oasVersion"));
+			// swaggerData.setRevision(doc.getInteger("revision"));
+			// swaggerData.setStatus(doc.getString("status"));
+			// swaggerDataList.add(swaggerData);
+			// swaggerDataMap.put(modelName, swaggerDataList);
+			// }
+		}
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		System.out.println(objectMapper.writeValueAsString(dictionarySwagger));
+
+	}
+
 }
