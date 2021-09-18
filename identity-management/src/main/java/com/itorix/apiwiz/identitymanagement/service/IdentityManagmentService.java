@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -82,14 +81,14 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	//@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/meta-data", consumes = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> updateUserMetaData(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody Map<String, String> metadata)
 			throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	//@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/meta-data")
 	public @ResponseBody ResponseEntity<Object> getUserMetaData(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -184,7 +183,7 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String apikey, @PathVariable(value = "userId") String userId)
 			throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/workspace/enable-sso")
 	public @ResponseBody ResponseEntity<Void> enableSso(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -248,7 +247,7 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String apikey, @RequestBody ResetUserToken userToken)
 			throws ItorixException;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/users/sessions")
 	public @ResponseBody ResponseEntity<Void> removeUserSessions(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -389,27 +388,27 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-apikey") String apikey) throws Exception;
 
-	@PreAuthorize("hasAnyRole('SITE-ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('SITE-ADMIN')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/workspace/update-plan")
 	public @ResponseBody ResponseEntity<Void> updateSubscription(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestBody UserInfo userInfo) throws Exception;
 
-	@PreAuthorize("hasAnyRole('SITE-ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('SITE-ADMIN')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/workspace/upgrade-seats")
 	public @ResponseBody ResponseEntity<Void> updateSubscriptionSeats(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestBody Workspace workspace) throws Exception;
 
-	@PreAuthorize("hasAnyRole('SITE-ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('SITE-ADMIN')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/workspace/downgrade-seats")
 	public @ResponseBody ResponseEntity<Void> downgradeSubscriptionSeats(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestBody Workspace workspace) throws Exception;
 
-	@PreAuthorize("hasAnyRole('SITE-ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('SITE-ADMIN')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/accounts-cancellation")
 	public @ResponseBody ResponseEntity<Void> cancelSubscription(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -425,7 +424,8 @@ public interface IdentityManagmentService {
 	public @ResponseBody ResponseEntity<Void> updateUserAccount(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestBody CancelSubscriptions subscription) throws Exception;
-
+	
+	@PreAuthorize("hasAnyRole('SITE-ADMIN')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/accounts-delete")
 	public @ResponseBody ResponseEntity<Void> cancelUserAccount(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
