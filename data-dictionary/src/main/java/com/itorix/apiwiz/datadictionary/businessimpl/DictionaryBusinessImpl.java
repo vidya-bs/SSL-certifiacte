@@ -7,10 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.SearchItem;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.datadictionary.business.DictionaryBusiness;
-import com.itorix.apiwiz.datadictionary.model.ModelStatus;
-import com.itorix.apiwiz.datadictionary.model.PortfolioHistoryResponse;
-import com.itorix.apiwiz.datadictionary.model.PortfolioModel;
-import com.itorix.apiwiz.datadictionary.model.PortfolioVO;
+import com.itorix.apiwiz.datadictionary.model.*;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.mongodb.client.result.DeleteResult;
@@ -101,13 +98,16 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 			for (PortfolioVO portfolio : portfolios) {
 				portfolio.setDescription(null);
 				portfolio.setSummary(null);
-				List<Object> strModels = new ArrayList<Object>();
+				List<Object> strModels = new ArrayList<>();
 				List<PortfolioModel> dataModels = findPortfolioModelsByportfolioID(portfolio);
 				if (dataModels != null)
 					for (PortfolioModel model : dataModels) {
 						try {
-							String name = model.getModelName();
-							strModels.add(name);
+							PortfolioModelResponse portfolioModelResponse = new PortfolioModelResponse();
+							portfolioModelResponse.setModelName(model.getModelName());
+							portfolioModelResponse.setMts(model.getMts());
+							portfolioModelResponse.setStatus(model.getStatus());
+							strModels.add(portfolioModelResponse);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}

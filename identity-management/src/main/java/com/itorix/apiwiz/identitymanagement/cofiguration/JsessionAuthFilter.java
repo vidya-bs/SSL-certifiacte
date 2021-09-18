@@ -2,7 +2,6 @@ package com.itorix.apiwiz.identitymanagement.cofiguration;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.FilterChain;
@@ -10,7 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +49,8 @@ public class JsessionAuthFilter extends OncePerRequestFilter {
 					List<GrantedAuthority> authorities = new ArrayList<>();
 					for (String role : session.getRoles())
 						authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
-					if (null != session.getUserType() && session.getUserType().equalsIgnoreCase("SITE_ADMIN"))
-						authorities.add(new SimpleGrantedAuthority("ROLE_SITE_ADMIN"));
+					if (null != session.getUserType() && session.getUserType().trim().equalsIgnoreCase("SITE-ADMIN"))
+						authorities.add(new SimpleGrantedAuthority("ROLE_SITE-ADMIN"));
 					authorities.add(new SimpleGrantedAuthority(session.getPlanId().toUpperCase()));
 					Authentication authentication = new UsernamePasswordAuthenticationToken(
 							"ROLE_" + session.getPlanId().toUpperCase(), null, authorities);

@@ -138,13 +138,13 @@ public class ApplicationProperties {
 	@Value("${itorix.core.s3.access.key:@null}")
 	private String s3key;
 
-	@Value("${itorix.core.s3.access.secret:@null}")
+	@Value("${itorix.core.s3.access.secret:#{null}}")
 	private String s3secret;
 
-	@Value("${itorix.core.s3.bucket.name:@null}")
+	@Value("${itorix.core.s3.bucket.name:#{null}}")
 	private String s3bucketName;
 
-	@Value("${itorix.core.s3.region:@null}")
+	@Value("${itorix.core.s3.region:#{null}}")
 	private String s3region;
 
 	// @Value("${itorix.core.mail.smtp.port:null}")

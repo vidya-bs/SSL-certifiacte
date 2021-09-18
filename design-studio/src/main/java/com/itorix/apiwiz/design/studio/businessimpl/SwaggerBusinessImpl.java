@@ -1353,7 +1353,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					}
 				}
 			}
-			String url = applicationProperties.getAppUrl() + "/" + applicationProperties.getAppDomain()
+			String url = applicationProperties.getAppUrl() + applicationProperties.getAppDomain()
 					+ "/v1/swaggers/" + vo.getSwaggerId() + "/revisions/" + vo.getRevision();
 			revisionNode.put("url", url);
 			ArrayNode resources = mapper.createArrayNode();
@@ -1529,7 +1529,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					}
 				}
 			}
-			String url = applicationProperties.getAppUrl() + "/" + applicationProperties.getAppDomain()
+			String url = applicationProperties.getAppUrl() + applicationProperties.getAppDomain()
 					+ "/v1/swaggers/" + vo.getSwaggerId() + "/revisions/" + vo.getRevision();
 			revisionNode.put("url", url);
 			ArrayNode resources = mapper.createArrayNode();

@@ -438,7 +438,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername)
-					throws Exception {
+			throws Exception {
 		if (oas == null || oas.trim().equals(""))
 			oas = "2.0";
 		List<Revision> list = null;
@@ -614,7 +614,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername)
-					throws Exception {
+			throws Exception {
 		if (oas == null || oas.trim().equals(""))
 			oas = "2.0";
 		if (oas.equals("2.0")) {
@@ -681,7 +681,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername)
-					throws Exception {
+			throws Exception {
 		if (oas == null || oas.trim().equals(""))
 			oas = "2.0";
 		if (oas.equals("2.0")) {
@@ -725,7 +725,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision, HttpServletRequest request, HttpServletResponse response)
-					throws ItorixException {
+			throws ItorixException {
 		if (oas == null || oas.trim().equals(""))
 			oas = "2.0";
 		if (oas.equals("2.0")) {
@@ -844,7 +844,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername)
-					throws Exception {
+			throws Exception {
 		if (oas == null || oas.trim().equals(""))
 			oas = "2.0";
 		if (oas.equals("2.0")) {
@@ -1245,7 +1245,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestParam("xsdfile") MultipartFile xsdFile, @RequestParam("elementname") String elementName,
 			@RequestParam("type") String type, @RequestHeader(value = "JSESSIONID") String jsessionid)
-					throws Exception {
+			throws Exception {
 		JSONObject jsonObject = new JSONObject();
 		if (xsdFile == null) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1002"), "Swagger-1002");
@@ -1779,20 +1779,20 @@ public class SwaggerServiceImpl implements SwaggerService {
 			String downloadURI = null;
 			try {
 				S3Integration s3Integration = s3Connection.getS3Integration();
-				if(null != s3Integration){
+				if (null != s3Integration) {
 					File file = new File(filename);
-					downloadURI =  s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
 							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-							"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName() ,   filename);
-				}
-				else{
+							"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(),
+							filename);
+				} else {
 					org.json.JSONObject obj = null;
 					obj = jfrogUtilImpl.uploadFiles(filename,
 							"/" + getWorkspaceId() + "/swaggerClients/" + framework + "/" + System.currentTimeMillis());
-					downloadURI =  obj.getString("downloadURI");
+					downloadURI = obj.getString("downloadURI");
 					new File(filename).delete();
 				}
-			}catch(Exception e){
+			} catch (Exception e) {
 
 			}
 			ResponseCode responseCode = new ResponseCode();
@@ -1812,20 +1812,20 @@ public class SwaggerServiceImpl implements SwaggerService {
 			String downloadURI = null;
 			try {
 				S3Integration s3Integration = s3Connection.getS3Integration();
-				if(null != s3Integration){
+				if (null != s3Integration) {
 					File file = new File(filename);
-					downloadURI =  s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
 							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-							"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName() ,   filename);
-				}
-				else{
+							"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(),
+							filename);
+				} else {
 					org.json.JSONObject obj = null;
 					obj = jfrogUtilImpl.uploadFiles(filename,
 							"/" + getWorkspaceId() + "/swaggerClients/" + framework + "/" + System.currentTimeMillis());
-					downloadURI =  obj.getString("downloadURI");
+					downloadURI = obj.getString("downloadURI");
 					new File(filename).delete();
 				}
-			}catch(Exception e){
+			} catch (Exception e) {
 
 			}
 			ResponseCode responseCode = new ResponseCode();
@@ -1997,7 +1997,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername)
-					throws Exception {
+			throws Exception {
 		if (oas == null || oas.trim().equals(""))
 			oas = "2.0";
 		if (oas.equals("2.0")) {
@@ -2068,7 +2068,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Set<String>> getassoiateTeamsToProjects(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("teamname") String teamname)
-					throws Exception {
+			throws Exception {
 		Set<String> responseSet = new HashSet<>();
 		SwaggerTeam vo = swaggerBusiness.findSwaggerTeam(teamname, interactionid);
 		if (vo == null) {
@@ -2126,7 +2126,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Set<String>> getAssoiatedPortfolios(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swaggername") String swaggername)
-					throws Exception {
+			throws Exception {
 		Set<String> responseSet = new HashSet<>();
 		SwaggerVO vo = null;
 		vo = swaggerBusiness.findSwagger(swaggername, interactionid);
@@ -2142,7 +2142,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam("name") String name,
 			@RequestHeader(value = "oas", required = false) String oas, @RequestParam("limit") int limit)
-					throws ItorixException, JsonProcessingException {
+			throws ItorixException, JsonProcessingException {
 		Object response = null;
 		if (oas == null || oas.trim().equals(""))
 			oas = "2.0";
@@ -2159,7 +2159,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas, @RequestBody String swaggerStr)
-					throws Exception {
+			throws Exception {
 		ValidationResponse output = new ValidateSchema().debugByContent(swaggerStr);
 		return new ResponseEntity<Object>(output, HttpStatus.OK);
 	}
@@ -2246,7 +2246,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<?> createPartnerGroup(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerPartner swaggerPartner)
-					throws Exception {
+			throws Exception {
 		swaggerPartner.setId(new ObjectId().toString());
 		swaggerBusiness.createPartner(swaggerPartner);
 		return new ResponseEntity<Object>(HttpStatus.CREATED);
@@ -2256,7 +2256,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<?> updatePartnerGroup(@PathVariable("partnerId") String partnerId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerPartner swaggerPartner)
-					throws Exception {
+			throws Exception {
 		swaggerPartner.setId(partnerId);
 		swaggerBusiness.updatePartner(swaggerPartner);
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
