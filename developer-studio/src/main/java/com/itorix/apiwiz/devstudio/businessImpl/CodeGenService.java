@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.crypto.NoSuchPaddingException;
 import javax.mail.MessagingException;
 
 import org.apache.commons.io.FileUtils;
@@ -326,8 +324,9 @@ public class CodeGenService {
 			tempFile.delete();
 			String swaggerStr = getSwagger(codeGen.getProxy().getBuildProxyArtifact(), codeGen.getProxy().getRevision(),
 					codeGen.getProxy().getOas());
-			if (null != swaggerStr && !CollectionUtils.isEmpty(proxyArtifacts.getTargetServers()))
-				createAPICTarget(swaggerStr, proxyArtifacts.getTargetServers());
+			if (null != swaggerStr)
+				createAPICTarget(swaggerStr, proxyArtifacts.getTargetServers(), proxyArtifacts, codeGen.getProxy().getName());
+			
 
 			ProxyGenResponse response = populateProxyArtifacts(proxyArtifacts);
 			response.setProxyName(data.getProxyName());
@@ -463,7 +462,7 @@ public class CodeGenService {
 		}
 	}
 
-	private void createAPICTarget(String swaggerString, List<String> targetServers) {
+	private void createAPICTarget(String swaggerString, List<String> targetServers, ProxyArtifacts proxyArtifacts, String proxyName) {
 		try {
 			List<OrgEnv> org = mongoConnection.getApigeeOrgs();
 			ObjectMapper mapper = new ObjectMapper();
@@ -483,7 +482,7 @@ public class CodeGenService {
 							String target = getAPICTarget(data, targetPath, environment);
 							createTargetServiceConfig(organization, targetServers.get(0), target);
 						} else if (targeType.equalsIgnoreCase("kvm")) {
-
+							createAPICKvm(organization,  data, mapping, proxyArtifacts, proxyName);
 						}
 					}
 				}
@@ -499,11 +498,14 @@ public class CodeGenService {
 			List<String> registryColumns = getRegistryColumns();
 			Map<String, String> columnMap = getColumnMap(mapping, registryColumns);
 			String rootNodePath = mapping.get("x-ibm-kvm-root");
-			String environment = getEnvironmet(mapping, orgEnv.getName(), orgEnv.getName(), orgEnv.getType());
+			String environment = getEnvironmet(mapping, orgEnv.getName(), orgEnv.getEnv(), orgEnv.getType());
 			rootNodePath = rootNodePath.replaceAll("\\{environment\\}", environment).replaceAll("#", "\\.");
 			JsonNode rootNode = new ParseNode().parse(data, rootNodePath);
 			if (null != rootNode) {
-
+				Map<String, JsonNode> endpoints = getMapValuesNode(rootNode, columnMap);
+				ObjectMapper mapper = new ObjectMapper();
+				String endpointsStr = mapper.writeValueAsString(endpoints);
+				createKvmServiceConfig(orgEnv, name,  endpointsStr);
 			}
 		} catch (Exception e) {
 
@@ -664,6 +666,39 @@ public class CodeGenService {
 			config.setActiveFlag(Boolean.TRUE);
 			serviceRequestDao.createServiceRequest(config);
 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	private void createKvmServiceConfig(Organization organization, String proxyName, String endpoints)
+			throws ItorixException {
+		try {
+			com.itorix.apiwiz.servicerequest.model.ServiceRequest config= new com.itorix.apiwiz.servicerequest.model.ServiceRequest();
+			config.setType("KVM");
+			config.setName(proxyName);
+			config.setOrg(organization.getName());
+			config.setEnv(organization.getEnv());
+			config.setEncrypted("false");
+			config.setIsSaaS(organization.getType().equalsIgnoreCase("saas") ? true : false);
+			KVMEntry entry = new KVMEntry();
+			entry.setName("endpoints");
+			entry.setValue(endpoints);
+			List<KVMEntry> entries = new ArrayList<KVMEntry>();
+			entries.add(entry);
+			config.setEntry(entries);
+			UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+			User user = identityManagementDao.getUserById(userSessionToken.getUserId());
+			config.setCreatedUser(user.getFirstName() + " " + user.getLastName());
+			config.setCreatedUserEmailId(user.getEmail());
+			config.setCreatedDate(new Date(System.currentTimeMillis()));
+			config.setModifiedUser(user.getFirstName() + " " + user.getLastName());
+			config.setModifiedDate(new Date(System.currentTimeMillis()));
+			config.setStatus("Review");
+			config.setCreated(false);
+			config.setActiveFlag(Boolean.TRUE);
+			serviceRequestDao.createServiceRequest(config);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
