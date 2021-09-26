@@ -128,7 +128,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		try {
 			Swagger swagger = convertToSwagger(swaggerVO.getSwagger());
 			if (swagger.getVendorExtensions() != null
-					&& swagger.getVendorExtensions().get("x-EndpointExtension") != null) {
+					&& swagger.getVendorExtensions().get("x-ibm-configuration") != null) {
 				swaggerVO.setSwagger(apicUtil.getPolicyTemplates(swaggerVO.getSwagger()));
 			}
 		} catch (IOException e) {
