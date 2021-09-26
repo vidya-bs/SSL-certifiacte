@@ -59,7 +59,7 @@ public class S3Utils {
 
 	private String getURL(String bucket, String region, String key) {
 		//String URL = "https://<bucket-name>.s3-<region-name>.amazonaws.com/<key>";
-		String URL = "https://<host>/<context>/v1/download<key>";
+		String URL = "https://<host><context>/v1/download/<key>?type=s3";
 		
 		URL = URL.replaceAll("<host>", host).replaceAll("<context>", context).replaceAll("<key>", key);
 		return URL;

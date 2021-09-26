@@ -222,7 +222,6 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 			String type, HttpServletRequest httpServletRequest,HttpServletResponse response) throws Exception{
 		String uri = httpServletRequest.getRequestURI().replaceAll(context, "");
 		uri = uri.replaceAll("/v1/download/", "");
-		System.out.println("uri : " + uri);
 		S3Integration s3Integration = s3Connection.getS3Integration();
 		if(s3Integration != null)
 		{
