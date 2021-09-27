@@ -200,11 +200,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Override
 	public ResponseEntity<?> getS3Integratons(String interactionid, String jsessionid) throws Exception {
-		List<Integration> dbIntegrationList = integrationsDao.getIntegration("S3");
-		Integration integration = new Integration();
-		if (dbIntegrationList != null && dbIntegrationList.size() > 0)
-			integration = dbIntegrationList.get(0);
-		return new ResponseEntity<>(integration.getS3Integration(), HttpStatus.OK);
+		return new ResponseEntity<>(integrationsDao.getS3Integration(), HttpStatus.OK);
 	}
 
 	@Override
