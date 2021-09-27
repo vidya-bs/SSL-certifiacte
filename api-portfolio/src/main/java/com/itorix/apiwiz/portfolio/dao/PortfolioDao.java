@@ -650,7 +650,7 @@ public class PortfolioDao {
 			try {
 				return s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
 						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-						 workspace + "/portfolio/" + folderPath, new ByteArrayInputStream(bytes));
+						workspace + "/portfolio/" + folderPath, new ByteArrayInputStream(bytes));
 			} catch (IOException e) {
 				throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1009"), "Portfolio-1009");
 			}

@@ -16,6 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -228,12 +230,9 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 			InputStream inputStream = s3Utils.getFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(), 
 					Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(), 
 					uri);
-			//return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + uri)
-			//		.contentType(MediaType.parseMediaType("application/octet-stream")).body(inputStream);
 			
 			response.setContentType("application/octet-stream");
 			response.setHeader("Content-Disposition", String.format("inline; filename=\"" + uri + "\""));
-
 			
 			FileCopyUtils.copy(inputStream, response.getOutputStream());
 
@@ -256,5 +255,33 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 		
 		//return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
+	
+	@Override
+	public ResponseEntity<?> getCodeConnectIntegraton(
+			String interactionid,
+			String jsessionid) throws Exception{
+		return new ResponseEntity<>(integrationsDao.getCodeconnectIntegration(), HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> createupdateCodeconnectIntegraton(
+			String interactionid,
+			String jsessionid, GitIntegration gitIntegration)
+			throws Exception{
+		Integration integration = new Integration();
+		integration.setType("CODECONNECT");
+		integration.setGitIntegration(gitIntegration);
+		integrationsDao.updateGITIntegratoin(integration);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		
+	}
+
+	@Override
+	public ResponseEntity<?> removeCodeconnectIntegraton(
+			String interactionid, String jsessionid, String id) throws Exception{
+		integrationsDao.removeIntegratoin(id);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
 
 }

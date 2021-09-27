@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -67,6 +68,9 @@ public class MongoConnection {
 	private ApigeeDetails apigeeDetails;
 	@Autowired
 	private Operations operations;
+	
+	@Autowired
+    private GridFsTemplate gridFsTemplate;
 
 	private DB getDB() {
 		MongoDatabase mongoDatabase = mongoTemplate.getDb();

@@ -167,6 +167,20 @@ public class IntegrationsDao {
 		if (integration != null)
 			removeIntegratoin(integration);
 	}
+	
+	public List<Integration> getCodeconnectIntegration() {
+		List<Integration> integrations = getIntegration("CODECONNECT");
+		if (integrations != null)
+			return integrations;
+		else
+			return new ArrayList<Integration>();
+	}
+	
+	public void removeCodeconnectIntegration() {
+		Integration integration = getIntegration("CODECONNECT").get(0);
+		if (integration != null)
+			removeIntegratoin(integration);
+	}
 
 	public String getGoServerVersion(GoCDIntegration goCDIntegration)
 			throws JsonMappingException, JsonProcessingException {

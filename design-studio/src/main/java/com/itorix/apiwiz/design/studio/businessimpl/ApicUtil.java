@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.itorix.apiwiz.common.model.integrations.Integration;
 import com.itorix.apiwiz.common.model.proxystudio.Category;
 import com.itorix.apiwiz.common.model.proxystudio.Policy;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
 
 import io.swagger.models.Swagger;
 import io.swagger.parser.SwaggerParser;
@@ -56,7 +58,8 @@ public class ApicUtil {
 					}
 				}
 			}
-			return processOAS(swaggerString, categoryList);
+			String OAS = processOAS(swaggerString, categoryList);
+			return removeResponseSchemaTag(OAS);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
@@ -113,6 +116,16 @@ public class ApicUtil {
 	private String getFieldName(String name) {
 		String[] tokens = name.split("=");
 		return tokens[1].replaceAll("'", "").replaceAll("#", ".");
+	}
+	
+	private String removeResponseSchemaTag(String json) {
+		DocumentContext documentContext = JsonPath.parse(json);
+		String responseSchemaPath = "$.paths.[*].[*].responses.*.responseSchema";
+		Object responseSchema = documentContext.read(responseSchemaPath);
+		if (responseSchema != null) {
+			json = documentContext.delete(responseSchemaPath).jsonString();
+		}
+		return json;
 	}
 
 }
