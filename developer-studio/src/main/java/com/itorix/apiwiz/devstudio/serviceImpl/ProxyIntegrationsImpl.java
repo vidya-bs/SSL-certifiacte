@@ -204,7 +204,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 		Integration integration = new Integration();
 		if (dbIntegrationList != null && dbIntegrationList.size() > 0)
 			integration = dbIntegrationList.get(0);
-		return new ResponseEntity<>(integration.getApicIntegration(), HttpStatus.OK);
+		return new ResponseEntity<>(integration.getS3Integration(), HttpStatus.OK);
 	}
 
 	@Override
@@ -213,7 +213,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 		Integration integration = new Integration();
 		integration.setType("S3");
 		integration.setS3Integration(s3Integration);
-		integrationsDao.updateApicIntegratoin(integration);
+		integrationsDao.updateS3Integratoin(integration);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	

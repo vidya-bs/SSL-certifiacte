@@ -57,6 +57,18 @@ public class IntegrationsDao {
 		}
 	}
 
+	public void updateS3Integratoin(Integration integration) {
+		List<Integration> dbIntegrationList = getIntegration(integration.getType());
+		if (dbIntegrationList != null && dbIntegrationList.size() > 0) {
+			Integration dbIntegration = dbIntegrationList.get(0);
+			if (integration.getType().equalsIgnoreCase("S3"))
+				dbIntegration.setS3Integration(integration.getS3Integration());
+			baseRepository.save(dbIntegration);
+		} else {
+			baseRepository.save(integration);
+		}
+	}
+	
 	public void removeIntegratoin(Integration integration) {
 		mongoTemplate.remove(integration);
 	}
