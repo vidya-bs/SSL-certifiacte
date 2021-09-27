@@ -229,8 +229,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Override
 	public void downloadFile(
-			String interactionid,
-			String jsessionid,
+			String interactionid,String jsessionid,
 			String type, HttpServletRequest httpServletRequest,HttpServletResponse response) throws Exception{
 		String uri = httpServletRequest.getRequestURI().replaceAll(context, "");
 		uri = uri.replaceAll("/v1/download/", "");
