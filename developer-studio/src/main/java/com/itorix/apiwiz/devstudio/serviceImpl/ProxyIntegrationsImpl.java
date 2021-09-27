@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,6 +33,7 @@ import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
 import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
 import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
+import com.itorix.apiwiz.common.util.artifatory.JfrogConnection;
 import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
@@ -44,13 +46,17 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Autowired
 	private IntegrationsDao integrationsDao;
-	
+
 	@Autowired
 	private S3Utils s3Utils;
-	
+
 	@Autowired
 	private S3Connection s3Connection;
 	
+	@Autowired
+	private JfrogConnection jfrogConnection;
+	
+
 	@Value("${server.contextPath}")
 	private String context;
 
@@ -214,44 +220,40 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	}
 	
 	@Override
+	public ResponseEntity<?> removeS3Integraton( 
+			String interactionid, String jsessionid, String id) throws Exception{
+		integrationsDao.removeIntegratoin(id);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+
+	@Override
 	public void downloadFile(
 			String interactionid,
 			String jsessionid,
 			String type, HttpServletRequest httpServletRequest,HttpServletResponse response) throws Exception{
 		String uri = httpServletRequest.getRequestURI().replaceAll(context, "");
 		uri = uri.replaceAll("/v1/download/", "");
-		S3Integration s3Integration = s3Connection.getS3Integration();
-		if(s3Integration != null)
-		{
-			InputStream inputStream = s3Utils.getFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(), 
-					Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(), 
-					uri);
-			
+		if(type.equalsIgnoreCase("s3")){
+			S3Integration s3Integration = s3Connection.getS3Integration();
+			if(s3Integration != null)
+			{
+				InputStream inputStream = s3Utils.getFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(), 
+						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(), 
+						uri);
+				response.setContentType("application/octet-stream");
+				response.setHeader("Content-Disposition", String.format("inline; filename=\"" + uri + "\""));
+				FileCopyUtils.copy(inputStream, response.getOutputStream());
+			}
+		}else{
+			Resource resource = jfrogConnection.getArtifact(jfrogConnection.getJfrogIntegration(),uri);
+			InputStream inputStream = resource.getInputStream();
 			response.setContentType("application/octet-stream");
 			response.setHeader("Content-Disposition", String.format("inline; filename=\"" + uri + "\""));
-			
 			FileCopyUtils.copy(inputStream, response.getOutputStream());
-
-			
-//			File file = new File("/Itorix/tmp/s3/" + uri);
-//			
-//			FileUtils.copyInputStreamToFile(inputStream, file);
-//			
-//			HttpHeaders headers = new HttpHeaders();
-//	        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-//	        headers.add("Pragma", "no-cache");
-//	        headers.add("Expires", "0");
-//	        
-//			return ResponseEntity.ok()
-//		            .headers(headers)
-//		            .contentLength(file.length())
-//		            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//		            .body(inputStream);
 		}
-		
-		//return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	@Override
 	public ResponseEntity<?> getCodeConnectIntegraton(
 			String interactionid,
@@ -263,13 +265,12 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	public ResponseEntity<?> createupdateCodeconnectIntegraton(
 			String interactionid,
 			String jsessionid, GitIntegration gitIntegration)
-			throws Exception{
+					throws Exception{
 		Integration integration = new Integration();
 		integration.setType("CODECONNECT");
 		integration.setGitIntegration(gitIntegration);
 		integrationsDao.updateGITIntegratoin(integration);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		
 	}
 
 	@Override
@@ -278,6 +279,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 		integrationsDao.removeIntegratoin(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-
+	
+	
 
 }
