@@ -52,7 +52,6 @@ public class XlsUtil {
 	@Autowired
 	ApplicationProperties applicationProperties;
 
-
 	public List<RowData> readExcel(String filePath, String sheetNname) throws EmptyXlsRows {
 		List<RowData> listRowDatas = new ArrayList<RowData>();
 		try {
@@ -145,17 +144,17 @@ public class XlsUtil {
 		try {
 			S3Integration s3Integration = s3Connection.getS3Integration();
 			String downloadURI = null;
-			if(null != s3Integration){
-				downloadURI =  s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+			if (null != s3Integration) {
+				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
 						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-						"temp/" + timeStamp  + "/workbook.xls" , xsdFileBackUpLocation + "/workbook.xls");
-				obj = new JSONObject();	
+						"temp/" + timeStamp + "/workbook.xls", xsdFileBackUpLocation + "/workbook.xls");
+				obj = new JSONObject();
 				obj.put("filename", "workbook.xls");
 				obj.put("downloadURI", downloadURI);
-			}
-			else{
+			} else {
 				obj = jfrogUtilImpl.uploadFiles(file.getAbsolutePath(), applicationProperties.getSwaggerXpath(),
-						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort() + "/artifactory/",
+						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
+								+ "/artifactory/",
 						timeStamp + "", // change
 						// the
 						// repo

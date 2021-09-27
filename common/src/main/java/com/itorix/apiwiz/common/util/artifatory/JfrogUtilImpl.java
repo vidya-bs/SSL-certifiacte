@@ -21,6 +21,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -42,6 +43,12 @@ public class JfrogUtilImpl {
 
 	private String username;
 	private String userpassword;
+	
+	@Value("${itorix.core.application.url}")
+	private String host;
+	
+	@Value("${server.contextPath}")
+	private String context;
 
 	@PostConstruct
 	private void initValues() {
@@ -119,6 +126,28 @@ public class JfrogUtilImpl {
 	}
 
 	private String replaceHost(String URL) {
+		try {
+
+			StringBuilder new_host = new StringBuilder();
+			new_host.append(host);
+			new_host.append(  context + "/v1/download");
+			String[] tokens = URL.split("/");
+			// String newHost = applicationProperties.getJfrogHost() + ":" +
+			// applicationProperties.getJfrogPort();
+			StringBuilder newUrl = new StringBuilder();
+			newUrl.append(new_host.toString() + "/");
+			for (int x = 3; x < tokens.length; x++)
+				if (x == tokens.length - 1)
+					newUrl.append(tokens[x]);
+				else
+					newUrl.append(tokens[x] + "/");
+			return newUrl.toString();
+		} catch (Exception e) {
+			return URL;
+		}
+	}
+	
+	private String replaceHost_bak(String URL) {
 		try {
 
 			StringBuilder host = new StringBuilder();

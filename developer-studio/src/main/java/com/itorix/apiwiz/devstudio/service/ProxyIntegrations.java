@@ -1,5 +1,8 @@
 package com.itorix.apiwiz.devstudio.service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -7,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.itorix.apiwiz.common.model.integrations.apic.ApicIntegration;
@@ -29,10 +33,10 @@ public interface ProxyIntegrations {
 	public ResponseEntity<?> createupdateGitIntegraton(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody GitIntegration gitIntegration)
-			throws Exception;
+					throws Exception;
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/integrations/github/{id}", produces = {
-			"application/json"})
+	"application/json"})
 	public ResponseEntity<?> removeGitIntegraton(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id) throws Exception;
@@ -46,10 +50,10 @@ public interface ProxyIntegrations {
 	public ResponseEntity<?> updateJfrogIntegraton(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody JfrogIntegration jfrogIntegration)
-			throws Exception;
+					throws Exception;
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/integrations/jfrog/{id}", produces = {
-			"application/json"})
+	"application/json"})
 	public ResponseEntity<?> removeJfrogIntegraton(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id) throws Exception;
@@ -63,10 +67,10 @@ public interface ProxyIntegrations {
 	public ResponseEntity<?> createupdateGitLabIntegraton(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody GitIntegration gitIntegration)
-			throws Exception;
+					throws Exception;
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/integrations/gitlab/{id}", produces = {
-			"application/json"})
+	"application/json"})
 	public ResponseEntity<?> removeGitLabIntegraton(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id) throws Exception;
@@ -80,10 +84,10 @@ public interface ProxyIntegrations {
 	public ResponseEntity<?> createupdateBitBucketIntegraton(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody GitIntegration gitIntegration)
-			throws Exception;
+					throws Exception;
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/integrations/bitbucket/{id}", produces = {
-			"application/json"})
+	"application/json"})
 	public ResponseEntity<?> removeBitBucketIntegraton(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id) throws Exception;
@@ -97,10 +101,10 @@ public interface ProxyIntegrations {
 	public ResponseEntity<?> updateGocdIntegraton(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody GoCDIntegration goCDIntegration)
-			throws Exception;
+					throws Exception;
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/integrations/gocd/{id}", produces = {
-			"application/json"})
+	"application/json"})
 	public ResponseEntity<?> removeGocdIntegraton(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id) throws Exception;
@@ -125,7 +129,7 @@ public interface ProxyIntegrations {
 	public ResponseEntity<?> createApicIntegratons(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody ApicIntegration apicIntegration)
-			throws Exception;
+					throws Exception;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/s3", produces = {"application/json"})
 	public ResponseEntity<?> getS3Integratons(
@@ -136,5 +140,36 @@ public interface ProxyIntegrations {
 	public ResponseEntity<?> createS3Integratons(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody S3Integration s3Integration)
-			throws Exception;
+					throws Exception;
+
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/integrations/s3/{id}", produces = {"application/json"})
+	public ResponseEntity<?> removeS3Integraton(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id) throws Exception;
+
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/download/**", produces = {"application/json"})
+	public void downloadFile(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam("type") String type,
+			HttpServletRequest httpServletRequest, HttpServletResponse response) throws Exception;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/codeconnect", produces = {"application/json"})
+	public ResponseEntity<?> getCodeConnectIntegraton(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/integrations/codeconnect", produces = {"application/json"})
+	public ResponseEntity<?> createupdateCodeconnectIntegraton(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody GitIntegration gitIntegration)
+					throws Exception;
+
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/integrations/codeconnect/{id}", produces = {
+	"application/json"})
+	public ResponseEntity<?> removeCodeconnectIntegraton(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id) throws Exception;
+
 }

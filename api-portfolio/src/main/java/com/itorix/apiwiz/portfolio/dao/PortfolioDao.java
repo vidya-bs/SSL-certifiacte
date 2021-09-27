@@ -264,8 +264,8 @@ public class PortfolioDao {
 		} else {
 			Query query = new Query().addCriteria(Criteria.where("id").is(portfolioId));
 			query.fields().include("name").include("summary").include("description").include("portfolioImage")
-					.include("owner").include("ownerEmail").include("teams").include("metadata").include("cts")
-					.include("createdBy").include("modifiedBy").include("mts");
+			.include("owner").include("ownerEmail").include("teams").include("metadata").include("cts")
+			.include("createdBy").include("modifiedBy").include("mts");
 			List<Portfolio> portfolios = mongoTemplate.find(query, Portfolio.class);
 			if (!CollectionUtils.isEmpty(portfolios)) {
 				portfolio = portfolios.get(0);
@@ -283,7 +283,7 @@ public class PortfolioDao {
 				.limit(pageSize);
 
 		query.fields().include("name").include("summary").include("owner").include("portfolioImage").include("cts")
-				.include("createdBy").include("modifiedBy").include("mts");;
+		.include("createdBy").include("modifiedBy").include("mts");;
 		PortfolioResponse response = new PortfolioResponse();
 
 		List<Portfolio> portfolios = mongoTemplate.find(new Query().with(Sort.by(Direction.DESC, "mts"))
@@ -430,24 +430,27 @@ public class PortfolioDao {
 				// Aggregation.limit(pageSize),
 				Aggregation.project("products._id", "products.name", "products.summary", "products.productImage",
 						"products.productStatus", "products.productAccess"));
+		try{
+			AggregationResults<Products> resultData = mongoTemplate.aggregate(agg, Portfolio.class, Products.class);
+			if (resultData != null) {
+				List<Products> project = resultData.getMappedResults();
 
-		AggregationResults<Products> resultData = mongoTemplate.aggregate(agg, Portfolio.class, Products.class);
-		if (resultData != null) {
-			List<Products> project = resultData.getMappedResults();
+				ProjectionOperation projectForCount = Aggregation.project("products.id")
+						.and(ArrayOperators.arrayOf("products").length()).as("count");
 
-			ProjectionOperation projectForCount = Aggregation.project("products.id")
-					.and(ArrayOperators.arrayOf("products").length()).as("count");
+				Aggregation aggForCount = Aggregation
+						.newAggregation(Aggregation.match(Criteria.where("id").is(portfolioId)), projectForCount);
 
-			Aggregation aggForCount = Aggregation
-					.newAggregation(Aggregation.match(Criteria.where("id").is(portfolioId)), projectForCount);
-
-			AggregationResults<Map> result = mongoTemplate.aggregate(aggForCount, Portfolio.class, Map.class);
-			Long count = 0L;
-			if (!result.getMappedResults().isEmpty()) {
-				count = Long.valueOf((int) result.getMappedResults().get(0).get("count"));
+				AggregationResults<Map> result = mongoTemplate.aggregate(aggForCount, Portfolio.class, Map.class);
+				Long count = 0L;
+				if (!result.getMappedResults().isEmpty()) {
+					count = Long.valueOf((int) result.getMappedResults().get(0).get("count"));
+				}
+				return project;
+			} else {
+				return new ArrayList<Products>();
 			}
-			return project;
-		} else {
+		}catch(Exception e){
 			return new ArrayList<Products>();
 		}
 	}
@@ -560,26 +563,29 @@ public class PortfolioDao {
 				// Aggregation.limit(pageSize),
 				Aggregation.project("serviceRegistry._id", "serviceRegistry.name", "serviceRegistry.summary",
 						"serviceRegistry.path", "serviceRegistry.verb"));
+		try{
+			AggregationResults<ServiceRegistry> resultData = mongoTemplate.aggregate(agg, Portfolio.class,
+					ServiceRegistry.class);
+			if (resultData != null) {
+				List<ServiceRegistry> project = resultData.getMappedResults();
 
-		AggregationResults<ServiceRegistry> resultData = mongoTemplate.aggregate(agg, Portfolio.class,
-				ServiceRegistry.class);
-		if (resultData != null) {
-			List<ServiceRegistry> project = resultData.getMappedResults();
+				ProjectionOperation projectForCount = Aggregation.project("serviceRegistry.id")
+						.and(ArrayOperators.arrayOf("serviceRegistry").length()).as("count");
 
-			ProjectionOperation projectForCount = Aggregation.project("serviceRegistry.id")
-					.and(ArrayOperators.arrayOf("serviceRegistry").length()).as("count");
+				Aggregation aggForCount = Aggregation
+						.newAggregation(Aggregation.match(Criteria.where("id").is(portfolioId)), projectForCount);
 
-			Aggregation aggForCount = Aggregation
-					.newAggregation(Aggregation.match(Criteria.where("id").is(portfolioId)), projectForCount);
-
-			AggregationResults<Map> result = mongoTemplate.aggregate(aggForCount, Portfolio.class, Map.class);
-			Long count = 0L;
-			if (!result.getMappedResults().isEmpty()) {
-				count = Long.valueOf((int) result.getMappedResults().get(0).get("count"));
+				AggregationResults<Map> result = mongoTemplate.aggregate(aggForCount, Portfolio.class, Map.class);
+				Long count = 0L;
+				if (!result.getMappedResults().isEmpty()) {
+					count = Long.valueOf((int) result.getMappedResults().get(0).get("count"));
+				}
+				// return getPaginatedResponse(offset, count, project, pageSize);
+				return project;
+			} else {
+				return new ArrayList<ServiceRegistry>();
 			}
-			// return getPaginatedResponse(offset, count, project, pageSize);
-			return project;
-		} else {
+		}catch(Exception e){
 			return new ArrayList<ServiceRegistry>();
 		}
 	}
@@ -650,7 +656,7 @@ public class PortfolioDao {
 			try {
 				return s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
 						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-						 workspace + "/portfolio/" + folderPath, new ByteArrayInputStream(bytes));
+						workspace + "/portfolio/" + folderPath, new ByteArrayInputStream(bytes));
 			} catch (IOException e) {
 				throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1009"), "Portfolio-1009");
 			}
@@ -736,25 +742,28 @@ public class PortfolioDao {
 				// Aggregation.limit(pageSize),
 				Aggregation.project("projects._id", "projects.name", "projects.summary", "projects.owner",
 						"projects.isActive"));
+		try{
+			AggregationResults<Projects> resultData = mongoTemplate.aggregate(agg, Portfolio.class, Projects.class);
+			if (resultData != null) {
+				List<Projects> project = resultData.getMappedResults();
 
-		AggregationResults<Projects> resultData = mongoTemplate.aggregate(agg, Portfolio.class, Projects.class);
-		if (resultData != null) {
-			List<Projects> project = resultData.getMappedResults();
+				ProjectionOperation projectForCount = Aggregation.project("projects.id")
+						.and(ArrayOperators.arrayOf("projects").length()).as("count");
 
-			ProjectionOperation projectForCount = Aggregation.project("projects.id")
-					.and(ArrayOperators.arrayOf("projects").length()).as("count");
+				Aggregation aggForCount = Aggregation
+						.newAggregation(Aggregation.match(Criteria.where("id").is(portfolioId)), projectForCount);
 
-			Aggregation aggForCount = Aggregation
-					.newAggregation(Aggregation.match(Criteria.where("id").is(portfolioId)), projectForCount);
-
-			AggregationResults<Map> result = mongoTemplate.aggregate(aggForCount, Portfolio.class, Map.class);
-			Long count = 0L;
-			if (!result.getMappedResults().isEmpty()) {
-				count = Long.valueOf((int) result.getMappedResults().get(0).get("count"));
+				AggregationResults<Map> result = mongoTemplate.aggregate(aggForCount, Portfolio.class, Map.class);
+				Long count = 0L;
+				if (!result.getMappedResults().isEmpty()) {
+					count = Long.valueOf((int) result.getMappedResults().get(0).get("count"));
+				}
+				// return getPaginatedResponse(offset, count, project, pageSize);
+				return project;
+			} else {
+				return new ArrayList<Projects>();
 			}
-			// return getPaginatedResponse(offset, count, project, pageSize);
-			return project;
-		} else {
+		} catch(Exception e){
 			return new ArrayList<Projects>();
 		}
 	}
@@ -812,7 +821,7 @@ public class PortfolioDao {
 
 		Update update = new Update();
 		update.set("projects.$[project].proxies.$[proxy]", proxy).filterArray("project._id", new ObjectId(projectId))
-				.filterArray("proxy._id", new ObjectId(proxyId));
+		.filterArray("proxy._id", new ObjectId(proxyId));
 
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1013"), "Portfolio-1013");
@@ -826,8 +835,8 @@ public class PortfolioDao {
 				Aggregation.match(Criteria.where("projects._id").is(new ObjectId(projectId))),
 				Aggregation.unwind("$projects.proxies"),
 				Aggregation.project().and("$projects.proxies.id").as("_id").and("$projects.proxies.name").as("name")
-						.and("$projects.proxies.gwProvider").as("gwProvider").and("$projects.proxies.proxyVersion")
-						.as("proxyVersion"));
+				.and("$projects.proxies.gwProvider").as("gwProvider").and("$projects.proxies.proxyVersion")
+				.as("proxyVersion"));
 		// Aggregation.skip(Long.valueOf(offset > 0 ? ((offset - 1) * pageSize)
 		// : 0)),
 		// Aggregation.limit(pageSize));
@@ -930,7 +939,7 @@ public class PortfolioDao {
 		Update update = new Update();
 
 		update.push("projects.$[project].proxies.$[proxy].apigeeConfig.pipelines", pipeline)
-				.filterArray("project._id", new ObjectId(projectId)).filterArray("proxy._id", new ObjectId(proxyId));
+		.filterArray("project._id", new ObjectId(projectId)).filterArray("proxy._id", new ObjectId(proxyId));
 
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
 		update.set("mts", System.currentTimeMillis());
@@ -951,8 +960,8 @@ public class PortfolioDao {
 		Update update = new Update();
 		update.set("projects.$[project].proxies.$[proxy].apigeeConfig.pipelines.$[pipeline]", pipeline)
 
-				.filterArray("project._id", new ObjectId(projectId)).filterArray("proxy._id", new ObjectId(proxyId))
-				.filterArray("pipeline._id", new ObjectId(pipelineId));
+		.filterArray("project._id", new ObjectId(projectId)).filterArray("proxy._id", new ObjectId(proxyId))
+		.filterArray("pipeline._id", new ObjectId(pipelineId));
 
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
 		update.set("mts", System.currentTimeMillis());
@@ -978,7 +987,7 @@ public class PortfolioDao {
 			if (!CollectionUtils.isEmpty(proxies)) {
 				if (proxies.get(0).getProjects() != null && proxies.get(0).getProjects().getProxies() != null
 						&& proxies.get(0).getProjects().getProxies().getApigeeConfig() != null && !CollectionUtils
-								.isEmpty(proxies.get(0).getProjects().getProxies().getApigeeConfig().getPipelines())) {
+						.isEmpty(proxies.get(0).getProjects().getProxies().getApigeeConfig().getPipelines())) {
 					return proxies.get(0).getProjects().getProxies().getApigeeConfig().getPipelines();
 				}
 			}
@@ -1001,13 +1010,13 @@ public class PortfolioDao {
 				Criteria.where("projects").elemMatch(Criteria.where("id").is(projectId)),
 				Criteria.where("projects.proxies").elemMatch(Criteria.where("id").is(proxyId)),
 				Criteria.where("projects.proxies.apigeeConfig.pipelines")
-						.elemMatch(Criteria.where("id").is(pipelineId))));
+				.elemMatch(Criteria.where("id").is(pipelineId))));
 
 		Update update = new Update();
 
 		Query queryPipeline = new Query(new Criteria().andOperator(Criteria.where("id").is(pipelineId)));
 		update.pull("projects.$[project].proxies.$[proxy].apigeeConfig.pipelines", queryPipeline)
-				.filterArray("project._id", new ObjectId(projectId)).filterArray("proxy._id", new ObjectId(proxyId));
+		.filterArray("project._id", new ObjectId(projectId)).filterArray("proxy._id", new ObjectId(proxyId));
 
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1015"), "Portfolio-1015");
