@@ -44,7 +44,7 @@ public class JfrogUtilImpl {
 	private String username;
 	private String userpassword;
 	
-	@Value("${itorix.core.application.host}")
+	@Value("${itorix.core.application.url}")
 	private String host;
 	
 	@Value("${server.contextPath}")
@@ -129,7 +129,7 @@ public class JfrogUtilImpl {
 		try {
 
 			StringBuilder new_host = new StringBuilder();
-			new_host.append("https://" + host);
+			new_host.append(host);
 			new_host.append(  context + "/v1/download");
 			String[] tokens = URL.split("/");
 			// String newHost = applicationProperties.getJfrogHost() + ":" +

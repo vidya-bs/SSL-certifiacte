@@ -23,7 +23,7 @@ public class S3Utils {
 	
 	
 	
-	@Value("${itorix.core.application.host}")
+	@Value("${itorix.core.application.url}")
 	private String host;
 	
 	@Value("${server.contextPath}")
@@ -59,7 +59,7 @@ public class S3Utils {
 
 	private String getURL(String bucket, String region, String key) {
 		//String URL = "https://<bucket-name>.s3-<region-name>.amazonaws.com/<key>";
-		String URL = "https://<host><context>/v1/download/<key>?type=s3";
+		String URL = "<host><context>/v1/download/<key>?type=s3";
 		
 		URL = URL.replaceAll("<host>", host).replaceAll("<context>", context).replaceAll("<key>", key);
 		return URL;

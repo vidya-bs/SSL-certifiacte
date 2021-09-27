@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.common.util.artifatory;
 
+import java.net.URLDecoder;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +63,8 @@ public class JfrogConnection {
 		host.append(jfrogIntegration.getHostURL());
 		host.append("/"+url);
 		RestTemplate restTemplate = new RestTemplate();
-		return restTemplate.getForObject( host.toString(), Resource.class);
+		
+		url = URLDecoder.decode(host.toString());
+		return restTemplate.getForObject( url, Resource.class);
 	}
 }
