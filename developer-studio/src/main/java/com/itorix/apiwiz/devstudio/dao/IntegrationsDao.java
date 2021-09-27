@@ -57,6 +57,18 @@ public class IntegrationsDao {
 		}
 	}
 
+	public void updateS3Integratoin(Integration integration) {
+		List<Integration> dbIntegrationList = getIntegration(integration.getType());
+		if (dbIntegrationList != null && dbIntegrationList.size() > 0) {
+			Integration dbIntegration = dbIntegrationList.get(0);
+			if (integration.getType().equalsIgnoreCase("S3"))
+				dbIntegration.setS3Integration(integration.getS3Integration());
+			baseRepository.save(dbIntegration);
+		} else {
+			baseRepository.save(integration);
+		}
+	}
+	
 	public void removeIntegratoin(Integration integration) {
 		mongoTemplate.remove(integration);
 	}
@@ -164,6 +176,20 @@ public class IntegrationsDao {
 
 	public void removeBitBucketIntegration() {
 		Integration integration = getIntegration("BITBUCKET").get(0);
+		if (integration != null)
+			removeIntegratoin(integration);
+	}
+	
+	public List<Integration> getCodeconnectIntegration() {
+		List<Integration> integrations = getIntegration("CODECONNECT");
+		if (integrations != null)
+			return integrations;
+		else
+			return new ArrayList<Integration>();
+	}
+	
+	public void removeCodeconnectIntegration() {
+		Integration integration = getIntegration("CODECONNECT").get(0);
 		if (integration != null)
 			removeIntegratoin(integration);
 	}
