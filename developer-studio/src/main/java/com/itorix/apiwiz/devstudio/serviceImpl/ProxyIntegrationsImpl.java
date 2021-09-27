@@ -231,8 +231,8 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	public void downloadFile(
 			String interactionid,String jsessionid,
 			String type, HttpServletRequest httpServletRequest,HttpServletResponse response) throws Exception{
-		String uri = httpServletRequest.getRequestURI().replaceAll(context, "");
-		uri = uri.replaceAll("/v1/download/", "");
+		String uri = httpServletRequest.getRequestURI();
+		uri = uri.replaceAll(context + "/v1/download/", "");
 		if(type.equalsIgnoreCase("s3")){
 			S3Integration s3Integration = s3Connection.getS3Integration();
 			if(s3Integration != null)
