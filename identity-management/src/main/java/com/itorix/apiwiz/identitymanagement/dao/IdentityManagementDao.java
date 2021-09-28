@@ -216,7 +216,7 @@ public class IdentityManagementDao {
 				if (user.getUserCount() < 5) {
 					user.setUserCount(user.getUserCount() + 1);
 					saveUser(user);
-					throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"), "Identity-1037");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1036"), "Identity-1036");
 				} else {
 					user.setUserStatus(UserStatus.getStatus(UserStatus.LOCKED));
 					saveUser(user);
@@ -224,7 +224,7 @@ public class IdentityManagementDao {
 				}
 			}
 		}
-		throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"), "Identity-1037");
+		throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1036"), "Identity-1036");
 	}
 
 	public Object addUser(UserInfo userInfo) throws ItorixException {
@@ -236,7 +236,7 @@ public class IdentityManagementDao {
 		}
 		User loginUser = findUserById(userSessionToken.getUserId());
 		if (!loginUser.isWorkspaceAdmin(userInfo.getWorkspaceId().toLowerCase()) == true) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"), "Identity-1037");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
 		}
 		boolean isNewUser = false;
 		User user = findByUserEmail(userInfo.getEmail());
@@ -369,7 +369,7 @@ public class IdentityManagementDao {
 			else
 				return null;
 		}
-		throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"), "Identity-1037");
+		throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
 	}
 
 	public void updateMetaData(Map<String, String> metadata) {
@@ -641,7 +641,7 @@ public class IdentityManagementDao {
 						break;
 					}
 			} else {
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"), "Identity-1037");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
 			}
 		} else {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"), "Identity-1023");
@@ -673,7 +673,7 @@ public class IdentityManagementDao {
 				user.setWorkspaces(workspaces);
 				saveUser(user);
 			} else {
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"), "Identity-1037");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
 			}
 		} else {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"), "Identity-1023");
@@ -707,7 +707,7 @@ public class IdentityManagementDao {
 				user.setWorkspaces(workspaces);
 				saveUser(user);
 			} else {
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"), "Identity-1037");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
 			}
 		} else {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"), "Identity-1023");
@@ -1162,7 +1162,7 @@ public class IdentityManagementDao {
 		String workspaceId = userSessionToken.getWorkspaceId();
 		User loginUser = findUserById(userSessionToken.getUserId());
 		if (!loginUser.isWorkspaceAdmin(workspaceId)) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"), "Identity-1037");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
 		}
 		Users allUsers = new Users();
 		List<String> userName = new ArrayList<String>();
@@ -1234,7 +1234,7 @@ public class IdentityManagementDao {
 		String workspaceId = userSessionToken.getWorkspaceId();
 		User loginUser = findUserById(userSessionToken.getUserId());
 		if (!loginUser.isWorkspaceAdmin(workspaceId)) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"), "Identity-1037");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
 		}
 		Users allUsers = new Users();
 		List<UserDetails> userDetails = new ArrayList<UserDetails>();
@@ -1283,7 +1283,7 @@ public class IdentityManagementDao {
 		String workspaceId = userSessionToken.getWorkspaceId();
 		User loginUser = findUserById(userSessionToken.getUserId());
 		if (!loginUser.isWorkspaceAdmin(workspaceId)) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"), "Identity-1037");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
 		}
 		User user = findUserById(userId);
 		if (user.getUserWorkspace(workspaceId) != null) {
@@ -1297,7 +1297,7 @@ public class IdentityManagementDao {
 		String workspaceId = userSessionToken.getWorkspaceId();
 		User loginUser = findUserById(userSessionToken.getUserId());
 		if (!loginUser.isWorkspaceAdmin(workspaceId)) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"), "Identity-1037");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
 		}
 		User user = findUserById(userId);
 		if (user.getUserWorkspace(workspaceId) != null) {
@@ -1888,8 +1888,11 @@ public class IdentityManagementDao {
 	}
 
 	private ApplicationProperties populateDBApplicationProperties(Map<String, String> map) {
-		applicationProperties.setApigeeHost(map.get("apigee.host"));
-		applicationProperties.setUserName(map.get("app.mailutil.userName"));
+		if(map.get("apigee.host")!=null)
+			applicationProperties.setApigeeHost(map.get("apigee.host"));
+		if(map.get("app.mailutil.userName")!=null)
+			applicationProperties.setUserName(map.get("app.mailutil.userName"));
+		if(map.get("itorix.core.gocd.proxy.scm.username")!=null)
 		applicationProperties.setProxyScmUserName(map.get("itorix.core.gocd.proxy.scm.username"));
 		applicationProperties.setProxyScmPassword(map.get("itorix.core.gocd.proxy.scm.password"));
 		applicationProperties.setBuildScmType(map.get("itorix.core.gocd.build.scm.type"));
