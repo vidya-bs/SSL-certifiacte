@@ -694,7 +694,8 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		workspaceDao.removeSeats(workspace.getSeats());
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
-
+	
+	@Override
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/accounts-cancellation")
 	public @ResponseBody ResponseEntity<Void> cancelSubscription(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
