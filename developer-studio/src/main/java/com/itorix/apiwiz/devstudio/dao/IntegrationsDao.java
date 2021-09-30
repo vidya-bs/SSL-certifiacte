@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.model.integrations.Integration;
 import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
+import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 
 @Component
@@ -119,6 +120,14 @@ public class IntegrationsDao {
 		removeIntegratoin(id);
 	}
 
+	public void updateWorkspaceIntegration(WorkspaceIntegration workspaceIntegration){
+		mongoTemplate.save(workspaceIntegration);
+	}
+	
+	public List<WorkspaceIntegration> getWorkspaceIntegration(){
+		return mongoTemplate.findAll(WorkspaceIntegration.class);
+	}
+	
 	public Integration getJfrogIntegration() {
 		List<Integration> dbIntegrationList = getIntegration("JFROG");
 		Integration integration = new Integration();
@@ -181,7 +190,7 @@ public class IntegrationsDao {
 	}
 	
 	public List<Integration> getCodeconnectIntegration() {
-		List<Integration> integrations = getIntegration("CODECONNECT");
+		List<Integration> integrations = getIntegration("CODECOMMIT");
 		if (integrations != null)
 			return integrations;
 		else
@@ -189,7 +198,7 @@ public class IntegrationsDao {
 	}
 	
 	public void removeCodeconnectIntegration() {
-		Integration integration = getIntegration("CODECONNECT").get(0);
+		Integration integration = getIntegration("CODECOMMIT").get(0);
 		if (integration != null)
 			removeIntegratoin(integration);
 	}
