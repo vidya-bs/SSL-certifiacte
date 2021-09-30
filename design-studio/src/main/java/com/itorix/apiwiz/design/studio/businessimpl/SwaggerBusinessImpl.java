@@ -1424,8 +1424,14 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 		ArrayNode arrayNode = mapper.createArrayNode();
 		for (Swagger3VO vo : list) {
-			if (partnerId == null || isPartnerAsociated(vo, partnerId) == true)
+			if (partnerId == null){
 				getPublishedSwaggerDetails(vo, arrayNode);
+			}else{
+				List<String> partnerList = partnerId.contains("/") ? Arrays.asList(partnerId.split("/")) : Arrays.asList(partnerId);
+				for(String partner : partnerList)
+				if (partner == null || isPartnerAsociated(vo, partner) == true)
+					getPublishedSwaggerDetails(vo, arrayNode);
+			}
 		}
 		log("getListOfSwaggerDetails", interactionid, list);
 		return arrayNode;
