@@ -3807,6 +3807,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		SwaggerUtil.copyAllSwaggerFields(newSwaggerForClone, vo);
 		SwaggerUtil.setCloneDetailsFromReq(newSwaggerForClone, swaggerCloneDetails, vo.getSwagger());
 		isSwaggerCloneSuccess = baseRepository.save(newSwaggerForClone) != null ? true : false;
+		if(isSwaggerCloneSuccess) {
+			updateSwaggerBasePath(newSwaggerForClone.getName(), newSwaggerForClone);
+		}
 		return isSwaggerCloneSuccess ? newSwaggerForClone.getSwaggerId() : null;
 	}
 
@@ -3837,6 +3840,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		SwaggerUtil.copyAllSwaggerFields(newSwaggerForClone, vo);
 		SwaggerUtil.setCloneDetailsFromReq(newSwaggerForClone, swaggerCloneDetails, vo.getSwagger());
 		isSwaggerCloneSuccess = baseRepository.save(newSwaggerForClone) != null ? true : false;
+		if(isSwaggerCloneSuccess) {
+			updateSwagger3BasePath(newSwaggerForClone.getName(), newSwaggerForClone);
+		}
 		return isSwaggerCloneSuccess ? newSwaggerForClone.getSwaggerId() : null;
 	}
 
