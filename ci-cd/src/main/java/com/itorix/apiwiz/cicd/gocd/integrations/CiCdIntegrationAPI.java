@@ -203,8 +203,8 @@ public class CiCdIntegrationAPI {
 		String buildScmType = getBuildScmProp("itorix.core.gocd.build.scm.type");
 		String buildScmURL = getBuildScmProp("itorix.core.gocd.build.scm.url");
 		String buildScmBranch = getBuildScmProp("itorix.core.gocd.build.scm.branch");
-		if (buildScmType != null && config.getBuildScmType() != ""
-				&& config.getBuildScmType().equals("svn")) {
+		if (buildScmType != null && buildScmType != ""
+				&& buildScmType.equals("svn")) {
 			buildMaterial.setType("svn");
 			buildAttributes.setUrl(buildScmURL);
 			buildAttributes.setDestination("PipelineBuild");

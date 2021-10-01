@@ -198,24 +198,28 @@ public class CollaborationServiceImpl implements CollaborationService {
 			oas = "2.0";
 		List<SwaggerTeam> teams = new ArrayList<SwaggerTeam>();
 		Set<String> responseSet = new HashSet<>();
-		if (oas.equals("2.0")) {
-			SwaggerVO vo = collaborationBusiness.findSwagger(swaggername, interactionid);
-			if (vo != null) {
-				SwaggerMetadata metadata = collaborationBusiness.getSwaggerMetadata(vo.getName(), oas);
-				if (metadata != null)
-					responseSet = metadata.getTeams();
+		try{
+			if (oas.equals("2.0")) {
+				SwaggerVO vo = collaborationBusiness.findSwagger(swaggername, interactionid);
+				if (vo != null) {
+					SwaggerMetadata metadata = collaborationBusiness.getSwaggerMetadata(vo.getName(), oas);
+					if (metadata != null)
+						responseSet = metadata.getTeams();
+				}
+			} else if (oas.equals("3.0")) {
+				Swagger3VO vo = collaborationBusiness.findSwagger3(swaggername, interactionid);
+				if (vo != null) {
+					SwaggerMetadata metadata = collaborationBusiness.getSwaggerMetadata(vo.getName(), oas);
+					if (metadata != null)
+						responseSet = metadata.getTeams();
+				}
 			}
-		} else if (oas.equals("3.0")) {
-			Swagger3VO vo = collaborationBusiness.findSwagger3(swaggername, interactionid);
-			if (vo != null) {
-				SwaggerMetadata metadata = collaborationBusiness.getSwaggerMetadata(vo.getName(), oas);
-				if (metadata != null)
-					responseSet = metadata.getTeams();
-			}
+			if (responseSet != null && responseSet.size() > 0)
+				for (String teamName : responseSet)
+					teams.add(collaborationBusiness.getTeam(teamName, interactionid));
+		}catch(Exception e){
+			e.printStackTrace();
 		}
-		if (responseSet.size() > 0)
-			for (String teamName : responseSet)
-				teams.add(collaborationBusiness.getTeam(teamName, interactionid));
 		return new ResponseEntity<Object>(teams, HttpStatus.OK);
 	}
 

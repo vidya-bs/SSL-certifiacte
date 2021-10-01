@@ -37,6 +37,9 @@ import com.mongodb.client.MongoCursor;
 import io.swagger.generator.util.SwaggerUtil;
 import io.swagger.models.Info;
 import io.swagger.models.Model;
+import io.swagger.models.Operation;
+import io.swagger.models.Path;
+import io.swagger.models.Response;
 import io.swagger.models.Swagger;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.parser.SwaggerParser;
@@ -2344,6 +2347,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		SwaggerVO details = null;
 		PopulateSwaggerDefination populateSwaggerDefination = new PopulateSwaggerDefination();
 		Swagger swagger = populateSwaggerDefination.populateDefinitons(rowDataList, new Swagger());
+		swagger = removeResponseSchema(swagger);
 		if (revision == null) {
 			swaggerVO.setRevision(1);
 			swaggerVO.setStatus("Draft");
@@ -2367,7 +2371,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				s.setDefinitions(m);
 				ObjectMapper mapper = new ObjectMapper();
 				mapper.setSerializationInclusion(Include.NON_NULL);
+				s = removeResponseSchema(s);
 				String swaggerString = mapper.writeValueAsString(s);
+				swaggerString = SwaggerUtil.removeResponseSchemaTag(swaggerString);
 				swaggerVO.setSwagger(swaggerString);
 				details = baseRepository.save(swaggerVO);
 			}
@@ -2375,6 +2381,35 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		log("genarateSwaggerJsonDefinations", swaggerVO.getInteractionid(), details);
 		return details;
 	}
+	
+	private Swagger removeResponseSchema(Swagger swagger){
+		try{
+			Map<String, Path> swaggerPaths = swagger.getPaths();
+			if(swaggerPaths != null){
+				Set<String> pathsSet = swaggerPaths.keySet();
+				for(String pathStr: pathsSet){
+					Path path = swaggerPaths.get(pathStr);
+					List<Operation> operationList = path.getOperations();
+					if(operationList != null)
+					for(Operation operation: operationList){
+						Map<String, Response> responseMap = operation.getResponses();
+						if(responseMap!= null){
+							Set<String> responseSet = responseMap.keySet();
+							for(String key : responseSet){
+								Response response = responseMap.get(key);
+								if(response != null)
+									response.setResponseSchema(null);
+							}
+						}
+					}
+				}
+			}
+		}catch(Exception e){
+			
+		}
+		return swagger;
+	}
+
 
 	/**
 	 * genarateSwaggerJsonDefinations
