@@ -227,8 +227,8 @@ public class CodeGenService {
 				if (codeGen.getTarget() != null)
 					apigeeTargetGen.generateTargetCode(targetFolder, codeGen, proxyDir);
 				if (codeGen.getProxy() != null && codeGen.getTarget() != null) {
-					CleanUnused.clean(proxyDir + File.separatorChar);
-					proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
+//					CleanUnused.clean(proxyDir + File.separatorChar);
+//					proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
 				}
 			} else {
 				if (codeGen.getProxy() != null & codeGen.getTarget() != null)
@@ -270,9 +270,9 @@ public class CodeGenService {
 					codeGen.setScmURL(codeGen.getProxySCMDetails().getHostUrl());
 					codeGen.setScmBranch(codeGen.getProxySCMDetails().getBranch());
 				} else {
-					String scmPassword = rSAEncryption.decryptText(codeGen.getProxySCMDetails().getPassword());
+					String scmPassword = rSAEncryption.decryptText(scmIntegration.getPassword());
 					scmUtil.pushFilesToSCM(new File(dir), codeGen.getProxySCMDetails().getReponame(),
-							codeGen.getProxySCMDetails().getUsername(), scmPassword,
+							scmIntegration.getUsername(), scmPassword,
 							codeGen.getProxySCMDetails().getHostUrl(), codeGen.getProxySCMDetails().getScmSource(),
 							codeGen.getProxySCMDetails().getBranch(), codeGen.getProxySCMDetails().getCommitMessage());
 					codeGen.setScmURL(codeGen.getProxySCMDetails().getHostUrl());

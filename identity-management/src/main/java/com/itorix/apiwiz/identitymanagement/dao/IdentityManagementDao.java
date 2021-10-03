@@ -9,7 +9,6 @@ import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.Date.DateUtil;
-import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.mail.EmailTemplate;
 import com.itorix.apiwiz.common.util.mail.MailUtil;
@@ -149,10 +148,10 @@ public class IdentityManagementDao {
 			User user = findByEmailUserName(userInfo.getLoginId());
 			Workspace workspace = getWorkspace(userInfo.getWorkspaceId().toLowerCase());
 			if (user == null) {
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1037"), "Identity-1037");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1036"), "Identity-1037");
 			}
 			if (workspace == null) {
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1039"), "Identity-1039");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1044"), "Identity-1044");
 			}
 			UserWorkspace userWorkspace = user.getUserWorkspace(userInfo.getWorkspaceId().toLowerCase());
 			if (userWorkspace == null
@@ -1175,11 +1174,14 @@ public class IdentityManagementDao {
 		if (filterbynames != null && "true".equalsIgnoreCase(filterbynames)) {
 			for (int i = 0; i < dbActiveUsers.size(); i++) {
 				User user = dbUsers.get(i);
-				JSONObject userNames = new JSONObject();
-				userNames.put("displayName", user.getFirstName() + " " + user.getLastName());
-				userNames.put("userId", user.getId());
-				userNames.put("emailId", user.getEmail());
-				namesList.add(userNames);
+				if(user != null && user.getFirstName() != null ) {
+					JSONObject userNames = new JSONObject();
+					String lastName = user.getLastName() == null ? "" : user.getLastName();
+					userNames.put("displayName", user.getFirstName() + " " + lastName);
+					userNames.put("userId", user.getId());
+					userNames.put("emailId", user.getEmail());
+					namesList.add(userNames);
+				}
 			}
 			userNamesList.put("users", namesList);
 			return userNamesList;

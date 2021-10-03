@@ -176,12 +176,13 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Override
 	public ResponseEntity<?> getWorkspaceIntegratons(String interactionid, String jsessionid) throws Exception {
-		return null;
+		return new ResponseEntity<>(integrationsDao.getWorkspaceIntegration(),HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseEntity<?> createWorkspaceIntegratons(String interactionid, String jsessionid,
 			WorkspaceIntegration workspaceIntegration) throws Exception {
+		integrationsDao.updateWorkspaceIntegration(workspaceIntegration);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
@@ -255,8 +256,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Override
 	public ResponseEntity<?> getCodeConnectIntegraton(
-			String interactionid,
-			String jsessionid) throws Exception{
+			String interactionid, String jsessionid) throws Exception{
 		return new ResponseEntity<>(integrationsDao.getCodeconnectIntegration(), HttpStatus.OK);
 	}
 
@@ -266,7 +266,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 			String jsessionid, GitIntegration gitIntegration)
 					throws Exception{
 		Integration integration = new Integration();
-		integration.setType("CODECONNECT");
+		integration.setType("CODECOMMIT");
 		integration.setGitIntegration(gitIntegration);
 		integrationsDao.updateGITIntegratoin(integration);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);

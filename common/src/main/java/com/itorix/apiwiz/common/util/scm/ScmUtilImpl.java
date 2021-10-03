@@ -46,7 +46,7 @@ public class ScmUtilImpl {
 			String scmSource, String branch, String comments)
 			throws InvalidRemoteException, TransportException, GitAPIException, IOException, ItorixException {
 
-		if (scmSource.equalsIgnoreCase("git") || scmSource.equalsIgnoreCase("bitbucket")) {
+//		if (scmSource.equalsIgnoreCase("git") || scmSource.equalsIgnoreCase("bitbucket")) {
 			File SourceDirectory = directory;
 			String separatorChar = String.valueOf(File.separatorChar);
 			// SourceDirectory=new File(directory + separatorChar +"API");
@@ -87,9 +87,9 @@ public class ScmUtilImpl {
 			git.getRepository().close();
 			FileUtils.cleanDirectory(cloningDirectory);
 			FileUtils.deleteDirectory(cloningDirectory);
-		} else {
-			throw new ItorixException(new Throwable().getMessage(), "USER_005", new Throwable());
-		}
+//		} else {
+//			throw new ItorixException(new Throwable().getMessage(), "USER_005", new Throwable());
+//		}
 	}
 
 	public void pushFilesToSCMBase64(File directory, String repoName, String authorizationType, String authToken,

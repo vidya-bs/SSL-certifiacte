@@ -1901,12 +1901,28 @@ public class SwaggerServiceImpl implements SwaggerService {
 			options.put("outputFolder", outputFolder);
 			generatorInput.setOptions(options);
 			String filename = Generator.generateServer(framework, generatorInput);
-			org.json.JSONObject obj = null;
-			obj = jfrogUtilImpl.uploadFiles(filename,
-					"/" + getWorkspaceId() + "/" + framework + "/" + System.currentTimeMillis());
+			String downloadURI = null;
+			try {
+				S3Integration s3Integration = s3Connection.getS3Integration();
+				if (null != s3Integration) {
+					File file = new File(filename);
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(),
+							filename);
+				} else {
+					org.json.JSONObject obj = null;
+					obj = jfrogUtilImpl.uploadFiles(filename,
+							"/" + getWorkspaceId() + "/swaggerClients/" + framework + "/" + System.currentTimeMillis());
+					downloadURI = obj.getString("downloadURI");
+					new File(filename).delete();
+				}
+			} catch (Exception e) {
+
+			}
 			new File(filename).delete();
 			ResponseCode responseCode = new ResponseCode();
-			responseCode.setLink(obj.getString("downloadURI"));
+			responseCode.setLink(downloadURI);
 			return new ResponseEntity<ResponseCode>(responseCode, HttpStatus.OK);
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = null;
