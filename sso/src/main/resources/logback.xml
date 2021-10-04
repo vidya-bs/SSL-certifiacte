@@ -105,6 +105,10 @@
 		<level value="DEBUG" />
 		<appender-ref ref="FILE-DEBUG" />
 	</logger>
+	<logger name="org.springframework" level="DEBUG" additivity="true">
+		<level value="DEBUG" />
+		<appender-ref ref="FILE-DEBUG" />
+	</logger>
 	<root level="ERROR" name="com.itorix">
 		<!-- <level value="INFO" /> -->
 		<!-- <level value="ERROR" />  -->
