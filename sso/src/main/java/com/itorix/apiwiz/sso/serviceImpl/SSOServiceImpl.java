@@ -1,5 +1,36 @@
 package com.itorix.apiwiz.sso.serviceImpl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.sso.dao.SSODao;
+import com.itorix.apiwiz.sso.exception.ErrorCodes;
+import com.itorix.apiwiz.sso.exception.ItorixException;
+import com.itorix.apiwiz.sso.model.*;
+import com.itorix.apiwiz.sso.service.SSOService;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.saml.SAMLCredential;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -12,57 +43,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Date;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.saml.SAMLCredential;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itorix.apiwiz.sso.dao.SSODao;
-import com.itorix.apiwiz.sso.exception.ErrorCodes;
-import com.itorix.apiwiz.sso.exception.ItorixException;
-import com.itorix.apiwiz.sso.model.BaseRepository;
-import com.itorix.apiwiz.sso.model.RSAEncryption;
-import com.itorix.apiwiz.sso.model.SAMLConfig;
-import com.itorix.apiwiz.sso.model.User;
-import com.itorix.apiwiz.sso.model.UserInfo;
-import com.itorix.apiwiz.sso.model.UserSession;
-import com.itorix.apiwiz.sso.model.UserStatus;
-import com.itorix.apiwiz.sso.model.UserWorkspace;
-import com.itorix.apiwiz.sso.model.Workspace;
-import com.itorix.apiwiz.sso.service.SSOService;
-
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 
 @CrossOrigin
 @RestController
@@ -106,9 +88,11 @@ public class SSOServiceImpl implements SSOService {
     @Override
     public ResponseEntity<Object> getssoToken(@RequestParam(value = "redirect_url", required = true) String redirectUrl,
             @RequestParam(value = "x-source", required = false) String source) throws Exception {
+        logger.debug("Inside getSSOToken ");
         SAMLCredential credentials = (SAMLCredential) SecurityContextHolder.getContext().getAuthentication()
                 .getCredentials();
         UserInfo user = ssoDao.createOrUpdateUser(credentials);
+        logger.debug("User created successfully.");
         session.invalidate();
         SecurityContextHolder.clearContext();
 
