@@ -216,7 +216,7 @@ public class CodeGenService {
 		String time = Long.toString(System.currentTimeMillis());
 		String dir = operations.getDir() + time + File.separatorChar;
 		ProxyArtifacts proxyArtifacts = null;
-		if (project == null) {
+//		if (true) {
 			if (proxyGeneration != null && proxyGeneration.equalsIgnoreCase("true")) {
 				// String proxyDir = dir + "API" + File.separatorChar +
 				// "apiproxy" ;
@@ -243,14 +243,14 @@ public class CodeGenService {
 			CleanUnused.clean(proxyDir + File.separatorChar);
 			proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
 			ZipUtil.pack(new File(dir), new File(operations.getDir() + time + ".zip"));
-		} else {
-			String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName() + "/apiproxy";
-			codeGen.setProjectName(project.getName());
-			proxyGenerator.generateProxyCode(null, codeGen, proxyDir, project);
-			CleanUnused.clean(proxyDir + File.separatorChar);
-			proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
-			ZipUtil.pack(new File(dir), new File(operations.getDir() + time + ".zip"));
-		}
+//		} else {
+//			String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName() + "/apiproxy";
+//			codeGen.setProjectName(project.getName());
+//			proxyGenerator.generateProxyCode(null, codeGen, proxyDir, project);
+//			CleanUnused.clean(proxyDir + File.separatorChar);
+//			proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
+//			ZipUtil.pack(new File(dir), new File(operations.getDir() + time + ".zip"));
+//		}
 
 		try {
 			ProxyData data = new ProxyData();
