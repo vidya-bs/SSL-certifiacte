@@ -1,14 +1,16 @@
 package com.itorix.apiwiz.sso.dao;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.opensaml.saml2.core.Attribute;
-import org.opensaml.xml.schema.impl.XSStringImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.sso.exception.ErrorCodes;
+import com.itorix.apiwiz.sso.exception.ItorixException;
+import com.itorix.apiwiz.sso.model.*;
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,25 +23,8 @@ import org.springframework.security.saml.SAMLCredential;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itorix.apiwiz.sso.exception.ErrorCodes;
-import com.itorix.apiwiz.sso.exception.ItorixException;
-import com.itorix.apiwiz.sso.model.Roles;
-import com.itorix.apiwiz.sso.model.SAMLConfig;
-import com.itorix.apiwiz.sso.model.UIMetadata;
-import com.itorix.apiwiz.sso.model.User;
-import com.itorix.apiwiz.sso.model.UserDefinedRoles;
-import com.itorix.apiwiz.sso.model.UserInfo;
-import com.itorix.apiwiz.sso.model.UserWorkspace;
-import com.itorix.apiwiz.sso.model.Workspace;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
+import java.io.IOException;
+import java.util.*;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -185,13 +170,9 @@ public class SSODao {
     }
 
     public List<String> getProjectRoleForSaml(String samlGroupName, SAMLCredential credentials) {
-
-        List<String> userAssertionRoles = null;
+        List<String> userAssertionRoles = new ArrayList<>();
         if (StringUtils.hasText(samlGroupName)) {
-            Attribute attribute = credentials.getAttribute(samlGroupName);
-            if (attribute != null)
-                userAssertionRoles = credentials.getAttribute(samlGroupName).getAttributeValues().stream()
-                        .map(s -> ((XSStringImpl) s).getValue()).collect(Collectors.toList());
+            userAssertionRoles = Arrays.asList(credentials.getAttributeAsStringArray(samlGroupName));
         }
         return getProjectRole(userAssertionRoles);
     }

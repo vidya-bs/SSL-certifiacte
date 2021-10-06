@@ -1,11 +1,10 @@
 package com.itorix.apiwiz.sso.model;
 
-import java.util.Date;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Date;
 
 @Document(collection = "Users.Workspace.List")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -28,6 +27,7 @@ public class Workspace {
     private Date expiresOn;
     private String regionCode;
     private String licenceKey;
+    private IDPProvider idpProvider;
 
     public String getName() {
         return name;
@@ -131,5 +131,12 @@ public class Workspace {
 
     public void setLicenceKey(String licenceKey) {
         this.licenceKey = licenceKey;
+    }
+
+    public IDPProvider getIdpProvider() {
+        return idpProvider;
+    }
+    public void setIdpProvider(IDPProvider idpProvider) {
+        this.idpProvider = idpProvider;
     }
 }
