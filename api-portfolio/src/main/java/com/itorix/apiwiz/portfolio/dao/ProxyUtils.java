@@ -117,7 +117,6 @@ public class ProxyUtils {
 			String projectName = portfolioProject.getName();
 			Project project = populateProject(projectProxy, projectName);
 			ObjectMapper mapper = new ObjectMapper();
-			System.out.println(mapper.writeValueAsString(project));
 			CodeGenHistory proxyGen = populateProxyGenerationObj(portfolio, projectId, proxyId);
 			response.setGitRepoName(proxyGen.getProxySCMDetails().getReponame());
 			response.setGitBranch(proxyGen.getProxySCMDetails().getBranch());
@@ -422,12 +421,9 @@ public class ProxyUtils {
 		String branch = "feature-" + System.currentTimeMillis();
 		ProxySCMDetails proxySCMDetails = new ProxySCMDetails();
 		proxySCMDetails.setReponame(repoName);
-		proxySCMDetails.setUsername(applicationProperties.getProxyScmUserName());
-		proxySCMDetails.setPassword(applicationProperties.getProxyScmEncryptedPassword());
 		proxySCMDetails.setBranch(branch);
 		proxySCMDetails.setScmSource("GIT");
 		proxySCMDetails.setHostUrl(GIT_HOST_URL + repoName);
-		proxySCMDetails.setScmSource("GIT");
 		createSCMBranch(proxySCMDetails);
 		return proxySCMDetails;
 	}
