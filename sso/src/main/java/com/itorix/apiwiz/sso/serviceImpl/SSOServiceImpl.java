@@ -88,9 +88,10 @@ public class SSOServiceImpl implements SSOService {
     @Override
     public ResponseEntity<Object> getssoToken(@RequestParam(value = "redirect_url", required = true) String redirectUrl,
             @RequestParam(value = "x-source", required = false) String source) throws Exception {
-        logger.debug("Inside getSSOToken ");
+        logger.debug("Received SSO Token from Source {}", source);
         SAMLCredential credentials = (SAMLCredential) SecurityContextHolder.getContext().getAuthentication()
                 .getCredentials();
+        logger.debug("SAML Credentials Name ID {} and Attributes {}", credentials.getNameID(), credentials.getAttributes());
         UserInfo user = ssoDao.createOrUpdateUser(credentials);
         logger.debug("User created successfully.");
         session.invalidate();
