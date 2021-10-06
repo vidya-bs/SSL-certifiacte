@@ -159,13 +159,13 @@ public class ServiceMonitor extends LoggerAspect {
 		String sessionId = getSessionId(thisJoinPoint);
 		if (sessionId == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1033"), "Identity-1033");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1026"), "Identity-1026");
 		}
 		// check if session is valid or not
 		UserSession userSessionToken = findUserSession(sessionId);
 		if (userSessionToken == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1033"), "Identity-1033");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1026"), "Identity-1026");
 		} else {
 			if (System.currentTimeMillis() - userSessionToken.getLoginTimestamp() <= MILLIS_PER_DAY) {
 				// if(userSessionToken.getStatus().equalsIgnoreCase("active")){
@@ -192,13 +192,13 @@ public class ServiceMonitor extends LoggerAspect {
 		apiKey = this.rsaEncryption.decryptText(apiKey);
 		if (apiKey == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1033"), "Identity-1033");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1020"), "Identity-1020");
 		} else {
 			if (apiKey.equals(rsaEncryption.decryptText(applicationProperties.getApiKey()))) {
 				ServiceRequestContextHolder.setContext(getSystemContext());
 			} else {
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1034"), "Identity-1034");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1020"), "Identity-1020");
 			}
 		}
 	}
@@ -208,7 +208,7 @@ public class ServiceMonitor extends LoggerAspect {
 		apiKey = this.rsaEncryption.decryptText(apiKey);
 		if (apiKey == null) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1033"), "Identity-1033");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1020"), "Identity-1020");
 		} else {
 			String key = applicationProperties.getUpdateApiKey();
 			if (key == null)
@@ -217,7 +217,7 @@ public class ServiceMonitor extends LoggerAspect {
 				ServiceRequestContextHolder.setContext(getSystemContext());
 			} else {
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1034"), "Identity-1034");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1020"), "Identity-1020");
 			}
 		}
 	}

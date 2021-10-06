@@ -478,7 +478,7 @@ public class CodeGenService {
 						organization.setName(orgEnv.getName());
 						organization.setEnv(env.getName());
 						organization.setType(orgEnv.getType());
-						if (targeType.equalsIgnoreCase("target")) {
+						if (targeType.equalsIgnoreCase("targetserver")) {
 							String target = getAPICTarget(data, targetPath, environment);
 							createTargetServiceConfig(organization, targetServers.get(0), target);
 						} else if (targeType.equalsIgnoreCase("kvm")) {
