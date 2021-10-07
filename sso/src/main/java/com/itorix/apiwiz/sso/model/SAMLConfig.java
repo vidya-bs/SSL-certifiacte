@@ -29,6 +29,10 @@ public class SAMLConfig {
     private String group;
     // metadataUrl of the idp, metadataUrl or metadata should be provided
     private String metadataUrl;
+
+    // saml response attribute having role details
+    private String userRoles;
+
     // metadata file of the idp, either metadataUrl or metadata should be provided
     private byte[] metadata;
     // IDP equivalent role names of itorix application
