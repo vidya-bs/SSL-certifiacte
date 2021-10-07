@@ -1,15 +1,14 @@
 package com.itorix.apiwiz.sso.model;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.itorix.apiwiz.sso.dao.SSODao;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.saml.SAMLCredential;
 
-import com.itorix.apiwiz.sso.dao.SSODao;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class SAMLUserDetails implements UserDetails {
 
@@ -30,7 +29,7 @@ public class SAMLUserDetails implements UserDetails {
         if (samlAssertionMapper != null) {
             roleName = samlAssertionMapper.getGroup();
         }
-        List<String> projectRole = ssoDao.getProjectRoleForSaml(roleName, credential);
+        List<String> projectRole = ssoDao.getProjectRoleForSaml(samlAssertionMapper, credential);
         return projectRole.stream().map(s -> new SimpleGrantedAuthority(s)).collect(Collectors.toList());
     }
 

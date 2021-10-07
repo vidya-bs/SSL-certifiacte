@@ -49,7 +49,9 @@ public class SSODao {
         String userId = credentials.getNameID().getValue();
         Query query = new Query(Criteria.where(User.LABEL_USER_ID).is(userId));
         User user = mongoTemplate.findOne(query, User.class);
-        List<String> projectRoles = getProjectRoleForSaml(samlConfig.getGroup(), credentials);
+
+
+        List<String> projectRoles = getProjectRoleForSaml(samlConfig, credentials);
         if (user == null) {
             user = new User();
 
@@ -78,6 +80,7 @@ public class SSODao {
             userWorkspace.setUserType("Member");
             userWorkspace.setRoles(projectRoles);
             userWorkspace.setActive(true);
+            userWorkspace.setAcceptInvite(true);
 
             workspaces.add(userWorkspace);
             user.setWorkspaces(workspaces);
@@ -169,10 +172,15 @@ public class SSODao {
         }
     }
 
-    public List<String> getProjectRoleForSaml(String samlGroupName, SAMLCredential credentials) {
+    public List<String> getProjectRoleForSaml(SAMLConfig samlConfig, SAMLCredential credentials) {
+        String samlAttribute = samlConfig.getGroup();
+        Workspace workspace = getWorkspace(getSamlConfig().getWorkspaceId());
+        if(workspace.getIdpProvider().equals(IDPProvider.AZURE_AD)) {  //For Azure the User Group details are sent as roles
+            samlAttribute = samlConfig.getUserRoles();
+        }
         List<String> userAssertionRoles = new ArrayList<>();
-        if (StringUtils.hasText(samlGroupName)) {
-            userAssertionRoles = Arrays.asList(credentials.getAttributeAsStringArray(samlGroupName));
+        if (StringUtils.hasText(samlAttribute)) {
+            userAssertionRoles = Arrays.asList(credentials.getAttributeAsStringArray(samlAttribute));
         }
         return getProjectRole(userAssertionRoles);
     }
