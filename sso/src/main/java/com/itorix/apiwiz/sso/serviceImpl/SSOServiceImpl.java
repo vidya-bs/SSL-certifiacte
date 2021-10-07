@@ -91,9 +91,7 @@ public class SSOServiceImpl implements SSOService {
         logger.debug("Received SSO Token from Source {}", source);
         SAMLCredential credentials = (SAMLCredential) SecurityContextHolder.getContext().getAuthentication()
                 .getCredentials();
-        logger.debug("SAML Credentials Name ID {} and Attributes {}", credentials.getNameID(), credentials.getAttributes());
         UserInfo user = ssoDao.createOrUpdateUser(credentials);
-        logger.debug("User created successfully.");
         session.invalidate();
         SecurityContextHolder.clearContext();
 
