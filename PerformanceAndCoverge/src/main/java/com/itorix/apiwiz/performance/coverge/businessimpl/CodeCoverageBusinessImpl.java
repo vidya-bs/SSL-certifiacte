@@ -57,7 +57,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
 import org.zeroturnaround.zip.ZipUtil;
 
 import com.amazonaws.regions.Regions;
@@ -346,9 +345,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 					Node node = xmlDom.getDocumentElement();
 					root = node.getNodeName();
 					xmlDom.getElementsByTagName("TargetEndpoint");
-					// System.out.println("");
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				TransformerFactory fac = TransformerFactory.newInstance();

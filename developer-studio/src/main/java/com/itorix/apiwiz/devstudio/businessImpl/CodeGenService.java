@@ -1378,10 +1378,10 @@ public class CodeGenService {
 						return catagories;
 				}
 			}
-			return getCategories(null);
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "ProxyGen-1000", ex);
 		}
+		return getCategories(null);
 	}
 
 	private Swagger getSwaggerbyId(String swaggerId, int revision, String oas) {
