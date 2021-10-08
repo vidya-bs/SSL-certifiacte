@@ -201,7 +201,9 @@ public class SSODao {
         } catch (ItorixException e) {
             logger.error("error when getting project roles", e);
         }
-        projectRoles.add(Roles.DEFAULT.getValue());
+        if(projectRoles.isEmpty()) {
+            projectRoles.add(Roles.ANALYST.getValue());
+        }
         return projectRoles;
     }
 
