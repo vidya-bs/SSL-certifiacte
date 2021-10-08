@@ -180,8 +180,12 @@ public class SSODao {
         }
         List<String> userAssertionRoles = new ArrayList<>();
         if (StringUtils.hasText(samlAttribute)) {
-            userAssertionRoles = Arrays.asList(credentials.getAttributeAsStringArray(samlAttribute));
+            String[] attributeAsStringArray = credentials.getAttributeAsStringArray(samlAttribute);
+            if(attributeAsStringArray != null ) {
+                userAssertionRoles = Arrays.asList(attributeAsStringArray);
+            }
         }
+
         return getProjectRole(userAssertionRoles);
     }
 
