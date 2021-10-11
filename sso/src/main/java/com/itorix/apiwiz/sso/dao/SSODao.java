@@ -6,11 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.sso.exception.ErrorCodes;
 import com.itorix.apiwiz.sso.exception.ItorixException;
 import com.itorix.apiwiz.sso.model.*;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,9 +117,9 @@ public class SSODao {
 
     public void updateUser(User user, List<String> projectRoles) {
         Query query = new Query(Criteria.where("id").is(user.getId()));
-        DBObject dbDoc = new BasicDBList();
+        Document dbDoc = new Document();
         mongoTemplate.getConverter().write(projectRoles, dbDoc);
-        Update update = Update.fromDBObject(dbDoc);
+        Update update = Update.fromDocument(dbDoc);
         mongoTemplate.upsert(query, update, "workspaces.0.roles");
 
     }
@@ -148,9 +146,9 @@ public class SSODao {
             uIMetadata.setMetadata(metadata.getMetadata());
             uIMetadata.setQuery(metadata.getQuery());
             Query query = new Query(Criteria.where("query").is(metadata.getQuery()));
-            DBObject dbDoc = new BasicDBObject();
+            Document dbDoc = new Document();
             masterMongoTemplate.getConverter().write(uIMetadata, dbDoc);
-            Update update = Update.fromDBObject(dbDoc, "_id");
+            Update update = Update.fromDocument(dbDoc, "_id");
             masterMongoTemplate.updateFirst(query, update, UIMetadata.class);
         } else {
             masterMongoTemplate.save(metadata);

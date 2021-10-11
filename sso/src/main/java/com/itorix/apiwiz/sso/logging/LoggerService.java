@@ -1,5 +1,21 @@
 package com.itorix.apiwiz.sso.logging;
 
+import brave.Tracer;
+import brave.propagation.TraceContext;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -7,28 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.sleuth.Span;
-import org.springframework.cloud.sleuth.SpanAccessor;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class LoggerService {
@@ -42,7 +36,7 @@ public class LoggerService {
     private String awsPodURL;
 
     @Autowired
-    private SpanAccessor spanAccessor;
+    private Tracer tracer;
 
     private String region = null;
     private String availabilityZone = null;
@@ -111,14 +105,14 @@ public class LoggerService {
 
     public void logServiceRequest() {
         try {
-            Span span = spanAccessor.getCurrentSpan();
+            TraceContext span = tracer.currentSpan().context();
             Date date = new Date();
             DateFormat df = new SimpleDateFormat(DATE_FORMAT);
             df.setTimeZone(TimeZone.getDefault());
             Map<String, String> logMessage = new HashMap<String, String>();
             logMessage.put("timestamp", String.valueOf(System.currentTimeMillis()));
             logMessage.put("date", df.format(date));
-            logMessage.put("guid", String.valueOf(Span.idToHex(span.getTraceId())));
+            logMessage.put("guid", String.valueOf(Long.toHexString(span.traceId())));
             logMessage.put("regionCode", region);
             logMessage.put("availabilityZone", availabilityZone);
             logMessage.put("privateIp", privateIp);
