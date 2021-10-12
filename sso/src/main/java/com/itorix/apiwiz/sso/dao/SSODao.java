@@ -117,9 +117,8 @@ public class SSODao {
 
     public void updateUser(User user, List<String> projectRoles) {
         Query query = new Query(Criteria.where("id").is(user.getId()));
-        Document dbDoc = new Document();
-        mongoTemplate.getConverter().write(projectRoles, dbDoc);
-        Update update = Update.fromDocument(dbDoc);
+        Update update = new Update();
+        update.set("workspaces.0.roles", projectRoles);
         mongoTemplate.upsert(query, update, "workspaces.0.roles");
 
     }
