@@ -1,8 +1,10 @@
 package com.itorix.apiwiz.sso.configuration;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-
+import com.itorix.apiwiz.sso.filter.JsessionAuthFilter;
+import com.itorix.apiwiz.sso.handler.AccessDeniedHandlerImpl;
+import com.itorix.apiwiz.sso.handler.AuthenticationEntryPointImpl;
+import com.itorix.apiwiz.sso.serviceImpl.SAMLUserDetailsServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
@@ -17,12 +19,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.itorix.apiwiz.sso.filter.JsessionAuthFilter;
-import com.itorix.apiwiz.sso.handler.AccessDeniedHandlerImpl;
-import com.itorix.apiwiz.sso.handler.AuthenticationEntryPointImpl;
-import com.itorix.apiwiz.sso.serviceImpl.SAMLUserDetailsServiceImpl;
-
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 @EnableWebSecurity
 @Configuration
@@ -45,7 +43,7 @@ public class SSOSecurityConfig {
     @Value("${itorix.ssl.sso.key-store}")
     private String keyStoreFilePath;
 
-    @Value("${server.contextPath}")
+    @Value("${server.servlet.context-path}")
     private String contextPath;
 
     @Value("${validate.selfSignedCertificate:true}")
