@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.common.model.MetaData;
 import com.itorix.apiwiz.common.model.integrations.Integration;
 import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
 import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
@@ -31,6 +33,10 @@ public class IntegrationsDao {
 
 	@Autowired
 	private BaseRepository baseRepository;
+	
+	@Qualifier("masterMongoTemplate")
+	@Autowired
+	private MongoTemplate masterMongoTemplate;
 
 	public void updateIntegratoin(Integration integration) {
 		List<Integration> dbIntegrationList = getIntegration(integration.getType());
@@ -126,6 +132,20 @@ public class IntegrationsDao {
 	
 	public List<WorkspaceIntegration> getWorkspaceIntegration(){
 		return mongoTemplate.findAll(WorkspaceIntegration.class);
+	}
+	
+	public void removeWorkspaceIntegration(String id) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("_id").is(id));
+		mongoTemplate.remove(query, WorkspaceIntegration.class);
+	}
+	
+	public Object getMetaData() {
+		Query query = new Query().addCriteria(Criteria.where("key").is("workspace"));
+		MetaData metaData = masterMongoTemplate.findOne(query, MetaData.class);
+		if (metaData != null)
+			return metaData.getMetadata();
+		return null;
 	}
 	
 	public Integration getJfrogIntegration() {

@@ -180,12 +180,25 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	}
 
 	@Override
+	public ResponseEntity<?> getWorkspaceIntegratonsKeys(String interactionid, String jsessionid) throws Exception {
+		return new ResponseEntity<>(integrationsDao.getMetaData(),HttpStatus.OK);
+	}
+
+	@Override
 	public ResponseEntity<?> createWorkspaceIntegratons(String interactionid, String jsessionid,
 			WorkspaceIntegration workspaceIntegration) throws Exception {
 		integrationsDao.updateWorkspaceIntegration(workspaceIntegration);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
+	public ResponseEntity<?> removeWorkspaceIntegratons(
+			String interactionid, String jsessionid, String id) throws Exception {
+		integrationsDao.removeWorkspaceIntegration(id);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
+	
+	
 	@Override
 	public ResponseEntity<?> getApicIntegratons(String interactionid, String jsessionid) throws Exception {
 		List<Integration> dbIntegrationList = integrationsDao.getIntegration("APIC");
