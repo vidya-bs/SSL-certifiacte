@@ -113,6 +113,11 @@ public interface ProxyIntegrations {
 	public ResponseEntity<?> getWorkspaceIntegratons(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/workspace/keys", produces = {"application/json"})
+	public ResponseEntity<?> getWorkspaceIntegratonsKeys(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/integrations/workspace", produces = {"application/json"})
 	public ResponseEntity<?> createWorkspaceIntegratons(
@@ -120,6 +125,12 @@ public interface ProxyIntegrations {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestBody WorkspaceIntegration workspaceIntegration) throws Exception;
 
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/integrations/workspace/{id:.+}", produces = {
+	"application/json"})
+	public ResponseEntity<?> removeWorkspaceIntegratons(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id) throws Exception;
+	
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/apic", produces = {"application/json"})
 	public ResponseEntity<?> getApicIntegratons(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
