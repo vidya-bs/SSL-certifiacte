@@ -92,10 +92,7 @@ public class SwaggerUtil {
 		return JsonPath.parse(swaggerJson).set("$.basePath", pathToReplace).jsonString();
 	}
 
-
-
-	public static String replaceSwagger3BasePath(String swaggerJson, String pathToReplace)
-			throws ItorixException {
+	public static String replaceSwagger3BasePath(String swaggerJson, String pathToReplace) throws ItorixException {
 		String serverPath = "$.servers[*].url";;
 
 		DocumentContext parse = JsonPath.parse(swaggerJson);
@@ -112,7 +109,8 @@ public class SwaggerUtil {
 		try {
 			url = new URL(urlStr);
 		} catch (MalformedURLException m) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1008"), m.getMessage()), "Swagger-1008");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1008"), m.getMessage()),
+					"Swagger-1008");
 		}
 		StringBuilder newUrl = new StringBuilder();
 		newUrl.append(url.getProtocol() + "://" + replaceNull(url.getHost()));

@@ -198,7 +198,7 @@ public class CollaborationServiceImpl implements CollaborationService {
 			oas = "2.0";
 		List<SwaggerTeam> teams = new ArrayList<SwaggerTeam>();
 		Set<String> responseSet = new HashSet<>();
-		try{
+		try {
 			if (oas.equals("2.0")) {
 				SwaggerVO vo = collaborationBusiness.findSwagger(swaggername, interactionid);
 				if (vo != null) {
@@ -217,7 +217,7 @@ public class CollaborationServiceImpl implements CollaborationService {
 			if (responseSet != null && responseSet.size() > 0)
 				for (String teamName : responseSet)
 					teams.add(collaborationBusiness.getTeam(teamName, interactionid));
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return new ResponseEntity<Object>(teams, HttpStatus.OK);

@@ -156,7 +156,6 @@ public class CiCdIntegrationAPI {
 		String scmToken = scmDetails.get("token");
 		String scmUsertype = scmDetails.get("userType");
 
-
 		if (scmType != null && scmType != "" && scmType.equals("svn")) {
 			material.setType("svn");
 			attributes.setUrl(scmURL);
@@ -198,13 +197,10 @@ public class CiCdIntegrationAPI {
 		String buildScmToken = buildScmDetails.get("token");
 		String buildScmUsertype = buildScmDetails.get("userType");
 
-
-
 		String buildScmType = getBuildScmProp("itorix.core.gocd.build.scm.type");
 		String buildScmURL = getBuildScmProp("itorix.core.gocd.build.scm.url");
 		String buildScmBranch = getBuildScmProp("itorix.core.gocd.build.scm.branch");
-		if (buildScmType != null && buildScmType != ""
-				&& buildScmType.equals("svn")) {
+		if (buildScmType != null && buildScmType != "" && buildScmType.equals("svn")) {
 			buildMaterial.setType("svn");
 			buildAttributes.setUrl(buildScmURL);
 			buildAttributes.setDestination("PipelineBuild");
@@ -291,7 +287,7 @@ public class CiCdIntegrationAPI {
 						.getAcceptance();
 				if (pipelineGroups.getPipelines().get(0).getStages().get(0).getUnitTests().getArtifactType() != null
 						&& pipelineGroups.getPipelines().get(0).getStages().get(0).getUnitTests()
-						.getArtifactType() == ArtifactType.Testsuite) {
+								.getArtifactType() == ArtifactType.Testsuite) {
 					List<TestSuiteAndConfig> testsuites = pipelineGroups.getPipelines().get(0).getStages().get(0)
 							.getUnitTests().getTestSuites();
 					for (TestSuiteAndConfig testsuite : testsuites) {
@@ -307,7 +303,7 @@ public class CiCdIntegrationAPI {
 							prepareGradleParams(
 									BASE_DIR, PARTNER_NAME, proxyName, version, org, env, config.getApigeeUserName(),
 									config.getApigeePassword(), unitTestsAcceptancePer, 0, true, pipelineGroups
-									.getPipelines().get(0).getStages().get(0).getUnitTests().getArtifactType(),
+											.getPipelines().get(0).getStages().get(0).getUnitTests().getArtifactType(),
 									isSaaS, projectName),
 							goCDIntegration.getGradleHome()));
 				}
@@ -320,7 +316,7 @@ public class CiCdIntegrationAPI {
 						.getCodeCoverage().getAcceptance();
 				if (pipelineGroups.getPipelines().get(0).getStages().get(0).getCodeCoverage().getArtifactType() != null
 						&& pipelineGroups.getPipelines().get(0).getStages().get(0).getCodeCoverage()
-						.getArtifactType() == ArtifactType.Testsuite) {
+								.getArtifactType() == ArtifactType.Testsuite) {
 					List<TestSuiteAndConfig> testsuites = pipelineGroups.getPipelines().get(0).getStages().get(0)
 							.getCodeCoverage().getTestSuites();
 					for (TestSuiteAndConfig testsuite : testsuites) {
@@ -336,7 +332,7 @@ public class CiCdIntegrationAPI {
 							prepareGradleParams(BASE_DIR, PARTNER_NAME, proxyName, version, org, env,
 									config.getApigeeUserName(), config.getApigeePassword(), 0,
 									codeCoverageAcceptancePer, true, pipelineGroups.getPipelines().get(0).getStages()
-									.get(0).getCodeCoverage().getArtifactType(),
+											.get(0).getCodeCoverage().getArtifactType(),
 									isSaaS, projectName),
 							goCDIntegration.getGradleHome()));
 				}
@@ -345,22 +341,22 @@ public class CiCdIntegrationAPI {
 
 			String name = pipelineGroups.getPipelines().get(0).getProjectName() != null
 					? pipelineGroups.getPipelines().get(0).getProjectName()
-							: "";
-					tasks.add(new Task("exec", "passed", "./email",
-							config.getAppUrl() + " " + "Pass" + " " + name.replaceAll(" ", "%20"), null, true));
-					tasks.add(new Task("exec", "failed", "./email",
-							config.getAppUrl() + " " + "Failure" + " " + name.replaceAll(" ", "%20"), null, true));
-					if (pipelineGroups.getPipelines() != null && pipelineGroups.getPipelines().get(0) != null
-							&& (pipelineGroups.getPipelines().get(0).getStages().get(0).getUnitTests().getEnabled()
-									.equals("true")
-									|| pipelineGroups.getPipelines().get(0).getStages().get(0).getCodeCoverage().getEnabled()
+					: "";
+			tasks.add(new Task("exec", "passed", "./email",
+					config.getAppUrl() + " " + "Pass" + " " + name.replaceAll(" ", "%20"), null, true));
+			tasks.add(new Task("exec", "failed", "./email",
+					config.getAppUrl() + " " + "Failure" + " " + name.replaceAll(" ", "%20"), null, true));
+			if (pipelineGroups.getPipelines() != null && pipelineGroups.getPipelines().get(0) != null
+					&& (pipelineGroups.getPipelines().get(0).getStages().get(0).getUnitTests().getEnabled()
+							.equals("true")
+							|| pipelineGroups.getPipelines().get(0).getStages().get(0).getCodeCoverage().getEnabled()
 									.equals("true"))) {
-						tasks.add(new Task("pluggable_task", "failed", "publishOldVersion",
-								prepareGradleParams(BASE_DIR, PARTNER_NAME, proxyName, version, org, env,
-										config.getApigeeUserName(), config.getApigeePassword(), 0, 0, true, null, isSaaS,
-										projectName),
-								goCDIntegration.getGradleHome()));
-					}
+				tasks.add(new Task("pluggable_task", "failed", "publishOldVersion",
+						prepareGradleParams(BASE_DIR, PARTNER_NAME, proxyName, version, org, env,
+								config.getApigeeUserName(), config.getApigeePassword(), 0, 0, true, null, isSaaS,
+								projectName),
+						goCDIntegration.getGradleHome()));
+			}
 		} else if (pipelineGroups.getPipelines().get(0).getType() != null
 				&& pipelineGroups.getPipelines().get(0).getType().equalsIgnoreCase("sharedflow")) {
 			proxyType = "sharedflow";
@@ -465,15 +461,14 @@ public class CiCdIntegrationAPI {
 		logger.debug(response);
 	}
 
-
-	private Map<String, String> getSCMDetails(String scmType, String userType){
+	private Map<String, String> getSCMDetails(String scmType, String userType) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("type").is(scmType));
 		List<Integration> dbIntegrations = mongoTemplate.find(query, Integration.class);
-		if(dbIntegrations != null){
-			try{
-				for(Integration integration: dbIntegrations){
-					if(integration.getGitIntegration().getUserType().equals(userType)){
+		if (dbIntegrations != null) {
+			try {
+				for (Integration integration : dbIntegrations) {
+					if (integration.getGitIntegration().getUserType().equals(userType)) {
 						Map<String, String> values = new HashMap<>();
 						values.put("token", integration.getGitIntegration().getDecryptedToken());
 						values.put("username", integration.getGitIntegration().getUsername());
@@ -482,22 +477,24 @@ public class CiCdIntegrationAPI {
 						return values;
 					}
 				}
-			}catch(Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return null;
 	}
 
-	private String getBuildScmProp(String key) throws Exception{
+	private String getBuildScmProp(String key) throws Exception {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("propertyKey").is(key));
 		WorkspaceIntegration integration = mongoTemplate.findOne(query, WorkspaceIntegration.class);
-		if(integration != null){
+		if (integration != null) {
 			RSAEncryption rSAEncryption;
 			rSAEncryption = new RSAEncryption();
-			return integration.getEncrypt() ? rSAEncryption.decryptText(integration.getPropertyValue()) :integration.getPropertyValue();
-		}else 
+			return integration.getEncrypt()
+					? rSAEncryption.decryptText(integration.getPropertyValue())
+					: integration.getPropertyValue();
+		} else
 			return null;
 	}
 
@@ -636,27 +633,27 @@ public class CiCdIntegrationAPI {
 		}
 		String name = pipelineGroups.getPipelines().get(0).getProjectName() != null
 				? pipelineGroups.getPipelines().get(0).getProjectName()
-						: "";
-				tasks.add(new Task("exec", "passed", "./email",
-						config.getAppUrl() + " " + "Pass" + " " + name.replaceAll(" ", "%20"), null, true));
-				tasks.add(new Task("exec", "failed", "./email",
-						config.getAppUrl() + " " + "Failure" + " " + name.replaceAll(" ", "%20"), null, true));
+				: "";
+		tasks.add(new Task("exec", "passed", "./email",
+				config.getAppUrl() + " " + "Pass" + " " + name.replaceAll(" ", "%20"), null, true));
+		tasks.add(new Task("exec", "failed", "./email",
+				config.getAppUrl() + " " + "Failure" + " " + name.replaceAll(" ", "%20"), null, true));
 
-				if (publishOldVersion) {
-					tasks.add(new Task("pluggable_task", "failed", "publishOldVersion",
-							prepareGradleParams(BASE_DIR, PARTNER_NAME, proxyName, version, org, env,
-									config.getApigeeUserName(), config.getApigeePassword(), 0, 0, true, null, isSaaS,
-									projectName),
-							goCDIntegration.getGradleHome()));
-				}
+		if (publishOldVersion) {
+			tasks.add(new Task("pluggable_task", "failed", "publishOldVersion",
+					prepareGradleParams(BASE_DIR, PARTNER_NAME, proxyName, version, org, env,
+							config.getApigeeUserName(), config.getApigeePassword(), 0, 0, true, null, isSaaS,
+							projectName),
+					goCDIntegration.getGradleHome()));
+		}
 
-				job.setTasks(tasks);
-				List<Job> jobs = new ArrayList<>();
-				job.setArtifacts(artifacts);
-				jobs.add(job);
+		job.setTasks(tasks);
+		List<Job> jobs = new ArrayList<>();
+		job.setArtifacts(artifacts);
+		jobs.add(job);
 
-				pipelineStage.setJobs(jobs);
-				return pipelineStage;
+		pipelineStage.setJobs(jobs);
+		return pipelineStage;
 	}
 
 	/**
@@ -841,7 +838,7 @@ public class CiCdIntegrationAPI {
 		GoCDIntegration goCDIntegration = getGocdIntegration();
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors()
-		.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
+				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
 		HttpEntity<String> requestEntity = new HttpEntity<>("",
 				getCommonHttpHeaders(CiCdIntegrationHelper.DELETE, goCDIntegration.getVersion()));
 		ResponseEntity<String> responseEntity = restTemplate.exchange(
@@ -868,7 +865,7 @@ public class CiCdIntegrationAPI {
 			headers.set("Confirm", "true");
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors()
-		.add(new BasicAuthorizationInterceptor(config.getCicdAuthUserName(), config.getCicdAuthPassword()));
+				.add(new BasicAuthorizationInterceptor(config.getCicdAuthUserName(), config.getCicdAuthPassword()));
 		HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
 		ResponseEntity<String> responseEntity = restTemplate.exchange(goCDIntegration.getHostURL()
 				+ config.getPipelineEndPoint() + File.separator + name + File.separator + action, HttpMethod.POST,
@@ -882,7 +879,7 @@ public class CiCdIntegrationAPI {
 		headers.set("Confirm", "true");
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors()
-		.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
+				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
 		HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
 		ResponseEntity<String> responseEntity = restTemplate.exchange(goCDIntegration.getHostURL()
 				+ config.getPipelineEndPoint() + File.separator + name + File.separator + "status", HttpMethod.GET,
@@ -895,7 +892,7 @@ public class CiCdIntegrationAPI {
 		GoCDIntegration goCDIntegration = getGocdIntegration();
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors()
-		.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
+				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
 		return restTemplate.getForObject(goCDIntegration.getHostURL()
 				+ config.getPipelinesHistoryEndPoint().replaceAll(":PipelineName", name).replaceAll(":offset", offset),
 				String.class);
@@ -906,13 +903,13 @@ public class CiCdIntegrationAPI {
 		GoCDIntegration goCDIntegration = getGocdIntegration();
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors()
-		.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
+				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
 		return restTemplate
 				.getForObject(
 						goCDIntegration.getHostURL() + config.getPipelinesArtifactoryEndPoint()
-						.replaceAll(":pipelineGroupName", groupName).replaceAll(":pipelineName", pipelineName)
-						.replaceAll(":pipelineCounter", pipelineCounter).replaceAll(":stageName", stageName)
-						.replaceAll(":stageCounter", stageCounter).replaceAll(":jobName", jobName),
+								.replaceAll(":pipelineGroupName", groupName).replaceAll(":pipelineName", pipelineName)
+								.replaceAll(":pipelineCounter", pipelineCounter).replaceAll(":stageName", stageName)
+								.replaceAll(":stageCounter", stageCounter).replaceAll(":jobName", jobName),
 						String.class)
 				.replaceAll(goCDIntegration.getHostURL() + "/go/files",
 						config.getAppUrl() + config.getAppDomain() + "/v1/pipelines");
@@ -921,7 +918,7 @@ public class CiCdIntegrationAPI {
 	public String getLogs(String url) {
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors()
-		.add(new BasicAuthorizationInterceptor(config.getCicdAuthUserName(), config.getCicdAuthPassword()));
+				.add(new BasicAuthorizationInterceptor(config.getCicdAuthUserName(), config.getCicdAuthPassword()));
 		return restTemplate.getForObject(url, String.class);
 	}
 
@@ -942,7 +939,7 @@ public class CiCdIntegrationAPI {
 			headers.set(CiCdIntegrationHelper.getConfirmHeader(goCDIntegration.getVersion()), "true");
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors()
-		.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
+				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
 		HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
 		try {
 			String uri = goCDIntegration.getHostURL() + config.getPipelineEndPoint() + File.separator + pipelineName
@@ -962,11 +959,11 @@ public class CiCdIntegrationAPI {
 		headers.set("Confirm", "true");
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors()
-		.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
+				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
 		HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
 		ResponseEntity<String> responseEntity = restTemplate.exchange(
 				goCDIntegration.getHostURL() + config.getCancelPipelineEndPoint()
-				.replaceAll(":pipelineName", pipelineName).replaceAll(":stageName", stageName),
+						.replaceAll(":pipelineName", pipelineName).replaceAll(":stageName", stageName),
 				HttpMethod.POST, requestEntity, String.class);
 		logger.debug(responseEntity.getBody());
 	}
@@ -980,12 +977,12 @@ public class CiCdIntegrationAPI {
 		headers.set("Accept", accept);
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors()
-		.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
+				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
 		HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
 		ResponseEntity<String> responseEntity = restTemplate.exchange(
 				goCDIntegration.getHostURL()
-				+ config.getPipelineStageTriggerEndPoint().replaceAll(":PipelineName", pipelineName)
-				.replaceAll(":stageCounter", counter).replaceAll(":stageName", stageName),
+						+ config.getPipelineStageTriggerEndPoint().replaceAll(":PipelineName", pipelineName)
+								.replaceAll(":stageCounter", counter).replaceAll(":stageName", stageName),
 				HttpMethod.POST, requestEntity, String.class);
 		logger.debug(responseEntity.getBody());
 	}
@@ -1081,12 +1078,12 @@ public class CiCdIntegrationAPI {
 		String counter = new Integer(pipelineCounter).toString();
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors()
-		.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
+				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
 		HttpEntity<String> requestEntity = new HttpEntity<>("text/csv",
 				getCommonHttpHeaders(CiCdIntegrationHelper.CRUISE_JOB_DURATION, goCDIntegration.getVersion()));
 		ResponseEntity<String> responseEntity = restTemplate.exchange(goCDIntegration.getHostURL()
 				+ config.getJobDuration().replaceAll(":pipelineName", pipelineName).replaceAll(":stageName", stageName)
-				.replaceAll(":jobName", jobName).replaceAll(":pipelineCounter", counter),
+						.replaceAll(":jobName", jobName).replaceAll(":pipelineCounter", counter),
 				HttpMethod.GET, requestEntity, String.class);
 		logger.debug(responseEntity.getBody());
 		return responseEntity.getBody();
@@ -1272,11 +1269,11 @@ public class CiCdIntegrationAPI {
 						try {
 							String projectname = pipelineGroup.getPipelines().get(0).getProjectName() != null
 									? pipelineGroup.getPipelines().get(0).getProjectName()
-											: pipelineGroup.getProjectName();
-									logger.debug("pipeline project name : " + projectname);
-									Object metricsForProject = getMetricsForProject(null, "0", projectname,
-											pipelineGroup.getPipelines(), pipelineGroup.getProjectName());
-									dashBoardResult.add(metricsForProject);
+									: pipelineGroup.getProjectName();
+							logger.debug("pipeline project name : " + projectname);
+							Object metricsForProject = getMetricsForProject(null, "0", projectname,
+									pipelineGroup.getPipelines(), pipelineGroup.getProjectName());
+							dashBoardResult.add(metricsForProject);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -1309,10 +1306,10 @@ public class CiCdIntegrationAPI {
 						try {
 							String projectname = pipelineGroup.getPipelines().get(0).getProjectName() != null
 									? pipelineGroup.getPipelines().get(0).getProjectName()
-											: pipelineGroup.getProjectName();
-									Object metricsForProject = getMetricsForProject(null, "0", projectname,
-											pipelineGroup.getPipelines(), pipelineGroup.getProjectName());
-									dashBoardResult.add(metricsForProject);
+									: pipelineGroup.getProjectName();
+							Object metricsForProject = getMetricsForProject(null, "0", projectname,
+									pipelineGroup.getPipelines(), pipelineGroup.getProjectName());
+							dashBoardResult.add(metricsForProject);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -1351,13 +1348,13 @@ public class CiCdIntegrationAPI {
 		GoCDIntegration goCDIntegration = getGocdIntegration();
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors()
-		.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
+				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
 		return restTemplate
 				.getForObject(
 						goCDIntegration.getHostURL() + config.getPipelinesRunTimeLogsEndPoint()
-						.replaceAll(":pipelineGroupName", groupName).replaceAll(":pipelineName", pipelineName)
-						.replaceAll(":pipelineCounter", pipelineCounter).replaceAll(":stageName", stageName)
-						.replaceAll(":stageCounter", stageCounter).replaceAll(":jobName", jobName),
+								.replaceAll(":pipelineGroupName", groupName).replaceAll(":pipelineName", pipelineName)
+								.replaceAll(":pipelineCounter", pipelineCounter).replaceAll(":stageName", stageName)
+								.replaceAll(":stageCounter", stageCounter).replaceAll(":jobName", jobName),
 						String.class)
 				.replaceAll("http://localhost:8153", goCDIntegration.getHostURL());
 	}
@@ -1421,20 +1418,20 @@ public class CiCdIntegrationAPI {
 					dimesionList.add(dimesionNode);
 					if (pipeline.getProjectName() != null)
 						projectName = pipeline.getDefineName() != null && !pipeline.getDefineName().equals("")
-						? pipeline.getDefineName()
+								? pipeline.getDefineName()
 								: pipeline.getProjectName();
 				}
 				if (projectName == null)
 					projectName = pipelineGroups.getDefineName() != null && !pipelineGroups.getDefineName().equals("")
-					? pipelineGroups.getDefineName()
+							? pipelineGroups.getDefineName()
 							: pipelineGroups.getProjectName();
-					Project project = projectPlanAndTrackService.findByProjectName(projectName);
-					projectNode.put("name", pipelineGroups.getProjectName());
-					projectNode.put("status", project.getStatus());
-					projectNode.put("inProduction", project.getInProd());
-					projectNode.put("pipelineCount", pipelineGroups.getPipelines().size());
-					projectNode.put("dimensions", dimesionList);
-					projectsNode.add(projectNode);
+				Project project = projectPlanAndTrackService.findByProjectName(projectName);
+				projectNode.put("name", pipelineGroups.getProjectName());
+				projectNode.put("status", project.getStatus());
+				projectNode.put("inProduction", project.getInProd());
+				projectNode.put("pipelineCount", pipelineGroups.getPipelines().size());
+				projectNode.put("dimensions", dimesionList);
+				projectsNode.add(projectNode);
 			} catch (Exception ex) {
 
 			}
@@ -1442,7 +1439,7 @@ public class CiCdIntegrationAPI {
 
 		List<String> distinctList = getList(
 				mongoTemplate.getCollection(mongoTemplate.getCollectionName(PipelineGroups.class))
-				.distinct("pipelines.status", String.class));
+						.distinct("pipelines.status", String.class));
 
 		if (distinctList != null && distinctList.size() > 0) {
 			for (String status : distinctList) {
@@ -1741,12 +1738,12 @@ public class CiCdIntegrationAPI {
 		GoCDIntegration goCDIntegration = getGocdIntegration();
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors()
-		.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
+				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
 		return restTemplate.getForObject(
 				goCDIntegration.getHostURL() + config.getCicdArtifactUrl().replaceAll(":pipelineGroupName", "")
-				.replaceAll(":pipelineName", pipelineName).replaceAll(":pipelineCounter", pipelineCounter)
-				.replaceAll(":stageName", stageName).replaceAll(":stageCounter", stageCounter)
-				.replaceAll(":jobName", "BuildAndDeploy").replaceAll(":artifactName", artifactName),
+						.replaceAll(":pipelineName", pipelineName).replaceAll(":pipelineCounter", pipelineCounter)
+						.replaceAll(":stageName", stageName).replaceAll(":stageCounter", stageCounter)
+						.replaceAll(":jobName", "BuildAndDeploy").replaceAll(":artifactName", artifactName),
 				Resource.class);
 	}
 

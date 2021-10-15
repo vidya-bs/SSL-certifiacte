@@ -203,8 +203,14 @@ public class LoadSwaggerImpl implements LoadSwagger {
 							}
 							if (summary != null)
 								flow.setDescription(summary);
+							try {
+								String targetBasepath = js.get("x-targetBasepath").toString();
+								flow.setTargetBasepath(targetBasepath);
+							} catch (Exception ex) {
+							}
 						} catch (Exception e) {
 						}
+						
 						if (flow.getPath() != null && flow.getVerb() != null)
 							if (!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 								flowList.add(flow);

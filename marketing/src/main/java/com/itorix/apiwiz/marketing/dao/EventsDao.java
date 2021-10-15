@@ -120,11 +120,11 @@ public class EventsDao {
 		try {
 			S3Integration s3Integration = s3Connection.getS3Integration();
 			String downloadURI = null;
-			if(null != s3Integration)
-				downloadURI =  s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+			if (null != s3Integration)
+				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
 						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
 						"marketing/events/" + folderPath, new ByteArrayInputStream(bytes));
-			else{
+			else {
 				JSONObject uploadFiles = jfrogUtilImpl.uploadFiles(new ByteArrayInputStream(bytes),
 						"/marketing/events/" + folderPath);
 				downloadURI = uploadFiles.getString("downloadURI");

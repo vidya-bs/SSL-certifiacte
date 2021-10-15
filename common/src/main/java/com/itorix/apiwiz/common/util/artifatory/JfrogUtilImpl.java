@@ -43,10 +43,10 @@ public class JfrogUtilImpl {
 
 	private String username;
 	private String userpassword;
-	
+
 	@Value("${itorix.core.application.url}")
 	private String host;
-	
+
 	@Value("${server.contextPath}")
 	private String context;
 
@@ -130,7 +130,7 @@ public class JfrogUtilImpl {
 
 			StringBuilder new_host = new StringBuilder();
 			new_host.append(host);
-			new_host.append(  context + "/v1/download");
+			new_host.append(context + "/v1/download");
 			String[] tokens = URL.split("/");
 			// String newHost = applicationProperties.getJfrogHost() + ":" +
 			// applicationProperties.getJfrogPort();
@@ -147,7 +147,7 @@ public class JfrogUtilImpl {
 			return URL;
 		}
 	}
-	
+
 	private String replaceHost_bak(String URL) {
 		try {
 

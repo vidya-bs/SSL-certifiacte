@@ -386,7 +386,6 @@ public interface TestSuiteService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid);
 
-
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/testsuites/certificates/{name}")
 	public ResponseEntity<?> getCertificate(

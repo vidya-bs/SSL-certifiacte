@@ -1237,15 +1237,17 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		List<SwaggerVO> list = baseRepository.find("status", status, SwaggerVO.class);
 		ObjectMapper mapper = new ObjectMapper();
 		ArrayNode arrayNode = mapper.createArrayNode();
-				
+
 		for (SwaggerVO vo : list) {
-			if (partnerId == null){
+			if (partnerId == null) {
 				getPublishedSwaggerDetails(vo, arrayNode);
-			}else{
-				List<String> partnerList = partnerId.contains("/") ? Arrays.asList(partnerId.split("/")) : Arrays.asList(partnerId);
-				for(String partner : partnerList)
-				if (partner == null || isPartnerAsociated(vo, partner) == true)
-					getPublishedSwaggerDetails(vo, arrayNode);
+			} else {
+				List<String> partnerList = partnerId.contains("/")
+						? Arrays.asList(partnerId.split("/"))
+						: Arrays.asList(partnerId);
+				for (String partner : partnerList)
+					if (partner == null || isPartnerAsociated(vo, partner) == true)
+						getPublishedSwaggerDetails(vo, arrayNode);
 			}
 		}
 		log("getListOfSwaggerDetails", interactionid, list);
@@ -1363,8 +1365,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					}
 				}
 			}
-			String url = applicationProperties.getAppUrl() + applicationProperties.getAppDomain()
-					+ "/v1/swaggers/" + vo.getSwaggerId() + "/revisions/" + vo.getRevision();
+			String url = applicationProperties.getAppUrl() + applicationProperties.getAppDomain() + "/v1/swaggers/"
+					+ vo.getSwaggerId() + "/revisions/" + vo.getRevision();
 			revisionNode.put("url", url);
 			ArrayNode resources = mapper.createArrayNode();
 			if (swaggerJson != null) {
@@ -1427,13 +1429,15 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 		ArrayNode arrayNode = mapper.createArrayNode();
 		for (Swagger3VO vo : list) {
-			if (partnerId == null){
+			if (partnerId == null) {
 				getPublishedSwaggerDetails(vo, arrayNode);
-			}else{
-				List<String> partnerList = partnerId.contains("/") ? Arrays.asList(partnerId.split("/")) : Arrays.asList(partnerId);
-				for(String partner : partnerList)
-				if (partner == null || isPartnerAsociated(vo, partner) == true)
-					getPublishedSwaggerDetails(vo, arrayNode);
+			} else {
+				List<String> partnerList = partnerId.contains("/")
+						? Arrays.asList(partnerId.split("/"))
+						: Arrays.asList(partnerId);
+				for (String partner : partnerList)
+					if (partner == null || isPartnerAsociated(vo, partner) == true)
+						getPublishedSwaggerDetails(vo, arrayNode);
 			}
 		}
 		log("getListOfSwaggerDetails", interactionid, list);
@@ -1545,8 +1549,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					}
 				}
 			}
-			String url = applicationProperties.getAppUrl() + applicationProperties.getAppDomain()
-					+ "/v1/swaggers/" + vo.getSwaggerId() + "/revisions/" + vo.getRevision();
+			String url = applicationProperties.getAppUrl() + applicationProperties.getAppDomain() + "/v1/swaggers/"
+					+ vo.getSwaggerId() + "/revisions/" + vo.getRevision();
 			revisionNode.put("url", url);
 			ArrayNode resources = mapper.createArrayNode();
 			if (swaggerJson != null) {
@@ -2381,35 +2385,34 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		log("genarateSwaggerJsonDefinations", swaggerVO.getInteractionid(), details);
 		return details;
 	}
-	
-	private Swagger removeResponseSchema(Swagger swagger){
-		try{
+
+	private Swagger removeResponseSchema(Swagger swagger) {
+		try {
 			Map<String, Path> swaggerPaths = swagger.getPaths();
-			if(swaggerPaths != null){
+			if (swaggerPaths != null) {
 				Set<String> pathsSet = swaggerPaths.keySet();
-				for(String pathStr: pathsSet){
+				for (String pathStr : pathsSet) {
 					Path path = swaggerPaths.get(pathStr);
 					List<Operation> operationList = path.getOperations();
-					if(operationList != null)
-					for(Operation operation: operationList){
-						Map<String, Response> responseMap = operation.getResponses();
-						if(responseMap!= null){
-							Set<String> responseSet = responseMap.keySet();
-							for(String key : responseSet){
-								Response response = responseMap.get(key);
-								if(response != null)
-									response.setResponseSchema(null);
+					if (operationList != null)
+						for (Operation operation : operationList) {
+							Map<String, Response> responseMap = operation.getResponses();
+							if (responseMap != null) {
+								Set<String> responseSet = responseMap.keySet();
+								for (String key : responseSet) {
+									Response response = responseMap.get(key);
+									if (response != null)
+										response.setResponseSchema(null);
+								}
 							}
 						}
-					}
 				}
 			}
-		}catch(Exception e){
-			
+		} catch (Exception e) {
+
 		}
 		return swagger;
 	}
-
 
 	/**
 	 * genarateSwaggerJsonDefinations
@@ -3842,7 +3845,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		SwaggerUtil.copyAllSwaggerFields(newSwaggerForClone, vo);
 		SwaggerUtil.setCloneDetailsFromReq(newSwaggerForClone, swaggerCloneDetails, vo.getSwagger());
 		isSwaggerCloneSuccess = baseRepository.save(newSwaggerForClone) != null ? true : false;
-		if(isSwaggerCloneSuccess) {
+		if (isSwaggerCloneSuccess) {
 			updateSwaggerBasePath(newSwaggerForClone.getName(), newSwaggerForClone);
 		}
 		return isSwaggerCloneSuccess ? newSwaggerForClone.getSwaggerId() : null;
@@ -3875,7 +3878,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		SwaggerUtil.copyAllSwaggerFields(newSwaggerForClone, vo);
 		SwaggerUtil.setCloneDetailsFromReq(newSwaggerForClone, swaggerCloneDetails, vo.getSwagger());
 		isSwaggerCloneSuccess = baseRepository.save(newSwaggerForClone) != null ? true : false;
-		if(isSwaggerCloneSuccess) {
+		if (isSwaggerCloneSuccess) {
 			updateSwagger3BasePath(newSwaggerForClone.getName(), newSwaggerForClone);
 		}
 		return isSwaggerCloneSuccess ? newSwaggerForClone.getSwaggerId() : null;
