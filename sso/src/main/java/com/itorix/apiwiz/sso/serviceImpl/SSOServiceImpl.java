@@ -120,6 +120,23 @@ public class SSOServiceImpl implements SSOService {
         return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
     }
 
+
+    @Override
+    public ResponseEntity<Object> createOrUpdateSamlConfigPUT(
+            @RequestPart(value = "samlConfig", required = false) String config,
+            @RequestPart(value = "metafile", required = false) MultipartFile metadata,
+            @RequestHeader(value = "JSESSIONID", required = false) String jsessionid) throws Exception {
+        return createOrUpdateSamlConfig(config, metadata, jsessionid);
+    }
+
+    @Override
+    public ResponseEntity<Object> createOrUpdateSamlConfigPATCH(
+            @RequestPart(value = "samlConfig", required = false) String config,
+            @RequestPart(value = "metafile", required = false) MultipartFile metadata,
+            @RequestHeader(value = "JSESSIONID", required = false) String jsessionid) throws Exception {
+        return createOrUpdateSamlConfig(config, metadata, jsessionid);
+    }
+
     @Override
     public ResponseEntity<Object> createOrUpdateSamlConfig(
             @RequestPart(value = "samlConfig", required = false) String config,
