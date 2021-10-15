@@ -216,41 +216,43 @@ public class CodeGenService {
 		String time = Long.toString(System.currentTimeMillis());
 		String dir = operations.getDir() + time + File.separatorChar;
 		ProxyArtifacts proxyArtifacts = null;
-//		if (true) {
-			if (proxyGeneration != null && proxyGeneration.equalsIgnoreCase("true")) {
-				// String proxyDir = dir + "API" + File.separatorChar +
-				// "apiproxy" ;
-				String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName() + "_"
-						+ codeGen.getProxy().getVersion() + "/apiproxy";
-				if (codeGen.getProxy() != null)
-					apigeeProxyGen.generateProxyCode(proxyFolder, commonFolder, codeGen, proxyDir);
-				if (codeGen.getTarget() != null)
-					apigeeTargetGen.generateTargetCode(targetFolder, codeGen, proxyDir);
-				if (codeGen.getProxy() != null && codeGen.getTarget() != null) {
-//					CleanUnused.clean(proxyDir + File.separatorChar);
-//					proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
-				}
-			} else {
-				if (codeGen.getProxy() != null & codeGen.getTarget() != null)
-					proxyGen.generateCommonCode(commonFolder, codeGen, dir);
-				if (codeGen.getProxy() != null)
-					proxyGen.generateProxyCode(proxyFolder, codeGen, dir);
-				if (codeGen.getTarget() != null)
-					targetGen.generateTargetCode(targetFolder, codeGen, dir);
-			}
+		// if (true) {
+		if (proxyGeneration != null && proxyGeneration.equalsIgnoreCase("true")) {
+			// String proxyDir = dir + "API" + File.separatorChar +
+			// "apiproxy" ;
 			String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName() + "_"
 					+ codeGen.getProxy().getVersion() + "/apiproxy";
-			CleanUnused.clean(proxyDir + File.separatorChar);
-			proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
-			ZipUtil.pack(new File(dir), new File(operations.getDir() + time + ".zip"));
-//		} else {
-//			String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName() + "/apiproxy";
-//			codeGen.setProjectName(project.getName());
-//			proxyGenerator.generateProxyCode(null, codeGen, proxyDir, project);
-//			CleanUnused.clean(proxyDir + File.separatorChar);
-//			proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
-//			ZipUtil.pack(new File(dir), new File(operations.getDir() + time + ".zip"));
-//		}
+			if (codeGen.getProxy() != null)
+				apigeeProxyGen.generateProxyCode(proxyFolder, commonFolder, codeGen, proxyDir);
+			if (codeGen.getTarget() != null)
+				apigeeTargetGen.generateTargetCode(targetFolder, codeGen, proxyDir);
+			if (codeGen.getProxy() != null && codeGen.getTarget() != null) {
+				// CleanUnused.clean(proxyDir + File.separatorChar);
+				// proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
+			}
+		} else {
+			if (codeGen.getProxy() != null & codeGen.getTarget() != null)
+				proxyGen.generateCommonCode(commonFolder, codeGen, dir);
+			if (codeGen.getProxy() != null)
+				proxyGen.generateProxyCode(proxyFolder, codeGen, dir);
+			if (codeGen.getTarget() != null)
+				targetGen.generateTargetCode(targetFolder, codeGen, dir);
+		}
+		String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName() + "_" + codeGen.getProxy().getVersion()
+				+ "/apiproxy";
+		CleanUnused.clean(proxyDir + File.separatorChar);
+		proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
+		ZipUtil.pack(new File(dir), new File(operations.getDir() + time + ".zip"));
+		// } else {
+		// String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName()
+		// + "/apiproxy";
+		// codeGen.setProjectName(project.getName());
+		// proxyGenerator.generateProxyCode(null, codeGen, proxyDir, project);
+		// CleanUnused.clean(proxyDir + File.separatorChar);
+		// proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
+		// ZipUtil.pack(new File(dir), new File(operations.getDir() + time +
+		// ".zip"));
+		// }
 
 		try {
 			ProxyData data = new ProxyData();
@@ -272,9 +274,9 @@ public class CodeGenService {
 				} else {
 					String scmPassword = rSAEncryption.decryptText(scmIntegration.getPassword());
 					scmUtil.pushFilesToSCM(new File(dir), codeGen.getProxySCMDetails().getReponame(),
-							scmIntegration.getUsername(), scmPassword,
-							codeGen.getProxySCMDetails().getHostUrl(), codeGen.getProxySCMDetails().getScmSource(),
-							codeGen.getProxySCMDetails().getBranch(), codeGen.getProxySCMDetails().getCommitMessage());
+							scmIntegration.getUsername(), scmPassword, codeGen.getProxySCMDetails().getHostUrl(),
+							codeGen.getProxySCMDetails().getScmSource(), codeGen.getProxySCMDetails().getBranch(),
+							codeGen.getProxySCMDetails().getCommitMessage());
 					codeGen.setScmURL(codeGen.getProxySCMDetails().getHostUrl());
 					codeGen.setScmBranch(codeGen.getProxySCMDetails().getBranch());
 				}
@@ -325,8 +327,8 @@ public class CodeGenService {
 			String swaggerStr = getSwagger(codeGen.getProxy().getBuildProxyArtifact(), codeGen.getProxy().getRevision(),
 					codeGen.getProxy().getOas());
 			if (null != swaggerStr)
-				createAPICTarget(swaggerStr, proxyArtifacts.getTargetServers(), proxyArtifacts, codeGen.getProxy().getName());
-			
+				createAPICTarget(swaggerStr, proxyArtifacts.getTargetServers(), proxyArtifacts,
+						codeGen.getProxy().getName());
 
 			ProxyGenResponse response = populateProxyArtifacts(proxyArtifacts);
 			response.setProxyName(data.getProxyName());
@@ -462,7 +464,8 @@ public class CodeGenService {
 		}
 	}
 
-	private void createAPICTarget(String swaggerString, List<String> targetServers, ProxyArtifacts proxyArtifacts, String proxyName) {
+	private void createAPICTarget(String swaggerString, List<String> targetServers, ProxyArtifacts proxyArtifacts,
+			String proxyName) {
 		try {
 			List<OrgEnv> org = mongoConnection.getApigeeOrgs();
 			ObjectMapper mapper = new ObjectMapper();
@@ -482,7 +485,7 @@ public class CodeGenService {
 							String target = getAPICTarget(data, targetPath, environment);
 							createTargetServiceConfig(organization, targetServers.get(0), target);
 						} else if (targeType.equalsIgnoreCase("kvm")) {
-							createAPICKvm(organization,  data, mapping, proxyArtifacts, proxyName);
+							createAPICKvm(organization, data, mapping, proxyArtifacts, proxyName);
 						}
 					}
 				}
@@ -505,7 +508,7 @@ public class CodeGenService {
 				Map<String, JsonNode> endpoints = getMapValuesNode(rootNode, columnMap);
 				ObjectMapper mapper = new ObjectMapper();
 				String endpointsStr = mapper.writeValueAsString(endpoints);
-				createKvmServiceConfig(orgEnv, name,  endpointsStr);
+				createKvmServiceConfig(orgEnv, name, endpointsStr);
 			}
 		} catch (Exception e) {
 
@@ -670,12 +673,11 @@ public class CodeGenService {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
 	private void createKvmServiceConfig(Organization organization, String proxyName, String endpoints)
 			throws ItorixException {
 		try {
-			com.itorix.apiwiz.servicerequest.model.ServiceRequest config= new com.itorix.apiwiz.servicerequest.model.ServiceRequest();
+			com.itorix.apiwiz.servicerequest.model.ServiceRequest config = new com.itorix.apiwiz.servicerequest.model.ServiceRequest();
 			config.setType("KVM");
 			config.setName(proxyName);
 			config.setOrg(organization.getName());
