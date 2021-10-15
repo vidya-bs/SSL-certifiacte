@@ -19,13 +19,10 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 
 @Component
 public class S3Utils {
-	
-	
-	
-	
+
 	@Value("${itorix.core.application.url}")
 	private String host;
-	
+
 	@Value("${server.contextPath}")
 	private String context;
 
@@ -58,15 +55,16 @@ public class S3Utils {
 	}
 
 	private String getURL(String bucket, String region, String key) {
-		//String URL = "https://<bucket-name>.s3-<region-name>.amazonaws.com/<key>";
+		// String URL =
+		// "https://<bucket-name>.s3-<region-name>.amazonaws.com/<key>";
 		String URL = "<host><context>/v1/download/<key>?type=s3";
-		
+
 		URL = URL.replaceAll("<host>", host).replaceAll("<context>", context).replaceAll("<key>", key);
 		return URL;
 	}
 
-	
-	public InputStream getFile(String key, String secret, Regions region, String bucketName,  String path) throws IOException {
+	public InputStream getFile(String key, String secret, Regions region, String bucketName, String path)
+			throws IOException {
 		AWSCredentials credentials = new BasicAWSCredentials(key, secret);
 		AmazonS3 s3client = AmazonS3ClientBuilder.standard()
 				.withCredentials(new AWSStaticCredentialsProvider(credentials)).withRegion(region).build();
@@ -74,6 +72,5 @@ public class S3Utils {
 		InputStream inputStream = s3object.getObjectContent();
 		return inputStream;
 	}
-	
-	
+
 }

@@ -212,6 +212,7 @@ public class ProxyGen {
 				apiDtls.put("targetService", "");
 				apiDtls.put("targetName", flow.getTargetName() != null ? flow.getTargetName() : "");
 				apiDtls.put("targetOperation", flow.getTargetOperation() != null ? flow.getTargetOperation() : "");
+				apiDtls.put("resourceTargetBasePath", flow.getTargetBasepath() != null ? flow.getTargetBasepath() : "");
 				if (cg.getPolicyTemplates() != null) {
 					Map commonMap = commonsGen.createMap(cg);
 					apiDtls.put("policyTemplate", commonMap.get("policyTemplate"));

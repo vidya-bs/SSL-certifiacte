@@ -609,7 +609,6 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 		return new ResponseEntity<>(maskingFields, HttpStatus.OK);
 	}
 
-
 	@Override
 	public ResponseEntity<?> deleteCertificate(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,

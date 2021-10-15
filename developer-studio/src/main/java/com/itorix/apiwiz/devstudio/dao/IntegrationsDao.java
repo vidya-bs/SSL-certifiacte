@@ -33,7 +33,7 @@ public class IntegrationsDao {
 
 	@Autowired
 	private BaseRepository baseRepository;
-	
+
 	@Qualifier("masterMongoTemplate")
 	@Autowired
 	private MongoTemplate masterMongoTemplate;
@@ -75,7 +75,7 @@ public class IntegrationsDao {
 			baseRepository.save(integration);
 		}
 	}
-	
+
 	public void removeIntegratoin(Integration integration) {
 		mongoTemplate.remove(integration);
 	}
@@ -126,20 +126,20 @@ public class IntegrationsDao {
 		removeIntegratoin(id);
 	}
 
-	public void updateWorkspaceIntegration(WorkspaceIntegration workspaceIntegration){
+	public void updateWorkspaceIntegration(WorkspaceIntegration workspaceIntegration) {
 		mongoTemplate.save(workspaceIntegration);
 	}
-	
-	public List<WorkspaceIntegration> getWorkspaceIntegration(){
+
+	public List<WorkspaceIntegration> getWorkspaceIntegration() {
 		return mongoTemplate.findAll(WorkspaceIntegration.class);
 	}
-	
+
 	public void removeWorkspaceIntegration(String id) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("_id").is(id));
 		mongoTemplate.remove(query, WorkspaceIntegration.class);
 	}
-	
+
 	public Object getMetaData() {
 		Query query = new Query().addCriteria(Criteria.where("key").is("workspace"));
 		MetaData metaData = masterMongoTemplate.findOne(query, MetaData.class);
@@ -147,7 +147,7 @@ public class IntegrationsDao {
 			return metaData.getMetadata();
 		return null;
 	}
-	
+
 	public Integration getJfrogIntegration() {
 		List<Integration> dbIntegrationList = getIntegration("JFROG");
 		Integration integration = new Integration();
@@ -208,7 +208,7 @@ public class IntegrationsDao {
 		if (integration != null)
 			removeIntegratoin(integration);
 	}
-	
+
 	public List<Integration> getCodeconnectIntegration() {
 		List<Integration> integrations = getIntegration("CODECOMMIT");
 		if (integrations != null)
@@ -216,7 +216,7 @@ public class IntegrationsDao {
 		else
 			return new ArrayList<Integration>();
 	}
-	
+
 	public void removeCodeconnectIntegration() {
 		Integration integration = getIntegration("CODECOMMIT").get(0);
 		if (integration != null)

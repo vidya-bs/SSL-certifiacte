@@ -81,14 +81,16 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
-	//@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	// @PreAuthorize("hasAnyRole('ADMIN') and
+	// hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/meta-data", consumes = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> updateUserMetaData(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody Map<String, String> metadata)
 			throws ItorixException, Exception;
 
-	//@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	// @PreAuthorize("hasAnyRole('ADMIN') and
+	// hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/meta-data")
 	public @ResponseBody ResponseEntity<Object> getUserMetaData(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -424,7 +426,7 @@ public interface IdentityManagmentService {
 	public @ResponseBody ResponseEntity<Void> updateUserAccount(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestBody CancelSubscriptions subscription) throws Exception;
-	
+
 	@PreAuthorize("hasAnyRole('SITE-ADMIN')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/accounts-delete")
 	public @ResponseBody ResponseEntity<Void> cancelUserAccount(@RequestHeader(value = "JSESSIONID") String jsessionid,

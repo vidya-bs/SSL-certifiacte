@@ -209,9 +209,9 @@ public class ProxyUtils {
 		if (!isPipelineExists(projectName.replaceAll(" ", "-").replaceAll("\\.", ""), branch, jsessionId))
 			createPipeline(pipelineGroups, jsessionId);
 		return projectName.replaceAll(" ", "-").replaceAll("\\.", "") + "_"
-		+ proxyGen.getProxy().getName().replaceAll("\\.", "").trim() + "_"
-		+ proxyGen.getProxy().getVersion().replaceAll("\\.", "").trim() + "_"
-		+ proxyGen.getProxySCMDetails().getBranch();
+				+ proxyGen.getProxy().getName().replaceAll("\\.", "").trim() + "_"
+				+ proxyGen.getProxy().getVersion().replaceAll("\\.", "").trim() + "_"
+				+ proxyGen.getProxySCMDetails().getBranch();
 	}
 
 	private boolean isPipelineExists(String projectName, String branchName, String jsessionid) throws ItorixException {
@@ -276,9 +276,9 @@ public class ProxyUtils {
 							TestSuiteAndConfig testSuiteAndConfig = new TestSuiteAndConfig();
 							testSuites.add(testSuiteAndConfig);
 							testSuiteAndConfig
-							.setTestSuiteId(stage.getUnitTests().getTestsuites().get(0).getTestSuiteId());
+									.setTestSuiteId(stage.getUnitTests().getTestsuites().get(0).getTestSuiteId());
 							testSuiteAndConfig
-							.setEnvironmentId(stage.getUnitTests().getTestsuites().get(0).getEnvironmentId());
+									.setEnvironmentId(stage.getUnitTests().getTestsuites().get(0).getEnvironmentId());
 							unitTests.setTestSuites(testSuites);
 						}
 					}
@@ -294,7 +294,7 @@ public class ProxyUtils {
 							TestSuiteAndConfig testSuiteAndConfig = new TestSuiteAndConfig();
 							testSuites.add(testSuiteAndConfig);
 							testSuiteAndConfig
-							.setTestSuiteId(stage.getCodeCoverage().getTestsuites().get(0).getTestSuiteId());
+									.setTestSuiteId(stage.getCodeCoverage().getTestsuites().get(0).getTestSuiteId());
 							testSuiteAndConfig.setEnvironmentId(
 									stage.getCodeCoverage().getTestsuites().get(0).getEnvironmentId());
 							codecoverage.setTestSuites(testSuites);
@@ -487,12 +487,12 @@ public class ProxyUtils {
 		String sourceBranch = scmPromote.getBaseBranch();
 		String targetBranch = scmPromote.getTargetBranch();
 		try {
-			if(null != gitIntegration){
+			if (null != gitIntegration) {
 				RSAEncryption rSAEncryption = new RSAEncryption();
-				if(gitIntegration.getAuthType().equalsIgnoreCase("token")){
+				if (gitIntegration.getAuthType().equalsIgnoreCase("token")) {
 					String token = rSAEncryption.decryptText(gitIntegration.getToken());
 					scmUtilImpl.promoteToGitToken(sourceBranch, targetBranch, hostUrl, gitType, token, null);
-				}else{
+				} else {
 					String username = gitIntegration.getUsername();
 					String password = rSAEncryption.decryptText(gitIntegration.getPassword());
 					scmUtilImpl.promoteToGit(sourceBranch, targetBranch, hostUrl, username, password, null);
