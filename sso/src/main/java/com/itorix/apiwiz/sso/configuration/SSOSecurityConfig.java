@@ -10,6 +10,7 @@ import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -18,9 +19,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.Collections;
 
 @EnableWebSecurity
 @Configuration
@@ -101,8 +107,28 @@ public class SSOSecurityConfig {
                     .serviceProvider().keyStore().storeFilePath(keyStoreFilePath).password(keyStorePassword)
                     .keyname(keyAlias).keyPassword(password).and().protocol(protocol)
                     .hostname(String.format("%s:%s", host, ssoPort)).basePath(contextPath).and().identityProvider()
-                    .metadataFilePath(metadataUrl);
+                    .metadataFilePath(metadataUrl).and();
             http.exceptionHandling().accessDeniedHandler(accessDeniedHandler);
+
+            http.cors();
+
+        }
+
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+            final CorsConfiguration configuration = new CorsConfiguration();
+            configuration.setAllowedOrigins(Collections.unmodifiableList(Arrays.asList("*")));
+            configuration.setAllowedMethods(Collections.unmodifiableList(Arrays.asList("HEAD",
+                    "GET", "POST", "PUT", "DELETE", "PATCH")));
+            // setAllowCredentials(true) is important, otherwise:
+            // The value of the 'Access-Control-Allow-Origin' header in the response must not be the wildcard '*' when the request's credentials mode is 'include'.
+            configuration.setAllowCredentials(true);
+            // setAllowedHeaders is important! Without it, OPTIONS preflight request
+            // will fail with 403 Invalid CORS request
+            configuration.setAllowedHeaders(Collections.unmodifiableList(Arrays.asList("Authorization", "Cache-Control", "Content-Type")));
+            final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+            source.registerCorsConfiguration("/**", configuration);
+            return source;
         }
 
     }
@@ -118,7 +144,7 @@ public class SSOSecurityConfig {
             http.csrf().disable().antMatcher("/v1/**").authorizeRequests().anyRequest().authenticated().and()
                     .exceptionHandling().authenticationEntryPoint(authenticationEntryPointImpl)
                     .accessDeniedHandler(accessDeniedHandler).and().sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().cors().and().authorizeRequests();
 
             http.addFilterBefore(jsessionAuthFilter, UsernamePasswordAuthenticationFilter.class);
         }
@@ -137,4 +163,5 @@ public class SSOSecurityConfig {
             // @formatter:on
         }
     }
+
 }
