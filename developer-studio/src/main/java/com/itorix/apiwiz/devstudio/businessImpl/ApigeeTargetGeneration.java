@@ -103,6 +103,7 @@ public class ApigeeTargetGeneration {
 
 	private void processPolicyTemplates(Flows flows, Folder policies) throws IOException, TemplateException {
 		String STR_TARGET = "TARGET_";
+		if(policies != null){
 		List<Folder> fileList = policies.getFiles();
 		if (fileList != null) {
 			for (Folder fragFile : fileList) {
@@ -143,6 +144,7 @@ public class ApigeeTargetGeneration {
 					writeFile(content, dstPolicies + File.separatorChar + fragFile.getName());
 				}
 			}
+		}
 		}
 	}
 

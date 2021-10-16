@@ -62,6 +62,7 @@ public class ApigeeProxyGeneration {
 	}
 
 	private void processResources(Folder templates) throws IOException, TemplateException {
+		try{
 		for (Folder tmplFile : templates.getFiles()) {
 			if (tmplFile.isFolder()) {
 				String filePath = "";
@@ -80,6 +81,9 @@ public class ApigeeProxyGeneration {
 					}
 			}
 		}
+		}catch(Exception e){
+			
+		}
 	}
 
 	public void generateProxyCode(Folder proxyFolder, Folder commonFolder, CodeGenHistory cg, String dir)
@@ -87,7 +91,7 @@ public class ApigeeProxyGeneration {
 		Proxy proxy = cg.getProxy();
 		proxyName = proxy.getName().split("_")[0];
 		dstRootFolder = dir; // + "API" + File.separatorChar + "Proxies" +
-								// File.separatorChar + proxyName +
+		// File.separatorChar + proxyName +
 		// File.separatorChar + proxy.getVersion();
 		createDestinationFolderStructure(dstRootFolder);
 		if (cg.getTarget() != null) {
