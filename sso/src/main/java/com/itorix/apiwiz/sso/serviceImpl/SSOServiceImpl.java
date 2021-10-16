@@ -170,7 +170,9 @@ public class SSOServiceImpl implements SSOService {
 
     @Override
     public ResponseEntity<Object> getSAMLConfig() throws Exception {
-        return new ResponseEntity<>(ssoDao.getSamlConfig(), HttpStatus.OK);
+    	SAMLConfig config = ssoDao.getSamlConfig();
+    	config.setMetadata(null);
+        return new ResponseEntity<>(config, HttpStatus.OK);
     }
 
     public String encryptText(String msg, String publicKey) throws NoSuchAlgorithmException, NoSuchPaddingException,
