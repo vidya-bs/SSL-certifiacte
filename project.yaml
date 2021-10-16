@@ -178,6 +178,7 @@ deployment:
         pem: NA
         configBranch: dev
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        ssoHelmValueFileName: 'sso-values.yaml'
       - env: stage
         branch: develop
         deployFlag: enable
@@ -189,6 +190,7 @@ deployment:
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        ssoHelmValueFileName: 'sso-values.yaml'
       - env: production
         branch: main
         deployFlag: enable
@@ -200,6 +202,7 @@ deployment:
         pem: NA
         configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        ssoHelmValueFileName: 'sso-values.yaml'
   - appName: apimonitor
     buildImage: enable
     jarName: api-monitor-agent-0.0.1.jar
