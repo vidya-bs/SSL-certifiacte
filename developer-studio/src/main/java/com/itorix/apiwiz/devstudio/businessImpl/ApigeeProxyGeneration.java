@@ -203,6 +203,7 @@ public class ApigeeProxyGeneration {
 				apiMap.put("verb", flow.getVerb());
 				apiMap.put("pathSuffix", flow.getPath());
 				apiDtls.put("targetService", "");
+				apiDtls.put("resourceTargetBasePath", flow.getTargetBasepath() != null ? flow.getTargetBasepath() : "");
 				apiDtls.put("targetName", flow.getTargetName() != null ? flow.getTargetName() : "");
 				apiDtls.put("targetOperation", flow.getTargetOperation() != null ? flow.getTargetOperation() : "");
 				if (cg.getPolicyTemplates() != null) {
