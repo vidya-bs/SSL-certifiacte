@@ -82,7 +82,6 @@ public class SSODao {
 
             workspaces.add(userWorkspace);
             user.setWorkspaces(workspaces);
-
         } else {
             if (projectRoles.size() > 1) {
                 user.getWorkspaces().get(0).setRoles(projectRoles);
@@ -125,7 +124,6 @@ public class SSODao {
 
     public void createOrUpdateSamlConfig(SAMLConfig samlConfig) throws ItorixException {
         try {
-
             String jsonString = new ObjectMapper().writeValueAsString(samlConfig);
             UIMetadata metadata = new UIMetadata(UIMetadata.SAML_CONFIG, jsonString);
             createUIUXMetadata(metadata);
@@ -165,7 +163,6 @@ public class SSODao {
                     : new ObjectMapper().readValue(uiuxMetadata.getMetadata(), SAMLConfig.class);
         } catch (IOException e) {
             return null;
-
         }
     }
 
@@ -182,7 +179,6 @@ public class SSODao {
                 userAssertionRoles = Arrays.asList(attributeAsStringArray);
             }
         }
-
         return getProjectRole(userAssertionRoles);
     }
 
