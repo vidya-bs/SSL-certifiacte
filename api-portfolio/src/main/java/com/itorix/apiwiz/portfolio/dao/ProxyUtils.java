@@ -127,7 +127,6 @@ public class ProxyUtils {
 			operations.setjSessionid(jsessionId);
 			User user = commonServices.getUserDetailsFromSessionID(jsessionId);
 			operations.setUser(user);
-			System.out.println(mapper.writeValueAsString(proxyGen));
 			codeGenService.processCodeGen(proxyGen, operations, project);
 			org.apache.commons.io.FileUtils.deleteDirectory(new File(folderPath));
 			response.setGitPush("true");
@@ -380,7 +379,7 @@ public class ProxyUtils {
 			CodeGenHistory codeGenHistory = new CodeGenHistory();
 			List<Category> policyTemplates = populatePolicyTemplates(projectProxy);
 			codeGenHistory.setPolicyTemplates(policyTemplates);
-			codeGenHistory.setProxy(populateProxy(project.getProxies().get(0)));
+			codeGenHistory.setProxy(populateProxy(project.getProxies().get(0), portfolio.getName()));
 			codeGenHistory.setProxySCMDetails(populateProxySCMDetails(projectProxy.getName()));
 			codeGenHistory.setPortfolio(proxyPortfolio);
 			return codeGenHistory;
@@ -390,7 +389,7 @@ public class ProxyUtils {
 		}
 	}
 
-	private Proxy populateProxy(Proxies projectProxy) {
+	private Proxy populateProxy(Proxies projectProxy, String name) {
 		ObjectMapper mapper = new ObjectMapper();
 		String proxyBuildArtifact = "";
 		if (projectProxy.getApigeeConfig().getDesignArtifacts() != null
@@ -410,8 +409,8 @@ public class ProxyUtils {
 		proxy.setName(projectProxy.getName());
 		proxy.setDescription(projectProxy.getName());
 		proxy.setVersion(projectProxy.getProxyVersion());
-		proxy.setBuildProxyArtifactType("WSDL");
-		proxy.setBuildProxyArtifact(proxyBuildArtifact);
+		proxy.setBuildProxyArtifactType("Portfolio");
+		proxy.setBuildProxyArtifact(name);
 		proxy.setBranchType("feature");
 		return proxy;
 	}
