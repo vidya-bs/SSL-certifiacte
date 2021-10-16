@@ -11,6 +11,7 @@ public class UIMetadata extends AbstractObject {
     public static String ROLE_MAPPER = "roleMapper";
 
     private String query;
+    @JsonIgnore
     private String metadata;
 
     public UIMetadata() {
