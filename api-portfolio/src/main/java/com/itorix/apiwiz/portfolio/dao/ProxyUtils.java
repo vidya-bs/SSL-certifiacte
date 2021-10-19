@@ -31,6 +31,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.model.configmanagement.KVMEntry;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.integrations.Integration;
+import com.itorix.apiwiz.common.model.integrations.git.GitIntegration;
+import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegrationUtils;
 import com.itorix.apiwiz.common.model.projectmanagement.Endpoints;
 import com.itorix.apiwiz.common.model.projectmanagement.Organization;
 import com.itorix.apiwiz.common.model.projectmanagement.Project;
@@ -47,8 +50,10 @@ import com.itorix.apiwiz.common.model.proxystudio.ProxyProject;
 import com.itorix.apiwiz.common.model.proxystudio.ProxySCMDetails;
 import com.itorix.apiwiz.common.model.proxystudio.Scm;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.devstudio.businessImpl.CodeGenService;
+import com.itorix.apiwiz.devstudio.dao.IntegrationsDao;
 import com.itorix.apiwiz.devstudio.model.Operations;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.User;
@@ -94,6 +99,10 @@ public class ProxyUtils {
 	private IdentityManagementDao identityManagementDao;
 	@Autowired
 	private ServiceRequestDao serviceRequestDao;
+	@Autowired
+	private WorkspaceIntegrationUtils workspaceIntegrationUtils;
+	@Autowired
+	private IntegrationsDao integrationsDao;
 
 	private static final String GIT_HOST_URL = "https://github.com/asu2150/";
 
@@ -108,7 +117,6 @@ public class ProxyUtils {
 			String projectName = portfolioProject.getName();
 			Project project = populateProject(projectProxy, projectName);
 			ObjectMapper mapper = new ObjectMapper();
-			System.out.println(mapper.writeValueAsString(project));
 			CodeGenHistory proxyGen = populateProxyGenerationObj(portfolio, projectId, proxyId);
 			response.setGitRepoName(proxyGen.getProxySCMDetails().getReponame());
 			response.setGitBranch(proxyGen.getProxySCMDetails().getBranch());
@@ -119,7 +127,6 @@ public class ProxyUtils {
 			operations.setjSessionid(jsessionId);
 			User user = commonServices.getUserDetailsFromSessionID(jsessionId);
 			operations.setUser(user);
-			System.out.println(mapper.writeValueAsString(proxyGen));
 			codeGenService.processCodeGen(proxyGen, operations, project);
 			org.apache.commons.io.FileUtils.deleteDirectory(new File(folderPath));
 			response.setGitPush("true");
@@ -372,7 +379,7 @@ public class ProxyUtils {
 			CodeGenHistory codeGenHistory = new CodeGenHistory();
 			List<Category> policyTemplates = populatePolicyTemplates(projectProxy);
 			codeGenHistory.setPolicyTemplates(policyTemplates);
-			codeGenHistory.setProxy(populateProxy(project.getProxies().get(0)));
+			codeGenHistory.setProxy(populateProxy(project.getProxies().get(0), portfolio.getName()));
 			codeGenHistory.setProxySCMDetails(populateProxySCMDetails(projectProxy.getName()));
 			codeGenHistory.setPortfolio(proxyPortfolio);
 			return codeGenHistory;
@@ -382,7 +389,7 @@ public class ProxyUtils {
 		}
 	}
 
-	private Proxy populateProxy(Proxies projectProxy) {
+	private Proxy populateProxy(Proxies projectProxy, String name) {
 		ObjectMapper mapper = new ObjectMapper();
 		String proxyBuildArtifact = "";
 		if (projectProxy.getApigeeConfig().getDesignArtifacts() != null
@@ -402,8 +409,8 @@ public class ProxyUtils {
 		proxy.setName(projectProxy.getName());
 		proxy.setDescription(projectProxy.getName());
 		proxy.setVersion(projectProxy.getProxyVersion());
-		proxy.setBuildProxyArtifactType("WSDL");
-		proxy.setBuildProxyArtifact(proxyBuildArtifact);
+		proxy.setBuildProxyArtifactType("Portfolio");
+		proxy.setBuildProxyArtifact(name);
 		proxy.setBranchType("feature");
 		return proxy;
 	}
@@ -413,12 +420,9 @@ public class ProxyUtils {
 		String branch = "feature-" + System.currentTimeMillis();
 		ProxySCMDetails proxySCMDetails = new ProxySCMDetails();
 		proxySCMDetails.setReponame(repoName);
-		proxySCMDetails.setUsername(applicationProperties.getProxyScmUserName());
-		proxySCMDetails.setPassword(applicationProperties.getProxyScmEncryptedPassword());
 		proxySCMDetails.setBranch(branch);
 		proxySCMDetails.setScmSource("GIT");
 		proxySCMDetails.setHostUrl(GIT_HOST_URL + repoName);
-		proxySCMDetails.setScmSource("GIT");
 		createSCMBranch(proxySCMDetails);
 		return proxySCMDetails;
 	}
@@ -472,14 +476,29 @@ public class ProxyUtils {
 	private void promoteToMaster(Proxies projectProxy, ScmPromote scmPromote, String projectName, String proxyName,
 			String jsessionid) throws InvalidRemoteException, TransportException, GitAPIException, IOException {
 		String repoName = scmPromote.getRepoName();
-		String hostUrl = GIT_HOST_URL + repoName;
+		String gitURL = workspaceIntegrationUtils.getBuildScmProp("GitHost");
+		String gitType = workspaceIntegrationUtils.getBuildScmProp("GitHost.type");
+		Integration integration = integrationsDao.getGitIntegration(gitType.toUpperCase(), "proxy");
+		GitIntegration gitIntegration = null;
+		if (integration != null)
+			gitIntegration = integration.getGitIntegration();
+		String hostUrl = (null != gitURL ? gitURL : GIT_HOST_URL) + repoName;
 		String sourceBranch = scmPromote.getBaseBranch();
 		String targetBranch = scmPromote.getTargetBranch();
-		scmUtilImpl.promoteToGit(sourceBranch, targetBranch, hostUrl, applicationProperties.getProxyScmUserName(),
-				applicationProperties.getProxyScmPassword(), null);
 		try {
+			if (null != gitIntegration) {
+				RSAEncryption rSAEncryption = new RSAEncryption();
+				if (gitIntegration.getAuthType().equalsIgnoreCase("token")) {
+					String token = rSAEncryption.decryptText(gitIntegration.getToken());
+					scmUtilImpl.promoteToGitToken(sourceBranch, targetBranch, hostUrl, gitType, token, null);
+				} else {
+					String username = gitIntegration.getUsername();
+					String password = rSAEncryption.decryptText(gitIntegration.getPassword());
+					scmUtilImpl.promoteToGit(sourceBranch, targetBranch, hostUrl, username, password, null);
+				}
+			}
 			createPromotePipeline(projectProxy, scmPromote, projectName, proxyName, jsessionid);
-		} catch (ItorixException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

@@ -35,7 +35,7 @@ public class CareersDao {
 
 	@Autowired
 	JfrogUtilImpl jfrogUtilImpl;
-	
+
 	@Autowired
 	private S3Connection s3Connection;
 
@@ -163,17 +163,17 @@ public class CareersDao {
 		try {
 			S3Integration s3Integration = s3Connection.getS3Integration();
 			String downloadURI = null;
-			if(null != s3Integration)
-				downloadURI =  s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+			if (null != s3Integration)
+				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
 						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
 						"marketing/careers/" + folderPath, new ByteArrayInputStream(bytes));
-			else{
+			else {
 				JSONObject uploadFiles = jfrogUtilImpl.uploadFiles(new ByteArrayInputStream(bytes),
 						"/marketing/careers/" + folderPath);
 				downloadURI = uploadFiles.getString("downloadURI");
 			}
 			return downloadURI;
-			
+
 		} catch (Exception e) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1009"), "Marketing-1000");
 		}

@@ -46,50 +46,52 @@ public class ScmUtilImpl {
 			String scmSource, String branch, String comments)
 			throws InvalidRemoteException, TransportException, GitAPIException, IOException, ItorixException {
 
-//		if (scmSource.equalsIgnoreCase("git") || scmSource.equalsIgnoreCase("bitbucket")) {
-			File SourceDirectory = directory;
-			String separatorChar = String.valueOf(File.separatorChar);
-			// SourceDirectory=new File(directory + separatorChar +"API");
-			File workingDirectory;
-			String time = Long.toString(System.currentTimeMillis());
-			String tempDirectory = applicationProperties.getTempDir() + separatorChar + "CloneDirectory" + time;
-			File cloningDirectory = new File(tempDirectory);
-			Git git;
-			if (branch != null && !branch.isEmpty()) {
-				git = Git.cloneRepository().setURI(hostUrl)
-						.setCredentialsProvider(new UsernamePasswordCredentialsProvider(userName, passWord))
-						.setDirectory(cloningDirectory).setBranch(branch).call();
-			} else {
-				git = Git.cloneRepository().setURI(hostUrl)
-						.setCredentialsProvider(new UsernamePasswordCredentialsProvider(userName, passWord))
-						.setDirectory(cloningDirectory).call();
-			}
-			FileRepositoryBuilder builder = new FileRepositoryBuilder();
-			try (Repository repository = builder.setGitDir(git.getRepository().getDirectory()).readEnvironment() // scan
-					// environment
-					// GIT_*
-					// variables
-					.findGitDir() // scan up the file system tree
-					.build()) {
-				workingDirectory = new File(repository.getWorkTree().getAbsolutePath());
-				copyFolder(SourceDirectory, workingDirectory);
-			}
-			git.add().addFilepattern(".").call();
-			if (comments != null) {
-				git.commit().setAll(true).setAllowEmpty(true).setMessage(comments).call();
-			} else {
-				git.commit().setMessage("Created Proxy Through Itorix Platform").call();
-			}
-			PushCommand pc = git.push();
-			pc.setCredentialsProvider(new UsernamePasswordCredentialsProvider(userName, passWord)).setForce(true)
-					.setPushAll();
-			pc.call();
-			git.getRepository().close();
-			FileUtils.cleanDirectory(cloningDirectory);
-			FileUtils.deleteDirectory(cloningDirectory);
-//		} else {
-//			throw new ItorixException(new Throwable().getMessage(), "USER_005", new Throwable());
-//		}
+		// if (scmSource.equalsIgnoreCase("git") ||
+		// scmSource.equalsIgnoreCase("bitbucket")) {
+		File SourceDirectory = directory;
+		String separatorChar = String.valueOf(File.separatorChar);
+		// SourceDirectory=new File(directory + separatorChar +"API");
+		File workingDirectory;
+		String time = Long.toString(System.currentTimeMillis());
+		String tempDirectory = applicationProperties.getTempDir() + separatorChar + "CloneDirectory" + time;
+		File cloningDirectory = new File(tempDirectory);
+		Git git;
+		if (branch != null && !branch.isEmpty()) {
+			git = Git.cloneRepository().setURI(hostUrl)
+					.setCredentialsProvider(new UsernamePasswordCredentialsProvider(userName, passWord))
+					.setDirectory(cloningDirectory).setBranch(branch).call();
+		} else {
+			git = Git.cloneRepository().setURI(hostUrl)
+					.setCredentialsProvider(new UsernamePasswordCredentialsProvider(userName, passWord))
+					.setDirectory(cloningDirectory).call();
+		}
+		FileRepositoryBuilder builder = new FileRepositoryBuilder();
+		try (Repository repository = builder.setGitDir(git.getRepository().getDirectory()).readEnvironment() // scan
+				// environment
+				// GIT_*
+				// variables
+				.findGitDir() // scan up the file system tree
+				.build()) {
+			workingDirectory = new File(repository.getWorkTree().getAbsolutePath());
+			copyFolder(SourceDirectory, workingDirectory);
+		}
+		git.add().addFilepattern(".").call();
+		if (comments != null) {
+			git.commit().setAll(true).setAllowEmpty(true).setMessage(comments).call();
+		} else {
+			git.commit().setMessage("Created Proxy Through Itorix Platform").call();
+		}
+		PushCommand pc = git.push();
+		pc.setCredentialsProvider(new UsernamePasswordCredentialsProvider(userName, passWord)).setForce(true)
+				.setPushAll();
+		pc.call();
+		git.getRepository().close();
+		FileUtils.cleanDirectory(cloningDirectory);
+		FileUtils.deleteDirectory(cloningDirectory);
+		// } else {
+		// throw new ItorixException(new Throwable().getMessage(), "USER_005",
+		// new Throwable());
+		// }
 	}
 
 	public void pushFilesToSCMBase64(File directory, String repoName, String authorizationType, String authToken,

@@ -30,7 +30,7 @@ public class GitIntegration {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
+
 	@JsonIgnore
 	public String getDecryptedPassword() {
 		String decryptedPassword = "";
@@ -38,15 +38,15 @@ public class GitIntegration {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.password);
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 		return decryptedPassword;
 	}
-	
+
 	public String getToken() {
 		return token;
 	}
-	
+
 	@JsonIgnore
 	public String getDecryptedToken() {
 		String decryptedPassword = "";
@@ -54,7 +54,7 @@ public class GitIntegration {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.token);
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 		return decryptedPassword;
 	}

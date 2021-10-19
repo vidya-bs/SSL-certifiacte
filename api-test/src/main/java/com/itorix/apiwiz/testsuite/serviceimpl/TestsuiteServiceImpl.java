@@ -610,21 +610,6 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 	}
 
 	@Override
-	public ResponseEntity<?> getMaskingFieldsOverview(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestParam(value = "expand", required = false) String expand,
-			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) {
-		MaskFieldsOverviewResponse response = dao.getAllMaskFields(offset, pageSize);
-		if (Boolean.parseBoolean(expand)) {
-			return new ResponseEntity<>(response.getMaskFields(), HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(response, HttpStatus.OK);
-		}
-	}
-
-	@Override
 	public ResponseEntity<?> deleteCertificate(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(value = "name") String name)

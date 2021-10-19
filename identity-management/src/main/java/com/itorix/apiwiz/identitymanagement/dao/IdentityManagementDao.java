@@ -826,6 +826,7 @@ public class IdentityManagementDao {
 			if (workspace.getSsoEnabled() == true) {
 				response.put("ssoHost", workspace.getSsoHost());
 				response.put("ssoPath", workspace.getSsoPath());
+				response.put("idpProvider", workspace.getIdpProvider());
 			}
 
 		} else {

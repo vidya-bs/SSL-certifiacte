@@ -865,11 +865,13 @@ public class ApiMonitorDAO {
 				.limit(pageSize);
 		List<Variables> variables = mongoTemplate.find(query, Variables.class);
 
+		int total = mongoTemplate.findAll(Variables.class).size();
+
 		VariablesOverviewResponse response = new VariablesOverviewResponse();
 		Pagination pagination = new Pagination();
 		pagination.setOffset(offset);
 		pagination.setPageSize(pageSize);
-		pagination.setTotal(Long.valueOf(variables.size()));
+		pagination.setTotal(Long.valueOf(total));
 		response.setPagination(pagination);
 		response.setVariables(variables);
 
@@ -882,11 +884,12 @@ public class ApiMonitorDAO {
 		query.fields().exclude("content").exclude("password");
 
 		List<Certificates> certificates = mongoTemplate.find(query, Certificates.class);
+		int total = mongoTemplate.findAll(Certificates.class).size();
 		CertificatesOverviewResponse response = new CertificatesOverviewResponse();
 		Pagination pagination = new Pagination();
 		pagination.setTotal(Long.valueOf(certificates.size()));
 		pagination.setOffset(offset);
-		pagination.setPageSize(pageSize);
+		pagination.setTotal(Long.valueOf(total));
 		response.setPagination(pagination);
 		response.setCertificates(certificates);
 		return response;

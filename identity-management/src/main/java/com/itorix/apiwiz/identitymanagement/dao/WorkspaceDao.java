@@ -1,11 +1,14 @@
 package com.itorix.apiwiz.identitymanagement.dao;
 
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.List;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.common.model.MetaData;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.util.encryption.HmacSHA256;
+import com.itorix.apiwiz.identitymanagement.model.*;
+import com.mongodb.client.result.UpdateResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,18 +23,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itorix.apiwiz.common.model.MetaData;
-import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.util.encryption.HmacSHA256;
-import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
-import com.itorix.apiwiz.identitymanagement.model.Subscription;
-import com.itorix.apiwiz.identitymanagement.model.User;
-import com.itorix.apiwiz.identitymanagement.model.UserSession;
-import com.itorix.apiwiz.identitymanagement.model.Workspace;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class WorkspaceDao {
@@ -159,6 +155,7 @@ public class WorkspaceDao {
 		dbWorkspace.setSsoEnabled(true);
 		dbWorkspace.setSsoHost(workspace.getSsoHost());
 		dbWorkspace.setSsoPath(workspace.getSsoPath());
+		dbWorkspace.setIdpProvider(workspace.getIdpProvider());
 		masterMongoTemplate.save(dbWorkspace);
 	}
 
@@ -209,5 +206,10 @@ public class WorkspaceDao {
 				+ "luBrltMW/bXvCcDF1NaZ0PMpQThrskK+JtvVzexzHUtulsL8XDvUZotmsXPqVPvX\r\n" + "AwIDAQAB\r\n"
 				+ "-----END PUBLIC KEY-----";
 		return key;
+	}
+
+	public void disableSso(String workspaceName) {
+		Query query = Query.query(Criteria.where("_id").is(workspaceName));
+		UpdateResult updateResult = masterMongoTemplate.updateFirst(query, Update.update("ssoEnabled", false), Workspace.class);
 	}
 }

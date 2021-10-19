@@ -62,6 +62,7 @@ public class ApigeeProxyGeneration {
 	}
 
 	private void processResources(Folder templates) throws IOException, TemplateException {
+		try{
 		for (Folder tmplFile : templates.getFiles()) {
 			if (tmplFile.isFolder()) {
 				String filePath = "";
@@ -80,6 +81,9 @@ public class ApigeeProxyGeneration {
 					}
 			}
 		}
+		}catch(Exception e){
+			
+		}
 	}
 
 	public void generateProxyCode(Folder proxyFolder, Folder commonFolder, CodeGenHistory cg, String dir)
@@ -87,7 +91,7 @@ public class ApigeeProxyGeneration {
 		Proxy proxy = cg.getProxy();
 		proxyName = proxy.getName().split("_")[0];
 		dstRootFolder = dir; // + "API" + File.separatorChar + "Proxies" +
-								// File.separatorChar + proxyName +
+		// File.separatorChar + proxyName +
 		// File.separatorChar + proxy.getVersion();
 		createDestinationFolderStructure(dstRootFolder);
 		if (cg.getTarget() != null) {
@@ -105,7 +109,9 @@ public class ApigeeProxyGeneration {
 		for (Folder file : files)
 			if (!file.isFolder())
 				processProxyEndpointTemplate(cg, file.getName());
-		processPolicyTemplates(proxy.getFlows(), proxyFolder.getFile("policies"), cg);
+		if (cg.getProxy().getFlows() != null) {
+			processPolicyTemplates(proxy.getFlows(), proxyFolder.getFile("policies"), cg);
+		}
 		generateCommonCode(commonFolder);
 	}
 
@@ -147,14 +153,16 @@ public class ApigeeProxyGeneration {
 		proxy.put("targetEndpointList", processRouteRuleTemplate(cg.getTarget()));
 		List<Object> apiDetails = new ArrayList<Object>();
 		data.put("apis", apiDetails);
-		Flow[] flows = cg.getProxy().getFlows().getFlow();
-		for (Flow flow : flows) {
-			Map<String, Object> mapApi = new HashMap<String, Object>();
-			apiDetails.add(mapApi);
-			mapApi.put("pathSuffix", flow.getPath());
-			mapApi.put("verb", flow.getVerb().toUpperCase());
-			mapApi.put("name", flow.getName());
-			mapApi.put("description", flow.getDescription());
+		if (cg.getProxy().getFlows() != null) {
+			Flow[] flows = cg.getProxy().getFlows().getFlow();
+			for (Flow flow : flows) {
+				Map<String, Object> mapApi = new HashMap<String, Object>();
+				apiDetails.add(mapApi);
+				mapApi.put("pathSuffix", flow.getPath());
+				mapApi.put("verb", flow.getVerb().toUpperCase());
+				mapApi.put("name", flow.getName());
+				mapApi.put("description", flow.getDescription());
+			}
 		}
 		Writer file = new FileWriter(dstProxiesFileName);
 		if (cg.getPolicyTemplates() != null) {
@@ -199,6 +207,7 @@ public class ApigeeProxyGeneration {
 				apiMap.put("verb", flow.getVerb());
 				apiMap.put("pathSuffix", flow.getPath());
 				apiDtls.put("targetService", "");
+				apiDtls.put("resourceTargetBasePath", flow.getTargetBasepath() != null ? flow.getTargetBasepath() : "");
 				apiDtls.put("targetName", flow.getTargetName() != null ? flow.getTargetName() : "");
 				apiDtls.put("targetOperation", flow.getTargetOperation() != null ? flow.getTargetOperation() : "");
 				if (cg.getPolicyTemplates() != null) {

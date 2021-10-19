@@ -2,6 +2,8 @@ package com.itorix.apiwiz.sso.model;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Document(collection = "SSO.Configurations.List")
 public class UIMetadata extends AbstractObject {
 
@@ -9,6 +11,7 @@ public class UIMetadata extends AbstractObject {
     public static String ROLE_MAPPER = "roleMapper";
 
     private String query;
+    @JsonIgnore
     private String metadata;
 
     public UIMetadata() {
@@ -18,7 +21,7 @@ public class UIMetadata extends AbstractObject {
         this.query = query;
         this.metadata = metadata;
     }
-
+    @JsonIgnore
     public String getMetadata() {
         return metadata;
     }

@@ -57,7 +57,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
 import org.zeroturnaround.zip.ZipUtil;
 
 import com.amazonaws.regions.Regions;
@@ -171,6 +170,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		codeCoverageBackUpInfo.setApigeeUser(cfg.getUserName());
 		codeCoverageBackUpInfo.setStatus(Constants.STATUS_INPROGRESS);
 		codeCoverageBackUpInfo = baseRepository.save(codeCoverageBackUpInfo);
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 
 		String rev = null;
 
@@ -249,27 +249,55 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 				+ cfg.getEnvironment() + "-" + cfg.getApiName() + ".zip";
 		ZipUtil.pack(new File(applicationProperties.getRestoreDir() + timeStamp + "/" + cfg.getOrganization() + "-"
 				+ cfg.getEnvironment() + "-" + cfg.getApiName()), new File(zipFileName));
-		JSONObject obj = null;
+
+		String downloadURI = null;
 		try {
-			obj = jfrogUtilImpl.uploadFiles(zipFileName, applicationProperties.getApigeeCodecoverage(),
-					applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort() + "/artifactory/",
-					"Codecoverage/" + timeStamp + "", applicationProperties.getJfrogUserName(),
-					applicationProperties.getJfrogPassword());
+			S3Integration s3Integration = s3Connection.getS3Integration();
+			if (null != s3Integration) {
+				String workspace = userSessionToken.getWorkspaceId();
+				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+						workspace + "/codecoverage/" + cfg.getOrganization() + "-" + cfg.getEnvironment() + "-"
+								+ cfg.getApiName() + ".zip",
+						zipFileName);
+
+			} else {
+				org.json.JSONObject obj = jfrogUtilImpl.uploadFiles(zipFileName,
+						applicationProperties.getPipelineCodecoverage(),
+						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
+								+ "/artifactory/",
+						"codecoverage-pipeline/" + cfg.getApiName() + "/" + timeStamp + "",
+						applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+				downloadURI = obj.getString("downloadURI");
+			}
 		} catch (Exception e) {
-			logger.error(e.getMessage());
+			logger.error("Error Storing file in Artifactory : " + e.getMessage());
 			e.printStackTrace();
-			throw e;
 		}
+
+		// try {
+		// obj = jfrogUtilImpl.uploadFiles(zipFileName,
+		// applicationProperties.getApigeeCodecoverage(),
+		// applicationProperties.getJfrogHost() + ":" +
+		// applicationProperties.getJfrogPort() + "/artifactory/",
+		// "Codecoverage/" + timeStamp + "",
+		// applicationProperties.getJfrogUserName(),
+		// applicationProperties.getJfrogPassword());
+		// } catch (Exception e) {
+		// logger.error(e.getMessage());
+		// e.printStackTrace();
+		// throw e;
+		// }
 		// TODO We need to delete the hard copy of zipFileName
 		long end = System.currentTimeMillis();
 		codeCoverageBackUpInfo.setOrganization(cfg.getOrganization());
 		codeCoverageBackUpInfo.setEnvironment(cfg.getEnvironment());
 		codeCoverageBackUpInfo.setProxy(cfg.getApiName());
 		codeCoverageBackUpInfo.setTimeTaken((end - timeBegin) / 1000);
-		codeCoverageBackUpInfo.setUrl(obj.getString("downloadURI"));
+		codeCoverageBackUpInfo.setUrl(downloadURI);
 		codeCoverageBackUpInfo.setProxyStat(proxyStat);
 		codeCoverageBackUpInfo.setStatus(Constants.STATUS_COMPLETED);
-		codeCoverageBackUpInfo.setHtmlReportLoc(obj.getString("downloadURI"));
+		codeCoverageBackUpInfo.setHtmlReportLoc(downloadURI);
 		codeCoverageBackUpInfo = baseRepository.save(codeCoverageBackUpInfo);
 		log("executeCodeCoverage", cfg.getInteractionid(), codeCoverageBackUpInfo);
 		return codeCoverageBackUpInfo;
@@ -318,9 +346,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 					Node node = xmlDom.getDocumentElement();
 					root = node.getNodeName();
 					xmlDom.getElementsByTagName("TargetEndpoint");
-					// System.out.println("");
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				TransformerFactory fac = TransformerFactory.newInstance();

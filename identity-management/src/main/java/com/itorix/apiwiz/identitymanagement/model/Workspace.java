@@ -1,11 +1,10 @@
 package com.itorix.apiwiz.identitymanagement.model;
 
-import java.util.Date;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Date;
 
 @Document(collection = "Users.Workspace.List")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -32,6 +31,7 @@ public class Workspace {
 	private boolean ssoEnabled = false;
 	private String ssoHost;
 	private String ssoPath;
+	private IDPProvider idpProvider;
 
 	public String getName() {
 		return name;
@@ -167,5 +167,15 @@ public class Workspace {
 
 	public void setSsoPath(String ssoPath) {
 		this.ssoPath = ssoPath;
+	}
+
+	public boolean isSsoEnabled() {
+		return ssoEnabled;
+	}
+	public IDPProvider getIdpProvider() {
+		return idpProvider;
+	}
+	public void setIdpProvider(IDPProvider idpProvider) {
+		this.idpProvider = idpProvider;
 	}
 }

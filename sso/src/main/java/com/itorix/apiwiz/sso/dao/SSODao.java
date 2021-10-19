@@ -1,14 +1,14 @@
 package com.itorix.apiwiz.sso.dao;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.opensaml.saml2.core.Attribute;
-import org.opensaml.xml.schema.impl.XSStringImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.sso.exception.ErrorCodes;
+import com.itorix.apiwiz.sso.exception.ItorixException;
+import com.itorix.apiwiz.sso.model.*;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,25 +21,8 @@ import org.springframework.security.saml.SAMLCredential;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itorix.apiwiz.sso.exception.ErrorCodes;
-import com.itorix.apiwiz.sso.exception.ItorixException;
-import com.itorix.apiwiz.sso.model.Roles;
-import com.itorix.apiwiz.sso.model.SAMLConfig;
-import com.itorix.apiwiz.sso.model.UIMetadata;
-import com.itorix.apiwiz.sso.model.User;
-import com.itorix.apiwiz.sso.model.UserDefinedRoles;
-import com.itorix.apiwiz.sso.model.UserInfo;
-import com.itorix.apiwiz.sso.model.UserWorkspace;
-import com.itorix.apiwiz.sso.model.Workspace;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
+import java.io.IOException;
+import java.util.*;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -64,7 +47,9 @@ public class SSODao {
         String userId = credentials.getNameID().getValue();
         Query query = new Query(Criteria.where(User.LABEL_USER_ID).is(userId));
         User user = mongoTemplate.findOne(query, User.class);
-        List<String> projectRoles = getProjectRoleForSaml(samlConfig.getGroup(), credentials);
+
+
+        List<String> projectRoles = getProjectRoleForSaml(samlConfig, credentials);
         if (user == null) {
             user = new User();
 
@@ -93,10 +78,10 @@ public class SSODao {
             userWorkspace.setUserType("Member");
             userWorkspace.setRoles(projectRoles);
             userWorkspace.setActive(true);
+            userWorkspace.setAcceptInvite(true);
 
             workspaces.add(userWorkspace);
             user.setWorkspaces(workspaces);
-
         } else {
             if (projectRoles.size() > 1) {
                 user.getWorkspaces().get(0).setRoles(projectRoles);
@@ -131,16 +116,14 @@ public class SSODao {
 
     public void updateUser(User user, List<String> projectRoles) {
         Query query = new Query(Criteria.where("id").is(user.getId()));
-        DBObject dbDoc = new BasicDBList();
-        mongoTemplate.getConverter().write(projectRoles, dbDoc);
-        Update update = Update.fromDBObject(dbDoc);
+        Update update = new Update();
+        update.set("workspaces.0.roles", projectRoles);
         mongoTemplate.upsert(query, update, "workspaces.0.roles");
 
     }
 
     public void createOrUpdateSamlConfig(SAMLConfig samlConfig) throws ItorixException {
         try {
-
             String jsonString = new ObjectMapper().writeValueAsString(samlConfig);
             UIMetadata metadata = new UIMetadata(UIMetadata.SAML_CONFIG, jsonString);
             createUIUXMetadata(metadata);
@@ -160,9 +143,9 @@ public class SSODao {
             uIMetadata.setMetadata(metadata.getMetadata());
             uIMetadata.setQuery(metadata.getQuery());
             Query query = new Query(Criteria.where("query").is(metadata.getQuery()));
-            DBObject dbDoc = new BasicDBObject();
+            Document dbDoc = new Document();
             masterMongoTemplate.getConverter().write(uIMetadata, dbDoc);
-            Update update = Update.fromDBObject(dbDoc, "_id");
+            Update update = Update.fromDocument(dbDoc, "_id");
             masterMongoTemplate.updateFirst(query, update, UIMetadata.class);
         } else {
             masterMongoTemplate.save(metadata);
@@ -180,18 +163,21 @@ public class SSODao {
                     : new ObjectMapper().readValue(uiuxMetadata.getMetadata(), SAMLConfig.class);
         } catch (IOException e) {
             return null;
-
         }
     }
 
-    public List<String> getProjectRoleForSaml(String samlGroupName, SAMLCredential credentials) {
-
-        List<String> userAssertionRoles = null;
-        if (StringUtils.hasText(samlGroupName)) {
-            Attribute attribute = credentials.getAttribute(samlGroupName);
-            if (attribute != null)
-                userAssertionRoles = credentials.getAttribute(samlGroupName).getAttributeValues().stream()
-                        .map(s -> ((XSStringImpl) s).getValue()).collect(Collectors.toList());
+    public List<String> getProjectRoleForSaml(SAMLConfig samlConfig, SAMLCredential credentials) {
+        String samlAttribute = samlConfig.getGroup();
+        Workspace workspace = getWorkspace(getSamlConfig().getWorkspaceId());
+        if(workspace.getIdpProvider().equals(IDPProvider.AZURE_AD)) {  //For Azure the User Group details are sent as roles
+            samlAttribute = samlConfig.getUserRoles();
+        }
+        List<String> userAssertionRoles = new ArrayList<>();
+        if (StringUtils.hasText(samlAttribute)) {
+            String[] attributeAsStringArray = credentials.getAttributeAsStringArray(samlAttribute);
+            if(attributeAsStringArray != null ) {
+                userAssertionRoles = Arrays.asList(attributeAsStringArray);
+            }
         }
         return getProjectRole(userAssertionRoles);
     }
@@ -212,7 +198,9 @@ public class SSODao {
         } catch (ItorixException e) {
             logger.error("error when getting project roles", e);
         }
-        projectRoles.add(Roles.DEFAULT.getValue());
+        if(projectRoles.isEmpty()) {
+            projectRoles.add(Roles.ANALYST.getValue());
+        }
         return projectRoles;
     }
 

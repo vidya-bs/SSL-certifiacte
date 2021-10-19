@@ -29,6 +29,18 @@ public interface SSOService {
             @RequestPart(value = "metafile", required = true) MultipartFile metadata,
             @RequestHeader(value = "JSESSIONID", required = false) String jsessionid) throws Exception;
 
+    @RequestMapping(method = { RequestMethod.PUT }, value = "/v1/saml/config", consumes = { "multipart/form-data" })
+    public ResponseEntity<Object> createOrUpdateSamlConfigPUT(
+            @RequestPart(value = "samlConfig", required = false) String samlConfig,
+            @RequestPart(value = "metafile", required = true) MultipartFile metadata,
+            @RequestHeader(value = "JSESSIONID", required = false) String jsessionid) throws Exception;
+
+    @RequestMapping(method = { RequestMethod.PATCH }, value = "/v1/saml/config", consumes = { "multipart/form-data" })
+    public ResponseEntity<Object> createOrUpdateSamlConfigPATCH(
+            @RequestPart(value = "samlConfig", required = false) String samlConfig,
+            @RequestPart(value = "metafile", required = true) MultipartFile metadata,
+            @RequestHeader(value = "JSESSIONID", required = false) String jsessionid) throws Exception;
+
     @RequestMapping(method = RequestMethod.GET, value = "/v1/saml/config", produces = { "application/json" })
     public ResponseEntity<Object> getSAMLConfig() throws Exception;
 

@@ -52,10 +52,9 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Autowired
 	private S3Connection s3Connection;
-	
+
 	@Autowired
 	private JfrogConnection jfrogConnection;
-	
 
 	@Value("${server.contextPath}")
 	private String context;
@@ -176,13 +175,24 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Override
 	public ResponseEntity<?> getWorkspaceIntegratons(String interactionid, String jsessionid) throws Exception {
-		return new ResponseEntity<>(integrationsDao.getWorkspaceIntegration(),HttpStatus.OK);
+		return new ResponseEntity<>(integrationsDao.getWorkspaceIntegration(), HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getWorkspaceIntegratonsKeys(String interactionid, String jsessionid) throws Exception {
+		return new ResponseEntity<>(integrationsDao.getMetaData(), HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseEntity<?> createWorkspaceIntegratons(String interactionid, String jsessionid,
 			WorkspaceIntegration workspaceIntegration) throws Exception {
 		integrationsDao.updateWorkspaceIntegration(workspaceIntegration);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	public ResponseEntity<?> removeWorkspaceIntegratons(String interactionid, String jsessionid, String id)
+			throws Exception {
+		integrationsDao.removeWorkspaceIntegration(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
@@ -219,34 +229,29 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 		integrationsDao.updateS3Integratoin(integration);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	@Override
-	public ResponseEntity<?> removeS3Integraton( 
-			String interactionid, String jsessionid, String id) throws Exception{
+	public ResponseEntity<?> removeS3Integraton(String interactionid, String jsessionid, String id) throws Exception {
 		integrationsDao.removeIntegratoin(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
-
 	@Override
-	public void downloadFile(
-			String interactionid,String jsessionid,
-			String type, HttpServletRequest httpServletRequest,HttpServletResponse response) throws Exception{
+	public void downloadFile(String interactionid, String jsessionid, String type,
+			HttpServletRequest httpServletRequest, HttpServletResponse response) throws Exception {
 		String uri = httpServletRequest.getRequestURI();
 		uri = uri.replaceAll(context + "/v1/download/", "");
-		if(type.equalsIgnoreCase("s3")){
+		if (type.equalsIgnoreCase("s3")) {
 			S3Integration s3Integration = s3Connection.getS3Integration();
-			if(s3Integration != null)
-			{
-				InputStream inputStream = s3Utils.getFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(), 
-						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(), 
-						uri);
+			if (s3Integration != null) {
+				InputStream inputStream = s3Utils.getFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(), uri);
 				response.setContentType("application/octet-stream");
 				response.setHeader("Content-Disposition", String.format("inline; filename=\"" + uri + "\""));
 				FileCopyUtils.copy(inputStream, response.getOutputStream());
 			}
-		}else{
-			Resource resource = jfrogConnection.getArtifact(jfrogConnection.getJfrogIntegration(),uri);
+		} else {
+			Resource resource = jfrogConnection.getArtifact(jfrogConnection.getJfrogIntegration(), uri);
 			InputStream inputStream = resource.getInputStream();
 			response.setContentType("application/octet-stream");
 			response.setHeader("Content-Disposition", String.format("inline; filename=\"" + uri + "\""));
@@ -255,16 +260,13 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	}
 
 	@Override
-	public ResponseEntity<?> getCodeConnectIntegraton(
-			String interactionid, String jsessionid) throws Exception{
+	public ResponseEntity<?> getCodeConnectIntegraton(String interactionid, String jsessionid) throws Exception {
 		return new ResponseEntity<>(integrationsDao.getCodeconnectIntegration(), HttpStatus.OK);
 	}
 
 	@Override
-	public ResponseEntity<?> createupdateCodeconnectIntegraton(
-			String interactionid,
-			String jsessionid, GitIntegration gitIntegration)
-					throws Exception{
+	public ResponseEntity<?> createupdateCodeconnectIntegraton(String interactionid, String jsessionid,
+			GitIntegration gitIntegration) throws Exception {
 		Integration integration = new Integration();
 		integration.setType("CODECOMMIT");
 		integration.setGitIntegration(gitIntegration);
@@ -273,12 +275,10 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	}
 
 	@Override
-	public ResponseEntity<?> removeCodeconnectIntegraton(
-			String interactionid, String jsessionid, String id) throws Exception{
+	public ResponseEntity<?> removeCodeconnectIntegraton(String interactionid, String jsessionid, String id)
+			throws Exception {
 		integrationsDao.removeIntegratoin(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
-	
 
 }

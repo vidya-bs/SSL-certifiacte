@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.design.studio.businessimpl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,21 +45,44 @@ public class ApicUtil {
 		return null;
 	}
 
+	private String processMetadata(String swaggerString, Map<String, String> metadata) {
+		SwaggerParser swaggerParser = new SwaggerParser();
+		Swagger swagger = swaggerParser.parse(swaggerString);
+		swagger.setVendorExtension("x-metadata", metadata);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			mapper.setSerializationInclusion(Include.NON_NULL);
+			return (mapper.writeValueAsString(swagger));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public String getPolicyTemplates(String swaggerString) {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			JsonNode data = mapper.readTree(swaggerString);
 			List<Category> categoryList = mongoTemplate.findAll(Category.class);
 			Map<String, String> mappings = getApicMapping();
+			Map<String, String> metadataMap = new HashMap<>();
 			for (String key : mappings.keySet()) {
 				if (key.contains("x-ibm-policy")) {
 					if (null != parseNode(data, key)) {
 						String value = mappings.get(key);
 						enableTemplate(categoryList, value);
 					}
+				} else if (key.contains("x-ibm-metadata")) {
+					String value = mappings.get(key);
+					JsonNode node = parseNode(data, value);
+					if (null != node) {
+						key = key.replaceAll("x-ibm-metadata-", "").replaceAll("#", ".");
+						metadataMap.put(key, node.toPrettyString());
+					}
 				}
 			}
 			String OAS = processOAS(swaggerString, categoryList);
+			OAS = processMetadata(OAS, metadataMap);
 			return removeResponseSchemaTag(OAS);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
@@ -117,7 +141,7 @@ public class ApicUtil {
 		String[] tokens = name.split("=");
 		return tokens[1].replaceAll("'", "").replaceAll("#", ".");
 	}
-	
+
 	private String removeResponseSchemaTag(String json) {
 		DocumentContext documentContext = JsonPath.parse(json);
 		String responseSchemaPath = "$.paths.[*].[*].responses.*.responseSchema";

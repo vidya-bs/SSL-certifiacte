@@ -353,7 +353,8 @@ public class ServiceRequestDao {
 
 	@SuppressWarnings({"unchecked", "unused"})
 	public void revertServiceRequest(String requestId) throws ItorixException, MessagingException {
-
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		User user = identityManagementDao.getUserDetailsFromSessionID(userSessionToken.getId());
 		boolean isRevertApplicable = true;
 
 		ServiceRequest serviceRequest = findServiceRequestByRequestId(requestId);
@@ -383,7 +384,7 @@ public class ServiceRequestDao {
 							.is(serviceRequest.getName()).and("type").is(serviceRequest.getType()).and("isSaaS")
 							.is(serviceRequest.getIsSaaS()));
 				}
-
+				changeServiceRequestStatus(serviceRequest, user);
 				Update update = new Update();
 				update.set("activeFlag", Boolean.FALSE);
 				UpdateResult result = mongoTemplate.updateMulti(query, update, ServiceRequest.class);
@@ -410,8 +411,7 @@ public class ServiceRequestDao {
 		if (serviceRequests.size() > 0) {
 			ServiceRequest serviceRequest = serviceRequests.get(0);
 			Query query = null;
-			if (config.getStatus().equalsIgnoreCase("Approved")
-					&& ((config.getUserRole().contains("Operation") || config.getUserRole().contains("Admin")))) {
+			if (config.getStatus().equalsIgnoreCase("Approved")) {
 				if (serviceRequest.isCreated()) {
 					if ("TargetServer".equalsIgnoreCase(serviceRequest.getType())) {
 						TargetConfig targetConfig = new TargetConfig();
