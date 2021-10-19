@@ -11,6 +11,7 @@ public class Flow {
 	private String path;
 	private String targetName;
 	private String targetOperation;
+	private String targetBasepath;
 
 	/** @return the targetName */
 	public String getTargetName() {
@@ -82,4 +83,14 @@ public class Flow {
 	public String toString() {
 		return "[condition = " + condition + ", name = " + name + "]";
 	}
+
+	public String getTargetBasepath() {
+		return targetBasepath;
+	}
+
+	public void setTargetBasepath(String targetBasepath) {
+		this.targetBasepath = targetBasepath;
+	}
+	
+	
 }

@@ -68,9 +68,9 @@ public class MongoConnection {
 	private ApigeeDetails apigeeDetails;
 	@Autowired
 	private Operations operations;
-	
+
 	@Autowired
-    private GridFsTemplate gridFsTemplate;
+	private GridFsTemplate gridFsTemplate;
 
 	private DB getDB() {
 		MongoDatabase mongoDatabase = mongoTemplate.getDb();

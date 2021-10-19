@@ -19,15 +19,17 @@ public class WorkspaceIntegrationUtils {
 			Query query = new Query();
 			query.addCriteria(Criteria.where("propertyKey").is(key));
 			WorkspaceIntegration integration = mongoTemplate.findOne(query, WorkspaceIntegration.class);
-			if(integration != null){
+			if (integration != null) {
 				RSAEncryption rSAEncryption;
 				rSAEncryption = new RSAEncryption();
-				return integration.getEncrypt() ? rSAEncryption.decryptText(integration.getPropertyValue()) :integration.getPropertyValue();
-			}else 
+				return integration.getEncrypt()
+						? rSAEncryption.decryptText(integration.getPropertyValue())
+						: integration.getPropertyValue();
+			} else
 				return null;
 		} catch (Exception e) {
 			return null;
-		} 
+		}
 	}
 
 }

@@ -1,8 +1,10 @@
 package com.itorix.apiwiz.sso.configuration;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-
+import com.itorix.apiwiz.sso.filter.JsessionAuthFilter;
+import com.itorix.apiwiz.sso.handler.AccessDeniedHandlerImpl;
+import com.itorix.apiwiz.sso.handler.AuthenticationEntryPointImpl;
+import com.itorix.apiwiz.sso.serviceImpl.SAMLUserDetailsServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
@@ -17,12 +19,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.itorix.apiwiz.sso.filter.JsessionAuthFilter;
-import com.itorix.apiwiz.sso.handler.AccessDeniedHandlerImpl;
-import com.itorix.apiwiz.sso.handler.AuthenticationEntryPointImpl;
-import com.itorix.apiwiz.sso.serviceImpl.SAMLUserDetailsServiceImpl;
-
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 @EnableWebSecurity
 @Configuration
@@ -45,7 +43,7 @@ public class SSOSecurityConfig {
     @Value("${itorix.ssl.sso.key-store}")
     private String keyStoreFilePath;
 
-    @Value("${server.contextPath}")
+    @Value("${server.servlet.context-path}")
     private String contextPath;
 
     @Value("${validate.selfSignedCertificate:true}")
@@ -103,10 +101,11 @@ public class SSOSecurityConfig {
                     .serviceProvider().keyStore().storeFilePath(keyStoreFilePath).password(keyStorePassword)
                     .keyname(keyAlias).keyPassword(password).and().protocol(protocol)
                     .hostname(String.format("%s:%s", host, ssoPort)).basePath(contextPath).and().identityProvider()
-                    .metadataFilePath(metadataUrl);
+                    .metadataFilePath(metadataUrl).and();
             http.exceptionHandling().accessDeniedHandler(accessDeniedHandler);
-        }
 
+
+        }
     }
 
     @Configuration
@@ -120,7 +119,7 @@ public class SSOSecurityConfig {
             http.csrf().disable().antMatcher("/v1/**").authorizeRequests().anyRequest().authenticated().and()
                     .exceptionHandling().authenticationEntryPoint(authenticationEntryPointImpl)
                     .accessDeniedHandler(accessDeniedHandler).and().sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().cors();
 
             http.addFilterBefore(jsessionAuthFilter, UsernamePasswordAuthenticationFilter.class);
         }
@@ -139,4 +138,5 @@ public class SSOSecurityConfig {
             // @formatter:on
         }
     }
+
 }

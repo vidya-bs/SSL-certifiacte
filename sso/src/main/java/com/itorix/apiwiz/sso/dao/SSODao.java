@@ -6,11 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.sso.exception.ErrorCodes;
 import com.itorix.apiwiz.sso.exception.ItorixException;
 import com.itorix.apiwiz.sso.model.*;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +82,6 @@ public class SSODao {
 
             workspaces.add(userWorkspace);
             user.setWorkspaces(workspaces);
-
         } else {
             if (projectRoles.size() > 1) {
                 user.getWorkspaces().get(0).setRoles(projectRoles);
@@ -119,16 +116,14 @@ public class SSODao {
 
     public void updateUser(User user, List<String> projectRoles) {
         Query query = new Query(Criteria.where("id").is(user.getId()));
-        DBObject dbDoc = new BasicDBList();
-        mongoTemplate.getConverter().write(projectRoles, dbDoc);
-        Update update = Update.fromDBObject(dbDoc);
+        Update update = new Update();
+        update.set("workspaces.0.roles", projectRoles);
         mongoTemplate.upsert(query, update, "workspaces.0.roles");
 
     }
 
     public void createOrUpdateSamlConfig(SAMLConfig samlConfig) throws ItorixException {
         try {
-
             String jsonString = new ObjectMapper().writeValueAsString(samlConfig);
             UIMetadata metadata = new UIMetadata(UIMetadata.SAML_CONFIG, jsonString);
             createUIUXMetadata(metadata);
@@ -148,9 +143,9 @@ public class SSODao {
             uIMetadata.setMetadata(metadata.getMetadata());
             uIMetadata.setQuery(metadata.getQuery());
             Query query = new Query(Criteria.where("query").is(metadata.getQuery()));
-            DBObject dbDoc = new BasicDBObject();
+            Document dbDoc = new Document();
             masterMongoTemplate.getConverter().write(uIMetadata, dbDoc);
-            Update update = Update.fromDBObject(dbDoc, "_id");
+            Update update = Update.fromDocument(dbDoc, "_id");
             masterMongoTemplate.updateFirst(query, update, UIMetadata.class);
         } else {
             masterMongoTemplate.save(metadata);
@@ -168,7 +163,6 @@ public class SSODao {
                     : new ObjectMapper().readValue(uiuxMetadata.getMetadata(), SAMLConfig.class);
         } catch (IOException e) {
             return null;
-
         }
     }
 
@@ -185,7 +179,6 @@ public class SSODao {
                 userAssertionRoles = Arrays.asList(attributeAsStringArray);
             }
         }
-
         return getProjectRole(userAssertionRoles);
     }
 

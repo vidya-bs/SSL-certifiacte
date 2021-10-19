@@ -1280,27 +1280,15 @@ public class TestSuiteDAO {
 				.limit(pageSize);
 		query.fields().exclude("content").exclude("password");
 		List<Certificates> certificates = mongoTemplate.find(query, Certificates.class);
+		int total = mongoTemplate.findAll(Certificates.class).size();
 		CertificateOverviewResponse response = new CertificateOverviewResponse();
 		Pagination pagination = new Pagination();
 		pagination.setPageSize(pageSize);
 		pagination.setOffset(offset);
-		pagination.setTotal(Long.valueOf(certificates.size()));
+		pagination.setTotal(Long.valueOf(total));
 		response.setCertificates(certificates);
 		response.setPagination(pagination);
 		return response;
 	}
 
-	public MaskFieldsOverviewResponse getAllMaskFields(int offset, int pageSize) {
-		Query query = new Query().with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
-				.limit(pageSize);
-		List<MaskFields> maskFields = mongoTemplate.find(query, MaskFields.class);
-		MaskFieldsOverviewResponse response = new MaskFieldsOverviewResponse();
-		Pagination pagination = new Pagination();
-		pagination.setPageSize(pageSize);
-		pagination.setOffset(offset);
-		pagination.setTotal(Long.valueOf(maskFields.size()));
-		response.setMaskFields(maskFields);
-		response.setPagination(pagination);
-		return response;
-	}
 }

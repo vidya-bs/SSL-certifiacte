@@ -14,8 +14,9 @@ public class SwaggerUtilTest {
 
 		ObjectMapper objectMapper = new ObjectMapper();
 
-		Map<?, ?> map = objectMapper.readValue(Paths.get("/Users/balajivijayan/IdeaProjects/apiwiz-core-platform-api/design-studio/src/test/resources/swagger.json").toFile(), Map.class);
-
+		Map<?, ?> map = objectMapper.readValue(Paths.get(
+				"/Users/balajivijayan/IdeaProjects/apiwiz-core-platform-api/design-studio/src/test/resources/swagger.json")
+				.toFile(), Map.class);
 
 		String output = SwaggerUtil.removeResponseSchemaTag(objectMapper.writeValueAsString(map));
 
@@ -35,7 +36,7 @@ public class SwaggerUtilTest {
 	public void checkReplaceURLWhenNoProtocolIsPresent() throws ItorixException {
 		try {
 			String output = SwaggerUtil.replaceURL("/api/v3", "/newPath");
-		} catch (ItorixException m ) {
+		} catch (ItorixException m) {
 			assertTrue(m.getMessage().contains("Malformed URL Provided"));
 		}
 	}

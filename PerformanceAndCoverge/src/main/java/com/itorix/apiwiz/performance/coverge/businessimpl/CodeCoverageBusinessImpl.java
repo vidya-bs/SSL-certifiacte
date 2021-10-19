@@ -249,7 +249,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 				+ cfg.getEnvironment() + "-" + cfg.getApiName() + ".zip";
 		ZipUtil.pack(new File(applicationProperties.getRestoreDir() + timeStamp + "/" + cfg.getOrganization() + "-"
 				+ cfg.getEnvironment() + "-" + cfg.getApiName()), new File(zipFileName));
-		
+
 		String downloadURI = null;
 		try {
 			S3Integration s3Integration = s3Connection.getS3Integration();
@@ -274,19 +274,20 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 			logger.error("Error Storing file in Artifactory : " + e.getMessage());
 			e.printStackTrace();
 		}
-		
-		
-		
-//		try {
-//			obj = jfrogUtilImpl.uploadFiles(zipFileName, applicationProperties.getApigeeCodecoverage(),
-//					applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort() + "/artifactory/",
-//					"Codecoverage/" + timeStamp + "", applicationProperties.getJfrogUserName(),
-//					applicationProperties.getJfrogPassword());
-//		} catch (Exception e) {
-//			logger.error(e.getMessage());
-//			e.printStackTrace();
-//			throw e;
-//		}
+
+		// try {
+		// obj = jfrogUtilImpl.uploadFiles(zipFileName,
+		// applicationProperties.getApigeeCodecoverage(),
+		// applicationProperties.getJfrogHost() + ":" +
+		// applicationProperties.getJfrogPort() + "/artifactory/",
+		// "Codecoverage/" + timeStamp + "",
+		// applicationProperties.getJfrogUserName(),
+		// applicationProperties.getJfrogPassword());
+		// } catch (Exception e) {
+		// logger.error(e.getMessage());
+		// e.printStackTrace();
+		// throw e;
+		// }
 		// TODO We need to delete the hard copy of zipFileName
 		long end = System.currentTimeMillis();
 		codeCoverageBackUpInfo.setOrganization(cfg.getOrganization());

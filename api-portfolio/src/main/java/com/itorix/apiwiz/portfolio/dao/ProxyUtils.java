@@ -127,7 +127,6 @@ public class ProxyUtils {
 			operations.setjSessionid(jsessionId);
 			User user = commonServices.getUserDetailsFromSessionID(jsessionId);
 			operations.setUser(user);
-			System.out.println(mapper.writeValueAsString(proxyGen));
 			codeGenService.processCodeGen(proxyGen, operations, project);
 			org.apache.commons.io.FileUtils.deleteDirectory(new File(folderPath));
 			response.setGitPush("true");
@@ -209,9 +208,9 @@ public class ProxyUtils {
 		if (!isPipelineExists(projectName.replaceAll(" ", "-").replaceAll("\\.", ""), branch, jsessionId))
 			createPipeline(pipelineGroups, jsessionId);
 		return projectName.replaceAll(" ", "-").replaceAll("\\.", "") + "_"
-		+ proxyGen.getProxy().getName().replaceAll("\\.", "").trim() + "_"
-		+ proxyGen.getProxy().getVersion().replaceAll("\\.", "").trim() + "_"
-		+ proxyGen.getProxySCMDetails().getBranch();
+				+ proxyGen.getProxy().getName().replaceAll("\\.", "").trim() + "_"
+				+ proxyGen.getProxy().getVersion().replaceAll("\\.", "").trim() + "_"
+				+ proxyGen.getProxySCMDetails().getBranch();
 	}
 
 	private boolean isPipelineExists(String projectName, String branchName, String jsessionid) throws ItorixException {
@@ -276,9 +275,9 @@ public class ProxyUtils {
 							TestSuiteAndConfig testSuiteAndConfig = new TestSuiteAndConfig();
 							testSuites.add(testSuiteAndConfig);
 							testSuiteAndConfig
-							.setTestSuiteId(stage.getUnitTests().getTestsuites().get(0).getTestSuiteId());
+									.setTestSuiteId(stage.getUnitTests().getTestsuites().get(0).getTestSuiteId());
 							testSuiteAndConfig
-							.setEnvironmentId(stage.getUnitTests().getTestsuites().get(0).getEnvironmentId());
+									.setEnvironmentId(stage.getUnitTests().getTestsuites().get(0).getEnvironmentId());
 							unitTests.setTestSuites(testSuites);
 						}
 					}
@@ -294,7 +293,7 @@ public class ProxyUtils {
 							TestSuiteAndConfig testSuiteAndConfig = new TestSuiteAndConfig();
 							testSuites.add(testSuiteAndConfig);
 							testSuiteAndConfig
-							.setTestSuiteId(stage.getCodeCoverage().getTestsuites().get(0).getTestSuiteId());
+									.setTestSuiteId(stage.getCodeCoverage().getTestsuites().get(0).getTestSuiteId());
 							testSuiteAndConfig.setEnvironmentId(
 									stage.getCodeCoverage().getTestsuites().get(0).getEnvironmentId());
 							codecoverage.setTestSuites(testSuites);
@@ -380,7 +379,7 @@ public class ProxyUtils {
 			CodeGenHistory codeGenHistory = new CodeGenHistory();
 			List<Category> policyTemplates = populatePolicyTemplates(projectProxy);
 			codeGenHistory.setPolicyTemplates(policyTemplates);
-			codeGenHistory.setProxy(populateProxy(project.getProxies().get(0)));
+			codeGenHistory.setProxy(populateProxy(project.getProxies().get(0), portfolio.getName()));
 			codeGenHistory.setProxySCMDetails(populateProxySCMDetails(projectProxy.getName()));
 			codeGenHistory.setPortfolio(proxyPortfolio);
 			return codeGenHistory;
@@ -390,7 +389,7 @@ public class ProxyUtils {
 		}
 	}
 
-	private Proxy populateProxy(Proxies projectProxy) {
+	private Proxy populateProxy(Proxies projectProxy, String name) {
 		ObjectMapper mapper = new ObjectMapper();
 		String proxyBuildArtifact = "";
 		if (projectProxy.getApigeeConfig().getDesignArtifacts() != null
@@ -410,8 +409,8 @@ public class ProxyUtils {
 		proxy.setName(projectProxy.getName());
 		proxy.setDescription(projectProxy.getName());
 		proxy.setVersion(projectProxy.getProxyVersion());
-		proxy.setBuildProxyArtifactType("WSDL");
-		proxy.setBuildProxyArtifact(proxyBuildArtifact);
+		proxy.setBuildProxyArtifactType("Portfolio");
+		proxy.setBuildProxyArtifact(name);
 		proxy.setBranchType("feature");
 		return proxy;
 	}
@@ -487,12 +486,12 @@ public class ProxyUtils {
 		String sourceBranch = scmPromote.getBaseBranch();
 		String targetBranch = scmPromote.getTargetBranch();
 		try {
-			if(null != gitIntegration){
+			if (null != gitIntegration) {
 				RSAEncryption rSAEncryption = new RSAEncryption();
-				if(gitIntegration.getAuthType().equalsIgnoreCase("token")){
+				if (gitIntegration.getAuthType().equalsIgnoreCase("token")) {
 					String token = rSAEncryption.decryptText(gitIntegration.getToken());
 					scmUtilImpl.promoteToGitToken(sourceBranch, targetBranch, hostUrl, gitType, token, null);
-				}else{
+				} else {
 					String username = gitIntegration.getUsername();
 					String password = rSAEncryption.decryptText(gitIntegration.getPassword());
 					scmUtilImpl.promoteToGit(sourceBranch, targetBranch, hostUrl, username, password, null);

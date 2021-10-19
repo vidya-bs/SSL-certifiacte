@@ -44,7 +44,7 @@ public class ApicUtil {
 		}
 		return null;
 	}
-	
+
 	private String processMetadata(String swaggerString, Map<String, String> metadata) {
 		SwaggerParser swaggerParser = new SwaggerParser();
 		Swagger swagger = swaggerParser.parse(swaggerString);
@@ -72,8 +72,7 @@ public class ApicUtil {
 						String value = mappings.get(key);
 						enableTemplate(categoryList, value);
 					}
-				}
-				else if(key.contains("x-ibm-metadata")){
+				} else if (key.contains("x-ibm-metadata")) {
 					String value = mappings.get(key);
 					JsonNode node = parseNode(data, value);
 					if (null != node) {
@@ -142,7 +141,7 @@ public class ApicUtil {
 		String[] tokens = name.split("=");
 		return tokens[1].replaceAll("'", "").replaceAll("#", ".");
 	}
-	
+
 	private String removeResponseSchemaTag(String json) {
 		DocumentContext documentContext = JsonPath.parse(json);
 		String responseSchemaPath = "$.paths.[*].[*].responses.*.responseSchema";

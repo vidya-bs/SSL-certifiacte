@@ -387,15 +387,6 @@ public interface TestSuiteService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid);
 
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/testsuites/maskFields/overview")
-	public ResponseEntity<?> getMaskingFieldsOverview(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "expand", required = false) String expand,
-			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize);
-
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/testsuites/certificates/{name}")
 	public ResponseEntity<?> getCertificate(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,

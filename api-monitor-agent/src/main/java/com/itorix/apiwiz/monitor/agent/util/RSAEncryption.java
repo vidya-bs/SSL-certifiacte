@@ -1,27 +1,21 @@
 package com.itorix.apiwiz.monitor.agent.util;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
+import org.apache.commons.codec.binary.Base64;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-
-import org.apache.commons.codec.binary.Base64;
-import org.springframework.stereotype.Component;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 @Component
 public class RSAEncryption {
@@ -120,12 +114,14 @@ public class RSAEncryption {
 
     public static void main(String[] args) throws Exception {
         RSAEncryption ac = new RSAEncryption();
-        System.out.println(ac.decryptText("testkey1234"));
+        System.out.println(ac.decryptText("hdo8bcDRiQoFHogZsHn27Q2rel5rtkrLdYr3HLmm0WmCnA5ijVV8SQgl294qcGaGZ8MN2kqAHvqDz5EtwTHEhw=="));
         String msg = "Itorix@8102";
         String encrypted_msg = ac.encryptText(msg);
         String decrypted_msg = ac.decryptText(encrypted_msg);
         System.out.println("Original Message: " + msg + "\nEncrypted Message: " + encrypted_msg
                 + "\nDecrypted Message: " + decrypted_msg);
+
+
     }
 
 }

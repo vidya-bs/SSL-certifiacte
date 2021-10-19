@@ -1,48 +1,27 @@
 package com.itorix.apiwiz.identitymanagement.serviceImpl;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.itorix.apiwiz.common.model.SwaggerTeam;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.dao.WorkspaceDao;
-import com.itorix.apiwiz.identitymanagement.model.CancelSubscriptions;
-import com.itorix.apiwiz.identitymanagement.model.DBConfig;
-import com.itorix.apiwiz.identitymanagement.model.Plan;
-import com.itorix.apiwiz.identitymanagement.model.ResetUserToken;
-import com.itorix.apiwiz.identitymanagement.model.Subscription;
-import com.itorix.apiwiz.identitymanagement.model.SubscriptionEvent;
-import com.itorix.apiwiz.identitymanagement.model.UIMetadata;
-import com.itorix.apiwiz.identitymanagement.model.User;
-import com.itorix.apiwiz.identitymanagement.model.UserDomains;
-import com.itorix.apiwiz.identitymanagement.model.UserInfo;
-import com.itorix.apiwiz.identitymanagement.model.UserSession;
-import com.itorix.apiwiz.identitymanagement.model.VerificationToken;
-import com.itorix.apiwiz.identitymanagement.model.Workspace;
+import com.itorix.apiwiz.identitymanagement.model.*;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.itorix.apiwiz.identitymanagement.service.IdentityManagmentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @CrossOrigin // (exposedHeaders = "*")
 @RestController
@@ -399,6 +378,12 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	}
 
 	@Override
+	public ResponseEntity<Void> disableSso(String interactionid, String jsessionid, String workspaceName) throws ItorixException, Exception {
+		workspaceDao.disableSso(workspaceName);
+		return new ResponseEntity<Void>(HttpStatus.OK);
+	}
+
+	@Override
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/{userId}/remove-workspace")
 	public @ResponseBody ResponseEntity<Void> removeWorkspaceUser(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -694,7 +679,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		workspaceDao.removeSeats(workspace.getSeats());
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	@Override
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/accounts-cancellation")
 	public @ResponseBody ResponseEntity<Void> cancelSubscription(@RequestHeader(value = "JSESSIONID") String jsessionid,

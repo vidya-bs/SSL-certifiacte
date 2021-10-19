@@ -61,10 +61,10 @@ public class JfrogConnection {
 	public Resource getArtifact(JfrogIntegration jfrogIntegration, String url) {
 		StringBuilder host = new StringBuilder();
 		host.append(jfrogIntegration.getHostURL());
-		host.append("/"+url);
+		host.append("/" + url);
 		RestTemplate restTemplate = new RestTemplate();
-		
+
 		url = URLDecoder.decode(host.toString());
-		return restTemplate.getForObject( url, Resource.class);
+		return restTemplate.getForObject(url, Resource.class);
 	}
 }
