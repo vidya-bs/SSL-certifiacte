@@ -119,7 +119,7 @@ public class SSOSecurityConfig {
             http.csrf().disable().antMatcher("/v1/**").authorizeRequests().anyRequest().authenticated().and()
                     .exceptionHandling().authenticationEntryPoint(authenticationEntryPointImpl)
                     .accessDeniedHandler(accessDeniedHandler).and().sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().cors().and().authorizeRequests();
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().cors();
 
             http.addFilterBefore(jsessionAuthFilter, UsernamePasswordAuthenticationFilter.class);
         }

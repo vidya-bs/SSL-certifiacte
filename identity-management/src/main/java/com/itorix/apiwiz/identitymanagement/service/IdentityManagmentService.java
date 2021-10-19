@@ -1,41 +1,21 @@
 package com.itorix.apiwiz.identitymanagement.service;
 
-import java.text.ParseException;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.itorix.apiwiz.common.model.SwaggerTeam;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.identitymanagement.model.CancelSubscriptions;
-import com.itorix.apiwiz.identitymanagement.model.DBConfig;
-import com.itorix.apiwiz.identitymanagement.model.ResetUserToken;
-import com.itorix.apiwiz.identitymanagement.model.Subscription;
-import com.itorix.apiwiz.identitymanagement.model.SubscriptionEvent;
-import com.itorix.apiwiz.identitymanagement.model.User;
-import com.itorix.apiwiz.identitymanagement.model.UserDomains;
-import com.itorix.apiwiz.identitymanagement.model.UserInfo;
-import com.itorix.apiwiz.identitymanagement.model.UserSession;
-import com.itorix.apiwiz.identitymanagement.model.VerificationToken;
-import com.itorix.apiwiz.identitymanagement.model.Workspace;
+import com.itorix.apiwiz.identitymanagement.model.*;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
-
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.text.ParseException;
+import java.util.List;
+import java.util.Map;
 
 @CrossOrigin
 @RestController
@@ -190,6 +170,13 @@ public interface IdentityManagmentService {
 	public @ResponseBody ResponseEntity<Void> enableSso(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody Workspace workspace)
+			throws ItorixException, Exception;
+
+	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/workspace/disable-sso/{workspaceName}")
+	public @ResponseBody ResponseEntity<Void> disableSso(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable String workspaceName)
 			throws ItorixException, Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")

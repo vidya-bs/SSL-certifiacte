@@ -8,6 +8,7 @@ import com.itorix.apiwiz.common.model.MetaData;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.util.encryption.HmacSHA256;
 import com.itorix.apiwiz.identitymanagement.model.*;
+import com.mongodb.client.result.UpdateResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -205,5 +206,10 @@ public class WorkspaceDao {
 				+ "luBrltMW/bXvCcDF1NaZ0PMpQThrskK+JtvVzexzHUtulsL8XDvUZotmsXPqVPvX\r\n" + "AwIDAQAB\r\n"
 				+ "-----END PUBLIC KEY-----";
 		return key;
+	}
+
+	public void disableSso(String workspaceName) {
+		Query query = Query.query(Criteria.where("_id").is(workspaceName));
+		UpdateResult updateResult = masterMongoTemplate.updateFirst(query, Update.update("ssoEnabled", false), Workspace.class);
 	}
 }
