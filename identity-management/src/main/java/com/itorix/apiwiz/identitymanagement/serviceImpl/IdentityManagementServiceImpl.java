@@ -621,6 +621,15 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		return new ResponseEntity<Object>(workspaceDao.getPublicKey(tenant, source), headers, HttpStatus.OK);
 	}
 
+	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/jwks")
+	@Override
+	public ResponseEntity<Object> updatePublicKey(String jsessionid, String interactionid,
+												  String apikey, String source, String tenant, String key) throws Exception {
+		workspaceDao.updatePublicKey(tenant, source, key);
+		return new ResponseEntity<Object>(HttpStatus.OK);
+	}
+
 	@Override
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/accounts/webhooks")

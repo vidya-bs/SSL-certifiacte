@@ -430,6 +430,16 @@ public interface IdentityManagmentService {
 			throws Exception;
 
 	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/jwks")
+	public @ResponseBody ResponseEntity<Object> updatePublicKey(
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey", required = false) String apikey,
+			@RequestHeader(value = "x-source") String source,
+			@RequestHeader(value = "x-tenant") String tenant,
+			@RequestBody(required = true) String key) throws Exception;
+
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/accounts/webhooks")
 	public @ResponseBody ResponseEntity<Void> accountWebhook(@RequestHeader(value = "signature") String signature,
 			@RequestBody SubscriptionEvent subscriptionEvent) throws Exception;

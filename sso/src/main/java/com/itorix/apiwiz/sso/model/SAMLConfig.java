@@ -1,8 +1,6 @@
 package com.itorix.apiwiz.sso.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,7 +33,6 @@ public class SAMLConfig {
     private String userRoles;
 
     // metadata file of the idp, either metadataUrl or metadata should be provided
-    @JsonIgnore
     private byte[] metadata;
     // IDP equivalent role names of itorix application
     private UserDefinedRoles roles;
