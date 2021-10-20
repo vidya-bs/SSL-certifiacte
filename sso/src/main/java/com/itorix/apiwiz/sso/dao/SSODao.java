@@ -253,10 +253,12 @@ public class SSODao {
     public UIMetadata getUIUXMetadata(String query) {
         Query dBquery = new Query(Criteria.where("query").is(query).and("workspaceId").is(workspaceId));
         List<UIMetadata> UIMetadata = masterMongoTemplate.find(dBquery, UIMetadata.class);
-        if (UIMetadata != null && UIMetadata.size() > 0)
+        if (UIMetadata != null && UIMetadata.size() > 0) {
             return UIMetadata.get(0);
-        else
+        }
+        else {
             return null;
+        }
     }
 
 }
