@@ -162,7 +162,6 @@ public class SSODao {
     }
 
     public SAMLConfig getSamlConfig() {
-
         UIMetadata uiuxMetadata = getUIUXMetadata(UIMetadata.SAML_CONFIG);
         try {
             return uiuxMetadata == null ? null
