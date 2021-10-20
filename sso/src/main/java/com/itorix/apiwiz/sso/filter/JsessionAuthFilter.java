@@ -1,19 +1,12 @@
 package com.itorix.apiwiz.sso.filter;
 
-import java.io.IOException;
-import java.util.Arrays;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.itorix.apiwiz.sso.exception.ErrorCodes;
+import com.itorix.apiwiz.sso.exception.ItorixException;
+import com.itorix.apiwiz.sso.model.RSAEncryption;
+import com.itorix.apiwiz.sso.model.TenantContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,8 +15,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.itorix.apiwiz.sso.model.RSAEncryption;
-import com.itorix.apiwiz.sso.model.TenantContext;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
 
 @Component
 public class JsessionAuthFilter extends OncePerRequestFilter {
@@ -38,11 +35,6 @@ public class JsessionAuthFilter extends OncePerRequestFilter {
     private static final String TENANT_ID = "tenantId";
     private static final String API_KEY_NAME = "x-apikey";
 
-    @Qualifier("masterMongoTemplate")
-    @Autowired
-    private MongoTemplate mongoTemplate;
-
-    public static final String SESSION_TOKEN_NAME = "JSESSIONID";
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
@@ -51,7 +43,8 @@ public class JsessionAuthFilter extends OncePerRequestFilter {
 
         if (!StringUtils.isEmpty(apiKeyHeader)) {
             try {
-                if (StringUtils.hasText(apiKeyHeader) && new RSAEncryption().decryptText(apiKey).equals(apiKeyHeader)) {
+                if (StringUtils.hasText(apiKeyHeader)) {
+                    unSecureCallValidations(apiKeyHeader);
                     String tenantName = ((String) req.getHeader(TENANT_ID));
                     TenantContext.setCurrentTenant(tenantName);
                     Authentication authentication = new UsernamePasswordAuthenticationToken("test1", null,
@@ -65,4 +58,22 @@ public class JsessionAuthFilter extends OncePerRequestFilter {
         }
         chain.doFilter(req, res);
     }
+
+
+    private void unSecureCallValidations(String apiKeyHeader)
+            throws Exception {
+        RSAEncryption rsaEncryption = new RSAEncryption();
+        apiKeyHeader = rsaEncryption.decryptText(apiKeyHeader);
+        if(apiKeyHeader == null){
+            throw new ItorixException(ErrorCodes.errorMessage.get("SSO-2"), "SSO-2");
+        }else{
+            if(apiKeyHeader.equals(rsaEncryption.decryptText(apiKey))){
+                return;
+            }else{
+                throw new ItorixException(ErrorCodes.errorMessage.get("SSO-2"), "SSO-2");
+            }
+        }
+    }
+
 }
+
