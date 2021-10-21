@@ -19,7 +19,7 @@ import java.util.Map;
 
 @CrossOrigin
 @RestController
-public interface IdentityManagmentService {
+	public interface IdentityManagmentService {
 
 	@ApiOperation(value = "userLogin", notes = "", code = 200, response = UserSession.class)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Login Sucessful", response = UserSession.class),
@@ -467,4 +467,23 @@ public interface IdentityManagmentService {
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/health")
 	public @ResponseBody ResponseEntity<Object> health(
 			@RequestHeader(value = "x-apikey", required = false) String apikey) throws Exception;
+
+	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/itorix-resources/videos/category")
+	public @ResponseBody ResponseEntity<Object> createVideoCategories(
+			@RequestBody String data) throws Exception;
+
+	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/itorix-resources/videos/category")
+	public @ResponseBody ResponseEntity<Object> getVideoCategories() throws Exception;
+
+	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/itorix-resources/videos")
+	public @ResponseBody ResponseEntity<Object> createVideos(
+			@RequestBody String data) throws Exception;
+
+	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/itorix-resources/videos")
+	public @ResponseBody ResponseEntity<Object> getVideos(@RequestParam(required = false)String category) throws Exception;
+
 }

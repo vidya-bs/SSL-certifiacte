@@ -747,4 +747,30 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			@RequestHeader(value = "x-apikey", required = false) String apikey) throws Exception {
 		return new ResponseEntity<Object>("ok", HttpStatus.OK);
 	}
+
+	@Override
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<Object> createVideoCategories(String data) throws Exception {
+		workspaceDao.createLandingData("video-category", data);
+		return new ResponseEntity<Object>(HttpStatus.OK);
+	}
+
+	@Override
+	@UnSecure(ignoreValidation = true)
+	public @ResponseBody ResponseEntity<Object> getVideoCategories() throws Exception {
+		return new ResponseEntity<Object>(workspaceDao.getLandingData("video-category"), HttpStatus.OK);
+	}
+
+	@Override
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<Object> createVideos(String data) throws Exception {
+		workspaceDao.createLandingData("videos", data);
+		return new ResponseEntity<Object>(HttpStatus.OK);
+	}
+
+	@Override
+	@UnSecure(ignoreValidation = true)
+	public @ResponseBody ResponseEntity<Object> getVideos(String category) throws Exception {
+		return new ResponseEntity<>(workspaceDao.getVideos(category), HttpStatus.OK);
+	}
 }

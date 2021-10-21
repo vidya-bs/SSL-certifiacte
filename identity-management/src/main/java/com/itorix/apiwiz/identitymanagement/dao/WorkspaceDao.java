@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.itorix.apiwiz.common.model.MetaData;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
@@ -29,6 +30,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class WorkspaceDao {
@@ -226,5 +228,24 @@ public class WorkspaceDao {
 		Update update = new Update();
 		update.set("key", key);
 		masterMongoTemplate.upsert(query, update, TenantPublicKey.class);
+	}
+
+	public Object getVideos(String category) throws JsonProcessingException {
+		if(category != null) {
+			Query query = Query.query(Criteria.where("key").is("videos"));
+			MetaData metadata = masterMongoTemplate.findOne(query, MetaData.class);
+			if(metadata != null) {
+				ObjectMapper objectMapper = new ObjectMapper();
+				TypeFactory typeFactory = objectMapper.getTypeFactory();
+				List<Video> videos = objectMapper.readValue(metadata.getMetadata(), typeFactory.constructCollectionType(List.class, Video.class));
+				return videos.stream().filter( v -> v.getCategory().equals(category)).collect(Collectors.toList());
+			}
+		} else {
+			MetaData metadata = masterMongoTemplate.findOne(Query.query(Criteria.where("key").is("videos")), MetaData.class);
+			if(metadata != null ) {
+				return metadata.getMetadata();
+			}
+		}
+		return null;
 	}
 }
