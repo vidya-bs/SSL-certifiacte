@@ -11,6 +11,8 @@ import com.itorix.apiwiz.datadictionary.model.*;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.mongodb.client.result.DeleteResult;
+
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +51,24 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 
 	public PortfolioVO createPortfolio(PortfolioVO portfolioVO) {
 		log("createPortfolio", portfolioVO.getInteractionid(), portfolioVO);
+		portfolioVO.setDictionaryId(new ObjectId().toString());
+		portfolioVO.setRevision(1);
 		PortfolioVO vo = baseRepository.save(portfolioVO);
+		log("createPortfolio", portfolioVO.getInteractionid(), vo);
+		return vo;
+	}
+
+	public PortfolioVO createPortfolioRevision(PortfolioVO portfolioVO, String id) {
+		log("createPortfolio", portfolioVO.getInteractionid(), portfolioVO);
+		PortfolioVO vo = baseRepository.save(portfolioVO);
+		List<PortfolioModel> models = findPortfolioModelsByportfolioID(id);
+		if(models != null){
+			for(PortfolioModel model: models){
+				model.setPortfolioID(vo.getId());
+				model.setMts(System.currentTimeMillis());
+				createPortfolioModel(model);
+			}
+		}
 		log("createPortfolio", portfolioVO.getInteractionid(), vo);
 		return vo;
 	}
@@ -165,6 +184,10 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		return baseRepository.find("portfolioID", model.getPortfolioID(), PortfolioModel.class);
 	}
 
+	public List<PortfolioModel> findPortfolioModelsByportfolioID(String id) {
+		return baseRepository.find("portfolioID", id, PortfolioModel.class);
+	}
+
 	public List<PortfolioModel> findPortfolioModelsByportfolioID(PortfolioVO model) {
 		log("findAllPortfolioModels", model.getInteractionid());
 		return baseRepository.find("portfolioID", model.getId(), PortfolioModel.class);
@@ -206,5 +229,52 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		Update update = new Update();
 		update.set("status", modelStatus);
 		mongoTemplate.upsert(query, update, PortfolioModel.class);
+	}
+
+	@Override
+	public PortfolioVO getPortfolioByRevision(String id, Integer revision) {
+		Query query = new Query(Criteria.where("dictionaryId").is(id).and("revision").is(revision));
+		PortfolioVO portfolio = mongoTemplate.findOne(query, PortfolioVO.class);
+		List<Object> strModels = new ArrayList<Object>();
+		List<PortfolioModel> dataModels = findPortfolioModelsByportfolioID(portfolio);
+		ObjectMapper mapper = new ObjectMapper();
+		if (dataModels != null)
+			for (PortfolioModel model : dataModels) {
+				try {
+					JsonNode jsonNode = mapper.readTree(model.getModel());
+					strModels.add(jsonNode);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		portfolio.setModels(strModels);
+		return portfolio;
+	}
+
+	public Integer getMaxRevision(String id){
+		Query query = new Query(Criteria.where("dictionaryId").is(id)).with(Sort.by(Direction.DESC, "revision"))
+				.limit(1);
+		PortfolioVO portfolio = mongoTemplate.findOne(query, PortfolioVO.class);
+		if(portfolio != null)
+			return portfolio.getRevision();
+		return null;
+	}
+
+	public List<Integer> getRevisions(String id){
+		Query query = new Query(Criteria.where("dictionaryId").is(id));
+		List<PortfolioVO> portfolioList = mongoTemplate.find(query, PortfolioVO.class);
+		if(portfolioList != null){
+			List<Integer> revisions = new ArrayList<>();
+			for(PortfolioVO portfolio : portfolioList){
+				revisions.add(portfolio.getRevision());
+			}
+			return revisions;
+		}
+		return null;
+	}
+
+	@Override
+	public PortfolioVO createPortfolioRevision(String id, Integer revision){
+		return null;
 	}
 }

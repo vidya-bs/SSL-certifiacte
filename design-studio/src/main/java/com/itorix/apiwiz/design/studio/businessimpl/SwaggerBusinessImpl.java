@@ -3584,11 +3584,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 	private Swagger convertToSwagger(String data) throws IOException {
 		ObjectMapper mapper;
+		
 		if (data.trim().startsWith("{")) {
 			mapper = Json.mapper();
 		} else {
 			mapper = Yaml.mapper();
 		}
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		JsonNode rootNode = mapper.readTree(data);
 		// must have swagger node set
 		JsonNode swaggerNode = rootNode.get("swagger");
