@@ -134,8 +134,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					&& swagger.getVendorExtensions().get("x-ibm-configuration") != null) {
 				swaggerVO.setSwagger(apicUtil.getPolicyTemplates(swaggerVO.getSwagger()));
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -3590,13 +3590,14 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		} else {
 			mapper = Yaml.mapper();
 		}
-		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		//mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		JsonNode rootNode = mapper.readTree(data);
 		// must have swagger node set
 		JsonNode swaggerNode = rootNode.get("swagger");
 		if (swaggerNode == null) {
 			throw new IllegalArgumentException("Swagger String has an invalid format.");
 		} else {
+			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			return mapper.convertValue(rootNode, Swagger.class);
 		}
 	}
