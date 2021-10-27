@@ -1,5 +1,7 @@
 package com.itorix.apiwiz.portfolio.model.db;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -39,6 +41,6 @@ public class ProductRequest {
 
 	String ownerEmail;
 	ProductStatus productStatus;
-	ProductAccess productAccess;
+	List<ProductAccess> productAccess;
 	boolean publishStatus;
 }

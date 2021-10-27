@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -34,8 +35,12 @@ public class SSODao {
     MongoTemplate mongoTemplate;
 
     @Qualifier("masterMongoTemplate")
+
     @Autowired
     private MongoTemplate masterMongoTemplate;
+
+    @Value("${itorix.sso.workspaceId}")
+    private String workspaceId;
 
     public UserInfo createOrUpdateUser(SAMLCredential credentials) throws ItorixException {
 
@@ -71,7 +76,7 @@ public class SSODao {
 
             user.setUserId(credentials.getNameID().getValue());
             user.setUserStatus("Active");
-            Workspace workspace = getWorkspace(getSamlConfig().getWorkspaceId());
+            Workspace workspace = getWorkspace(workspaceId);
             List<UserWorkspace> workspaces = new ArrayList<>();
             UserWorkspace userWorkspace = new UserWorkspace();
             userWorkspace.setWorkspace(workspace);
@@ -125,11 +130,11 @@ public class SSODao {
     public void createOrUpdateSamlConfig(SAMLConfig samlConfig) throws ItorixException {
         try {
             String jsonString = new ObjectMapper().writeValueAsString(samlConfig);
-            UIMetadata metadata = new UIMetadata(UIMetadata.SAML_CONFIG, jsonString);
+            UIMetadata metadata = new UIMetadata(UIMetadata.SAML_CONFIG, jsonString, workspaceId);
             createUIUXMetadata(metadata);
             Map<String, String> roleMapper = getRoleMapper(samlConfig.getRoles());
             jsonString = new ObjectMapper().writeValueAsString(roleMapper);
-            metadata = new UIMetadata(UIMetadata.ROLE_MAPPER, jsonString);
+            metadata = new UIMetadata(UIMetadata.ROLE_MAPPER, jsonString, workspaceId);
             createUIUXMetadata(metadata);
 
         } catch (JsonProcessingException e) {
@@ -142,7 +147,8 @@ public class SSODao {
         if (uIMetadata != null) {
             uIMetadata.setMetadata(metadata.getMetadata());
             uIMetadata.setQuery(metadata.getQuery());
-            Query query = new Query(Criteria.where("query").is(metadata.getQuery()));
+            uIMetadata.setWorkspaceId(workspaceId);
+            Query query = new Query(Criteria.where("query").is(metadata.getQuery()).and("workspaceId").is(workspaceId));
             Document dbDoc = new Document();
             masterMongoTemplate.getConverter().write(uIMetadata, dbDoc);
             Update update = Update.fromDocument(dbDoc, "_id");
@@ -156,7 +162,6 @@ public class SSODao {
     }
 
     public SAMLConfig getSamlConfig() {
-
         UIMetadata uiuxMetadata = getUIUXMetadata(UIMetadata.SAML_CONFIG);
         try {
             return uiuxMetadata == null ? null
@@ -168,14 +173,14 @@ public class SSODao {
 
     public List<String> getProjectRoleForSaml(SAMLConfig samlConfig, SAMLCredential credentials) {
         String samlAttribute = samlConfig.getGroup();
-        Workspace workspace = getWorkspace(getSamlConfig().getWorkspaceId());
-        if(workspace.getIdpProvider().equals(IDPProvider.AZURE_AD)) {  //For Azure the User Group details are sent as roles
+        Workspace workspace = getWorkspace(workspaceId);
+        if (workspace.getIdpProvider().equals(IDPProvider.AZURE_AD)) {  //For Azure the User Group details are sent as roles
             samlAttribute = samlConfig.getUserRoles();
         }
         List<String> userAssertionRoles = new ArrayList<>();
         if (StringUtils.hasText(samlAttribute)) {
             String[] attributeAsStringArray = credentials.getAttributeAsStringArray(samlAttribute);
-            if(attributeAsStringArray != null ) {
+            if (attributeAsStringArray != null) {
                 userAssertionRoles = Arrays.asList(attributeAsStringArray);
             }
         }
@@ -198,7 +203,7 @@ public class SSODao {
         } catch (ItorixException e) {
             logger.error("error when getting project roles", e);
         }
-        if(projectRoles.isEmpty()) {
+        if (projectRoles.isEmpty()) {
             projectRoles.add(Roles.ANALYST.getValue());
         }
         return projectRoles;
@@ -216,8 +221,8 @@ public class SSODao {
     }
 
     public String getSSOMetadata() throws ItorixException {
-        SAMLConfig metadata = getSamlConfig();
-        return metadata == null ? null : new String(metadata.getMetadata());
+        SAMLConfig samlConfig = getSamlConfig();
+        return samlConfig == null ? null : new String(samlConfig.getMetadata());
     }
 
     public Map<String, String> getRoleMapper(UserDefinedRoles roles) {
@@ -246,11 +251,14 @@ public class SSODao {
     }
 
     public UIMetadata getUIUXMetadata(String query) {
-        Query dBquery = new Query(Criteria.where("query").is(query));
+        Query dBquery = new Query(Criteria.where("query").is(query).and("workspaceId").is(workspaceId));
         List<UIMetadata> UIMetadata = masterMongoTemplate.find(dBquery, UIMetadata.class);
-        if (UIMetadata != null && UIMetadata.size() > 0)
+        if (UIMetadata != null && UIMetadata.size() > 0) {
             return UIMetadata.get(0);
-        else
+        }
+        else {
             return null;
+        }
     }
+
 }

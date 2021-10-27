@@ -11,16 +11,18 @@ public class UIMetadata extends AbstractObject {
     public static String ROLE_MAPPER = "roleMapper";
 
     private String query;
-    @JsonIgnore
     private String metadata;
+    private String workspaceId;
 
     public UIMetadata() {
     }
 
-    public UIMetadata(String query, String metadata) {
+    public UIMetadata(String query, String metadata, String workspaceId) {
         this.query = query;
         this.metadata = metadata;
+        this.workspaceId = workspaceId;
     }
+
     @JsonIgnore
     public String getMetadata() {
         return metadata;
@@ -36,5 +38,13 @@ public class UIMetadata extends AbstractObject {
 
     public void setQuery(String query) {
         this.query = query;
+    }
+
+    public String getWorkspaceId() {
+        return workspaceId;
+    }
+
+    public void setWorkspaceId(String workspaceId) {
+        this.workspaceId = workspaceId;
     }
 }

@@ -46,4 +46,10 @@ public class Portfolio extends AbstractObject {
 
 	@JsonProperty("serviceRegistry")
 	List<ServiceRegistry> serviceRegistry;
+	
+	@JsonProperty("testsuites")
+	List<Testsuite> testsuites;
+	
+	@JsonProperty("testsuiteEnvironments")
+	List<TestsuiteEnvironment> testsuiteEnvironments;
 }
