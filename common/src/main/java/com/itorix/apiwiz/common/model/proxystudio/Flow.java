@@ -1,6 +1,9 @@
 package com.itorix.apiwiz.common.model.proxystudio;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Flow {
@@ -12,6 +15,17 @@ public class Flow {
 	private String targetName;
 	private String targetOperation;
 	private String targetBasepath;
+	@JsonProperty("metadata")
+	private List<ProxyMetadata> metadata;
+
+
+	public List<ProxyMetadata> getMetadata() {
+		return metadata;
+	}
+
+	public void setMetadata(List<ProxyMetadata> metadata) {
+		this.metadata = metadata;
+	}
 
 	/** @return the targetName */
 	public String getTargetName() {

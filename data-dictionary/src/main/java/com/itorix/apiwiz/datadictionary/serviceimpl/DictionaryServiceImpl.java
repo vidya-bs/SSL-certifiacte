@@ -161,6 +161,20 @@ public class DictionaryServiceImpl implements DictionaryService {
 		}
 		return new ResponseEntity<PortfolioVO>(vo, HttpStatus.OK);
 	}
+	
+
+	public ResponseEntity<?> getPortfolioRevisions(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id) throws Exception{
+		List<Integer> revisions = dictionaryBusiness.getRevisions(id);
+		if (revisions == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
+					"Portfolio-1002");
+		}
+		return new ResponseEntity<>(revisions, HttpStatus.OK);
+	}
+
+	
 
 	/**
 	 * Using this method we can Delete the Portfolio.
@@ -330,5 +344,26 @@ public class DictionaryServiceImpl implements DictionaryService {
 			@PathVariable("model_name") String model_name, @PathVariable("modelStatus") ModelStatus modelStatus) {
 		dictionaryBusiness.updatePortfolioModelStatus(id, model_name, modelStatus);
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
+	}
+	
+	@Override
+	public ResponseEntity<?> createPortfolioRevision(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
+			@PathVariable("revision") Integer revision) throws Exception {
+		PortfolioVO portfolioVO = dictionaryBusiness.getPortfolioByRevision(id, revision);
+		if (portfolioVO == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
+					"Portfolio-1002");
+		}
+		PortfolioVO vo = new PortfolioVO();
+		vo.setSummary(portfolioVO.getSummary());
+		vo.setDescription(portfolioVO.getDescription());
+		vo.setName(portfolioVO.getName());
+		Integer rev = dictionaryBusiness.getMaxRevision(id);
+		vo.setRevision( rev + 1 );
+		vo.setDictionaryId(portfolioVO.getDictionaryId());
+		portfolioVO = dictionaryBusiness.createPortfolioRevision(vo, portfolioVO.getId());
+		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 }

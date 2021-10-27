@@ -218,8 +218,6 @@ public class CodeGenService {
 		ProxyArtifacts proxyArtifacts = null;
 		// if (true) {
 		if (proxyGeneration != null && proxyGeneration.equalsIgnoreCase("true")) {
-			// String proxyDir = dir + "API" + File.separatorChar +
-			// "apiproxy" ;
 			String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName() + "_"
 					+ codeGen.getProxy().getVersion() + "/apiproxy";
 			if (codeGen.getProxy() != null)
@@ -227,8 +225,6 @@ public class CodeGenService {
 			if (codeGen.getTarget() != null)
 				apigeeTargetGen.generateTargetCode(targetFolder, codeGen, proxyDir);
 			if (codeGen.getProxy() != null && codeGen.getTarget() != null) {
-				// CleanUnused.clean(proxyDir + File.separatorChar);
-				// proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
 			}
 		} else {
 			if (codeGen.getProxy() != null & codeGen.getTarget() != null)
