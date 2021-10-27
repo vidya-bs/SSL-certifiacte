@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itorix.apiwiz.common.model.proxystudio.Flow;
 import com.itorix.apiwiz.common.model.proxystudio.Flows;
 import com.itorix.apiwiz.common.model.proxystudio.Proxy;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata;
 import com.itorix.apiwiz.common.model.proxystudio.Target;
 import com.itorix.apiwiz.devstudio.business.LoadSwagger;
 
@@ -208,6 +209,30 @@ public class LoadSwaggerImpl implements LoadSwagger {
 								flow.setTargetBasepath(targetBasepath);
 							} catch (Exception ex) {
 							}
+							
+							try {
+								net.sf.json.JSONArray proxyMetadataList = (net.sf.json.JSONArray)js.get("x-gw-metadata");
+								if(null != proxyMetadataList){
+									List<ProxyMetadata> metadata = new ArrayList<>(); 
+									for (Object key : proxyMetadataList) {
+										try {
+											ProxyMetadata metadataItem = new ProxyMetadata();
+											net.sf.json.JSONObject jsonItem = (net.sf.json.JSONObject) key;
+											Set<String> keySet = jsonItem.keySet();
+											String keyStr = keySet.stream().findFirst().get();
+											net.sf.json.JSONArray element = (net.sf.json.JSONArray)jsonItem.get(keyStr);
+											metadataItem.setName(keyStr);
+											metadataItem.setValue(element.stream().findFirst().get().toString());
+											metadata.add(metadataItem);
+										} catch (Exception ex) {
+										}
+									}
+									flow.setMetadata(metadata);
+								}
+							} catch (Exception ex) {
+							}
+							
+							
 						} catch (Exception e) {
 						}
 						

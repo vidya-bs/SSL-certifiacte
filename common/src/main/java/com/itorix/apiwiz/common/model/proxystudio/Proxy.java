@@ -1,6 +1,9 @@
 package com.itorix.apiwiz.common.model.proxystudio;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Proxy {
@@ -27,7 +30,7 @@ public class Proxy {
 	private String branchType;
 
 	private String isMaster = "false";
-
+	
 	public String getBasePath() {
 		return basePath;
 	}
