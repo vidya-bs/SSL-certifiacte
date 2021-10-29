@@ -24,6 +24,8 @@ public class PortfolioVO extends AbstractObject {
 	
 	private String dictionaryId;
 	
+	private String status;
+	
 	@Transient
 	private List<Object> models;
 
@@ -85,6 +87,14 @@ public class PortfolioVO extends AbstractObject {
 
 	public void setSchemas(List<Object> models) {
 		this.models = models;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	

@@ -5,6 +5,7 @@ import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.datadictionary.model.PortfolioHistoryResponse;
 import com.itorix.apiwiz.datadictionary.model.PortfolioVO;
+import com.itorix.apiwiz.datadictionary.model.Revision;
 import com.itorix.apiwiz.datadictionary.model.ModelStatus;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -267,6 +268,27 @@ public interface DictionaryService {
 	public ResponseEntity<?> createPortfolioRevision(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
-			@PathVariable("revision") Integer revision) throws Exception;;
+			@PathVariable("revision") Integer revision) throws Exception;
+	
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/{id}/revision/{revision}")
+	public ResponseEntity<?> getPortfolioRevision(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
+			@PathVariable("revision") Integer revision) throws Exception;
+	
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/data-dictionary/{id}/revision/{revision}")
+	public ResponseEntity<?> deletePortfolioRevision(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
+			@PathVariable("revision") Integer revision) throws Exception;
+	
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/data-dictionary/{id}/revision/{revision}/status")
+	public ResponseEntity<?> updatePortfolioStatus(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
+			@PathVariable("revision") Integer revision, @RequestBody Revision status) throws Exception;
 	
 }

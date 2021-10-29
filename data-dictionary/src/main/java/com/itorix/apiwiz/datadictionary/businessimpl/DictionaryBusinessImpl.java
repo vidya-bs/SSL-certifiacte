@@ -51,8 +51,9 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 
 	public PortfolioVO createPortfolio(PortfolioVO portfolioVO) {
 		log("createPortfolio", portfolioVO.getInteractionid(), portfolioVO);
-		portfolioVO.setDictionaryId(new ObjectId().toString());
-		portfolioVO.setRevision(1);
+		if(null == portfolioVO.getDictionaryId())
+			portfolioVO.setDictionaryId(new ObjectId().toString());
+//		portfolioVO.setRevision(1);
 		PortfolioVO vo = baseRepository.save(portfolioVO);
 		log("createPortfolio", portfolioVO.getInteractionid(), vo);
 		return vo;
@@ -260,13 +261,16 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		return null;
 	}
 
-	public List<Integer> getRevisions(String id){
+	public List<Revision> getRevisions(String id){
 		Query query = new Query(Criteria.where("dictionaryId").is(id));
 		List<PortfolioVO> portfolioList = mongoTemplate.find(query, PortfolioVO.class);
 		if(portfolioList != null){
-			List<Integer> revisions = new ArrayList<>();
+			List<Revision> revisions = new ArrayList<>();
 			for(PortfolioVO portfolio : portfolioList){
-				revisions.add(portfolio.getRevision());
+				Revision revision  = new Revision();
+				revision.setRevision(portfolio.getRevision());
+				revision.setStatus(portfolio.getStatus());
+				revisions.add(revision);
 			}
 			return revisions;
 		}
