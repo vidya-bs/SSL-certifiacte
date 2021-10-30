@@ -5,6 +5,7 @@ import com.itorix.apiwiz.datadictionary.model.ModelStatus;
 import com.itorix.apiwiz.datadictionary.model.PortfolioHistoryResponse;
 import com.itorix.apiwiz.datadictionary.model.PortfolioModel;
 import com.itorix.apiwiz.datadictionary.model.PortfolioVO;
+import com.itorix.apiwiz.datadictionary.model.Revision;
 import com.mongodb.client.result.DeleteResult;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +50,8 @@ public interface DictionaryBusiness {
 	
 	public PortfolioVO getPortfolioByRevision(String id, Integer revision);
 	
-	public List<Integer> getRevisions(String id);
+	public List<Revision> getRevisions(String id);
 	
 	public Integer getMaxRevision(String id);
+	
 }
