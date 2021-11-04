@@ -3997,13 +3997,16 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	private List<SwaggerPartner> getswaggerPartners(List<String> partnerId) {
-		List<SwaggerPartner> dbPartners = mongoTemplate.findAll(SwaggerPartner.class);
 		List<SwaggerPartner> partners = new ArrayList<SwaggerPartner>();
-		for (String partner : partnerId) {
-			try {
-				partners.add(dbPartners.stream().filter(p -> p.getId().equals(partner)).findFirst().get());
-			} catch (Exception e) {
+		try {
+			List<SwaggerPartner> dbPartners = mongoTemplate.findAll(SwaggerPartner.class);
+			for (String partner : partnerId) {
+				try {
+					partners.add(dbPartners.stream().filter(p -> p.getId().equals(partner)).findFirst().get());
+				} catch (Exception e) {
+				}
 			}
+		} catch (Exception e) {
 		}
 		return partners;
 	}
