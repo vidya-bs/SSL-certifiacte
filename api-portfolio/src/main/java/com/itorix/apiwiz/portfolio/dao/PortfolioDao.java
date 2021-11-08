@@ -219,6 +219,10 @@ public class PortfolioDao {
 		update.set("description", portfolioRequest.getDescription());
 		update.set("owner", portfolioRequest.getOwner());
 		update.set("ownerEmail", portfolioRequest.getOwnerEmail());
+		if(null!=portfolioRequest.getTestsuites())
+		update.set("testsuites", portfolioRequest.getTestsuites());
+		if(null!=portfolioRequest.getTestsuiteEnvironments())
+		update.set("testsuiteEnvironments", portfolioRequest.getTestsuiteEnvironments());
 
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
 		update.set("mts", System.currentTimeMillis());
@@ -227,8 +231,8 @@ public class PortfolioDao {
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
 		}
-	}
-
+	}	
+	
 	private void updatePortfolioPicture(String portfolioId, String image, String jsessionid) throws ItorixException {
 		Query query = new Query().addCriteria(Criteria.where("id").is(portfolioId));
 		Update update = new Update();
@@ -265,7 +269,7 @@ public class PortfolioDao {
 			Query query = new Query().addCriteria(Criteria.where("id").is(portfolioId));
 			query.fields().include("name").include("summary").include("description").include("portfolioImage")
 					.include("owner").include("ownerEmail").include("teams").include("metadata").include("cts")
-					.include("createdBy").include("modifiedBy").include("mts");
+					.include("createdBy").include("modifiedBy").include("mts").include("testsuites").include("testsuiteEnvironments");
 			List<Portfolio> portfolios = mongoTemplate.find(query, Portfolio.class);
 			if (!CollectionUtils.isEmpty(portfolios)) {
 				portfolio = portfolios.get(0);
