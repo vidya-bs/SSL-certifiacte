@@ -5,6 +5,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
@@ -153,6 +158,8 @@ public class PortfolioDao {
 		Query query = new Query().addCriteria(Criteria.where("id").is(id));
 		Update update = new Update();
 		document.setId(new ObjectId().toString());
+		document.setDocumentId(new ObjectId().toString());
+		document.setRevision(1);
 		update.push("document", document);
 
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
@@ -165,11 +172,69 @@ public class PortfolioDao {
 		return document.getId();
 	}
 
+	public String createPortfolioDocumentRevision(String id, PortfolioDocument document, String jsessionid)
+			throws ItorixException {
+
+		Query queryForCount = new Query(new Criteria().andOperator(Criteria.where("id").is(id),
+				Criteria.where("document").elemMatch(Criteria.where("documentId").is(document.getDocumentId()))));
+
+		if (mongoTemplate.count(queryForCount, Portfolio.class) == 0) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1014"), "Portfolio-1014");
+		}
+
+		Query query = new Query().addCriteria(Criteria.where("id").is(id));
+		Update update = new Update();
+		document.setId(new ObjectId().toString());
+		update.push("document", document);
+
+		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
+		update.set("mts", System.currentTimeMillis());
+		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
+
+		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
+		}
+		return document.getId();
+	}
+	
 	public void updatePortfolioDocument(String portfolioId, String documentId, PortfolioDocument portfolioDocument,
-			String jsessionid) throws ItorixException {
+			String jsessionid, Integer revision) throws ItorixException {
 
 		Query query = new Query(new Criteria().andOperator(Criteria.where("id").is(portfolioId),
-				Criteria.where("document").elemMatch(Criteria.where("id").is(documentId))));
+				Criteria.where("document").elemMatch(
+						Criteria.where("documentId").is(documentId)
+						.andOperator(Criteria.where("revision").is(revision))
+						)));
+		Update update = new Update();
+		boolean objectUpdate = false;
+		if (StringUtils.hasText(portfolioDocument.getDocumentSummary())) {
+			update.set("document.$.documentSummary", portfolioDocument.getDocumentSummary());
+			objectUpdate = true;
+		}
+
+		if (StringUtils.hasText(portfolioDocument.getDocument())) {
+			update.set("document.$.document", portfolioDocument.getDocument());
+			objectUpdate = true;
+		}
+		if (!objectUpdate) {
+			return;
+		}
+
+		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
+		update.set("mts", System.currentTimeMillis());
+		update.set("modifiedBy", user.getFirstName() + " " + user.getLastName());
+
+		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1006"), "Portfolio-1006");
+		}
+	}
+	
+	public void updatePortfolioDocument(String portfolioId, String documentId, PortfolioDocument portfolioDocument,
+			Integer revision ,String jsessionid) throws ItorixException {
+
+		Query query = new Query(new Criteria().andOperator(Criteria.where("id").is(portfolioId),
+				Criteria.where("document").elemMatch(Criteria.where("documentId").is(documentId))));
+		query.addCriteria(Criteria.where("revision").is(revision));
 		Update update = new Update();
 		boolean objectUpdate = false;
 		if (StringUtils.hasText(portfolioDocument.getDocumentSummary())) {
@@ -231,8 +296,8 @@ public class PortfolioDao {
 		if (mongoTemplate.updateFirst(query, update, Portfolio.class).getModifiedCount() == 0) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
 		}
-	}	
-	
+	}
+
 	private void updatePortfolioPicture(String portfolioId, String image, String jsessionid) throws ItorixException {
 		Query query = new Query().addCriteria(Criteria.where("id").is(portfolioId));
 		Update update = new Update();
@@ -342,10 +407,54 @@ public class PortfolioDao {
 		}
 		return find.get(0).getDocument();
 	}
+	
+	public List<PortfolioDocument> getPortfolioDocumentSummary(String portfolioId) throws ItorixException {
+		Query query = new Query().addCriteria(Criteria.where("id").is(portfolioId));
+		query.fields().include("document");
+		List<Portfolio> find = mongoTemplate.find(query, Portfolio.class);
+		if (CollectionUtils.isEmpty(find)) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
+		}
+		List<PortfolioDocument> summaryList  = new ArrayList<>();
+		try{
+			List<PortfolioDocument> documents = find.get(0).getDocument();
+			List<PortfolioDocument> uniqueValues = documents.stream().filter(distinctByKey(PortfolioDocument::getDocumentId)).collect(Collectors.toList());
+			for(PortfolioDocument document : uniqueValues){
+				List<PortfolioDocument> revList  = new ArrayList<>();
+				revList = getPortfolioDocumentRevisions(documents, document.getDocumentId());
+				PortfolioDocument portfolioDocument = new PortfolioDocument();
+				portfolioDocument.setDocumentName(document.getDocumentName());
+				portfolioDocument.setRevisions(revList);
+				summaryList.add(portfolioDocument);
+			}
+		}catch(Exception e){}
+		return summaryList;
+	}
+	
+	public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+	    Set<Object> seen = ConcurrentHashMap.newKeySet();
+	    return t -> seen.add(keyExtractor.apply(t));
+	}
+	
+	public List<PortfolioDocument> getPortfolioDocumentRevisions(List<PortfolioDocument> documents, String documentId) throws ItorixException {
+		List<PortfolioDocument> doc = documents.stream().filter(d -> d.getDocumentId().equals(documentId)).collect(Collectors.toList());
+		return doc;
+	}
+	
+	
+	public Integer getPortfolioDocumentMaxRevision(String portfolioId, String documentId) throws ItorixException {
+		Query query = new Query().addCriteria(Criteria.where("id").is(portfolioId));
+		query.fields().include("document");
+		List<Portfolio> find = mongoTemplate.find(query, Portfolio.class);
+		if (CollectionUtils.isEmpty(find)) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
+		}
+		List<PortfolioDocument> documents = find.get(0).getDocument().stream().filter(d -> d.getDocumentId().equals(documentId)).collect(Collectors.toList());
+		return documents.stream().mapToInt(PortfolioDocument::getRevision).max().getAsInt();
+	}
 
 	public void deletePortfolioDocument(String portfolioId, String documentId, String jsessionid)
 			throws ItorixException {
-
 		Query query = new Query(new Criteria().andOperator(Criteria.where("id").is(portfolioId),
 				Criteria.where("document").elemMatch(Criteria.where("id").is(documentId))));
 		String workspace = masterMongoTemplate.findById(jsessionid, UserSession.class).getWorkspaceId();
@@ -359,7 +468,6 @@ public class PortfolioDao {
 
 	public String createProducts(String portfolioId, ProductRequest products, String jsessionid)
 			throws ItorixException {
-
 		Query queryForCount = new Query(new Criteria().andOperator(Criteria.where("id").is(portfolioId),
 				Criteria.where("products").elemMatch(Criteria.where("name").is(products.getName()))));
 
@@ -647,10 +755,10 @@ public class PortfolioDao {
 	}
 
 	public String updatePortfolioDocument(String portfolioId, String documentId, byte[] bytes, String jsessionid,
-			String fileName) throws ItorixException {
+			String fileName, Integer revision) throws ItorixException {
 		String workspace = masterMongoTemplate.findById(jsessionid, UserSession.class).getWorkspaceId();
 		deleteFileJfrogFile("/" + workspace + "/portfolio/" + portfolioId + "/" + documentId);
-		return updateToJfrog(portfolioId + "/" + documentId + "/" + fileName, bytes, jsessionid);
+		return updateToJfrog(portfolioId + "/" + documentId + "/" + Integer.toString(revision) + "/" + fileName.replaceAll(" ", ""), bytes, jsessionid);
 	}
 
 	private String updateToJfrog(String folderPath, byte[] bytes, String jsession) throws ItorixException {
