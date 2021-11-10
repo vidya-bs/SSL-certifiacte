@@ -183,7 +183,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 		String docId = portfolioDao.createPortfolioDocument(id, portfolioDocument, jsessionid);
 		try {
 			location = portfolioDao.updatePortfolioDocument(id, docId, document.getBytes(), jsessionid,
-					document.getOriginalFilename());
+					document.getOriginalFilename(),1);
 		} catch (Exception e) {
 			logger.error("exception when updating portfolio document", e);
 			portfolioDao.deletePortfolioDocument(id, docId, jsessionid);
@@ -194,11 +194,61 @@ public class PortfolioServiceImpl implements PortfolioService {
 	}
 
 	@Override
+	public ResponseEntity<Object> createPortfolioDocumentRevision(@RequestParam Map<String, Object> requestParams,
+			@RequestPart(value = "document", required = false) MultipartFile document,
+			@PathVariable(value = "id") String id, 
+			@PathVariable(value = "documentId") String documentId,
+			@RequestHeader(value = "JSESSIONID") String jsessionid)
+			throws Exception {
+
+		List<String> missingField = new ArrayList<>();
+		if (!StringUtils.hasText((String) requestParams.get("documentName"))) {
+			missingField.add("documentName");
+		}
+
+		if (!StringUtils.hasText((String) requestParams.get("documentSummary"))) {
+			missingField.add("documentSummary");
+		}
+
+		if (document == null || document.getBytes() == null || document.getBytes().length == 0) {
+			missingField.add("document");
+		}
+
+		if (!CollectionUtils.isEmpty(missingField)) {
+			throw new ItorixException(
+					(String.format(ErrorCodes.errorMessage.get("Portfolio-1008"), String.join(",", missingField))),
+					"Portfolio-1008");
+		}
+
+		PortfolioDocument portfolioDocument = PortfolioDocument.builder()
+				.documentName((String) requestParams.get("documentName"))
+				.documentOwner((String) requestParams.get("documentOwner"))
+				.documentOwnerEmail((String) requestParams.get("documentOwnerEmail"))
+				.documentSummary((String) requestParams.get("documentSummary"))
+				.documentId(documentId).build();
+		Integer rev = portfolioDao.getPortfolioDocumentMaxRevision(id, documentId);
+		portfolioDocument.setRevision(rev+1);
+		String location = null;
+		String docId = portfolioDao.createPortfolioDocumentRevision(id, portfolioDocument, jsessionid);
+		//String docId = portfolioDao.createPortfolioDocument(id, portfolioDocument, jsessionid);
+		try {
+			location = portfolioDao.updatePortfolioDocument(id, docId, document.getBytes(), jsessionid,
+					document.getOriginalFilename(),rev);
+		} catch (Exception e) {
+			logger.error("exception when updating portfolio document", e);
+			portfolioDao.deletePortfolioDocument(id, docId, jsessionid);
+		}
+		portfolioDao.updateDocumentLocation(id, docId, location, jsessionid);
+
+		return new ResponseEntity<>("{\"id\": \"" + docId + "\"}", HttpStatus.CREATED);
+	}
+	@Override
 	public ResponseEntity<Object> updatePortfolioDocument(
 			@RequestPart(value = "documentSummary", required = false) String documentSummary,
 			@RequestPart(value = "document", required = false) MultipartFile document,
 			@PathVariable(value = "portfolioId") String portfolioId,
 			@PathVariable(value = "documentId") String documentId,
+			@PathVariable(value = "revision") Integer revision,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 
 		if (document == null || document.getBytes() == null || document.getBytes().length == 0) {
@@ -206,10 +256,10 @@ public class PortfolioServiceImpl implements PortfolioService {
 		}
 
 		String updatePortfolioDocument = portfolioDao.updatePortfolioDocument(portfolioId, documentId,
-				document.getBytes(), jsessionid, document.getOriginalFilename());
+				document.getBytes(), jsessionid, document.getOriginalFilename(), revision);
 		PortfolioDocument portfolioDocument = PortfolioDocument.builder().documentSummary(documentSummary)
 				.document(updatePortfolioDocument).build();
-		portfolioDao.updatePortfolioDocument(portfolioId, documentId, portfolioDocument, jsessionid);
+		portfolioDao.updatePortfolioDocument(portfolioId, documentId, portfolioDocument, jsessionid, revision);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
@@ -224,6 +274,16 @@ public class PortfolioServiceImpl implements PortfolioService {
 	public ResponseEntity<Object> getPortfolioDocuments(@PathVariable(value = "portfolioId") String portfolioId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		List<PortfolioDocument> portfolioDocument = portfolioDao.getPortfolioDocuments(portfolioId);
+//		List<PortfolioDocument> portfolioDocument = portfolioDao.getPortfolioDocumentSummary(portfolioId);
+		return new ResponseEntity<>(portfolioDocument, HttpStatus.OK);
+	}
+	
+	@Override
+	public ResponseEntity<Object> getPortfolioDocumentRevisions(
+			@PathVariable(value = "portfolioId") String portfolioId,
+			@PathVariable(value = "documentId") String documentId,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception{
+		List<PortfolioDocument> portfolioDocument = portfolioDao.getPortfolioDocumentSummary(portfolioId);
 		return new ResponseEntity<>(portfolioDocument, HttpStatus.OK);
 	}
 
