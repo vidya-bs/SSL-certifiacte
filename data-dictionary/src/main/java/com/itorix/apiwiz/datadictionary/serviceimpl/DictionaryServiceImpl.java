@@ -10,6 +10,7 @@ import com.itorix.apiwiz.datadictionary.model.ModelStatus;
 import com.itorix.apiwiz.datadictionary.model.PortfolioHistoryResponse;
 import com.itorix.apiwiz.datadictionary.model.PortfolioModel;
 import com.itorix.apiwiz.datadictionary.model.PortfolioVO;
+import com.itorix.apiwiz.datadictionary.model.Revision;
 import com.itorix.apiwiz.datadictionary.service.DictionaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -47,7 +48,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 	public ResponseEntity<Void> createPortfolio(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody PortfolioVO portfolioVO)
-			throws Exception {
+					throws Exception {
 		HttpHeaders headers = new HttpHeaders();
 		if (portfolioVO == null) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1000"), "Portfolio-1000");
@@ -82,7 +83,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 	public ResponseEntity<Void> updatePortfolio(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody PortfolioVO portfolioVO)
-			throws Exception {
+					throws Exception {
 
 		if (portfolioVO == null) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1000"), "Portfolio-1000");
@@ -161,6 +162,20 @@ public class DictionaryServiceImpl implements DictionaryService {
 		}
 		return new ResponseEntity<PortfolioVO>(vo, HttpStatus.OK);
 	}
+
+
+	public ResponseEntity<?> getPortfolioRevisions(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id) throws Exception{
+		List<Revision> revisions = dictionaryBusiness.getRevisions(id);
+		if (revisions == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
+					"Portfolio-1002");
+		}
+		return new ResponseEntity<>(revisions, HttpStatus.OK);
+	}
+
+
 
 	/**
 	 * Using this method we can Delete the Portfolio.
@@ -331,4 +346,65 @@ public class DictionaryServiceImpl implements DictionaryService {
 		dictionaryBusiness.updatePortfolioModelStatus(id, model_name, modelStatus);
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
+
+	@Override
+	public ResponseEntity<?> createPortfolioRevision(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
+			@PathVariable("revision") Integer revision) throws Exception {
+		PortfolioVO portfolioVO = dictionaryBusiness.getPortfolioByRevision(id, revision);
+		if (portfolioVO == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
+					"Portfolio-1002");
+		}
+		PortfolioVO vo = new PortfolioVO();
+		vo.setSummary(portfolioVO.getSummary());
+		vo.setDescription(portfolioVO.getDescription());
+		vo.setName(portfolioVO.getName());
+		Integer rev = dictionaryBusiness.getMaxRevision(id);
+		vo.setRevision( rev + 1 );
+		vo.setDictionaryId(portfolioVO.getDictionaryId());
+		portfolioVO = dictionaryBusiness.createPortfolioRevision(vo, portfolioVO.getId());
+		return new ResponseEntity<>(HttpStatus.CREATED);
+	}
+
+	@Override
+	public ResponseEntity<?> getPortfolioRevision(String interactionid, String jsessionid, String id, Integer revision)
+			throws Exception {
+		PortfolioVO vo = dictionaryBusiness.getPortfolioByRevision(id, revision);
+		if (vo == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
+					"Portfolio-1002");
+		}
+		vo = dictionaryBusiness.getPortfolioById(vo);
+		return new ResponseEntity<PortfolioVO>(vo, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> deletePortfolioRevision(String interactionid, String jsessionid, String id,
+			Integer revision) throws Exception {
+		PortfolioVO vo = dictionaryBusiness.getPortfolioByRevision(id, revision);
+		if (vo == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
+					"Portfolio-1002");
+		} 
+		dictionaryBusiness.deletePortfolioById(vo);
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	public ResponseEntity<?> updatePortfolioStatus(String interactionid, String jsessionid, String id, Integer revision,
+			Revision status) throws Exception {
+		PortfolioVO vo = dictionaryBusiness.getPortfolioByRevision(id, revision);
+		if (vo == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
+					"Portfolio-1002");
+		} 
+		vo.setStatus(status.getStatus());
+		dictionaryBusiness.createPortfolio(vo);
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+
+	}
+
+
 }

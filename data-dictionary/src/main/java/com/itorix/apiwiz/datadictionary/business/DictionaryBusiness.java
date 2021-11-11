@@ -5,6 +5,7 @@ import com.itorix.apiwiz.datadictionary.model.ModelStatus;
 import com.itorix.apiwiz.datadictionary.model.PortfolioHistoryResponse;
 import com.itorix.apiwiz.datadictionary.model.PortfolioModel;
 import com.itorix.apiwiz.datadictionary.model.PortfolioVO;
+import com.itorix.apiwiz.datadictionary.model.Revision;
 import com.mongodb.client.result.DeleteResult;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,8 @@ import java.util.List;
 public interface DictionaryBusiness {
 
 	public PortfolioVO createPortfolio(PortfolioVO portfolioVO);
+	
+	public PortfolioVO createPortfolioRevision(PortfolioVO portfolioVO, String id);
 
 	public PortfolioVO findPortfolio(PortfolioVO portfolioVO);
 
@@ -42,4 +45,13 @@ public interface DictionaryBusiness {
 	public Object portfolioSearch(String interactionid, String name, int limit) throws ItorixException;
 
 	public void updatePortfolioModelStatus(String id, String model_name, ModelStatus modelStatus);
+	
+	public PortfolioVO createPortfolioRevision(String id, Integer revision);
+	
+	public PortfolioVO getPortfolioByRevision(String id, Integer revision);
+	
+	public List<Revision> getRevisions(String id);
+	
+	public Integer getMaxRevision(String id);
+	
 }

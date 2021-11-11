@@ -134,8 +134,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					&& swagger.getVendorExtensions().get("x-ibm-configuration") != null) {
 				swaggerVO.setSwagger(apicUtil.getPolicyTemplates(swaggerVO.getSwagger()));
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -3584,17 +3584,20 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 	private Swagger convertToSwagger(String data) throws IOException {
 		ObjectMapper mapper;
+		
 		if (data.trim().startsWith("{")) {
 			mapper = Json.mapper();
 		} else {
 			mapper = Yaml.mapper();
 		}
+		//mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		JsonNode rootNode = mapper.readTree(data);
 		// must have swagger node set
 		JsonNode swaggerNode = rootNode.get("swagger");
 		if (swaggerNode == null) {
 			throw new IllegalArgumentException("Swagger String has an invalid format.");
 		} else {
+			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			return mapper.convertValue(rootNode, Swagger.class);
 		}
 	}
@@ -3994,13 +3997,16 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	private List<SwaggerPartner> getswaggerPartners(List<String> partnerId) {
-		List<SwaggerPartner> dbPartners = mongoTemplate.findAll(SwaggerPartner.class);
 		List<SwaggerPartner> partners = new ArrayList<SwaggerPartner>();
-		for (String partner : partnerId) {
-			try {
-				partners.add(dbPartners.stream().filter(p -> p.getId().equals(partner)).findFirst().get());
-			} catch (Exception e) {
+		try {
+			List<SwaggerPartner> dbPartners = mongoTemplate.findAll(SwaggerPartner.class);
+			for (String partner : partnerId) {
+				try {
+					partners.add(dbPartners.stream().filter(p -> p.getId().equals(partner)).findFirst().get());
+				} catch (Exception e) {
+				}
 			}
+		} catch (Exception e) {
 		}
 		return partners;
 	}
