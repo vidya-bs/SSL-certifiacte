@@ -43,9 +43,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Date;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-
 @CrossOrigin
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE)

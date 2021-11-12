@@ -1,7 +1,10 @@
 package com.itorix.apiwiz.portfolio.model.db;
 
+import java.util.List;
+
+import org.springframework.data.annotation.Transient;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -21,9 +24,12 @@ import lombok.experimental.FieldDefaults;
 public class PortfolioDocument {
 
 	String id;
+	Integer revision;
+	String documentId;
 	String documentName;
 	String documentSummary;
 	String documentOwner;
 	String documentOwnerEmail;
 	String document;
+	List<PortfolioDocument> revisions;
 }
