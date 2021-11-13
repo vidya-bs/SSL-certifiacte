@@ -1,17 +1,6 @@
 package com.itorix.apiwiz.sso.configuration;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.itorix.apiwiz.sso.handler.SamlAuthenticationFailureHandler;
 import org.apache.commons.httpclient.HttpClient;
 import org.opensaml.Configuration;
 import org.opensaml.PaosBootstrap;
@@ -27,6 +16,8 @@ import org.opensaml.xml.security.keyinfo.NamedKeyInfoGeneratorManager;
 import org.opensaml.xml.security.x509.CertPathPKIXTrustEvaluator;
 import org.opensaml.xml.security.x509.PKIXTrustEvaluator;
 import org.opensaml.xml.security.x509.X509KeyInfoGeneratorFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -35,40 +26,20 @@ import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
-import org.springframework.security.saml.SAMLAuthenticationProvider;
-import org.springframework.security.saml.SAMLConstants;
-import org.springframework.security.saml.SAMLDiscovery;
-import org.springframework.security.saml.SAMLEntryPoint;
-import org.springframework.security.saml.SAMLLogoutFilter;
-import org.springframework.security.saml.SAMLLogoutProcessingFilter;
-import org.springframework.security.saml.SAMLProcessingFilter;
+import org.springframework.security.saml.*;
 import org.springframework.security.saml.context.SAMLContextProvider;
 import org.springframework.security.saml.context.SAMLContextProviderLB;
 import org.springframework.security.saml.key.JKSKeyManager;
 import org.springframework.security.saml.key.KeyManager;
 import org.springframework.security.saml.log.SAMLDefaultLogger;
-import org.springframework.security.saml.metadata.CachingMetadataManager;
-import org.springframework.security.saml.metadata.ExtendedMetadata;
-import org.springframework.security.saml.metadata.ExtendedMetadataDelegate;
-import org.springframework.security.saml.metadata.MetadataDisplayFilter;
-import org.springframework.security.saml.metadata.MetadataGenerator;
-import org.springframework.security.saml.metadata.MetadataGeneratorFilter;
-import org.springframework.security.saml.processor.HTTPPostBinding;
-import org.springframework.security.saml.processor.HTTPRedirectDeflateBinding;
-import org.springframework.security.saml.processor.SAMLBinding;
-import org.springframework.security.saml.processor.SAMLProcessor;
-import org.springframework.security.saml.processor.SAMLProcessorImpl;
+import org.springframework.security.saml.metadata.*;
+import org.springframework.security.saml.processor.*;
 import org.springframework.security.saml.storage.SAMLMessageStorageFactory;
 import org.springframework.security.saml.trust.MetadataCredentialResolver;
 import org.springframework.security.saml.trust.PKIXInformationResolver;
 import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
 import org.springframework.security.saml.util.VelocityFactory;
-import org.springframework.security.saml.websso.SingleLogoutProfile;
-import org.springframework.security.saml.websso.SingleLogoutProfileImpl;
-import org.springframework.security.saml.websso.WebSSOProfile;
-import org.springframework.security.saml.websso.WebSSOProfileConsumerImpl;
-import org.springframework.security.saml.websso.WebSSOProfileImpl;
-import org.springframework.security.saml.websso.WebSSOProfileOptions;
+import org.springframework.security.saml.websso.*;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -82,12 +53,17 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import com.itorix.apiwiz.sso.handler.SamlAuthenticationFailureHandler;
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.regex.Pattern;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
+
+    private Logger logger = LoggerFactory.getLogger(SAMLConfigurer.class);
+
+
     private IdentityProvider identityProvider = new IdentityProvider();
     private ServiceProvider serviceProvider = new ServiceProvider();
 
@@ -154,7 +130,7 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
                 csrfConfigurer.requireCsrfProtectionMatcher(matcher);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error while initializing ", e);
         }
 
         http.addFilterBefore(metadataGeneratorFilter(samlEntryPoint, extendedMetadata), ChannelProcessingFilter.class)
@@ -264,7 +240,7 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
         try {
             cachingMetadataManager = new CachingMetadataManager(providers);
         } catch (MetadataProviderException e) {
-            e.printStackTrace();
+            logger.error("Error while initializing cachingMetadataManager", e);
         }
 
         cachingMetadataManager.setKeyManager(serviceProvider.keyManager);
@@ -276,7 +252,7 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
         try {
             parserPool.initialize();
         } catch (XMLParserException e) {
-            e.printStackTrace();
+            logger.error("Error while initializing staticBasicParserPool", e);
         }
         return parserPool;
     }
@@ -306,7 +282,7 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
         try {
             PaosBootstrap.bootstrap();
         } catch (ConfigurationException e) {
-            e.printStackTrace();
+            logger.error("Error while initializing bootstrap", e);
         }
 
         NamedKeyInfoGeneratorManager manager = Configuration.getGlobalSecurityConfiguration()
@@ -363,7 +339,7 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
                     samlWebSSOProcessingFilter(samlAuthenticationProvider, contextProvider, samlProcessor,
                             failureRedirectUrl)));
         } catch (Exception e) {
-            e.printStackTrace();
+           logger.error("Error while initializing samlFilter", e);
         }
         chains.add(new DefaultSecurityFilterChain(new AntPathRequestMatcher("/saml/SingleLogout/**"),
                 samlLogoutProcessingFilter));
@@ -466,7 +442,7 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
                 httpMetadataProvider.setParserPool(parserPool);
                 return httpMetadataProvider;
             } catch (MetadataProviderException e) {
-                e.printStackTrace();
+                logger.error("Error while initializing httpMetadataProvider", e);
                 return null;
             }
         }
@@ -479,14 +455,14 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
             try {
                 samlMetadata = metadataResource.getFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Error while initializing fileSystemMetadataProvider", e);
             }
 
             FilesystemMetadataProvider filesystemMetadataProvider = null;
             try {
                 filesystemMetadataProvider = new FilesystemMetadataProvider(samlMetadata);
             } catch (MetadataProviderException e) {
-                e.printStackTrace();
+                logger.error("Error while initializing fileSystemMetadataProvider", e);
             }
             filesystemMetadataProvider.setParserPool(parserPool);
 
@@ -568,7 +544,7 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
                 try {
                     storeFile = new FileSystemResource(storeFile.getFile());
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error("Error while initializing keyManager", e);
                     throw new RuntimeException("Cannot load file system resource: " + keyStore.getStoreFilePath(), e);
                 }
             }
