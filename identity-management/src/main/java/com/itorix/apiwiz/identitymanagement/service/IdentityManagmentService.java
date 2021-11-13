@@ -165,7 +165,7 @@ import java.util.Map;
 			@RequestHeader(value = "x-apikey") String apikey, @PathVariable(value = "userId") String userId)
 			throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE', 'TEAM')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/workspace/enable-sso")
 	public @ResponseBody ResponseEntity<Void> enableSso(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
