@@ -773,4 +773,10 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	public @ResponseBody ResponseEntity<Object> getVideos(String category) throws Exception {
 		return new ResponseEntity<>(workspaceDao.getVideos(category), HttpStatus.OK);
 	}
+
+	@Override
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<Object> getIdpMetadata(String workspaceId) throws Exception {
+		return new ResponseEntity<>(workspaceDao.getIdpMetadata(workspaceId), HttpStatus.OK);
+	}
 }
