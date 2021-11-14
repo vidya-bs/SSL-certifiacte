@@ -486,4 +486,8 @@ import java.util.Map;
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/itorix-resources/videos")
 	public @ResponseBody ResponseEntity<Object> getVideos(@RequestParam(required = false)String category) throws Exception;
 
+	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/saml/idpMetadata/{workspaceId}")
+	public @ResponseBody ResponseEntity<Object> getIdpMetadata(@PathVariable(required = true ) String workspaceId) throws Exception;
+
 }

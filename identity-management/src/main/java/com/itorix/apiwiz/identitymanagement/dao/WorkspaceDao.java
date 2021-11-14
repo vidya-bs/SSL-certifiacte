@@ -10,6 +10,7 @@ import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.util.encryption.HmacSHA256;
 import com.itorix.apiwiz.identitymanagement.model.*;
+import com.itorix.apiwiz.identitymanagement.model.sso.SAMLConfig;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -248,4 +250,32 @@ public class WorkspaceDao {
 		}
 		return null;
 	}
+
+    public String getIdpMetadata(String workspaceId) {
+		SAMLConfig samlConfig = getSamlConfig(workspaceId);
+		return samlConfig == null ? null : new String(samlConfig.getMetadata());
+	}
+
+
+	public SAMLConfig getSamlConfig(String workspaceId) {
+		UIMetadata uiuxMetadata = getUIUXMetadata(UIMetadata.SAML_CONFIG, workspaceId);
+		try {
+			return uiuxMetadata == null ? null
+					: new ObjectMapper().readValue(uiuxMetadata.getMetadata(), SAMLConfig.class);
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
+	public UIMetadata getUIUXMetadata(String query, String workspaceId) {
+		Query dbQuery = new Query(Criteria.where("query").is(query).and("workspaceId").is(workspaceId));
+		List<UIMetadata> UIMetadata = masterMongoTemplate.find(dbQuery, UIMetadata.class);
+		if (UIMetadata != null && UIMetadata.size() > 0) {
+			return UIMetadata.get(0);
+		}
+		else {
+			return null;
+		}
+	}
+
 }
