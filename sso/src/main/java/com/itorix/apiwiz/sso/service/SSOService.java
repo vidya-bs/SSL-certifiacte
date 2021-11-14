@@ -20,8 +20,8 @@ public interface SSOService {
             @RequestParam(value = "redirect_url", required = true) String redirectUrl,
             @RequestHeader(value = "x-source", required = false) String source) throws Exception;
 
-//    @RequestMapping(method = RequestMethod.GET, value = "/saml/idpMetadata", produces = { "application/json" })
-//    public @ResponseBody String getSSOMetadata() throws Exception;
+    @RequestMapping(method = RequestMethod.GET, value = "/saml/idpMetadata", produces = { "application/json" })
+    public @ResponseBody String getSSOMetadata() throws Exception;
 
     @RequestMapping(method = { RequestMethod.POST }, value = "/v1/saml/config", consumes = { "multipart/form-data" })
     public ResponseEntity<Object> createOrUpdateSamlConfig(

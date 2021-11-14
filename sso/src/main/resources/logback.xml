@@ -113,6 +113,12 @@
 		<level value="TRACE" />
 		<appender-ref ref="FILE-DEBUG" />
 	</logger>
+<!--	<logger name="org.apache" level="TRACE" additivity="true">-->
+<!--		<level value="TRACE" />-->
+<!--		<appender-ref ref="FILE-DEBUG" />-->
+<!--	</logger>-->
+
+
 	<root level="ERROR" name="com.itorix">
 		<!-- <level value="INFO" /> -->
 		<!-- <level value="ERROR" />  -->

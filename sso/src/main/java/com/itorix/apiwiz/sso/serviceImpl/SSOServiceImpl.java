@@ -143,10 +143,10 @@ public class SSOServiceImpl implements SSOService {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-//    @Override
-//    public String getSSOMetadata() throws Exception {
-//        return ssoDao.getSSOMetadata();
-//    }
+    @Override
+    public String getSSOMetadata() throws Exception {
+        return ssoDao.getSSOMetadata();
+    }
 
     @Override
     public ResponseEntity<Object> getSAMLConfig() throws Exception {
