@@ -61,6 +61,12 @@ public class SSOSecurityConfig {
     @Value("${itorix.sso.server.scheme}")
     private String protocol;
 
+    @Value("${itorix.sso.metadata.url}")
+    private String itorixMetadataUrl;
+
+    @Value("${itorix.sso.workspaceId}")
+    private String workspaceId;
+
     @Autowired
     private SAMLUserDetailsServiceImpl sAMLUserDetailsServiceImpl;
 
@@ -79,8 +85,11 @@ public class SSOSecurityConfig {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
 
-            String metadataUrl = new StringBuilder(protocol + "://").append(host).append(":").append(ssoPort)
-                    .append(contextPath).append("/saml/idpMetadata").toString();
+//            String metadataUrl = new StringBuilder(protocol + "://").append(host).append(":").append(ssoPort)
+//                    .append(contextPath).append("/saml/idpMetadata").toString();
+
+            String metadataUrl = itorixMetadataUrl + "/" + workspaceId;
+
             //
             if (!validateSelfSignCertificate) {
                 ProtocolSocketFactory socketFactory = null;

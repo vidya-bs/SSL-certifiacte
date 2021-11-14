@@ -165,7 +165,7 @@ import java.util.Map;
 			@RequestHeader(value = "x-apikey") String apikey, @PathVariable(value = "userId") String userId)
 			throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE', 'TEAM')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/workspace/enable-sso")
 	public @ResponseBody ResponseEntity<Void> enableSso(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -485,5 +485,9 @@ import java.util.Map;
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/itorix-resources/videos")
 	public @ResponseBody ResponseEntity<Object> getVideos(@RequestParam(required = false)String category) throws Exception;
+
+	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/saml/idpMetadata/{workspaceId}")
+	public @ResponseBody ResponseEntity<Object> getIdpMetadata(@PathVariable(required = true ) String workspaceId) throws Exception;
 
 }

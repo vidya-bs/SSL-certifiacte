@@ -33,10 +33,10 @@
 			</Pattern>
 		</encoder>
 		<filter class="ch.qos.logback.classic.filter.LevelFilter">
-			<level>DEBUG</level>
+			<level>TRACE</level>
 			<!-- output messages of exact level only -->
 			<onMatch>ACCEPT</onMatch>
-			<onMismatch>DENY</onMismatch>
+			<onMismatch>ACCEPT</onMismatch>
 		</filter>
 	</appender>
 
@@ -105,10 +105,20 @@
 		<level value="DEBUG" />
 		<appender-ref ref="FILE-DEBUG" />
 	</logger>
-	<logger name="org.springframework" level="DEBUG" additivity="true">
-		<level value="DEBUG" />
+	<logger name="org.springframework" level="TRACE" additivity="true">
+		<level value="TRACE" />
 		<appender-ref ref="FILE-DEBUG" />
 	</logger>
+	<logger name="org.opensaml" level="TRACE" additivity="true">
+		<level value="TRACE" />
+		<appender-ref ref="FILE-DEBUG" />
+	</logger>
+<!--	<logger name="org.apache" level="TRACE" additivity="true">-->
+<!--		<level value="TRACE" />-->
+<!--		<appender-ref ref="FILE-DEBUG" />-->
+<!--	</logger>-->
+
+
 	<root level="ERROR" name="com.itorix">
 		<!-- <level value="INFO" /> -->
 		<!-- <level value="ERROR" />  -->
