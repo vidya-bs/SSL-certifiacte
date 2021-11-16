@@ -95,6 +95,10 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
     @Override
     public void init(HttpSecurity http) {
 
+        samlLogger.setLogAllMessages(true);
+        samlLogger.setLogErrors(true);
+        samlLogger.setLogMessagesOnException(true);
+
         metadataProvider = identityProvider.metadataProvider();
         ExtendedMetadata extendedMetadata = extendedMetadata(identityProvider.discoveryEnabled);
         extendedMetadataDelegate = extendedMetadataDelegate(extendedMetadata);
@@ -195,7 +199,7 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
 
     private SimpleUrlLogoutSuccessHandler successLogoutHandler() {
         SimpleUrlLogoutSuccessHandler logoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
-        logoutSuccessHandler.setDefaultTargetUrl("/");
+        logoutSuccessHandler.setDefaultTargetUrl("https://acme-team-dev.apiwiz.io/session/logout");
         return logoutSuccessHandler;
     }
 
