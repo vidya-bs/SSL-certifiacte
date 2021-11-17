@@ -89,8 +89,8 @@ public class SSOServiceImpl implements SSOService {
         SAMLCredential credentials = (SAMLCredential) SecurityContextHolder.getContext().getAuthentication()
                 .getCredentials();
         UserInfo user = ssoDao.createOrUpdateUser(credentials);
-        session.invalidate();
-        SecurityContextHolder.clearContext();
+        //session.invalidate();
+        //SecurityContextHolder.clearContext();
 
         Object authenticate = authenticate(user, true);
         HttpHeaders headers = new HttpHeaders();
