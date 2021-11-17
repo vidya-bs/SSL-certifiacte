@@ -884,7 +884,9 @@ public class ApiMonitorDAO {
 		query.fields().exclude("content").exclude("password");
 
 		List<Certificates> certificates = mongoTemplate.find(query, Certificates.class);
+		log.debug("Retrieved certificates from DB {} ", certificates);
 		int total = mongoTemplate.findAll(Certificates.class).size();
+		log.debug("Retrieved certificates from DB and it's size {} ", total);
 		CertificatesOverviewResponse response = new CertificatesOverviewResponse();
 		Pagination pagination = new Pagination();
 		pagination.setTotal(Long.valueOf(certificates.size()));

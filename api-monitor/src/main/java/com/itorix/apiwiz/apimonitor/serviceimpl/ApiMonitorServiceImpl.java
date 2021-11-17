@@ -15,6 +15,8 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -39,6 +41,8 @@ import java.util.stream.Collectors;
 @RestController
 @EnableScheduling
 public class ApiMonitorServiceImpl implements ApiMonitorService {
+
+	private Logger logger = LoggerFactory.getLogger(ApiMonitorServiceImpl.class);
 
 	@Autowired
 	ApiMonitorDAO apiMonitorDAO;
@@ -301,12 +305,17 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 			@RequestParam(value = "expand", required = false) String expand,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) {
+		logger.debug("Request received to getCertificatesOverView with interaction id {} " , interactionid);
 		CertificatesOverviewResponse response = apiMonitorDAO.getAllCertificates(offset, pageSize);
 		if (Boolean.parseBoolean(expand)) {
+			List<String> certificateNames = response.getCertificates().stream().map(c -> c.getName()).collect(Collectors.toList());
+			logger.debug("Request completed to getCertificatesOverView with interaction id {} and response {} " , interactionid, certificateNames);
+
 			return new ResponseEntity<>(
-					response.getCertificates().stream().map(c -> c.getName()).collect(Collectors.toList()),
+					certificateNames,
 					HttpStatus.OK);
 		} else {
+			logger.debug("Request completed to getCertificatesOverView with interaction id {} and response {} " , interactionid, response);
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 	}
