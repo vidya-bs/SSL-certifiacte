@@ -71,6 +71,9 @@ public class SSOSecurityConfig {
     @Value("${itorix.sso.workspaceId}")
     private String workspaceId;
 
+    @Value("${itorix.sso.logout.targeturl}")
+    private String targetUrl;
+
     @Autowired
     private SAMLUserDetailsServiceImpl sAMLUserDetailsServiceImpl;
 
@@ -109,7 +112,7 @@ public class SSOSecurityConfig {
             // @formatter:off
             http.csrf().disable().antMatcher("/saml/**").authorizeRequests().antMatchers("/saml/token/**")
                     .authenticated().antMatchers("/saml/**").permitAll().and()
-                    .apply(SAMLConfigurer.saml().userDetailsService(sAMLUserDetailsServiceImpl))
+                    .apply(SAMLConfigurer.saml(targetUrl).userDetailsService(sAMLUserDetailsServiceImpl))
                     .failureRedirectUrl(failureRedirectUrl).validateSelfSignCertificate(validateSelfSignCertificate)
                     .serviceProvider().keyStore().storeFilePath(keyStoreFilePath).password(keyStorePassword)
                     .keyname(keyAlias).keyPassword(password).and().protocol(protocol)

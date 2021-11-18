@@ -18,7 +18,6 @@ import org.opensaml.xml.security.x509.PKIXTrustEvaluator;
 import org.opensaml.xml.security.x509.X509KeyInfoGeneratorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -84,8 +83,7 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
     private String failureRedirectUrl;
     private boolean validateSelfSignCertificate;
 
-    @Value("${itorix.sso.logout.targeturl}")
-    private String logoutTargetUrl;
+    private String logoutTargetUrl = "/";
 
     private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<Object>() {
         public <T> T postProcess(T object) {
@@ -93,7 +91,8 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
         }
     };
 
-    private SAMLConfigurer() {
+    private SAMLConfigurer(String logoutTargetUrl) {
+        this.logoutTargetUrl = logoutTargetUrl;
     }
 
     @Override
@@ -147,8 +146,8 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
                 .authenticationProvider(samlAuthenticationProvider);
     }
 
-    public static SAMLConfigurer saml() {
-        return new SAMLConfigurer();
+    public static SAMLConfigurer saml(String logoutTargetUrl) {
+        return new SAMLConfigurer(logoutTargetUrl);
     }
 
     public SAMLConfigurer userDetailsService(SAMLUserDetailsService samlUserDetailsService) {
