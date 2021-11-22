@@ -83,17 +83,24 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
     private String failureRedirectUrl;
     private boolean validateSelfSignCertificate;
 
+    private String logoutTargetUrl = "/";
+
     private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<Object>() {
         public <T> T postProcess(T object) {
             return object;
         }
     };
 
-    private SAMLConfigurer() {
+    private SAMLConfigurer(String logoutTargetUrl) {
+        this.logoutTargetUrl = logoutTargetUrl;
     }
 
     @Override
     public void init(HttpSecurity http) {
+
+        samlLogger.setLogAllMessages(true);
+        samlLogger.setLogErrors(true);
+        samlLogger.setLogMessagesOnException(true);
 
         metadataProvider = identityProvider.metadataProvider();
         ExtendedMetadata extendedMetadata = extendedMetadata(identityProvider.discoveryEnabled);
@@ -139,8 +146,8 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
                 .authenticationProvider(samlAuthenticationProvider);
     }
 
-    public static SAMLConfigurer saml() {
-        return new SAMLConfigurer();
+    public static SAMLConfigurer saml(String logoutTargetUrl) {
+        return new SAMLConfigurer(logoutTargetUrl);
     }
 
     public SAMLConfigurer userDetailsService(SAMLUserDetailsService samlUserDetailsService) {
@@ -195,7 +202,7 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
 
     private SimpleUrlLogoutSuccessHandler successLogoutHandler() {
         SimpleUrlLogoutSuccessHandler logoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
-        logoutSuccessHandler.setDefaultTargetUrl("/");
+        logoutSuccessHandler.setDefaultTargetUrl(logoutTargetUrl);
         return logoutSuccessHandler;
     }
 
