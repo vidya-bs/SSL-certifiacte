@@ -887,9 +887,9 @@ public class ApiMonitorDAO {
 		int total = mongoTemplate.findAll(Certificates.class).size();
 		CertificatesOverviewResponse response = new CertificatesOverviewResponse();
 		Pagination pagination = new Pagination();
-		pagination.setTotal(Long.valueOf(certificates.size()));
 		pagination.setOffset(offset);
 		pagination.setTotal(Long.valueOf(total));
+		pagination.setPageSize(pageSize);
 		response.setPagination(pagination);
 		response.setCertificates(certificates);
 		return response;

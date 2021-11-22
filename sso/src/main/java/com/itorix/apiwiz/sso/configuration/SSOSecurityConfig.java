@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +29,8 @@ import java.security.GeneralSecurityException;
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 @Slf4j
 public class SSOSecurityConfig {
+
+    private Logger logger = LoggerFactory.getLogger(SSOSecurityConfig.class);
 
     @Value("${itorix.ssl.sso.key-alias}")
     private String keyAlias;
@@ -67,6 +71,9 @@ public class SSOSecurityConfig {
     @Value("${itorix.sso.workspaceId}")
     private String workspaceId;
 
+    @Value("${itorix.sso.logout.targeturl}")
+    private String targetUrl;
+
     @Autowired
     private SAMLUserDetailsServiceImpl sAMLUserDetailsServiceImpl;
 
@@ -105,14 +112,22 @@ public class SSOSecurityConfig {
             // @formatter:off
             http.csrf().disable().antMatcher("/saml/**").authorizeRequests().antMatchers("/saml/token/**")
                     .authenticated().antMatchers("/saml/**").permitAll().and()
-                    .apply(SAMLConfigurer.saml().userDetailsService(sAMLUserDetailsServiceImpl))
+                    .apply(SAMLConfigurer.saml(targetUrl).userDetailsService(sAMLUserDetailsServiceImpl))
                     .failureRedirectUrl(failureRedirectUrl).validateSelfSignCertificate(validateSelfSignCertificate)
                     .serviceProvider().keyStore().storeFilePath(keyStoreFilePath).password(keyStorePassword)
                     .keyname(keyAlias).keyPassword(password).and().protocol(protocol)
                     .hostname(String.format("%s:%s", host, ssoPort)).basePath(contextPath).and().identityProvider()
                     .metadataFilePath(metadataUrl).and();
-            http.exceptionHandling().accessDeniedHandler(accessDeniedHandler);
+            http.exceptionHandling().accessDeniedHandler(accessDeniedHandler).and();
 
+            http.logout()
+                    .addLogoutHandler((request, response, authentication) -> {
+                        try {
+                            response.sendRedirect("/saml/logout");
+                        } catch (IOException e) {
+                           logger.error("Error while logout ", e);
+                        }
+                    });
 
         }
     }
