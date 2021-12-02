@@ -37,8 +37,8 @@ public class ConsentManagementServiceImpl implements ConsentManagementService {
     }
 
     @Override
-    public ResponseEntity<?> getScopeCategoryNames(String jsessionid, String name) throws ItorixException {
-        return new ResponseEntity<>(consentManagementDao.getScopeCategoryNames(name), HttpStatus.OK);
+    public ResponseEntity<?> getScopeCategoryNames(String jsessionid, String distinctBy) throws ItorixException {
+        return new ResponseEntity<>(consentManagementDao.getScopeCategoryNames(distinctBy), HttpStatus.OK);
     }
 
     @Override

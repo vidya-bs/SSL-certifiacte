@@ -27,11 +27,11 @@ public interface ConsentManagementService {
     public ResponseEntity<?> getScopeCategory(@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException;
 
     @UnSecure
-    @RequestMapping(method = RequestMethod.GET, value = "/v1/consents/scopes/category/{name}")
-    public ResponseEntity<?> getScopeCategoryNames(@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(value = "name") String name) throws ItorixException;
+    @RequestMapping(method = RequestMethod.GET, value = "/v1/consents/scopes/category")
+    public ResponseEntity<?> getScopeCategoryNames(@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam(value = "distinctBy", required = true) String distinctBy) throws ItorixException;
 
     @UnSecure
-    @RequestMapping(method = RequestMethod.GET, value = "/v1/consents/scopes/category")
+    @RequestMapping(method = RequestMethod.GET, value = "/v1/consents/scopes/category/names")
     public ResponseEntity<?> getScopeCategoryByName(@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam(value = "name", required = true) String name) throws ItorixException;
 
 

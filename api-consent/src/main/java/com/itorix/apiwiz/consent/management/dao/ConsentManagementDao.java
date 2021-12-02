@@ -59,8 +59,8 @@ public class ConsentManagementDao {
         return mongoTemplate.findAll(ScopeCategory.class);
     }
 
-    public List<String> getScopeCategoryNames(String columnName) {
-        return baseRepository.findDistinctValuesByColumnName(ScopeCategory.class, columnName);
+    public List<String> getScopeCategoryNames(String distinctBy) {
+        return baseRepository.findDistinctValuesByColumnName(ScopeCategory.class, distinctBy);
     }
 
     public ScopeCategory getScopeCategoryByName(String name) {
