@@ -7,6 +7,7 @@ import com.itorix.apiwiz.sso.exception.ErrorCodes;
 import com.itorix.apiwiz.sso.exception.ItorixException;
 import com.itorix.apiwiz.sso.model.*;
 import lombok.AccessLevel;
+import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import org.bson.Document;
 import org.slf4j.Logger;
@@ -87,25 +88,34 @@ public class SSODao {
 
             workspaces.add(userWorkspace);
             user.setWorkspaces(workspaces);
+        } else if(user.getUserWorkspace(workspaceId) == null ) {
+            Workspace workspace = getWorkspace(workspaceId);
+            UserWorkspace userWorkspace = new UserWorkspace();
+            userWorkspace.setWorkspace(workspace);
+            userWorkspace.setUserType("Member");
+            userWorkspace.setRoles(projectRoles);
+            userWorkspace.setActive(true);
+            userWorkspace.setAcceptInvite(true);
+            user.getWorkspaces().add(userWorkspace);
         } else {
             if (projectRoles.size() > 1) {
-                user.getWorkspaces().get(0).setRoles(projectRoles);
-                updateUser(user, projectRoles);
+                UserWorkspace userWorkspace = user.getUserWorkspace(workspaceId);
+                userWorkspace.setRoles(projectRoles);
             }
         }
         mongoTemplate.save(user);
         return getUserInfo(user);
     }
 
-    public Workspace getWorkspace(String workapaceId) {
+    public Workspace getWorkspace(String workspaceId) {
         Query query = new Query();
-        query.addCriteria(new Criteria().orOperator(Criteria.where("name").is(workapaceId)));
+        query.addCriteria(new Criteria().orOperator(Criteria.where("name").is(workspaceId)));
         Workspace workspace = masterMongoTemplate.findOne(query, Workspace.class);
         return workspace;
     }
 
     private UserInfo getUserInfo(User user) {
-        UserWorkspace userWorkspace = user.getWorkspaces().get(0);
+        UserWorkspace userWorkspace = user.getUserWorkspace(workspaceId);
         UserInfo userInfo = new UserInfo();
         userInfo.setLoginId(user.getLoginId());
         userInfo.setEmail(user.getEmail());
@@ -119,12 +129,17 @@ public class SSODao {
         return userInfo;
     }
 
+    @SneakyThrows
     public void updateUser(User user, List<String> projectRoles) {
         Query query = new Query(Criteria.where("id").is(user.getId()));
-        Update update = new Update();
-        update.set("workspaces.0.roles", projectRoles);
-        mongoTemplate.upsert(query, update, "workspaces.0.roles");
-
+        User existingUser = mongoTemplate.findOne(query, User.class);
+        UserWorkspace userWorkspace = existingUser.getUserWorkspace(workspaceId);
+        if(userWorkspace != null) {
+            userWorkspace.setRoles(projectRoles);
+        } else {
+            throw new ItorixException(ErrorCodes.errorMessage.get("SSO-022"), "SSO-022");
+        }
+        mongoTemplate.save(existingUser);
     }
 
     public void createOrUpdateSamlConfig(SAMLConfig samlConfig) throws ItorixException {
