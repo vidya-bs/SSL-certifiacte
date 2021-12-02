@@ -42,7 +42,8 @@
 		<module>api-mock-server</module>
 		<module>api-license</module>
 		<module>license-validator</module>
-	</modules>
+        <module>api-consent</module>
+    </modules>
 	<name>Itorix Hyggee Core Project</name>
 	<!-- <parent> -->
 	<!-- <groupId>org.springframework.boot</groupId> -->
@@ -262,6 +263,11 @@
 			<dependency>
 				<groupId>com.itorix.hyggee.cloud</groupId>
 				<artifactId>marketing</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.itorix.hyggee.cloud</groupId>
+				<artifactId>api-consent</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 		</dependencies>
