@@ -23,12 +23,10 @@ public interface ConsentManagementService {
     public ResponseEntity<?> updateScopeCategory(@RequestHeader(value = "JSESSIONID") String jsessionid,
                                                  @RequestBody ScopeCategory scopeCategory) throws ItorixException;
 
-    @RequestMapping(method = RequestMethod.GET, value = "/v1/consents/scopes/category")
-    public ResponseEntity<?> getScopeCategory(@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException;
 
     @UnSecure
     @RequestMapping(method = RequestMethod.GET, value = "/v1/consents/scopes/category")
-    public ResponseEntity<?> getScopeCategoryNames(@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam(value = "distinctBy", required = true) String distinctBy) throws ItorixException;
+    public ResponseEntity<?> getScopeCategoryNames(@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam(value = "distinctBy", required = false) String distinctBy) throws ItorixException;
 
     @UnSecure
     @RequestMapping(method = RequestMethod.GET, value = "/v1/consents/scopes/category/names")

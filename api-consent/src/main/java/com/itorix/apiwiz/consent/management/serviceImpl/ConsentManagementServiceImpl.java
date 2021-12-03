@@ -31,13 +31,12 @@ public class ConsentManagementServiceImpl implements ConsentManagementService {
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
-    @Override
-    public ResponseEntity<?> getScopeCategory(String jsessionid) throws ItorixException {
-        return new ResponseEntity<>(consentManagementDao.getAllScopeCategory(), HttpStatus.OK);
-    }
 
     @Override
     public ResponseEntity<?> getScopeCategoryNames(String jsessionid, String distinctBy) throws ItorixException {
+        if(distinctBy == null ) {
+            return new ResponseEntity<>(consentManagementDao.getAllScopeCategory(), HttpStatus.OK);
+        }
         return new ResponseEntity<>(consentManagementDao.getScopeCategoryNames(distinctBy), HttpStatus.OK);
     }
 
