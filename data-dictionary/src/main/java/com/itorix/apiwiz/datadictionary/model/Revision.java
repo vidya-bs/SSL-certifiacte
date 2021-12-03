@@ -1,10 +1,10 @@
 package com.itorix.apiwiz.datadictionary.model;
 
 public class Revision {
-	
+
 	private Integer revision = 1;
 	private String status;
-	
+
 	public Integer getRevision() {
 		return revision;
 	}

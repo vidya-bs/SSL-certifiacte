@@ -1,27 +1,5 @@
 package com.itorix.apiwiz.portfolio.serviceImpl;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.projectmanagement.Organization;
@@ -33,17 +11,25 @@ import com.itorix.apiwiz.portfolio.dao.PortfolioDao;
 import com.itorix.apiwiz.portfolio.model.PortfolioRequest;
 import com.itorix.apiwiz.portfolio.model.PromoteProxyRequest;
 import com.itorix.apiwiz.portfolio.model.ReleaseProxyRequest;
-import com.itorix.apiwiz.portfolio.model.db.Metadata;
-import com.itorix.apiwiz.portfolio.model.db.Portfolio;
-import com.itorix.apiwiz.portfolio.model.db.PortfolioDocument;
-import com.itorix.apiwiz.portfolio.model.db.PortfolioResponse;
-import com.itorix.apiwiz.portfolio.model.db.ProductRequest;
-import com.itorix.apiwiz.portfolio.model.db.Products;
-import com.itorix.apiwiz.portfolio.model.db.Projects;
-import com.itorix.apiwiz.portfolio.model.db.ServiceRegistry;
+import com.itorix.apiwiz.portfolio.model.db.*;
 import com.itorix.apiwiz.portfolio.model.db.proxy.Pipelines;
 import com.itorix.apiwiz.portfolio.model.db.proxy.Proxies;
 import com.itorix.apiwiz.portfolio.service.PortfolioService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @CrossOrigin
 @RestController
@@ -183,7 +169,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 		String docId = portfolioDao.createPortfolioDocument(id, portfolioDocument, jsessionid);
 		try {
 			location = portfolioDao.updatePortfolioDocument(id, docId, document.getBytes(), jsessionid,
-					document.getOriginalFilename(),1);
+					document.getOriginalFilename(), 1);
 		} catch (Exception e) {
 			logger.error("exception when updating portfolio document", e);
 			portfolioDao.deletePortfolioDocument(id, docId, jsessionid);
@@ -196,10 +182,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 	@Override
 	public ResponseEntity<Object> createPortfolioDocumentRevision(@RequestParam Map<String, Object> requestParams,
 			@RequestPart(value = "document", required = false) MultipartFile document,
-			@PathVariable(value = "id") String id, 
-			@PathVariable(value = "documentId") String documentId,
-			@RequestHeader(value = "JSESSIONID") String jsessionid)
-			throws Exception {
+			@PathVariable(value = "id") String id, @PathVariable(value = "documentId") String documentId,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 
 		List<String> missingField = new ArrayList<>();
 		if (!StringUtils.hasText((String) requestParams.get("documentName"))) {
@@ -224,16 +208,16 @@ public class PortfolioServiceImpl implements PortfolioService {
 				.documentName((String) requestParams.get("documentName"))
 				.documentOwner((String) requestParams.get("documentOwner"))
 				.documentOwnerEmail((String) requestParams.get("documentOwnerEmail"))
-				.documentSummary((String) requestParams.get("documentSummary"))
-				.documentId(documentId).build();
+				.documentSummary((String) requestParams.get("documentSummary")).documentId(documentId).build();
 		Integer rev = portfolioDao.getPortfolioDocumentMaxRevision(id, documentId);
-		portfolioDocument.setRevision(rev+1);
+		portfolioDocument.setRevision(rev + 1);
 		String location = null;
 		String docId = portfolioDao.createPortfolioDocumentRevision(id, portfolioDocument, jsessionid);
-		//String docId = portfolioDao.createPortfolioDocument(id, portfolioDocument, jsessionid);
+		// String docId = portfolioDao.createPortfolioDocument(id,
+		// portfolioDocument, jsessionid);
 		try {
 			location = portfolioDao.updatePortfolioDocument(id, docId, document.getBytes(), jsessionid,
-					document.getOriginalFilename(),rev);
+					document.getOriginalFilename(), rev);
 		} catch (Exception e) {
 			logger.error("exception when updating portfolio document", e);
 			portfolioDao.deletePortfolioDocument(id, docId, jsessionid);
@@ -247,8 +231,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 			@RequestPart(value = "documentSummary", required = false) String documentSummary,
 			@RequestPart(value = "document", required = false) MultipartFile document,
 			@PathVariable(value = "portfolioId") String portfolioId,
-			@PathVariable(value = "documentId") String documentId,
-			@PathVariable(value = "revision") Integer revision,
+			@PathVariable(value = "documentId") String documentId, @PathVariable(value = "revision") Integer revision,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 
 		if (document == null || document.getBytes() == null || document.getBytes().length == 0) {
@@ -274,15 +257,15 @@ public class PortfolioServiceImpl implements PortfolioService {
 	public ResponseEntity<Object> getPortfolioDocuments(@PathVariable(value = "portfolioId") String portfolioId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		List<PortfolioDocument> portfolioDocument = portfolioDao.getPortfolioDocuments(portfolioId);
-//		List<PortfolioDocument> portfolioDocument = portfolioDao.getPortfolioDocumentSummary(portfolioId);
+		// List<PortfolioDocument> portfolioDocument =
+		// portfolioDao.getPortfolioDocumentSummary(portfolioId);
 		return new ResponseEntity<>(portfolioDocument, HttpStatus.OK);
 	}
-	
+
 	@Override
-	public ResponseEntity<Object> getPortfolioDocumentRevisions(
-			@PathVariable(value = "portfolioId") String portfolioId,
+	public ResponseEntity<Object> getPortfolioDocumentRevisions(@PathVariable(value = "portfolioId") String portfolioId,
 			@PathVariable(value = "documentId") String documentId,
-			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception{
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		List<PortfolioDocument> portfolioDocument = portfolioDao.getPortfolioDocumentSummary(portfolioId);
 		return new ResponseEntity<>(portfolioDocument, HttpStatus.OK);
 	}

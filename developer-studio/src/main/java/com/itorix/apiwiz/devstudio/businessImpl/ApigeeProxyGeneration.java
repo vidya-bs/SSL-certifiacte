@@ -1,34 +1,21 @@
 package com.itorix.apiwiz.devstudio.businessImpl;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import com.itorix.apiwiz.common.model.proxystudio.CodeGenHistory;
-import com.itorix.apiwiz.common.model.proxystudio.Flow;
-import com.itorix.apiwiz.common.model.proxystudio.Flows;
-import com.itorix.apiwiz.common.model.proxystudio.Folder;
-import com.itorix.apiwiz.common.model.proxystudio.Proxy;
-import com.itorix.apiwiz.common.model.proxystudio.ProxyConfig;
-import com.itorix.apiwiz.common.model.proxystudio.Target;
-import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import com.itorix.apiwiz.common.model.proxystudio.*;
 import com.itorix.apiwiz.devstudio.dao.MongoConnection;
-
 import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @SuppressWarnings("rawtypes")
@@ -62,27 +49,27 @@ public class ApigeeProxyGeneration {
 	}
 
 	private void processResources(Folder templates) throws IOException, TemplateException {
-		try{
-		for (Folder tmplFile : templates.getFiles()) {
-			if (tmplFile.isFolder()) {
-				String filePath = "";
-				if (tmplFile.getName().equals(ProxyConfig.FLDR_XSD))
-					filePath = dstResourcesXsd;
-				else if (tmplFile.getName().equals(ProxyConfig.FLDR_JAVA))
-					filePath = dstResourcesJava;
-				else if (tmplFile.getName().equals(ProxyConfig.FLDR_JSC))
-					filePath = dstResourcesJSC;
-				else if (tmplFile.getName().equals(ProxyConfig.FLDR_XSL))
-					filePath = dstResourcesXSL;
-				if (!filePath.equals(""))
-					for (Folder resourceFile : tmplFile.getFiles()) {
-						String content = mongoConnection.getFile(resourceFile.getName());
-						writeFile(content, filePath + File.separatorChar + resourceFile.getName());
-					}
+		try {
+			for (Folder tmplFile : templates.getFiles()) {
+				if (tmplFile.isFolder()) {
+					String filePath = "";
+					if (tmplFile.getName().equals(ProxyConfig.FLDR_XSD))
+						filePath = dstResourcesXsd;
+					else if (tmplFile.getName().equals(ProxyConfig.FLDR_JAVA))
+						filePath = dstResourcesJava;
+					else if (tmplFile.getName().equals(ProxyConfig.FLDR_JSC))
+						filePath = dstResourcesJSC;
+					else if (tmplFile.getName().equals(ProxyConfig.FLDR_XSL))
+						filePath = dstResourcesXSL;
+					if (!filePath.equals(""))
+						for (Folder resourceFile : tmplFile.getFiles()) {
+							String content = mongoConnection.getFile(resourceFile.getName());
+							writeFile(content, filePath + File.separatorChar + resourceFile.getName());
+						}
+				}
 			}
-		}
-		}catch(Exception e){
-			
+		} catch (Exception e) {
+
 		}
 	}
 

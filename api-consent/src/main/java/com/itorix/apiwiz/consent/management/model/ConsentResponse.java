@@ -10,6 +10,6 @@ import java.util.List;
 @Setter
 public class ConsentResponse {
 
-    private List<Consent> consentList;
-    private Pagination pagination;
+	private List<Consent> consentList;
+	private Pagination pagination;
 }

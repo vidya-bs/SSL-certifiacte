@@ -15,7 +15,7 @@ import java.util.List;
 public interface DictionaryBusiness {
 
 	public PortfolioVO createPortfolio(PortfolioVO portfolioVO);
-	
+
 	public PortfolioVO createPortfolioRevision(PortfolioVO portfolioVO, String id);
 
 	public PortfolioVO findPortfolio(PortfolioVO portfolioVO);
@@ -45,13 +45,13 @@ public interface DictionaryBusiness {
 	public Object portfolioSearch(String interactionid, String name, int limit) throws ItorixException;
 
 	public void updatePortfolioModelStatus(String id, String model_name, ModelStatus modelStatus);
-	
+
 	public PortfolioVO createPortfolioRevision(String id, Integer revision);
-	
+
 	public PortfolioVO getPortfolioByRevision(String id, Integer revision);
-	
+
 	public List<Revision> getRevisions(String id);
-	
+
 	public Integer getMaxRevision(String id);
-	
+
 }

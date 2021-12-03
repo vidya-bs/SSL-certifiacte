@@ -103,48 +103,48 @@ public class ApigeeTargetGeneration {
 
 	private void processPolicyTemplates(Flows flows, Folder policies) throws IOException, TemplateException {
 		String STR_TARGET = "TARGET_";
-		if(policies != null){
-		List<Folder> fileList = policies.getFiles();
-		if (fileList != null) {
-			for (Folder fragFile : fileList) {
-				Template template = getTemplate(fragFile.getName());
-				String dstFile;
-				if (fragFile.getName().contains("ftl"))
-					if (fragFile.getName().contains(STR_TARGET)) {
-						final Map<String, Object> targetDetails = new HashMap<String, Object>();
-						dstFile = dstPolicies + File.separatorChar + targetName + "_" + fragFile.getName();
-						dstFile = dstFile.replace(STR_TARGET, ProxyConfig.EMPTY_STRING)
-								.replace(ProxyConfig.FTL_FILE_EXT, ProxyConfig.EMPTY_STRING);
-						if (((new File(dstFile)).exists() == false)) {
-							targetDetails.put("targetName", targetName);
-							targetDetails.put("targetServiceName", "");
-							Writer file = new FileWriter(dstFile);
-							template.process(targetDetails, file);
-							file.flush();
-							file.close();
-						}
-					} else {
-						for (int i = 0; i < flows.getFlow().length; i++) {
-							final Map<String, Object> operationDetails = new HashMap<String, Object>();
-							dstFile = dstPolicies + File.separatorChar + targetName + "_" + flows.getFlow()[i].getName()
-									+ "_" + fragFile.getName();
+		if (policies != null) {
+			List<Folder> fileList = policies.getFiles();
+			if (fileList != null) {
+				for (Folder fragFile : fileList) {
+					Template template = getTemplate(fragFile.getName());
+					String dstFile;
+					if (fragFile.getName().contains("ftl"))
+						if (fragFile.getName().contains(STR_TARGET)) {
+							final Map<String, Object> targetDetails = new HashMap<String, Object>();
+							dstFile = dstPolicies + File.separatorChar + targetName + "_" + fragFile.getName();
 							dstFile = dstFile.replace(STR_TARGET, ProxyConfig.EMPTY_STRING)
 									.replace(ProxyConfig.FTL_FILE_EXT, ProxyConfig.EMPTY_STRING);
-							operationDetails.put("SOAPAction", flows.getFlow()[i].getName());
-							operationDetails.put("targetName", targetName);
-							operationDetails.put("targetServiceName", targetName);
-							Writer file = new FileWriter(dstFile);
-							template.process(operationDetails, file);
-							file.flush();
-							file.close();
+							if (((new File(dstFile)).exists() == false)) {
+								targetDetails.put("targetName", targetName);
+								targetDetails.put("targetServiceName", "");
+								Writer file = new FileWriter(dstFile);
+								template.process(targetDetails, file);
+								file.flush();
+								file.close();
+							}
+						} else {
+							for (int i = 0; i < flows.getFlow().length; i++) {
+								final Map<String, Object> operationDetails = new HashMap<String, Object>();
+								dstFile = dstPolicies + File.separatorChar + targetName + "_"
+										+ flows.getFlow()[i].getName() + "_" + fragFile.getName();
+								dstFile = dstFile.replace(STR_TARGET, ProxyConfig.EMPTY_STRING)
+										.replace(ProxyConfig.FTL_FILE_EXT, ProxyConfig.EMPTY_STRING);
+								operationDetails.put("SOAPAction", flows.getFlow()[i].getName());
+								operationDetails.put("targetName", targetName);
+								operationDetails.put("targetServiceName", targetName);
+								Writer file = new FileWriter(dstFile);
+								template.process(operationDetails, file);
+								file.flush();
+								file.close();
+							}
 						}
+					else {
+						String content = mongoConnection.getFile(fragFile.getName());
+						writeFile(content, dstPolicies + File.separatorChar + fragFile.getName());
 					}
-				else {
-					String content = mongoConnection.getFile(fragFile.getName());
-					writeFile(content, dstPolicies + File.separatorChar + fragFile.getName());
 				}
 			}
-		}
 		}
 	}
 

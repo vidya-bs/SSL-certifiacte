@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Scope {
-    private String name;
-    private String summary;
+	private String name;
+	private String summary;
 }

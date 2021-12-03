@@ -43,7 +43,7 @@ public class ApigeeIntegrationVO extends AbstractObject {
 	}
 
 	public void setType(String type) {
-		if(type.equalsIgnoreCase("isSaaS"))
+		if (type.equalsIgnoreCase("isSaaS"))
 			this.type = "saas";
 		else
 			this.type = type;

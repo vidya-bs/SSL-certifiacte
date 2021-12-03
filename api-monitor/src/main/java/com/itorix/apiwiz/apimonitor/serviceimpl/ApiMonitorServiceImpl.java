@@ -307,10 +307,9 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) {
 		CertificatesOverviewResponse response = apiMonitorDAO.getAllCertificates(offset, pageSize);
 		if (Boolean.parseBoolean(expand)) {
-			List<String> certificateNames = response.getCertificates().stream().map(c -> c.getName()).collect(Collectors.toList());
-			return new ResponseEntity<>(
-					certificateNames,
-					HttpStatus.OK);
+			List<String> certificateNames = response.getCertificates().stream().map(c -> c.getName())
+					.collect(Collectors.toList());
+			return new ResponseEntity<>(certificateNames, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}

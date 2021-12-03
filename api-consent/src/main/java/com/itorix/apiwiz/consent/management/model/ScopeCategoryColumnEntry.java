@@ -9,10 +9,10 @@ import java.util.List;
 @Setter
 public class ScopeCategoryColumnEntry {
 
-    private String name;
-    private String summary;
-    private boolean mandatory;
-    private boolean isPrimaryKey;
-    private List<String> enums;
+	private String name;
+	private String summary;
+	private boolean mandatory;
+	private boolean isPrimaryKey;
+	private List<String> enums;
 
 }

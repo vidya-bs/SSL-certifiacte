@@ -43,7 +43,8 @@
 		<module>api-license</module>
 		<module>license-validator</module>
         <module>api-consent</module>
-    </modules>
+		<module>api-consent-server</module>
+	</modules>
 	<name>Itorix Hyggee Core Project</name>
 	<!-- <parent> -->
 	<!-- <groupId>org.springframework.boot</groupId> -->

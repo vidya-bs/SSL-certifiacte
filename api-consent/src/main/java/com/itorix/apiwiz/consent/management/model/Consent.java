@@ -12,12 +12,12 @@ import java.util.List;
 @Setter
 @Document("Consent.List")
 public class Consent {
-    @Indexed
-    @Id
-    private String id;
-    private String userId;
-    private ConsentStatus status;
-    private String category;
-    private List<String> scopes;
-    private long cts;
+	@Indexed
+	@Id
+	private String id;
+	private String userId;
+	private ConsentStatus status;
+	private String category;
+	private List<String> scopes;
+	private long cts;
 }
