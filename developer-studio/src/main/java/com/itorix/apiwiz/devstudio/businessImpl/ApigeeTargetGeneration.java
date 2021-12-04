@@ -79,9 +79,13 @@ public class ApigeeTargetGeneration {
 				Writer file = new FileWriter(dstFileName);
 				Map<String, Object> data = new HashMap<String, Object>();
 
-				List<String> operations = new ArrayList<String>();
+				List<Object> operations = new ArrayList<>();
 				for (Flow flow : flows.getFlow()) {
-					operations.add(flow.getName());
+					Map<String, Object> mapApi = new HashMap<String, Object>();
+					operations.add(mapApi);
+					mapApi.put("name", flow.getName());
+					mapApi.put("disablePathSuffix", flow.getDisablePathSuffix());
+					//operations.add(flow.getName());
 				}
 				data.put("targetOperations", operations);
 				data.put("targetName", targetName);
