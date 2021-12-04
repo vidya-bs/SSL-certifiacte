@@ -15,6 +15,7 @@ public class Flow {
 	private String targetName;
 	private String targetOperation;
 	private String targetBasepath;
+	private String disablePathSuffix= "false";
 	@JsonProperty("metadata")
 	private List<ProxyMetadata> metadata;
 
@@ -104,6 +105,20 @@ public class Flow {
 
 	public void setTargetBasepath(String targetBasepath) {
 		this.targetBasepath = targetBasepath;
+	}
+
+	/**
+	 * @return the disablePathSuffix
+	 */
+	public String getDisablePathSuffix() {
+		return disablePathSuffix;
+	}
+
+	/**
+	 * @param disablePathSuffix the disablePathSuffix to set
+	 */
+	public void setDisablePathSuffix(String disablePathSuffix) {
+		this.disablePathSuffix = disablePathSuffix;
 	}
 	
 	
