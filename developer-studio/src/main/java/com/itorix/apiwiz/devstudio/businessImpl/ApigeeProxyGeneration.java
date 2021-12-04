@@ -185,17 +185,17 @@ public class ApigeeProxyGeneration {
 			Template template = getTemplate(tmplFile.getName());
 			for (Flow flow : apiList.getFlow()) {
 				String apiName = flow.getName();
-				String verb = flow.getVerb();
-				if (verb.equalsIgnoreCase("GET")) {
-					if ((tmplFile.getName().contains(ProxyConfig.STR_GET) == false)
-							&& (tmplFile.getName().contains(ProxyConfig.STR_ALL) == false)) {
-						continue;
-					}
-				} else {
-					if (tmplFile.getName().contains(ProxyConfig.STR_GET)) {
-						continue;
-					}
-				}
+//				String verb = flow.getVerb();
+//				if (verb.equalsIgnoreCase("GET")) {
+//					if ((tmplFile.getName().contains(ProxyConfig.STR_GET) == false)
+//							&& (tmplFile.getName().contains(ProxyConfig.STR_ALL) == false)) {
+//						continue;
+//					}
+//				} else {
+//					if (tmplFile.getName().contains(ProxyConfig.STR_GET)) {
+//						continue;
+//					}
+//				}
 				String fileName = removeFileExtension(tmplFile.getName(), true);
 				
 				

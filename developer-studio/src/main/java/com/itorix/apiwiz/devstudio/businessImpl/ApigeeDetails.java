@@ -8,11 +8,14 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.client.HttpClientErrorException;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -99,9 +102,9 @@ public class ApigeeDetails {
 			proxyApigeeDetails.setName(proxy);
 			deploymentList = new ArrayList<Deployments>();
 		} else {
-			deploymentList = proxyApigeeDetails.getDeployments() == null
-					? new ArrayList<Deployments>()
-					: proxyApigeeDetails.getDeployments();
+			deploymentList = proxyApigeeDetails.getDeployments();
+				if(CollectionUtils.isEmpty(deploymentList) || ObjectUtils.isEmpty(deploymentList.get(0)))
+					deploymentList = new ArrayList<Deployments>();
 		}
 
 		try {
@@ -230,11 +233,12 @@ public class ApigeeDetails {
 				JSONArray apiProducts = (JSONArray) JSONSerializer.toJSON(apiProductsString);
 				JSONArray productsData = new JSONArray();
 				for (Object apiObj : apiProducts) {
+					try{
 					final String apiProduct = (String) apiObj;
 					// If string contains spaces, it will not allow to process.
 					productsData.add(apiProduct);
 					String productUrl = apigeeHost + "v1/organizations/" + organization + "/apiproducts/" + apiProduct;
-					productUrl = productUrl.replace(" ", "%20");
+					//productUrl = productUrl.replace(" ", "%20");
 					httpUtil.setBasicAuth(apigeeCred);
 					httpUtil.setuRL(productUrl);
 					response = makeCall(httpUtil, "GET");
@@ -252,6 +256,13 @@ public class ApigeeDetails {
 							proxyProductLinkMap.put(proxyLinkedInProduct, products);
 						}
 					}
+					Thread.sleep(2);
+				}catch (HttpClientErrorException ex){
+					ex.printStackTrace();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				}
 			}
 		} catch (IOException e) {
@@ -282,7 +293,7 @@ public class ApigeeDetails {
 					ObjectMapper objectMapper = new ObjectMapper();
 					JSONArray devApps = (JSONArray) JSONSerializer.toJSON(developerAppString);
 					for (Object devObj : devApps) {
-						@SuppressWarnings("unused")
+						try{
 						final String devApp = (String) devObj;
 						httpUtil.setBasicAuth(apigeeCred);
 						httpUtil.setuRL(apigeeHost + "/v1/organizations/" + organization + "/apps/" + devApp);
@@ -302,8 +313,13 @@ public class ApigeeDetails {
 								productsAppsLinkedMap.put(apiProduct, appsLinked);
 							}
 						}
+						} catch (HttpClientErrorException e){
+							
+						}
+						Thread.sleep(2);
 					}
-				} catch (IOException e) {
+					
+				} catch (IOException | InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
