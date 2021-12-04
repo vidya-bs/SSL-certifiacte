@@ -11,9 +11,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.common.io.Files;
 import com.itorix.apiwiz.common.model.proxystudio.CodeGenHistory;
 import com.itorix.apiwiz.common.model.proxystudio.Flow;
 import com.itorix.apiwiz.common.model.proxystudio.Flows;
@@ -62,27 +64,27 @@ public class ApigeeProxyGeneration {
 	}
 
 	private void processResources(Folder templates) throws IOException, TemplateException {
-		try{
-		for (Folder tmplFile : templates.getFiles()) {
-			if (tmplFile.isFolder()) {
-				String filePath = "";
-				if (tmplFile.getName().equals(ProxyConfig.FLDR_XSD))
-					filePath = dstResourcesXsd;
-				else if (tmplFile.getName().equals(ProxyConfig.FLDR_JAVA))
-					filePath = dstResourcesJava;
-				else if (tmplFile.getName().equals(ProxyConfig.FLDR_JSC))
-					filePath = dstResourcesJSC;
-				else if (tmplFile.getName().equals(ProxyConfig.FLDR_XSL))
-					filePath = dstResourcesXSL;
-				if (!filePath.equals(""))
-					for (Folder resourceFile : tmplFile.getFiles()) {
-						String content = mongoConnection.getFile(resourceFile.getName());
-						writeFile(content, filePath + File.separatorChar + resourceFile.getName());
-					}
+		try {
+			for (Folder tmplFile : templates.getFiles()) {
+				if (tmplFile.isFolder()) {
+					String filePath = "";
+					if (tmplFile.getName().equals(ProxyConfig.FLDR_XSD))
+						filePath = dstResourcesXsd;
+					else if (tmplFile.getName().equals(ProxyConfig.FLDR_JAVA))
+						filePath = dstResourcesJava;
+					else if (tmplFile.getName().equals(ProxyConfig.FLDR_JSC))
+						filePath = dstResourcesJSC;
+					else if (tmplFile.getName().equals(ProxyConfig.FLDR_XSL))
+						filePath = dstResourcesXSL;
+					if (!filePath.equals(""))
+						for (Folder resourceFile : tmplFile.getFiles()) {
+							String content = mongoConnection.getFile(resourceFile.getName());
+							writeFile(content, filePath + File.separatorChar + resourceFile.getName());
+						}
+				}
 			}
-		}
-		}catch(Exception e){
-			
+		} catch (Exception e) {
+
 		}
 	}
 
@@ -194,8 +196,11 @@ public class ApigeeProxyGeneration {
 						continue;
 					}
 				}
-				String dstPoliciesFile = dstPolicies + File.separatorChar + apiName + ProxyConfig.STR_UNDERSCORE
-						+ tmplFile.getName();
+				String fileName = removeFileExtension(tmplFile.getName(), true);
+				
+				
+				String dstPoliciesFile = dstPolicies + File.separatorChar 
+						+ tmplFile.getName().replaceAll(fileName, fileName + "-" + apiName  );
 
 				dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "").replace(ProxyConfig.STR_GET, "")
 						.replace(ProxyConfig.STR_ALL, "");
@@ -221,6 +226,15 @@ public class ApigeeProxyGeneration {
 				reqFile.close();
 			}
 		}
+	}
+	
+	public static String removeFileExtension(String filename, boolean removeAllExtensions) {
+	    if (filename == null || filename.isEmpty()) {
+	        return filename;
+	    }
+
+	    String extPattern = "(?<!^)[.]" + (removeAllExtensions ? ".*" : "[^.]*$");
+	    return filename.replaceAll(extPattern, "");
 	}
 
 	private List<String> processRouteRuleTemplate(List<Target> targets) throws IOException, TemplateException {
