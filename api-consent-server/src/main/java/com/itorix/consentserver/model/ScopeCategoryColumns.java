@@ -1,4 +1,4 @@
-package com.itorix.consentserver.common.model;
+package com.itorix.consentserver.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;

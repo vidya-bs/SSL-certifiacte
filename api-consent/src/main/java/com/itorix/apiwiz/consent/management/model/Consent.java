@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -15,9 +16,7 @@ public class Consent {
 	@Indexed
 	@Id
 	private String id;
-	private String userId;
-	private ConsentStatus status;
-	private String category;
+	private Map<String, String> consent;
 	private List<String> scopes;
 	private long cts;
 }

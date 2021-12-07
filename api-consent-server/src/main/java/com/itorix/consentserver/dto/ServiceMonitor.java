@@ -1,8 +1,8 @@
 package com.itorix.consentserver.dto;
 
 
-import com.itorix.consentserver.common.model.ErrorObj;
-import com.itorix.consentserver.common.model.ItorixException;
+import com.itorix.consentserver.model.ErrorObj;
+import com.itorix.consentserver.model.ItorixException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -73,9 +73,9 @@ public class ServiceMonitor {
         return key;
     }
 
-    private Workspace getWorkspaceWithKey(String workapaceId) {
+    private Workspace getWorkspaceWithKey(String workspaceId) {
         Query query = new Query();
-        query.addCriteria(new Criteria().orOperator(Criteria.where("key").is(workapaceId)));
+        query.addCriteria(new Criteria().orOperator(Criteria.where("key").is(workspaceId)));
         Workspace workspace = masterMongoTemplate.findOne(query, Workspace.class);
         return workspace;
     }

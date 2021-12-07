@@ -1,4 +1,4 @@
-package com.itorix.consentserver.common.model;
+package com.itorix.consentserver.model;
 
 public class ItorixException extends Exception {
 
@@ -22,6 +22,12 @@ public class ItorixException extends Exception {
     public ItorixException(String message, String errorCode) {
         super(message);
         this.errorCode = errorCode;
+
+    }
+
+    public ItorixException(String message, int errorCode) {
+        super(message);
+        this.errorCode = String.valueOf(errorCode);
 
     }
 

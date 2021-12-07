@@ -1,4 +1,4 @@
-package com.itorix.consentserver.common.model;
+package com.itorix.consentserver.model;
 
 public class Error {
     private String userMessage;

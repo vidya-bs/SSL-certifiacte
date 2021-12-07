@@ -16,8 +16,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -40,7 +40,7 @@ public class ConsentManagementDao {
 		ScopeCategory existingScopeCategory = baseRepository.findById(scopeCategory.getName(), ScopeCategory.class);
 
 		if (existingScopeCategory == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("General-1001"));
+			throw new ItorixException(ErrorCodes.errorMessage.get("General-1001"), "General-1001");
 		}
 
 		existingScopeCategory.setMts(System.currentTimeMillis());
@@ -58,9 +58,6 @@ public class ConsentManagementDao {
 		return mongoTemplate.findAll(ScopeCategory.class);
 	}
 
-	public List<String> getScopeCategoryNames(String distinctBy) {
-		return baseRepository.findDistinctValuesByColumnName(ScopeCategory.class, distinctBy);
-	}
 
 	public ScopeCategory getScopeCategoryByName(String name) {
 		ScopeCategory scopeCategory = baseRepository.findOne("name", name, ScopeCategory.class);
@@ -92,35 +89,15 @@ public class ConsentManagementDao {
 		baseRepository.save(consent);
 	}
 
-	public Consent getConsentByPrimaryKey(String userId) {
-		return baseRepository.findOne("userId", userId, Consent.class);
-	}
 
-	public void revokeConsent(String consentId) {
-		Query query = new Query(Criteria.where("_id").is(consentId));
-		Update update = new Update();
-		update.set("status", "REVOKED");
-		mongoTemplate.upsert(query, update, Consent.class);
-	}
+	public ConsentResponse getConsentsOverview(int offset, int pageSize, Map<String, String> searchParams) {
+		List<Criteria> searchCriteria = getCriteria(searchParams);
 
-	@SneakyThrows
-	public ConsentStatus getConsentStatus(String userId) {
-		Consent consent = baseRepository.findOne("userId", userId, Consent.class);
-		if (consent != null) {
-			return consent.getStatus();
-		}
-		throw new ItorixException(ErrorCodes.errorMessage.get("General-1001"));
-	}
+		Criteria criteria = new Criteria().andOperator(searchCriteria.toArray(new Criteria[searchCriteria.size()]));
 
-	public ConsentResponse getConsentsOverview(int offset, int pageSize, String consentStatus, String category) {
+		Query query = searchCriteria.size() > 0 ? Query.query(criteria) : new Query();
 
-		List<Criteria> criteriaList = getCriteria(consentStatus, category);
-
-		Criteria criteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()]));
-
-		Query query = criteriaList.size() > 0 ? Query.query(criteria) : new Query();
-
-		List<Consent> consents = baseRepository.find(query.with(Sort.by(Sort.Direction.DESC, "cts"))
+		List<Consent> consents = mongoTemplate.find(query.with(Sort.by(Sort.Direction.DESC, "cts"))
 				.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize), Consent.class);
 
 		Pagination pagination = getPagination(offset, pageSize);
@@ -128,17 +105,14 @@ public class ConsentManagementDao {
 		consentResponse.setPagination(pagination);
 		consentResponse.setConsentList(consents);
 		return consentResponse;
+
 	}
 
-	private List<Criteria> getCriteria(String consentStatus, String category) {
-		HashMap<String, String> filterColumns = new HashMap<>();
-		filterColumns.put("status", consentStatus);
-		filterColumns.put("category", category);
-
+	private List<Criteria> getCriteria(Map<String, String> searchCriteria) {
 		List<Criteria> criteriaList = new ArrayList<>();
-		filterColumns.forEach((k, v) -> {
+		searchCriteria.forEach((k, v) -> {
 			if (null != v) {
-				criteriaList.add(Criteria.where(k).is(v));
+				criteriaList.add(Criteria.where("consent." + k).is(v));
 			}
 		});
 		return criteriaList;

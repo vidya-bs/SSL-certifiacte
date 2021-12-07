@@ -1,8 +1,8 @@
 package com.itorix.consentserver.dto;
 
 
-import com.itorix.consentserver.common.model.ErrorObj;
-import com.itorix.consentserver.common.model.ItorixException;
+import com.itorix.consentserver.model.ErrorObj;
+import com.itorix.consentserver.model.ItorixException;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

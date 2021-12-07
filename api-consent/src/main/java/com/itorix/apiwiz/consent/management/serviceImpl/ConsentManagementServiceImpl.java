@@ -2,16 +2,16 @@ package com.itorix.apiwiz.consent.management.serviceImpl;
 
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.consent.management.dao.ConsentManagementDao;
-import com.itorix.apiwiz.consent.management.model.Consent;
 import com.itorix.apiwiz.consent.management.model.ScopeCategory;
 import com.itorix.apiwiz.consent.management.model.ScopeCategoryColumns;
 import com.itorix.apiwiz.consent.management.service.ConsentManagementService;
-import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @CrossOrigin
 @RestController
@@ -34,20 +34,6 @@ public class ConsentManagementServiceImpl implements ConsentManagementService {
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 
-	@UnSecure
-	@Override
-	public ResponseEntity<?> getScopeCategoryNames(String distinctBy) throws ItorixException {
-		if (distinctBy == null) {
-			return new ResponseEntity<>(consentManagementDao.getAllScopeCategory(), HttpStatus.OK);
-		}
-		return new ResponseEntity<>(consentManagementDao.getScopeCategoryNames(distinctBy), HttpStatus.OK);
-	}
-
-	@UnSecure
-	@Override
-	public ResponseEntity<?> getScopeCategoryByName(String jsessionid, String name) throws ItorixException {
-		return new ResponseEntity<>(consentManagementDao.getScopeCategoryByName(name), HttpStatus.OK);
-	}
 
 	@Override
 	public ResponseEntity<?> deleteScopeCategory(String jsessionid, String name) throws ItorixException {
@@ -56,49 +42,50 @@ public class ConsentManagementServiceImpl implements ConsentManagementService {
 	}
 
 	@Override
+	public ResponseEntity<?> getScopeCategories() throws ItorixException {
+		return new ResponseEntity<>(consentManagementDao.getAllScopeCategory(), HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getScopeCategoryByName(String categoryName) throws ItorixException {
+		return new ResponseEntity<>(consentManagementDao.getScopeCategoryByName(categoryName), HttpStatus.OK);
+	}
+
+	@Override
 	public ResponseEntity<?> createOrUpdateScopeCategoryColumns(String jsessionid,
 			ScopeCategoryColumns scopeCategoryColumns) throws ItorixException {
 		consentManagementDao.createOrUpdateScopeCategoryColumns(scopeCategoryColumns);
-		return new ResponseEntity<>(HttpStatus.OK);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 
-	@UnSecure
 	@Override
 	public ResponseEntity<?> getScopeCategoryColumns(String jsessionid) throws ItorixException {
 		return new ResponseEntity<>(consentManagementDao.getScopeCategoryColumns(), HttpStatus.OK);
 	}
 
-	@UnSecure
-	@Override
-	public ResponseEntity<?> createConsent(Consent consent) throws ItorixException {
-		consentManagementDao.createConsent(consent);
-		return new ResponseEntity<>(HttpStatus.ACCEPTED);
-	}
 
 	@Override
-	public ResponseEntity<?> getConsentsOverview(String jsessionid, int offset, int pageSize, String consentStatus,
-			String category) throws ItorixException {
-		return new ResponseEntity<>(consentManagementDao.getConsentsOverview(offset, pageSize, consentStatus, category),
+	public ResponseEntity<?> getConsentsOverview(String jsessionid, Map<String, String> searchParams) throws ItorixException {
+		return new ResponseEntity<>(consentManagementDao.getConsentsOverview(getOffset(searchParams), getPageSize(searchParams), searchParams),
 				HttpStatus.OK);
 	}
 
-	@UnSecure
-	@Override
-	public ResponseEntity<?> getConsentByPrimaryKey(String userId) throws ItorixException {
-		return new ResponseEntity<>(consentManagementDao.getConsentByPrimaryKey(userId), HttpStatus.OK);
+
+	private int getOffset(Map<String, String> searchParams) {
+		int offset = 1;
+		if(searchParams.containsKey("offset")) {
+			offset =  Integer.valueOf(searchParams.get("offset"));
+			searchParams.remove("offset");
+		}
+		return offset;
 	}
 
-	@UnSecure
-	@Override
-	public ResponseEntity<?> revokeConsent(String consentId) throws ItorixException {
-		consentManagementDao.revokeConsent(consentId);
-		return new ResponseEntity<>(HttpStatus.OK);
+	private int getPageSize(Map<String, String> searchParams) {
+		int pageSize = 10;
+		if(searchParams.containsKey("pageSize")) {
+			pageSize =  Integer.valueOf(searchParams.get("pageSize"));
+			searchParams.remove("pageSize");
+		}
+		return pageSize;
 	}
-
-	@UnSecure
-	@Override
-	public ResponseEntity<?> getConsentStatus(String userId) throws ItorixException {
-		return new ResponseEntity<>(consentManagementDao.getConsentStatus(userId), HttpStatus.OK);
-	}
-
 }
