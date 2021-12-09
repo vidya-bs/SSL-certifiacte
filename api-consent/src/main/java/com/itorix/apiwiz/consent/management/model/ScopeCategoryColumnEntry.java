@@ -10,6 +10,7 @@ import java.util.List;
 public class ScopeCategoryColumnEntry {
 
 	private String name;
+	private String displayName;
 	private String summary;
 	private boolean mandatory;
 	private boolean isPrimaryKey;
