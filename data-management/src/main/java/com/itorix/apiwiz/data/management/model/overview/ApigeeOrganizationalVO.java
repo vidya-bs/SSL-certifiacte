@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.itorix.apiwiz.identitymanagement.model.AbstractObject;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "Apigee.Organization.Overview")
 public class ApigeeOrganizationalVO extends AbstractObject {
 	private List<Environment> environment;
