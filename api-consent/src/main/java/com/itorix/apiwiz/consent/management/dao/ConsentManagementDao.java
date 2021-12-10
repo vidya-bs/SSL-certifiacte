@@ -29,7 +29,12 @@ public class ConsentManagementDao {
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
-	public void save(ScopeCategory scopeCategory) {
+	public void save(ScopeCategory scopeCategory) throws ItorixException {
+		ScopeCategory existingScopeCategory = baseRepository.findById(scopeCategory.getName(), ScopeCategory.class);
+
+		if (existingScopeCategory != null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ScopeCategory-001"), scopeCategory.getName()), "ScopeCategory-001");
+		}
 		scopeCategory.setCts(System.currentTimeMillis());
 		scopeCategory.setMts(System.currentTimeMillis());
 		mongoTemplate.save(scopeCategory);
@@ -40,7 +45,7 @@ public class ConsentManagementDao {
 		ScopeCategory existingScopeCategory = baseRepository.findById(scopeCategory.getName(), ScopeCategory.class);
 
 		if (existingScopeCategory == null) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("General-1001"), "General-1001");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ScopeCategory-002"), scopeCategory.getName()), "ScopeCategory-002");
 		}
 
 		existingScopeCategory.setMts(System.currentTimeMillis());
@@ -54,8 +59,22 @@ public class ConsentManagementDao {
 
 	}
 
-	public List<ScopeCategory> getAllScopeCategory() {
-		return mongoTemplate.findAll(ScopeCategory.class);
+	public ScopeCategoryResponse getScopeCategories(int offset, int pageSize, Map<String, String> searchParams) {
+		List<Criteria> searchCriteria = getCriteria(searchParams);
+
+		Criteria criteria = new Criteria().andOperator(searchCriteria.toArray(new Criteria[searchCriteria.size()]));
+
+		Query query = searchCriteria.size() > 0 ? Query.query(criteria) : new Query();
+
+		List<ScopeCategory> scopeCategories = mongoTemplate.find(query.with(Sort.by(Sort.Direction.DESC, "cts"))
+				.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize), ScopeCategory.class);
+
+		Pagination pagination = getPagination(offset, pageSize, ScopeCategory.class);
+		ScopeCategoryResponse scopeCategoryResponse = new ScopeCategoryResponse();
+		scopeCategoryResponse.setPagination(pagination);
+		scopeCategoryResponse.setScopeCategories(scopeCategories);
+		return scopeCategoryResponse;
+
 	}
 
 
@@ -84,11 +103,6 @@ public class ConsentManagementDao {
 		return findAll.isEmpty() ? null : findAll.get(0);
 	}
 
-	public void createConsent(Consent consent) {
-		consent.setCts(System.currentTimeMillis());
-		baseRepository.save(consent);
-	}
-
 
 	public ConsentResponse getConsentsOverview(int offset, int pageSize, Map<String, String> searchParams) {
 		List<Criteria> searchCriteria = getCriteria(searchParams);
@@ -100,7 +114,7 @@ public class ConsentManagementDao {
 		List<Consent> consents = mongoTemplate.find(query.with(Sort.by(Sort.Direction.DESC, "cts"))
 				.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize), Consent.class);
 
-		Pagination pagination = getPagination(offset, pageSize);
+		Pagination pagination = getPagination(offset, pageSize, Consent.class);
 		ConsentResponse consentResponse = new ConsentResponse();
 		consentResponse.setPagination(pagination);
 		consentResponse.setConsentList(consents);
@@ -108,7 +122,7 @@ public class ConsentManagementDao {
 
 	}
 
-	private List<Criteria> getCriteria(Map<String, String> searchCriteria) {
+	private List<Criteria> getConsentCriteria(Map<String, String> searchCriteria) {
 		List<Criteria> criteriaList = new ArrayList<>();
 		searchCriteria.forEach((k, v) -> {
 			if (null != v) {
@@ -118,11 +132,21 @@ public class ConsentManagementDao {
 		return criteriaList;
 	}
 
-	private Pagination getPagination(int offset, int pageSize) {
+	private List<Criteria> getCriteria(Map<String, String> searchCriteria) {
+		List<Criteria> criteriaList = new ArrayList<>();
+		searchCriteria.forEach((k, v) -> {
+			if (null != v) {
+				criteriaList.add(Criteria.where(k).is(v));
+			}
+		});
+		return criteriaList;
+	}
+
+	private Pagination getPagination(int offset, int pageSize, Class clazz) {
 		Pagination pagination = new Pagination();
 		pagination.setPageSize(pageSize);
 		pagination.setOffset(offset);
-		pagination.setTotal(getTotal(Consent.class));
+		pagination.setTotal(getTotal(clazz));
 		return pagination;
 	}
 

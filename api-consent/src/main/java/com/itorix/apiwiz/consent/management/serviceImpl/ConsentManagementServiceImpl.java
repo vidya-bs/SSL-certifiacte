@@ -42,8 +42,8 @@ public class ConsentManagementServiceImpl implements ConsentManagementService {
 	}
 
 	@Override
-	public ResponseEntity<?> getScopeCategories() throws ItorixException {
-		return new ResponseEntity<>(consentManagementDao.getAllScopeCategory(), HttpStatus.OK);
+	public ResponseEntity<?> getScopeCategories(Map<String, String> searchParams) throws ItorixException {
+		return new ResponseEntity<>(consentManagementDao.getScopeCategories(getOffset(searchParams), getPageSize(searchParams), searchParams), HttpStatus.OK);
 	}
 
 	@Override

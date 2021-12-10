@@ -29,7 +29,7 @@ public interface ConsentManagementService {
 			@PathVariable String name) throws ItorixException;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/consents/scopes/category")
-	public ResponseEntity<?> getScopeCategories() throws ItorixException, ItorixException;
+	public ResponseEntity<?> getScopeCategories(@RequestParam Map<String,String> searchParams) throws ItorixException, ItorixException;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/consents/scopes")
 	public ResponseEntity<?> getScopeCategoryByName(@RequestParam(value = "category", required = true) String categoryName) throws ItorixException;
