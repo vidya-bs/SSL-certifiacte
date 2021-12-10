@@ -148,14 +148,14 @@ public class ServiceRequestDao {
 						&& StringUtils.isNotBlank(config.getEnv()) && StringUtils.isNotBlank(config.getName())) {
 					query = new Query(Criteria.where("org").is(config.getOrg()).and("env").is(config.getEnv())
 							.and("name").is(config.getName()).and("type").is(config.getType()).and("isSaaS")
-							.is(config.getIsSaaS()));
+							.is(config.getIsSaaS())).with(Sort.by(Direction.DESC, "mts"));
 				} else if (StringUtils.isNotBlank(config.getType()) && StringUtils.isNotBlank(config.getOrg())
 						&& StringUtils.isNotBlank(config.getName())) {
 					query = new Query(Criteria.where("org").is(config.getOrg()).and("name").is(config.getName())
-							.and("type").is(config.getType()).and("isSaaS").is(config.getIsSaaS()));
+							.and("type").is(config.getType()).and("isSaaS").is(config.getIsSaaS())).with(Sort.by(Direction.DESC, "mts"));
 				} else if (StringUtils.isNotBlank(config.getStatus()) && StringUtils.isNotBlank(config.getType())) {
 					query = new Query(Criteria.where("status").is(config.getStatus()).and("type").is(config.getType())
-							.and("isSaaS").is(config.getIsSaaS()));
+							.and("isSaaS").is(config.getIsSaaS())).with(Sort.by(Direction.DESC, "mts"));
 				}
 				return mongoTemplate.find(query, ServiceRequest.class);
 			} else {
@@ -407,9 +407,10 @@ public class ServiceRequestDao {
 			throws ItorixException, MessagingException {
 		@SuppressWarnings("unused")
 		boolean isCreatedorUpdated = false;
-		List<ServiceRequest> serviceRequests = (ArrayList<ServiceRequest>) getAllActiveServiceRequests(config);
-		if (serviceRequests.size() > 0) {
-			ServiceRequest serviceRequest = serviceRequests.get(0);
+		//List<ServiceRequest> serviceRequests = (ArrayList<ServiceRequest>) getAllActiveServiceRequests(config);
+		ServiceRequest serviceRequest = config;
+		//if (serviceRequests.size() > 0) {
+			
 			Query query = null;
 			if (config.getStatus().equalsIgnoreCase("Approved")) {
 				if (serviceRequest.isCreated()) {
@@ -683,9 +684,9 @@ public class ServiceRequestDao {
 
 				throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1031"), "Configuration-1031");
 			}
-		} else {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1029"), "Configuration-1029");
-		}
+//		} else {
+//			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1029"), "Configuration-1029");
+//		}
 	}
 
 	public void createLogHistory(ServiceRequestComments serviceRequestComments) {

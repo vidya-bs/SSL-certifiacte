@@ -52,11 +52,27 @@ public class SSODao {
 
         String userId = credentials.getNameID().getValue();
         Query query = new Query(Criteria.where(User.LABEL_USER_ID).is(userId));
+
         User user = mongoTemplate.findOne(query, User.class);
 
+        if( user == null ) {
+            logger.info("User Not Found. Trying to identify the User using the UserId {} as emailId", userId);
+                Query findByEmailId = new Query(Criteria.where(User.LABEL_EMAIL).is(userId));
+                user = mongoTemplate.findOne(findByEmailId, User.class);
+        }
+
+        if( user == null ) {
+            if (samlConfig.getEmailId() != null) {
+                String emailId = credentials.getAttributeAsString(samlConfig.getEmailId());
+                logger.info("User Not Found. Trying to identify the User using emailId {} from the claims", emailId);
+                Query findByEmailId = new Query(Criteria.where(User.LABEL_EMAIL).is(emailId));
+                user = mongoTemplate.findOne(findByEmailId, User.class);
+            }
+        }
 
         List<String> projectRoles = getProjectRoleForSaml(samlConfig, credentials);
         if (user == null) {
+            logger.info("Creating User using UserId {}", userId);
             user = new User();
 
             if (samlConfig.getFirstName() != null) {

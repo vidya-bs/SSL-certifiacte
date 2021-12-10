@@ -1,9 +1,9 @@
 package com.itorix.apiwiz.common.model.proxystudio;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Flow {
@@ -15,8 +15,10 @@ public class Flow {
 	private String targetName;
 	private String targetOperation;
 	private String targetBasepath;
+	private String disablePathSuffix= "false";
 	@JsonProperty("metadata")
 	private List<ProxyMetadata> metadata;
+
 
 	public List<ProxyMetadata> getMetadata() {
 		return metadata;
@@ -105,4 +107,19 @@ public class Flow {
 		this.targetBasepath = targetBasepath;
 	}
 
+	/**
+	 * @return the disablePathSuffix
+	 */
+	public String getDisablePathSuffix() {
+		return disablePathSuffix;
+	}
+
+	/**
+	 * @param disablePathSuffix the disablePathSuffix to set
+	 */
+	public void setDisablePathSuffix(String disablePathSuffix) {
+		this.disablePathSuffix = disablePathSuffix;
+	}
+	
+	
 }

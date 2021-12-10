@@ -191,15 +191,17 @@ public class CiCdIntegrationAPI {
 		Material buildMaterial = new Material();
 		Attributes buildAttributes = new Attributes();
 
-		Map<String, String> buildScmDetails = getSCMDetails(scmType.toUpperCase(), "cicd-build");
+		String buildScmType = getBuildScmProp("itorix.core.gocd.build.scm.type");
+		String buildScmURL = getBuildScmProp("itorix.core.gocd.build.scm.url");
+		String buildScmBranch = getBuildScmProp("itorix.core.gocd.build.scm.branch");
+		
+		Map<String, String> buildScmDetails = getSCMDetails(buildScmType.toUpperCase(), "cicd-build");
 		String buildScmUserName = buildScmDetails.get("username");
 		String buildScmPassword = buildScmDetails.get("password");
 		String buildScmToken = buildScmDetails.get("token");
 		String buildScmUsertype = buildScmDetails.get("userType");
 
-		String buildScmType = getBuildScmProp("itorix.core.gocd.build.scm.type");
-		String buildScmURL = getBuildScmProp("itorix.core.gocd.build.scm.url");
-		String buildScmBranch = getBuildScmProp("itorix.core.gocd.build.scm.branch");
+		
 		if (buildScmType != null && buildScmType != "" && buildScmType.equals("svn")) {
 			buildMaterial.setType("svn");
 			buildAttributes.setUrl(buildScmURL);
@@ -412,15 +414,6 @@ public class CiCdIntegrationAPI {
 			logger.debug(mapper.writeValueAsString(pipelineGroup));
 			HttpEntity<PipelineGroup> requestEntity = new HttpEntity<>(pipelineGroup,
 					getCommonHttpHeaders(CiCdIntegrationHelper.CREATE_EDIT, gocdVersion));
-			// ResponseEntity res =
-			// restTemplate.exchange(config.getPipelineBaseUrl() +
-			// config.getPipelineAdminEndPoint(),
-			// requestEntity, String.class);
-			// ResponseEntity res =
-			// restTemplate.exchange(config.getPipelineBaseUrl() +
-			// config.getPipelineAdminEndPoint(), HttpMethod.POST,
-			// requestEntity, new
-			// ParameterizedTypeReference<String>() {});
 			String endpoint = goCDIntegration.getHostURL();
 			response = restTemplate.postForObject(goHost + config.getPipelineAdminEndPoint(), requestEntity,
 					String.class);
