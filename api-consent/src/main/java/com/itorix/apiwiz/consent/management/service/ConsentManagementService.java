@@ -49,4 +49,7 @@ public interface ConsentManagementService {
 	public ResponseEntity<?> getConsentsOverview(@RequestHeader(value = "JSESSIONID") String jsessionid,
 												 @RequestParam Map<String,String> searchParams) throws ItorixException;
 
+
+
+
 }

@@ -780,4 +780,9 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	public ResponseEntity<Object> getIdpMetadata(String workspaceId) throws Exception {
 		return new ResponseEntity<>(workspaceDao.getIdpMetadata(workspaceId), HttpStatus.OK);
 	}
+
+	@Override
+	public ResponseEntity<?> generateKeyPairs(String jsessionid, String tenantKey) throws ItorixException {
+		return new ResponseEntity<>(workspaceDao.generateKeyPairs(tenantKey), HttpStatus.OK);
+	}
 }

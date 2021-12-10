@@ -489,4 +489,9 @@ public interface IdentityManagmentService {
 	public @ResponseBody ResponseEntity<Object> getIdpMetadata(@PathVariable(required = true) String workspaceId)
 			throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/workspace/generate-token")
+	public ResponseEntity<?> generateKeyPairs(@RequestHeader(value = "JSESSIONID") String jsessionid,
+											  @RequestHeader(value = "x-tenant") String tenantKey) throws ItorixException;
+
 }

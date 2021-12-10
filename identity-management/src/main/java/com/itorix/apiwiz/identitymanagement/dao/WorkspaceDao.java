@@ -9,9 +9,11 @@ import com.itorix.apiwiz.common.model.MetaData;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.util.encryption.HmacSHA256;
+import com.itorix.apiwiz.identitymanagement.crypto.RSAKeyGenerator;
 import com.itorix.apiwiz.identitymanagement.model.*;
 import com.itorix.apiwiz.identitymanagement.model.sso.SAMLConfig;
 import com.mongodb.client.result.UpdateResult;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,6 +53,9 @@ public class WorkspaceDao {
 
 	@Value("${itorix.core.hmac.password}")
 	private String password;
+
+	@Autowired
+	RSAKeyGenerator rsaKeyGenerator;
 
 	public Workspace updateWorkspaceSubscription(Workspace workspace) throws ItorixException, InvalidKeyException,
 			NoSuchAlgorithmException, UnsupportedEncodingException, JsonMappingException, JsonProcessingException {
@@ -287,4 +292,8 @@ public class WorkspaceDao {
 		}
 	}
 
+    @SneakyThrows
+	public String generateKeyPairs(String tenantKey) {
+		return rsaKeyGenerator.generateKeyPair(tenantKey);
+	}
 }

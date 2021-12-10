@@ -1,12 +1,14 @@
 package com.itorix.consentserver.dto;
 
 
+import com.itorix.consentserver.crypto.RSAEncryption;
 import com.itorix.consentserver.model.ErrorObj;
 import com.itorix.consentserver.model.ItorixException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +27,6 @@ import java.lang.reflect.InvocationTargetException;
 public class ServiceMonitor {
     public static Logger LOGGER = LoggerFactory.getLogger(ServiceMonitor.class);
     public static final String SESSION_TOKEN_NAME = "x-tenant";
-
     @Autowired
     private HttpServletRequest request;
     @Autowired
@@ -33,6 +34,12 @@ public class ServiceMonitor {
     @Qualifier("masterMongoTemplate")
     @Autowired
     private MongoTemplate masterMongoTemplate;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private RSAEncryption rsaEncryption;
 
     @Around("execution(* com.itorix.consentserver.service..*(..))")
     public Object doAccessCheck(ProceedingJoinPoint thisJoinPoint) throws Throwable {
@@ -64,6 +71,18 @@ public class ServiceMonitor {
             if (workspace != null) {
                 ServiceRequestContext ctx = ServiceRequestContextHolder.getContext();
                 ctx.setTenantId(workspace.getTenant());
+                LOGGER.info("DB Name {}", mongoTemplate.getDb().getName() );
+                Document document = mongoTemplate.findOne(Query.query(Criteria.where("tenantKey").is(key)), Document.class, "Consent.KeyPair");
+                String privateKey = document.get("privateKey", String.class);
+                String signingKey = request.getHeader("x-signing-key");
+                try {
+                    if(signingKey == null || !rsaEncryption.decryptText(signingKey, privateKey).equals(key)) {
+                        throw new ItorixException("Invalid x-signing-key", "Identity-1033");
+                    }
+                } catch (Exception e) {
+                    throw new ItorixException("Internal Error while identifying request authenticity", "Identity-1033");
+                }
+
             } else {
                 throw new ItorixException("invalid " + SESSION_TOKEN_NAME, "Identity-1033");
             }
