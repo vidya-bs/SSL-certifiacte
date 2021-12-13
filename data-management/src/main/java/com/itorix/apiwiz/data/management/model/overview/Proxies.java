@@ -2,6 +2,9 @@ package com.itorix.apiwiz.data.management.model.overview;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Proxies {
 	private List<String> targetservers;
 
