@@ -224,7 +224,8 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable(value = "requestId") String requestId, @RequestHeader(value = "JSESSIONID") String jsessionid)
 			throws Exception {
-
+String req= null;
+	System.out.println("no");
 		serviceRequestDao.revertServiceRequest(requestId);
 		return new ResponseEntity<Void>(HttpStatus.CREATED);
 	}
