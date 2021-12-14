@@ -18,17 +18,23 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.zeroturnaround.zip.ZipUtil;
 
+import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -44,14 +50,18 @@ import com.itorix.apiwiz.common.model.apigee.ApigeeServiceUser;
 import com.itorix.apiwiz.common.model.apigee.CommonConfiguration;
 import com.itorix.apiwiz.common.model.apigee.Environment;
 import com.itorix.apiwiz.common.model.apigee.Revision;
-import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.model.proxystudio.ProxyArtifacts;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.service.GridFsRepository;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
+import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
+import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.data.management.business.OrganizationBusiness;
+import com.itorix.apiwiz.data.management.dao.IntegrationsDataDao;
 import com.itorix.apiwiz.data.management.model.AppBackUpInfo;
 import com.itorix.apiwiz.data.management.model.BackupInfo;
 import com.itorix.apiwiz.data.management.model.DeveloperBackUpInfo;
@@ -79,10 +89,13 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	@Autowired
 	BaseRepository baseRepository;
 	@Autowired
-	JfrogUtilImpl jfrogUtilImpl;
+	JfrogUtilImpl jfrogUtil;
 	@Autowired
 	ApigeeUtil apigeeUtil;
-
+	@Autowired
+	private IntegrationsDataDao integrationsDao;
+	@Autowired
+	private S3Utils s3Utils;
 	@Autowired
 	GridFsRepository gridFsRepository;
 
@@ -223,24 +236,39 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			ZipUtil.pack(new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization()),
 					new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
 			org.json.JSONObject obj = null;
+			String downloadURI = "";
 			try {
-				obj = jfrogUtilImpl.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-						applicationProperties.getDataRestoreBackup(),
-						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
-								+ "/artifactory/",
-						"Backup/" + cfg.getOrganization() + "/" + start + "", applicationProperties.getJfrogUserName(),
-						applicationProperties.getJfrogPassword());
+				JfrogIntegration jfrogIntegration = getJfrogIntegration();
+				S3Integration s3Integration = getS3Integration();
+				if (null != s3Integration) {
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				} else if (null != jfrogIntegration) {
+					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
+							applicationProperties.getDataRestoreBackup(),
+							jfrogIntegration.getHostURL() + "/artifactory/",
+							"Backup/" + cfg.getOrganization() + "/" + start + "",
+							jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
+					downloadURI = (String) obj.get("downloadURI");
+				}
+//				obj = jfrogUtilImpl.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
+//						applicationProperties.getDataRestoreBackup(),
+//						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
+//								+ "/artifactory/",
+//						"Backup/" + cfg.getOrganization() + "/" + start + "", applicationProperties.getJfrogUserName(),
+//						applicationProperties.getJfrogPassword());
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw e;
 			}
 			FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
 			FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
-			if (null != obj) {
+			if (StringUtils.isNotEmpty(downloadURI)) {
 				long end = System.currentTimeMillis();
 				long backupTimeTaken = (end - start) / 1000l;
 				logger.debug("Total Time Taken: (sec): " + backupTimeTaken);
-				proxyBackUpInfo.setJfrogUrl(obj.getString("downloadURI"));
+				proxyBackUpInfo.setJfrogUrl(downloadURI);
 				proxyBackUpInfo.setTimeTaken(backupTimeTaken);
 				proxyBackUpInfo.setAppsInfo(appsInfo);
 				proxyBackUpInfo.setDevelopersInfo(developersInfo);
@@ -298,24 +326,33 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			ZipUtil.pack(new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization()),
 					new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
 			org.json.JSONObject obj = null;
+			String downloadURI = "";
 			try {
-				obj = jfrogUtilImpl.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-						applicationProperties.getDataRestoreBackup(),
-						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
-								+ "/artifactory/",
-						"Backup/" + cfg.getOrganization() + "/" + start + "", applicationProperties.getJfrogUserName(),
-						applicationProperties.getJfrogPassword());
+				JfrogIntegration jfrogIntegration = getJfrogIntegration();
+				S3Integration s3Integration = getS3Integration();
+				if (null != s3Integration) {
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				} else if (null != jfrogIntegration) {
+					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
+							applicationProperties.getDataRestoreBackup(),
+							jfrogIntegration.getHostURL() + "/artifactory/",
+							"Backup/" + cfg.getOrganization() + "/" + start + "",
+							jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
+					downloadURI = (String) obj.get("downloadURI");
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw e;
 			}
 			FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
 			FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
-			if (null != obj) {
+			if (StringUtils.isNotEmpty(downloadURI)) {
 				long end = System.currentTimeMillis();
 				long backupTimeTaken = (end - start) / 1000l;
 				logger.debug("Total Time Taken: (sec): " + backupTimeTaken);
-				sharedflowBackUpInfo.setJfrogUrl(obj.getString("downloadURI"));
+				sharedflowBackUpInfo.setJfrogUrl(downloadURI);
 				sharedflowBackUpInfo.setTimeTaken(backupTimeTaken);
 				sharedflowBackUpInfo.setSharedflowInfo(sharedflowInfo);
 				sharedflowBackUpInfo.setStatus(Constants.STATUS_COMPLETED);
@@ -370,13 +407,22 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			ZipUtil.pack(new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization()),
 					new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
 			org.json.JSONObject obj = null;
+			String downloadURI = "";
 			try {
-				obj = jfrogUtilImpl.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-						applicationProperties.getDataRestoreBackup(),
-						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
-								+ "/artifactory/",
-						"Backup/" + cfg.getOrganization() + "/" + start + "", applicationProperties.getJfrogUserName(),
-						applicationProperties.getJfrogPassword());
+				JfrogIntegration jfrogIntegration = getJfrogIntegration();
+				S3Integration s3Integration = getS3Integration();
+				if (null != s3Integration) {
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				} else if (null != jfrogIntegration) {
+					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
+							applicationProperties.getDataRestoreBackup(),
+							jfrogIntegration.getHostURL() + "/artifactory/",
+							"Backup/" + cfg.getOrganization() + "/" + start + "",
+							jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
+					downloadURI = (String) obj.get("downloadURI");
+				}
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				e.printStackTrace();
@@ -384,10 +430,10 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			}
 			FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
 			FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
-			if (null != obj) {
+			if (StringUtils.isNotEmpty(downloadURI)) {
 				long end = System.currentTimeMillis();
 				long backupTimeTaken = (end - start) / 1000l;
-				appBackupInfo.setJfrogUrl(obj.getString("downloadURI"));
+				appBackupInfo.setJfrogUrl(downloadURI);
 				appBackupInfo.setTimeTaken(backupTimeTaken);
 				appBackupInfo.setAppInfo(appsInfo);
 				appBackupInfo.setStatus(Constants.STATUS_COMPLETED);
@@ -444,13 +490,22 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			ZipUtil.pack(new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization()),
 					new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
 			org.json.JSONObject obj = null;
+			String downloadURI = "";
 			try {
-				obj = jfrogUtilImpl.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-						applicationProperties.getDataRestoreBackup(),
-						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
-								+ "/artifactory/",
-						"Backup/" + cfg.getOrganization() + "/" + start + "", applicationProperties.getJfrogUserName(),
-						applicationProperties.getJfrogPassword());
+				JfrogIntegration jfrogIntegration = getJfrogIntegration();
+				S3Integration s3Integration = getS3Integration();
+				if (null != s3Integration) {
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				} else if (null != jfrogIntegration) {
+					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
+							applicationProperties.getDataRestoreBackup(),
+							jfrogIntegration.getHostURL() + "/artifactory/",
+							"Backup/" + cfg.getOrganization() + "/" + start + "",
+							jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
+					downloadURI = (String) obj.get("downloadURI");
+				}
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				e.printStackTrace();
@@ -458,10 +513,10 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			}
 			FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
 			FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
-			if (null != obj) {
+			if (StringUtils.isNotEmpty(downloadURI)) {
 				long end = System.currentTimeMillis();
 				long backupTimeTaken = (end - start) / 1000l;
-				productsBackupInfo.setJfrogUrl(obj.getString("downloadURI"));
+				productsBackupInfo.setJfrogUrl(downloadURI);
 				productsBackupInfo.setTimeTaken(backupTimeTaken);
 				productsBackupInfo.setProductInfo(productsInfo);
 				productsBackupInfo.setAppsInfo(appsInfo);
@@ -519,13 +574,22 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			ZipUtil.pack(new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization()),
 					new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
 			org.json.JSONObject obj = null;
+			String downloadURI = "";
 			try {
-				obj = jfrogUtilImpl.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-						applicationProperties.getDataRestoreBackup(),
-						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
-								+ "/artifactory/",
-						"Backup/" + cfg.getOrganization() + "/" + start + "", applicationProperties.getJfrogUserName(),
-						applicationProperties.getJfrogPassword());
+				JfrogIntegration jfrogIntegration = getJfrogIntegration();
+				S3Integration s3Integration = getS3Integration();
+				if (null != s3Integration) {
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				} else if (null != jfrogIntegration) {
+					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
+							applicationProperties.getDataRestoreBackup(),
+							jfrogIntegration.getHostURL() + "/artifactory/",
+							"Backup/" + cfg.getOrganization() + "/" + start + "",
+							jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
+					downloadURI = (String) obj.get("downloadURI");
+				}
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				e.printStackTrace();
@@ -533,11 +597,11 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			}
 			FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
 			FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
-			if (null != obj) {
+			if (StringUtils.isNotEmpty(downloadURI)) {
 				long end = System.currentTimeMillis();
 				long backupTimeTaken = (end - start) / 1000l;
 				logger.debug("Total Time Taken: (sec): " + backupTimeTaken);
-				developersBackupInfo.setJfrogUrl(obj.getString("downloadURI"));
+				developersBackupInfo.setJfrogUrl(downloadURI);
 				developersBackupInfo.setTimeTaken(backupTimeTaken);
 				developersBackupInfo.setDeveloperInfo(developersInfo);
 				developersBackupInfo.setAppsInfo(appsInfo);
@@ -594,13 +658,22 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			ZipUtil.pack(new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization()),
 					new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
 			org.json.JSONObject obj = null;
+			String downloadURI = "";
 			try {
-				obj = jfrogUtilImpl.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-						applicationProperties.getDataRestoreBackup(),
-						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
-								+ "/artifactory/",
-						"Backup/" + cfg.getOrganization() + "/" + start + "", applicationProperties.getJfrogUserName(),
-						applicationProperties.getJfrogPassword());
+				JfrogIntegration jfrogIntegration = getJfrogIntegration();
+				S3Integration s3Integration = getS3Integration();
+				if (null != s3Integration) {
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				} else if (null != jfrogIntegration) {
+					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
+							applicationProperties.getDataRestoreBackup(),
+							jfrogIntegration.getHostURL() + "/artifactory/",
+							"Backup/" + cfg.getOrganization() + "/" + start + "",
+							jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
+					downloadURI = (String) obj.get("downloadURI");
+				}
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				e.printStackTrace();
@@ -608,11 +681,11 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			}
 			FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
 			FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
-			if (null != obj) {
+			if (StringUtils.isNotEmpty(downloadURI)) {
 				long end = System.currentTimeMillis();
 				long backupTimeTaken = (end - start) / 1000l;
 				logger.debug("Total Time Taken: (sec): " + backupTimeTaken);
-				resourceBackupInfo.setJfrogUrl(obj.getString("downloadURI"));
+				resourceBackupInfo.setJfrogUrl(downloadURI);
 				resourceBackupInfo.setTimeTaken(backupTimeTaken);
 				resourceBackupInfo.setResourceInfo(resourcesInfo);
 				resourceBackupInfo.setStatus(Constants.STATUS_COMPLETED);
@@ -671,13 +744,23 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			ZipUtil.pack(new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization()),
 					new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
 			org.json.JSONObject obj = null;
+			String downloadURI = "";
 			try {
-				obj = jfrogUtilImpl.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-						applicationProperties.getDataRestoreBackup(),
-						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
-								+ "/artifactory/",
-						"Backup/" + cfg.getOrganization() + "/" + start + "", applicationProperties.getJfrogUserName(),
-						applicationProperties.getJfrogPassword());
+				JfrogIntegration jfrogIntegration = getJfrogIntegration();
+				S3Integration s3Integration = getS3Integration();
+				if (null != s3Integration) {
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				} else if (null != jfrogIntegration) {
+					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
+							applicationProperties.getDataRestoreBackup(),
+							jfrogIntegration.getHostURL() + "/artifactory/",
+							"Backup/" + cfg.getOrganization() + "/" + start + "",
+							jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
+					downloadURI = (String) obj.get("downloadURI");
+				}
+				
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				e.printStackTrace();
@@ -687,11 +770,11 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
 			FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
 
-			if (null != obj) {
+			if (StringUtils.isNotEmpty(downloadURI)) {
 				long end = System.currentTimeMillis();
 				long backupTimeTaken = (end - start) / 1000l;
 				logger.debug("Total Time Taken: (sec): " + backupTimeTaken);
-				consoleInfo.setJfrogUrl(obj.getString("downloadURI"));
+				consoleInfo.setJfrogUrl(downloadURI);
 				consoleInfo.setTimeTaken(backupTimeTaken);
 				consoleInfo.setProxyInfo(apiProxyInfo);
 				consoleInfo.setResourceInfo(resourcesInfo);
@@ -752,24 +835,33 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			ZipUtil.pack(new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization()),
 					new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
 			org.json.JSONObject obj = null;
+			String downloadURI = "";
 			try {
-				obj = jfrogUtilImpl.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-						applicationProperties.getDataRestoreBackup(),
-						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
-								+ "/artifactory/",
-						"Backup/" + cfg.getOrganization() + "/" + start + "", applicationProperties.getJfrogUserName(),
-						applicationProperties.getJfrogPassword());
+				JfrogIntegration jfrogIntegration = getJfrogIntegration();
+				S3Integration s3Integration = getS3Integration();
+				if (null != s3Integration) {
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				} else if (null != jfrogIntegration) {
+					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
+							applicationProperties.getDataRestoreBackup(),
+							jfrogIntegration.getHostURL() + "/artifactory/",
+							"Backup/" + cfg.getOrganization() + "/" + start + "",
+							jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
+					downloadURI = (String) obj.get("downloadURI");
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw e;
 			}
 			FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
 			FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
-			if (null != obj) {
+			if (StringUtils.isNotEmpty(downloadURI)) {
 				long end = System.currentTimeMillis();
 				long backupTimeTaken = (end - start) / 1000l;
 				logger.debug("Total Time Taken: (sec): " + backupTimeTaken);
-				resourceBackupInfo.setJfrogUrl(obj.getString("downloadURI"));
+				resourceBackupInfo.setJfrogUrl(downloadURI);
 				resourceBackupInfo.setTimeTaken(backupTimeTaken);
 				resourceBackupInfo.setResourceInfo(resourcesInfo);
 				resourceBackupInfo.setStatus(Constants.STATUS_COMPLETED);
@@ -823,24 +915,34 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			ZipUtil.pack(new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization()),
 					new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
 			org.json.JSONObject obj = null;
+			String downloadURI = "";
 			try {
-				obj = jfrogUtilImpl.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-						applicationProperties.getDataRestoreBackup(),
-						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
-								+ "/artifactory/",
-						"Backup/" + cfg.getOrganization() + "/" + start + "", applicationProperties.getJfrogUserName(),
-						applicationProperties.getJfrogPassword());
+				JfrogIntegration jfrogIntegration = getJfrogIntegration();
+				S3Integration s3Integration = getS3Integration();
+				if (null != s3Integration) {
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				} else if (null != jfrogIntegration) {
+					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
+							applicationProperties.getDataRestoreBackup(),
+							jfrogIntegration.getHostURL() + "/artifactory/",
+							"Backup/" + cfg.getOrganization() + "/" + start + "",
+							jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
+					downloadURI = (String) obj.get("downloadURI");
+				}
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw e;
 			}
 			FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
 			FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
-			if (null != obj) {
+			if (StringUtils.isNotEmpty(downloadURI)) {
 				long end = System.currentTimeMillis();
 				long backupTimeTaken = (end - start) / 1000l;
 				logger.debug("Total Time Taken: (sec): " + backupTimeTaken);
-				resourceBackupInfo.setJfrogUrl(obj.getString("downloadURI"));
+				resourceBackupInfo.setJfrogUrl(downloadURI);
 				resourceBackupInfo.setTimeTaken(backupTimeTaken);
 				resourceBackupInfo.setResourceInfo(resourcesInfo);
 				resourceBackupInfo.setStatus(Constants.STATUS_COMPLETED);
@@ -895,24 +997,33 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			ZipUtil.pack(new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization()),
 					new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
 			org.json.JSONObject obj = null;
+			String downloadURI = "";
 			try {
-				obj = jfrogUtilImpl.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-						applicationProperties.getDataRestoreBackup(),
-						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
-								+ "/artifactory/",
-						"Backup/" + cfg.getOrganization() + "/" + start + "", applicationProperties.getJfrogUserName(),
-						applicationProperties.getJfrogPassword());
+				JfrogIntegration jfrogIntegration = getJfrogIntegration();
+				S3Integration s3Integration = getS3Integration();
+				if (null != s3Integration) {
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				} else if (null != jfrogIntegration) {
+					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
+							applicationProperties.getDataRestoreBackup(),
+							jfrogIntegration.getHostURL() + "/artifactory/",
+							"Backup/" + cfg.getOrganization() + "/" + start + "",
+							jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
+					downloadURI = (String) obj.get("downloadURI");
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw e;
 			}
 			FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
 			FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
-			if (null != obj) {
+			if (StringUtils.isNotEmpty(downloadURI)) {
 				long end = System.currentTimeMillis();
 				long backupTimeTaken = (end - start) / 1000l;
 				logger.debug("Total Time Taken: (sec): " + backupTimeTaken);
-				resourceBackupInfo.setJfrogUrl(obj.getString("downloadURI"));
+				resourceBackupInfo.setJfrogUrl(downloadURI);
 				resourceBackupInfo.setTimeTaken(backupTimeTaken);
 				resourceBackupInfo.setResourceInfo(resourcesInfo);
 				resourceBackupInfo.setStatus(Constants.STATUS_COMPLETED);
@@ -1159,6 +1270,55 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	/*
 	 * The below section contains all the list of private methods
 	 */
+	
+	private JfrogIntegration getJfrogIntegration() {
+		JfrogIntegration jfrogIntegration = integrationsDao.getJfrogIntegration().getJfrogIntegration();
+		if (jfrogIntegration != null) {
+			String decryptedPassword = "";
+			try {
+				RSAEncryption rSAEncryption = new RSAEncryption();
+				decryptedPassword = rSAEncryption.decryptText(jfrogIntegration.getPassword());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			jfrogIntegration.setPassword(decryptedPassword);
+		} else {
+			String hostURL = applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort();
+			String userName = applicationProperties.getJfrogUserName();
+			String password = applicationProperties.getJfrogPassword();
+			jfrogIntegration = new JfrogIntegration();
+			jfrogIntegration.setHostURL(hostURL);
+			jfrogIntegration.setUsername(userName);
+			jfrogIntegration.setPassword(password);
+		}
+		return jfrogIntegration;
+	}
+	
+	private S3Integration getS3Integration() {
+		S3Integration s3Integration = integrationsDao.getS3Integration().getS3Integration();
+		if (s3Integration != null) {
+			String decryptedPassword = "";
+			try {
+				decryptedPassword = s3Integration.getDecryptedSecret();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			String key = applicationProperties.getS3key();
+			String secret = applicationProperties.getS3secret();
+			String bucketName = applicationProperties.getS3bucketName();
+			String region = applicationProperties.getS3region();
+			if (null != key && null != secret && null != bucketName && null != region) {
+				s3Integration = new S3Integration();
+				s3Integration.setKey(key);
+				s3Integration.setSecret(secret);
+				s3Integration.setRegion(region);
+				s3Integration.setBucketName(bucketName);
+			}
+		}
+		return s3Integration;
+	}
+
 
 	private JSONObject backupAPIProxies(CommonConfiguration cfg) throws IOException, ItorixException {
 		logger.debug("OrganizationDataMigrationService.backupAPIProxies : interactionid=" + cfg.getInteractionid()
@@ -2516,7 +2676,16 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			folder.mkdirs();
 		}
 		RestTemplate restTemplate = new RestTemplate();
-		byte[] imageBytes = restTemplate.getForObject(cfg.getJfrogUrl(), byte[].class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("JSESSIONID", cfg.getJsessionId());
+		
+		HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+		ResponseEntity<byte[]> response = restTemplate.exchange(
+				cfg.getJfrogUrl(), HttpMethod.GET, requestEntity, byte[].class);
+		
+		//byte[] imageBytes = restTemplate.getForObject(cfg.getJfrogUrl(), byte[].class);
+		byte[] imageBytes = response.getBody();
 		Files.write(Paths.get(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"), imageBytes);
 		if (null != cfg.getNewOrg() && cfg.getNewOrg().length() > 0) {
 			cfg.setOrganization(cfg.getNewOrg());

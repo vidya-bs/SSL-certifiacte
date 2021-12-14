@@ -141,7 +141,7 @@ public class JfrogUtilImpl {
 					newUrl.append(tokens[x]);
 				else
 					newUrl.append(tokens[x] + "/");
-			newUrl.append("&type=jfrog");
+			newUrl.append("?type=jfrog");
 			return newUrl.toString();
 		} catch (Exception e) {
 			return URL;
