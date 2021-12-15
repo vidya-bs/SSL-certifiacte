@@ -265,6 +265,7 @@ public enum ErrorCodes {
 			put("PM_1002", "Cobination of Project name  %s & Proxy name %s doesn't exists.");
 			put("ScopeCategory-001", "Resource already exists. A records already exists for selected Category name - %s.");
 			put("ScopeCategory-002", "Resource not found. No records found for selected Category name - %s.");
+			put("Consent-003", "Resource not found. No consent API key found");
 		}
 	};
 
@@ -436,6 +437,7 @@ public enum ErrorCodes {
 			put("General-1001", 400);
 			put("ScopeCategory-001", 400);
 			put("ScopeCategory-002", 400);
+			put("Consent-003", 400);
 		}
 	};
 	private String message;

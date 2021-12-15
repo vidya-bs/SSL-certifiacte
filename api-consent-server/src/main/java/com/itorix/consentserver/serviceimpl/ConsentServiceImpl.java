@@ -67,6 +67,12 @@ public class ConsentServiceImpl implements ConsentService {
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
+    @Override
+    public ResponseEntity<?> expireConsents(String tenantKey, String apiKey) throws ItorixException {
+        consentServerDao.expireConsents();
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    }
+
     private int getOffset(Map<String, String> searchParams) {
         int offset = 1;
         if(searchParams.containsKey("offset")) {

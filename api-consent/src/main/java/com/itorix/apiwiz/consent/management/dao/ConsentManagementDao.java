@@ -2,12 +2,16 @@ package com.itorix.apiwiz.consent.management.dao;
 
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
+import com.itorix.apiwiz.consent.management.crypto.RSAKeyGenerator;
 import com.itorix.apiwiz.consent.management.model.*;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
+import com.itorix.apiwiz.identitymanagement.model.Workspace;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -28,6 +32,13 @@ public class ConsentManagementDao {
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
+
+	@Qualifier("masterMongoTemplate")
+	@Autowired
+	private MongoTemplate masterMongoTemplate;
+
+	@Autowired
+	private RSAKeyGenerator rsaKeyGenerator;
 
 	public void save(ScopeCategory scopeCategory) throws ItorixException {
 		ScopeCategory existingScopeCategory = baseRepository.findById(scopeCategory.getName(), ScopeCategory.class);
@@ -105,7 +116,7 @@ public class ConsentManagementDao {
 
 
 	public ConsentResponse getConsentsOverview(int offset, int pageSize, Map<String, String> searchParams) {
-		List<Criteria> searchCriteria = getCriteria(searchParams);
+		List<Criteria> searchCriteria = getConsentCriteria(searchParams);
 
 		Criteria criteria = new Criteria().andOperator(searchCriteria.toArray(new Criteria[searchCriteria.size()]));
 
@@ -152,5 +163,44 @@ public class ConsentManagementDao {
 
 	private long getTotal(Class clazz) {
 		return baseRepository.findAll(clazz).size();
+	}
+
+	public String getConsentPublicKey(String tenantKey) {
+		log.info("db Name {} ", mongoTemplate.getDb().getName());
+		ConsentKeyPair consentKeyPair = mongoTemplate.findOne(Query.query(Criteria.where("tenantKey").is(tenantKey)), ConsentKeyPair.class);
+		if(consentKeyPair != null ) {
+			return consentKeyPair.getPublicKey();
+		}
+		return "";
+	}
+
+	public Integer getConsentExpirationInterval() {
+		WorkspaceIntegration workspaceIntegration = mongoTemplate.findById("itorix.core.consent.expiry.interval", WorkspaceIntegration.class);
+		if(workspaceIntegration != null ) {
+			String propertyValue = workspaceIntegration.getPropertyValue();
+			if(propertyValue != null && !"".equals(propertyValue)) {
+				return Integer.valueOf(propertyValue);
+			}
+		}
+		return null;
+	}
+
+	@SneakyThrows
+	public String generateKeyPairs(String tenantKey) {
+		return rsaKeyGenerator.generateKeyPair(tenantKey);
+	}
+
+
+	public Workspace getWorkspace(String tenantName) {
+		return masterMongoTemplate.findOne(Query.query(Criteria.where("tenant").is(tenantName)), Workspace.class);
+	}
+
+	@SneakyThrows
+	public String getToken(String tenantKey) {
+		ConsentKeyPair key = mongoTemplate.findOne(Query.query(Criteria.where("tenantKey").is(tenantKey)), ConsentKeyPair.class);
+		if(key != null ) {
+			return key.getPublicKey();
+		}
+		throw new ItorixException(ErrorCodes.errorMessage.get("Consent-003"), "Consent-003");
 	}
 }

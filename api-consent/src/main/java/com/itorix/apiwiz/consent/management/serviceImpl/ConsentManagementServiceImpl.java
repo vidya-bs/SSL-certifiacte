@@ -4,6 +4,7 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.consent.management.dao.ConsentManagementDao;
 import com.itorix.apiwiz.consent.management.model.ScopeCategory;
 import com.itorix.apiwiz.consent.management.model.ScopeCategoryColumns;
+import com.itorix.apiwiz.consent.management.sched.ConsentScheduler;
 import com.itorix.apiwiz.consent.management.service.ConsentManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,10 @@ import java.util.Map;
 public class ConsentManagementServiceImpl implements ConsentManagementService {
 
 	@Autowired
-	ConsentManagementDao consentManagementDao;
+	private ConsentManagementDao consentManagementDao;
+
+	@Autowired
+	private ConsentScheduler consentScheduler;
 
 	@Override
 	public ResponseEntity<?> createScopeCategory(String jsessionid, ScopeCategory scopeCategory)
@@ -87,5 +91,23 @@ public class ConsentManagementServiceImpl implements ConsentManagementService {
 			searchParams.remove("pageSize");
 		}
 		return pageSize;
+	}
+
+	@Override
+	public ResponseEntity<?> generateKeyPairs(String jsessionid, String tenantKey) throws ItorixException {
+		String publicKey = consentManagementDao.generateKeyPairs(tenantKey);
+		consentScheduler.updateTrigger(tenantKey);
+		return new ResponseEntity<>(publicKey, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> updateTrigger(String jsessionid, String tenantKey) throws ItorixException {
+		consentScheduler.updateTrigger(tenantKey);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getToken(String jsessionid, String tenantKey) throws ItorixException {
+		return new ResponseEntity<>(consentManagementDao.getToken(tenantKey), HttpStatus.OK);
 	}
 }

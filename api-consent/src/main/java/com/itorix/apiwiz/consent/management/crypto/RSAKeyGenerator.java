@@ -1,7 +1,7 @@
-package com.itorix.apiwiz.identitymanagement.crypto;
+package com.itorix.apiwiz.consent.management.crypto;
 
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
-import com.itorix.apiwiz.identitymanagement.model.ConsentKeyPair;
+import com.itorix.apiwiz.consent.management.model.ConsentKeyPair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +34,6 @@ public class RSAKeyGenerator {
         }
         existingConsent.setPrivateKey(privateKeyStr);
         existingConsent.setPublicKey(publicKeyStr);
-
 
         baseRepository.save(existingConsent);
         return publicKeyStr;

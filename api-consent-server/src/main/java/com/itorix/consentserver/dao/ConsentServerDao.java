@@ -3,7 +3,9 @@ package com.itorix.consentserver.dao;
 import com.itorix.consentserver.model.*;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.result.UpdateResult;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class ConsentServerDao {
 
@@ -35,11 +38,12 @@ public class ConsentServerDao {
         String category = consent.getConsent().get("category");
         Query query = Query.query(Criteria.where("_id").is(category));
         ScopeCategory scopeCategory = mongoTemplate.findOne(query, ScopeCategory.class);
-        if(scopeCategory != null) {
+        if (scopeCategory != null) {
             long currentTime = System.currentTimeMillis();
             long expiryTimeInMillis = currentTime + (scopeCategory.getExpiry() * 60 * 1000);
-            consent.setCts(System.currentTimeMillis());
-            consent.setExpirationTimeInMillis(expiryTimeInMillis);
+            consent.setCts(currentTime);
+            consent.setMts(currentTime);
+            consent.setExpiry(expiryTimeInMillis);
             mongoTemplate.save(consent);
         } else {
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Consent-001"), category), "Consent-001");
@@ -51,17 +55,20 @@ public class ConsentServerDao {
         return mongoTemplate.findById(new ObjectId(consentId), Consent.class);
     }
 
-    public void revokeConsent(String consentId) {
-        Query query = new Query(Criteria.where("_id").is(consentId));
-        Update update = new Update();
-        update.set("status", ConsentStatus.Revoked.name());
-        mongoTemplate.upsert(query, update, Consent.class);
+    public void revokeConsent(String consentId) throws ItorixException {
+        Consent consent = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(consentId)), Consent.class);
+        if (consent == null) {
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Consent-002"), consentId), "Consent-002");
+        }
+        consent.getConsent().put("status", ConsentStatus.Revoked.name());
+        consent.setMts(System.currentTimeMillis());
+        mongoTemplate.save(consent);
     }
 
     @SneakyThrows
     public ConsentStatus getConsentStatus(String consentId) {
         Consent consent = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(consentId)), Consent.class);
-        if(consent != null ) {
+        if (consent != null) {
             return ConsentStatus.valueOf((consent.getConsent().get("status")));
         }
         throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Consent-002"), consentId), "Consent-002");
@@ -79,7 +86,6 @@ public class ConsentServerDao {
     private long getTotal(Class clazz) {
         return mongoTemplate.findAll(clazz).size();
     }
-
 
 
     private List<String> getList(DistinctIterable<String> iterable) {
@@ -128,11 +134,28 @@ public class ConsentServerDao {
     @SneakyThrows
     public void updateConsentScope(String consentId, List<String> scopes) {
         Consent consent = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(consentId)), Consent.class);
-        if(consent != null ) {
+        if (consent != null) {
+            consent.setMts(System.currentTimeMillis());
             consent.setScopes(scopes);
             mongoTemplate.save(consent);
             return;
         }
         throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Consent-002"), consentId), "Consent-002");
+    }
+
+    public void expireConsents() {
+        long currentTimeMillis = System.currentTimeMillis();
+        Update update = new Update();
+        update.set("consent.status", ConsentStatus.Expired.name());
+        update.set("mts", System.currentTimeMillis());
+        UpdateResult updateResult = mongoTemplate.updateMulti(Query.query(Criteria.where("expiry").lte(currentTimeMillis)), update, Consent.class);
+
+        String dbName = mongoTemplate.getDb().getName();
+        if(updateResult != null && updateResult.getModifiedCount() > 0) {
+            log.info("Successfully updated {} consents from the tenant {} ", updateResult.getModifiedCount(), dbName);
+        } else {
+            log.debug("No suitable consents present in the tenant {} for expiration", dbName);
+        }
+
     }
 }

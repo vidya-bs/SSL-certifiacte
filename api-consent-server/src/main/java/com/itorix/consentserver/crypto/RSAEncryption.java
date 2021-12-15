@@ -30,11 +30,11 @@ public class RSAEncryption {
 
 	public static void main(String[] args) throws Exception {
 		RSAEncryption ac = new RSAEncryption();
-		ac.generateKeys();
-		//String encryptText = ac.encryptText("80264bbd-6f76-40c4-8c3a-ac70f8183c26", "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIT6ip1esuvC0L7pWYkD0aEAF5R7t/sb4Bg28idUO+kJ25nNkzHG+PcCT/3du60R3Ns0HKX9ouxly3IIH4FGWhcCAwEAAQ==");
-		//System.out.println(encryptText);
-		String decryptText = ac.decryptText("bYinFpZJmboLvxNCjtWgbyWAU3K9ThA0d1IL2wmR6vFa8x6w/78K8yjPh0HAbcADOrNKGMADyjvkex99/IYH8w==", "MIIBVAIBADANBgkqhkiG9w0BAQEFAASCAT4wggE6AgEAAkEAhPqKnV6y68LQvulZiQPRoQAXlHu3+xvgGDbyJ1Q76Qnbmc2TMcb49wJP/d27rRHc2zQcpf2i7GXLcggfgUZaFwIDAQABAkAEacg15tGrT2DcJSRqjqzjWfxuWhjGBavPQeuRcJM4baWct6ZJRBhphkN5HfvQeTIrDTP/ldh9gTCR9K6gXQ2JAiEA8uL+djXSYY2O52m39uA13U8H7ou5Ycc7xgKDUrBDR30CIQCMKHpAEa9ryh8igHAL1oJ4R6B2g4KCbZaIa3y6VP4kIwIgJnVMx1jkU+//JaM2rs93l/AwmFPlaZcLXuH8+zXPoV0CICm8J+MKIR1Mu4avji3IO2OLmJmRwXwLG+cVcreddWvXAiEAu3bwylOlvIZ8vFCn4GAJay8+YRS4EMfgZjylYZfJJj0=");
-		System.out.println("Decrypted Text " + decryptText);
+		//ac.generateKeys();
+		String encryptText = ac.encryptText("80264bbd-6f76-40c4-8c3a-ac70f8183c26", "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIT6ip1esuvC0L7pWYkD0aEAF5R7t/sb4Bg28idUO+kJ25nNkzHG+PcCT/3du60R3Ns0HKX9ouxly3IIH4FGWhcCAwEAAQ==");
+		System.out.println(encryptText);
+		//String decryptText = ac.decryptText("bYinFpZJmboLvxNCjtWgbyWAU3K9ThA0d1IL2wmR6vFa8x6w/78K8yjPh0HAbcADOrNKGMADyjvkex99/IYH8w==", "MIIBVAIBADANBgkqhkiG9w0BAQEFAASCAT4wggE6AgEAAkEAhPqKnV6y68LQvulZiQPRoQAXlHu3+xvgGDbyJ1Q76Qnbmc2TMcb49wJP/d27rRHc2zQcpf2i7GXLcggfgUZaFwIDAQABAkAEacg15tGrT2DcJSRqjqzjWfxuWhjGBavPQeuRcJM4baWct6ZJRBhphkN5HfvQeTIrDTP/ldh9gTCR9K6gXQ2JAiEA8uL+djXSYY2O52m39uA13U8H7ou5Ycc7xgKDUrBDR30CIQCMKHpAEa9ryh8igHAL1oJ4R6B2g4KCbZaIa3y6VP4kIwIgJnVMx1jkU+//JaM2rs93l/AwmFPlaZcLXuH8+zXPoV0CICm8J+MKIR1Mu4avji3IO2OLmJmRwXwLG+cVcreddWvXAiEAu3bwylOlvIZ8vFCn4GAJay8+YRS4EMfgZjylYZfJJj0=");
+		//System.out.println("Decrypted Text " + decryptText);
 	}
 
 	public String encryptText(String msg, String publicKey) throws NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, NoSuchPaddingException {

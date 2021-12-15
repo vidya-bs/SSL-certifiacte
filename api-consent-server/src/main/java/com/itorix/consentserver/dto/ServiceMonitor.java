@@ -25,8 +25,9 @@ import java.lang.reflect.InvocationTargetException;
 @Aspect
 @Component
 public class ServiceMonitor {
+    public static final String X_CONSENT_API_KEY = "x-consent-apikey";
     public static Logger LOGGER = LoggerFactory.getLogger(ServiceMonitor.class);
-    public static final String SESSION_TOKEN_NAME = "x-tenant";
+    public static final String X_TENANT_KEY = "x-tenant";
     @Autowired
     private HttpServletRequest request;
     @Autowired
@@ -55,7 +56,7 @@ public class ServiceMonitor {
             ex.printStackTrace();
             if (response.getStatus() == 403) {
                 ErrorObj error = new ErrorObj();
-                error.setErrorMessage(SESSION_TOKEN_NAME + " specified in the header is not valid ", "Identity-1003");
+                error.setErrorMessage(X_TENANT_KEY + " specified in the header is not valid ", "Identity-1003");
                 return error;
             }
             throw ex;
@@ -64,30 +65,29 @@ public class ServiceMonitor {
 
     private String populateTenant(JoinPoint thisJoinPoint)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, ItorixException {
-        String key = request.getHeader(SESSION_TOKEN_NAME);
+        String key = request.getHeader(X_TENANT_KEY);
         LOGGER.info("Received Request from {} " , request.getRequestURI());
         if (key != null) {
             Workspace workspace = getWorkspaceWithKey(key);
             if (workspace != null) {
                 ServiceRequestContext ctx = ServiceRequestContextHolder.getContext();
                 ctx.setTenantId(workspace.getTenant());
-                LOGGER.info("DB Name {}", mongoTemplate.getDb().getName() );
                 Document document = mongoTemplate.findOne(Query.query(Criteria.where("tenantKey").is(key)), Document.class, "Consent.KeyPair");
                 String privateKey = document.get("privateKey", String.class);
-                String signingKey = request.getHeader("x-signing-key");
+                String signingKey = request.getHeader(X_CONSENT_API_KEY);
                 try {
                     if(signingKey == null || !rsaEncryption.decryptText(signingKey, privateKey).equals(key)) {
-                        throw new ItorixException("Invalid x-signing-key", "Identity-1033");
+                        throw new ItorixException("Invalid " + X_CONSENT_API_KEY, "Identity-1033");
                     }
                 } catch (Exception e) {
-                    throw new ItorixException("Internal Error while identifying request authenticity", "Identity-1033");
+                    throw new ItorixException("Invalid " + X_CONSENT_API_KEY, "Identity-1033");
                 }
 
             } else {
-                throw new ItorixException("invalid " + SESSION_TOKEN_NAME, "Identity-1033");
+                throw new ItorixException("invalid " + X_TENANT_KEY, "Identity-1033");
             }
         } else {
-            throw new ItorixException("missing header " + SESSION_TOKEN_NAME, "Identity-1034");
+            throw new ItorixException("missing header " + X_TENANT_KEY, "Identity-1034");
         }
         return key;
     }

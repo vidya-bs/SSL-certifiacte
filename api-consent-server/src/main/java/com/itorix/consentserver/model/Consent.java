@@ -19,5 +19,6 @@ public class Consent {
     private Map<String, String> consent;
     private List<String> scopes;
     private long cts;
-    private long expirationTimeInMillis;
+    private long mts;
+    private long expiry;
 }
