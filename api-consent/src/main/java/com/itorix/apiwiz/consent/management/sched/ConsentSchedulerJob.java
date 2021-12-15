@@ -80,12 +80,14 @@ public class ConsentSchedulerJob implements Job {
         PublicKey pub = kf.generatePublic(ks);
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(ENCRYPT_MODE, pub);
-        return Base64.getEncoder().encodeToString(cipher.doFinal(msg.getBytes("UTF-8")));
+        String encryptedText = Base64.getEncoder().encodeToString(cipher.doFinal(msg.getBytes("UTF-8")));
+        log.debug("Encrypted text {}", encryptedText);
+        return encryptedText;
     }
 
     public static void main(String[] args) throws UnsupportedEncodingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, BadPaddingException, InvalidKeyException {
         ConsentSchedulerJob schedulerJob = new ConsentSchedulerJob();
-        String s = schedulerJob.encryptText("b6d4c6bb-446d-47e7-b4e8-64689c3f6f82", "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIIG91vZYfbmEnz35rpdw6EiHz5Us4nYuO68ZW8/KGiTU8rzcPtEavNt6DKKVTR916Rmqh5RiOtMNDv8PobkkvUCAwEAAQ==");
+        String s = schedulerJob.encryptText("80264bbd-6f76-40c4-8c3a-ac70f8183c26", "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIIG91vZYfbmEnz35rpdw6EiHz5Us4nYuO68ZW8/KGiTU8rzcPtEavNt6DKKVTR916Rmqh5RiOtMNDv8PobkkvUCAwEAAQ==");
         System.out.println(s);
     }
 

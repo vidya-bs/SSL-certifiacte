@@ -51,7 +51,7 @@ public class ConsentScheduler {
 
                     JobDetail jobDetail = buildJobDetail(tenantKey);
                     Trigger trigger = buildJobTrigger(jobDetail, jobDataMap, interval);
-                    log.debug("Successfully defined JobData {} {} ", tenantKey, publicKey);
+                    log.debug("Successfully created JobData {} {} ", tenantKey, publicKey);
                     scheduler.scheduleJob(jobDetail, trigger);
                 }
             }
@@ -74,7 +74,7 @@ public class ConsentScheduler {
                 .usingJobData(jobDataMap)
                 .withIdentity(jobDetail.getKey().getName(), CONSENT_GROUP)
                 .withDescription("Consent Trigger")
-                .withSchedule(simpleSchedule().withIntervalInMinutes(interval).repeatForever())
+                .withSchedule(simpleSchedule().withIntervalInSeconds(interval).repeatForever())
                 .build();
     }
 
@@ -85,22 +85,24 @@ public class ConsentScheduler {
 
         TriggerBuilder existingTriggerBuilder = existingTrigger.getTriggerBuilder();
 
+
         Integer interval = consentManagementDao.getConsentExpirationInterval();
         String publicKey = consentManagementDao.getConsentPublicKey(tenantKey);
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("tenantKey", tenantKey);
         jobDataMap.put("publicKey", publicKey);
+        existingTrigger.getJobDataMap().put("publicKey", publicKey);
 
         Trigger newTrigger = existingTriggerBuilder.
                 withSchedule(simpleSchedule()
-                        .withIntervalInMinutes(interval).
+                        .withIntervalInSeconds(interval).
                         repeatForever())
                 .usingJobData(jobDataMap)
                 .build();
 
         scheduler.rescheduleJob(existingTrigger.getKey(), newTrigger);
 
-        log.debug("Successfully defined JobData {} {} ", tenantKey, publicKey);
+        log.debug("Successfully updated JobData {} {}", tenantKey, publicKey);
         log.debug("Successfully defined Jobs for the tenants {} ", scheduler.getJobKeys(groupEquals(CONSENT_GROUP)));
         log.debug("Successfully defined Triggers for the tenants {} ", scheduler.getTriggerKeys(groupEquals(CONSENT_GROUP)));
     }
