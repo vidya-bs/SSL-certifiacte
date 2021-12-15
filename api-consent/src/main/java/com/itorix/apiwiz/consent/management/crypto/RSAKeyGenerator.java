@@ -15,7 +15,7 @@ public class RSAKeyGenerator {
     private BaseRepository baseRepository;
 
 
-    public String generateKeyPair(String tenantKey) throws NoSuchAlgorithmException {
+    public String generateKeyPair(String tenantId) throws NoSuchAlgorithmException {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(512);
 
@@ -26,11 +26,12 @@ public class RSAKeyGenerator {
         String privateKeyStr = Base64.getEncoder().encodeToString(privateKey.getEncoded());
         String publicKeyStr = Base64.getEncoder().encodeToString(publicKey.getEncoded());
 
-        ConsentKeyPair existingConsent = baseRepository.findOne("tenantKey", tenantKey, ConsentKeyPair.class);
+
+        ConsentKeyPair existingConsent = baseRepository.findOne("tenantId", tenantId, ConsentKeyPair.class);
 
         if (existingConsent == null) {
             existingConsent = new ConsentKeyPair();
-            existingConsent.setTenantKey(tenantKey);
+            existingConsent.setTenantId(tenantId);
         }
         existingConsent.setPrivateKey(privateKeyStr);
         existingConsent.setPublicKey(publicKeyStr);

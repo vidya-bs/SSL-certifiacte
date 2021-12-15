@@ -165,9 +165,10 @@ public class ConsentManagementDao {
 		return baseRepository.findAll(clazz).size();
 	}
 
-	public String getConsentPublicKey(String tenantKey) {
-		log.info("db Name {} ", mongoTemplate.getDb().getName());
-		ConsentKeyPair consentKeyPair = mongoTemplate.findOne(Query.query(Criteria.where("tenantKey").is(tenantKey)), ConsentKeyPair.class);
+	public String getConsentPublicKey() {
+		String tenantId = mongoTemplate.getDb().getName();
+		log.info("db Name {} ", tenantId);
+		ConsentKeyPair consentKeyPair = mongoTemplate.findOne(Query.query(Criteria.where("tenantId").is(tenantId)), ConsentKeyPair.class);
 		if(consentKeyPair != null ) {
 			return consentKeyPair.getPublicKey();
 		}
@@ -186,8 +187,9 @@ public class ConsentManagementDao {
 	}
 
 	@SneakyThrows
-	public String generateKeyPairs(String tenantKey) {
-		return rsaKeyGenerator.generateKeyPair(tenantKey);
+	public String generateKeyPairs() {
+		String tenantId = getTenantId();
+		return rsaKeyGenerator.generateKeyPair(tenantId);
 	}
 
 
@@ -196,11 +198,15 @@ public class ConsentManagementDao {
 	}
 
 	@SneakyThrows
-	public String getToken(String tenantKey) {
-		ConsentKeyPair key = mongoTemplate.findOne(Query.query(Criteria.where("tenantKey").is(tenantKey)), ConsentKeyPair.class);
+	public String getToken() {
+		ConsentKeyPair key = mongoTemplate.findOne(Query.query(Criteria.where("tenantId").is(getTenantId())), ConsentKeyPair.class);
 		if(key != null ) {
 			return key.getPublicKey();
 		}
 		throw new ItorixException(ErrorCodes.errorMessage.get("Consent-003"), "Consent-003");
+	}
+
+	public String getTenantId(){
+		return mongoTemplate.getDb().getName();
 	}
 }

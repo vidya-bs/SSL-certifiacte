@@ -44,14 +44,16 @@ public class ConsentScheduler {
                 if(interval != null) {
                     Workspace workspace = consentManagementDao.getWorkspace(currentTenant);
                     String tenantKey = workspace.getKey();
-                    String publicKey = consentManagementDao.getConsentPublicKey(tenantKey);
+                    String tenantId = workspace.getTenant();
+                    String publicKey = consentManagementDao.getConsentPublicKey();
                     JobDataMap jobDataMap = new JobDataMap();
+                    jobDataMap.put("tenantId", tenantId);
                     jobDataMap.put("tenantKey", tenantKey);
                     jobDataMap.put("publicKey", publicKey);
 
-                    JobDetail jobDetail = buildJobDetail(tenantKey);
+                    JobDetail jobDetail = buildJobDetail(tenantId);
                     Trigger trigger = buildJobTrigger(jobDetail, jobDataMap, interval);
-                    log.debug("Successfully created JobData {} {} ", tenantKey, publicKey);
+                    log.debug("Successfully created JobData {} {} ", tenantId, publicKey);
                     scheduler.scheduleJob(jobDetail, trigger);
                 }
             }
@@ -74,35 +76,32 @@ public class ConsentScheduler {
                 .usingJobData(jobDataMap)
                 .withIdentity(jobDetail.getKey().getName(), CONSENT_GROUP)
                 .withDescription("Consent Trigger")
-                .withSchedule(simpleSchedule().withIntervalInSeconds(interval).repeatForever())
+                .withSchedule(simpleSchedule().withIntervalInMinutes(interval).repeatForever())
                 .build();
     }
 
 
     @SneakyThrows
-    public void updateTrigger(String tenantKey) {
-        Trigger existingTrigger = scheduler.getTrigger(TriggerKey.triggerKey(tenantKey, CONSENT_GROUP));
+    public void updateTrigger(String tenantId) {
+        Trigger existingTrigger = scheduler.getTrigger(TriggerKey.triggerKey(tenantId, CONSENT_GROUP));
 
         TriggerBuilder existingTriggerBuilder = existingTrigger.getTriggerBuilder();
 
 
         Integer interval = consentManagementDao.getConsentExpirationInterval();
-        String publicKey = consentManagementDao.getConsentPublicKey(tenantKey);
-        JobDataMap jobDataMap = new JobDataMap();
-        jobDataMap.put("tenantKey", tenantKey);
-        jobDataMap.put("publicKey", publicKey);
+        String publicKey = consentManagementDao.getConsentPublicKey();
+
         existingTrigger.getJobDataMap().put("publicKey", publicKey);
 
         Trigger newTrigger = existingTriggerBuilder.
                 withSchedule(simpleSchedule()
-                        .withIntervalInSeconds(interval).
+                        .withIntervalInMinutes(interval).
                         repeatForever())
-                .usingJobData(jobDataMap)
                 .build();
 
         scheduler.rescheduleJob(existingTrigger.getKey(), newTrigger);
 
-        log.debug("Successfully updated JobData {} {}", tenantKey, publicKey);
+        log.debug("Successfully updated JobData {} {}", tenantId, publicKey);
         log.debug("Successfully defined Jobs for the tenants {} ", scheduler.getJobKeys(groupEquals(CONSENT_GROUP)));
         log.debug("Successfully defined Triggers for the tenants {} ", scheduler.getTriggerKeys(groupEquals(CONSENT_GROUP)));
     }

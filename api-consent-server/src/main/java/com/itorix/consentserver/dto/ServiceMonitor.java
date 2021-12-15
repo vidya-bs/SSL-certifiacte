@@ -73,11 +73,12 @@ public class ServiceMonitor {
             Workspace workspace = getWorkspaceWithKey(key);
             if (workspace != null) {
                 ServiceRequestContext ctx = ServiceRequestContextHolder.getContext();
-                ctx.setTenantId(workspace.getTenant());
-                Document document = mongoTemplate.findOne(Query.query(Criteria.where("tenantKey").is(key)), Document.class, "Consent.KeyPair");
+                String tenantId = workspace.getTenant();
+                ctx.setTenantId(tenantId);
+                Document document = mongoTemplate.findOne(Query.query(Criteria.where("tenantId").is(tenantId)), Document.class, "Consent.KeyPair");
                 String privateKey = document.get("privateKey", String.class);
                 String consentApiKey = request.getHeader(X_CONSENT_API_KEY);
-                log.debug("Consent API Key {} received for the tenant {} ", consentApiKey, key);
+                log.debug("Consent API Key {} received for the tenant {} ", consentApiKey, tenantId);
                 try {
                     if(consentApiKey == null || !rsaEncryption.decryptText(consentApiKey, privateKey).equals(key)) {
                         throw new ItorixException("Invalid " + X_CONSENT_API_KEY, "Identity-1033");

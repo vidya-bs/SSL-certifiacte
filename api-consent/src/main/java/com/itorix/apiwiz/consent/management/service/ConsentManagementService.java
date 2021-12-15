@@ -52,16 +52,14 @@ public interface ConsentManagementService {
 
 	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/consents/generate-token")
-	public ResponseEntity<?> generateKeyPairs(@RequestHeader(value = "JSESSIONID") String jsessionid,
-											  @RequestHeader(value = "x-tenant") String tenantKey) throws ItorixException;
+	public ResponseEntity<?> generateKeyPairs(@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException;
 
 	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/consents/update-consent-trigger")
-	public ResponseEntity<?> updateTrigger(@RequestHeader(value = "JSESSIONID") String jsessionid,
-											  @RequestHeader(value = "x-tenant") String tenantKey) throws ItorixException;
+	public ResponseEntity<?> updateTrigger(@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/consents/token")
-	public ResponseEntity<?> getToken(@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestHeader(value = "x-tenant") String tenantKey)
+	public ResponseEntity<?> getToken(@RequestHeader(value = "JSESSIONID") String jsessionid)
 			throws ItorixException;
 
 }

@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document("Consent.KeyPair")
 public class ConsentKeyPair extends AbstractObject {
 
-    private String tenantKey;
+    private String tenantId;
     private String privateKey;
     private String publicKey;
 

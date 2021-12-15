@@ -50,10 +50,12 @@ public class ConsentSchedulerJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         try {
-        log.debug("Invoked Execute to expire consents");
         JobDataMap jobDataMap = jobExecutionContext.getTrigger().getJobDataMap();
         String tenantKey = jobDataMap.getString("tenantKey");
         String publicKey = jobDataMap.getString("publicKey");
+        String tenantId = jobDataMap.getString("tenantId");
+
+        log.debug("Invoked Execute to expire consents for tenant {} ", tenantId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(TENANT_ID, tenantKey);
