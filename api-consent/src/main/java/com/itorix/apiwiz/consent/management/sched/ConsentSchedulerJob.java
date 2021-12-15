@@ -53,6 +53,7 @@ public class ConsentSchedulerJob implements Job {
     @SneakyThrows
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+        try {
         log.debug("Invoked Execute to expire consents");
         JobDataMap jobDataMap = jobExecutionContext.getTrigger().getJobDataMap();
         String tenantKey = jobDataMap.getString("tenantKey");
@@ -63,13 +64,12 @@ public class ConsentSchedulerJob implements Job {
         headers.set(API_KEY_NAME, encryptText(tenantKey, publicKey));
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-
         HttpEntity<Map<String, String>> httpEntity = new HttpEntity<>(headers);
         String consentServerPath = this.consentServerPath + CONSENT_EXPIRY_ENDPOINT;
-        try {
+
             restTemplate.exchange(consentServerPath, HttpMethod.PATCH, httpEntity, String.class);
-        } catch (RestClientException ex) {
-            log.error("error returned from consent agent {} ", ex);
+        } catch (Exception ex) {
+            log.error("error while invoking consent agent {} ", ex);
         }
     }
 
