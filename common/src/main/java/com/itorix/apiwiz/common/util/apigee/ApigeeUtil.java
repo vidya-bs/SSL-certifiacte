@@ -397,6 +397,7 @@ public class ApigeeUtil {
 	 * @throws RestClientException
 	 */
 	public byte[] getAnAPIProxyRevision(CommonConfiguration cfg) throws RestClientException, ItorixException {
+		cfg.setApigeeCred(getApigeeAuth(cfg.getOrganization(), cfg.getType()));
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getMessageConverters().add(new ByteArrayHttpMessageConverter());
 		ResponseEntity<byte[]> response = restTemplate.exchange(
@@ -1586,9 +1587,11 @@ public class ApigeeUtil {
 
 	private HttpEntity<String> getHttpEntityToDownloadFile(CommonConfiguration cfg) {
 		HttpHeaders headers = new HttpHeaders();
-		String encodedCredentials = Base64
-				.encodeBase64String((cfg.getApigeeEmail() + ":" + cfg.getApigeePassword()).getBytes());
-		headers.set("Authorization", "Basic " + encodedCredentials);
+//		String encodedCredentials = Base64
+//				.encodeBase64String((cfg.getApigeeEmail() + ":" + cfg.getApigeePassword()).getBytes());
+//		headers.set("Authorization", "Basic " + encodedCredentials);
+		String authorization = getApigeeAuth(cfg.getOrganization(), cfg.getType());
+		headers.set("Authorization", authorization);
 		return new HttpEntity<String>("parameters", headers);
 	}
 
