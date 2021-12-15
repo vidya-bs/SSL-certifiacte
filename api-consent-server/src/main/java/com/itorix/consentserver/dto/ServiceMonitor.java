@@ -4,6 +4,7 @@ package com.itorix.consentserver.dto;
 import com.itorix.consentserver.crypto.RSAEncryption;
 import com.itorix.consentserver.model.ErrorObj;
 import com.itorix.consentserver.model.ItorixException;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -24,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 
 @Aspect
 @Component
+@Slf4j
 public class ServiceMonitor {
     public static final String X_CONSENT_API_KEY = "x-consent-apikey";
     public static Logger LOGGER = LoggerFactory.getLogger(ServiceMonitor.class);
@@ -74,9 +76,10 @@ public class ServiceMonitor {
                 ctx.setTenantId(workspace.getTenant());
                 Document document = mongoTemplate.findOne(Query.query(Criteria.where("tenantKey").is(key)), Document.class, "Consent.KeyPair");
                 String privateKey = document.get("privateKey", String.class);
-                String signingKey = request.getHeader(X_CONSENT_API_KEY);
+                String consentApiKey = request.getHeader(X_CONSENT_API_KEY);
+                log.debug("Consent API Key {} received for the tenant {} ", consentApiKey, key);
                 try {
-                    if(signingKey == null || !rsaEncryption.decryptText(signingKey, privateKey).equals(key)) {
+                    if(consentApiKey == null || !rsaEncryption.decryptText(consentApiKey, privateKey).equals(key)) {
                         throw new ItorixException("Invalid " + X_CONSENT_API_KEY, "Identity-1033");
                     }
                 } catch (Exception e) {

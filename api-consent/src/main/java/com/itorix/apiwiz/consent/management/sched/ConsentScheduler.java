@@ -51,6 +51,7 @@ public class ConsentScheduler {
 
                     JobDetail jobDetail = buildJobDetail(tenantKey);
                     Trigger trigger = buildJobTrigger(jobDetail, jobDataMap, interval);
+                    log.debug("Successfully defined JobData {} {} ", tenantKey, publicKey);
                     scheduler.scheduleJob(jobDetail, trigger);
                 }
             }
@@ -99,6 +100,7 @@ public class ConsentScheduler {
 
         scheduler.rescheduleJob(existingTrigger.getKey(), newTrigger);
 
+        log.debug("Successfully defined JobData {} {} ", tenantKey, publicKey);
         log.debug("Successfully defined Jobs for the tenants {} ", scheduler.getJobKeys(groupEquals(CONSENT_GROUP)));
         log.debug("Successfully defined Triggers for the tenants {} ", scheduler.getTriggerKeys(groupEquals(CONSENT_GROUP)));
     }

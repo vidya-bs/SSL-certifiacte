@@ -7,12 +7,8 @@ import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.BadPaddingException;
@@ -66,20 +62,31 @@ public class ConsentSchedulerJob implements Job {
 
         HttpEntity<Map<String, String>> httpEntity = new HttpEntity<>(headers);
         String consentServerPath = this.consentServerPath + CONSENT_EXPIRY_ENDPOINT;
+        ResponseEntity<String> exchange = restTemplate.exchange(consentServerPath, HttpMethod.PATCH, httpEntity, String.class);
 
-            restTemplate.exchange(consentServerPath, HttpMethod.PATCH, httpEntity, String.class);
+        log.debug("Successfully invoked expire end point {} {} ", consentServerPath, exchange);
+
+        if(exchange != null && !exchange.getStatusCode().is2xxSuccessful())
+            log.debug("Error returned from expire endpoint {} ", exchange.getBody());
         } catch (Exception ex) {
             log.error("error while invoking consent agent {} ", ex);
         }
     }
 
     public String encryptText(String msg, String publicKey) throws NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, NoSuchPaddingException {
+        log.debug("Msg {} and public key {} before encryption", msg, publicKey);
         X509EncodedKeySpec ks = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKey.getBytes(StandardCharsets.UTF_8)));
         KeyFactory kf = KeyFactory.getInstance("RSA");
         PublicKey pub = kf.generatePublic(ks);
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(ENCRYPT_MODE, pub);
         return Base64.getEncoder().encodeToString(cipher.doFinal(msg.getBytes("UTF-8")));
+    }
+
+    public static void main(String[] args) throws UnsupportedEncodingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, BadPaddingException, InvalidKeyException {
+        ConsentSchedulerJob schedulerJob = new ConsentSchedulerJob();
+        String s = schedulerJob.encryptText("b6d4c6bb-446d-47e7-b4e8-64689c3f6f82", "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIIG91vZYfbmEnz35rpdw6EiHz5Us4nYuO68ZW8/KGiTU8rzcPtEavNt6DKKVTR916Rmqh5RiOtMNDv8PobkkvUCAwEAAQ==");
+        System.out.println(s);
     }
 
 }
