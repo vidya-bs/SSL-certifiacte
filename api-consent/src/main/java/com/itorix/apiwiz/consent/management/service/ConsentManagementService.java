@@ -62,4 +62,8 @@ public interface ConsentManagementService {
 	public ResponseEntity<?> getToken(@RequestHeader(value = "JSESSIONID") String jsessionid)
 			throws ItorixException;
 
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/consents/scopes/category/names")
+	public ResponseEntity<?> getScopeCategoryNames() throws ItorixException, ItorixException;
+
+
 }
