@@ -1,33 +1,19 @@
 package com.itorix.apiwiz.portfolio.service;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.itorix.apiwiz.common.model.projectmanagement.Organization;
 import com.itorix.apiwiz.portfolio.model.PortfolioRequest;
 import com.itorix.apiwiz.portfolio.model.PromoteProxyRequest;
 import com.itorix.apiwiz.portfolio.model.ReleaseProxyRequest;
-import com.itorix.apiwiz.portfolio.model.db.Metadata;
-import com.itorix.apiwiz.portfolio.model.db.Portfolio;
-import com.itorix.apiwiz.portfolio.model.db.ProductRequest;
-import com.itorix.apiwiz.portfolio.model.db.Products;
-import com.itorix.apiwiz.portfolio.model.db.Projects;
-import com.itorix.apiwiz.portfolio.model.db.ServiceRegistry;
+import com.itorix.apiwiz.portfolio.model.db.*;
 import com.itorix.apiwiz.portfolio.model.db.proxy.Pipelines;
 import com.itorix.apiwiz.portfolio.model.db.proxy.Proxies;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Map;
 
 @CrossOrigin
 @RestController
@@ -97,16 +83,15 @@ public interface PortfolioService {
 			@RequestPart(value = "document", required = false) MultipartFile document,
 			@PathVariable(value = "id") String id, @RequestHeader(value = "JSESSIONID") String jsessionid)
 			throws Exception;
-	
+
 	@PreAuthorize("hasAnyRole('ADMIN', 'PROJECT-ADMIN', 'ANALYST') and hasAnyAuthority('TEAM','ENTERPRISE')")
-	@RequestMapping(method = {RequestMethod.PUT}, value = "v1/portfolios/{id}/documents/{documentId}/createRevision", consumes = {
-			"multipart/form-data"}, produces = {"application/json"})
+	@RequestMapping(method = {
+			RequestMethod.PUT}, value = "v1/portfolios/{id}/documents/{documentId}/createRevision", consumes = {
+					"multipart/form-data"}, produces = {"application/json"})
 	public ResponseEntity<Object> createPortfolioDocumentRevision(@RequestParam Map<String, Object> requestParams,
 			@RequestPart(value = "document", required = false) MultipartFile document,
-			@PathVariable(value = "id") String id, 
-			@PathVariable(value = "documentId") String documentId,
-			@RequestHeader(value = "JSESSIONID") String jsessionid)
-			throws Exception;
+			@PathVariable(value = "id") String id, @PathVariable(value = "documentId") String documentId,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN', 'PROJECT-ADMIN', 'ANALYST') and hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = {
@@ -116,8 +101,7 @@ public interface PortfolioService {
 			@RequestPart(value = "documentSummary", required = false) String documentSummary,
 			@RequestPart(value = "document", required = false) MultipartFile document,
 			@PathVariable(value = "portfolioId") String portfolioId,
-			@PathVariable(value = "documentId") String documentId,
-			@PathVariable(value = "revision") Integer revision,
+			@PathVariable(value = "documentId") String documentId, @PathVariable(value = "revision") Integer revision,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
@@ -125,12 +109,11 @@ public interface PortfolioService {
 			"application/json"})
 	public ResponseEntity<Object> getPortfolioDocuments(@PathVariable(value = "portfolioId") String portFolioId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
-	
+
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/portfolios/{portfolioId}/documents/{documentId}", produces = {
 			"application/json"})
-	public ResponseEntity<Object> getPortfolioDocumentRevisions(
-			@PathVariable(value = "portfolioId") String portfolioId,
+	public ResponseEntity<Object> getPortfolioDocumentRevisions(@PathVariable(value = "portfolioId") String portfolioId,
 			@PathVariable(value = "documentId") String documentId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 

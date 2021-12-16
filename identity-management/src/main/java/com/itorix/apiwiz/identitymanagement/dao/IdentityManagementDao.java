@@ -1175,7 +1175,7 @@ public class IdentityManagementDao {
 		if (filterbynames != null && "true".equalsIgnoreCase(filterbynames)) {
 			for (int i = 0; i < dbActiveUsers.size(); i++) {
 				User user = dbUsers.get(i);
-				if(user != null && user.getFirstName() != null ) {
+				if (user != null && user.getFirstName() != null) {
 					JSONObject userNames = new JSONObject();
 					String lastName = user.getLastName() == null ? "" : user.getLastName();
 					userNames.put("displayName", user.getFirstName() + " " + lastName);
@@ -1891,12 +1891,12 @@ public class IdentityManagementDao {
 	}
 
 	private ApplicationProperties populateDBApplicationProperties(Map<String, String> map) {
-		if(map.get("apigee.host")!=null)
+		if (map.get("apigee.host") != null)
 			applicationProperties.setApigeeHost(map.get("apigee.host"));
-		if(map.get("app.mailutil.userName")!=null)
+		if (map.get("app.mailutil.userName") != null)
 			applicationProperties.setUserName(map.get("app.mailutil.userName"));
-		if(map.get("itorix.core.gocd.proxy.scm.username")!=null)
-		applicationProperties.setProxyScmUserName(map.get("itorix.core.gocd.proxy.scm.username"));
+		if (map.get("itorix.core.gocd.proxy.scm.username") != null)
+			applicationProperties.setProxyScmUserName(map.get("itorix.core.gocd.proxy.scm.username"));
 		applicationProperties.setProxyScmPassword(map.get("itorix.core.gocd.proxy.scm.password"));
 		applicationProperties.setBuildScmType(map.get("itorix.core.gocd.build.scm.type"));
 		applicationProperties.setBuildScmUserName(map.get("itorix.core.gocd.build.scm.username"));

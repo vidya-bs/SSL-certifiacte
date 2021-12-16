@@ -19,13 +19,13 @@ public class PortfolioVO extends AbstractObject {
 	private String description;
 
 	private String name;
-	
+
 	private Integer revision = 1;
-	
+
 	private String dictionaryId;
-	
+
 	private String status;
-	
+
 	@Transient
 	private List<Object> models;
 
@@ -54,7 +54,7 @@ public class PortfolioVO extends AbstractObject {
 	}
 
 	public Integer getRevision() {
-		if(null == revision)
+		if (null == revision)
 			return 1;
 		return revision;
 	}
@@ -97,5 +97,4 @@ public class PortfolioVO extends AbstractObject {
 		this.status = status;
 	}
 
-	
 }

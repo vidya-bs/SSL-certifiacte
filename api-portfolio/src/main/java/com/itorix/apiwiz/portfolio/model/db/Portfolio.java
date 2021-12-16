@@ -1,19 +1,16 @@
 package com.itorix.apiwiz.portfolio.model.db;
 
-import java.util.List;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.itorix.apiwiz.common.model.AbstractObject;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component("portfolios")
 @Document(collection = "Plan.Portfolios.List")
@@ -46,10 +43,10 @@ public class Portfolio extends AbstractObject {
 
 	@JsonProperty("serviceRegistry")
 	List<ServiceRegistry> serviceRegistry;
-	
+
 	@JsonProperty("testsuites")
 	List<Testsuite> testsuites;
-	
+
 	@JsonProperty("testsuiteEnvironments")
 	List<TestsuiteEnvironment> testsuiteEnvironments;
 }

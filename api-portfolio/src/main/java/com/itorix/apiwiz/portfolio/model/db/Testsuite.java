@@ -1,6 +1,5 @@
 package com.itorix.apiwiz.portfolio.model.db;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -17,7 +16,7 @@ public class Testsuite {
 
 	@JsonProperty("id")
 	String id;
-	
+
 	@JsonProperty("name")
 	String name;
 }
