@@ -561,9 +561,8 @@ public class ConfigManagementDao {
 	public Object createApigeeCache(CacheConfig config, User user) throws ItorixException {
 		try {
 			@SuppressWarnings("unchecked")
-			List<CacheConfig> data = (ArrayList<CacheConfig>) getAllActiveCaches(config);
-			System.out.println(data.size());
-			CacheConfig cacheConfig = data.get(0);
+			//List<CacheConfig> data = (ArrayList<CacheConfig>) getAllActiveCaches(config);
+			CacheConfig cacheConfig = config;
 			if (isResourceAvailable(cacheService.getUpdateCacheURL(cacheConfig),
 					getApigeeCredentials(cacheConfig.getOrg(), cacheConfig.getType()))) {
 				return updateApigeeCache(config, user);
@@ -599,7 +598,7 @@ public class ConfigManagementDao {
 		try {
 			@SuppressWarnings("unchecked")
 			List<CacheConfig> data = (ArrayList) getAllActiveCaches(config);
-			CacheConfig cacheConfig = data.get(0);
+			CacheConfig cacheConfig = config;
 			ApigeeCache cache = cacheService.getCacheBody(cacheConfig);
 			String URL = cacheService.getUpdateCacheURL(cacheConfig);
 			HTTPUtil httpConn = new HTTPUtil(cache, URL,

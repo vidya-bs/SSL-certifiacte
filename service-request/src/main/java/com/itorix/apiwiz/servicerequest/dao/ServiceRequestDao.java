@@ -112,7 +112,7 @@ public class ServiceRequestDao {
 									&& StringUtils.isNotBlank(config.getName())) {
 								query = new Query(
 										Criteria.where("org").is(config.getOrg()).and("name").is(config.getName())
-												.and("type").is(config.getType()).and("isSaaS").is(config.getIsSaaS()));
+										.and("type").is(config.getType()).and("isSaaS").is(config.getIsSaaS()));
 							}
 
 							Update update = new Update();
@@ -367,7 +367,6 @@ public class ServiceRequestDao {
 		}
 
 		if (isRevertApplicable) {
-
 			List<ServiceRequest> serviceRequests = (List<ServiceRequest>) getservicerequest(serviceRequest);
 			if (serviceRequests.size() > 0) {
 				Query query = null;
@@ -384,7 +383,7 @@ public class ServiceRequestDao {
 							.is(serviceRequest.getName()).and("type").is(serviceRequest.getType()).and("isSaaS")
 							.is(serviceRequest.getIsSaaS()));
 				}
-				changeServiceRequestStatus(serviceRequest, user);
+				revertServiceRequestStatus(serviceRequest, user);
 				Update update = new Update();
 				update.set("activeFlag", Boolean.FALSE);
 				UpdateResult result = mongoTemplate.updateMulti(query, update, ServiceRequest.class);
@@ -403,290 +402,305 @@ public class ServiceRequestDao {
 	}
 
 	@SuppressWarnings("unchecked")
-	public boolean changeServiceRequestStatus(ServiceRequest config, User user)
+	public boolean changeServiceRequestStatus(ServiceRequest config, User user) throws ItorixException, MessagingException {
+		List<ServiceRequest> serviceRequests = (ArrayList<ServiceRequest>) getAllActiveServiceRequests(config);
+		if (serviceRequests.size() > 0) {
+			ServiceRequest serviceRequest = serviceRequests.get(0);
+			serviceRequest.setStatus(config.getStatus());
+			updateServiceRequestStatus(serviceRequest, user);
+		} else {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1029"), "Configuration-1029");
+		}
+		return false;
+	}
+
+	public boolean revertServiceRequestStatus(ServiceRequest config, User user) throws ItorixException, MessagingException{
+		return updateServiceRequestStatus(config, user);
+	}
+
+	
+	public boolean updateServiceRequestStatus(ServiceRequest config, User user)
 			throws ItorixException, MessagingException {
 		@SuppressWarnings("unused")
 		boolean isCreatedorUpdated = false;
-		//List<ServiceRequest> serviceRequests = (ArrayList<ServiceRequest>) getAllActiveServiceRequests(config);
 		ServiceRequest serviceRequest = config;
-		//if (serviceRequests.size() > 0) {
-			
-			Query query = null;
-			if (config.getStatus().equalsIgnoreCase("Approved")) {
-				if (serviceRequest.isCreated()) {
-					if ("TargetServer".equalsIgnoreCase(serviceRequest.getType())) {
-						TargetConfig targetConfig = new TargetConfig();
-						targetConfig.setModifiedDate(Instant.now().toString());
-						targetConfig.setModifiedUser(serviceRequest.getModifiedUser());
-						targetConfig.setOrg(serviceRequest.getOrg());
-						targetConfig.setEnv(serviceRequest.getEnv());
-						targetConfig.setHost(serviceRequest.getHost());
-						targetConfig.setPort(serviceRequest.getPort());
-						targetConfig.setClientAuthEnabled(serviceRequest.isClientAuthEnabled());
-						targetConfig.setIgnoreValidationErrors(serviceRequest.isIgnoreValidationErrors());
-						targetConfig.setKeyAlias(serviceRequest.getKeyAlias());
-						targetConfig.setTrustStore(serviceRequest.getTrustStore());
-						targetConfig.setSslEnabled(serviceRequest.isSslEnabled());
-						targetConfig.setKeyStore(serviceRequest.getKeyStore());
-						targetConfig.setEnabled(serviceRequest.isEnabled());
-						targetConfig.setName(serviceRequest.getName());
-						if (serviceRequest.getIsSaaS()) {
-							targetConfig.setType("saas");
-						} else {
-							targetConfig.setType("onprem");
-						}
-						isCreatedorUpdated = configManagementDao.updateTarget(targetConfig);
-						configManagementDao.createApigeeTarget(targetConfig, user);
-					} else if ("Cache".equalsIgnoreCase(serviceRequest.getType())) {
-						CacheConfig cacheConfig = new CacheConfig();
-						cacheConfig.setModifiedDate(Instant.now().toString());
-						cacheConfig.setModifiedUser(serviceRequest.getModifiedUser());
-						cacheConfig.setOrg(serviceRequest.getOrg());
-						cacheConfig.setEnv(serviceRequest.getEnv());
-						cacheConfig.setDescription(serviceRequest.getDescription());
-						cacheConfig.setExpiryDate(serviceRequest.getExpiryDate());
-						cacheConfig.setTimeOfDay(serviceRequest.getTimeOfDay());
-						cacheConfig.setTimeoutInSec(serviceRequest.getTimeoutInSec());
-						cacheConfig.setOverflowToDisk(serviceRequest.isOverflowToDisk());
-						cacheConfig.setName(serviceRequest.getName());
-						cacheConfig.setSkipCacheIfElementSizeInKBExceeds(
-								serviceRequest.getSkipCacheIfElementSizeInKBExceeds());
-						cacheConfig.setValuesNull(serviceRequest.isValuesNull());
-						if (serviceRequest.getIsSaaS()) {
-							cacheConfig.setType("saas");
-						} else {
-							cacheConfig.setType("onprem");
-						}
-						isCreatedorUpdated = configManagementDao.updateCache(cacheConfig);
-						configManagementDao.createApigeeCache(cacheConfig, user);
-					} else if ("KVM".equalsIgnoreCase(serviceRequest.getType())) {
-						KVMConfig kvmconfig = new KVMConfig();
-						kvmconfig.setModifiedDate(Instant.now().toString());
-						kvmconfig.setModifiedUser(serviceRequest.getModifiedUser());
-						kvmconfig.setOrg(serviceRequest.getOrg());
-						kvmconfig.setEnv(serviceRequest.getEnv());
-						kvmconfig.setName(serviceRequest.getName());
-						kvmconfig.setEntry(serviceRequest.getEntry());
-						if (serviceRequest.getIsSaaS()) {
-							kvmconfig.setType("saas");
-						} else {
-							kvmconfig.setType("onprem");
-						}
-						isCreatedorUpdated = configManagementDao.updateKVM(kvmconfig);
-						configManagementDao.createApigeeKVM(kvmconfig, user);
-					} else if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
-						ProductConfig productconfig = new ProductConfig();
-						productconfig.setModifiedDate(Instant.now().toString());
-						productconfig.setModifiedUser(serviceRequest.getModifiedUser());
-						productconfig.setOrg(serviceRequest.getOrg());
-						productconfig.setName(serviceRequest.getName());
-						productconfig.setApiResources(serviceRequest.getApiResources());
-						productconfig.setApprovalType(serviceRequest.getApprovalType());
-						productconfig.setAttributes(serviceRequest.getAttributes());
-						productconfig.setDescription(serviceRequest.getDescription());
-						productconfig.setDisplayName(serviceRequest.getDisplayName());
-						productconfig.setEnvironments(serviceRequest.getEnvironments());
-						productconfig.setProxies(serviceRequest.getProxies());
-						productconfig.setQuota(serviceRequest.getQuota());
-						productconfig.setQuotaInterval(serviceRequest.getQuotaInterval());
-						productconfig.setQuotaTimeUnit(serviceRequest.getQuotaTimeUnit());
-						productconfig.setScopes(serviceRequest.getScopes());
-						if (serviceRequest.getIsSaaS()) {
-							productconfig.setType("saas");
-						} else {
-							productconfig.setType("onprem");
-						}
-						isCreatedorUpdated = configManagementDao.updateProduct(productconfig);
-						configManagementDao.createApigeeProduct(productconfig, user);
-					}
-					serviceRequest.setCreated(true);
-					serviceRequest.setStatus("Approved");
-					serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
-					sendEmailTo(serviceRequest);
-					if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
-						query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("name")
-								.is(config.getName()).and("type").is(serviceRequest.getType()).and("isSaaS")
-								.is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
+		Query query = null;
+		if (config.getStatus().equalsIgnoreCase("Approved")) {
+			if (serviceRequest.isCreated()) {
+				if ("TargetServer".equalsIgnoreCase(serviceRequest.getType())) {
+					TargetConfig targetConfig = new TargetConfig();
+					targetConfig.setModifiedDate(Instant.now().toString());
+					targetConfig.setModifiedUser(serviceRequest.getModifiedUser());
+					targetConfig.setOrg(serviceRequest.getOrg());
+					targetConfig.setEnv(serviceRequest.getEnv());
+					targetConfig.setHost(serviceRequest.getHost());
+					targetConfig.setPort(serviceRequest.getPort());
+					targetConfig.setClientAuthEnabled(serviceRequest.isClientAuthEnabled());
+					targetConfig.setIgnoreValidationErrors(serviceRequest.isIgnoreValidationErrors());
+					targetConfig.setKeyAlias(serviceRequest.getKeyAlias());
+					targetConfig.setTrustStore(serviceRequest.getTrustStore());
+					targetConfig.setSslEnabled(serviceRequest.isSslEnabled());
+					targetConfig.setKeyStore(serviceRequest.getKeyStore());
+					targetConfig.setEnabled(serviceRequest.isEnabled());
+					targetConfig.setName(serviceRequest.getName());
+					if (serviceRequest.getIsSaaS()) {
+						targetConfig.setType("saas");
 					} else {
-						query = new Query(
-								Criteria.where("org").is(serviceRequest.getOrg()).and("env").is(serviceRequest.getEnv())
-										.and("name").is(config.getName()).and("type").is(serviceRequest.getType())
-										.and("isSaaS").is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
+						targetConfig.setType("onprem");
 					}
-					// DBObject dbDoc = new BasicDBObject();
-					// mongoTemplate.getConverter().write(serviceRequest,
-					// dbDoc);
-					// Update update = Update.fromDBObject(dbDoc, "_id");
-					// WriteResult result = mongoTemplate.updateFirst(query,
-					// update,
-					// ServiceRequest.class);
-
-					Document dbDoc = new Document();
-					mongoTemplate.getConverter().write(serviceRequest, dbDoc);
-					Update update = Update.fromDocument(dbDoc, "_id");
-					UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
-					return result.isModifiedCountAvailable();
-				} else {
-					if ("TargetServer".equalsIgnoreCase(serviceRequest.getType())) {
-						TargetConfig targetConfig = new TargetConfig();
-						targetConfig.setCreatedDate(Instant.now().toString());
-						targetConfig.setCreatedUser(serviceRequest.getCreatedUser());
-						targetConfig.setModifiedDate(Instant.now().toString());
-						targetConfig.setModifiedUser(serviceRequest.getModifiedUser());
-						targetConfig.setOrg(serviceRequest.getOrg());
-						targetConfig.setEnv(serviceRequest.getEnv());
-						targetConfig.setHost(serviceRequest.getHost());
-						targetConfig.setPort(serviceRequest.getPort());
-						targetConfig.setClientAuthEnabled(serviceRequest.isClientAuthEnabled());
-						targetConfig.setIgnoreValidationErrors(serviceRequest.isIgnoreValidationErrors());
-						targetConfig.setKeyAlias(serviceRequest.getKeyAlias());
-						targetConfig.setTrustStore(serviceRequest.getTrustStore());
-						targetConfig.setSslEnabled(serviceRequest.isSslEnabled());
-						targetConfig.setKeyStore(serviceRequest.getKeyStore());
-						targetConfig.setEnabled(serviceRequest.isEnabled());
-						targetConfig.setName(serviceRequest.getName());
-						targetConfig.setActiveFlag(Boolean.TRUE);
-						if (serviceRequest.getIsSaaS()) {
-							targetConfig.setType("saas");
-						} else {
-							targetConfig.setType("onprem");
-						}
-						isCreatedorUpdated = configManagementDao.saveTarget(targetConfig);
-						configManagementDao.createApigeeTarget(targetConfig, user);
-					} else if ("Cache".equalsIgnoreCase(serviceRequest.getType())) {
-						CacheConfig cacheConfig = new CacheConfig();
-						cacheConfig.setCreatedDate(Instant.now().toString());
-						cacheConfig.setCreatedUser(serviceRequest.getCreatedUser());
-						cacheConfig.setModifiedDate(Instant.now().toString());
-						cacheConfig.setModifiedUser(serviceRequest.getModifiedUser());
-						cacheConfig.setOrg(serviceRequest.getOrg());
-						cacheConfig.setEnv(serviceRequest.getEnv());
-						cacheConfig.setDescription(serviceRequest.getDescription());
-						cacheConfig.setExpiryDate(serviceRequest.getExpiryDate());
-						cacheConfig.setOverflowToDisk(serviceRequest.isOverflowToDisk());
-						cacheConfig.setName(serviceRequest.getName());
-						cacheConfig.setSkipCacheIfElementSizeInKBExceeds(
-								serviceRequest.getSkipCacheIfElementSizeInKBExceeds());
-						cacheConfig.setValuesNull(serviceRequest.isValuesNull());
-						cacheConfig.setTimeOfDay(serviceRequest.getTimeOfDay());
-						cacheConfig.setTimeoutInSec(serviceRequest.getTimeoutInSec());
-						cacheConfig.setActiveFlag(Boolean.TRUE);
-						if (serviceRequest.getIsSaaS()) {
-							cacheConfig.setType("saas");
-						} else {
-							cacheConfig.setType("onprem");
-						}
-						isCreatedorUpdated = configManagementDao.saveCache(cacheConfig);
-						configManagementDao.createApigeeCache(cacheConfig, user);
-					} else if ("KVM".equalsIgnoreCase(serviceRequest.getType())) {
-						KVMConfig kvmconfig = new KVMConfig();
-						kvmconfig.setCreatedDate(Instant.now().toString());
-						kvmconfig.setCreatedUser(serviceRequest.getCreatedUser());
-						kvmconfig.setModifiedDate(Instant.now().toString());
-						kvmconfig.setModifiedUser(serviceRequest.getModifiedUser());
-						kvmconfig.setOrg(serviceRequest.getOrg());
-						kvmconfig.setEnv(serviceRequest.getEnv());
-						kvmconfig.setName(serviceRequest.getName());
-						kvmconfig.setEntry(serviceRequest.getEntry());
-						kvmconfig.setActiveFlag(Boolean.TRUE);
-						if (serviceRequest.getIsSaaS()) {
-							kvmconfig.setType("saas");
-						} else {
-							kvmconfig.setType("onprem");
-						}
-						isCreatedorUpdated = configManagementDao.saveKVM(kvmconfig);
-						configManagementDao.createApigeeKVM(kvmconfig, user);
-					} else if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
-						ProductConfig productconfig = new ProductConfig();
-						productconfig.setModifiedDate(Instant.now().toString());
-						productconfig.setModifiedUser(serviceRequest.getModifiedUser());
-						productconfig.setOrg(serviceRequest.getOrg());
-						productconfig.setName(serviceRequest.getName());
-						productconfig.setApiResources(serviceRequest.getApiResources());
-						productconfig.setApprovalType(serviceRequest.getApprovalType());
-						productconfig.setAttributes(serviceRequest.getAttributes());
-						productconfig.setCreatedDate(Instant.now().toString());
-						productconfig.setCreatedUser(serviceRequest.getCreatedUser());
-						productconfig.setDescription(serviceRequest.getDescription());
-						productconfig.setDisplayName(serviceRequest.getDisplayName());
-						productconfig.setEnvironments(serviceRequest.getEnvironments());
-						productconfig.setProxies(serviceRequest.getProxies());
-						productconfig.setQuota(serviceRequest.getQuota());
-						productconfig.setQuotaInterval(serviceRequest.getQuotaInterval());
-						productconfig.setQuotaTimeUnit(serviceRequest.getQuotaTimeUnit());
-						productconfig.setScopes(serviceRequest.getScopes());
-						productconfig.setActiveFlag(Boolean.TRUE);
-						if (serviceRequest.getIsSaaS()) {
-							productconfig.setType("saas");
-						} else {
-							productconfig.setType("onprem");
-						}
-						isCreatedorUpdated = configManagementDao.saveProduct(productconfig);
-						configManagementDao.createApigeeProduct(productconfig, user);
-					}
-					serviceRequest.setCreated(true);
-					serviceRequest.setStatus("Approved");
-					serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
-					sendEmailTo(serviceRequest);
-					if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
-						query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("name")
-								.is(config.getName()).and("type").is(serviceRequest.getType()).and("isSaaS")
-								.is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
+					isCreatedorUpdated = configManagementDao.updateTarget(targetConfig);
+					configManagementDao.createApigeeTarget(targetConfig, user);
+				} else if ("Cache".equalsIgnoreCase(serviceRequest.getType())) {
+					CacheConfig cacheConfig = new CacheConfig();
+					cacheConfig.setModifiedDate(Instant.now().toString());
+					cacheConfig.setModifiedUser(serviceRequest.getModifiedUser());
+					cacheConfig.setOrg(serviceRequest.getOrg());
+					cacheConfig.setEnv(serviceRequest.getEnv());
+					cacheConfig.setDescription(serviceRequest.getDescription());
+					cacheConfig.setExpiryDate(serviceRequest.getExpiryDate());
+					cacheConfig.setTimeOfDay(serviceRequest.getTimeOfDay());
+					cacheConfig.setTimeoutInSec(serviceRequest.getTimeoutInSec());
+					cacheConfig.setOverflowToDisk(serviceRequest.isOverflowToDisk());
+					cacheConfig.setName(serviceRequest.getName());
+					cacheConfig.setSkipCacheIfElementSizeInKBExceeds(
+							serviceRequest.getSkipCacheIfElementSizeInKBExceeds());
+					cacheConfig.setValuesNull(serviceRequest.isValuesNull());
+					if (serviceRequest.getIsSaaS()) {
+						cacheConfig.setType("saas");
 					} else {
-						query = new Query(
-								Criteria.where("org").is(serviceRequest.getOrg()).and("env").is(serviceRequest.getEnv())
-										.and("name").is(config.getName()).and("type").is(serviceRequest.getType())
-										.and("isSaaS").is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
+						cacheConfig.setType("onprem");
 					}
-					// DBObject dbDoc = new BasicDBObject();
-					// mongoTemplate.getConverter().write(serviceRequest,
-					// dbDoc);
-					// Update update = Update.fromDBObject(dbDoc, "_id");
-					// WriteResult result = mongoTemplate.updateFirst(query,
-					// update,
-					// ServiceRequest.class);
-					// return result.isUpdateOfExisting();
-
-					Document dbDoc = new Document();
-					mongoTemplate.getConverter().write(serviceRequest, dbDoc);
-					Update update = Update.fromDocument(dbDoc, "_id");
-					UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
-					return result.isModifiedCountAvailable();
+					isCreatedorUpdated = configManagementDao.updateCache(cacheConfig);
+					configManagementDao.createApigeeCache(cacheConfig, user);
+				} else if ("KVM".equalsIgnoreCase(serviceRequest.getType())) {
+					KVMConfig kvmconfig = new KVMConfig();
+					kvmconfig.setModifiedDate(Instant.now().toString());
+					kvmconfig.setModifiedUser(serviceRequest.getModifiedUser());
+					kvmconfig.setOrg(serviceRequest.getOrg());
+					kvmconfig.setEnv(serviceRequest.getEnv());
+					kvmconfig.setName(serviceRequest.getName());
+					kvmconfig.setEntry(serviceRequest.getEntry());
+					if (serviceRequest.getIsSaaS()) {
+						kvmconfig.setType("saas");
+					} else {
+						kvmconfig.setType("onprem");
+					}
+					isCreatedorUpdated = configManagementDao.updateKVM(kvmconfig);
+					configManagementDao.createApigeeKVM(kvmconfig, user);
+				} else if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
+					ProductConfig productconfig = new ProductConfig();
+					productconfig.setModifiedDate(Instant.now().toString());
+					productconfig.setModifiedUser(serviceRequest.getModifiedUser());
+					productconfig.setOrg(serviceRequest.getOrg());
+					productconfig.setName(serviceRequest.getName());
+					productconfig.setApiResources(serviceRequest.getApiResources());
+					productconfig.setApprovalType(serviceRequest.getApprovalType());
+					productconfig.setAttributes(serviceRequest.getAttributes());
+					productconfig.setDescription(serviceRequest.getDescription());
+					productconfig.setDisplayName(serviceRequest.getDisplayName());
+					productconfig.setEnvironments(serviceRequest.getEnvironments());
+					productconfig.setProxies(serviceRequest.getProxies());
+					productconfig.setQuota(serviceRequest.getQuota());
+					productconfig.setQuotaInterval(serviceRequest.getQuotaInterval());
+					productconfig.setQuotaTimeUnit(serviceRequest.getQuotaTimeUnit());
+					productconfig.setScopes(serviceRequest.getScopes());
+					if (serviceRequest.getIsSaaS()) {
+						productconfig.setType("saas");
+					} else {
+						productconfig.setType("onprem");
+					}
+					isCreatedorUpdated = configManagementDao.updateProduct(productconfig);
+					configManagementDao.createApigeeProduct(productconfig, user);
 				}
-
-			} else if (config.getStatus().equalsIgnoreCase("Change Required")) {
-				if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
-					query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("name").is(config.getName())
-							.and("type").is(serviceRequest.getType()).and("isSaaS").is(config.getIsSaaS())
-							.and("activeFlag").is(Boolean.TRUE));
-				} else {
-					query = new Query(
-							Criteria.where("org").is(serviceRequest.getOrg()).and("env").is(serviceRequest.getEnv())
-									.and("name").is(config.getName()).and("type").is(serviceRequest.getType())
-									.and("isSaaS").is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
-				}
-				serviceRequest.setStatus("Change Required");
+				serviceRequest.setCreated(true);
+				serviceRequest.setStatus("Approved");
 				serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
 				sendEmailTo(serviceRequest);
+//				if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
+//					query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("name")
+//							.is(config.getName()).and("type").is(serviceRequest.getType()).and("isSaaS")
+//							.is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
+//				} else {
+//					query = new Query(
+//							Criteria.where("org").is(serviceRequest.getOrg()).and("env").is(serviceRequest.getEnv())
+//							.and("name").is(config.getName()).and("type").is(serviceRequest.getType())
+//							.and("isSaaS").is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
+//				}
 				// DBObject dbDoc = new BasicDBObject();
-				// mongoTemplate.getConverter().write(serviceRequest, dbDoc);
+				// mongoTemplate.getConverter().write(serviceRequest,
+				// dbDoc);
 				// Update update = Update.fromDBObject(dbDoc, "_id");
-
+				// WriteResult result = mongoTemplate.updateFirst(query,
+				// update,
+				// ServiceRequest.class);
+				
+				query = new Query(
+						Criteria.where("_id").is(serviceRequest.get_id()));
 				Document dbDoc = new Document();
 				mongoTemplate.getConverter().write(serviceRequest, dbDoc);
 				Update update = Update.fromDocument(dbDoc, "_id");
 				UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
 				return result.isModifiedCountAvailable();
 			} else {
-				if ((!config.getStatus().equalsIgnoreCase("Change Required")
-						|| config.getStatus().equalsIgnoreCase("Approved")))
-					throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1030"), "Configuration-1030");
-
-				throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1031"), "Configuration-1031");
+				if ("TargetServer".equalsIgnoreCase(serviceRequest.getType())) {
+					TargetConfig targetConfig = new TargetConfig();
+					targetConfig.setCreatedDate(Instant.now().toString());
+					targetConfig.setCreatedUser(serviceRequest.getCreatedUser());
+					targetConfig.setModifiedDate(Instant.now().toString());
+					targetConfig.setModifiedUser(serviceRequest.getModifiedUser());
+					targetConfig.setOrg(serviceRequest.getOrg());
+					targetConfig.setEnv(serviceRequest.getEnv());
+					targetConfig.setHost(serviceRequest.getHost());
+					targetConfig.setPort(serviceRequest.getPort());
+					targetConfig.setClientAuthEnabled(serviceRequest.isClientAuthEnabled());
+					targetConfig.setIgnoreValidationErrors(serviceRequest.isIgnoreValidationErrors());
+					targetConfig.setKeyAlias(serviceRequest.getKeyAlias());
+					targetConfig.setTrustStore(serviceRequest.getTrustStore());
+					targetConfig.setSslEnabled(serviceRequest.isSslEnabled());
+					targetConfig.setKeyStore(serviceRequest.getKeyStore());
+					targetConfig.setEnabled(serviceRequest.isEnabled());
+					targetConfig.setName(serviceRequest.getName());
+					targetConfig.setActiveFlag(Boolean.TRUE);
+					if (serviceRequest.getIsSaaS()) {
+						targetConfig.setType("saas");
+					} else {
+						targetConfig.setType("onprem");
+					}
+					isCreatedorUpdated = configManagementDao.saveTarget(targetConfig);
+					configManagementDao.createApigeeTarget(targetConfig, user);
+				} else if ("Cache".equalsIgnoreCase(serviceRequest.getType())) {
+					CacheConfig cacheConfig = new CacheConfig();
+					cacheConfig.setCreatedDate(Instant.now().toString());
+					cacheConfig.setCreatedUser(serviceRequest.getCreatedUser());
+					cacheConfig.setModifiedDate(Instant.now().toString());
+					cacheConfig.setModifiedUser(serviceRequest.getModifiedUser());
+					cacheConfig.setOrg(serviceRequest.getOrg());
+					cacheConfig.setEnv(serviceRequest.getEnv());
+					cacheConfig.setDescription(serviceRequest.getDescription());
+					cacheConfig.setExpiryDate(serviceRequest.getExpiryDate());
+					cacheConfig.setOverflowToDisk(serviceRequest.isOverflowToDisk());
+					cacheConfig.setName(serviceRequest.getName());
+					cacheConfig.setSkipCacheIfElementSizeInKBExceeds(
+							serviceRequest.getSkipCacheIfElementSizeInKBExceeds());
+					cacheConfig.setValuesNull(serviceRequest.isValuesNull());
+					cacheConfig.setTimeOfDay(serviceRequest.getTimeOfDay());
+					cacheConfig.setTimeoutInSec(serviceRequest.getTimeoutInSec());
+					cacheConfig.setActiveFlag(Boolean.TRUE);
+					if (serviceRequest.getIsSaaS()) {
+						cacheConfig.setType("saas");
+					} else {
+						cacheConfig.setType("onprem");
+					}
+					isCreatedorUpdated = configManagementDao.saveCache(cacheConfig);
+					configManagementDao.createApigeeCache(cacheConfig, user);
+				} else if ("KVM".equalsIgnoreCase(serviceRequest.getType())) {
+					KVMConfig kvmconfig = new KVMConfig();
+					kvmconfig.setCreatedDate(Instant.now().toString());
+					kvmconfig.setCreatedUser(serviceRequest.getCreatedUser());
+					kvmconfig.setModifiedDate(Instant.now().toString());
+					kvmconfig.setModifiedUser(serviceRequest.getModifiedUser());
+					kvmconfig.setOrg(serviceRequest.getOrg());
+					kvmconfig.setEnv(serviceRequest.getEnv());
+					kvmconfig.setName(serviceRequest.getName());
+					kvmconfig.setEntry(serviceRequest.getEntry());
+					kvmconfig.setActiveFlag(Boolean.TRUE);
+					if (serviceRequest.getIsSaaS()) {
+						kvmconfig.setType("saas");
+					} else {
+						kvmconfig.setType("onprem");
+					}
+					isCreatedorUpdated = configManagementDao.saveKVM(kvmconfig);
+					configManagementDao.createApigeeKVM(kvmconfig, user);
+				} else if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
+					ProductConfig productconfig = new ProductConfig();
+					productconfig.setModifiedDate(Instant.now().toString());
+					productconfig.setModifiedUser(serviceRequest.getModifiedUser());
+					productconfig.setOrg(serviceRequest.getOrg());
+					productconfig.setName(serviceRequest.getName());
+					productconfig.setApiResources(serviceRequest.getApiResources());
+					productconfig.setApprovalType(serviceRequest.getApprovalType());
+					productconfig.setAttributes(serviceRequest.getAttributes());
+					productconfig.setCreatedDate(Instant.now().toString());
+					productconfig.setCreatedUser(serviceRequest.getCreatedUser());
+					productconfig.setDescription(serviceRequest.getDescription());
+					productconfig.setDisplayName(serviceRequest.getDisplayName());
+					productconfig.setEnvironments(serviceRequest.getEnvironments());
+					productconfig.setProxies(serviceRequest.getProxies());
+					productconfig.setQuota(serviceRequest.getQuota());
+					productconfig.setQuotaInterval(serviceRequest.getQuotaInterval());
+					productconfig.setQuotaTimeUnit(serviceRequest.getQuotaTimeUnit());
+					productconfig.setScopes(serviceRequest.getScopes());
+					productconfig.setActiveFlag(Boolean.TRUE);
+					if (serviceRequest.getIsSaaS()) {
+						productconfig.setType("saas");
+					} else {
+						productconfig.setType("onprem");
+					}
+					isCreatedorUpdated = configManagementDao.saveProduct(productconfig);
+					configManagementDao.createApigeeProduct(productconfig, user);
+				}
+				serviceRequest.setCreated(true);
+				serviceRequest.setStatus("Approved");
+				serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
+				sendEmailTo(serviceRequest);
+//				if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
+//					query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("name")
+//							.is(config.getName()).and("type").is(serviceRequest.getType()).and("isSaaS")
+//							.is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
+//				} else {
+//					query = new Query(
+//							Criteria.where("org").is(serviceRequest.getOrg()).and("env").is(serviceRequest.getEnv())
+//							.and("name").is(config.getName()).and("type").is(serviceRequest.getType())
+//							.and("isSaaS").is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
+//				}
+				// DBObject dbDoc = new BasicDBObject();
+				// mongoTemplate.getConverter().write(serviceRequest,
+				// dbDoc);
+				// Update update = Update.fromDBObject(dbDoc, "_id");
+				// WriteResult result = mongoTemplate.updateFirst(query,
+				// update,
+				// ServiceRequest.class);
+				// return result.isUpdateOfExisting();
+				query = new Query(
+						Criteria.where("_id").is(serviceRequest.get_id()));
+				Document dbDoc = new Document();
+				mongoTemplate.getConverter().write(serviceRequest, dbDoc);
+				Update update = Update.fromDocument(dbDoc, "_id");
+				UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
+				return result.isModifiedCountAvailable();
 			}
-//		} else {
-//			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1029"), "Configuration-1029");
-//		}
+
+		} else if (config.getStatus().equalsIgnoreCase("Change Required")) {
+			if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
+				query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("name").is(config.getName())
+						.and("type").is(serviceRequest.getType()).and("isSaaS").is(config.getIsSaaS())
+						.and("activeFlag").is(Boolean.TRUE));
+			} else {
+				query = new Query(
+						Criteria.where("org").is(serviceRequest.getOrg()).and("env").is(serviceRequest.getEnv())
+						.and("name").is(config.getName()).and("type").is(serviceRequest.getType())
+						.and("isSaaS").is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
+			}
+			serviceRequest.setStatus("Change Required");
+			serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
+			sendEmailTo(serviceRequest);
+			// DBObject dbDoc = new BasicDBObject();
+			// mongoTemplate.getConverter().write(serviceRequest, dbDoc);
+			// Update update = Update.fromDBObject(dbDoc, "_id");
+
+			Document dbDoc = new Document();
+			mongoTemplate.getConverter().write(serviceRequest, dbDoc);
+			Update update = Update.fromDocument(dbDoc, "_id");
+			UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
+			return result.isModifiedCountAvailable();
+		} else {
+			if ((!config.getStatus().equalsIgnoreCase("Change Required")
+					|| config.getStatus().equalsIgnoreCase("Approved")))
+				throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1030"), "Configuration-1030");
+
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1031"), "Configuration-1031");
+		}
+
 	}
 
 	public void createLogHistory(ServiceRequestComments serviceRequestComments) {
@@ -831,7 +845,7 @@ public class ServiceRequestDao {
 				Query query = new Query();
 				query.addCriteria(
 						Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(DateUtil.getStartOfDay(startDate))
-								.lt(DateUtil.getEndOfDay(startDate)).and("type").is(type));
+						.lt(DateUtil.getEndOfDay(startDate)).and("type").is(type));
 				List<ServiceRequest> list = baseRepository.find(query, ServiceRequest.class);
 				// if(list!=null && list.size()>0){
 				ObjectNode valueNode = mapper.createObjectNode();
