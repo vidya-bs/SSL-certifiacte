@@ -51,6 +51,21 @@ public class ConsentServerDao {
 
             if(columns.size() > 0 ) {
                 performMandatoryFieldValidation(consent, columns);
+
+                List<ScopeCategoryColumnEntry> fieldsWithEnums = columns.get(0).getColumns().stream().filter(c -> c.getEnums() != null && !c.getEnums().isEmpty()).collect(Collectors.toList());
+                if(!fieldsWithEnums.isEmpty()) {
+                    for(ScopeCategoryColumnEntry categoryColumnEntry : fieldsWithEnums) {
+                        String fieldValue = consent.getConsent().get(categoryColumnEntry.getName());
+                        if(fieldValue != null) {
+                            List<String> enums = categoryColumnEntry.getEnums();
+                            if(!enums.contains(fieldValue)) {
+                                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Consent-004"), fieldValue, enums), "Consent-004");
+                            }
+                        }
+                    }
+
+                }
+
             }
 
             mongoTemplate.save(consent);
