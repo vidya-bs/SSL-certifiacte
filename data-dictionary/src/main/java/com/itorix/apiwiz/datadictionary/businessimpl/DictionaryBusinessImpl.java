@@ -51,9 +51,9 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 
 	public PortfolioVO createPortfolio(PortfolioVO portfolioVO) {
 		log("createPortfolio", portfolioVO.getInteractionid(), portfolioVO);
-		if(null == portfolioVO.getDictionaryId())
+		if (null == portfolioVO.getDictionaryId())
 			portfolioVO.setDictionaryId(new ObjectId().toString());
-//		portfolioVO.setRevision(1);
+		// portfolioVO.setRevision(1);
 		PortfolioVO vo = baseRepository.save(portfolioVO);
 		log("createPortfolio", portfolioVO.getInteractionid(), vo);
 		return vo;
@@ -63,8 +63,8 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		log("createPortfolio", portfolioVO.getInteractionid(), portfolioVO);
 		PortfolioVO vo = baseRepository.save(portfolioVO);
 		List<PortfolioModel> models = findPortfolioModelsByportfolioID(id);
-		if(models != null){
-			for(PortfolioModel model: models){
+		if (models != null) {
+			for (PortfolioModel model : models) {
 				model.setPortfolioID(vo.getId());
 				model.setMts(System.currentTimeMillis());
 				createPortfolioModel(model);
@@ -252,22 +252,22 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		return portfolio;
 	}
 
-	public Integer getMaxRevision(String id){
+	public Integer getMaxRevision(String id) {
 		Query query = new Query(Criteria.where("dictionaryId").is(id)).with(Sort.by(Direction.DESC, "revision"))
 				.limit(1);
 		PortfolioVO portfolio = mongoTemplate.findOne(query, PortfolioVO.class);
-		if(portfolio != null)
+		if (portfolio != null)
 			return portfolio.getRevision();
 		return null;
 	}
 
-	public List<Revision> getRevisions(String id){
+	public List<Revision> getRevisions(String id) {
 		Query query = new Query(Criteria.where("dictionaryId").is(id));
 		List<PortfolioVO> portfolioList = mongoTemplate.find(query, PortfolioVO.class);
-		if(portfolioList != null){
+		if (portfolioList != null) {
 			List<Revision> revisions = new ArrayList<>();
-			for(PortfolioVO portfolio : portfolioList){
-				Revision revision  = new Revision();
+			for (PortfolioVO portfolio : portfolioList) {
+				Revision revision = new Revision();
 				revision.setRevision(portfolio.getRevision());
 				revision.setStatus(portfolio.getStatus());
 				revisions.add(revision);
@@ -278,7 +278,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 	}
 
 	@Override
-	public PortfolioVO createPortfolioRevision(String id, Integer revision){
+	public PortfolioVO createPortfolioRevision(String id, Integer revision) {
 		return null;
 	}
 }

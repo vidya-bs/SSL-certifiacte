@@ -16,7 +16,7 @@ public class TestsuiteEnvironment {
 
 	@JsonProperty("id")
 	String id;
-	
+
 	@JsonProperty("name")
 	String name;
 }

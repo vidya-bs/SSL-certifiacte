@@ -7,9 +7,9 @@ import lombok.Setter;
 @Setter
 public class Video {
 
-    private String name;
-    private String summary;
-    private String category;
-    private String url;
+	private String name;
+	private String summary;
+	private String category;
+	private String url;
 
 }

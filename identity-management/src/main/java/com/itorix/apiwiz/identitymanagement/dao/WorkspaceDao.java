@@ -52,6 +52,7 @@ public class WorkspaceDao {
 	@Value("${itorix.core.hmac.password}")
 	private String password;
 
+
 	public Workspace updateWorkspaceSubscription(Workspace workspace) throws ItorixException, InvalidKeyException,
 			NoSuchAlgorithmException, UnsupportedEncodingException, JsonMappingException, JsonProcessingException {
 		Workspace dBworkspace = getWorkspace(workspace.getName());
@@ -204,25 +205,33 @@ public class WorkspaceDao {
 	public String getPublicKey(String tenant, String source) throws ItorixException {
 		Query query = Query.query(Criteria.where("tenant").is(tenant).and("source").is(source));
 		TenantPublicKey key = masterMongoTemplate.findOne(query, TenantPublicKey.class);
-		if(key != null) {
+		if (key != null) {
 			return key.getKey();
 		}
 		throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1002"), "Identity-1002");
-//
-//		String key = "-----BEGIN PUBLIC KEY-----\r\n"
-//				+ "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyM7Y0lRFgJqVtju1Ma/o\r\n"
-//				+ "n/yA0FeR9W9kq249436kKZagIJqZRJ/eS2A/J0+M5VdDg43NWZ4Q7+DmszgXQTfd\r\n"
-//				+ "pH+1wpOGY8taHhAtNrBn2cWVtbLh/iF7PDiPnmilodLycKP0oVpp4VpZTLHNReCR\r\n"
-//				+ "JgjtpqDQoaQJkhtFYcPgrCO+owBSUYMszcv9OZBhZH64f897nQLwDHJ3nFY9MHUt\r\n"
-//				+ "7jbV1FhGaRGDxnIRL20SaYkwgoV9s4b5l7RH91AxAbHjZjRvNXrgWuZ2X60ILraa\r\n"
-//				+ "luBrltMW/bXvCcDF1NaZ0PMpQThrskK+JtvVzexzHUtulsL8XDvUZotmsXPqVPvX\r\n" + "AwIDAQAB\r\n"
-//				+ "-----END PUBLIC KEY-----";
-//		return key;
+		//
+		// String key = "-----BEGIN PUBLIC KEY-----\r\n"
+		// +
+		// "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyM7Y0lRFgJqVtju1Ma/o\r\n"
+		// +
+		// "n/yA0FeR9W9kq249436kKZagIJqZRJ/eS2A/J0+M5VdDg43NWZ4Q7+DmszgXQTfd\r\n"
+		// +
+		// "pH+1wpOGY8taHhAtNrBn2cWVtbLh/iF7PDiPnmilodLycKP0oVpp4VpZTLHNReCR\r\n"
+		// +
+		// "JgjtpqDQoaQJkhtFYcPgrCO+owBSUYMszcv9OZBhZH64f897nQLwDHJ3nFY9MHUt\r\n"
+		// +
+		// "7jbV1FhGaRGDxnIRL20SaYkwgoV9s4b5l7RH91AxAbHjZjRvNXrgWuZ2X60ILraa\r\n"
+		// +
+		// "luBrltMW/bXvCcDF1NaZ0PMpQThrskK+JtvVzexzHUtulsL8XDvUZotmsXPqVPvX\r\n"
+		// + "AwIDAQAB\r\n"
+		// + "-----END PUBLIC KEY-----";
+		// return key;
 	}
 
 	public void disableSso(String workspaceName) {
 		Query query = Query.query(Criteria.where("_id").is(workspaceName));
-		UpdateResult updateResult = masterMongoTemplate.updateFirst(query, Update.update("ssoEnabled", false), Workspace.class);
+		UpdateResult updateResult = masterMongoTemplate.updateFirst(query, Update.update("ssoEnabled", false),
+				Workspace.class);
 	}
 
 	public void updatePublicKey(String tenant, String source, String key) {
@@ -233,34 +242,36 @@ public class WorkspaceDao {
 	}
 
 	public Object getVideos(String category) throws JsonProcessingException {
-		if(category != null) {
+		if (category != null) {
 			Query query = Query.query(Criteria.where("key").is("videos"));
 			MetaData metadata = masterMongoTemplate.findOne(query, MetaData.class);
-			if(metadata != null) {
+			if (metadata != null) {
 				ObjectMapper objectMapper = new ObjectMapper();
 				TypeFactory typeFactory = objectMapper.getTypeFactory();
-				List<Video> videos = objectMapper.readValue(metadata.getMetadata(), typeFactory.constructCollectionType(List.class, Video.class));
-				return videos.stream().filter( v -> v.getCategory().equals(category)).collect(Collectors.toList());
+				List<Video> videos = objectMapper.readValue(metadata.getMetadata(),
+						typeFactory.constructCollectionType(List.class, Video.class));
+				return videos.stream().filter(v -> v.getCategory().equals(category)).collect(Collectors.toList());
 			}
 		} else {
-			MetaData metadata = masterMongoTemplate.findOne(Query.query(Criteria.where("key").is("videos")), MetaData.class);
-			if(metadata != null ) {
+			MetaData metadata = masterMongoTemplate.findOne(Query.query(Criteria.where("key").is("videos")),
+					MetaData.class);
+			if (metadata != null) {
 				return metadata.getMetadata();
 			}
 		}
 		return null;
 	}
 
-    public String getIdpMetadata(String workspaceId) {
+	public String getIdpMetadata(String workspaceId) {
 		SAMLConfig samlConfig = getSamlConfig(workspaceId);
 		return samlConfig == null ? null : new String(samlConfig.getMetadata());
 	}
 
-
 	public SAMLConfig getSamlConfig(String workspaceId) {
 		UIMetadata uiuxMetadata = getUIUXMetadata(UIMetadata.SAML_CONFIG, workspaceId);
 		try {
-			return uiuxMetadata == null ? null
+			return uiuxMetadata == null
+					? null
 					: new ObjectMapper().readValue(uiuxMetadata.getMetadata(), SAMLConfig.class);
 		} catch (IOException e) {
 			return null;
@@ -272,8 +283,7 @@ public class WorkspaceDao {
 		List<UIMetadata> UIMetadata = masterMongoTemplate.find(dbQuery, UIMetadata.class);
 		if (UIMetadata != null && UIMetadata.size() > 0) {
 			return UIMetadata.get(0);
-		}
-		else {
+		} else {
 			return null;
 		}
 	}

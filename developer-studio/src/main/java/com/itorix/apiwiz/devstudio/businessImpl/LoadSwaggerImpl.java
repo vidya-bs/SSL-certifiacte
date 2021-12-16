@@ -209,18 +209,20 @@ public class LoadSwaggerImpl implements LoadSwagger {
 								flow.setTargetBasepath(targetBasepath);
 							} catch (Exception ex) {
 							}
-							
+
 							try {
-								net.sf.json.JSONArray proxyMetadataList = (net.sf.json.JSONArray)js.get("x-gw-metadata");
-								if(null != proxyMetadataList){
-									List<ProxyMetadata> metadata = new ArrayList<>(); 
+								net.sf.json.JSONArray proxyMetadataList = (net.sf.json.JSONArray) js
+										.get("x-gw-metadata");
+								if (null != proxyMetadataList) {
+									List<ProxyMetadata> metadata = new ArrayList<>();
 									for (Object key : proxyMetadataList) {
 										try {
 											ProxyMetadata metadataItem = new ProxyMetadata();
 											net.sf.json.JSONObject jsonItem = (net.sf.json.JSONObject) key;
 											Set<String> keySet = jsonItem.keySet();
 											String keyStr = keySet.stream().findFirst().get();
-											net.sf.json.JSONArray element = (net.sf.json.JSONArray)jsonItem.get(keyStr);
+											net.sf.json.JSONArray element = (net.sf.json.JSONArray) jsonItem
+													.get(keyStr);
 											metadataItem.setName(keyStr);
 											metadataItem.setValue(element.stream().findFirst().get().toString());
 											metadata.add(metadataItem);
@@ -231,11 +233,10 @@ public class LoadSwaggerImpl implements LoadSwagger {
 								}
 							} catch (Exception ex) {
 							}
-							
-							
+
 						} catch (Exception e) {
 						}
-						
+
 						if (flow.getPath() != null && flow.getVerb() != null)
 							if (!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 								flowList.add(flow);

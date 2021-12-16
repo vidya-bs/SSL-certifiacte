@@ -3,7 +3,7 @@ package com.itorix.apiwiz.common.model.proxystudio;
 public class ProxyMetadata {
 	private String name;
 	private String value;
-	
+
 	public String getName() {
 		return name;
 	}

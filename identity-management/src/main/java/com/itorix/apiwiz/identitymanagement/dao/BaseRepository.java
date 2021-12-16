@@ -152,9 +152,9 @@ public class BaseRepository {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> List<String> findDistinctValuesByColumnName(Class<T> clazz, String columName) {
+	public <T> List<String> findDistinctValuesByColumnName(Class<T> clazz, String columnName) {
 		return getList(
-				mongoTemplate.getCollection(mongoTemplate.getCollectionName(clazz)).distinct(columName, String.class));
+				mongoTemplate.getCollection(mongoTemplate.getCollectionName(clazz)).distinct(columnName, String.class));
 	}
 
 	@SuppressWarnings("unchecked")

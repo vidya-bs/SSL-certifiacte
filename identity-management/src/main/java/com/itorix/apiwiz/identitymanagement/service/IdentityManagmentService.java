@@ -19,7 +19,7 @@ import java.util.Map;
 
 @CrossOrigin
 @RestController
-	public interface IdentityManagmentService {
+public interface IdentityManagmentService {
 
 	@ApiOperation(value = "userLogin", notes = "", code = 200, response = UserSession.class)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Login Sucessful", response = UserSession.class),
@@ -435,8 +435,7 @@ import java.util.Map;
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-apikey", required = false) String apikey,
-			@RequestHeader(value = "x-source") String source,
-			@RequestHeader(value = "x-tenant") String tenant,
+			@RequestHeader(value = "x-source") String source, @RequestHeader(value = "x-tenant") String tenant,
 			@RequestBody(required = true) String key) throws Exception;
 
 	@UnSecure(ignoreValidation = true)
@@ -470,8 +469,7 @@ import java.util.Map;
 
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/itorix-resources/videos/category")
-	public @ResponseBody ResponseEntity<Object> createVideoCategories(
-			@RequestBody String data) throws Exception;
+	public @ResponseBody ResponseEntity<Object> createVideoCategories(@RequestBody String data) throws Exception;
 
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/itorix-resources/videos/category")
@@ -479,15 +477,18 @@ import java.util.Map;
 
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/itorix-resources/videos")
-	public @ResponseBody ResponseEntity<Object> createVideos(
-			@RequestBody String data) throws Exception;
+	public @ResponseBody ResponseEntity<Object> createVideos(@RequestBody String data) throws Exception;
 
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/itorix-resources/videos")
-	public @ResponseBody ResponseEntity<Object> getVideos(@RequestParam(required = false)String category) throws Exception;
+	public @ResponseBody ResponseEntity<Object> getVideos(@RequestParam(required = false) String category)
+			throws Exception;
 
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/saml/idpMetadata/{workspaceId}")
-	public @ResponseBody ResponseEntity<Object> getIdpMetadata(@PathVariable(required = true ) String workspaceId) throws Exception;
+	public @ResponseBody ResponseEntity<Object> getIdpMetadata(@PathVariable(required = true) String workspaceId)
+			throws Exception;
+
+
 
 }

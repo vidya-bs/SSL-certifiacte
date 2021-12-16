@@ -1,16 +1,33 @@
 package com.itorix.apiwiz.portfolio.dao;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
+import com.amazonaws.regions.Regions;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.itorix.apiwiz.common.model.SearchItem;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
+import com.itorix.apiwiz.common.model.projectmanagement.Organization;
+import com.itorix.apiwiz.common.model.projectmanagement.ProjectProxyResponse;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyPortfolio;
+import com.itorix.apiwiz.common.model.proxystudio.Scm;
+import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
+import com.itorix.apiwiz.common.util.s3.S3Connection;
+import com.itorix.apiwiz.common.util.s3.S3Utils;
+import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
+import com.itorix.apiwiz.identitymanagement.model.Pagination;
+import com.itorix.apiwiz.identitymanagement.model.User;
+import com.itorix.apiwiz.identitymanagement.model.UserSession;
+import com.itorix.apiwiz.portfolio.model.PipelineResponse;
+import com.itorix.apiwiz.portfolio.model.PortfolioRequest;
+import com.itorix.apiwiz.portfolio.model.PromoteProxyRequest;
+import com.itorix.apiwiz.portfolio.model.db.*;
+import com.itorix.apiwiz.portfolio.model.db.proxy.DesignArtifacts;
+import com.itorix.apiwiz.portfolio.model.db.proxy.Pipelines;
+import com.itorix.apiwiz.portfolio.model.db.proxy.Proxies;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
 import org.springframework.beans.BeanUtils;
@@ -32,44 +49,16 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import com.amazonaws.regions.Regions;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.itorix.apiwiz.common.model.SearchItem;
-import com.itorix.apiwiz.common.model.exception.ErrorCodes;
-import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.model.integrations.Integration;
-import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
-import com.itorix.apiwiz.common.model.projectmanagement.Organization;
-import com.itorix.apiwiz.common.model.projectmanagement.ProjectProxyResponse;
-import com.itorix.apiwiz.common.model.proxystudio.ProxyPortfolio;
-import com.itorix.apiwiz.common.model.proxystudio.Scm;
-import com.itorix.apiwiz.common.properties.ApplicationProperties;
-import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
-import com.itorix.apiwiz.common.util.s3.S3Connection;
-import com.itorix.apiwiz.common.util.s3.S3Utils;
-import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
-import com.itorix.apiwiz.identitymanagement.model.Pagination;
-import com.itorix.apiwiz.identitymanagement.model.User;
-import com.itorix.apiwiz.identitymanagement.model.UserSession;
-import com.itorix.apiwiz.portfolio.model.PipelineResponse;
-import com.itorix.apiwiz.portfolio.model.PortfolioRequest;
-import com.itorix.apiwiz.portfolio.model.PromoteProxyRequest;
-import com.itorix.apiwiz.portfolio.model.db.Metadata;
-import com.itorix.apiwiz.portfolio.model.db.Portfolio;
-import com.itorix.apiwiz.portfolio.model.db.PortfolioDocument;
-import com.itorix.apiwiz.portfolio.model.db.PortfolioResponse;
-import com.itorix.apiwiz.portfolio.model.db.ProductRequest;
-import com.itorix.apiwiz.portfolio.model.db.ProductServices;
-import com.itorix.apiwiz.portfolio.model.db.Products;
-import com.itorix.apiwiz.portfolio.model.db.Projects;
-import com.itorix.apiwiz.portfolio.model.db.ServiceRegistry;
-import com.itorix.apiwiz.portfolio.model.db.proxy.DesignArtifacts;
-import com.itorix.apiwiz.portfolio.model.db.proxy.Pipelines;
-import com.itorix.apiwiz.portfolio.model.db.proxy.Proxies;
-
-import lombok.extern.slf4j.Slf4j;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -196,15 +185,13 @@ public class PortfolioDao {
 		}
 		return document.getId();
 	}
-	
+
 	public void updatePortfolioDocument(String portfolioId, String documentId, PortfolioDocument portfolioDocument,
 			String jsessionid, Integer revision) throws ItorixException {
 
 		Query query = new Query(new Criteria().andOperator(Criteria.where("id").is(portfolioId),
-				Criteria.where("document").elemMatch(
-						Criteria.where("documentId").is(documentId)
-						.andOperator(Criteria.where("revision").is(revision))
-						)));
+				Criteria.where("document").elemMatch(Criteria.where("documentId").is(documentId)
+						.andOperator(Criteria.where("revision").is(revision)))));
 		Update update = new Update();
 		boolean objectUpdate = false;
 		if (StringUtils.hasText(portfolioDocument.getDocumentSummary())) {
@@ -228,9 +215,9 @@ public class PortfolioDao {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1006"), "Portfolio-1006");
 		}
 	}
-	
+
 	public void updatePortfolioDocument(String portfolioId, String documentId, PortfolioDocument portfolioDocument,
-			Integer revision ,String jsessionid) throws ItorixException {
+			Integer revision, String jsessionid) throws ItorixException {
 
 		Query query = new Query(new Criteria().andOperator(Criteria.where("id").is(portfolioId),
 				Criteria.where("document").elemMatch(Criteria.where("documentId").is(documentId))));
@@ -284,10 +271,10 @@ public class PortfolioDao {
 		update.set("description", portfolioRequest.getDescription());
 		update.set("owner", portfolioRequest.getOwner());
 		update.set("ownerEmail", portfolioRequest.getOwnerEmail());
-		if(null!=portfolioRequest.getTestsuites())
-		update.set("testsuites", portfolioRequest.getTestsuites());
-		if(null!=portfolioRequest.getTestsuiteEnvironments())
-		update.set("testsuiteEnvironments", portfolioRequest.getTestsuiteEnvironments());
+		if (null != portfolioRequest.getTestsuites())
+			update.set("testsuites", portfolioRequest.getTestsuites());
+		if (null != portfolioRequest.getTestsuiteEnvironments())
+			update.set("testsuiteEnvironments", portfolioRequest.getTestsuiteEnvironments());
 
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
 		update.set("mts", System.currentTimeMillis());
@@ -334,7 +321,8 @@ public class PortfolioDao {
 			Query query = new Query().addCriteria(Criteria.where("id").is(portfolioId));
 			query.fields().include("name").include("summary").include("description").include("portfolioImage")
 					.include("owner").include("ownerEmail").include("teams").include("metadata").include("cts")
-					.include("createdBy").include("modifiedBy").include("mts").include("testsuites").include("testsuiteEnvironments");
+					.include("createdBy").include("modifiedBy").include("mts").include("testsuites")
+					.include("testsuiteEnvironments");
 			List<Portfolio> portfolios = mongoTemplate.find(query, Portfolio.class);
 			if (!CollectionUtils.isEmpty(portfolios)) {
 				portfolio = portfolios.get(0);
@@ -407,7 +395,7 @@ public class PortfolioDao {
 		}
 		return find.get(0).getDocument();
 	}
-	
+
 	public List<PortfolioDocument> getPortfolioDocumentSummary(String portfolioId) throws ItorixException {
 		Query query = new Query().addCriteria(Criteria.where("id").is(portfolioId));
 		query.fields().include("document");
@@ -415,33 +403,36 @@ public class PortfolioDao {
 		if (CollectionUtils.isEmpty(find)) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
 		}
-		List<PortfolioDocument> summaryList  = new ArrayList<>();
-		try{
+		List<PortfolioDocument> summaryList = new ArrayList<>();
+		try {
 			List<PortfolioDocument> documents = find.get(0).getDocument();
-			List<PortfolioDocument> uniqueValues = documents.stream().filter(distinctByKey(PortfolioDocument::getDocumentId)).collect(Collectors.toList());
-			for(PortfolioDocument document : uniqueValues){
-				List<PortfolioDocument> revList  = new ArrayList<>();
+			List<PortfolioDocument> uniqueValues = documents.stream()
+					.filter(distinctByKey(PortfolioDocument::getDocumentId)).collect(Collectors.toList());
+			for (PortfolioDocument document : uniqueValues) {
+				List<PortfolioDocument> revList = new ArrayList<>();
 				revList = getPortfolioDocumentRevisions(documents, document.getDocumentId());
 				PortfolioDocument portfolioDocument = new PortfolioDocument();
 				portfolioDocument.setDocumentName(document.getDocumentName());
 				portfolioDocument.setRevisions(revList);
 				summaryList.add(portfolioDocument);
 			}
-		}catch(Exception e){}
+		} catch (Exception e) {
+		}
 		return summaryList;
 	}
-	
+
 	public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-	    Set<Object> seen = ConcurrentHashMap.newKeySet();
-	    return t -> seen.add(keyExtractor.apply(t));
+		Set<Object> seen = ConcurrentHashMap.newKeySet();
+		return t -> seen.add(keyExtractor.apply(t));
 	}
-	
-	public List<PortfolioDocument> getPortfolioDocumentRevisions(List<PortfolioDocument> documents, String documentId) throws ItorixException {
-		List<PortfolioDocument> doc = documents.stream().filter(d -> d.getDocumentId().equals(documentId)).collect(Collectors.toList());
+
+	public List<PortfolioDocument> getPortfolioDocumentRevisions(List<PortfolioDocument> documents, String documentId)
+			throws ItorixException {
+		List<PortfolioDocument> doc = documents.stream().filter(d -> d.getDocumentId().equals(documentId))
+				.collect(Collectors.toList());
 		return doc;
 	}
-	
-	
+
 	public Integer getPortfolioDocumentMaxRevision(String portfolioId, String documentId) throws ItorixException {
 		Query query = new Query().addCriteria(Criteria.where("id").is(portfolioId));
 		query.fields().include("document");
@@ -449,7 +440,8 @@ public class PortfolioDao {
 		if (CollectionUtils.isEmpty(find)) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
 		}
-		List<PortfolioDocument> documents = find.get(0).getDocument().stream().filter(d -> d.getDocumentId().equals(documentId)).collect(Collectors.toList());
+		List<PortfolioDocument> documents = find.get(0).getDocument().stream()
+				.filter(d -> d.getDocumentId().equals(documentId)).collect(Collectors.toList());
 		return documents.stream().mapToInt(PortfolioDocument::getRevision).max().getAsInt();
 	}
 
@@ -758,7 +750,9 @@ public class PortfolioDao {
 			String fileName, Integer revision) throws ItorixException {
 		String workspace = masterMongoTemplate.findById(jsessionid, UserSession.class).getWorkspaceId();
 		deleteFileJfrogFile("/" + workspace + "/portfolio/" + portfolioId + "/" + documentId);
-		return updateToJfrog(portfolioId + "/" + documentId + "/" + Integer.toString(revision) + "/" + fileName.replaceAll(" ", ""), bytes, jsessionid);
+		return updateToJfrog(
+				portfolioId + "/" + documentId + "/" + Integer.toString(revision) + "/" + fileName.replaceAll(" ", ""),
+				bytes, jsessionid);
 	}
 
 	private String updateToJfrog(String folderPath, byte[] bytes, String jsession) throws ItorixException {
