@@ -9,6 +9,8 @@ import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.identitymanagement.model.Workspace;
+import com.mongodb.client.DistinctIterable;
+import com.mongodb.client.MongoCursor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -239,6 +241,24 @@ public class ConsentManagementDao {
 			return key.getPublicKey();
 		}
 		throw new ItorixException(ErrorCodes.errorMessage.get("Consent-003"), "Consent-003");
+	}
+
+	public List<String> getScopeCategoryNames() {
+		return findDistinctValuesByColumnName(Consent.class, "consent.category");
+	}
+
+	public <T> List<String> findDistinctValuesByColumnName(Class<T> clazz, String columnName) {
+		return getList(
+				mongoTemplate.getCollection(mongoTemplate.getCollectionName(clazz)).distinct(columnName, String.class));
+	}
+
+	private List<String> getList(DistinctIterable<String> iterable) {
+		MongoCursor<String> cursor = iterable.iterator();
+		List<String> list = new ArrayList<>();
+		while (cursor.hasNext()) {
+			list.add(cursor.next());
+		}
+		return list;
 	}
 
 	public String getTenantId(){
