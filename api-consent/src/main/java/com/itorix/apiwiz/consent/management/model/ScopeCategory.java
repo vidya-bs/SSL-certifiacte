@@ -24,4 +24,9 @@ public class ScopeCategory {
 
 	private Long cts;
 	private Long mts;
+
+	private String createdUserName;
+	private String modifiedUserName;
+	private String createdBy;
+	private String modifiedBy;
 }

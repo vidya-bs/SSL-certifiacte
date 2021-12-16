@@ -12,6 +12,7 @@ public enum ErrorCodes {
             put("Consent-001", "Resource not found. No records found for selected Category name - %s.");
             put("Consent-002", "Resource not found. No records found for selected Consent Id - %s.");
             put("Consent-003", "Mandatory Consent Field {%s} is missing in the request");
+            put("Consent-004", "Incorrect consent field value {%s}. The allowed values are %s");
 
         }
     };
@@ -25,6 +26,7 @@ public enum ErrorCodes {
             put("Consent-001", 400);
             put("Consent-002", 400);
             put("Consent-003", 400);
+            put("Consent-004", 400);
         }
     };
     private String message;
