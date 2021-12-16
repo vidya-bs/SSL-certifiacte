@@ -51,6 +51,8 @@ public class ConsentServerDao {
 
             if(columns.size() > 0 ) {
                 performMandatoryFieldValidation(consent, columns);
+                performEnumValidation(consent, columns);
+
             }
 
             mongoTemplate.save(consent);
@@ -58,6 +60,22 @@ public class ConsentServerDao {
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Consent-001"), category), "Consent-001");
         }
 
+    }
+
+    private void performEnumValidation(Consent consent, List<ScopeCategoryColumns> columns) throws ItorixException {
+        List<ScopeCategoryColumnEntry> fieldsWithEnums = columns.get(0).getColumns().stream().filter(c -> c.getEnums() != null && !c.getEnums().isEmpty()).collect(Collectors.toList());
+        if(!fieldsWithEnums.isEmpty()) {
+            for(ScopeCategoryColumnEntry categoryColumnEntry : fieldsWithEnums) {
+                String fieldValue = consent.getConsent().get(categoryColumnEntry.getName());
+                if(fieldValue != null) {
+                    List<String> enums = categoryColumnEntry.getEnums();
+                    if(!enums.contains(fieldValue)) {
+                        throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Consent-004"), fieldValue, enums), "Consent-004");
+                    }
+                }
+            }
+
+        }
     }
 
     private void performMandatoryFieldValidation(Consent consent, List<ScopeCategoryColumns> columns) throws ItorixException {
@@ -169,7 +187,8 @@ public class ConsentServerDao {
         Update update = new Update();
         update.set("consent.status", ConsentStatus.Expired.name());
         update.set("mts", System.currentTimeMillis());
-        UpdateResult updateResult = mongoTemplate.updateMulti(Query.query(Criteria.where("expiry").lte(currentTimeMillis)), update, Consent.class);
+        Query query = Query.query(Criteria.where("expiry").lte(currentTimeMillis).and("consent.status").is(ConsentStatus.Active.name()));
+        UpdateResult updateResult = mongoTemplate.updateMulti(query, update, Consent.class);
 
         String dbName = mongoTemplate.getDb().getName();
         if(updateResult != null && updateResult.getModifiedCount() > 0) {
