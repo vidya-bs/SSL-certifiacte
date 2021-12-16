@@ -187,7 +187,8 @@ public class ConsentServerDao {
         Update update = new Update();
         update.set("consent.status", ConsentStatus.Expired.name());
         update.set("mts", System.currentTimeMillis());
-        UpdateResult updateResult = mongoTemplate.updateMulti(Query.query(Criteria.where("expiry").lte(currentTimeMillis)), update, Consent.class);
+        Query query = Query.query(Criteria.where("expiry").lte(currentTimeMillis).and("consent.status").is(ConsentStatus.Active.name()));
+        UpdateResult updateResult = mongoTemplate.updateMulti(query, update, Consent.class);
 
         String dbName = mongoTemplate.getDb().getName();
         if(updateResult != null && updateResult.getModifiedCount() > 0) {
