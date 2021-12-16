@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -44,11 +46,30 @@ public class ConsentServerDao {
             consent.setCts(currentTime);
             consent.setMts(currentTime);
             consent.setExpiry(expiryTimeInMillis);
+
+            List<ScopeCategoryColumns> columns = mongoTemplate.findAll(ScopeCategoryColumns.class);
+
+            if(columns.size() > 0 ) {
+                performMandatoryFieldValidation(consent, columns);
+            }
+
             mongoTemplate.save(consent);
         } else {
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Consent-001"), category), "Consent-001");
         }
 
+    }
+
+    private void performMandatoryFieldValidation(Consent consent, List<ScopeCategoryColumns> columns) throws ItorixException {
+        ScopeCategoryColumns scopeCategoryColumns = columns.get(0);
+        List<ScopeCategoryColumnEntry> mandatoryConsentsFields= scopeCategoryColumns.getColumns().stream().filter(c -> c.isMandatory()).collect(Collectors.toList());
+        Set<String> consentNames = consent.getConsent().keySet();
+        for (ScopeCategoryColumnEntry mandatoryConsentsField : mandatoryConsentsFields) {
+            String mandatoryField = mandatoryConsentsField.getName();
+            if(!consentNames.contains(mandatoryField)) {
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Consent-003"), mandatoryField), "Consent-003");
+            }
+        }
     }
 
     public Consent getConsentById(String consentId) {
