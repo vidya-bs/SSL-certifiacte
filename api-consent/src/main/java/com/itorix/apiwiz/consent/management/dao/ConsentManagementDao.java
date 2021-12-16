@@ -7,6 +7,7 @@ import com.itorix.apiwiz.consent.management.crypto.RSAKeyGenerator;
 import com.itorix.apiwiz.consent.management.model.*;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
+import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.identitymanagement.model.Workspace;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -46,9 +47,30 @@ public class ConsentManagementDao {
 		if (existingScopeCategory != null) {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ScopeCategory-001"), scopeCategory.getName()), "ScopeCategory-001");
 		}
+
+		populateAuditDetails(scopeCategory);
+
+		mongoTemplate.save(scopeCategory);
+
+	}
+
+	private void populateAuditDetails(ScopeCategory scopeCategory) {
+		String userId = null;
+		String username = null;
+		try {
+			UserSession userSession = UserSession.getCurrentSessionToken();
+			userId = userSession.getUserId();
+			username = userSession.getUsername();
+		} catch (Exception e) {
+		}
+
+		scopeCategory.setModifiedBy(userId);
+		scopeCategory.setModifiedUserName(username);
+		scopeCategory.setCreatedBy(userId);
+		scopeCategory.setCreatedUserName(username);
+
 		scopeCategory.setCts(System.currentTimeMillis());
 		scopeCategory.setMts(System.currentTimeMillis());
-		mongoTemplate.save(scopeCategory);
 	}
 
 	@SneakyThrows
@@ -58,6 +80,19 @@ public class ConsentManagementDao {
 		if (existingScopeCategory == null) {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ScopeCategory-002"), scopeCategory.getName()), "ScopeCategory-002");
 		}
+
+		String userId = null;
+		String username = null;
+		try {
+			UserSession userSession = UserSession.getCurrentSessionToken();
+			userId = userSession.getUserId();
+			username = userSession.getUsername();
+		} catch (Exception e) {
+
+		}
+
+		existingScopeCategory.setModifiedBy(userId);
+		existingScopeCategory.setModifiedUserName(username);
 
 		existingScopeCategory.setMts(System.currentTimeMillis());
 		existingScopeCategory.setDisplayName(scopeCategory.getDisplayName());
