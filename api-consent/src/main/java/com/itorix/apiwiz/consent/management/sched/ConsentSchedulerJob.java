@@ -1,6 +1,8 @@
 package com.itorix.apiwiz.consent.management.sched;
 
 
+import com.itorix.apiwiz.consent.management.dao.ConsentManagementDao;
+import com.itorix.apiwiz.identitymanagement.model.TenantContext;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
@@ -41,6 +43,9 @@ public class ConsentSchedulerJob implements Job {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private ConsentManagementDao consentManagementDao;
+
     private static final String CONSENT_EXPIRY_ENDPOINT = "/v1/consents/expire";
 
     private static final String API_KEY_NAME = "x-consent-apikey";
@@ -51,11 +56,18 @@ public class ConsentSchedulerJob implements Job {
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         try {
         JobDataMap jobDataMap = jobExecutionContext.getTrigger().getJobDataMap();
-        String tenantKey = jobDataMap.getString("tenantKey");
-        String publicKey = jobDataMap.getString("publicKey");
         String tenantId = jobDataMap.getString("tenantId");
 
         log.debug("Invoked Execute to expire consents for tenant {} ", tenantId);
+        TenantContext.setCurrentTenant(tenantId);
+        String publicKey = consentManagementDao.getConsentPublicKey();
+
+        if(publicKey == null || "".equals(publicKey)) {
+            log.warn("Public key isn't configured for tenant {}. Skipping consent expiry notification", tenantId);
+            return;
+        }
+
+        String tenantKey = consentManagementDao.getWorkspaceKey(tenantId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(TENANT_ID, tenantKey);
@@ -83,7 +95,7 @@ public class ConsentSchedulerJob implements Job {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(ENCRYPT_MODE, pub);
         String encryptedText = Base64.getEncoder().encodeToString(cipher.doFinal(msg.getBytes("UTF-8")));
-        log.debug("Encrypted text {}", encryptedText);
+        log.debug("Encrypted {}", encryptedText);
         return encryptedText;
     }
 
