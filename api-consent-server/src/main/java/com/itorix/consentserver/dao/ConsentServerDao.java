@@ -34,9 +34,17 @@ public class ConsentServerDao {
         return findDistinctValuesByColumnName(ScopeCategory.class, "_id");
     }
 
+    public ScopeCategory getScopeCategoryByName(String name) throws ItorixException {
+        ScopeCategory scopeCategory = mongoTemplate.findOne(Query.query(Criteria.where("name").is(name)), ScopeCategory.class);
+        if (scopeCategory == null) {
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Consent-001"), name), "Consent-001");
+        }
+        return scopeCategory;
+    }
+
 
     @SneakyThrows
-    public void createConsent(Consent consent) {
+    public String createConsent(Consent consent) {
         String category = consent.getConsent().get("category");
         Query query = Query.query(Criteria.where("_id").is(category));
         ScopeCategory scopeCategory = mongoTemplate.findOne(query, ScopeCategory.class);
@@ -46,20 +54,33 @@ public class ConsentServerDao {
             consent.setCts(currentTime);
             consent.setMts(currentTime);
             consent.setExpiry(expiryTimeInMillis);
-
+            consent.getConsent().put("status", ConsentStatus.Active.name());
             List<ScopeCategoryColumns> columns = mongoTemplate.findAll(ScopeCategoryColumns.class);
 
             if(columns.size() > 0 ) {
                 performMandatoryFieldValidation(consent, columns);
                 performEnumValidation(consent, columns);
-
+                performScopeValidation(consent, scopeCategory);
             }
 
-            mongoTemplate.save(consent);
+            Consent createdConsent = mongoTemplate.save(consent);
+            return createdConsent.getId();
         } else {
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Consent-001"), category), "Consent-001");
         }
 
+    }
+
+    private void performScopeValidation(Consent consent, ScopeCategory scopeCategory) throws ItorixException {
+        List<String> scopes = consent.getScopes();
+        Set<String> categoryScopes = scopeCategory.getScopes().stream().map(s -> s.getName()).collect(Collectors.toSet());
+
+        for (String s : scopes) {
+            if(!categoryScopes.contains(s)) {
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Consent-006"), scopeCategory.getName()), "Consent-006");
+            }
+
+        }
     }
 
     private void performEnumValidation(Consent consent, List<ScopeCategoryColumns> columns) throws ItorixException {
@@ -86,6 +107,11 @@ public class ConsentServerDao {
             String mandatoryField = mandatoryConsentsField.getName();
             if(!consentNames.contains(mandatoryField)) {
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Consent-003"), mandatoryField), "Consent-003");
+            } else {
+                String fieldValue = consent.getConsent().get(mandatoryConsentsField.getName());
+                if(fieldValue == null || "".equalsIgnoreCase(fieldValue)) {
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Consent-005"), mandatoryField), "Consent-005");
+                }
             }
         }
     }
@@ -105,10 +131,10 @@ public class ConsentServerDao {
     }
 
     @SneakyThrows
-    public ConsentStatus getConsentStatus(String consentId) {
+    public String getConsentStatus(String consentId) {
         Consent consent = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(consentId)), Consent.class);
         if (consent != null) {
-            return ConsentStatus.valueOf((consent.getConsent().get("status")));
+            return ConsentStatus.valueOf((consent.getConsent().get("status"))).name();
         }
         throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Consent-002"), consentId), "Consent-002");
     }
