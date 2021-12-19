@@ -1,16 +1,23 @@
 package com.itorix.apiwiz.test.executor;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.parsers.ParserConfigurationException;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
+import com.itorix.apiwiz.test.api.factory.APIFactory;
+import com.itorix.apiwiz.test.component.CancellationExecutor;
+import com.itorix.apiwiz.test.dao.TestSuitExecutorSQLDao;
+import com.itorix.apiwiz.test.dao.TestSuiteExecutorDao;
+import com.itorix.apiwiz.test.db.TestExecutorEntity;
+import com.itorix.apiwiz.test.executor.beans.*;
+import com.itorix.apiwiz.test.executor.model.TenantContext;
+import com.itorix.apiwiz.test.executor.validators.JsonValidator;
+import com.itorix.apiwiz.test.executor.validators.ResponseValidator;
+import com.itorix.apiwiz.test.executor.validators.XmlValidator;
+import com.itorix.apiwiz.test.logging.LoggerService;
+import com.itorix.apiwiz.test.util.MaskFieldUtil;
+import com.itorix.apiwiz.test.util.RSAEncryption;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -23,36 +30,15 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.xml.sax.SAXException;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
-import com.itorix.apiwiz.test.api.factory.APIFactory;
-import com.itorix.apiwiz.test.component.CancellationExecutor;
-import com.itorix.apiwiz.test.dao.TestSuitExecutorSQLDao;
-import com.itorix.apiwiz.test.dao.TestSuiteExecutorDao;
-import com.itorix.apiwiz.test.db.TestExecutorEntity;
-import com.itorix.apiwiz.test.executor.beans.ExecutionContext;
-import com.itorix.apiwiz.test.executor.beans.FormParam;
-import com.itorix.apiwiz.test.executor.beans.Header;
-import com.itorix.apiwiz.test.executor.beans.MaskFields;
-import com.itorix.apiwiz.test.executor.beans.QueryParam;
-import com.itorix.apiwiz.test.executor.beans.Response;
-import com.itorix.apiwiz.test.executor.beans.ResponseBodyValidation;
-import com.itorix.apiwiz.test.executor.beans.Scenario;
-import com.itorix.apiwiz.test.executor.beans.TestCase;
-import com.itorix.apiwiz.test.executor.beans.TestSuite;
-import com.itorix.apiwiz.test.executor.beans.TestSuiteResponse;
-import com.itorix.apiwiz.test.executor.beans.Variable;
-import com.itorix.apiwiz.test.executor.beans.Variables;
-import com.itorix.apiwiz.test.executor.model.TenantContext;
-import com.itorix.apiwiz.test.executor.validators.JsonValidator;
-import com.itorix.apiwiz.test.executor.validators.ResponseValidator;
-import com.itorix.apiwiz.test.executor.validators.XmlValidator;
-import com.itorix.apiwiz.test.logging.LoggerService;
-import com.itorix.apiwiz.test.util.MaskFieldUtil;
-import com.itorix.apiwiz.test.util.RSAEncryption;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 @Component
@@ -201,6 +187,7 @@ public class TestRunner {
                             logger.error("Error executing {} , {} ", testCase.getName(), ex);
                             testCase.setStatus("FAIL");
                             testCase.setMessage(ex.getMessage());
+                            computeHeaders(testCase.getRequest().getHeaders(), globalVars);
                             failedTests.put(testCase.getName(), true);
                         } finally {
                             testCase.setDuration(System.currentTimeMillis() - starttime);
@@ -530,20 +517,7 @@ public class TestRunner {
                     testStatus, skipAssertion, maskingFields);
             replaceResponseVariables(testCase.getResponse(), response, maskingFields);
             // masking request header parameters and response variables
-            maskingFields.getMaskingFields().forEach(s -> {
-                header.forEach(m -> {
-                    if (m.getValue().equals("{{" + s + "}}")) {
-                        m.setValue(MaskFieldUtil.getMaskedValue(globalVars.get(s)));
-                    }
-
-                    // testCase.getResponse().getVariables().forEach(v -> {
-                    // if (s.equals(v.getName())) {
-                    // v.setValue(MaskFieldUtil.getMaskedValue(v.getValue()));
-                    // }
-                    // });
-
-                });
-            });
+            computeMaskingFields(globalVars, maskingFields, header);
 
             // updating request header for isEncryptionFlag
             computeHeaders(header, encryptedVariables);
@@ -555,6 +529,23 @@ public class TestRunner {
             });
 
         }
+    }
+
+    private void computeMaskingFields(Map<String, String> globalVars, MaskFields maskingFields, List<Header> header) {
+        maskingFields.getMaskingFields().forEach(s -> {
+            header.forEach(m -> {
+                if (m.getValue().equals("{{" + s + "}}")) {
+                    m.setValue(MaskFieldUtil.getMaskedValue(globalVars.get(s)));
+                }
+
+                // testCase.getResponse().getVariables().forEach(v -> {
+                // if (s.equals(v.getName())) {
+                // v.setValue(MaskFieldUtil.getMaskedValue(v.getValue()));
+                // }
+                // });
+
+            });
+        });
     }
 
     private void fillMustacheInfo(Response response, Map<String, String> globalVars) {
