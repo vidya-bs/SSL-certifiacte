@@ -16,6 +16,9 @@ public interface ConsentService {
     @RequestMapping(method = RequestMethod.GET, value = "/v1/consents/scopes/category/names")
     public ResponseEntity<?> getScopeCategoryNames() throws ItorixException, ItorixException;
 
+    @RequestMapping(method = RequestMethod.GET, value = "/v1/consents/scopes")
+    public ResponseEntity<?> getScopeCategoryByName(@RequestParam(value = "category", required = true) String categoryName) throws ItorixException;
+
     // User Consents APIs
     @RequestMapping(method = RequestMethod.POST, value = "/v1/consents")
     public ResponseEntity<?> createConsent(@RequestBody Consent consent) throws ItorixException;
@@ -27,10 +30,10 @@ public interface ConsentService {
     @RequestMapping(method = RequestMethod.GET, value = "/v1/consents/{consentId}")
     public ResponseEntity<?> getConsentById(@PathVariable(value = "consentId", required = true) String consentId) throws ItorixException;
 
-    @RequestMapping(method = RequestMethod.PATCH, value = "/v1/consents/{consentId}")
+    @RequestMapping(method = RequestMethod.PATCH, value = "/v1/consents/{consentId}/status/revoke")
     public ResponseEntity<?> revokeConsent(@PathVariable(value = "consentId", required = true) String consentId) throws ItorixException;
 
-    @RequestMapping(method = RequestMethod.GET, value = "/v1/consents/status/{consentId}")
+    @RequestMapping(method = RequestMethod.GET, value = "/v1/consents/{consentId}/status")
     public ResponseEntity<?> getConsentStatus(@PathVariable(value = "consentId", required = true) String consentId) throws ItorixException;
 
     @RequestMapping(method = RequestMethod.PUT, value = "/v1/consents/{consentId}")

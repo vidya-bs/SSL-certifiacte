@@ -96,13 +96,12 @@ public class ConsentManagementServiceImpl implements ConsentManagementService {
 	@Override
 	public ResponseEntity<?> generateKeyPairs(String jsessionid) throws ItorixException {
 		String publicKey = consentManagementDao.generateKeyPairs();
-		consentScheduler.updateTrigger(consentManagementDao.getTenantId());
 		return new ResponseEntity<>(publicKey, HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseEntity<?> updateTrigger(String jsessionid) throws ItorixException {
-		consentScheduler.updateTrigger(consentManagementDao.getTenantId());
+		//consentScheduler.updateTrigger(consentManagementDao.getTenantId());
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

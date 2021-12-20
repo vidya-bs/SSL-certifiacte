@@ -1,12 +1,13 @@
 package com.itorix.consentserver.serviceimpl;
 
+import com.itorix.consentserver.dao.ConsentServerDao;
 import com.itorix.consentserver.model.Consent;
 import com.itorix.consentserver.model.ConsentResponse;
 import com.itorix.consentserver.model.ItorixException;
 import com.itorix.consentserver.service.ConsentService;
-import com.itorix.consentserver.dao.ConsentServerDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -31,11 +32,18 @@ public class ConsentServiceImpl implements ConsentService {
         return new ResponseEntity<>(consentServerDao.getScopeCategoryNames(), HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<?> getScopeCategoryByName(String categoryName) throws ItorixException {
+        return new ResponseEntity<>(consentServerDao.getScopeCategoryByName(categoryName), HttpStatus.OK);
+    }
+
 
     @Override
     public ResponseEntity<?> createConsent(Consent consent) throws ItorixException {
-        consentServerDao.createConsent(consent);
-        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        String consentId = consentServerDao.createConsent(consent);
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("consentId", consentId);
+        return new ResponseEntity<>(responseHeaders, HttpStatus.ACCEPTED);
     }
 
     @Override
