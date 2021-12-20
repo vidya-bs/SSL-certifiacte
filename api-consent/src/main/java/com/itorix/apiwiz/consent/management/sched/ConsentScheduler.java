@@ -2,7 +2,6 @@ package com.itorix.apiwiz.consent.management.sched;
 
 import com.itorix.apiwiz.consent.management.dao.ConsentManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.TenantContext;
-import com.itorix.apiwiz.identitymanagement.model.Workspace;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCursor;
@@ -11,9 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.impl.matchers.GroupMatcher.groupEquals;
@@ -38,28 +40,25 @@ public class ConsentScheduler {
         try (MongoClient mongoClient = new MongoClient(new MongoClientURI(mongoProperties.getUri()));) {
             MongoCursor<String> dbsCursor = mongoClient.listDatabaseNames().iterator();
             while (dbsCursor.hasNext()) {
-                String currentTenant = dbsCursor.next();
-                TenantContext.setCurrentTenant(currentTenant);
+                String tenantId = dbsCursor.next();
+                TenantContext.setCurrentTenant(tenantId);
                 Integer interval = consentManagementDao.getConsentExpirationInterval();
                 if(interval != null) {
-                    Workspace workspace = consentManagementDao.getWorkspace(currentTenant);
-                    String tenantKey = workspace.getKey();
-                    String tenantId = workspace.getTenant();
-                    String publicKey = consentManagementDao.getConsentPublicKey();
-                    JobDataMap jobDataMap = new JobDataMap();
-                    jobDataMap.put("tenantId", tenantId);
-                    jobDataMap.put("tenantKey", tenantKey);
-                    jobDataMap.put("publicKey", publicKey);
-
-                    JobDetail jobDetail = buildJobDetail(tenantId);
-                    Trigger trigger = buildJobTrigger(jobDetail, jobDataMap, interval);
-                    log.debug("Successfully created JobData {} {} ", tenantId, publicKey);
-                    scheduler.scheduleJob(jobDetail, trigger);
+                    scheduleTrigger(tenantId, interval);
                 }
             }
         }
         log.debug("Successfully defined Triggers for the tenants {} ", scheduler.getTriggerKeys(groupEquals(CONSENT_GROUP)));
 
+    }
+
+    private void scheduleTrigger(String tenantId, Integer interval) throws SchedulerException {
+        JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put("tenantId", tenantId);
+
+        JobDetail jobDetail = buildJobDetail(tenantId);
+        Trigger trigger = buildJobTrigger(jobDetail, jobDataMap, interval);
+        scheduler.scheduleJob(jobDetail, trigger);
     }
 
     private JobDetail buildJobDetail(String tenantId) {
@@ -82,27 +81,53 @@ public class ConsentScheduler {
 
 
     @SneakyThrows
-    public void updateTrigger(String tenantId) {
+    public void updateTrigger(String tenantId, int interval) {
         Trigger existingTrigger = scheduler.getTrigger(TriggerKey.triggerKey(tenantId, CONSENT_GROUP));
 
-        TriggerBuilder existingTriggerBuilder = existingTrigger.getTriggerBuilder();
+        if(existingTrigger != null) {
+            long repeatInterval = ((SimpleTrigger) existingTrigger).getRepeatInterval();
+
+            long toMillis = TimeUnit.MINUTES.toMillis(interval);
+
+            if( repeatInterval != toMillis) {
+                TriggerBuilder existingTriggerBuilder = existingTrigger.getTriggerBuilder();
+
+                Trigger newTrigger = existingTriggerBuilder.
+                        withSchedule(simpleSchedule()
+                                .withIntervalInMinutes(interval).
+                                repeatForever())
+                        .build();
+
+                scheduler.rescheduleJob(existingTrigger.getKey(), newTrigger);
+
+                log.debug("Successfully rescheduled trigger for the tenant {}", tenantId);
+            } else {
+                log.debug("Consent expiry interval hasn't changed. Skipping reschedule of trigger for the tenant {}", tenantId);
+            }
+
+        } else {
+            log.debug("Trigger wasn't initialized during start up. Scheduling trigger during update check for tenant {} ", tenantId);
+            scheduleTrigger(tenantId, interval);
+        }
 
 
-        Integer interval = consentManagementDao.getConsentExpirationInterval();
-        String publicKey = consentManagementDao.getConsentPublicKey();
-
-        existingTrigger.getJobDataMap().put("publicKey", publicKey);
-
-        Trigger newTrigger = existingTriggerBuilder.
-                withSchedule(simpleSchedule()
-                        .withIntervalInMinutes(interval).
-                        repeatForever())
-                .build();
-
-        scheduler.rescheduleJob(existingTrigger.getKey(), newTrigger);
-
-        log.debug("Successfully updated JobData {} {}", tenantId, publicKey);
-        log.debug("Successfully defined Jobs for the tenants {} ", scheduler.getJobKeys(groupEquals(CONSENT_GROUP)));
-        log.debug("Successfully defined Triggers for the tenants {} ", scheduler.getTriggerKeys(groupEquals(CONSENT_GROUP)));
     }
+
+    @Scheduled(cron = "0 0/30 * * * *")
+    public void updateTriggerInterval() {
+        try (MongoClient mongoClient = new MongoClient(new MongoClientURI(mongoProperties.getUri()));) {
+            MongoCursor<String> dbsCursor = mongoClient.listDatabaseNames().iterator();
+            while (dbsCursor.hasNext()) {
+                String currentTenant = dbsCursor.next();
+                TenantContext.setCurrentTenant(currentTenant);
+                Integer interval = consentManagementDao.getConsentExpirationInterval();
+                if(interval != null) {
+                    updateTrigger(currentTenant, interval);
+                } else {
+                    log.debug("No consent expiry interval found. Skipping reschedule of trigger for the tenant {}", currentTenant);
+                }
+            }
+        }
+    }
+
 }

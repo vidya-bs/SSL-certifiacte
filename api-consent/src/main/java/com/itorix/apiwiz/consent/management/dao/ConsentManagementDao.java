@@ -234,6 +234,14 @@ public class ConsentManagementDao {
 		return masterMongoTemplate.findOne(Query.query(Criteria.where("tenant").is(tenantName)), Workspace.class);
 	}
 
+	public String getWorkspaceKey(String tenantId) {
+		Workspace workspace = getWorkspace(tenantId);
+		if(workspace != null) {
+			return workspace.getKey();
+		}
+		return "";
+	}
+
 	@SneakyThrows
 	public String getToken() {
 		ConsentKeyPair key = mongoTemplate.findOne(Query.query(Criteria.where("tenantId").is(getTenantId())), ConsentKeyPair.class);

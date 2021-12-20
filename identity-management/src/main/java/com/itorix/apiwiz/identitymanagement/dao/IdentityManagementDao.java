@@ -823,6 +823,7 @@ public class IdentityManagementDao {
 			response.put("inviteUser", inviteUser);
 			response.put("remainingSeats", seats);
 			response.put("ssoEnabled", workspace.getSsoEnabled());
+			response.put("tenantId", workspace.getKey());
 			if (workspace.getSsoEnabled() == true) {
 				response.put("ssoHost", workspace.getSsoHost());
 				response.put("ssoPath", workspace.getSsoPath());
