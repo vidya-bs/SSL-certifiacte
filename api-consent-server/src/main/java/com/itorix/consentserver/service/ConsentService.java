@@ -36,7 +36,7 @@ public interface ConsentService {
     @RequestMapping(method = RequestMethod.GET, value = "/v1/consents/{consentId}/status")
     public ResponseEntity<?> getConsentStatus(@PathVariable(value = "consentId", required = true) String consentId) throws ItorixException;
 
-    @RequestMapping(method = RequestMethod.PUT, value = "/v1/consents/{consentId}")
+    @RequestMapping(method = RequestMethod.PUT, value = "/v1/consents/{consentId}/scopes")
     public ResponseEntity<?> updateConsentScope(@PathVariable(value = "consentId", required = true) String consentId, @RequestBody List<String> scopes) throws ItorixException;
 
     @RequestMapping(method = RequestMethod.PATCH, value = "/v1/consents/expire")
