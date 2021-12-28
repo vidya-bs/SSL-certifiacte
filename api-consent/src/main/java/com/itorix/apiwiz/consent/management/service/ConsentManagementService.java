@@ -3,6 +3,7 @@ package com.itorix.apiwiz.consent.management.service;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.consent.management.model.ScopeCategory;
 import com.itorix.apiwiz.consent.management.model.ScopeCategoryColumns;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -65,5 +66,12 @@ public interface ConsentManagementService {
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/consents/scopes/category/names")
 	public ResponseEntity<?> getScopeCategoryNames() throws ItorixException, ItorixException;
 
+
+	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/consents/export", produces = {
+			MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<?> generateExcelReport(
+			@RequestHeader(value = "interactionid", required = false) String interactionId,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam(value = "timeRange") String timeRange) throws Exception;
 
 }

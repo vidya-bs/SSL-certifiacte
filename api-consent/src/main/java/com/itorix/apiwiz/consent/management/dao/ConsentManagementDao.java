@@ -3,8 +3,10 @@ package com.itorix.apiwiz.consent.management.dao;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
+import com.itorix.apiwiz.common.util.Date.DateUtil;
 import com.itorix.apiwiz.consent.management.crypto.RSAKeyGenerator;
 import com.itorix.apiwiz.consent.management.model.*;
+import com.itorix.apiwiz.consent.management.serviceImpl.XlsService;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
@@ -13,18 +15,27 @@ import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCursor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 @Component
 @Slf4j
@@ -42,6 +53,9 @@ public class ConsentManagementDao {
 
 	@Autowired
 	private RSAKeyGenerator rsaKeyGenerator;
+
+	@Autowired
+	private XlsService xlsService;
 
 	public void save(ScopeCategory scopeCategory) throws ItorixException {
 		ScopeCategory existingScopeCategory = baseRepository.findById(scopeCategory.getName(), ScopeCategory.class);
@@ -271,5 +285,43 @@ public class ConsentManagementDao {
 
 	public String getTenantId(){
 		return mongoTemplate.getDb().getName();
+	}
+
+    public ConsentAuditExportResponse generateExcelReport(String timeRange) throws ParseException, IOException {
+		SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+		String timeRanges[] = timeRange.split("~");
+		Date startDate = format.parse(timeRanges[0]);
+		Date endDate = format.parse(timeRanges[1]);
+		long startTime = DateUtil.getStartOfDay(startDate).getTime();
+		long endDateTime = DateUtil.getEndOfDay(endDate).getTime();
+		long currentDate = DateUtil.getEndOfDay(new Date()).getTime();
+		if (endDateTime > currentDate) {
+			endDateTime = currentDate;
+		}
+
+		Query query = new Query(Criteria.where("cts")
+				.gte(startTime).lte(endDateTime)).with(Sort.by(Sort.Direction.DESC, "_id"));
+
+
+		List<Consent> consents = mongoTemplate.find(query, Consent.class);
+
+
+		return xlsService.createConsentAuditXsl("consnet-audit", consents, getConsentColumnNames());
+
+	}
+
+	private List<String> getConsentColumnNames() {
+		ProjectionOperation projectionOperation = project().and(ObjectOperators.valueOf("consent").toArray()).as("consent");
+
+		UnwindOperation unwindOperation = unwind("consent");
+
+		GroupOperation groupOperation = group("consent.k");
+
+		Aggregation aggregation = newAggregation(projectionOperation, unwindOperation, groupOperation);
+
+
+		AggregationResults<Document> aggregationResult = mongoTemplate.aggregate(aggregation, Consent.class, Document.class);
+
+		return aggregationResult.getMappedResults().stream().map(d -> d.getString("_id")).collect(Collectors.toList());
 	}
 }
