@@ -24,6 +24,7 @@ public class ConsentManagementServiceImpl implements ConsentManagementService {
 	@Autowired
 	private ConsentScheduler consentScheduler;
 
+
 	@Override
 	public ResponseEntity<?> createScopeCategory(String jsessionid, ScopeCategory scopeCategory)
 			throws ItorixException {
@@ -113,5 +114,10 @@ public class ConsentManagementServiceImpl implements ConsentManagementService {
 	@Override
 	public ResponseEntity<?> getScopeCategoryNames() throws ItorixException {
 		return new ResponseEntity<>(consentManagementDao.getScopeCategoryNames(), HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> generateExcelReport(String interactionId, String jsessionid, String timeRange) throws Exception {
+		return new ResponseEntity<>(consentManagementDao.generateExcelReport(timeRange), HttpStatus.OK);
 	}
 }
