@@ -1,6 +1,8 @@
 package com.itorix.apiwiz.consent.management.serviceImpl;
 
 import com.amazonaws.regions.Regions;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
@@ -8,6 +10,7 @@ import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.consent.management.model.Consent;
 import com.itorix.apiwiz.consent.management.model.ConsentAuditExportResponse;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -38,6 +41,7 @@ public class XlsService {
     @Autowired
     ApplicationProperties applicationProperties;
 
+    @SneakyThrows
     public ConsentAuditExportResponse createConsentAuditXsl(String sheetName, List<Consent> data, List<String> columnNames) throws IOException {
         long timeStamp = System.currentTimeMillis();
         String xlsFileBackUpLocation = applicationProperties.getBackupDir() + timeStamp;
@@ -69,10 +73,6 @@ public class XlsService {
 
         Cell cell3 = headerRow.createCell(headerRow.getLastCellNum());
         cell3.setCellValue("EXPIRED");
-
-        CreationHelper creationHelper = wb.getCreationHelper();
-        CellStyle dateStyle = wb.createCellStyle();
-        dateStyle.setDataFormat(creationHelper.createDataFormat().getFormat("yyyy-MM-dd HH:mm:ss z"));
 
 
         int rowNum = 1;
@@ -117,6 +117,7 @@ public class XlsService {
             }
         } catch (Exception e) {
             log.error("Error while uploading consent data ", e.getMessage());
+            throw new ItorixException(ErrorCodes.errorMessage.get("General-1000"), "General-1000");
         }
         return response;
     }

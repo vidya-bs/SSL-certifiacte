@@ -26,13 +26,12 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
@@ -287,7 +286,8 @@ public class ConsentManagementDao {
 		return mongoTemplate.getDb().getName();
 	}
 
-    public ConsentAuditExportResponse generateExcelReport(String timeRange) throws ParseException, IOException {
+    @SneakyThrows
+	public ConsentAuditExportResponse generateExcelReport(String timeRange) {
 		SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
 		String timeRanges[] = timeRange.split("~");
 		Date startDate = format.parse(timeRanges[0]);
@@ -299,14 +299,24 @@ public class ConsentManagementDao {
 			endDateTime = currentDate;
 		}
 
+		long diff = endDateTime - startTime;
+
+		if(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) > 30) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Consent-004"), "Consent-004");
+		}
+
 		Query query = new Query(Criteria.where("cts")
 				.gte(startTime).lte(endDateTime)).with(Sort.by(Sort.Direction.DESC, "_id"));
 
 
 		List<Consent> consents = mongoTemplate.find(query, Consent.class);
 
+		if(consents.size() == 0 ) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Consent-005"), "Consent-005");
+		}
 
-		return xlsService.createConsentAuditXsl("consnet-audit", consents, getConsentColumnNames());
+
+		return xlsService.createConsentAuditXsl("consent-audit", consents, getConsentColumnNames());
 
 	}
 
