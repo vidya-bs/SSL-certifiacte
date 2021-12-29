@@ -266,6 +266,8 @@ public enum ErrorCodes {
 			put("ScopeCategory-001", "Resource already exists. A records already exists for selected Category name - %s.");
 			put("ScopeCategory-002", "Resource not found. No records found for selected Category name - %s.");
 			put("Consent-003", "Resource not found. No consent API key found");
+			put("Consent-004", "Report can be generated only for 30 day duration");
+			put("Consent-005", "No records found for the selected date range");
 		}
 	};
 
@@ -438,6 +440,8 @@ public enum ErrorCodes {
 			put("ScopeCategory-001", 400);
 			put("ScopeCategory-002", 400);
 			put("Consent-003", 400);
+			put("Consent-004", 400);
+			put("Consent-005", 400);
 		}
 	};
 	private String message;
