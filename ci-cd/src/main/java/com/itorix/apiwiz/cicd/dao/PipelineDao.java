@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.cicd.dao;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +10,15 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import com.itorix.apiwiz.cicd.beans.Metadata;
 import com.itorix.apiwiz.cicd.beans.Pipeline;
 import com.itorix.apiwiz.cicd.beans.PipelineGroups;
 import com.itorix.apiwiz.cicd.beans.PipelineNameValidation;
 import com.itorix.apiwiz.identitymanagement.model.User;
+import com.itorix.apiwiz.portfolio.dao.PortfolioDao;
+import com.itorix.apiwiz.portfolio.model.db.Portfolio;
 
 /** @author vphani */
 @Component
@@ -22,6 +26,9 @@ public class PipelineDao {
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
+
+	@Autowired
+	private PortfolioDao portfolioDao;
 
 	public boolean validateGroup(String name) {
 		Query query = new Query(Criteria.where("_id").is(name));
@@ -186,6 +193,19 @@ public class PipelineDao {
 		}
 	}
 
+	public List<String> getPipelineContacts(String portfolioId){
+		List<String> mailList = new ArrayList<>();
+		try{
+			Portfolio portfolio= portfolioDao.getPortfolio(portfolioId, true);
+			if(!ObjectUtils.isEmpty(portfolio)){
+				portfolio.getTeams();
+			}
+		}catch(Exception e){
+			
+		}
+		return mailList;
+	}
+	
 	public void deletePipelineGroup(String groupName) {
 		mongoTemplate.remove(new Query(Criteria.where("_id").is(groupName)), PipelineGroups.class);
 		// TODO: Delete Pipeline from Pipelines as well

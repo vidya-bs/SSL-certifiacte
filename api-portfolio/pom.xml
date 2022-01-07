@@ -26,9 +26,13 @@
 			<groupId>com.itorix.hyggee.cloud</groupId>
 			<artifactId>developer-studio</artifactId>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.itorix.hyggee.cloud</groupId>
 			<artifactId>ci-cd</artifactId>
+		</dependency> -->
+		<dependency>
+			<groupId>com.itorix.hyggee.cloud</groupId>
+			<artifactId>project-management</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.itorix.hyggee.cloud</groupId>
