@@ -9,9 +9,11 @@ import com.itorix.apiwiz.common.model.MetaData;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.util.encryption.HmacSHA256;
+import com.itorix.apiwiz.common.util.mail.MailProperty;
 import com.itorix.apiwiz.identitymanagement.model.*;
 import com.itorix.apiwiz.identitymanagement.model.sso.SAMLConfig;
 import com.mongodb.client.result.UpdateResult;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +37,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class WorkspaceDao {
 
 	private final String SUBSCRIPTION_ENDPOINT = "/webhooks/subscriptions/";
@@ -288,4 +291,29 @@ public class WorkspaceDao {
 		}
 	}
 
+	public void updateSMTPConnector(MailProperty mailProperty) {
+		String userId = null;
+		String username = null;
+
+		MailProperty mailProp = baseRepository.findOne("tenantId", mailProperty.getTenantId(), MailProperty.class);
+		try {
+			UserSession userSession = UserSession.getCurrentSessionToken();
+			userId = userSession.getUserId();
+			username = userSession.getUsername();
+		} catch (Exception e) {
+			log.error("Internal Server Error {} ", e.getMessage());
+		}
+
+		long timestamp = System.currentTimeMillis();
+
+		if (mailProp == null) {
+			mailProperty.setCts(timestamp);
+			mailProperty.setCreatedBy(userId);
+			mailProperty.setCreatedUserName(username);
+		}
+		mailProperty.setMts(timestamp);
+		mailProperty.setModifiedBy(userId);
+		mailProperty.setModifiedUserName(username);
+		baseRepository.saveMongoDoc(mailProperty);
+	}
 }

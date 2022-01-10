@@ -1,63 +1,19 @@
 package com.itorix.apiwiz.cicd.gocd.integrations;
 
-import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.crypto.NoSuchPaddingException;
-import javax.mail.MessagingException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.core.io.Resource;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.support.BasicAuthorizationInterceptor;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.itorix.apiwiz.cicd.beans.ArtifactType;
-import com.itorix.apiwiz.cicd.beans.BackUpHistory;
-import com.itorix.apiwiz.cicd.beans.BackUpRequest;
 import com.itorix.apiwiz.cicd.beans.Package;
-import com.itorix.apiwiz.cicd.beans.PipelineGroups;
-import com.itorix.apiwiz.cicd.beans.SucessRatio;
-import com.itorix.apiwiz.cicd.beans.TestSuiteAndConfig;
+import com.itorix.apiwiz.cicd.beans.*;
 import com.itorix.apiwiz.cicd.dao.PipelineDao;
 import com.itorix.apiwiz.cicd.dashboard.beans.CicdDashBoardResponse;
 import com.itorix.apiwiz.cicd.dashboard.beans.PipeLineDashBoard;
-import com.itorix.apiwiz.cicd.gocd.beans.Artifact;
-import com.itorix.apiwiz.cicd.gocd.beans.Attributes;
-import com.itorix.apiwiz.cicd.gocd.beans.Job;
 import com.itorix.apiwiz.cicd.gocd.beans.Material;
 import com.itorix.apiwiz.cicd.gocd.beans.Pipeline;
-import com.itorix.apiwiz.cicd.gocd.beans.PipelineGroup;
 import com.itorix.apiwiz.cicd.gocd.beans.Stage;
-import com.itorix.apiwiz.cicd.gocd.beans.Task;
+import com.itorix.apiwiz.cicd.gocd.beans.*;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.integrations.Integration;
@@ -77,6 +33,25 @@ import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.projectmanagement.dao.ProjectManagementDao;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCursor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.*;
+import org.springframework.http.client.support.BasicAuthorizationInterceptor;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import javax.mail.MessagingException;
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Class created to handle GOCD pipeline APIs
@@ -1000,7 +975,7 @@ public class CiCdIntegrationAPI {
 		}
 		emailTemplate.setToMailId(toMailId);
 		emailTemplate.setBody(emailBody);
-		mailUtil.sendEmailWithAttachments(emailTemplate);
+		mailUtil.sendEmail(emailTemplate);
 
 		return null;
 	}

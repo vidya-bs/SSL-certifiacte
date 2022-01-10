@@ -4,6 +4,7 @@ import com.itorix.apiwiz.common.model.SwaggerTeam;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import com.itorix.apiwiz.common.util.mail.MailProperty;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.dao.WorkspaceDao;
 import com.itorix.apiwiz.identitymanagement.model.*;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -382,6 +384,14 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			throws ItorixException, Exception {
 		workspaceDao.disableSso(workspaceName);
 		return new ResponseEntity<Void>(HttpStatus.OK);
+	}
+
+	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/connector/smtp")
+	@Override
+	public ResponseEntity<?> enableSMTPConnector(String interactionid, String jsessionid, MailProperty mailProperty) throws ItorixException, Exception {
+		workspaceDao.updateSMTPConnector(mailProperty);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 
 	@Override
