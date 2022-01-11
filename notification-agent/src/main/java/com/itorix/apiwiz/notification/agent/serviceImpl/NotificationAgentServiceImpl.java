@@ -1,7 +1,10 @@
 package com.itorix.apiwiz.notification.agent.serviceImpl;
 
-import javax.servlet.http.HttpServletRequest;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.notification.agent.dao.NotificationAgentExecutorSQLDao;
+import com.itorix.apiwiz.notification.agent.db.NotificationExecutorEntity;
+import com.itorix.apiwiz.notification.agent.model.RequestModel;
+import com.itorix.apiwiz.notification.agent.service.NotificationAgentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -12,15 +15,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itorix.apiwiz.notification.agent.dao.NotificationAgentExecutorSQLDao;
-import com.itorix.apiwiz.notification.agent.db.NotificationExecutorEntity;
-import com.itorix.apiwiz.notification.agent.model.RequestModel;
-import com.itorix.apiwiz.notification.agent.service.NotificationAgentService;
+import javax.servlet.http.HttpServletRequest;
 
 @CrossOrigin
 @RestController
 public class NotificationAgentServiceImpl implements NotificationAgentService {
+
+    private static final String TENANT_ID = "tenantId";
 
     @Autowired
     NotificationAgentExecutorSQLDao executorSQLDao;
@@ -37,9 +38,11 @@ public class NotificationAgentServiceImpl implements NotificationAgentService {
     public ResponseEntity<?> createNotification(@RequestHeader HttpHeaders headers, @RequestBody RequestModel model)
             throws Exception {
 
+        String tenantId =  headers.getFirst(TENANT_ID);
+
         executorSQLDao.insertIntoTestExecutorEntity(model.getType().name(),
                 mapper.writeValueAsString(model.getEmailContent()),
-                NotificationExecutorEntity.STATUSES.SCHEDULED.getValue());
+                NotificationExecutorEntity.STATUSES.SCHEDULED.getValue(), tenantId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

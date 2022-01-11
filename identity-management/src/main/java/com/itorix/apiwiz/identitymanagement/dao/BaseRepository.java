@@ -59,6 +59,11 @@ public class BaseRepository {
 		return t;
 	}
 
+	public <T> T saveMongoDoc(T doc) {
+		doc = mongoTemplate.save(doc);
+		return doc;
+	}
+
 	public <T> T save(T t, MongoTemplate mongoTemplate) {
 		BaseObject obj = (BaseObject) t;
 		String userId = null;

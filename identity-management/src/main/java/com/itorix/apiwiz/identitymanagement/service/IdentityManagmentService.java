@@ -3,6 +3,7 @@ package com.itorix.apiwiz.identitymanagement.service;
 import com.itorix.apiwiz.common.model.SwaggerTeam;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.util.mail.MailProperty;
 import com.itorix.apiwiz.identitymanagement.model.*;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import io.swagger.annotations.ApiOperation;
@@ -177,6 +178,13 @@ public interface IdentityManagmentService {
 	public @ResponseBody ResponseEntity<Void> disableSso(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable String workspaceName)
+			throws ItorixException, Exception;
+
+	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/connector/smtp")
+	public @ResponseBody ResponseEntity<?> enableSMTPConnector(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody MailProperty mailProperty)
 			throws ItorixException, Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
