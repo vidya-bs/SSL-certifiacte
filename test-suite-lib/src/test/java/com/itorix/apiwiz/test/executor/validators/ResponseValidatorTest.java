@@ -45,6 +45,12 @@ public class ResponseValidatorTest {
     }
 
     @Test
+    public void checkAssertionForBoolean_Bool() throws Exception {
+        ResponseValidator.checkAssertion(true, "true", "boolean", false);
+        assertTrue(true);
+    }
+
+    @Test
     public void checkValidHeadersIgnoreCase() throws Exception {
         Header header = new BasicHeader("cOnTent-type", "json");
         Header[] responseHeaders = new Header[1];

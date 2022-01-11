@@ -1,20 +1,18 @@
 package com.itorix.apiwiz.test.executor.validators;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.testng.Assert;
-
 import com.itorix.apiwiz.test.executor.beans.Assertion;
 import com.itorix.apiwiz.test.executor.beans.Response;
 import com.itorix.apiwiz.test.executor.beans.ResponseAssertions;
 import com.itorix.apiwiz.test.executor.beans.ResponseBodyValidation;
-
 import net.minidev.json.JSONArray;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.testng.Assert;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class ResponseValidator {
 
@@ -182,14 +180,16 @@ public class ResponseValidator {
                 }
             } else if (condition.equalsIgnoreCase("boolean")) {
                 if (expectedValue.equalsIgnoreCase("true")) {
-                    Assert.assertTrue(Boolean.getBoolean(actualValue));
+                    Assert.assertTrue(Boolean.parseBoolean(actualValue));
                 } else {
-                    Assert.assertFalse(Boolean.getBoolean(actualValue));
+                    Assert.assertFalse(Boolean.parseBoolean(actualValue));
                 }
             }
         } catch (AssertionError | Exception ex) {
-            ex.printStackTrace();
-            throw new Exception(ex.getMessage());
+            if(!continueOnError) {
+                ex.printStackTrace();
+                throw new Exception(ex.getMessage());
+            }
         }
     }
 
