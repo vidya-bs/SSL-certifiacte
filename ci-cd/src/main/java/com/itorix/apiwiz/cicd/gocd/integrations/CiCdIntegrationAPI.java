@@ -28,6 +28,7 @@ import com.itorix.apiwiz.common.util.mail.EmailTemplate;
 import com.itorix.apiwiz.common.util.mail.MailUtil;
 import com.itorix.apiwiz.common.util.scheduler.Schedule;
 import com.itorix.apiwiz.devstudio.dao.IntegrationsDao;
+import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.projectmanagement.dao.ProjectManagementDao;
@@ -94,6 +95,9 @@ public class CiCdIntegrationAPI {
 
 	@Value("${itorix.core.scheduler.primary.host:null}")
 	private String primaryHost;
+
+	@Autowired
+	private IdentityManagementDao identityManagementDao;
 
 	/**
 	 * @param pipelineGroups
@@ -169,14 +173,13 @@ public class CiCdIntegrationAPI {
 		String buildScmType = getBuildScmProp("itorix.core.gocd.build.scm.type");
 		String buildScmURL = getBuildScmProp("itorix.core.gocd.build.scm.url");
 		String buildScmBranch = getBuildScmProp("itorix.core.gocd.build.scm.branch");
-		
+
 		Map<String, String> buildScmDetails = getSCMDetails(buildScmType.toUpperCase(), "cicd-build");
 		String buildScmUserName = buildScmDetails.get("username");
 		String buildScmPassword = buildScmDetails.get("password");
 		String buildScmToken = buildScmDetails.get("token");
 		String buildScmUsertype = buildScmDetails.get("userType");
 
-		
 		if (buildScmType != null && buildScmType != "" && buildScmType.equals("svn")) {
 			buildMaterial.setType("svn");
 			buildAttributes.setUrl(buildScmURL);
@@ -957,22 +960,20 @@ public class CiCdIntegrationAPI {
 
 	public Object sendNotification(String emailBody, String pipelineName, String projectName, String subject,
 			String interactionid) throws IOException, ItorixException, MessagingException {
-
 		List<String> toMailId = new ArrayList<String>();
+		toMailId = identityManagementDao.getAllUsersWithRoleDevOPS();
 		EmailTemplate emailTemplate = new EmailTemplate();
 		emailTemplate.setSubject(subject);
 		if (pipelineName.indexOf("_") == -1) {
 			throw new ItorixException("Pipeline Name Must Contain Hypen", "CICD-1000");
 		}
-		String[] splitByHypen = pipelineName.split("_");
-
-		String exactProjectName = (projectName != null && projectName != "") ? projectName : splitByHypen[0];
-		List<Contacts> contacts = projectPlanAndTrackService.findContactsOfProject(exactProjectName);
-		if (contacts.size() > 0) {
-			for (Contacts contact : contacts) {
-				toMailId.add(contact.getEmail());
-			}
-		}
+		//String[] splitByHypen = pipelineName.split("_");
+		com.itorix.apiwiz.cicd.beans.Pipeline pipeline = pipelineDao.getPipeline(pipelineName);
+		String portfolioId = null;
+		if (!ObjectUtils.isEmpty(pipeline))
+			portfolioId = pipeline.getPortfolioId();
+		if(StringUtils.isNotEmpty(portfolioId)){}
+		//String exactProjectName = (projectName != null && projectName != "") ? projectName : splitByHypen[0];
 		emailTemplate.setToMailId(toMailId);
 		emailTemplate.setBody(emailBody);
 		mailUtil.sendEmail(emailTemplate);

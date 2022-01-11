@@ -428,7 +428,6 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 		return false;
 	}
 
-	@UnSecure
 	@Override
 	public ResponseEntity<?> sendNotifications(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
