@@ -187,6 +187,12 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody MailProperty mailProperty)
 			throws ItorixException, Exception;
 
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/connector/smtp")
+	public @ResponseBody ResponseEntity<?> getSMTPConnector(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid)
+			throws ItorixException, Exception;
+
 	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/{userId}/remove-workspace")
 	public @ResponseBody ResponseEntity<Void> removeWorkspaceUser(

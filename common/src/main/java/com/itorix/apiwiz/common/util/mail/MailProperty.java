@@ -1,9 +1,11 @@
 package com.itorix.apiwiz.common.util.mail;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "Connectors.Mail")
 public class MailProperty {
 

@@ -395,6 +395,15 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	}
 
 	@Override
+	public ResponseEntity<?> getSMTPConnector(String interactionid, String jsessionid) {
+		try {
+			return new ResponseEntity<>(workspaceDao.getSMTPConnector(), HttpStatus.OK);
+		} catch (ItorixException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	@Override
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/{userId}/remove-workspace")
 	public @ResponseBody ResponseEntity<Void> removeWorkspaceUser(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,

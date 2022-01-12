@@ -316,4 +316,15 @@ public class WorkspaceDao {
 		mailProperty.setModifiedUserName(username);
 		baseRepository.saveMongoDoc(mailProperty);
 	}
+
+    public Object getSMTPConnector() throws ItorixException {
+		MailProperty mailProperty = null;
+		List<MailProperty> allMailProps = baseRepository.findAll(MailProperty.class);
+		if(allMailProps != null && allMailProps.size() > 0) {
+			mailProperty = allMailProps.get(0);
+			mailProperty.setPassword(null);
+			return mailProperty;
+		}
+		throw new ItorixException();
+	}
 }
