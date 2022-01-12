@@ -186,10 +186,8 @@ public class ResponseValidator {
                 }
             }
         } catch (AssertionError | Exception ex) {
-            if(!continueOnError) {
-                ex.printStackTrace();
-                throw new Exception(ex.getMessage());
-            }
+            ex.printStackTrace();
+            throw new Exception(ex.getMessage());
         }
     }
 

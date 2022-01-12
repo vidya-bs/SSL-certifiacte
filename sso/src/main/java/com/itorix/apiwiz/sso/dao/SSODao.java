@@ -25,6 +25,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -114,9 +115,16 @@ public class SSODao {
             userWorkspace.setAcceptInvite(true);
             user.getWorkspaces().add(userWorkspace);
         } else {
-            if (projectRoles.size() > 1) {
-                UserWorkspace userWorkspace = user.getUserWorkspace(workspaceId);
-                userWorkspace.setRoles(projectRoles);
+            UserWorkspace userWorkspace = user.getUserWorkspace(workspaceId);
+            if (projectRoles.size() >= 1) {
+                SAMLConfig config = getSamlConfig();
+                if(config.isOverrideIDPRoles()) {
+                    userWorkspace.setRoles(projectRoles);
+                } else {
+                    projectRoles.addAll(userWorkspace.getRoles());
+                    userWorkspace.setRoles(projectRoles.stream().distinct().collect(Collectors.toList()));
+                }
+
             }
         }
         mongoTemplate.save(user);
@@ -208,26 +216,26 @@ public class SSODao {
         if (workspace.getIdpProvider().equals(IDPProvider.AZURE_AD)) {  //For Azure the User Group details are sent as roles
             samlAttribute = samlConfig.getUserRoles();
         }
-        List<String> userAssertionRoles = new ArrayList<>();
+        List<String> rolesConfiguredInIDP = new ArrayList<>();
         if (StringUtils.hasText(samlAttribute)) {
             String[] attributeAsStringArray = credentials.getAttributeAsStringArray(samlAttribute);
             if (attributeAsStringArray != null) {
-                userAssertionRoles = Arrays.asList(attributeAsStringArray);
+                rolesConfiguredInIDP = Arrays.asList(attributeAsStringArray);
             }
         }
-        return getProjectRole(userAssertionRoles);
+        return getProjectRole(rolesConfiguredInIDP);
     }
 
-    public List<String> getProjectRole(List<String> userDefinedRoles) {
+    public List<String> getProjectRole(List<String> userDefinedRolesInIDP) {
         List<String> projectRoles = new ArrayList<>();
 
         try {
             Map<String, String> ssoRoleMappers = getRoleMapper();
 
-            if (ssoRoleMappers != null && !ssoRoleMappers.isEmpty() && userDefinedRoles != null) {
-                userDefinedRoles.forEach(s -> {
-                    if (ssoRoleMappers.containsKey(s)) {
-                        projectRoles.add(ssoRoleMappers.get(s));
+            if (ssoRoleMappers != null && !ssoRoleMappers.isEmpty() && userDefinedRolesInIDP != null) {
+                userDefinedRolesInIDP.forEach(u -> {
+                    if (ssoRoleMappers.containsKey(u)) {
+                        projectRoles.add(ssoRoleMappers.get(u));
                     }
                 });
             }
