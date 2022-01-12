@@ -7,7 +7,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
-import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 @Component
@@ -17,8 +16,9 @@ public class MailUtil {
     @Autowired
     private EmailHelper emailHelper;
 
-    public void sendEmail(EmailTemplate emailTemplate) throws MessagingException {
+    public void sendEmail(EmailTemplate emailTemplate) {
         try {
+            log.debug("Initiating mail with subject {} to {}", emailTemplate.getSubject(), emailTemplate.getToMailId());
             JavaMailSender javaMailSender = emailHelper.getJavaMailSender();
             MimeMessage msg = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(msg, true);
