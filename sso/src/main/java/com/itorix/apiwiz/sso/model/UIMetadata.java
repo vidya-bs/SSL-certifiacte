@@ -47,4 +47,5 @@ public class UIMetadata extends AbstractObject {
     public void setWorkspaceId(String workspaceId) {
         this.workspaceId = workspaceId;
     }
+
 }

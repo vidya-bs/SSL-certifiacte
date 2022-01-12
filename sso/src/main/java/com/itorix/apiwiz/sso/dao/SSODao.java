@@ -57,7 +57,7 @@ public class SSODao {
         User user = mongoTemplate.findOne(query, User.class);
 
         if( user == null ) {
-            logger.info("User Not Found. Trying to identify the User using the UserId {} as emailId", userId);
+            logger.debug("User Not Found. Trying to identify the User using the UserId {} as emailId", userId);
                 Query findByEmailId = new Query(Criteria.where(User.LABEL_EMAIL).is(userId));
                 user = mongoTemplate.findOne(findByEmailId, User.class);
         }
@@ -65,7 +65,7 @@ public class SSODao {
         if( user == null ) {
             if (samlConfig.getEmailId() != null) {
                 String emailId = credentials.getAttributeAsString(samlConfig.getEmailId());
-                logger.info("User Not Found. Trying to identify the User using emailId {} from the claims", emailId);
+                logger.debug("User Not Found. Trying to identify the User using emailId {} from the claims", emailId);
                 Query findByEmailId = new Query(Criteria.where(User.LABEL_EMAIL).is(emailId));
                 user = mongoTemplate.findOne(findByEmailId, User.class);
             }
@@ -73,7 +73,7 @@ public class SSODao {
 
         List<String> projectRoles = getProjectRoleForSaml(samlConfig, credentials);
         if (user == null) {
-            logger.info("Creating User using UserId {}", userId);
+            logger.debug("Creating User using UserId {}", userId);
             user = new User();
 
             if (samlConfig.getFirstName() != null) {
@@ -119,9 +119,12 @@ public class SSODao {
             if (projectRoles.size() >= 1) {
                 SAMLConfig config = getSamlConfig();
                 if(config.isOverrideIDPRoles()) {
+                    logger.debug("Overriding Roles {} from IDP", projectRoles);
                     userWorkspace.setRoles(projectRoles);
                 } else {
-                    projectRoles.addAll(userWorkspace.getRoles());
+                    List<String> existingRoles = userWorkspace.getRoles();
+                    logger.debug("Adding Roles {} from IDP to the existing roles {} ", projectRoles, existingRoles);
+                    projectRoles.addAll(existingRoles);
                     userWorkspace.setRoles(projectRoles.stream().distinct().collect(Collectors.toList()));
                 }
 
