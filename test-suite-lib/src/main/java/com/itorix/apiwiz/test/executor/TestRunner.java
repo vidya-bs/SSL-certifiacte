@@ -10,6 +10,7 @@ import com.itorix.apiwiz.test.component.CancellationExecutor;
 import com.itorix.apiwiz.test.dao.TestSuitExecutorSQLDao;
 import com.itorix.apiwiz.test.dao.TestSuiteExecutorDao;
 import com.itorix.apiwiz.test.db.TestExecutorEntity;
+import com.itorix.apiwiz.test.exception.HaltExecution;
 import com.itorix.apiwiz.test.executor.beans.*;
 import com.itorix.apiwiz.test.executor.model.TenantContext;
 import com.itorix.apiwiz.test.executor.validators.JsonValidator;
@@ -183,7 +184,14 @@ public class TestRunner {
                                 logger.debug("test case execution failed for {}", testCase.getName());
                                 failedTests.put(testCase.getName(), true);
                             }
-                        } catch (AssertionError | Exception ex) {
+                        } catch(HaltExecution ex) {
+                            logger.debug("Halting execution of test cases since a test case failed");
+                            testCase.setStatus("FAIL");
+                            testCase.setMessage(ex.getMessage());
+                            computeHeaders(testCase.getRequest().getHeaders(), globalVars);
+                            failedTests.put(testCase.getName(), true);
+                            break;
+                        }catch (AssertionError | Exception ex) {
                             logger.error("Error executing {} , {} ", testCase.getName(), ex);
                             testCase.setStatus("FAIL");
                             testCase.setMessage(ex.getMessage());
@@ -620,14 +628,17 @@ public class TestRunner {
         }
 
         try {
-            expectedResponse.getBody().setData(validator.getUpdatedObjectAsString());
-            if (maskingFields != null && !CollectionUtils.isEmpty(maskingFields.getMaskingFields())) {
-                expectedResponse.getBody().setData(validator.getMaskedResponse(maskingFields.getMaskingFields()));
+            if(validator != null) {
+                expectedResponse.getBody().setData(validator.getUpdatedObjectAsString());
+                if (maskingFields != null && !CollectionUtils.isEmpty(maskingFields.getMaskingFields())) {
+                    expectedResponse.getBody().setData(validator.getMaskedResponse(maskingFields.getMaskingFields()));
+                }
             }
 
-        } catch (Exception e) {
+        } catch (HaltExecution e) {
+            throw new HaltExecution(e.getMessage());
+        }catch (Exception e) {
             logger.error(e.getMessage(), e);
-            e.printStackTrace();
         }
 
         // Check for Accept Headers to invoke xml or json validations

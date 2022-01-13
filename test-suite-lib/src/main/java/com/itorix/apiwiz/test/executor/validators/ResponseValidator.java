@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.test.executor.validators;
 
+import com.itorix.apiwiz.test.exception.HaltExecution;
 import com.itorix.apiwiz.test.executor.beans.Assertion;
 import com.itorix.apiwiz.test.executor.beans.Response;
 import com.itorix.apiwiz.test.executor.beans.ResponseAssertions;
@@ -94,7 +95,7 @@ public class ResponseValidator {
                         responeStatusAssertion.setMessage(ex.getMessage());
                         ex.printStackTrace();
                         if (!responeStatusAssertion.isContinueOnError()) {
-                            throw new Exception(ex.getMessage());
+                            throw new HaltExecution();
                         }
                     }
                 }
