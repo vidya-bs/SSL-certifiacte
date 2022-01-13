@@ -389,8 +389,14 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/connector/smtp")
 	@Override
-	public ResponseEntity<?> enableSMTPConnector(String interactionid, String jsessionid, MailProperty mailProperty) throws ItorixException, Exception {
+	public ResponseEntity<?> enableSMTPConnector(String interactionid, String jsessionid, MailProperty mailProperty) throws ItorixException {
 		workspaceDao.updateSMTPConnector(mailProperty);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
+	}
+
+	@Override
+	public ResponseEntity<?> deleteSMTPConnector(String interactionid, String jsessionid) throws ItorixException {
+		workspaceDao.deleteSMTPConnector();
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 

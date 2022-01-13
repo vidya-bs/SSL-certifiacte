@@ -318,13 +318,16 @@ public class WorkspaceDao {
 	}
 
     public Object getSMTPConnector() throws ItorixException {
-		MailProperty mailProperty = null;
 		List<MailProperty> allMailProps = baseRepository.findAll(MailProperty.class);
 		if(allMailProps != null && allMailProps.size() > 0) {
-			mailProperty = allMailProps.get(0);
+			MailProperty mailProperty = allMailProps.get(0);
 			mailProperty.setPassword(null);
 			return mailProperty;
 		}
 		throw new ItorixException();
+	}
+
+	public void deleteSMTPConnector() {
+		baseRepository.remove(new Query(), MailProperty.class);
 	}
 }

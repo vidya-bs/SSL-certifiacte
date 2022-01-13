@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.identitymanagement.dao;
 
 import com.itorix.apiwiz.common.model.BaseObject;
+import com.itorix.apiwiz.common.util.mail.MailProperty;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCursor;
@@ -288,4 +289,8 @@ public class BaseRepository {
 
 		return aggregate.getMappedResults();
 	}
+
+    public void remove(Query query, Class<MailProperty> clazz) {
+		mongoTemplate.remove(query, clazz);
+    }
 }
