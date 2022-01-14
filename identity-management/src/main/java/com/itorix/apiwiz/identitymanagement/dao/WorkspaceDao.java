@@ -310,10 +310,17 @@ public class WorkspaceDao {
 			mailProperty.setCts(timestamp);
 			mailProperty.setCreatedBy(userId);
 			mailProperty.setCreatedUserName(username);
+		} else {
+			mailProperty.setPassword(mailProp.getPassword());
+			mailProperty.setCts(mailProp.getCts());
+			mailProperty.setCreatedBy(mailProp.getCreatedBy());
+			mailProperty.setCreatedUserName(mailProp.getCreatedUserName());
 		}
+
 		mailProperty.setMts(timestamp);
 		mailProperty.setModifiedBy(userId);
 		mailProperty.setModifiedUserName(username);
+
 		baseRepository.saveMongoDoc(mailProperty);
 	}
 
