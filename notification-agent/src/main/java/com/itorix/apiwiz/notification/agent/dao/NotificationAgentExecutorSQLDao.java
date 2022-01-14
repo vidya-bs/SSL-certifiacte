@@ -1,10 +1,8 @@
 package com.itorix.apiwiz.notification.agent.dao;
 
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
-
+import com.itorix.apiwiz.notification.agent.db.NotificationEntityMapper;
+import com.itorix.apiwiz.notification.agent.db.NotificationExecutorEntity;
+import com.itorix.apiwiz.notification.agent.executor.exception.ItorixException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +11,9 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import com.itorix.apiwiz.notification.agent.db.NotificationEntityMapper;
-import com.itorix.apiwiz.notification.agent.db.NotificationExecutorEntity;
-import com.itorix.apiwiz.notification.agent.executor.exception.ItorixException;
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
+import java.util.List;
 
 @Component
 public class NotificationAgentExecutorSQLDao {
@@ -44,6 +42,7 @@ public class NotificationAgentExecutorSQLDao {
             int count) {
         String SQL = "select * from " + NotificationExecutorEntity.TABLE_NAME + " where " + columnName
                 + " = ? ORDER BY id LIMIT " + count;
+
         return jdbcTemplate.query(SQL, new Object[] { columnValue }, new NotificationEntityMapper());
     }
 
@@ -57,9 +56,9 @@ public class NotificationAgentExecutorSQLDao {
 
     }
 
-    public void insertIntoTestExecutorEntity(String type, String content, String status) throws ItorixException {
+    public void insertIntoTestExecutorEntity(String type, String content, String status, String tenantId) throws ItorixException {
         jdbcTemplate.update(
-                "insert into " + NotificationExecutorEntity.TABLE_NAME + " (type, content , status) values(?,?,?)",
-                type, content, status);
+                "insert into " + NotificationExecutorEntity.TABLE_NAME + " (type, content , status, tenantId) values(?,?,?,?)",
+                type, content, status, tenantId);
     }
 }

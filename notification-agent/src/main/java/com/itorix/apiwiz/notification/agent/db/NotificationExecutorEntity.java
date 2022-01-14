@@ -39,5 +39,6 @@ public class NotificationExecutorEntity {
     private String type;
     private String content;
     private String status;
+    private String tenantId;
 
 }

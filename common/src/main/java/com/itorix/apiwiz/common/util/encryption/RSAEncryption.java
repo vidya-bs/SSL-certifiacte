@@ -114,11 +114,16 @@ public class RSAEncryption {
 	public static void main(String[] args) throws Exception {
 		RSAEncryption ac = new RSAEncryption();
 		System.out.println(ac.decryptText(
-				"E2nCs+Nxrq5t5pW6B5H1nr5d7EmRizg7K/FsWsBnejTv71wVaMDwrbEUi0iYOa3BYFQixBkhpz0AprwGmi7c6A=="));
-		String msg = "Cloudypedia2021";
+				"gnqqXJkKwJq8h+jcFNxgipqrYQ1QfKWJ/4mNfVPbiLwuaZ4orglap/Orga9zU3mzz8YcbjQ/ntWNy+XSL4WVjg=="));
+		System.out.println(ac.decryptText(
+				"gnqqXJkKwJq8h+jcFNxgipqrYQ1QfKWJ/4mNfVPbiLwuaZ4orglap/Orga9zU3mzz8YcbjQ/ntWNy+XSL4WVjg=="));
+		String msg = "SG.s3-aAhOGTsecIaC0fEZv1g.";
 		String encrypted_msg = ac.encryptText(msg);
+		String msg1 = "3ekGp5Xd6eDlNeeZbpuuuKEnP81MInAbby9TTRnnStc";
+		String encrypted_msg1 = ac.encryptText(msg1);
 		String decrypted_msg = ac.decryptText(encrypted_msg);
-		System.out.println("Original Message: " + msg + "\nEncrypted Message: " + encrypted_msg
-				+ "\nDecrypted Message: " + decrypted_msg);
+		String decrypted_msg1 = ac.decryptText(encrypted_msg1);
+		System.out.println("Original Message: " + msg + msg1 + "\nEncrypted Message: " + encrypted_msg + encrypted_msg1
+				+ "\nDecrypted Message: " + decrypted_msg + decrypted_msg1);
 	}
 }

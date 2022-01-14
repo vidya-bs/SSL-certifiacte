@@ -155,6 +155,7 @@ public class ApplicationProperties {
 	//
 	// @Value("${itorix.core.mail.smtp.starttls.enable:null}")
 	// private String smtpStartttls;
+
 	//
 	// @Value("${itorix.core.mail.smtp.hostname:null}")
 	// private String smtphostName;
@@ -204,6 +205,18 @@ public class ApplicationProperties {
 
 	@Value("${spring.mail.password}")
 	private String cicdPassWord;
+
+	@Value("${spring.mail.properties.mail.smtp.connectiontimeout}")
+	private long smtpConnectionTimeOut;
+
+	@Value("${spring.mail.properties.mail.smtp.timeout}")
+	private long smtpTimeOut;
+
+	@Value("${spring.mail.properties.mail.smtp.writetimeout}")
+	private long smtpWriteTimeOut;
+
+	@Value("${spring.mail.properties.mail.smtp.from}")
+	private String smtpFromAddress;
 
 	@Value("${itorix.core.application.url}")
 	private String appUrl;
@@ -520,6 +533,30 @@ public class ApplicationProperties {
 
 	public void setCicdPassWord(String cicdPassWord) {
 		this.cicdPassWord = cicdPassWord;
+	}
+
+	public long getSmtpConnectionTimeOut() {
+		return smtpConnectionTimeOut;
+	}
+
+	public void setSmtpConnectionTimeOut(long smtpConnectionTimeOut) {
+		this.smtpConnectionTimeOut = smtpConnectionTimeOut;
+	}
+
+	public long getSmtpTimeOut() {
+		return smtpTimeOut;
+	}
+
+	public void setSmtpTimeOut(long smtpTimeOut) {
+		this.smtpTimeOut = smtpTimeOut;
+	}
+
+	public long getSmtpWriteTimeOut() {
+		return smtpWriteTimeOut;
+	}
+
+	public void setSmtpWriteTimeOut(long smtpWriteTimeOut) {
+		this.smtpWriteTimeOut = smtpWriteTimeOut;
 	}
 
 	public String getServiceRequestRejecteBody() {
@@ -1400,5 +1437,13 @@ public class ApplicationProperties {
 
 	public void setPodIP(String podIP) {
 		this.podIP = podIP;
+	}
+
+	public String getSmtpFromAddress() {
+		return smtpFromAddress;
+	}
+
+	public void setSmtpFromAddress(String smtpFromAddress) {
+		this.smtpFromAddress = smtpFromAddress;
 	}
 }

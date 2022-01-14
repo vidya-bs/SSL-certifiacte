@@ -1,19 +1,19 @@
 package com.itorix.apiwiz.notification.agent.executor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
 import com.itorix.apiwiz.notification.agent.dao.NotificationAgentExecutorSQLDao;
 import com.itorix.apiwiz.notification.agent.db.NotificationExecutorEntity;
+import com.itorix.apiwiz.notification.agent.executor.model.TenantContext;
 import com.itorix.apiwiz.notification.agent.logging.LoggerService;
 import com.itorix.apiwiz.notification.agent.model.EmailTemplate;
 import com.itorix.apiwiz.notification.agent.model.ExecutionContext;
 import com.itorix.apiwiz.notification.agent.util.MailUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @SuppressWarnings("unused")
 @Component
@@ -39,6 +39,7 @@ public class NotificationAgentRunner {
     }
 
     public void run(ExecutionContext context) {
+        TenantContext.setCurrentTenant(context.getNotificationExecutorEntity().getTenantId());
         loggerService.logServiceRequest();
         try {
             String identity = context.getNotificationExecutorEntity().getContent();

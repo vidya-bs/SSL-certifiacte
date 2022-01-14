@@ -1,15 +1,9 @@
 package com.itorix.apiwiz.notification.agent.logging;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-
+import brave.Tracer;
+import brave.propagation.TraceContext;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +16,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import brave.Tracer;
-import brave.propagation.TraceContext;
+import javax.annotation.PostConstruct;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 @Component
 public class LoggerService {
@@ -47,7 +44,7 @@ public class LoggerService {
     private String privateIp = null;
     private String podHostName = null;
 
-    private static final String NOTIFICATION_AGENT_RUNNER_CLASS = "MonitorAgentRunner.class";
+    private static final String NOTIFICATION_AGENT_RUNNER_CLASS = "NotificationAgentRunner.class";
 
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
@@ -103,21 +100,20 @@ public class LoggerService {
                     .collect(Collectors.joining("||"));
             log.info(message);
         } catch (Exception e) {
-            log.error("Error occured while Service request/response");
+            log.error("Error occurred while Service request/response");
         }
     }
 
     public void logServiceRequest() {
         try {
-            TraceContext span = tracer.currentSpan().context();
+            TraceContext span = tracer.newTrace().context();
             Date date = new Date();
             DateFormat df = new SimpleDateFormat(DATE_FORMAT);
             df.setTimeZone(TimeZone.getDefault());
-            Map<String, String> logMessage = new HashMap<String, String>();
+            Map<String, String> logMessage = new HashMap();
             logMessage.put("timestamp", String.valueOf(System.currentTimeMillis()));
             logMessage.put("date", df.format(date));
-            // logMessage.put("guid", String.valueOf(Span.idToHex(span.getTraceId())));
-            logMessage.put("guid", String.valueOf(Long.toHexString(span.traceId())));
+            logMessage.put("guid", Long.toHexString(span.traceId()));
             logMessage.put("regionCode", region);
             logMessage.put("availabilityZone", availabilityZone);
             logMessage.put("privateIp", privateIp);
@@ -127,7 +123,7 @@ public class LoggerService {
             LoggingContext.setLogMap(logMessage);
 
         } catch (Exception e) {
-            log.error("Error occured while logging Service Request");
+            log.error("Error occurred while logging Service Request", e);
         }
     }
 

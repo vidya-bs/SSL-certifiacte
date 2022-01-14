@@ -36,4 +36,5 @@ public class UIMetadata extends AbstractObject {
 	public void setQuery(String query) {
 		this.query = query;
 	}
+
 }

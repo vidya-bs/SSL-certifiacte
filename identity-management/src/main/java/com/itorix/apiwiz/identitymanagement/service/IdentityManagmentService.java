@@ -3,6 +3,7 @@ package com.itorix.apiwiz.identitymanagement.service;
 import com.itorix.apiwiz.common.model.SwaggerTeam;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.util.mail.MailProperty;
 import com.itorix.apiwiz.identitymanagement.model.*;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import io.swagger.annotations.ApiOperation;
@@ -178,6 +179,26 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable String workspaceName)
 			throws ItorixException, Exception;
+
+	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/connector/smtp")
+	public @ResponseBody ResponseEntity<?> enableSMTPConnector(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody MailProperty mailProperty)
+			throws ItorixException;
+
+	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/connector/smtp")
+	public @ResponseBody ResponseEntity<?> deleteSMTPConnector(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid)
+			throws ItorixException;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/connector/smtp")
+	public @ResponseBody ResponseEntity<?> getSMTPConnector(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid)
+			throws ItorixException;
 
 	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/{userId}/remove-workspace")
