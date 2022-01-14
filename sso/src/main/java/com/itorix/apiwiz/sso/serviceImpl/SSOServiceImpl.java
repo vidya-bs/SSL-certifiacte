@@ -192,7 +192,7 @@ public class SSOServiceImpl implements SSOService {
     }
 
     public UserSession authenticate(UserInfo userInfo, boolean preAuthenticated) throws Exception {
-        logger.debug("UserService.authenticate : " + userInfo);
+        logger.debug("UserService.authenticate : " + userInfo.getWorkspaceId());
         UserSession userSession = null;
         if (preAuthenticated || userInfo.allowLogin() == true) {
             User user = findByEmailUserName(userInfo.getLoginId());

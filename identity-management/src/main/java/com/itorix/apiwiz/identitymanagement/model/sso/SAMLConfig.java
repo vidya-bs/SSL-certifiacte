@@ -40,4 +40,5 @@ public class SAMLConfig {
 	// IDP equivalent role names of itorix application
 	private UserDefinedRoles roles;
 	private String workspaceId;
+	private boolean overrideIDPRoles;
 }

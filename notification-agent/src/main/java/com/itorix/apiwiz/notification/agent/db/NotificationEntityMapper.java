@@ -1,9 +1,9 @@
 package com.itorix.apiwiz.notification.agent.db;
 
+import org.springframework.jdbc.core.RowMapper;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.springframework.jdbc.core.RowMapper;
 
 public class NotificationEntityMapper implements RowMapper<NotificationExecutorEntity> {
     public NotificationExecutorEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -12,6 +12,7 @@ public class NotificationEntityMapper implements RowMapper<NotificationExecutorE
         executorEntity.setStatus(rs.getString("status"));
         executorEntity.setType(rs.getString("type"));
         executorEntity.setContent(rs.getString("content"));
+        executorEntity.setTenantId(rs.getString("tenantId"));
         return executorEntity;
     }
 }

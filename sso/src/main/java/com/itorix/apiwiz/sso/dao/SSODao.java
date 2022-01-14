@@ -25,6 +25,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -56,7 +57,7 @@ public class SSODao {
         User user = mongoTemplate.findOne(query, User.class);
 
         if( user == null ) {
-            logger.info("User Not Found. Trying to identify the User using the UserId {} as emailId", userId);
+            logger.debug("User Not Found. Trying to identify the User using the UserId {} as emailId", userId);
                 Query findByEmailId = new Query(Criteria.where(User.LABEL_EMAIL).is(userId));
                 user = mongoTemplate.findOne(findByEmailId, User.class);
         }
@@ -64,7 +65,7 @@ public class SSODao {
         if( user == null ) {
             if (samlConfig.getEmailId() != null) {
                 String emailId = credentials.getAttributeAsString(samlConfig.getEmailId());
-                logger.info("User Not Found. Trying to identify the User using emailId {} from the claims", emailId);
+                logger.debug("User Not Found. Trying to identify the User using emailId {} from the claims", emailId);
                 Query findByEmailId = new Query(Criteria.where(User.LABEL_EMAIL).is(emailId));
                 user = mongoTemplate.findOne(findByEmailId, User.class);
             }
@@ -72,7 +73,7 @@ public class SSODao {
 
         List<String> projectRoles = getProjectRoleForSaml(samlConfig, credentials);
         if (user == null) {
-            logger.info("Creating User using UserId {}", userId);
+            logger.debug("Creating User using UserId {}", userId);
             user = new User();
 
             if (samlConfig.getFirstName() != null) {
@@ -114,9 +115,19 @@ public class SSODao {
             userWorkspace.setAcceptInvite(true);
             user.getWorkspaces().add(userWorkspace);
         } else {
-            if (projectRoles.size() > 1) {
-                UserWorkspace userWorkspace = user.getUserWorkspace(workspaceId);
-                userWorkspace.setRoles(projectRoles);
+            UserWorkspace userWorkspace = user.getUserWorkspace(workspaceId);
+            if (projectRoles.size() >= 1) {
+                SAMLConfig config = getSamlConfig();
+                if(config.isOverrideIDPRoles()) {
+                    logger.debug("Overriding Roles {} from IDP", projectRoles);
+                    userWorkspace.setRoles(projectRoles);
+                } else {
+                    List<String> existingRoles = userWorkspace.getRoles();
+                    logger.debug("Adding Roles {} from IDP to the existing roles {} ", projectRoles, existingRoles);
+                    projectRoles.addAll(existingRoles);
+                    userWorkspace.setRoles(projectRoles.stream().distinct().collect(Collectors.toList()));
+                }
+
             }
         }
         mongoTemplate.save(user);
@@ -208,26 +219,26 @@ public class SSODao {
         if (workspace.getIdpProvider().equals(IDPProvider.AZURE_AD)) {  //For Azure the User Group details are sent as roles
             samlAttribute = samlConfig.getUserRoles();
         }
-        List<String> userAssertionRoles = new ArrayList<>();
+        List<String> rolesConfiguredInIDP = new ArrayList<>();
         if (StringUtils.hasText(samlAttribute)) {
             String[] attributeAsStringArray = credentials.getAttributeAsStringArray(samlAttribute);
             if (attributeAsStringArray != null) {
-                userAssertionRoles = Arrays.asList(attributeAsStringArray);
+                rolesConfiguredInIDP = Arrays.asList(attributeAsStringArray);
             }
         }
-        return getProjectRole(userAssertionRoles);
+        return getProjectRole(rolesConfiguredInIDP);
     }
 
-    public List<String> getProjectRole(List<String> userDefinedRoles) {
+    public List<String> getProjectRole(List<String> userDefinedRolesInIDP) {
         List<String> projectRoles = new ArrayList<>();
 
         try {
             Map<String, String> ssoRoleMappers = getRoleMapper();
 
-            if (ssoRoleMappers != null && !ssoRoleMappers.isEmpty() && userDefinedRoles != null) {
-                userDefinedRoles.forEach(s -> {
-                    if (ssoRoleMappers.containsKey(s)) {
-                        projectRoles.add(ssoRoleMappers.get(s));
+            if (ssoRoleMappers != null && !ssoRoleMappers.isEmpty() && userDefinedRolesInIDP != null) {
+                userDefinedRolesInIDP.forEach(u -> {
+                    if (ssoRoleMappers.containsKey(u)) {
+                        projectRoles.add(ssoRoleMappers.get(u));
                     }
                 });
             }
