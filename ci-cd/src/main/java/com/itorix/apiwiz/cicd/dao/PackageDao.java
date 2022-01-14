@@ -18,6 +18,7 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -81,6 +82,12 @@ public class PackageDao {
 
 	@Autowired
 	private BaseRepository baseRepository;
+	
+	@Value("${itorix.core.apigee.cicd.package.notification.email.body}")
+	private String EMAIL_BODY;
+	
+	@Value("${itorix.core.apigee.cicd.package.notification.subject}")
+	private String EMAIL_SUBJECT;
 
 	public boolean validatePackage(String name) {
 		Query query = new Query(Criteria.where("packageName").is(name));
@@ -107,12 +114,33 @@ public class PackageDao {
 			if (packageRequest != null) {
 				packageRequest.setMetadata(manageMetadata(packageRequest.getMetadata(), user));
 				packageRequest = mongoTemplate.save(packageRequest);
+				sendNotificationEmail(packageRequest);
 				return packageRequest;
 			}
 			return packageRequest;
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
+	}
+
+	private void sendNotificationEmail(Package packageRequest) throws MessagingException {
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date date = new Date();
+		String formatedDate = dateFormat.format(date);
+		EmailTemplate emailTemplate = new EmailTemplate();
+		ArrayList<String> toMailId = new ArrayList<String>();
+		String body = null;
+		List<String> allUsers = commonServices.getAllUsersWithRoleDevOPS();
+		toMailId.addAll(allUsers);
+		if (packageRequest.getMetadata().getModifiedUserEmail() != null
+				&& packageRequest.getMetadata().getModifiedUserEmail() != "")
+			toMailId.add(packageRequest.getMetadata().getModifiedUserEmail());
+		body = MessageFormat.format(EMAIL_BODY, packageRequest.getPackageName(), 
+				formatedDate, packageRequest.getState(), packageRequest.getMetadata().getCreatedBy());
+		emailTemplate.setToMailId(toMailId);
+		emailTemplate.setBody(body);
+		emailTemplate.setSubject(EMAIL_SUBJECT);
+		mailUtil.sendEmail(emailTemplate);
 	}
 
 	public boolean editPackage(Package packageRequest, User user) throws ItorixException {

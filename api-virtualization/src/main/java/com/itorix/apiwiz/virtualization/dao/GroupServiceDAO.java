@@ -31,6 +31,7 @@ import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 import com.itorix.apiwiz.identitymanagement.model.User;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.identitymanagement.model.Workspace;
+import com.itorix.apiwiz.virtualization.model.ExpectationVO;
 import com.itorix.apiwiz.virtualization.model.GroupHistoryResponse;
 import com.itorix.apiwiz.virtualization.model.GroupVO;
 import com.itorix.apiwiz.virtualization.model.Metadata;
@@ -237,7 +238,9 @@ public class GroupServiceDAO {
 
 	public boolean deleteGroup(GroupVO group) {
 		try {
-			Query query = new Query(Criteria.where("_id").is(group.getId()));
+			Query query = new Query(Criteria.where("groupId").is(group.getId()));
+			DeleteResult scenarioResult = mongoTemplate.remove(query, Expectation.class);
+			query = new Query(Criteria.where("_id").is(group.getId()));
 			DeleteResult result = mongoTemplate.remove(query, GroupVO.class);
 			return result.wasAcknowledged();
 		} catch (Exception ex) {
