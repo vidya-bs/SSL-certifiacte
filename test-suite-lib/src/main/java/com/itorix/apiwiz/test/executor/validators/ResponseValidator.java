@@ -50,7 +50,7 @@ public class ResponseValidator {
                     }
                     responseHeaderAssertion.setMessage(e.getMessage());
                     if (!responseHeaderAssertion.isContinueOnError()) {
-                        throw new Exception("Assertion Failed, Aborting...", e);
+                        throw new HaltExecution("Assertion Failed, Aborting...", e);
                     }
                 }
             }
@@ -121,7 +121,7 @@ public class ResponseValidator {
                     }
                     ex.printStackTrace();
                     if (!assertion.isContinueOnError()) {
-                        throw new Exception(ex.getMessage());
+                        throw new HaltExecution(ex.getMessage());
                     }
                 }
             }

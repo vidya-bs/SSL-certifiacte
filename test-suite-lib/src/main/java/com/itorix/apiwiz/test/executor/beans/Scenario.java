@@ -1,10 +1,10 @@
 package com.itorix.apiwiz.test.executor.beans;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -27,6 +27,9 @@ public class Scenario {
 
     @JsonProperty("duration")
     private Long duration;
+
+    @JsonProperty("continueOnError")
+    private boolean continueOnError = true;
 
     @JsonProperty("name")
     public String getName() {
@@ -82,5 +85,13 @@ public class Scenario {
 
     public void setDuration(Long duration) {
         this.duration = duration;
+    }
+
+    public boolean isContinueOnError() {
+        return continueOnError;
+    }
+
+    public void setContinueOnError(boolean continueOnError) {
+        this.continueOnError = continueOnError;
     }
 }
