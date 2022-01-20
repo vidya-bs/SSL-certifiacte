@@ -139,6 +139,8 @@ public class TestRunner {
 
         if (testSuite.getScenarios() != null) {
             for (Scenario scenario : testSuite.getScenarios()) {
+                Map<String, Boolean> succededTests = new HashMap<>();
+                Map<String, Boolean> failedTests = new HashMap<>();
                 try {
                     logger.debug("executing scenario for testSuiteResponseID" + testSuiteResponseID);
 
@@ -146,8 +148,6 @@ public class TestRunner {
                         return new TestSuiteResponse(testSuite.getId(), null, testSuite,
                                 TestExecutorEntity.STATUSES.CANCELLED.getValue());
                     }
-                    Map<String, Boolean> succededTests = new HashMap<String, Boolean>();
-                    Map<String, Boolean> failedTests = new HashMap<String, Boolean>();
                     if (scenario != null && scenario.getTestCases() != null) {
                         List<TestCase> testCases = scenario.getTestCases();
 
@@ -232,6 +232,15 @@ public class TestRunner {
                     scenario.setSuccessRate((int) Math.round(successRate));
                 } catch(HaltExecution ex) {
                     logger.debug("Skipping processing of remaining scenarios. To process the remaining scenarios modify continueOnError flag on scenario {} ", scenario.getName());
+                    scenario.setStatus("FAIL");
+                    failedScenarios.add(scenario.getName());
+                    double successRate = 0;
+                    if (!CollectionUtils.isEmpty(succededTests)) {
+                        successRate = Double
+                                .valueOf(((double) succededTests.size() / scenario.getTestCases().size()) * 100);
+                    }
+                    scenarioSuccessSum += successRate;
+                    scenario.setSuccessRate((int) Math.round(successRate));
                     break;
                 }
             }
