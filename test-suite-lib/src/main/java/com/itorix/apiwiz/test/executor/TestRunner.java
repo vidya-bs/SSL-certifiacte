@@ -10,6 +10,7 @@ import com.itorix.apiwiz.test.component.CancellationExecutor;
 import com.itorix.apiwiz.test.dao.TestSuitExecutorSQLDao;
 import com.itorix.apiwiz.test.dao.TestSuiteExecutorDao;
 import com.itorix.apiwiz.test.db.TestExecutorEntity;
+import com.itorix.apiwiz.test.exception.HaltExecution;
 import com.itorix.apiwiz.test.executor.beans.*;
 import com.itorix.apiwiz.test.executor.model.TenantContext;
 import com.itorix.apiwiz.test.executor.validators.JsonValidator;
@@ -138,82 +139,110 @@ public class TestRunner {
 
         if (testSuite.getScenarios() != null) {
             for (Scenario scenario : testSuite.getScenarios()) {
-                logger.debug("executing scenario for testSuiteResponseID" + testSuiteResponseID);
+                Map<String, Boolean> succededTests = new HashMap<>();
+                Map<String, Boolean> failedTests = new HashMap<>();
+                try {
+                    logger.debug("executing scenario for testSuiteResponseID" + testSuiteResponseID);
 
-                if (cancellationExecutor.getAndRemoveTestSuiteCancellationId(testSuiteResponseID)) {
-                    return new TestSuiteResponse(testSuite.getId(), null, testSuite,
-                            TestExecutorEntity.STATUSES.CANCELLED.getValue());
-                }
-                Map<String, Boolean> succededTests = new HashMap<String, Boolean>();
-                Map<String, Boolean> failedTests = new HashMap<String, Boolean>();
-                if (scenario != null && scenario.getTestCases() != null) {
-                    List<TestCase> testCases = scenario.getTestCases();
+                    if (cancellationExecutor.getAndRemoveTestSuiteCancellationId(testSuiteResponseID)) {
+                        return new TestSuiteResponse(testSuite.getId(), null, testSuite,
+                                TestExecutorEntity.STATUSES.CANCELLED.getValue());
+                    }
+                    if (scenario != null && scenario.getTestCases() != null) {
+                        List<TestCase> testCases = scenario.getTestCases();
 
-                    int numberOfTestCases = testCases.size();
-                    int counter = 0;
-                    for (; succededTests.size() + failedTests.size() < numberOfTestCases; counter++) {
-                        TestCase testCase = testCases.get(counter);
-                        Long starttime = System.currentTimeMillis();
-                        Map<String, Integer> testStatus = new HashMap<String, Integer>();
-                        try {
-                            if (canExecuteTestCase(testCase, succededTests, failedTests)) {
-                                String sslReference = fillTemplate(testCase.getSslReference(), globalVars);
-                                SSLConnectionSocketFactory sslConnectionFactory = dao
-                                        .getSSLConnectionFactory(sslReference);
+                        int numberOfTestCases = testCases.size();
+                        int counter = 0;
+                        for (; succededTests.size() + failedTests.size() < numberOfTestCases; counter++) {
+                            TestCase testCase = testCases.get(counter);
+                            Long starttime = System.currentTimeMillis();
+                            Map<String, Integer> testStatus = new HashMap<String, Integer>();
+                            try {
+                                if (canExecuteTestCase(testCase, succededTests, failedTests)) {
+                                    String sslReference = fillTemplate(testCase.getSslReference(), globalVars);
+                                    SSLConnectionSocketFactory sslConnectionFactory = dao
+                                            .getSSLConnectionFactory(sslReference);
 
-                                // creating maskingFields object in case it is null, just to avoid null checks at many
-                                // places
-                                if (maskingFields == null) {
-                                    maskingFields = new MaskFields();
+                                    // creating maskingFields object in case it is null, just to avoid null checks at many
+                                    // places
+                                    if (maskingFields == null) {
+                                        maskingFields = new MaskFields();
+                                    }
+                                    invokeTestCase(testCase, globalVars, encryptedVariables, maskingFields, testStatus,
+                                            skipAssertions, isMonitoring, sslConnectionFactory, globalTimeout);
+                                } else {
+                                    counter++;
+                                    if (counter > testCases.size()) {
+                                        counter = 0;
+                                    }
+                                    continue;
                                 }
-                                invokeTestCase(testCase, globalVars, encryptedVariables, maskingFields, testStatus,
-                                        skipAssertions, isMonitoring, sslConnectionFactory, globalTimeout);
-                            } else {
-                                counter++;
+                                if (testStatus.get("FAIL") == null) {
+                                    testCases.get(counter).setStatus("PASS");
+                                    succededTests.put(testCase.getName(), true);
+                                } else {
+                                    testCases.get(counter).setStatus("FAIL");
+                                    logger.debug("test case execution failed for {}", testCase.getName());
+                                    failedTests.put(testCase.getName(), true);
+                                }
+                            } catch(HaltExecution ex) {
+                                logger.debug("Halting execution of test cases since a test case {} failed. ", testCase.getName());
+                                testCase.setStatus("FAIL");
+                                testCase.setMessage(ex.getMessage());
+                                computeHeaders(testCase.getRequest().getHeaders(), globalVars);
+                                failedTests.put(testCase.getName(), true);
+                                if(!scenario.isContinueOnError()) {
+                                    throw new HaltExecution("Scenario " + scenario.getName() + " is configured to skip upcoming test scenarios");
+                                }
+                                break;
+
+                            }catch (AssertionError | Exception ex) {
+                                logger.error("Error executing {} , {} ", testCase.getName(), ex);
+                                testCase.setStatus("FAIL");
+                                testCase.setMessage(ex.getMessage());
+                                computeHeaders(testCase.getRequest().getHeaders(), globalVars);
+                                failedTests.put(testCase.getName(), true);
+                                if(!scenario.isContinueOnError()) {
+                                    throw new HaltExecution("Scenario " + scenario.getName() + " is configured to skip upcoming test scenarios");
+                                }
+                            } finally {
+                                testCase.setDuration(System.currentTimeMillis() - starttime);
                                 if (counter > testCases.size()) {
                                     counter = 0;
                                 }
-                                continue;
-                            }
-                            if (testStatus.get("FAIL") == null) {
-                                testCases.get(counter).setStatus("PASS");
-                                succededTests.put(testCase.getName(), true);
-                            } else {
-                                testCases.get(counter).setStatus("FAIL");
-                                logger.debug("test case execution failed for {}", testCase.getName());
-                                failedTests.put(testCase.getName(), true);
-                            }
-                        } catch (AssertionError | Exception ex) {
-                            logger.error("Error executing {} , {} ", testCase.getName(), ex);
-                            testCase.setStatus("FAIL");
-                            testCase.setMessage(ex.getMessage());
-                            computeHeaders(testCase.getRequest().getHeaders(), globalVars);
-                            failedTests.put(testCase.getName(), true);
-                        } finally {
-                            testCase.setDuration(System.currentTimeMillis() - starttime);
-                            if (counter > testCases.size()) {
-                                counter = 0;
                             }
                         }
                     }
-                }
-                if (!failedTests.isEmpty()) {
+                    if (!failedTests.isEmpty()) {
+                        scenario.setStatus("FAIL");
+                        failedScenarios.add(scenario.getName());
+                    } else {
+                        scenario.setStatus("PASS");
+                        succededScenarios.add(scenario.getName());
+                    }
+
+                    double successRate = 0;
+
+                    if (!CollectionUtils.isEmpty(succededTests)) {
+                        successRate = Double
+                                .valueOf(((double) succededTests.size() / scenario.getTestCases().size()) * 100);
+                    }
+
+                    scenarioSuccessSum += successRate;
+                    scenario.setSuccessRate((int) Math.round(successRate));
+                } catch(HaltExecution ex) {
+                    logger.debug("Skipping processing of remaining scenarios. To process the remaining scenarios modify continueOnError flag on scenario {} ", scenario.getName());
                     scenario.setStatus("FAIL");
                     failedScenarios.add(scenario.getName());
-                } else {
-                    scenario.setStatus("PASS");
-                    succededScenarios.add(scenario.getName());
+                    double successRate = 0;
+                    if (!CollectionUtils.isEmpty(succededTests)) {
+                        successRate = Double
+                                .valueOf(((double) succededTests.size() / scenario.getTestCases().size()) * 100);
+                    }
+                    scenarioSuccessSum += successRate;
+                    scenario.setSuccessRate((int) Math.round(successRate));
+                    break;
                 }
-
-                double successRate = 0;
-
-                if (!CollectionUtils.isEmpty(succededTests)) {
-                    successRate = Double
-                            .valueOf(((double) succededTests.size() / scenario.getTestCases().size()) * 100);
-                }
-
-                scenarioSuccessSum += successRate;
-                scenario.setSuccessRate((int) Math.round(successRate));
             }
 
             if (failedScenarios.isEmpty()) {
@@ -620,14 +649,17 @@ public class TestRunner {
         }
 
         try {
-            expectedResponse.getBody().setData(validator.getUpdatedObjectAsString());
-            if (maskingFields != null && !CollectionUtils.isEmpty(maskingFields.getMaskingFields())) {
-                expectedResponse.getBody().setData(validator.getMaskedResponse(maskingFields.getMaskingFields()));
+            if(validator != null) {
+                expectedResponse.getBody().setData(validator.getUpdatedObjectAsString());
+                if (maskingFields != null && !CollectionUtils.isEmpty(maskingFields.getMaskingFields())) {
+                    expectedResponse.getBody().setData(validator.getMaskedResponse(maskingFields.getMaskingFields()));
+                }
             }
 
-        } catch (Exception e) {
+        } catch (HaltExecution e) {
+            throw new HaltExecution(e.getMessage());
+        }catch (Exception e) {
             logger.error(e.getMessage(), e);
-            e.printStackTrace();
         }
 
         // Check for Accept Headers to invoke xml or json validations

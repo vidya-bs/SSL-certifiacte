@@ -62,24 +62,27 @@ public class LoggerService {
 
 	@PostConstruct
 	public void initLoggingDetails() {
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Accept", "application/json");
-		headers.set("key", "ae621919-e9cf-42eb-9b31-400a62e7b9af");
-		RestTemplate restTemplate = new RestTemplate();
-		HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
-		try {
-			ResponseEntity<String> response = restTemplate.exchange(awsURL, HttpMethod.GET, requestEntity,
-					new ParameterizedTypeReference<String>() {
-					});
-			JsonNode json = new ObjectMapper().readTree(response.getBody());
-			region = json.get("region").asText();
-			availabilityZone = json.get("availabilityZone").asText();
-			privateIp = json.get("privateIp").asText();
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			e.printStackTrace();
+		if(awsURL != null) {
+			HttpHeaders headers = new HttpHeaders();
+			headers.set("Accept", "application/json");
+			headers.set("key", "ae621919-e9cf-42eb-9b31-400a62e7b9af");
+			RestTemplate restTemplate = new RestTemplate();
+			HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
+			try {
+				ResponseEntity<String> response = restTemplate.exchange(awsURL, HttpMethod.GET, requestEntity,
+						new ParameterizedTypeReference<String>() {
+						});
+				JsonNode json = new ObjectMapper().readTree(response.getBody());
+				region = json.get("region").asText();
+				availabilityZone = json.get("availabilityZone").asText();
+				privateIp = json.get("privateIp").asText();
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				e.printStackTrace();
+			}
+			getPodHost();
 		}
-		getPodHost();
+
 	}
 
 	private  void getPodHost() {
