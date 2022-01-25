@@ -297,7 +297,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			response = cicdIntegrationApi.getArtifacts(pipelineName, pipelineCounter, stageName, stageCounter,
 					artifactName);
 		} catch (Exception ex) {
-			log.error("Error while retrieving build and test artifacts", ex.getMessage());
+			log.error("Error while retrieving build and test artifacts", ex);
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + artifactName)
@@ -469,7 +469,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			responseLogs = cicdIntegrationApi.getRuntimeLogs(groupName, pipelineName, pipelineCounter, stageName,
 					stageCounter, jobName);
 		} catch (Exception ex) {
-			log.error("Error while retrieving pipeline information", ex.getMessage());
+			log.error("Error while retrieving pipeline information", ex);
 			return new ResponseEntity<>(new ErrorObj("Error while retrieving pipeline information", "CI-CD-GBTA500"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
