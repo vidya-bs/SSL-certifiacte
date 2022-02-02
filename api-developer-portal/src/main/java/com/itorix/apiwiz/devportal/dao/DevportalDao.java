@@ -26,6 +26,10 @@ public class DevportalDao {
 			ResponseEntity<String> response;
 			if (method.equals("POST"))
 				response = httpConn.doPost();
+			else if (method.equals("PUT"))
+				response = httpConn.doPut();
+			else if (method.equals("DELETE"))
+				response = httpConn.doDelete();
 			else
 				response = httpConn.doGet();
 			HttpStatus statusCode = response.getStatusCode();
