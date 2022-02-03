@@ -63,10 +63,13 @@ public interface ConsentManagementService {
 	public ResponseEntity<?> getScopeCategoryByName(@RequestParam(value = "category", required = true) String categoryName) throws ItorixException;
 
 
+
 	@ApiOperation(value = "Create or Update Scope Category Columns")
 	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = "Accepted"),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/consents/data")
 	public ResponseEntity<?> createOrUpdateScopeCategoryColumns(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestBody ScopeCategoryColumns registryColumns) throws ItorixException;
 
