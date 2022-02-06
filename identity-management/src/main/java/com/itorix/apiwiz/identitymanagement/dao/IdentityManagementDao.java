@@ -544,6 +544,8 @@ public class IdentityManagementDao {
 				workspaces.add(userWorkspace);
 				user.setWorkspaces(workspaces);
 				user = saveUser(user);
+				token.setUsed(true);
+				saveVerificationToken(token);
 				sendActivationEmail(user);
 			} else {
 				throw new ItorixException("user email is not verified", "USER_005");
@@ -1033,24 +1035,10 @@ public class IdentityManagementDao {
 			user.setEmail(userInfo.getEmail());
 			password(user);
 		} else if (userInfo.getType().equals("register")) {
-			// if(userInfo.getWorkspaceId() == null)
-			// throw new
-			// ItorixException(ErrorCodes.errorMessage.get("Identity-1038"),"Identity-1038");
 			User user = findByEmail(userInfo.getEmail());
-			// UserWorkspace workspace =
-			// user.getUserWorkspace(userInfo.getWorkspaceId());
-			// if(workspace != null &&
-			// workspace.getUserType().equals("Site-Admin") &&
-			// workspace.getAcceptInvite() == false){
 			VerificationToken token = createVerificationToken("registerUser", user.getEmail());
-			// token.setWorkspaceId(userInfo.getWorkspaceId());
-			// token.setUserType("Site-Admin");
 			saveVerificationToken(token);
 			sendRegistrationEmail(token, user);
-			// }else {
-			// throw new
-			// ItorixException(ErrorCodes.errorMessage.get("Identity-1037"),"Identity-1037");
-			// }
 		}
 	}
 
@@ -1076,7 +1064,7 @@ public class IdentityManagementDao {
 		User user = findByEmail(token.getUserEmail());
 		user.setUserStatus("active");
 		saveUser(user);
-		token.setUsed(true);
+		//token.setUsed(true);
 		saveVerificationToken(token);
 		return "activated";
 	}
@@ -1113,8 +1101,8 @@ public class IdentityManagementDao {
 					}
 			user.setWorkspaces(workspaces);
 			saveUser(user);
-			token.setUsed(true);
-			saveVerificationToken(token);
+			//token.setUsed(true);
+			//saveVerificationToken(token);
 			return "WorkspaceAdded";
 		} else {
 			return "registrationRequired";
