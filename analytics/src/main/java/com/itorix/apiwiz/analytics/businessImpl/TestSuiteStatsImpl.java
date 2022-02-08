@@ -2,13 +2,17 @@ package com.itorix.apiwiz.analytics.businessImpl;
 
 
 import com.itorix.apiwiz.analytics.model.TestStudioStats;
+import com.itorix.apiwiz.analytics.model.TestSuiteExecCountByStatus;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,13 +22,36 @@ public class TestSuiteStatsImpl {
 
     private static final String TEST_SUITE_COLLECTION = "Test.Collections.List";
 
+    private static final String TEST_EVENT_HISTORY = "Test.Events.History";
+
     @Autowired
     private MongoTemplate mongoTemplate;
 
     public TestStudioStats createTestSuiteStats() {
         TestStudioStats testStudioStats = new TestStudioStats();
         testStudioStats.setTopFiveTestsBasedOnSuccessRatio(getTopFiveTestsBasedOnSucessRatio());
+        testStudioStats.setTestSuiteExecCountByStatuses(getTestSuiteByExecutionStatus());
         return testStudioStats;
+    }
+
+    private List<TestSuiteExecCountByStatus> getTestSuiteByExecutionStatus() {
+        List<TestSuiteExecCountByStatus> testSuiteByStatusList = new ArrayList<>();
+        GroupOperation groupOperation = Aggregation.group("testSuite.name", "testSuite.status").count().as("count");
+        Aggregation aggregation = Aggregation.newAggregation(groupOperation);
+        List<Document> mappedResults = mongoTemplate.aggregate(aggregation, TEST_EVENT_HISTORY, Document.class).getMappedResults();
+        mappedResults.forEach( d ->  {
+            TestSuiteExecCountByStatus testSuiteByStatus = getTestSuiteByStatus(d);
+            testSuiteByStatusList.add(testSuiteByStatus);
+        });
+        return testSuiteByStatusList;
+    }
+
+    private TestSuiteExecCountByStatus getTestSuiteByStatus(Document d) {
+        TestSuiteExecCountByStatus testSuiteByStatus = new TestSuiteExecCountByStatus();
+        testSuiteByStatus.setTestSuiteName(d.getString("name"));
+        testSuiteByStatus.setStatus(d.getString("status"));
+        testSuiteByStatus.setCount(d.getInteger("count"));
+        return testSuiteByStatus;
     }
 
     public Map<String, Integer> getTopFiveTestsBasedOnSucessRatio() {

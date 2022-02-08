@@ -65,7 +65,7 @@ public class LandingPageStatsImpl {
     }
 
     private int getNumberOfMonitorCollectionsCreated(String userId) {
-        return getFromActivityLog(userId, "/v1/monitor/collections", false).size();
+        return getFromActivityLog(userId, "/itorix/v1/monitor/collections/", false).size();
     }
 
     private int getNumberOfPipelineCreated(String userId) {

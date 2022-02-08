@@ -3,11 +3,13 @@ package com.itorix.apiwiz.analytics.businessImpl;
 import com.itorix.apiwiz.analytics.beans.monitor.ExecutionResult;
 import com.itorix.apiwiz.analytics.beans.monitor.MonitorCollections;
 import com.itorix.apiwiz.analytics.beans.monitor.MonitorCollectionsResponse;
+import com.itorix.apiwiz.analytics.model.MonitorExecCountByStatus;
 import com.itorix.apiwiz.analytics.model.MonitorStats;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -18,7 +20,8 @@ import java.util.stream.Collectors;
 
 @Component
 public class MonitorStatsImpl {
-    private static final String MONITOR_COLLECTIONS_LIST = "Monitor.Collections.List";
+
+    private static final String MONITOR_EVENTS_HISTORY = "Monitor.Collections.Events.History";
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -28,7 +31,38 @@ public class MonitorStatsImpl {
         List<MonitorCollectionsResponse> monitorResponses = getMonitorResponses();
         monitorStats.setTopFiveMonitorsBasedOnUptime(getTopFiveMonitorsBasedOnUptime(monitorResponses));
         monitorStats.setTopFiveMonitorsBasedOnLatency(getTopFiveMonitorsBasedOnLatency(monitorResponses));
+        List<MonitorExecCountByStatus> monitorExecCountByStatuses = getMonitorExecCountByStatuses();
+        replaceMonitorCollectionIdWithName(monitorExecCountByStatuses);
+        monitorStats.setMonitorExecCountByStatuses(monitorExecCountByStatuses);
         return monitorStats;
+    }
+
+    private void replaceMonitorCollectionIdWithName(List<MonitorExecCountByStatus> monitorExecCountByStatuses) {
+        HashMap<String, String> monitorIdAndName = new HashMap<>();
+        List<MonitorCollections> monitorCollections = mongoTemplate.findAll(MonitorCollections.class);
+        monitorCollections.stream().forEach( m -> monitorIdAndName.put(m.getId(), m.getName()));
+        monitorExecCountByStatuses.forEach( m -> m.setMonitorCollectionName(monitorIdAndName.get(m.getMonitorCollectionName())));
+    }
+
+    private List<MonitorExecCountByStatus> getMonitorExecCountByStatuses() {
+        List<MonitorExecCountByStatus> monitorExecCountByStatuses = new ArrayList<>();
+        GroupOperation groupOperation = Aggregation.group("collectionId", "status").count().as("count");
+        Aggregation aggregation = Aggregation.newAggregation(groupOperation);
+        List<Document> mappedResults = mongoTemplate.aggregate(aggregation, MONITOR_EVENTS_HISTORY, Document.class).getMappedResults();
+        mappedResults.forEach( d ->  {
+            MonitorExecCountByStatus monitorExecCountByStatus = getMonitorExecCountStatus(d);
+            monitorExecCountByStatuses.add(monitorExecCountByStatus);
+        });
+        return monitorExecCountByStatuses;
+    }
+
+    private MonitorExecCountByStatus getMonitorExecCountStatus(Document d) {
+        MonitorExecCountByStatus monitorExecCountByStatus = new MonitorExecCountByStatus();
+        monitorExecCountByStatus.setMonitorCollectionName(d.getString("collectionId"));
+        monitorExecCountByStatus.setStatus(d.getString("status"));
+        monitorExecCountByStatus.setCount(d.getInteger("count"));
+
+        return monitorExecCountByStatus;
     }
 
     private Map<String, Long> getTopFiveMonitorsBasedOnLatency(List<MonitorCollectionsResponse> monitorResponses) {
