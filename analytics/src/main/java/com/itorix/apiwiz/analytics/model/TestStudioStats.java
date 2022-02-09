@@ -9,6 +9,6 @@ import java.util.Map;
 @Getter
 @Setter
 public class TestStudioStats {
-    private Map<String, Double> topFiveTestsBasedOnSuccessRatio;
+    private Map<String, Integer> topFiveTestsBasedOnSuccessRatio;
     private List<TestSuiteExecCountByStatus> testSuiteExecCountByStatuses;
 }

@@ -54,12 +54,12 @@ public class TestSuiteStatsImpl {
         return testSuiteByStatus;
     }
 
-    public Map<String, Double> getTopFiveTestsBasedOnSuccessRatio() {
-        Map<String, Double> testsWithHigherSuccessRatio = new LinkedHashMap<>();
+    public Map<String, Integer> getTopFiveTestsBasedOnSuccessRatio() {
+        Map<String, Integer> testsWithHigherSuccessRatio = new LinkedHashMap<>();
         Query query = new Query();
         query.with(Sort.by(Sort.Order.desc("successRatio"))).limit(5);
         List<Document> documents = mongoTemplate.find(query, Document.class, TEST_SUITE_COLLECTION);
-        documents.forEach( d -> testsWithHigherSuccessRatio.put(d.getString("name"), d.getDouble("successRatio")));
+        documents.forEach( d -> testsWithHigherSuccessRatio.put(d.getString("name"), d.getInteger("successRatio")));
         return testsWithHigherSuccessRatio;
     }
 
