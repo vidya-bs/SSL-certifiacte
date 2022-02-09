@@ -29,7 +29,7 @@ public class TestSuiteStatsImpl {
 
     public TestStudioStats createTestSuiteStats() {
         TestStudioStats testStudioStats = new TestStudioStats();
-        testStudioStats.setTopFiveTestsBasedOnSuccessRatio(getTopFiveTestsBasedOnSucessRatio());
+        testStudioStats.setTopFiveTestsBasedOnSuccessRatio(getTopFiveTestsBasedOnSuccessRatio());
         testStudioStats.setTestSuiteExecCountByStatuses(getTestSuiteByExecutionStatus());
         return testStudioStats;
     }
@@ -54,12 +54,12 @@ public class TestSuiteStatsImpl {
         return testSuiteByStatus;
     }
 
-    public Map<String, Integer> getTopFiveTestsBasedOnSucessRatio() {
-        Map<String, Integer> testsWithHigherSuccessRatio = new LinkedHashMap<>();
+    public Map<String, Double> getTopFiveTestsBasedOnSuccessRatio() {
+        Map<String, Double> testsWithHigherSuccessRatio = new LinkedHashMap<>();
         Query query = new Query();
         query.with(Sort.by(Sort.Order.desc("successRatio"))).limit(5);
         List<Document> documents = mongoTemplate.find(query, Document.class, TEST_SUITE_COLLECTION);
-        documents.forEach( d -> testsWithHigherSuccessRatio.put(d.getString("name"), d.getInteger("successRatio")));
+        documents.forEach( d -> testsWithHigherSuccessRatio.put(d.getString("name"), d.getDouble("successRatio")));
         return testsWithHigherSuccessRatio;
     }
 
