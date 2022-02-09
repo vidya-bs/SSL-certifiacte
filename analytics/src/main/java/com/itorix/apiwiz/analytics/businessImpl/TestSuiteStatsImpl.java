@@ -31,8 +31,12 @@ public class TestSuiteStatsImpl {
 
     public TestStudioStats createTestSuiteStats() {
         TestStudioStats testStudioStats = new TestStudioStats();
-        testStudioStats.setTopFiveTestsBasedOnSuccessRatio(getTopFiveTestsBasedOnSuccessRatio());
-        testStudioStats.setTestSuiteExecCountByStatuses(getTestSuiteByExecutionStatus());
+        try {
+            testStudioStats.setTopFiveTestsBasedOnSuccessRatio(getTopFiveTestsBasedOnSuccessRatio());
+            testStudioStats.setTestSuiteExecCountByStatuses(getTestSuiteByExecutionStatus());
+        } catch (Exception ex) {
+            LOGGER.error("Error while calculation Monitoring Stats", ex);
+        }
         return testStudioStats;
     }
 
