@@ -6,6 +6,8 @@ import com.itorix.apiwiz.analytics.beans.monitor.MonitorCollectionsResponse;
 import com.itorix.apiwiz.analytics.model.MonitorExecCountByStatus;
 import com.itorix.apiwiz.analytics.model.MonitorStats;
 import org.bson.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 
 @Component
 public class MonitorStatsImpl {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MonitorStatsImpl.class);
 
     private static final String MONITOR_EVENTS_HISTORY = "Monitor.Collections.Events.History";
 
@@ -45,6 +49,7 @@ public class MonitorStatsImpl {
     }
 
     private List<MonitorExecCountByStatus> getMonitorExecCountByStatuses() {
+        LOGGER.debug("getMonitorExecCountByStatuses started");
         List<MonitorExecCountByStatus> monitorExecCountByStatuses = new ArrayList<>();
         GroupOperation groupOperation = Aggregation.group("collectionId", "status").count().as("count");
         Aggregation aggregation = Aggregation.newAggregation(groupOperation);
@@ -53,6 +58,7 @@ public class MonitorStatsImpl {
             MonitorExecCountByStatus monitorExecCountByStatus = getMonitorExecCountStatus(d);
             monitorExecCountByStatuses.add(monitorExecCountByStatus);
         });
+        LOGGER.debug("getMonitorExecCountByStatuses completed");
         return monitorExecCountByStatuses;
     }
 
@@ -66,22 +72,27 @@ public class MonitorStatsImpl {
     }
 
     private Map<String, Long> getTopFiveMonitorsBasedOnLatency(List<MonitorCollectionsResponse> monitorResponses) {
+        LOGGER.debug("getTopFiveMonitorsBasedOnLatency started");
         Map<String, Long> topFiveMonitorBasedOnUptime = new LinkedHashMap<>();
         monitorResponses.stream().filter( r -> r.getLatency() > 0).
                 sorted(Comparator.comparingLong(MonitorCollectionsResponse::getLatency)).
                 limit(5).forEach( r -> topFiveMonitorBasedOnUptime.put(r.getName(), r.getLatency()));
+        LOGGER.debug("getTopFiveMonitorsBasedOnLatency completed");
         return topFiveMonitorBasedOnUptime;
     }
 
     private Map<String, Integer> getTopFiveMonitorsBasedOnUptime(List<MonitorCollectionsResponse> responses) {
+        LOGGER.debug("getTopFiveMonitorsBasedOnUptime started");
         Map<String, Integer> topFiveMonitorBasedOnUptime = new LinkedHashMap<>();
         responses.stream().filter( r -> r.getUptime() > 0).
                 sorted(Comparator.comparingLong(MonitorCollectionsResponse::getUptime).reversed()).
                 limit(5).forEach( r -> topFiveMonitorBasedOnUptime.put(r.getName(), r.getUptime()));
+        LOGGER.debug("getTopFiveMonitorsBasedOnUptime completed");
         return topFiveMonitorBasedOnUptime;
     }
 
     private List<MonitorCollectionsResponse> getMonitorResponses() {
+        LOGGER.debug("getMonitorResponses started");
         Query query = new Query();
 
         query.fields().include("id").include("name").include("summary").include("cts").include("createdBy")
@@ -151,6 +162,8 @@ public class MonitorStatsImpl {
                 monitorResponses.add(colectionResponse);
             }
         }
+
+        LOGGER.debug("getMonitorResponses completed");
 
         return monitorResponses;
     }

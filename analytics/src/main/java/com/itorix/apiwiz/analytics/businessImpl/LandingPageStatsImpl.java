@@ -38,6 +38,7 @@ public class LandingPageStatsImpl {
         WorkspaceDashboard workspaceDashboard = new WorkspaceDashboard();
         LandingPageMetrics landingPageMetrics = new LandingPageMetrics();
 
+        LOGGER.debug("Collecting Landing Page Metrics");
         landingPageMetrics.setNumberOfPortfoliosCreated(getNumberOfPortfolioCreated(userId));
         landingPageMetrics.setNumberOfSwaggersCreated(getNumberOfSwaggersCreated(userId));
         landingPageMetrics.setNumberOfProxiesCreated(getNumberOfProxiesCreated(userId));
@@ -47,10 +48,19 @@ public class LandingPageStatsImpl {
         landingPageMetrics.setNumberOfMonitorCollectionsCreated(getNumberOfMonitorCollectionsCreated(userId));
         landingPageMetrics.setNumberOfTestsExecuted(getNumberOfTestsExecuted(userId));
         landingPageMetrics.setNumberOfPipelinesTriggered(getNumberOfPipelineTriggered(userId));
+        LOGGER.debug("Landing Page Metrics Completed");
 
+        LOGGER.debug("Collecting TestSuite Metrics");
         workspaceDashboard.setTestStudioStats(testSuiteStats.createTestSuiteStats());
+        LOGGER.debug("TestSuite Metrics Collected");
+
+        LOGGER.debug("Collecting Proxy Metrics");
         workspaceDashboard.setProxyStats(proxyStatsImpl.createProxyStats());
+        LOGGER.debug("Proxy Metrics collected");
+
+        LOGGER.debug("Collecting Monitor Metrics");
         workspaceDashboard.setMonitorStats(monitorStatsImpl.createMonitorStats());
+        LOGGER.debug("Monitor Metrics collected");
 
         workspaceDashboard.setLandingPageMetrics(landingPageMetrics);
         return workspaceDashboard;
