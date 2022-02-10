@@ -359,6 +359,9 @@ public enum ErrorCodes {
 			put("Identity-1043", 400);
 			put("Identity-1044", 400);
 			put("Identity-1045", 400);
+			put("USER_005", 400);
+			put("USER_008", 400);
+			put("USER_004", 400);
 			put("Connector-1000", 400);
 			put("Connector-1001", 400);
 			put("Connector-1002", 400);

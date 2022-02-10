@@ -38,6 +38,35 @@ public interface DevportalService {
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @PathVariable("appName") String appName, @RequestBody String body)
 			throws Exception;
+	
+	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/organizations/{org}/developers/{email:.+}/apps/{appName}/keys/{appKey}")
+	public org.springframework.http.ResponseEntity<String> updateAppProduct(
+			@RequestHeader(value = "JSESSIONID") String jsessionId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
+			@PathVariable("email") String email, @PathVariable("appName") String appName,
+			@PathVariable("appKey") String appKey, @RequestBody String body)
+			throws Exception;
+	
+	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/organizations/{org}/developers/{email:.+}/apps/{appName}/keys/{appKey}/apiproducts/{product}")
+	public org.springframework.http.ResponseEntity<String> deleteAppProduct(
+			@RequestHeader(value = "JSESSIONID") String jsessionId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
+			@PathVariable("email") String email, @PathVariable("appName") String appName,
+			@PathVariable("appKey") String appKey, @PathVariable("product") String product)
+			throws Exception;
+	
+	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/organizations/{org}/developers/{email:.+}/apps/{appName}")
+	public org.springframework.http.ResponseEntity<String> deleteApp(
+			@RequestHeader(value = "JSESSIONID") String jsessionId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
+			@PathVariable("email") String email, @PathVariable("appName") String appName)
+			throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/organizations/{org}/apiproducts")
