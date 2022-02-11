@@ -1154,7 +1154,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 									}
 								}
 								vo.setSwagger(null);
-								vo.setRoles(new ArrayList<>(swaggerRoles.get(name)));
+								vo.setRoles(new ArrayList<>(swaggerRoles.get(name) == null
+										? Arrays.asList("Admin", "Write", "Read")
+										: swaggerRoles.get(name)));
 								list.add(vo);
 							}
 						}

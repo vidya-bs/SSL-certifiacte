@@ -216,8 +216,9 @@ public class BaseRepository {
 				.as("originalDoc");
 
 		UnwindOperation unwindOperation = unwind("originalDoc");
+
 		ProjectionOperation projectionOperation = project("originalDoc.name").andInclude("originalDoc.status",
-				"originalDoc.modified_date", "originalDoc.mts");
+				"originalDoc.modified_date", "originalDoc.mts", "originalDoc.createdBy");
 
 		MatchOperation match = getMatchOperation(filterFieldsAndValues);
 		groupByName = group("name").max("mts").as("mts");
