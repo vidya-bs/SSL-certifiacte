@@ -17,4 +17,5 @@ public class LandingPageMetrics {
     private int numberOfMonitorCollectionsCreated;
     private int numberOfTestsExecuted;
     private int numberOfPipelinesTriggered;
+    private String metricsOfUser;
 }

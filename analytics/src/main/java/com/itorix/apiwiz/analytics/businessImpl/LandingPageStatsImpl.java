@@ -8,6 +8,7 @@ import com.itorix.apiwiz.identitymanagement.model.ActivityLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -34,10 +35,16 @@ public class LandingPageStatsImpl {
     @Autowired
     private MonitorStatsImpl monitorStatsImpl;
 
-    public WorkspaceDashboard getWorkspaceDashboard(String userId) {
+    public void generateWorkspaceDashboard(String userId) {
         WorkspaceDashboard workspaceDashboard = new WorkspaceDashboard();
         LandingPageMetrics landingPageMetrics = new LandingPageMetrics();
 
+        if(userId != null && !"".equals(userId)) {
+            landingPageMetrics.setMetricsOfUser("SYSTEM");
+        }
+
+        workspaceDashboard.setCreatedTs(System.currentTimeMillis());
+        landingPageMetrics.setMetricsOfUser(userId);
         landingPageMetrics.setNumberOfPortfoliosCreated(getNumberOfPortfolioCreated(userId));
         landingPageMetrics.setNumberOfSwaggersCreated(getNumberOfSwaggersCreated(userId));
         landingPageMetrics.setNumberOfProxiesCreated(getNumberOfProxiesCreated(userId));
@@ -53,7 +60,8 @@ public class LandingPageStatsImpl {
         workspaceDashboard.setMonitorStats(monitorStatsImpl.createMonitorStats());
 
         workspaceDashboard.setLandingPageMetrics(landingPageMetrics);
-        return workspaceDashboard;
+
+
     }
 
     private int getNumberOfPipelineTriggered(String userId) {
@@ -126,4 +134,13 @@ public class LandingPageStatsImpl {
         return criteria;
     }
 
+    public WorkspaceDashboard getWorkspaceDashboard(String userId) {
+        if(userId != null) {
+            return mongoTemplate.findOne(Query.query(Criteria.where("landingPageMetrics.metricsOfUser").is(userId)).
+                    limit(1).with(Sort.by(Sort.Direction.DESC, "createdTs")), WorkspaceDashboard.class);
+        } else {
+            return mongoTemplate.findOne(Query.query(Criteria.where("landingPageMetrics.metricsOfUser").is("SYSTEM")).
+                    limit(1).with(Sort.by(Sort.Direction.DESC, "createdTs")), WorkspaceDashboard.class);
+        }
+    }
 }
