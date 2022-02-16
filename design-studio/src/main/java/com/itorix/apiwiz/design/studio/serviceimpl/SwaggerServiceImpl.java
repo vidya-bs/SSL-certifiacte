@@ -2232,6 +2232,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestParam("id") String swaggerid) throws Exception {
 		Map swaggerInfo = swaggerBusiness.getSwaggerInfo(jsessionid, swaggerid, oas);
 		HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.addAll("Access-Control-Expose-Headers", Arrays.asList("x-created-by", "x-created-user-name"));
 		httpHeaders.set("x-created-by", String.valueOf(swaggerInfo.remove("createdBy")));
 		httpHeaders.set("x-created-user-name", String.valueOf(swaggerInfo.remove("createdUsername")));
 		ResponseEntity<Object> responseEntity = new ResponseEntity<>(swaggerInfo, httpHeaders, HttpStatus.OK);
