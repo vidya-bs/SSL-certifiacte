@@ -2231,7 +2231,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestParam("id") String swaggerid) throws Exception {
 		Map swaggerInfo = swaggerBusiness.getSwaggerInfo(jsessionid, swaggerid, oas);
-		return new ResponseEntity<Object>(swaggerInfo, HttpStatus.OK);
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.set("x-created-by", String.valueOf(swaggerInfo.remove("createdBy")));
+		httpHeaders.set("x-created-user-name", String.valueOf(swaggerInfo.remove("createdUsername")));
+		ResponseEntity<Object> responseEntity = new ResponseEntity<>(swaggerInfo, httpHeaders, HttpStatus.OK);
+		return responseEntity;
 	}
 
 	@ApiOperation(value = "Clone existing Swagger. Creates a new clone based on the request details ", notes = "", code = 201)
