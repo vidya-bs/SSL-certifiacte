@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Document("Workspace.Dashboard")
+@Document("Workspace.Dashboard.List")
 public class WorkspaceDashboard {
     private LandingPageMetrics landingPageMetrics;
     private PortfolioStats portfolioStats;
@@ -18,5 +18,5 @@ public class WorkspaceDashboard {
     private PipelineStats pipelineStats;
     private MonitorStats monitorStats;
     private long createdTs;
-
+    private String userId;
 }

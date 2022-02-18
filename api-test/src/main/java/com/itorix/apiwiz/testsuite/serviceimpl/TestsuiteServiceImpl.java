@@ -366,7 +366,7 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 
 			HttpHeaders headers = new HttpHeaders();
 			if (isSchedulerCall) {
-				testSuitRespId = dao.executeTestSuite(testSuiteId, variableId, "Cron Job", true);
+				testSuitRespId = dao.executeTestSuite(testSuiteId, variableId, null, true);
 
 				headers.set(TENANT_ID, TenantContext.getCurrentTenant());
 				headers.set(API_KEY_NAME, new RSAEncryption().decryptText(applicationProperties.getApiKey()));
@@ -374,7 +374,7 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 
 				User user = commonServices.getUserDetailsFromSessionID(jsessionId);
 				testSuitRespId = dao.executeTestSuite(testSuiteId, variableId,
-						user.getFirstName() + " " + user.getLastName(), false);
+						user, false);
 				headers.set("JSESSIONID", jsessionId);
 			}
 

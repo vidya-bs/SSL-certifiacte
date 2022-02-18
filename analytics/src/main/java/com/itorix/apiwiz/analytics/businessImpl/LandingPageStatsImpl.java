@@ -39,27 +39,30 @@ public class LandingPageStatsImpl {
         WorkspaceDashboard workspaceDashboard = new WorkspaceDashboard();
         LandingPageMetrics landingPageMetrics = new LandingPageMetrics();
 
-        if(userId != null && !"".equals(userId)) {
-            landingPageMetrics.setMetricsOfUser("SYSTEM");
+        if(userId == null || "".equals(userId)) {
+            workspaceDashboard.setUserId("SYSTEM");
+        } else {
+            workspaceDashboard.setUserId(userId);
         }
 
         workspaceDashboard.setCreatedTs(System.currentTimeMillis());
-        landingPageMetrics.setMetricsOfUser(userId);
         landingPageMetrics.setNumberOfPortfoliosCreated(getNumberOfPortfolioCreated(userId));
         landingPageMetrics.setNumberOfSwaggersCreated(getNumberOfSwaggersCreated(userId));
         landingPageMetrics.setNumberOfProxiesCreated(getNumberOfProxiesCreated(userId));
-        landingPageMetrics.setNumberOfMockScenarioGroupsCreated(getNumberOfScenarioGroupsCreated(userId));
+        landingPageMetrics.setNumberOfMockScenariosCreated(getNumberOfMockScenariosCreated(userId));
         landingPageMetrics.setNumberOfTestSuitesCreated(getNumberOfTestSuiteCreated(userId));
         landingPageMetrics.setNumberOfPipelinesCreated(getNumberOfPipelineCreated(userId));
         landingPageMetrics.setNumberOfMonitorCollectionsCreated(getNumberOfMonitorCollectionsCreated(userId));
         landingPageMetrics.setNumberOfTestsExecuted(getNumberOfTestsExecuted(userId));
         landingPageMetrics.setNumberOfPipelinesTriggered(getNumberOfPipelineTriggered(userId));
 
-        workspaceDashboard.setTestStudioStats(testSuiteStats.createTestSuiteStats());
-        workspaceDashboard.setProxyStats(proxyStatsImpl.createProxyStats());
-        workspaceDashboard.setMonitorStats(monitorStatsImpl.createMonitorStats());
+        workspaceDashboard.setTestStudioStats(testSuiteStats.createTestSuiteStats(userId));
+        workspaceDashboard.setProxyStats(proxyStatsImpl.createProxyStats(userId));
+        workspaceDashboard.setMonitorStats(monitorStatsImpl.createMonitorStats(userId));
 
         workspaceDashboard.setLandingPageMetrics(landingPageMetrics);
+
+        mongoTemplate.save(workspaceDashboard);
 
 
     }
@@ -84,8 +87,8 @@ public class LandingPageStatsImpl {
         return getFromActivityLog(userId, "/itorix/v1/testsuites", false).size();
     }
 
-    private int getNumberOfScenarioGroupsCreated(String userId) {
-        return getFromActivityLog(userId, "/itorix/v1/mock/scenarios-groups", false).size();
+    private int getNumberOfMockScenariosCreated(String userId) {
+        return getFromActivityLog(userId, "/itorix/v1/mock/scenarios", false).size();
     }
 
     private int getNumberOfProxiesCreated(String userId) {
@@ -97,10 +100,25 @@ public class LandingPageStatsImpl {
     }
 
     private int getNumberOfSwaggersCreated(String userId) {
-        long unixEpoch = LocalDateTime.now().minusDays(5).toInstant(ZoneOffset.UTC).toEpochMilli();
-        int oas2Size = mongoTemplate.find(Query.query(Criteria.where("createdBy").is(userId).and("cts").gte(unixEpoch)), SwaggerVO.class).size();
-        int oas3Size = mongoTemplate.find(Query.query(Criteria.where("createdBy").is(userId).and("cts").gte(unixEpoch)), Swagger3VO.class).size();
+        Query query = null;
+        if(userId == null ) {
+            query = getQueryForSwaggerCreated();
+        } else {
+            query = getQueryForSwaggerCreatedByUser(userId);
+        }
+        int oas2Size = mongoTemplate.find(query, SwaggerVO.class).size();
+        int oas3Size = mongoTemplate.find(query, Swagger3VO.class).size();
         return oas2Size + oas3Size;
+    }
+
+    private Query getQueryForSwaggerCreatedByUser(String userId) {
+        long unixEpoch = LocalDateTime.now().minusDays(5).toInstant(ZoneOffset.UTC).toEpochMilli();
+        return Query.query(Criteria.where("createdBy").is(userId).and("cts").gte(unixEpoch));
+    }
+
+    private Query getQueryForSwaggerCreated() {
+        long unixEpoch = LocalDateTime.now().minusDays(5).toInstant(ZoneOffset.UTC).toEpochMilli();
+        return Query.query(Criteria.where("cts").gte(unixEpoch));
     }
 
     private List<ActivityLog> getFromActivityLog(String userId, String requestURI, boolean useRegex) {
@@ -135,12 +153,10 @@ public class LandingPageStatsImpl {
     }
 
     public WorkspaceDashboard getWorkspaceDashboard(String userId) {
-        if(userId != null) {
-            return mongoTemplate.findOne(Query.query(Criteria.where("landingPageMetrics.metricsOfUser").is(userId)).
-                    limit(1).with(Sort.by(Sort.Direction.DESC, "createdTs")), WorkspaceDashboard.class);
-        } else {
-            return mongoTemplate.findOne(Query.query(Criteria.where("landingPageMetrics.metricsOfUser").is("SYSTEM")).
-                    limit(1).with(Sort.by(Sort.Direction.DESC, "createdTs")), WorkspaceDashboard.class);
+        if (userId == null || userId == "") {
+            userId = "SYSTEM";
         }
+        return mongoTemplate.findOne(Query.query(Criteria.where("userId").is(userId)).
+                limit(1).with(Sort.by(Sort.Direction.DESC, "createdTs")), WorkspaceDashboard.class);
     }
 }

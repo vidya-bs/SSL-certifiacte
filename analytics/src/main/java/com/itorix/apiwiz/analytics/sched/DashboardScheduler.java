@@ -19,7 +19,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -72,7 +71,7 @@ public class DashboardScheduler {
     }
 
 
-    @Scheduled(cron = "0/30 * * * * *")
+    //@Scheduled(cron = "*/2 * * * *")
     public void createDashBoard() {
         if (acquireLock()) {
             LOGGER.info("Acquired the lock!! Creating Dashboard {} ", KEEPER_ID);
@@ -82,10 +81,10 @@ public class DashboardScheduler {
                 while (dbsCursor.hasNext()) {
                     String tenantId = dbsCursor.next();
                     TenantContext.setCurrentTenant(tenantId);
-                    landingPageStatsImpl.generateWorkspaceDashboard("SYSTEM");
+                    landingPageStatsImpl.generateWorkspaceDashboard(null); //Generate System Level Dashboard
                     List<User> users = masterMongoTemplate.find(Query.query(Criteria.where("workspaces.workspace._id").in(Arrays.asList(tenantId))), User.class);
                     for (User user : users) {
-                        landingPageStatsImpl.generateWorkspaceDashboard(user.getUserId());
+                        landingPageStatsImpl.generateWorkspaceDashboard(user.getId());
                     }
                 }
             }

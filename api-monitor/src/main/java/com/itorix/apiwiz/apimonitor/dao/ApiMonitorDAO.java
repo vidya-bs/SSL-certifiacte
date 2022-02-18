@@ -80,7 +80,8 @@ public class ApiMonitorDAO {
 	public String createCollection(MonitorCollections monitorCollections, String jsessionid) {
 		monitorCollections.getSchedulers().stream().forEach(s -> s.setId(new ObjectId().toString()));
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
-		monitorCollections.setCreatedBy(user.getFirstName() + " " + user.getLastName());
+		monitorCollections.setCreatedBy(user.getId());
+		monitorCollections.setCreatedUserName(user.getFirstName() + " " + user.getLastName());
 		monitorCollections.setCts(System.currentTimeMillis());
 		addUpdateDetails(monitorCollections, jsessionid);
 		mongoTemplate.save(monitorCollections);
@@ -435,7 +436,8 @@ public class ApiMonitorDAO {
 	private <T extends AbstractObject> void addUpdateDetails(T t, String jsessionid) {
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
 		t.setMts(System.currentTimeMillis());
-		t.setModifiedBy(user.getFirstName() + " " + user.getLastName());
+		t.setModifiedBy(user.getId());
+		t.setModifiedUserName(user.getFirstName() + " " + user.getLastName());
 	}
 
 	private APIMonitorResponse getPaginatedResponse(int offset, Long counter, Object data, int pageSize) {
