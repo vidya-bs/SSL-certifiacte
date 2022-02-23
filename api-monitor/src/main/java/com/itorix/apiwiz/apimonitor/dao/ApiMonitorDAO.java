@@ -120,7 +120,7 @@ public class ApiMonitorDAO {
 
 		query.fields().include("id").include("name").include("summary").include("cts").include("createdBy")
 				.include("modifiedBy").include("mts").include("schedulers").include("monitorRequest.id")
-				.include("monitorRequest.name");
+				.include("monitorRequest.name").include("createdUserName").include("modifiedUserName");
 		APIMonitorResponse response = new APIMonitorResponse();
 
 		List<MonitorCollections> monitorCollections = mongoTemplate.find(query, MonitorCollections.class);
@@ -189,6 +189,8 @@ public class ApiMonitorDAO {
 				colectionResponse.setUptime(uptime);
 				colectionResponse.setLatency(latencyInt);
 				colectionResponse.setModifiedBy(monitor.getModifiedBy());
+				colectionResponse.setCreatedUserName(monitor.getCreatedUserName());
+				colectionResponse.setModifiedUserName(monitor.getModifiedUserName());
 				colectionResponse.setMts(monitor.getMts());
 				colectionResponse.setName(monitor.getName());
 				colectionResponse.setSummary(monitor.getSummary());
