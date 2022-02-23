@@ -19,5 +19,5 @@ public class Constants {
 	public static final String USER_REGISTR_PAGE = "session/register";
 
 	public static final String[] SWAGGER_PROJECTION_FIELDS = new String[]{"swaggerId", "name", "status", "mts",
-			"revision", "createdUserName"};
+			"revision", "createdUserName", "createdBy"};
 }

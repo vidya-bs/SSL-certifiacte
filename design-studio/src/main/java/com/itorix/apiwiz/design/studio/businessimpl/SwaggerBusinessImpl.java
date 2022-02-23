@@ -1154,7 +1154,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 									}
 								}
 								vo.setSwagger(null);
-								vo.setRoles(new ArrayList<>(swaggerRoles.get(name)));
+								vo.setRoles(new ArrayList<>(swaggerRoles.get(name) == null
+										? Arrays.asList("Admin", "Write", "Read")
+										: swaggerRoles.get(name)));
 								list.add(vo);
 							}
 						}
@@ -3759,6 +3761,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Map<String, Object> json = parseSwaggerInfoNodes(vo.getSwagger(), oas);
 			json.put("swaggerId", vo.getSwaggerId());
 			json.put("status", vo.getStatus());
+			json.put("createdBy", vo.getCreatedBy());
+			json.put("createdUsername", vo.getCreatedUserName());
 			return json;
 		} else {
 			SwaggerVO vo = getSwagger(swaggerid, null);
@@ -3768,6 +3772,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Map<String, Object> json = parseSwaggerInfoNodes(vo.getSwagger(), oas);
 			json.put("swaggerId", vo.getSwaggerId());
 			json.put("status", vo.getStatus());
+			json.put("createdBy", vo.getCreatedBy());
+			json.put("createdUsername", vo.getCreatedUserName());
 			return json;
 		}
 	}

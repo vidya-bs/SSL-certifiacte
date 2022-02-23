@@ -6,9 +6,13 @@ import com.itorix.apiwiz.analytics.beans.monitor.MonitorCollectionsResponse;
 import com.itorix.apiwiz.analytics.model.MonitorCountByExecStatus;
 import com.itorix.apiwiz.analytics.model.MonitorStats;
 import org.bson.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -21,6 +25,9 @@ import java.util.stream.Collectors;
 @Component
 public class MonitorStatsImpl {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MonitorStatsImpl.class);
+
+    private static final String MONITOR_COLLECTIONS = "Monitor.Collections.List";
     private static final String MONITOR_EVENTS_HISTORY = "Monitor.Collections.Events.History";
 
     @Autowired
@@ -163,6 +170,8 @@ public class MonitorStatsImpl {
                 monitorResponses.add(collectionResponse);
             }
         }
+
+        LOGGER.debug("getMonitorResponses completed");
 
         return monitorResponses;
     }
