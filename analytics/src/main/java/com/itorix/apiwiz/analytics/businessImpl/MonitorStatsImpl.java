@@ -1,18 +1,13 @@
 package com.itorix.apiwiz.analytics.businessImpl;
 
-import com.itorix.apiwiz.analytics.beans.monitor.ExecutionResult;
 import com.itorix.apiwiz.analytics.beans.monitor.MonitorCollections;
 import com.itorix.apiwiz.analytics.beans.monitor.MonitorCollectionsResponse;
 import com.itorix.apiwiz.analytics.model.MonitorCountByExecStatus;
 import com.itorix.apiwiz.analytics.model.MonitorStats;
 import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -25,10 +20,9 @@ import java.util.stream.Collectors;
 @Component
 public class MonitorStatsImpl {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MonitorStatsImpl.class);
+    private static final String MONITOR_EVENTS_HISTORY = "Monitor.Collections.Events.History";
 
     private static final String MONITOR_COLLECTIONS = "Monitor.Collections.List";
-    private static final String MONITOR_EVENTS_HISTORY = "Monitor.Collections.Events.History";
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -51,7 +45,7 @@ public class MonitorStatsImpl {
 
     private void replaceMonitorCollectionIdWithName(List<MonitorCountByExecStatus> monitorExecCountByStatuses) {
         HashMap<String, String> monitorIdAndName = new HashMap<>();
-        List<MonitorCollections> monitorCollections = mongoTemplate.findAll(MonitorCollections.class);
+        List<MonitorCollections> monitorCollections = mongoTemplate.findAll(MonitorCollections.class, MONITOR_COLLECTIONS);
         monitorCollections.stream().forEach( m -> monitorIdAndName.put(m.getId(), m.getName()));
         monitorExecCountByStatuses.forEach( m -> m.setMonitorCollectionName(monitorIdAndName.get(m.getMonitorCollectionName())));
     }
@@ -62,7 +56,7 @@ public class MonitorStatsImpl {
         GroupOperation groupOperation = Aggregation.group("collectionId", "status").count().as("count");
 
         if(userId != null ) {
-           aggregation = Aggregation.newAggregation(Aggregation.match(Criteria.where("collectionCreatedBy").is(userId)), groupOperation);
+            aggregation = Aggregation.newAggregation(Aggregation.match(Criteria.where("collectionCreatedBy").is(userId)), groupOperation);
         } else {
             aggregation = Aggregation.newAggregation(groupOperation);
         }
@@ -103,10 +97,10 @@ public class MonitorStatsImpl {
         Query query = new Query();
 
         query.fields().include("id").include("name").include("summary").include("cts").include("createdBy")
-                .include("modifiedBy").include("mts").include("schedulers").include("monitorRequest.id")
+                .include("modifiedBy").include("mts").include("monitorRequest.id")
                 .include("monitorRequest.name");
 
-        List<MonitorCollections> monitorCollections = mongoTemplate.find(query, MonitorCollections.class);
+        List<MonitorCollections> monitorCollections = mongoTemplate.find(query, MonitorCollections.class, MONITOR_COLLECTIONS);
 
         List<String> collectionIds = monitorCollections.stream().map(s -> s.getId()).collect(Collectors.toList());
 
@@ -114,19 +108,19 @@ public class MonitorStatsImpl {
                 Aggregation.match(Criteria.where("collectionId").in(collectionIds)),
                 Aggregation.group("collectionId").avg("$latency").as("latency"));
 
-        List<Document> latency = mongoTemplate.aggregate(aggForLatency, ExecutionResult.class, Document.class)
+        List<Document> latency = mongoTemplate.aggregate(aggForLatency, MONITOR_EVENTS_HISTORY, Document.class)
                 .getMappedResults();
 
         Aggregation aggForCount = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("collectionId").in(collectionIds)),
                 Aggregation.group("collectionId").count().as("count"));
-        List<Document> countDoc = mongoTemplate.aggregate(aggForCount, ExecutionResult.class, Document.class)
+        List<Document> countDoc = mongoTemplate.aggregate(aggForCount, MONITOR_EVENTS_HISTORY, Document.class)
                 .getMappedResults();
 
         Aggregation aggForSuccess = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("collectionId").in(collectionIds).and("status").is("Success")),
                 Aggregation.group("collectionId").count().as("count"));
-        List<Document> successDoc = mongoTemplate.aggregate(aggForSuccess, ExecutionResult.class, Document.class)
+        List<Document> successDoc = mongoTemplate.aggregate(aggForSuccess, MONITOR_EVENTS_HISTORY, Document.class)
                 .getMappedResults();
 
         List<MonitorCollectionsResponse> monitorResponses = new ArrayList<>();
@@ -170,8 +164,6 @@ public class MonitorStatsImpl {
                 monitorResponses.add(collectionResponse);
             }
         }
-
-        LOGGER.debug("getMonitorResponses completed");
 
         return monitorResponses;
     }
