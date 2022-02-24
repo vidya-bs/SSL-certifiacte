@@ -1,20 +1,18 @@
 package com.itorix.apiwiz.analytics.businessImpl;
 
+import com.itorix.apiwiz.analytics.beans.monitor.MonitorCollections;
 import com.itorix.apiwiz.analytics.beans.monitor.MonitorCollectionsResponse;
-import com.itorix.apiwiz.analytics.model.MonitorExecCountByStatus;
+import com.itorix.apiwiz.analytics.model.MonitorCountByExecStatus;
 import com.itorix.apiwiz.analytics.model.MonitorStats;
 import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,94 +20,96 @@ import java.util.stream.Collectors;
 @Component
 public class MonitorStatsImpl {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MonitorStatsImpl.class);
+    private static final String MONITOR_EVENTS_HISTORY = "Monitor.Collections.Events.History";
 
     private static final String MONITOR_COLLECTIONS = "Monitor.Collections.List";
-    private static final String MONITOR_EVENTS_HISTORY = "Monitor.Collections.Events.History";
 
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public MonitorStats createMonitorStats() {
+    public MonitorStats createMonitorStats(String userId) {
         MonitorStats monitorStats = new MonitorStats();
-        try {
-            Map<String, String> monitorNameAndId = getMonitorNameAndId();
-            monitorStats.setTopFiveMonitorsBasedOnUptime(getTopFiveMonitorsBasedOnUptime(monitorNameAndId));
-            monitorStats.setTopFiveMonitorsBasedOnLatency(getTopFiveMonitorsBasedOnLatency(monitorNameAndId));
-            List<MonitorExecCountByStatus> monitorExecCountByStatuses = getMonitorExecCountByStatuses(monitorNameAndId);
-            monitorStats.setMonitorExecCountByStatuses(monitorExecCountByStatuses);
-        } catch (Exception ex) {
-            LOGGER.error("Error while calculation Monitoring Stats", ex);
+        List<MonitorCollectionsResponse> monitorResponses = getMonitorResponses();
+
+        if(userId != null) {
+            monitorResponses = monitorResponses.stream().filter( m -> m.getCreatedBy().equals(userId)).collect(Collectors.toList());
         }
+
+        monitorStats.setTopFiveMonitorsBasedOnUptime(getTopFiveMonitorsBasedOnUptime(monitorResponses));
+        monitorStats.setTopFiveMonitorsBasedOnLatency(getTopFiveMonitorsBasedOnLatency(monitorResponses));
+        List<MonitorCountByExecStatus> monitorCountByExecStatus = getMonitorCountByExecStatus(userId);
+        replaceMonitorCollectionIdWithName(monitorCountByExecStatus);
+        monitorStats.setMonitorCountByExecStatus(monitorCountByExecStatus);
         return monitorStats;
     }
 
-    private Map<String, Long> getTopFiveMonitorsBasedOnLatency(Map<String, String> monitorNameAndId) {
-        LOGGER.debug("getTopFiveMonitorsBasedOnUptime started");
-        Map<String, Long> topFiveMonitorsBasedOnLatency = new LinkedHashMap<>();
-        GroupOperation groupOperation = Aggregation.group("collectionId").avg("$latency").as("latency");
-        AggregationOperation sort = Aggregation.sort(Sort.Direction.ASC, "latency");
-        AggregationOperation limit = Aggregation.limit(5);
-        mongoTemplate.aggregate(Aggregation.newAggregation(groupOperation, sort, limit), MONITOR_EVENTS_HISTORY, Document.class)
-                .getMappedResults().forEach( d -> {
-                 if( null != monitorNameAndId.get(d.getString("_id"))) {
-                     topFiveMonitorsBasedOnLatency.put(monitorNameAndId.get(d.getString("_id")), d.getDouble("latency").longValue());
-                 }
-                });
-        LOGGER.debug("getTopFiveMonitorsBasedOnUptime completed");
-         return topFiveMonitorsBasedOnLatency;
+    private void replaceMonitorCollectionIdWithName(List<MonitorCountByExecStatus> monitorExecCountByStatuses) {
+        HashMap<String, String> monitorIdAndName = new HashMap<>();
+        List<MonitorCollections> monitorCollections = mongoTemplate.findAll(MonitorCollections.class, MONITOR_COLLECTIONS);
+        monitorCollections.stream().forEach( m -> monitorIdAndName.put(m.getId(), m.getName()));
+        monitorExecCountByStatuses.forEach( m -> m.setMonitorCollectionName(monitorIdAndName.get(m.getMonitorCollectionName())));
     }
 
-    private Map<String, String> getMonitorNameAndId() {
-        Query query = new Query();
-        query.fields().include("_id").include("name");
-        return mongoTemplate.find(query, Document.class, MONITOR_COLLECTIONS).stream().collect(Collectors.toMap(
-                d -> d.getObjectId("_id").toString(), d -> d.getString("name")));
-    }
-
-
-    private List<MonitorExecCountByStatus> getMonitorExecCountByStatuses(Map<String, String> monitorNameAndId) {
-        LOGGER.debug("getMonitorExecCountByStatuses started");
-        List<MonitorExecCountByStatus> monitorExecCountByStatuses = new ArrayList<>();
+    private List<MonitorCountByExecStatus> getMonitorCountByExecStatus(String userId) {
+        List<MonitorCountByExecStatus> monitorExecCountByStatuses = new ArrayList<>();
+        Aggregation aggregation = null;
         GroupOperation groupOperation = Aggregation.group("collectionId", "status").count().as("count");
-        Aggregation aggregation = Aggregation.newAggregation(groupOperation);
+
+        if(userId != null ) {
+            aggregation = Aggregation.newAggregation(Aggregation.match(Criteria.where("collectionCreatedBy").is(userId)), groupOperation);
+        } else {
+            aggregation = Aggregation.newAggregation(groupOperation);
+        }
         List<Document> mappedResults = mongoTemplate.aggregate(aggregation, MONITOR_EVENTS_HISTORY, Document.class).getMappedResults();
-        mappedResults.parallelStream().forEach( d ->  {
-            String monitorName = monitorNameAndId.get(d.getString("collectionId"));
-            if(null != monitorName) {
-                MonitorExecCountByStatus monitorExecCountByStatus = new MonitorExecCountByStatus();
-                monitorExecCountByStatus.setMonitorCollectionName(monitorName);
-                monitorExecCountByStatus.setStatus(d.getString("status"));
-                monitorExecCountByStatus.setCount(d.getInteger("count"));
-                monitorExecCountByStatuses.add(monitorExecCountByStatus);
-            }
+        mappedResults.forEach( d ->  {
+            MonitorCountByExecStatus monitorExecCountByStatus = getMonitorExecCountStatus(d);
+            monitorExecCountByStatuses.add(monitorExecCountByStatus);
         });
-        LOGGER.debug("getMonitorExecCountByStatuses completed");
         return monitorExecCountByStatuses;
     }
 
+    private MonitorCountByExecStatus getMonitorExecCountStatus(Document d) {
+        MonitorCountByExecStatus monitorExecCountByStatus = new MonitorCountByExecStatus();
+        monitorExecCountByStatus.setMonitorCollectionName(d.getString("collectionId"));
+        monitorExecCountByStatus.setStatus(d.getString("status"));
+        monitorExecCountByStatus.setCount(d.getInteger("count"));
 
-    private Map<String, Integer> getTopFiveMonitorsBasedOnUptime(Map<String, String> monitorNameAndId) {
-        LOGGER.debug("getTopFiveMonitorsBasedOnUptime started");
+        return monitorExecCountByStatus;
+    }
+
+    private Map<String, Long> getTopFiveMonitorsBasedOnLatency(List<MonitorCollectionsResponse> monitorResponses) {
+        Map<String, Long> topFiveMonitorBasedOnUptime = new LinkedHashMap<>();
+        monitorResponses.stream().filter( r -> r.getLatency() > 0).
+                sorted(Comparator.comparingLong(MonitorCollectionsResponse::getLatency)).
+                limit(5).forEach( r -> topFiveMonitorBasedOnUptime.put(r.getName(), r.getLatency()));
+        return topFiveMonitorBasedOnUptime;
+    }
+
+    private Map<String, Integer> getTopFiveMonitorsBasedOnUptime(List<MonitorCollectionsResponse> responses) {
         Map<String, Integer> topFiveMonitorBasedOnUptime = new LinkedHashMap<>();
-        getMonitorResponses().stream().filter( r -> r.getUptime() > 0).
+        responses.stream().filter( r -> r.getUptime() > 0).
                 sorted(Comparator.comparingLong(MonitorCollectionsResponse::getUptime).reversed()).
-                limit(5).forEach( r -> topFiveMonitorBasedOnUptime.put(monitorNameAndId.get(r.getId()), r.getUptime()));
-        LOGGER.debug("getTopFiveMonitorsBasedOnUptime completed");
+                limit(5).forEach( r -> topFiveMonitorBasedOnUptime.put(r.getName(), r.getUptime()));
         return topFiveMonitorBasedOnUptime;
     }
 
     private List<MonitorCollectionsResponse> getMonitorResponses() {
-        LOGGER.debug("getMonitorResponses started");
         Query query = new Query();
 
         query.fields().include("id").include("name").include("summary").include("cts").include("createdBy")
-                .include("modifiedBy").include("mts").include("schedulers").include("monitorRequest.id")
+                .include("modifiedBy").include("mts").include("monitorRequest.id")
                 .include("monitorRequest.name");
 
-        List<Document> monitorCollections = mongoTemplate.find(query, Document.class, MONITOR_COLLECTIONS);
+        List<MonitorCollections> monitorCollections = mongoTemplate.find(query, MonitorCollections.class, MONITOR_COLLECTIONS);
 
-        List<String> collectionIds = monitorCollections.stream().map(d -> d.getObjectId("_id").toString()).collect(Collectors.toList());
+        List<String> collectionIds = monitorCollections.stream().map(s -> s.getId()).collect(Collectors.toList());
+
+        Aggregation aggForLatency = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("collectionId").in(collectionIds)),
+                Aggregation.group("collectionId").avg("$latency").as("latency"));
+
+        List<Document> latency = mongoTemplate.aggregate(aggForLatency, MONITOR_EVENTS_HISTORY, Document.class)
+                .getMappedResults();
 
         Aggregation aggForCount = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("collectionId").in(collectionIds)),
@@ -125,27 +125,45 @@ public class MonitorStatsImpl {
 
         List<MonitorCollectionsResponse> monitorResponses = new ArrayList<>();
 
+        if (!CollectionUtils.isEmpty(monitorCollections)) {
+            for (MonitorCollections monitor : monitorCollections) {
+                MonitorCollectionsResponse collectionResponse = new MonitorCollectionsResponse();
+                int uptime = 0;
+                long latencyInt = 0l;
+                int count = 0;
+                int success = 0;
 
-
-        successDoc.stream().forEach( d -> {
-            MonitorCollectionsResponse collectionsResponse = new MonitorCollectionsResponse();
-            String collectionId = d.getString("_id");
-            Integer successCount = d.getInteger("count");
-            if(successCount != 0 ) {
-                Optional<Document> totalCount = countDoc.stream()
-                       .filter(f -> f.getString("_id").equals(collectionId)).findFirst();
-                if(totalCount.isPresent()) {
-                    Integer count = totalCount.get().getInteger("count");
-                    int uptime = Math.round(((float) successCount / count) * 100);
-                    collectionsResponse.setUptime(uptime);
-                    collectionsResponse.setId(collectionId);
-                    monitorResponses.add(collectionsResponse);
+                Optional<Document> latencyDoc = latency.stream().filter(f -> f.getString("_id").equals(monitor.getId()))
+                        .findFirst();
+                if (latencyDoc.isPresent()) {
+                    latencyInt = Math.round(latencyDoc.get().getDouble("latency"));
                 }
+
+                Optional<Document> countOptional = countDoc.stream()
+                        .filter(f -> f.getString("_id").equals(monitor.getId())).findFirst();
+                if (countOptional.isPresent()) {
+                    count = countOptional.get().getInteger("count");
+                }
+
+                Optional<Document> successOptional = successDoc.stream()
+                        .filter(f -> f.getString("_id").equals(monitor.getId())).findFirst();
+                if (successOptional.isPresent()) {
+                    success = successOptional.get().getInteger("count");
+                }
+
+                if (success != 0 || count != 0) {
+                    uptime = Math.round(((float) success / count) * 100);
+                }
+                collectionResponse.setUptime(uptime);
+                collectionResponse.setLatency(latencyInt);
+                collectionResponse.setModifiedBy(monitor.getModifiedBy());
+                collectionResponse.setMts(monitor.getMts());
+                collectionResponse.setName(monitor.getName());
+                collectionResponse.setSummary(monitor.getSummary());
+                collectionResponse.setCreatedBy(monitor.getCreatedBy());
+                monitorResponses.add(collectionResponse);
             }
-        });
-
-
-        LOGGER.debug("getMonitorResponses completed");
+        }
 
         return monitorResponses;
     }

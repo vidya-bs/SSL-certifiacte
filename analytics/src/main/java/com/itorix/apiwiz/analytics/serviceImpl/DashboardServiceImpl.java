@@ -14,10 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class DashboardServiceImpl implements DashboardService {
 
     @Autowired
-    private LandingPageStatsImpl dashboardDao;
+    private LandingPageStatsImpl landingPageStatsImpl;
 
     @Override
     public ResponseEntity<?> getWorkspaceDashboard(String interactionId, String jsessionid, String userId) throws ItorixException {
-        return new ResponseEntity<>(dashboardDao.getWorkspaceDashboard(userId), HttpStatus.OK);
+       return new ResponseEntity<>(landingPageStatsImpl.getWorkspaceDashboard(userId), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> generateDashboard(String interactionId, String jsessionid, String userId) throws ItorixException {
+        landingPageStatsImpl.generateWorkspaceDashboard(userId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

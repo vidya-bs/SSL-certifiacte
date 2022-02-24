@@ -83,6 +83,7 @@ public class TestRunner {
                 finalResponse.setCts(response.getCts());
                 finalResponse.setCounter(response.getCounter());
                 finalResponse.setTestSuiteAgent(response.getTestSuiteAgent());
+                finalResponse.setUserId(response.getUserId());
             }
 
             if (!cancellationExecutor.getAndRemoveTestSuiteCancellationId(response.getId())) {

@@ -15,4 +15,6 @@ public class MonitorCollectionsResponse {
 	private Long mts;
 	private String createdBy;
 	private String modifiedBy;
+	private String createdUserName;
+	private String modifiedUserName;
 }

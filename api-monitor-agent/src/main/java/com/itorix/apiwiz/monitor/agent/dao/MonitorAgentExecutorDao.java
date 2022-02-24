@@ -1,21 +1,15 @@
 package com.itorix.apiwiz.monitor.agent.dao;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
+import com.itorix.apiwiz.monitor.agent.executor.exception.ItorixException;
+import com.itorix.apiwiz.monitor.agent.executor.model.ErrorCodes;
+import com.itorix.apiwiz.monitor.agent.util.RSAEncryption;
+import com.itorix.apiwiz.monitor.model.Certificates;
+import com.itorix.apiwiz.monitor.model.NotificationDetails;
+import com.itorix.apiwiz.monitor.model.Variables;
+import com.itorix.apiwiz.monitor.model.collection.MonitorCollections;
+import com.itorix.apiwiz.monitor.model.collection.Schedulers;
+import com.itorix.apiwiz.monitor.model.execute.ExecutionResult;
+import com.itorix.apiwiz.monitor.model.request.MonitorRequest;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.bson.Document;
@@ -34,16 +28,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import com.itorix.apiwiz.monitor.agent.executor.exception.ItorixException;
-import com.itorix.apiwiz.monitor.agent.executor.model.ErrorCodes;
-import com.itorix.apiwiz.monitor.agent.util.RSAEncryption;
-import com.itorix.apiwiz.monitor.model.Certificates;
-import com.itorix.apiwiz.monitor.model.NotificationDetails;
-import com.itorix.apiwiz.monitor.model.Variables;
-import com.itorix.apiwiz.monitor.model.collection.MonitorCollections;
-import com.itorix.apiwiz.monitor.model.collection.Schedulers;
-import com.itorix.apiwiz.monitor.model.execute.ExecutionResult;
-import com.itorix.apiwiz.monitor.model.request.MonitorRequest;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Component
 public class MonitorAgentExecutorDao {
@@ -133,7 +124,7 @@ public class MonitorAgentExecutorDao {
     public MonitorCollections getMonitorCollections(String collectionId, String schedulerId) {
         Query query = new Query(new Criteria().andOperator(Criteria.where("id").is(collectionId),
                 Criteria.where("schedulers").elemMatch(Criteria.where("id").is(schedulerId))));
-        query.fields().include("schedulers.$").include("notifications").include("name");
+        query.fields().include("schedulers.$").include("notifications").include("name").include("createdBy");
         MonitorCollections collection = mongoTemplate.findOne(query, MonitorCollections.class);
         if (collection != null) {
             return collection;

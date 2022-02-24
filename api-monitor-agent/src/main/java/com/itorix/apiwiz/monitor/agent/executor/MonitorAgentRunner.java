@@ -241,6 +241,7 @@ public class MonitorAgentRunner {
                     }
                 }
                 replaceResponseVariables(result, monitorRequest, response);
+                result.setCollectionCreatedBy(collection.getCreatedBy());
                 dao.createExecutionResult(result);
             }
         }
