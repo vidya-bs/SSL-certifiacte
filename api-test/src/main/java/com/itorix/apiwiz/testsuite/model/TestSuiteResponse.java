@@ -58,6 +58,8 @@ public class TestSuiteResponse extends AbstractObject {
 
 	private String testSuiteAgent;
 
+	private String userId;
+
 	public TestSuiteResponse(String testSuiteId, String configId, TestSuite testSuite, String status, String counter) {
 		super();
 		this.setCts(System.currentTimeMillis());
@@ -179,5 +181,13 @@ public class TestSuiteResponse extends AbstractObject {
 
 	public void setTestSuiteAgent(String testSuiteAgent) {
 		this.testSuiteAgent = testSuiteAgent;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 }

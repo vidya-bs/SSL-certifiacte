@@ -1,33 +1,22 @@
 package com.itorix.apiwiz.devstudio.businessImpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.itorix.apiwiz.common.model.proxystudio.Flow;
-import com.itorix.apiwiz.common.model.proxystudio.Flows;
-import com.itorix.apiwiz.common.model.proxystudio.Proxy;
-import com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata;
-import com.itorix.apiwiz.common.model.proxystudio.Target;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.common.model.proxystudio.*;
 import com.itorix.apiwiz.devstudio.business.LoadSwagger;
-
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import net.sf.json.JSONSerializer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.sf.json.JSONSerializer;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LoadSwaggerImpl implements LoadSwagger {
 
@@ -142,7 +131,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 			flow.setName(patch.getOperationId());
 			flow.setPath(path);
 			flow.setVerb("PATCH");
-			flow.setDescription(delete.getSummary());
+			flow.setDescription(patch.getSummary());
 			if (!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 				flowList.add(flow);
 		}

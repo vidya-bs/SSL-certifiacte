@@ -63,6 +63,7 @@ public interface ConsentManagementService {
 	public ResponseEntity<?> getScopeCategoryByName(@RequestParam(value = "category", required = true) String categoryName) throws ItorixException;
 
 
+
 	@ApiOperation(value = "Create or Update Scope Category Columns")
 	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = "Accepted"),

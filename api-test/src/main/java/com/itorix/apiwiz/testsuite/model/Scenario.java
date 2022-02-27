@@ -1,12 +1,12 @@
 package com.itorix.apiwiz.testsuite.model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -32,6 +32,9 @@ public class Scenario {
 
 	@JsonProperty("duration")
 	private Long duration;
+
+	@JsonProperty("continueOnError")
+	private boolean continueOnError = true;
 
 	@JsonProperty("name")
 	public String getName() {

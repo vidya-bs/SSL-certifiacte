@@ -509,7 +509,7 @@ public class TestSuiteDAO {
 		return testSuites;
 	}
 
-	public String executeTestSuite(String testSuiteId, String variableId, String userName, boolean isCron)
+	public String executeTestSuite(String testSuiteId, String variableId, User user, boolean isCron)
 			throws JsonProcessingException, JSONException, InterruptedException, ItorixException {
 		TestSuite testSuite = null;
 		Variables variables = null;
@@ -531,7 +531,7 @@ public class TestSuiteDAO {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-18"), "Testsuite-18");
 		}
 
-		return triggerPipeline(testSuiteId, variableId, testSuite, variables, userName, false, isCron);
+		return triggerPipeline(testSuiteId, variableId, testSuite, variables, user, false, isCron);
 		// createPipeline(testSuiteId, variableId, testSuite.getName(),
 		// variables.getName());
 		// triggerPipeline(testSuiteId, variableId, testSuite, variables,
@@ -539,7 +539,7 @@ public class TestSuiteDAO {
 	}
 
 	public String triggerPipeline(String testSuiteId, String variableId, TestSuite testSuite, Variables variables,
-			String userName, boolean historyCallRequired, boolean isCron)
+			User user, boolean historyCallRequired, boolean isCron)
 			throws JSONException, InterruptedException, ItorixException {
 		if (!isCron) {
 			Query query = new Query(Criteria.where("testSuiteId").is(testSuiteId).and("configId").is(variableId)
@@ -551,7 +551,14 @@ public class TestSuiteDAO {
 		}
 		TestSuiteResponse response = new TestSuiteResponse(testSuiteId, variableId, testSuite,
 				TestSuiteResponse.STATUSES.SCHEDULED.getValue());
+		String userName = "Cron Job";
+		String userId = "SYSTEM";
+		if(user != null) {
+			userName = user.getFirstName() + " " + user.getLastName();
+			userId = user.getId();
+		}
 		response.setCreatedBy(userName);
+		response.setUserId(userId);
 		updateCount(response);
 		saveTestSuiteResponse(response);
 		return response.getId();
@@ -799,6 +806,7 @@ public class TestSuiteDAO {
 				}
 			}
 		} else {
+			testSuiteResponse.setMts(System.currentTimeMillis());
 			mongoTemplate.save(testSuiteResponse);
 		}
 	}

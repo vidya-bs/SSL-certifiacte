@@ -113,10 +113,10 @@ public class RSAEncryption {
 
 	public static void main(String[] args) throws Exception {
 		RSAEncryption ac = new RSAEncryption();
-		System.out.println(ac.decryptText(
-				"gnqqXJkKwJq8h+jcFNxgipqrYQ1QfKWJ/4mNfVPbiLwuaZ4orglap/Orga9zU3mzz8YcbjQ/ntWNy+XSL4WVjg=="));
-		System.out.println(ac.decryptText(
-				"gnqqXJkKwJq8h+jcFNxgipqrYQ1QfKWJ/4mNfVPbiLwuaZ4orglap/Orga9zU3mzz8YcbjQ/ntWNy+XSL4WVjg=="));
+//		System.out.println(ac.decryptText(
+//				"gnqqXJkKwJq8h+jcFNxgipqrYQ1QfKWJ/4mNfVPbiLwuaZ4orglap/Orga9zU3mzz8YcbjQ/ntWNy+XSL4WVjg=="));
+//		System.out.println(ac.decryptText(
+//				"gnqqXJkKwJq8h+jcFNxgipqrYQ1QfKWJ/4mNfVPbiLwuaZ4orglap/Orga9zU3mzz8YcbjQ/ntWNy+XSL4WVjg=="));
 		String msg = "SG.s3-aAhOGTsecIaC0fEZv1g.";
 		String encrypted_msg = ac.encryptText(msg);
 		String msg1 = "3ekGp5Xd6eDlNeeZbpuuuKEnP81MInAbby9TTRnnStc";
