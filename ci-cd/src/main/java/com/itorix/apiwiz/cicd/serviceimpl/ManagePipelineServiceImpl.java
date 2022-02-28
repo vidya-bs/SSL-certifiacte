@@ -1,11 +1,13 @@
 package com.itorix.apiwiz.cicd.serviceimpl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.itorix.apiwiz.cicd.beans.*;
+import com.itorix.apiwiz.cicd.dao.PipelineDao;
+import com.itorix.apiwiz.cicd.gocd.integrations.CiCdIntegrationAPI;
+import com.itorix.apiwiz.cicd.service.ManagePipelineService;
+import com.itorix.apiwiz.common.model.exception.ErrorObj;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
+import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
@@ -17,28 +19,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.itorix.apiwiz.cicd.beans.BackUpInterval;
-import com.itorix.apiwiz.cicd.beans.BackUpRequest;
-import com.itorix.apiwiz.cicd.beans.Pipeline;
-import com.itorix.apiwiz.cicd.beans.PipelineGroups;
-import com.itorix.apiwiz.cicd.beans.PipelineNameValidation;
-import com.itorix.apiwiz.cicd.beans.Stage;
-import com.itorix.apiwiz.cicd.dao.PipelineDao;
-import com.itorix.apiwiz.cicd.gocd.integrations.CiCdIntegrationAPI;
-import com.itorix.apiwiz.cicd.service.ManagePipelineService;
-import com.itorix.apiwiz.common.model.exception.ErrorObj;
-import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
-import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * CI/CD Services implementation
@@ -311,7 +297,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			response = cicdIntegrationApi.getArtifacts(pipelineName, pipelineCounter, stageName, stageCounter,
 					artifactName);
 		} catch (Exception ex) {
-			log.error("Error while retrieving build and test artifacts", ex.getCause());
+			log.error("Error while retrieving build and test artifacts", ex);
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + artifactName)
@@ -483,7 +469,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			responseLogs = cicdIntegrationApi.getRuntimeLogs(groupName, pipelineName, pipelineCounter, stageName,
 					stageCounter, jobName);
 		} catch (Exception ex) {
-			log.error("Error while retrieving pipeline information", ex.getCause());
+			log.error("Error while retrieving pipeline information", ex);
 			return new ResponseEntity<>(new ErrorObj("Error while retrieving pipeline information", "CI-CD-GBTA500"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}

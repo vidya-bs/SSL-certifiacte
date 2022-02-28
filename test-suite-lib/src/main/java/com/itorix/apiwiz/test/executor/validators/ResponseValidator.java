@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.test.executor.validators;
 
+import com.itorix.apiwiz.test.exception.HaltExecution;
 import com.itorix.apiwiz.test.executor.beans.Assertion;
 import com.itorix.apiwiz.test.executor.beans.Response;
 import com.itorix.apiwiz.test.executor.beans.ResponseAssertions;
@@ -49,7 +50,7 @@ public class ResponseValidator {
                     }
                     responseHeaderAssertion.setMessage(e.getMessage());
                     if (!responseHeaderAssertion.isContinueOnError()) {
-                        throw new Exception("Assertion Failed, Aborting...", e);
+                        throw new HaltExecution("Assertion Failed, Aborting...", e);
                     }
                 }
             }
@@ -94,7 +95,7 @@ public class ResponseValidator {
                         responeStatusAssertion.setMessage(ex.getMessage());
                         ex.printStackTrace();
                         if (!responeStatusAssertion.isContinueOnError()) {
-                            throw new Exception(ex.getMessage());
+                            throw new HaltExecution();
                         }
                     }
                 }
@@ -120,7 +121,7 @@ public class ResponseValidator {
                     }
                     ex.printStackTrace();
                     if (!assertion.isContinueOnError()) {
-                        throw new Exception(ex.getMessage());
+                        throw new HaltExecution(ex.getMessage());
                     }
                 }
             }

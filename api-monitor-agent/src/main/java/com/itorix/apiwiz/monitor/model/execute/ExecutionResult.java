@@ -24,4 +24,5 @@ public class ExecutionResult extends MonitorRequest {
     long latency;
     String status;
     int statusCode;
+    private String collectionCreatedBy;
 }

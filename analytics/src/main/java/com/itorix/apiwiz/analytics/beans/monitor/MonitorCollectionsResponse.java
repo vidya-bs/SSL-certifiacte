@@ -1,4 +1,4 @@
-package com.itorix.apiwiz.apimonitor.model;
+package com.itorix.apiwiz.analytics.beans.monitor;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +15,4 @@ public class MonitorCollectionsResponse {
 	private Long mts;
 	private String createdBy;
 	private String modifiedBy;
-	private String createdUserName;
-	private String modifiedUserName;
 }
