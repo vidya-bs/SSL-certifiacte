@@ -136,7 +136,7 @@ public class OrganizationSchedulerBusinessImpl implements OrganizationSchedulerB
 					cfg.setApigeeEmail(applicationProperties.getApigeeServiceUsername());
 					cfg.setApigeePassword(applicationProperties.getApigeeServicePassword());
 					// }
-					organizationService.backUpOrganization(cfg);
+					organizationService.scheduleBackupOrganization(cfg);
 				}
 			}
 		}
@@ -160,7 +160,7 @@ public class OrganizationSchedulerBusinessImpl implements OrganizationSchedulerB
 					cfg.setApigeeEmail(applicationProperties.getApigeeServiceUsername());
 					cfg.setApigeePassword(applicationProperties.getApigeeServicePassword());
 					// }
-					organizationService.backUpOrganization(cfg);
+					organizationService.scheduleBackupOrganization(cfg);
 				}
 			}
 		}
