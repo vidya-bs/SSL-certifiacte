@@ -1,17 +1,9 @@
 package com.itorix.apiwiz.datamanagement.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.json.JSONException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -23,12 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.apigee.CommonConfiguration;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.data.management.model.ApigeeOrganizationalVO;
@@ -44,9 +31,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 
 @CrossOrigin
 @RestController
@@ -954,7 +938,7 @@ public interface OrganizationService {
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/migrate")
-	public ResponseEntity<Void> restoreOrganization(
+	public ResponseEntity<?> restoreOrganization(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "jsessionid") String jsessionid, @RequestBody CommonConfiguration cfg,
 			@RequestParam(value = "type", required = false) String type) throws Exception;

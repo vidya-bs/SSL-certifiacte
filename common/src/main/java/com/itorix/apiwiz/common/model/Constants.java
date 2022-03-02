@@ -25,6 +25,8 @@ public interface Constants {
 	public static final String STATUS_COMPLETED = "Completed";
 	public static final String STATUS_INPROGRESS = "In Progress";
 	public static final String STATUS_FAILED = "Failed";
+	public static final String STATUS_SCHEDULED = "Scheduled";
+	public static final String STATUS_PROCESSED = "Processed";
 
 	public static final String POSTMAN_LOCATION = "Postman";
 	public static final String APIGEE_BACKUP = "BACKUP";

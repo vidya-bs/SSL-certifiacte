@@ -23,6 +23,7 @@ import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -81,8 +82,11 @@ public class ApigeeUtil {
 		return new RestTemplate();
 	}
 
-	@Autowired
-	ApplicationProperties applicationProperties;
+//	@Autowired
+//	ApplicationProperties applicationProperties;
+	
+	@Value("${apigee.host:null}")
+	private String apigeeHost;
 
 	/*
 	 * private String getSecureURL(String suffix) { if
@@ -112,7 +116,7 @@ public class ApigeeUtil {
 				return vo.getScheme() + "://" + vo.getHostname() + ":" + vo.getPort() + "/" + suffix;
 			}
 		} else {
-			return "https://" + applicationProperties.getApigeeHost() + "/" + suffix;
+			return "https://" + apigeeHost + "/" + suffix;
 		}
 	}
 
@@ -130,7 +134,7 @@ public class ApigeeUtil {
 			}
 			return vo.getScheme() + "://" + vo.getHostname() + ":" + vo.getPort() + "/" + suffix;
 		} else {
-			return "https://" + applicationProperties.getApigeeHost() + "/" + suffix;
+			return "https://" + apigeeHost + "/" + suffix;
 		}
 	}
 
@@ -299,7 +303,7 @@ public class ApigeeUtil {
 			url = scheme + "://" + host + ":" + port + "/" + "v1/organizations/" + cfg.getOrganization()
 					+ "/environments";
 		} else {
-			url = "https" + "://" + applicationProperties.getApigeeHost() + "/" + "v1/organizations/"
+			url = "https" + "://" + apigeeHost + "/" + "v1/organizations/"
 					+ cfg.getOrganization() + "/environments";
 		}
 		ResponseEntity<List<String>> response = exchange(url, HttpMethod.GET, getHttpEntity(cfg),
@@ -1315,9 +1319,10 @@ public class ApigeeUtil {
 	}
 
 	public String createResourceInEnvironment(CommonConfiguration cfg, String resourceType) throws ItorixException {
-		ResponseEntity<String> response = exchange(
-				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment() + "/"
-						+ resourceType + "/", cfg),
+		String URL = getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment() + "/"
+				+ resourceType + "/", cfg);
+		ResponseEntity<String> response = exchange(URL
+				,
 				HttpMethod.POST, getHttpEntityWithBodyJSON(cfg, cfg.getResource()), String.class, cfg);
 		return response.getBody();
 	}
