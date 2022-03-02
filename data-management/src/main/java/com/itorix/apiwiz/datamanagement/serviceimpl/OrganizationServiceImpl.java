@@ -1223,7 +1223,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/migrate")
-	public ResponseEntity<Void> restoreOrganization(
+	public ResponseEntity<?> restoreOrganization(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "jsessionid") String jsessionid, @RequestBody CommonConfiguration cfg,
 			@RequestParam(value = "type", required = false) String type) throws Exception {
@@ -1232,8 +1232,8 @@ public class OrganizationServiceImpl implements OrganizationService {
 		cfg.setOperationId(Constants.APIGEE_MIGRATE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationBusiness.scheduleRestoreOrganization(cfg);
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		OrgBackUpInfo orgBackUpInfo = organizationBusiness.scheduleRestoreOrganization(cfg);
+		return new ResponseEntity<BackupInfo>(orgBackUpInfo, HttpStatus.OK);
 	}
 
 	/**

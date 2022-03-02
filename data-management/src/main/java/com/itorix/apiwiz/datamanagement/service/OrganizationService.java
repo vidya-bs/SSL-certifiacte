@@ -938,7 +938,7 @@ public interface OrganizationService {
 			@ApiResponse(code = 500, message = "Sorry! Apigee connection timeout error.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/apigee/organizations/migrate")
-	public ResponseEntity<Void> restoreOrganization(
+	public ResponseEntity<?> restoreOrganization(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "jsessionid") String jsessionid, @RequestBody CommonConfiguration cfg,
 			@RequestParam(value = "type", required = false) String type) throws Exception;
