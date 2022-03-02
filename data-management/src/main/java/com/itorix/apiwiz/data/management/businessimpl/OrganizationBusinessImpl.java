@@ -2884,11 +2884,11 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		consoleInfo.setOperationId(cfg.getOperationId());
 		consoleInfo = baseRepository.save(consoleInfo);
 		restoreResource(cfg);
-		//restoreSharedflows1(cfg);
-		//restoreAPIProxies1(cfg);
-		//restoreAPIProducts(cfg);
-		//restoreAppDevelopers(cfg);
-		//restoreAPP(cfg);
+		restoreSharedflows1(cfg);
+		restoreAPIProxies1(cfg);
+		restoreAPIProducts(cfg);
+		restoreAppDevelopers(cfg);
+		restoreAPP(cfg);
 		long end = System.currentTimeMillis();
 		long backupTimeTaken = (end - start) / 1000l;
 		logger.debug("Total Time Taken: (sec): " + backupTimeTaken);
