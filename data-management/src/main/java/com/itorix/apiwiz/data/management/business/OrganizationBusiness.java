@@ -203,6 +203,8 @@ public interface OrganizationBusiness {
 	 */
 	public BackupInfo backupTargetServers(CommonConfiguration cfg, String id) throws Exception;
 
+	public DeveloperBackUpInfo scheduleRestoreDevelopers(CommonConfiguration cfg);
+		
 	/**
 	 * Using this method we can restore the developer's
 	 *
@@ -212,7 +214,7 @@ public interface OrganizationBusiness {
 	 * 
 	 * @throws Exception
 	 */
-	public BackupInfo restoreAppDevelopers1(CommonConfiguration cfg) throws Exception;
+	public BackupInfo restoreAppDevelopers1(CommonConfiguration cfg , String id) throws Exception;
 
 	/**
 	 * This method we can restore the developer's
@@ -228,6 +230,8 @@ public interface OrganizationBusiness {
 	public String restoreAppDevelopers(CommonConfiguration cfg)
 			throws IOException, InterruptedException, ItorixException;
 
+	public ResourceBackUpInfo scheduleRestoreResources(CommonConfiguration cfg);
+	
 	/**
 	 * This method will restore the resources.
 	 *
@@ -239,7 +243,7 @@ public interface OrganizationBusiness {
 	 * @throws InterruptedException
 	 * @throws ItorixException
 	 */
-	public BackupInfo restoreResources(CommonConfiguration cfg)
+	public BackupInfo restoreResources(CommonConfiguration cfg, String id)
 			throws IOException, InterruptedException, ItorixException;
 
 	public String restoreKVM(CommonConfiguration cfg) throws IOException, InterruptedException, ItorixException;
@@ -254,19 +258,29 @@ public interface OrganizationBusiness {
 	public String restoreSharedflows1(CommonConfiguration cfg)
 			throws IOException, InterruptedException, ItorixException;
 
-	public BackupInfo restoreAPPs(CommonConfiguration cfg) throws IOException, InterruptedException, ItorixException;
+	public AppBackUpInfo scheduleRestoreApps(CommonConfiguration cfg);
+	
+	public BackupInfo restoreAPPs(CommonConfiguration cfg, String id) throws IOException, InterruptedException, ItorixException;
 
 	public String restoreAPP(CommonConfiguration cfg) throws IOException, InterruptedException, ItorixException;
 
-	public BackupInfo restoreAPIProducts1(CommonConfiguration cfg) throws Exception;
+	public ProductsBackUpInfo scheduleRestoreProducts(CommonConfiguration cfg);
+	
+	public BackupInfo restoreAPIProducts1(CommonConfiguration cfg, String id) throws Exception;
 
 	public String restoreAPIProducts(CommonConfiguration cfg) throws Exception;
+	
+	public ProxyBackUpInfo scheduleRestoreApiProxies(CommonConfiguration cfg);
 
-	public BackupInfo restoreApiProxies(CommonConfiguration cfg) throws Exception;
+	public BackupInfo restoreApiProxies(CommonConfiguration cfg, String id) throws Exception;
+	
+	public SharedflowBackUpInfo scheduleRestoreSharedflows(CommonConfiguration cfg);
 
-	public BackupInfo restoreSharedflows(CommonConfiguration cfg) throws Exception;
+	public BackupInfo restoreSharedflows(CommonConfiguration cfg, String id) throws Exception;
+	
+	public OrgBackUpInfo scheduleRestoreOrganization(CommonConfiguration cfg);
 
-	public BackupInfo restoreOrganization(CommonConfiguration cfg) throws Exception;
+	public BackupInfo restoreOrganization(CommonConfiguration cfg, String id) throws Exception;
 
 	public void undeployProxyRevision(CommonConfiguration cfg, String environment, String apiName, String revision)
 			throws IOException, ItorixException;

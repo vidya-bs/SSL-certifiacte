@@ -308,7 +308,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationBusiness.restoreApiProxies(cfg);
+		organizationBusiness.scheduleRestoreApiProxies(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -436,7 +436,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationBusiness.restoreSharedflows(cfg);
+		organizationBusiness.scheduleRestoreSharedflows(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -582,7 +582,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationBusiness.restoreAPPs(cfg);
+		organizationBusiness.scheduleRestoreApps(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -731,7 +731,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationBusiness.restoreAPIProducts1(cfg);
+		organizationBusiness.scheduleRestoreProducts(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -880,7 +880,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationBusiness.restoreAppDevelopers1(cfg);
+		organizationBusiness.scheduleRestoreDevelopers(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -1031,7 +1031,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationBusiness.restoreResources(cfg);
+		organizationBusiness.scheduleRestoreResources(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -1195,7 +1195,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationBusiness.restoreOrganization(cfg);
+		organizationBusiness.scheduleRestoreOrganization(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -1232,7 +1232,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 		cfg.setOperationId(Constants.APIGEE_MIGRATE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationBusiness.restoreOrganization(cfg);
+		organizationBusiness.scheduleRestoreOrganization(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -1385,7 +1385,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationBusiness.restoreResources(cfg);
+		organizationBusiness.scheduleRestoreResources(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -1538,7 +1538,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationBusiness.restoreResources(cfg);
+		organizationBusiness.scheduleRestoreResources(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -1691,7 +1691,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationBusiness.restoreResources(cfg);
+		organizationBusiness.scheduleRestoreResources(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 

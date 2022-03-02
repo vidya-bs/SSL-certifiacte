@@ -85,7 +85,34 @@ public class OrganizationBackupScheduler {
 								organizationBusiness.backupTargetServers(backupEvent.getCfg(), backupEvent.getEventId());
 								break;
 							}
-							
+							case "RESTOREAPIPROXIES":{
+								organizationBusiness.restoreApiProxies(backupEvent.getCfg(), backupEvent.getEventId());
+								break;
+							}
+							case "RESTORESHAREDFLOWS":{
+								organizationBusiness.restoreSharedflows(backupEvent.getCfg(), backupEvent.getEventId());
+								break;
+							}
+							case "RESTOREAPPS":{
+								organizationBusiness.restoreAPPs(backupEvent.getCfg(), backupEvent.getEventId());
+								break;
+							}
+							case "RESTOREPRODUCTS":{
+								organizationBusiness.restoreAPIProducts1(backupEvent.getCfg(), backupEvent.getEventId());
+								break;
+							}
+							case "RESTOREDEVELOPERS":{
+								organizationBusiness.restoreAppDevelopers1(backupEvent.getCfg(), backupEvent.getEventId());
+								break;
+							}
+							case "RESTOREORGANIZATION":{
+								organizationBusiness.restoreOrganization(backupEvent.getCfg(), backupEvent.getEventId());
+								break;
+							}
+							case "RestoreResources":{
+								organizationBusiness.restoreResources(backupEvent.getCfg(), backupEvent.getEventId());
+								break;
+							}
 						}
 					}
 				}
