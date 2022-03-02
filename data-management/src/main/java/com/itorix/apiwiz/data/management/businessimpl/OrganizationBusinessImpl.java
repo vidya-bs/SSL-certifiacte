@@ -19,6 +19,7 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +84,7 @@ import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+import net.sf.json.util.JSONUtils;
 
 @Service
 public class OrganizationBusinessImpl implements OrganizationBusiness {
@@ -2582,10 +2584,15 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 
 					final JSONObject request = new JSONObject();
 					request.put("name", appBackup.get("name"));
-					request.put("apiProducts", appBackup.get("apiProducts"));
-					request.put("scopes", appBackup.get("scopes"));
+					if(ObjectUtils.isNotEmpty( appBackup.get("apiProducts")))
+						request.put("apiProducts", appBackup.get("apiProducts"));
+					if(ObjectUtils.isNotEmpty(appBackup.get("scopes")))
+						request.put("scopes", appBackup.get("scopes"));
+					if(ObjectUtils.isNotEmpty(appBackup.get("accessType")))
 					request.put("accessType", appBackup.get("accessType"));
+					if(ObjectUtils.isNotEmpty(appBackup.get("appFamily")))
 					request.put("appFamily", appBackup.get("appFamily"));
+					if(ObjectUtils.isNotEmpty(appBackup.get("attributes")))
 					request.put("attributes", appBackup.get("attributes"));
 
 					final String finalDeveloperEmail = developerEmail;
@@ -2619,8 +2626,12 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 							JSONObject backupCredential = (JSONObject) backupCredentialO;
 
 							String consumerKey = backupCredential.getString("consumerKey");
-
-							apigeeUtil.createdeveloperKeysForDeveloperApp(cfg, backupCredential.toString());
+							String consumerSecret = backupCredential.getString("consumerSecret");
+							JSONObject consumerKeyRequest = new JSONObject();
+							consumerKeyRequest.put("consumerKey", consumerKey);
+							consumerKeyRequest.put("consumerSecret", consumerSecret);
+							
+							apigeeUtil.createdeveloperKeysForDeveloperApp(cfg, consumerKeyRequest.toString());
 
 							JSONArray backupProducts = backupCredential.getJSONArray("apiProducts");
 							JSONObject productsRequest = new JSONObject();

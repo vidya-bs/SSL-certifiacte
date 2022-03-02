@@ -109,7 +109,7 @@ public class OrganizationBackupScheduler {
 								organizationBusiness.restoreOrganization(backupEvent.getCfg(), backupEvent.getEventId());
 								break;
 							}
-							case "RestoreResources":{
+							case "RESTORERESOURCES":{
 								organizationBusiness.restoreResources(backupEvent.getCfg(), backupEvent.getEventId());
 								break;
 							}
