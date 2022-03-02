@@ -515,7 +515,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationService.restoreResources(cfg);
+		organizationService.scheduleRestoreResources(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -665,7 +665,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationService.restoreResources(cfg);
+		organizationService.scheduleRestoreResources(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -815,7 +815,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationService.restoreResources(cfg);
+		organizationService.scheduleRestoreResources(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
