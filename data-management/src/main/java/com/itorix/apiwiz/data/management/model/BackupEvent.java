@@ -2,10 +2,12 @@ package com.itorix.apiwiz.data.management.model;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.itorix.apiwiz.common.model.apigee.CommonConfiguration;
 import com.itorix.apiwiz.identitymanagement.model.AbstractObject;
 
 @Document(collection = "DataBackUpEvent")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BackupEvent extends AbstractObject{
 	private CommonConfiguration cfg;
 

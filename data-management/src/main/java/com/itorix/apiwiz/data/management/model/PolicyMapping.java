@@ -3,8 +3,11 @@ package com.itorix.apiwiz.data.management.model;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 @Component
 @Document(collection = "Apigee.PolicyMapping")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PolicyMapping {
 
 	public String name;

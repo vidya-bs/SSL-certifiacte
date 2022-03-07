@@ -3,10 +3,13 @@ package com.itorix.apiwiz.data.management.model;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 @Document(collection = "EnvironmentBackUpInfo")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class EnvironmentBackUpInfo extends BackupCommon {
 
 	public static final String LABEL_APP_INFO = "envProxyInfo";

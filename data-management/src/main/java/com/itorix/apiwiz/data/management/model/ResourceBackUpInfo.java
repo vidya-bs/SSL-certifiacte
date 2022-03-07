@@ -3,9 +3,12 @@ package com.itorix.apiwiz.data.management.model;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import net.sf.json.JSONArray;
 
 @Document(collection = "ResourceBackUpInfo")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResourceBackUpInfo extends BackupCommon {
 
 	public static final String LABEL_APP_INFO = "resourceInfo";
