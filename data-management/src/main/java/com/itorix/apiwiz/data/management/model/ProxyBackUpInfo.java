@@ -3,9 +3,12 @@ package com.itorix.apiwiz.data.management.model;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import net.sf.json.JSONObject;
 
 @Document(collection = "DMB.Proxy")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProxyBackUpInfo extends BackupCommon {
 
 	public static final String LABEL_PROXY_INFO = "proxyInfo";

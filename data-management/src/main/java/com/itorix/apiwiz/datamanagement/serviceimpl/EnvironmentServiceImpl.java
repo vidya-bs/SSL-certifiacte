@@ -435,7 +435,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		cfg.setOperationId(Constants.APIGEE_BACKUP);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		BackupInfo backupInfo = organizationService.backupCaches(cfg);
+		BackupInfo backupInfo = organizationService.scheduleBackupCaches(cfg);
 		return new ResponseEntity<BackupInfo>(backupInfo, HttpStatus.OK);
 	}
 
@@ -477,7 +477,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		cfg.setOperationId(Constants.APIGEE_CLEANUP);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		BackupInfo backupInfo = organizationService.backupCaches(cfg);
+		BackupInfo backupInfo = organizationService.scheduleBackupCaches(cfg);
 		return new ResponseEntity<BackupInfo>(backupInfo, HttpStatus.OK);
 	}
 
@@ -515,7 +515,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationService.restoreResources(cfg);
+		organizationService.scheduleRestoreResources(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -584,7 +584,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		cfg.setOperationId(Constants.APIGEE_BACKUP);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		BackupInfo backupInfo = organizationService.backupTargetServers(cfg);
+		BackupInfo backupInfo = organizationService.scheduleBackupTargetServers(cfg);
 		return new ResponseEntity<Object>(backupInfo, HttpStatus.OK);
 	}
 
@@ -626,7 +626,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		cfg.setOperationId(Constants.APIGEE_CLEANUP);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		BackupInfo backupInfo = organizationService.backupTargetServers(cfg);
+		BackupInfo backupInfo = organizationService.scheduleBackupTargetServers(cfg);
 		return new ResponseEntity<BackupInfo>(backupInfo, HttpStatus.OK);
 	}
 
@@ -665,7 +665,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationService.restoreResources(cfg);
+		organizationService.scheduleRestoreResources(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -735,7 +735,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		cfg.setOperationId(Constants.APIGEE_BACKUP);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		BackupInfo backupInfo = organizationService.backupKVM(false, cfg);
+		BackupInfo backupInfo = organizationService.scheduleBackupKVM(false, cfg);
 		return new ResponseEntity<BackupInfo>(backupInfo, HttpStatus.OK);
 	}
 
@@ -777,7 +777,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		cfg.setOperationId(Constants.APIGEE_CLEANUP);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		BackupInfo backupInfo = organizationService.backupKVM(true, cfg);
+		BackupInfo backupInfo = organizationService.scheduleBackupKVM(true, cfg);
 		return new ResponseEntity<BackupInfo>(backupInfo, HttpStatus.OK);
 	}
 
@@ -815,7 +815,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		organizationService.restoreResources(cfg);
+		organizationService.scheduleRestoreResources(cfg);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 

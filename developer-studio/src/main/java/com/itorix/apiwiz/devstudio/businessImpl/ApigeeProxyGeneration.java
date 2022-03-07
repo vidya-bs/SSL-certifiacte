@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -164,6 +165,11 @@ public class ApigeeProxyGeneration {
 				mapApi.put("verb", flow.getVerb().toUpperCase());
 				mapApi.put("name", flow.getName());
 				mapApi.put("description", flow.getDescription());
+				Map<String, String> metadata = new HashMap<String, String>();
+				for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata : flow.getMetadata()){
+					metadata.put(proxyMetadata.getName().replaceAll("-", "_"), proxyMetadata.getValue());
+				}
+				mapApi.put("metadata", metadata);
 			}
 		}
 		Writer file = new FileWriter(dstProxiesFileName);
@@ -185,25 +191,10 @@ public class ApigeeProxyGeneration {
 			Template template = getTemplate(tmplFile.getName());
 			for (Flow flow : apiList.getFlow()) {
 				String apiName = flow.getName();
-//				String verb = flow.getVerb();
-//				if (verb.equalsIgnoreCase("GET")) {
-//					if ((tmplFile.getName().contains(ProxyConfig.STR_GET) == false)
-//							&& (tmplFile.getName().contains(ProxyConfig.STR_ALL) == false)) {
-//						continue;
-//					}
-//				} else {
-//					if (tmplFile.getName().contains(ProxyConfig.STR_GET)) {
-//						continue;
-//					}
-//				}
 				String fileName = removeFileExtension(tmplFile.getName(), true);
-				
-				
 				String dstPoliciesFile = dstPolicies + File.separatorChar 
 						+ tmplFile.getName().replaceAll(fileName, fileName + "-" + apiName  );
 
-				dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "").replace(ProxyConfig.STR_GET, "")
-						.replace(ProxyConfig.STR_ALL, "");
 				final Map<String, Object> apiDtls = new HashMap<String, Object>();
 				Map<String, Object> apiMap = new HashMap<String, Object>();
 				apiDtls.put(ProxyConfig.STR_API, apiMap);
@@ -220,21 +211,49 @@ public class ApigeeProxyGeneration {
 					apiDtls.put("policyTemplate", commonMap.get("policyTemplate"));
 					apiDtls.put("policyName", commonMap.get("policyName"));
 				}
-				Writer reqFile = new FileWriter(dstPoliciesFile);
-				template.process(apiDtls, reqFile);
-				reqFile.flush();
-				reqFile.close();
+				
+				Map<String, String> metadata = new HashMap<String, String>();
+				for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata : flow.getMetadata()){
+					metadata.put(proxyMetadata.getName().replaceAll("-", "_"), proxyMetadata.getValue());
+				}
+				apiDtls.put("metadata", metadata);
+				
+				boolean canProcess = true;
+				if(fileName.contains("x-gw-cache-resource")){
+					canProcess = false;
+					if(null != flow.getMetadata()){
+						for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata : flow.getMetadata()){
+							if(proxyMetadata.getName().equals("x-gw-cache-resource")){
+								if(StringUtils.isNotEmpty(proxyMetadata.getValue())){
+									canProcess = true;
+									break;
+								}
+							}
+						}
+					}
+					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "").replace("-x-gw-cache-resource", "")
+							.replace(ProxyConfig.STR_ALL, "");
+				}else{
+					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "").replace(ProxyConfig.STR_GET, "")
+							.replace(ProxyConfig.STR_ALL, "");
+				}
+				if(canProcess){
+					Writer reqFile = new FileWriter(dstPoliciesFile);
+					template.process(apiDtls, reqFile);
+					reqFile.flush();
+					reqFile.close();
+				}
 			}
 		}
 	}
-	
-	public static String removeFileExtension(String filename, boolean removeAllExtensions) {
-	    if (filename == null || filename.isEmpty()) {
-	        return filename;
-	    }
 
-	    String extPattern = "(?<!^)[.]" + (removeAllExtensions ? ".*" : "[^.]*$");
-	    return filename.replaceAll(extPattern, "");
+	public static String removeFileExtension(String filename, boolean removeAllExtensions) {
+		if (filename == null || filename.isEmpty()) {
+			return filename;
+		}
+
+		String extPattern = "(?<!^)[.]" + (removeAllExtensions ? ".*" : "[^.]*$");
+		return filename.replaceAll(extPattern, "");
 	}
 
 	private List<String> processRouteRuleTemplate(List<Target> targets) throws IOException, TemplateException {
