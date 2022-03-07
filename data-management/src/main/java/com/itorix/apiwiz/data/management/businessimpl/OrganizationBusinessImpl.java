@@ -3049,7 +3049,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
 		ResponseEntity<byte[]> response = restTemplate.exchange(
-				cfg.getJfrogUrl(), HttpMethod.GET, requestEntity, byte[].class);
+				cfg.getArtifatURL(), HttpMethod.GET, requestEntity, byte[].class);
 
 		//byte[] imageBytes = restTemplate.getForObject(cfg.getJfrogUrl(), byte[].class);
 		byte[] imageBytes = response.getBody();

@@ -29,7 +29,7 @@ public class CommonConfiguration {
 
 	private Boolean isCleanUpAndBackUp;
 
-	private String jfrogUrl;
+	private String artifactURL;
 
 	private String newOrg;
 
@@ -605,12 +605,12 @@ public class CommonConfiguration {
 		this.envFile = envFile;
 	}
 
-	public String getJfrogUrl() {
-		return jfrogUrl;
+	public String getArtifatURL() {
+		return artifactURL;
 	}
 
-	public void setJfrogUrl(String jfrogUrl) {
-		this.jfrogUrl = jfrogUrl;
+	public void setArtifactURL(String jfrogUrl) {
+		this.artifactURL = jfrogUrl;
 	}
 
 	public Boolean getIsDepoyedOnly() {
@@ -698,7 +698,7 @@ public class CommonConfiguration {
 		return "CommonConfiguration [apigeeEmail=" + apigeeEmail + ", apigeePassword=" + apigeePassword + ", apiName="
 				+ apiName + ", sharedflowName=" + sharedflowName + ", organization=" + organization + ", environment="
 				+ environment + ", jsessionId=" + jsessionId + ", isCleanUpAndBackUp=" + isCleanUpAndBackUp
-				+ ", jfrogUrl=" + jfrogUrl + ", newOrg=" + newOrg + ", backUpLocation=" + backUpLocation
+				+ ", jfrogUrl=" + artifactURL + ", newOrg=" + newOrg + ", backUpLocation=" + backUpLocation
 				+ ", isDepoyedOnly=" + isDepoyedOnly + ", selectedEnvironments=" + selectedEnvironments
 				+ ", selectedProxies=" + selectedProxies + ", selectedSharedflows=" + selectedSharedflows
 				+ ", backUpLevel=" + backUpLevel + ", type=" + type + ", oldOrg=" + oldOrg + ", oldEnv=" + oldEnv

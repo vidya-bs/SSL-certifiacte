@@ -257,7 +257,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 				String workspace = userSessionToken.getWorkspaceId();
 				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
 						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-						workspace + "/codecoverage/" + cfg.getOrganization() + "-" + cfg.getEnvironment() + "-"
+						workspace + "/codecoverage/"+ timeStamp + "/" + cfg.getOrganization() + "-" + cfg.getEnvironment() + "-"
 								+ cfg.getApiName() + ".zip",
 						zipFileName);
 
