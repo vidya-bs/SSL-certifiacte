@@ -165,11 +165,13 @@ public class ApigeeProxyGeneration {
 				mapApi.put("verb", flow.getVerb().toUpperCase());
 				mapApi.put("name", flow.getName());
 				mapApi.put("description", flow.getDescription());
-				Map<String, String> metadata = new HashMap<String, String>();
-				for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata : flow.getMetadata()){
-					metadata.put(proxyMetadata.getName().replaceAll("-", "_"), proxyMetadata.getValue());
+				if(null != flow.getMetadata()){
+					Map<String, String> metadata = new HashMap<String, String>();
+					for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata : flow.getMetadata()){
+						metadata.put(proxyMetadata.getName().replaceAll("-", "_"), proxyMetadata.getValue());
+					}
+					mapApi.put("metadata", metadata);
 				}
-				mapApi.put("metadata", metadata);
 			}
 		}
 		Writer file = new FileWriter(dstProxiesFileName);
@@ -211,13 +213,13 @@ public class ApigeeProxyGeneration {
 					apiDtls.put("policyTemplate", commonMap.get("policyTemplate"));
 					apiDtls.put("policyName", commonMap.get("policyName"));
 				}
-				
-				Map<String, String> metadata = new HashMap<String, String>();
-				for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata : flow.getMetadata()){
-					metadata.put(proxyMetadata.getName().replaceAll("-", "_"), proxyMetadata.getValue());
+				if(null != flow.getMetadata()){
+					Map<String, String> metadata = new HashMap<String, String>();
+					for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata : flow.getMetadata()){
+						metadata.put(proxyMetadata.getName().replaceAll("-", "_"), proxyMetadata.getValue());
+					}
+					apiDtls.put("metadata", metadata);
 				}
-				apiDtls.put("metadata", metadata);
-				
 				boolean canProcess = true;
 				if(fileName.contains("x-gw-cache-resource")){
 					canProcess = false;
