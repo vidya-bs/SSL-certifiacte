@@ -10,5 +10,5 @@ import java.util.Map;
 @Setter
 public class TestStudioStats {
     private Map<String, Integer> topFiveTestsBasedOnSuccessRatio;
-    private List<TestSuiteExecCountByStatus> testSuiteExecCountByStatuses;
+    private List<TestSuiteExecutionMetric> testSuiteExecutionMetricsList;
 }
