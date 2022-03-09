@@ -1256,7 +1256,8 @@ public class ProjectManagementDao {
 
 	private void createSCMBranch(ProxySCMDetails proxySCMDetails) throws ItorixException {
 		scmUtilImpl.createBranch(proxySCMDetails.getBranch(), "", proxySCMDetails.getHostUrl(),
-				proxySCMDetails.getUsername(), applicationProperties.getProxyScmPassword());
+				applicationProperties.getProxyScmPassword());
+				//proxySCMDetails.getUsername(), applicationProperties.getProxyScmPassword());
 	}
 
 	private ProxySCMDetails populateProxySCMDetails(Project project) throws ItorixException {
