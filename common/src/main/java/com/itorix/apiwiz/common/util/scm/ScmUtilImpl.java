@@ -199,15 +199,28 @@ public class ScmUtilImpl {
 	}
 
 	@SuppressWarnings("deprecation")
-	public void createBranch(String branchName, String description, String hostUrl, String userName, String password) {
+	public void createBranch(String branchName, String description, String hostUrl, String token){//String userName, String password) {
 		try {
 			String time = Long.toString(System.currentTimeMillis());
 			String tempDirectory = applicationProperties.getTempDir() + File.separatorChar + "CloneDirectory" + time;
 			File cloningDirectory = new File(tempDirectory);
-			Git git = Git.cloneRepository().setURI(hostUrl).setDirectory(cloningDirectory)
-					.setCredentialsProvider(new UsernamePasswordCredentialsProvider(userName, password))
-					.setNoCheckout(true).call();
-
+//			Git git = Git.cloneRepository().setURI(hostUrl).setDirectory(cloningDirectory)
+//					.setCredentialsProvider(new UsernamePasswordCredentialsProvider(userName, password))
+//					.setNoCheckout(true).call();
+			
+			String[] urlParts = hostUrl.split("//");
+			Git git = Git.cloneRepository().setURI(urlParts[0] + "//" + token + "@" + urlParts[1])
+					.setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
+					.setDirectory(cloningDirectory).call();
+			
+			if (containsBranch(git, branchName)) {
+	            git.branchCreate().setForce(true).setName(branchName).setStartPoint("origin/" + branchName).call();
+	            git.checkout().setName(branchName).call();
+	        } else {
+	            git.checkout().setCreateBranch(true).setName(branchName).call();
+	        }
+			
+			
 			try (Repository repository = new FileRepositoryBuilder().setGitDir(git.getRepository().getDirectory())
 					.readEnvironment().findGitDir().build()) {
 				File workingDirectory = new File(repository.getWorkTree().getAbsolutePath());
@@ -219,12 +232,15 @@ public class ScmUtilImpl {
 			}
 			git.add().addFilepattern(".").call();
 			git.commit().setMessage("Initial commit").call();
-			git.checkout().setCreateBranch(true).setName(branchName).call();
+			git.checkout().setName(branchName).call();
 			// push created branch to remote repository
 			// This matches to 'git push targetBranch:targetBranch'
 			RefSpec refSpec = new RefSpec().setSourceDestination(branchName, branchName);
-			git.push().setRefSpecs(refSpec)
-					.setCredentialsProvider(new UsernamePasswordCredentialsProvider(userName, password)).call();
+//			git.push().setRefSpecs(refSpec)
+//					.setCredentialsProvider(new UsernamePasswordCredentialsProvider(userName, password)).call();
+			PushCommand pc = git.push();
+			pc.setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, "")).setForce(true).setPushAll();
+			pc.call();
 			git.getRepository().close();
 			FileUtils.cleanDirectory(cloningDirectory);
 			FileUtils.deleteDirectory(cloningDirectory);

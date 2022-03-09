@@ -33,6 +33,7 @@ import com.itorix.apiwiz.common.model.configmanagement.KVMEntry;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.integrations.Integration;
 import com.itorix.apiwiz.common.model.integrations.git.GitIntegration;
+import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
 import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegrationUtils;
 import com.itorix.apiwiz.common.model.projectmanagement.Endpoints;
 import com.itorix.apiwiz.common.model.projectmanagement.Organization;
@@ -423,8 +424,28 @@ public class ProxyUtils {
 		proxySCMDetails.setBranch(branch);
 		proxySCMDetails.setScmSource("GIT");
 		proxySCMDetails.setHostUrl(GIT_HOST_URL + repoName);
+		proxySCMDetails.setUsername(getBuildScmProp("itorix.core.scm.username" ));
+		proxySCMDetails.setPassword(getBuildScmProp("itorix.core.scm.token"));
 		createSCMBranch(proxySCMDetails);
 		return proxySCMDetails;
+	}
+	
+	private String getBuildScmProp(String key) {
+		try{
+		Query query = new Query();
+		query.addCriteria(Criteria.where("propertyKey").is(key));
+		WorkspaceIntegration integration = mongoTemplate.findOne(query, WorkspaceIntegration.class);
+		if (integration != null) {
+			RSAEncryption rSAEncryption;
+			rSAEncryption = new RSAEncryption();
+			return integration.getEncrypt()
+					? rSAEncryption.decryptText(integration.getPropertyValue())
+					: integration.getPropertyValue();
+		} 
+		}catch(Exception e){
+			
+		}
+		return null;
 	}
 
 	private String createSCMRepo(String proxyName) throws ItorixException {
@@ -439,8 +460,8 @@ public class ProxyUtils {
 	}
 
 	private void createSCMBranch(ProxySCMDetails proxySCMDetails) throws ItorixException {
-		scmUtilImpl.createBranch(proxySCMDetails.getBranch(), "", proxySCMDetails.getHostUrl(),
-				proxySCMDetails.getUsername(), applicationProperties.getProxyScmPassword());
+		scmUtilImpl.createBranch(proxySCMDetails.getBranch(), "", proxySCMDetails.getHostUrl(), proxySCMDetails.getPassword());
+				//proxySCMDetails.getUsername(), proxySCMDetails.getPassword());
 	}
 
 	private String getBranchType(String branchName) {
