@@ -263,7 +263,7 @@ public class ProxyUtils {
 					pipelienStage.setType(stage.getType().trim());
 					pipelienStage.setOrgName(stage.getOrgName().trim());
 					pipelienStage.setEnvName(stage.getEnvName().trim());
-					pipelienStage.setIsSaas(stage.getType().equalsIgnoreCase("onprem") ? false : true);
+					pipelienStage.setIsSaas(stage.isSaaS());
 					pipelienStage.setSequenceID(stage.getSequenceID());
 					UnitTests unitTests = new UnitTests();
 					unitTests.setEnabled("false");
