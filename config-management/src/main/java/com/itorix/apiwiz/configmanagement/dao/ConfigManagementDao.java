@@ -1,36 +1,11 @@
 package com.itorix.apiwiz.configmanagement.dao;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.BasicQuery;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.SearchItem;
-import com.itorix.apiwiz.common.model.configmanagement.CacheConfig;
-import com.itorix.apiwiz.common.model.configmanagement.ConfigMetadata;
-import com.itorix.apiwiz.common.model.configmanagement.KVMConfig;
-import com.itorix.apiwiz.common.model.configmanagement.KVMEntry;
-import com.itorix.apiwiz.common.model.configmanagement.ProductConfig;
-import com.itorix.apiwiz.common.model.configmanagement.TargetConfig;
+import com.itorix.apiwiz.common.model.configmanagement.*;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
@@ -45,11 +20,21 @@ import com.itorix.apiwiz.configmanagement.model.apigee.services.KVMService;
 import com.itorix.apiwiz.configmanagement.model.apigee.services.ProductService;
 import com.itorix.apiwiz.configmanagement.model.apigee.services.TargetConnection;
 import com.itorix.apiwiz.identitymanagement.model.User;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.WriteResult;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+
+import java.util.*;
 
 @Component
 public class ConfigManagementDao {
@@ -171,9 +156,6 @@ public class ConfigManagementDao {
 				update.set("modifiedDate", config.getModifiedDate());
 				Query query = new Query(
 						Criteria.where("resourceType").is(config.getResourceType()).and("name").is(config.getName()));
-				// DBObject dbDoc = new BasicDBObject();
-				// mongoTemplate.getConverter().write(config, dbDoc);
-				// Update update = Update.fromDBObject(dbDoc, "_id");
 				mongoTemplate.updateFirst(query, update, ConfigMetadata.class);
 			}
 			return true;
@@ -958,6 +940,41 @@ public class ConfigManagementDao {
 		}
 	}
 
+	public boolean updateProductConfig(ProductConfig productConfig) throws ItorixException {
+		try {
+			List obj = getProducts(productConfig);
+			ConfigMetadata metadata = productConfig.getMetadata();
+			metadata.setResourceType("product");
+
+			if (obj.size() > 0) {
+				Query query = new Query(Criteria.where("org").is(productConfig.getOrg()).and("name").is(productConfig.getName()));
+				Update update = new Update();
+				update.set("activeFlag", false);
+				update.set("createdUser", productConfig.getCreatedUser());
+				update.set("modifiedUser", productConfig.getModifiedUser());
+				update.set("createdDate", productConfig.getCreatedDate());
+				update.set("modifiedDate", productConfig.getModifiedDate());
+				update.set("description", productConfig.getDescription());
+				update.set("type", productConfig.getType());
+				update.set("apiResources", productConfig.getApiResources());
+				update.set("displayName", productConfig.getDisplayName());
+				update.set("environments", productConfig.getEnvironments());
+				update.set("proxies", productConfig.getProxies());
+				if(productConfig.getQuota() != null) update.set("quota", productConfig.getQuota());
+				if(productConfig.getQuotaInterval() != null) update.set("quotaInterval", productConfig.getQuotaInterval());
+				if(productConfig.getQuotaTimeUnit() != null) update.set("quotaTimeUnit", productConfig.getQuotaTimeUnit());
+				if(productConfig.getScopes() !=null && productConfig.getScopes().size() > 0) update.set("scopes", productConfig.getScopes());
+				update.set("attributes", productConfig.getAttributes());
+				mongoTemplate.updateMulti(query, update, ProductConfig.class);
+			}
+			saveMetadata(metadata);
+		} catch (Exception ex) {
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
+		}
+
+		return true;
+	}
+
 	public boolean saveProduct(ProductConfig config) throws ItorixException {
 		try {
 			List obj = (ArrayList) getProducts(config);
@@ -1028,7 +1045,7 @@ public class ConfigManagementDao {
 	public boolean updateProduct(ProductConfig config) throws ItorixException {
 		try {
 			config.setActiveFlag(Boolean.TRUE);
-			return saveProduct(config);
+			return updateProductConfig(config);
 
 		} catch (ItorixException ex) {
 			throw ex;
