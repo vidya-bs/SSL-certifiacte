@@ -1,4 +1,5 @@
 package io.swagger.generator.util;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import org.junit.Test;
@@ -6,6 +7,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
 public class SwaggerUtilTest {
@@ -39,5 +41,16 @@ public class SwaggerUtilTest {
 		} catch (ItorixException m) {
 			assertTrue(m.getMessage().contains("Malformed URL Provided"));
 		}
+	}
+	
+	@Test
+	public void testOptional() {
+		String str = null;
+		String message = "Hi";
+
+		Optional<String> str1 = Optional.ofNullable(str);
+		Optional<String> message1 = Optional.of(message);
+		System.out.println(str1.isPresent());
+		System.out.println(message1.isPresent());
 	}
 }
