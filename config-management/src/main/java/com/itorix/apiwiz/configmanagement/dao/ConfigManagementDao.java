@@ -949,7 +949,6 @@ public class ConfigManagementDao {
 			if (obj.size() > 0) {
 				Query query = new Query(Criteria.where("org").is(productConfig.getOrg()).and("name").is(productConfig.getName()));
 				Update update = new Update();
-				update.set("activeFlag", false);
 				update.set("createdUser", productConfig.getCreatedUser());
 				update.set("modifiedUser", productConfig.getModifiedUser());
 				update.set("createdDate", productConfig.getCreatedDate());
