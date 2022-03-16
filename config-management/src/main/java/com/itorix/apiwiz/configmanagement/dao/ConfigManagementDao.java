@@ -960,6 +960,7 @@ public class ConfigManagementDao {
 				update.set("displayName", productConfig.getDisplayName());
 				update.set("environments", productConfig.getEnvironments());
 				update.set("proxies", productConfig.getProxies());
+				update.set("approvalType", productConfig.getApprovalType());
 				if(productConfig.getQuota() != null) update.set("quota", productConfig.getQuota());
 				if(productConfig.getQuotaInterval() != null) update.set("quotaInterval", productConfig.getQuotaInterval());
 				if(productConfig.getQuotaTimeUnit() != null) update.set("quotaTimeUnit", productConfig.getQuotaTimeUnit());
