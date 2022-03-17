@@ -2,12 +2,14 @@ package com.itorix.apiwiz.analytics.businessImpl;
 
 import com.itorix.apiwiz.analytics.beans.monitor.MonitorCollections;
 import com.itorix.apiwiz.analytics.beans.monitor.MonitorCollectionsResponse;
-import com.itorix.apiwiz.analytics.model.MonitorCountByExecStatus;
+import com.itorix.apiwiz.analytics.model.MonitorExecutionMetric;
 import com.itorix.apiwiz.analytics.model.MonitorStats;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.ConditionalOperators;
+import org.springframework.data.mongodb.core.aggregation.ConditionalOperators.Cond;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -37,23 +39,37 @@ public class MonitorStatsImpl {
 
         monitorStats.setTopFiveMonitorsBasedOnUptime(getTopFiveMonitorsBasedOnUptime(monitorResponses));
         monitorStats.setTopFiveMonitorsBasedOnLatency(getTopFiveMonitorsBasedOnLatency(monitorResponses));
-        List<MonitorCountByExecStatus> monitorCountByExecStatus = getMonitorCountByExecStatus(userId);
+        List<MonitorExecutionMetric> monitorCountByExecStatus = getMonitorCountByExecStatus(userId);
         replaceMonitorCollectionIdWithName(monitorCountByExecStatus);
         monitorStats.setMonitorCountByExecStatus(monitorCountByExecStatus);
         return monitorStats;
     }
 
-    private void replaceMonitorCollectionIdWithName(List<MonitorCountByExecStatus> monitorExecCountByStatuses) {
+
+    private void replaceMonitorCollectionIdWithName(List<MonitorExecutionMetric> monitorExecCountByStatuses) {
         HashMap<String, String> monitorIdAndName = new HashMap<>();
         List<MonitorCollections> monitorCollections = mongoTemplate.findAll(MonitorCollections.class, MONITOR_COLLECTIONS);
         monitorCollections.stream().forEach( m -> monitorIdAndName.put(m.getId(), m.getName()));
         monitorExecCountByStatuses.forEach( m -> m.setMonitorCollectionName(monitorIdAndName.get(m.getMonitorCollectionName())));
     }
 
-    private List<MonitorCountByExecStatus> getMonitorCountByExecStatus(String userId) {
-        List<MonitorCountByExecStatus> monitorExecCountByStatuses = new ArrayList<>();
+    private List<MonitorExecutionMetric> getMonitorCountByExecStatus(String userId) {
+        List<MonitorExecutionMetric> monitorExecCountByStatuses = new ArrayList<>();
         Aggregation aggregation = null;
-        GroupOperation groupOperation = Aggregation.group("collectionId", "status").count().as("count");
+
+//        Aggregation aggregation = newAggregation(
+//                project()
+//                        .and(filter("answer_list")
+//                                .as("answer")
+//                                .by(valueOf("answer.question").equalToValue(2)))
+//                        .as("profile"));
+
+        Cond successCondition = ConditionalOperators.when(Criteria.where("status").is("Success")).then(1).otherwise(0);
+        Cond failureCondition = ConditionalOperators.when(Criteria.where("status").is("Failed")).then(1).otherwise(0);
+
+        GroupOperation groupOperation = Aggregation.group("collectionId").count().as("total").
+                sum(successCondition).as("success").sum(failureCondition).as("failure")
+                .avg("latency").as("latency");
 
         if(userId != null ) {
             aggregation = Aggregation.newAggregation(Aggregation.match(Criteria.where("collectionCreatedBy").is(userId)), groupOperation);
@@ -62,19 +78,20 @@ public class MonitorStatsImpl {
         }
         List<Document> mappedResults = mongoTemplate.aggregate(aggregation, MONITOR_EVENTS_HISTORY, Document.class).getMappedResults();
         mappedResults.forEach( d ->  {
-            MonitorCountByExecStatus monitorExecCountByStatus = getMonitorExecCountStatus(d);
+            MonitorExecutionMetric monitorExecCountByStatus = getMonitorExecCountStatus(d);
             monitorExecCountByStatuses.add(monitorExecCountByStatus);
         });
         return monitorExecCountByStatuses;
     }
 
-    private MonitorCountByExecStatus getMonitorExecCountStatus(Document d) {
-        MonitorCountByExecStatus monitorExecCountByStatus = new MonitorCountByExecStatus();
-        monitorExecCountByStatus.setMonitorCollectionName(d.getString("collectionId"));
-        monitorExecCountByStatus.setStatus(d.getString("status"));
-        monitorExecCountByStatus.setCount(d.getInteger("count"));
-
-        return monitorExecCountByStatus;
+    private MonitorExecutionMetric getMonitorExecCountStatus(Document d) {
+        MonitorExecutionMetric monitorExecutionMetric = new MonitorExecutionMetric();
+        monitorExecutionMetric.setMonitorCollectionName(d.getString("_id"));
+        monitorExecutionMetric.setTotalExecutionCount(d.getInteger("total"));
+        monitorExecutionMetric.setSuccessFullExecutionCount(d.getInteger("success"));
+        monitorExecutionMetric.setFailedExecutionCount(d.getInteger("failure"));
+        monitorExecutionMetric.setAvgLatency(d.getDouble("latency"));
+        return monitorExecutionMetric;
     }
 
     private Map<String, Long> getTopFiveMonitorsBasedOnLatency(List<MonitorCollectionsResponse> monitorResponses) {
