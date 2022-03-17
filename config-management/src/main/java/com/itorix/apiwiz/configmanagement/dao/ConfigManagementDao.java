@@ -949,7 +949,6 @@ public class ConfigManagementDao {
 			if (obj.size() > 0) {
 				Query query = new Query(Criteria.where("org").is(productConfig.getOrg()).and("name").is(productConfig.getName()));
 				Update update = new Update();
-				update.set("activeFlag", false);
 				update.set("createdUser", productConfig.getCreatedUser());
 				update.set("modifiedUser", productConfig.getModifiedUser());
 				update.set("createdDate", productConfig.getCreatedDate());
@@ -960,6 +959,7 @@ public class ConfigManagementDao {
 				update.set("displayName", productConfig.getDisplayName());
 				update.set("environments", productConfig.getEnvironments());
 				update.set("proxies", productConfig.getProxies());
+				update.set("approvalType", productConfig.getApprovalType());
 				if(productConfig.getQuota() != null) update.set("quota", productConfig.getQuota());
 				if(productConfig.getQuotaInterval() != null) update.set("quotaInterval", productConfig.getQuotaInterval());
 				if(productConfig.getQuotaTimeUnit() != null) update.set("quotaTimeUnit", productConfig.getQuotaTimeUnit());
