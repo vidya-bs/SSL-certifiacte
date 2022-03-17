@@ -57,13 +57,6 @@ public class MonitorStatsImpl {
         List<MonitorExecutionMetric> monitorExecCountByStatuses = new ArrayList<>();
         Aggregation aggregation = null;
 
-//        Aggregation aggregation = newAggregation(
-//                project()
-//                        .and(filter("answer_list")
-//                                .as("answer")
-//                                .by(valueOf("answer.question").equalToValue(2)))
-//                        .as("profile"));
-
         Cond successCondition = ConditionalOperators.when(Criteria.where("status").is("Success")).then(1).otherwise(0);
         Cond failureCondition = ConditionalOperators.when(Criteria.where("status").is("Failed")).then(1).otherwise(0);
 
