@@ -157,7 +157,7 @@ public class MonitorAgentRunner {
             }
 
         } catch (Exception e) {
-            logger.error("exception occured during creating variables for collection id {} , scheduler id {} ",
+            logger.error("exception occurred during creating variables for collection id {} , scheduler id {} ",
                     context.getCollectionId(), context.getSchedulerId());
         }
 
@@ -339,10 +339,10 @@ public class MonitorAgentRunner {
                 String monitorUrl = notificationAgentPath + notificationContextPath + NOTIFICATION_AGENT_NOTIFY;
                 ResponseEntity<String> result = restTemplate.postForEntity(monitorUrl, httpEntity, String.class);
                 if (!result.getStatusCode().is2xxSuccessful()) {
-                    log.error("error returned from monitor agent", result.getBody());
+                    log.error("error returned from notification agent", result.getBody());
                 }
             } catch (Exception e) {
-                log.error("error returned from monitor agent", e);
+                log.error("error returned from notification agent", e);
             }
         }
     }
