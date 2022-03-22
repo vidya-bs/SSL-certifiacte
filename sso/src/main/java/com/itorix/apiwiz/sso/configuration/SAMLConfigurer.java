@@ -112,6 +112,7 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
 
         if (webSSOProfileConsumer == null) {
             webSSOProfileConsumer = new WebSSOProfileConsumerImpl(samlProcessor, cachingMetadataManager);
+            logger.info("Max Authentication Age {} ", serviceProvider.maxAuthenticationAge);
             webSSOProfileConsumer.setMaxAuthenticationAge(serviceProvider.maxAuthenticationAge);
         }
 
@@ -499,7 +500,7 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
         private String entityId;
         private SAMLMessageStorageFactory storageFactory;
         private int responseSkew = 60;
-        private long maxAuthenticationAge = 7200;
+        private long maxAuthenticationAge = 180;
 
         public ServiceProvider protocol(String protocol) {
             this.protocol = protocol;
