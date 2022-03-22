@@ -14,5 +14,5 @@ public class MonitorStats {
 
     private Map<String, Long> topFiveMonitorsBasedOnLatency;
 
-    private List<MonitorCountByExecStatus> monitorCountByExecStatus;
+    private List<MonitorExecutionMetric> monitorCountByExecStatus;
 }
