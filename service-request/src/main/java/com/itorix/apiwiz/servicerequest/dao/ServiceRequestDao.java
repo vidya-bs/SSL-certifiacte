@@ -693,6 +693,25 @@ public class ServiceRequestDao {
 			Update update = Update.fromDocument(dbDoc, "_id");
 			UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
 			return result.isModifiedCountAvailable();
+		} else if (config.getStatus().equalsIgnoreCase("Rejected")) {
+			if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
+				query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("name").is(config.getName())
+						.and("type").is(serviceRequest.getType()).and("isSaaS").is(config.getIsSaaS())
+						.and("activeFlag").is(Boolean.TRUE));
+			} else {
+				query = new Query(
+						Criteria.where("org").is(serviceRequest.getOrg()).and("env").is(serviceRequest.getEnv())
+						.and("name").is(config.getName()).and("type").is(serviceRequest.getType())
+						.and("isSaaS").is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
+			}
+			serviceRequest.setStatus("Rejected");
+			serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
+			sendEmailTo(serviceRequest);
+			Document dbDoc = new Document();
+			mongoTemplate.getConverter().write(serviceRequest, dbDoc);
+			Update update = Update.fromDocument(dbDoc, "_id");
+			UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
+			return result.isModifiedCountAvailable();
 		} else {
 			if ((!config.getStatus().equalsIgnoreCase("Change Required")
 					|| config.getStatus().equalsIgnoreCase("Approved")))
