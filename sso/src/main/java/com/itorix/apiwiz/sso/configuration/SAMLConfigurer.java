@@ -82,6 +82,7 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
     private boolean forcePrincipalAsString = false;
     private String failureRedirectUrl;
     private boolean validateSelfSignCertificate;
+    private long maxAuthenticationAgeInHours;
 
     private String logoutTargetUrl = "/";
 
@@ -111,8 +112,10 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
         singleLogoutProfile = singleLogoutProfile();
 
         if (webSSOProfileConsumer == null) {
+            long secondsFromPreviousLogin = maxAuthenticationAgeInHours * 3600;
+            logger.info("Max Authentication age for SSO is configured as {} seconds.", secondsFromPreviousLogin);
             webSSOProfileConsumer = new WebSSOProfileConsumerImpl(samlProcessor, cachingMetadataManager);
-            webSSOProfileConsumer.setMaxAuthenticationAge(serviceProvider.maxAuthenticationAge);
+            webSSOProfileConsumer.setMaxAuthenticationAge(secondsFromPreviousLogin);
         }
 
         samlAuthenticationProvider = samlAuthenticationProvider(webSSOProfileConsumer);
@@ -160,10 +163,16 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
         return this;
     }
 
+    public SAMLConfigurer maxAuthenticationAgeInHours(long maxAuthenticationAgeInHours) {
+        this.maxAuthenticationAgeInHours = maxAuthenticationAgeInHours;
+        return this;
+    }
+
     public SAMLConfigurer failureRedirectUrl(String failureRedirectUrl) {
         this.failureRedirectUrl = failureRedirectUrl;
         return this;
     }
+
 
     public SAMLConfigurer validateSelfSignCertificate(boolean validateSelfSignCertificate) {
         this.validateSelfSignCertificate = validateSelfSignCertificate;
