@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.analytics.businessImpl;
 
+import com.itorix.apiwiz.analytics.beans.pipeline.Pipeline;
 import com.itorix.apiwiz.analytics.model.ProxyStats;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.data.mongodb.core.schema.JsonSchemaObject;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -65,4 +67,9 @@ public class ProxyStatsImpl {
         Aggregation aggregation = Aggregation.newAggregation(groupOperation, sortOperation, Aggregation.limit(5));
         return aggregation;
     }
+
+    public List<Pipeline> getPipelines() {
+        return mongoTemplate.findAll(Pipeline.class);
+    }
+
 }
