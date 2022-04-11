@@ -1,8 +1,9 @@
 package com.itorix.apiwiz.analytics.businessImpl;
 
-import com.itorix.apiwiz.analytics.beans.pipeline.Pipeline;
 import com.itorix.apiwiz.analytics.model.ProxyStats;
 import org.bson.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -12,21 +13,29 @@ import org.springframework.data.mongodb.core.schema.JsonSchemaObject;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 @Component
 public class ProxyStatsImpl {
     private static final String CODE_COVERAGE_LIST = "Connectors.Apigee.CodeCoverage.List";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStatsImpl.class);
 
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    @Autowired
+    private PipelineStatsImpl pipelineStatsImpl;
+
+
     public ProxyStats createProxyStats(String userId) {
         ProxyStats proxyStats = new ProxyStats();
         proxyStats.setTopFiveProxiesBasedOnCoverage(getTopFiveProxiesBasedOnCoverage(userId));
+
+        proxyStats.setPipelineGroupStats(pipelineStatsImpl.getPipelineStats());
+
         return proxyStats;
     }
+
 
     private Map<String, Double> getTopFiveProxiesBasedOnCoverage(String userId) {
         Map<String, Double> topFiveProxiesBasedOnCoverage = new LinkedHashMap<>();
@@ -68,8 +77,5 @@ public class ProxyStatsImpl {
         return aggregation;
     }
 
-    public List<Pipeline> getPipelines() {
-        return mongoTemplate.findAll(Pipeline.class);
-    }
 
 }

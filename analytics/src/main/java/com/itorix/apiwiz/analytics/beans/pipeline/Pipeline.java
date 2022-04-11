@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Component("pipeline")
+@Component("pipelineDoc")
 @Document(collection = "CICD.Pipeline.List")
 public class Pipeline {
 
@@ -45,13 +45,11 @@ public class Pipeline {
 	@JsonProperty("type")
 	private String type;
 
-	@JsonProperty("materials")
-	private List<Material> materials = null;
 
 	@JsonProperty("stages")
 	private List<Stage> stages = null;
 
-	private Metadata metadata;
+
 
 	@JsonProperty("status")
 	private String status;
@@ -125,16 +123,6 @@ public class Pipeline {
 		this.type = type;
 	}
 
-	@JsonProperty("materials")
-	public List<Material> getMaterials() {
-		return materials;
-	}
-
-	@JsonProperty("materials")
-	public void setMaterials(List<Material> materials) {
-		this.materials = materials;
-	}
-
 	@JsonProperty("stages")
 	public List<Stage> getStages() {
 		return stages;
@@ -155,13 +143,6 @@ public class Pipeline {
 		this.additionalProperties.put(name, value);
 	}
 
-	public Metadata getMetadata() {
-		return metadata;
-	}
-
-	public void setMetadata(Metadata metadata) {
-		this.metadata = metadata;
-	}
 
 	@JsonProperty("projectName")
 	public String getProjectName() {
@@ -215,12 +196,8 @@ public class Pipeline {
 		builder.append(version);
 		builder.append(", type=");
 		builder.append(type);
-		builder.append(", materials=");
-		builder.append(materials);
 		builder.append(", stages=");
 		builder.append(stages);
-		builder.append(", metadata=");
-		builder.append(metadata);
 		builder.append(", additionalProperties=");
 		builder.append(additionalProperties);
 		builder.append("]");
