@@ -10,4 +10,5 @@ import java.util.Map;
 public class ProxyStats {
 
     private Map<String, Double> topFiveProxiesBasedOnCoverage;
+    private Map<String, Object> pipelineGroupStats;
 }
