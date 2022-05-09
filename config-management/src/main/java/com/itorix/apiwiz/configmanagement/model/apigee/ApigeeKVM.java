@@ -2,8 +2,10 @@ package com.itorix.apiwiz.configmanagement.model.apigee;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.itorix.apiwiz.common.model.configmanagement.KVMEntry;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ApigeeKVM {
 
 	private String name;

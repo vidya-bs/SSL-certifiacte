@@ -40,6 +40,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 	@Override
 	public ResponseEntity<?> createServiceRequest(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestBody ServiceRequest config, @RequestHeader(value = "JSESSIONID") String jsessionid)
 			throws Exception {
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
@@ -50,6 +51,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 		config.setModifiedDate(new Date(System.currentTimeMillis()));
 		config.setStatus("Review");
 		config.setCreated(false);
+		config.setGwType(gwtype);
 		config.setActiveFlag(Boolean.TRUE);
 		config = serviceRequestDao.createServiceRequest(config);
 		HttpHeaders headers = new HttpHeaders();
@@ -82,6 +84,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 	@Override
 	public ResponseEntity<?> changeServiceRequestStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "org", required = false) String org,
 			@RequestParam(value = "env", required = false) String env,
@@ -98,6 +101,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 			config.setName(name);
 			config.setStatus(status);
 			config.setIsSaaS(isSaaS);
+			config.setGwType(gwtype);
 			User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
 			UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 			String workspaceId = userSessionToken.getWorkspaceId();
