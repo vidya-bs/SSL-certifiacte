@@ -74,6 +74,10 @@ public class SSOSecurityConfig {
     @Value("${itorix.sso.logout.targeturl}")
     private String targetUrl;
 
+    @Value("${itorix.sso.authentication.age}")
+    private long maxAuthenticationAgeInHours;
+
+
     @Autowired
     private SAMLUserDetailsServiceImpl sAMLUserDetailsServiceImpl;
 
@@ -113,7 +117,7 @@ public class SSOSecurityConfig {
             http.csrf().disable().antMatcher("/saml/**").authorizeRequests().antMatchers("/saml/token/**")
                     .authenticated().antMatchers("/saml/**").permitAll().and()
                     .apply(SAMLConfigurer.saml(targetUrl).userDetailsService(sAMLUserDetailsServiceImpl))
-                    .failureRedirectUrl(failureRedirectUrl).validateSelfSignCertificate(validateSelfSignCertificate)
+                    .failureRedirectUrl(failureRedirectUrl).maxAuthenticationAgeInHours(maxAuthenticationAgeInHours).validateSelfSignCertificate(validateSelfSignCertificate)
                     .serviceProvider().keyStore().storeFilePath(keyStoreFilePath).password(keyStorePassword)
                     .keyname(keyAlias).keyPassword(password).and().protocol(protocol)
                     .hostname(String.format("%s:%s", host, ssoPort)).basePath(contextPath).and().identityProvider()

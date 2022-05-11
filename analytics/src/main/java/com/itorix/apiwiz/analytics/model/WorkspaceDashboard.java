@@ -15,7 +15,6 @@ public class WorkspaceDashboard {
     private DesignStudioStats designStudioStats;
     private ProxyStats proxyStats;
     private TestStudioStats testStudioStats;
-    private PipelineStats pipelineStats;
     private MonitorStats monitorStats;
     private long createdTs;
     private String userId;
