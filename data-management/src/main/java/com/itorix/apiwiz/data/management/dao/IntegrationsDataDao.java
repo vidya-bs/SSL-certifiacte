@@ -64,6 +64,7 @@ public class IntegrationsDataDao {
 		}
 	}
 
+	
 	public void updateS3Integratoin(Integration integration) {
 		List<Integration> dbIntegrationList = getIntegration(integration.getType());
 		if (dbIntegrationList != null && dbIntegrationList.size() > 0) {
@@ -223,6 +224,7 @@ public class IntegrationsDataDao {
 			removeIntegratoin(integration);
 	}
 
+	
 	public String getGoServerVersion(GoCDIntegration goCDIntegration)
 			throws JsonMappingException, JsonProcessingException {
 		HttpHeaders headers = new HttpHeaders();

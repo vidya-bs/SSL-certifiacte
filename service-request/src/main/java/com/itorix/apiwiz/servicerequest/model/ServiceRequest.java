@@ -21,6 +21,7 @@ public class ServiceRequest {
 	public static final String LABEL_CREATED_TIME = "createdDate";
 	// common parameters
 	private String type;
+	private String gwType;
 	private String createdUser;
 	private String modifiedUser;
 	private Date createdDate;
@@ -253,6 +254,14 @@ public class ServiceRequest {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+	
+	public String getGwType() {
+		return gwType;
+	}
+
+	public void setGwType(String gwType) {
+		this.gwType = gwType;
 	}
 
 	public String getCreatedUser() {
