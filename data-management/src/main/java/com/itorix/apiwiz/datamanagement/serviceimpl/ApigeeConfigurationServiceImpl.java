@@ -128,18 +128,30 @@ public class ApigeeConfigurationServiceImpl implements ApigeeConfigurationServic
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/apigee/host")
 	public ResponseEntity<Object> getApigeeHost(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "jsessionid") String jsessionid, @RequestParam("type") String type,
 			@RequestParam("org") String org) throws Exception {
-		Object o = apigeeConfigurationBusiness.getApigeeHost(type, org);
-		return new ResponseEntity<Object>(o, HttpStatus.OK);
+		if(gwtype != null && gwtype.equalsIgnoreCase("apigeex")){
+			Object o = apigeeConfigurationBusiness.getApigeexHost(type, org);
+			return new ResponseEntity<Object>(o, HttpStatus.OK);
+		}else{
+			Object o = apigeeConfigurationBusiness.getApigeeHost(type, org);
+			return new ResponseEntity<Object>(o, HttpStatus.OK);
+		}
 	}
 
 	public ResponseEntity<Object> getApigeeAuthorization(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "jsessionid") String jsessionid, @RequestParam("type") String type,
 			@RequestParam("org") String org) throws Exception {
-		Object o = apigeeConfigurationBusiness.getApigeeAuthorization(type, org);
-		return new ResponseEntity<Object>(o, HttpStatus.OK);
+		if(gwtype != null && gwtype.equalsIgnoreCase("apigeex")){
+			Object o = apigeeConfigurationBusiness.getApigeexAuthorization(type, org);
+			return new ResponseEntity<Object>(o, HttpStatus.OK);
+		} else {
+			Object o = apigeeConfigurationBusiness.getApigeeAuthorization(type, org);
+			return new ResponseEntity<Object>(o, HttpStatus.OK);
+		}
 	}
 
 	/**

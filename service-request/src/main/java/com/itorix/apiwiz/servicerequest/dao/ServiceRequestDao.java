@@ -459,6 +459,30 @@ public class ServiceRequestDao {
 		}
 		return kvmconfig;
 	}
+	
+	private com.itorix.apiwiz.common.model.apigeeX.ProductConfig getProductConfig(ServiceRequest serviceRequest)
+	{
+		com.itorix.apiwiz.common.model.apigeeX.ProductConfig productconfig = new com.itorix.apiwiz.common.model.apigeeX.ProductConfig();
+		productconfig.setOrg(serviceRequest.getOrg());
+		productconfig.setName(serviceRequest.getName());
+		productconfig.setApiResources(serviceRequest.getApiResources());
+		productconfig.setApprovalType(serviceRequest.getApprovalType());
+		productconfig.setAttributes(serviceRequest.getAttributes());
+		productconfig.setDescription(serviceRequest.getDescription());
+		productconfig.setDisplayName(serviceRequest.getDisplayName());
+		productconfig.setEnvironments(serviceRequest.getEnvironments());
+		productconfig.setProxies(serviceRequest.getProxies());
+		productconfig.setQuota(serviceRequest.getQuota());
+		productconfig.setQuotaInterval(serviceRequest.getQuotaInterval());
+		productconfig.setQuotaTimeUnit(serviceRequest.getQuotaTimeUnit());
+		productconfig.setScopes(serviceRequest.getScopes());
+		if (serviceRequest.getIsSaaS()) {
+			productconfig.setType("saas");
+		} else {
+			productconfig.setType("onprem");
+		}
+		return productconfig;
+	}
 
 	public boolean updateServiceRequestStatus(ServiceRequest config, User user)
 			throws ItorixException, MessagingException {
@@ -542,29 +566,35 @@ public class ServiceRequestDao {
 						configManagementDao.createApigeeKVM(kvmconfig, user);
 					}
 				} else if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
-					ProductConfig productconfig = new ProductConfig();
-					productconfig.setModifiedDate(Instant.now().toString());
-					productconfig.setModifiedUser(serviceRequest.getModifiedUser());
-					productconfig.setOrg(serviceRequest.getOrg());
-					productconfig.setName(serviceRequest.getName());
-					productconfig.setApiResources(serviceRequest.getApiResources());
-					productconfig.setApprovalType(serviceRequest.getApprovalType());
-					productconfig.setAttributes(serviceRequest.getAttributes());
-					productconfig.setDescription(serviceRequest.getDescription());
-					productconfig.setDisplayName(serviceRequest.getDisplayName());
-					productconfig.setEnvironments(serviceRequest.getEnvironments());
-					productconfig.setProxies(serviceRequest.getProxies());
-					productconfig.setQuota(serviceRequest.getQuota());
-					productconfig.setQuotaInterval(serviceRequest.getQuotaInterval());
-					productconfig.setQuotaTimeUnit(serviceRequest.getQuotaTimeUnit());
-					productconfig.setScopes(serviceRequest.getScopes());
-					if (serviceRequest.getIsSaaS()) {
-						productconfig.setType("saas");
-					} else {
-						productconfig.setType("onprem");
+					if(config.getGwType()!= null && config.getGwType().equalsIgnoreCase("apigeex")){
+						com.itorix.apiwiz.common.model.apigeeX.ProductConfig productconfig = getProductConfig(serviceRequest);
+						isCreatedorUpdated = apigeeXConfigDao.updateProduct(productconfig);;
+						apigeeXConfigDao.createApigeeProduct(productconfig, user);
+					}else{
+						ProductConfig productconfig = new ProductConfig();
+						productconfig.setModifiedDate(Instant.now().toString());
+						productconfig.setModifiedUser(serviceRequest.getModifiedUser());
+						productconfig.setOrg(serviceRequest.getOrg());
+						productconfig.setName(serviceRequest.getName());
+						productconfig.setApiResources(serviceRequest.getApiResources());
+						productconfig.setApprovalType(serviceRequest.getApprovalType());
+						productconfig.setAttributes(serviceRequest.getAttributes());
+						productconfig.setDescription(serviceRequest.getDescription());
+						productconfig.setDisplayName(serviceRequest.getDisplayName());
+						productconfig.setEnvironments(serviceRequest.getEnvironments());
+						productconfig.setProxies(serviceRequest.getProxies());
+						productconfig.setQuota(serviceRequest.getQuota());
+						productconfig.setQuotaInterval(serviceRequest.getQuotaInterval());
+						productconfig.setQuotaTimeUnit(serviceRequest.getQuotaTimeUnit());
+						productconfig.setScopes(serviceRequest.getScopes());
+						if (serviceRequest.getIsSaaS()) {
+							productconfig.setType("saas");
+						} else {
+							productconfig.setType("onprem");
+						}
+						isCreatedorUpdated = configManagementDao.updateProduct(productconfig);
+						configManagementDao.createApigeeProduct(productconfig, user);
 					}
-					isCreatedorUpdated = configManagementDao.updateProduct(productconfig);
-					configManagementDao.createApigeeProduct(productconfig, user);
 				}
 				serviceRequest.setCreated(true);
 				serviceRequest.setStatus("Approved");
@@ -660,32 +690,38 @@ public class ServiceRequestDao {
 						configManagementDao.createApigeeKVM(kvmconfig, user);
 					}
 				} else if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
-					ProductConfig productconfig = new ProductConfig();
-					productconfig.setModifiedDate(Instant.now().toString());
-					productconfig.setModifiedUser(serviceRequest.getModifiedUser());
-					productconfig.setOrg(serviceRequest.getOrg());
-					productconfig.setName(serviceRequest.getName());
-					productconfig.setApiResources(serviceRequest.getApiResources());
-					productconfig.setApprovalType(serviceRequest.getApprovalType());
-					productconfig.setAttributes(serviceRequest.getAttributes());
-					productconfig.setCreatedDate(Instant.now().toString());
-					productconfig.setCreatedUser(serviceRequest.getCreatedUser());
-					productconfig.setDescription(serviceRequest.getDescription());
-					productconfig.setDisplayName(serviceRequest.getDisplayName());
-					productconfig.setEnvironments(serviceRequest.getEnvironments());
-					productconfig.setProxies(serviceRequest.getProxies());
-					productconfig.setQuota(serviceRequest.getQuota());
-					productconfig.setQuotaInterval(serviceRequest.getQuotaInterval());
-					productconfig.setQuotaTimeUnit(serviceRequest.getQuotaTimeUnit());
-					productconfig.setScopes(serviceRequest.getScopes());
-					productconfig.setActiveFlag(Boolean.TRUE);
-					if (serviceRequest.getIsSaaS()) {
-						productconfig.setType("saas");
-					} else {
-						productconfig.setType("onprem");
+					if(config.getGwType()!= null && config.getGwType().equalsIgnoreCase("apigeex")){
+						com.itorix.apiwiz.common.model.apigeeX.ProductConfig productconfig = getProductConfig(serviceRequest);
+						isCreatedorUpdated = apigeeXConfigDao.updateProduct(productconfig);;
+						apigeeXConfigDao.createApigeeProduct(productconfig, user);
+					}else{
+						ProductConfig productconfig = new ProductConfig();
+						productconfig.setModifiedDate(Instant.now().toString());
+						productconfig.setModifiedUser(serviceRequest.getModifiedUser());
+						productconfig.setOrg(serviceRequest.getOrg());
+						productconfig.setName(serviceRequest.getName());
+						productconfig.setApiResources(serviceRequest.getApiResources());
+						productconfig.setApprovalType(serviceRequest.getApprovalType());
+						productconfig.setAttributes(serviceRequest.getAttributes());
+						productconfig.setCreatedDate(Instant.now().toString());
+						productconfig.setCreatedUser(serviceRequest.getCreatedUser());
+						productconfig.setDescription(serviceRequest.getDescription());
+						productconfig.setDisplayName(serviceRequest.getDisplayName());
+						productconfig.setEnvironments(serviceRequest.getEnvironments());
+						productconfig.setProxies(serviceRequest.getProxies());
+						productconfig.setQuota(serviceRequest.getQuota());
+						productconfig.setQuotaInterval(serviceRequest.getQuotaInterval());
+						productconfig.setQuotaTimeUnit(serviceRequest.getQuotaTimeUnit());
+						productconfig.setScopes(serviceRequest.getScopes());
+						productconfig.setActiveFlag(Boolean.TRUE);
+						if (serviceRequest.getIsSaaS()) {
+							productconfig.setType("saas");
+						} else {
+							productconfig.setType("onprem");
+						}
+						isCreatedorUpdated = configManagementDao.saveProduct(productconfig);
+						configManagementDao.createApigeeProduct(productconfig, user);
 					}
-					isCreatedorUpdated = configManagementDao.saveProduct(productconfig);
-					configManagementDao.createApigeeProduct(productconfig, user);
 				}
 				serviceRequest.setCreated(true);
 				serviceRequest.setStatus("Approved");

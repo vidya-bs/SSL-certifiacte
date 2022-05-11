@@ -69,7 +69,11 @@ public interface ApigeeConfigurationBusiness {
 	 */
 	public Object getApigeeHost(String type, String org) throws ItorixException;
 
+	public Object getApigeexHost(String type, String org) throws ItorixException;
+	
 	public Object getApigeeAuthorization(String type, String org) throws ItorixException;
+	
+	public Object getApigeexAuthorization(String type, String org) throws Exception;
 
 	public void updateServiceAccount(List<ApigeeServiceUser> apigeeServiceUsers) throws ItorixException;
 
