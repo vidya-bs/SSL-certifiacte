@@ -45,6 +45,11 @@ public interface ApigeeXConfigurationService {
 			@PathVariable("org") String org,
 			@RequestBody ApigeeXEnvironment environment)
 			throws Exception;
-
+	
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/apigeex/configurations/{orgId}")
+	public ResponseEntity<?> deleteConfiguration(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "jsessionid") String jsessionid,
+			@PathVariable("orgId") String orgId) throws Exception;
 	
 }

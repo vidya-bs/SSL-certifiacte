@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -63,6 +65,13 @@ public class ApigeeXConfigurationServiceImpl implements ApigeeXConfigurationServ
 			throws Exception{
 		return new ResponseEntity<>(apigeeXIntegrationDAO.updateKVM(org, environment), HttpStatus.OK);
 	}
-
+	
+	public ResponseEntity<?> deleteConfiguration(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "jsessionid") String jsessionid,
+			@PathVariable("orgId") String orgId) throws Exception{
+		apigeeXIntegrationDAO.deleteConfiguration(orgId);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
 	
 }

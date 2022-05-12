@@ -27,7 +27,11 @@ public class ApigeeXIntegrationDAO {
 	private ApigeeXUtill apigeeXUtill;
 	
 	public void saveJSONKey(ApigeeXConfigurationVO apigeeXConfigurationVO){
-		
+		ApigeeXConfigurationVO vo = getConfiguration(apigeeXConfigurationVO.getOrgName());
+		if( vo != null)
+		{
+			apigeeXConfigurationVO.setId(vo.getId());
+		}
 		baseRepository.save(apigeeXConfigurationVO);
 	}
 	
