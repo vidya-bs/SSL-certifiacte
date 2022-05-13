@@ -18,4 +18,6 @@ public class WorkspaceDashboard {
     private MonitorStats monitorStats;
     private long createdTs;
     private String userId;
+
+    private UserRoleMetrics userRoleMetrics;
 }
