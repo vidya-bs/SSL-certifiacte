@@ -94,7 +94,7 @@ public enum ErrorCodes {
 			put("Identity-1002", "Resource not found. No records found for the search criteria.");
 			put("Identity-1003", "User account validation failed. Session-Id is expired.");
 			put("Identity-1004",
-					"User account validation failed. Domain name %s is not allowed. Please contact your workspace admin.");
+					"User account validation failed. Domain name %s is not allowed.");
 			put("Identity-1005",
 					"User account validation failed. Please contact your workspace admin to activate your account.");
 			put("Identity-1006",
