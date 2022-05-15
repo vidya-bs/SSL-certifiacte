@@ -16,8 +16,8 @@ public class WorkspaceDashboard {
     private ProxyStats proxyStats;
     private TestStudioStats testStudioStats;
     private MonitorStats monitorStats;
+    private UserRoleMetrics userRoleMetrics;
     private long createdTs;
     private String userId;
 
-    private UserRoleMetrics userRoleMetrics;
 }

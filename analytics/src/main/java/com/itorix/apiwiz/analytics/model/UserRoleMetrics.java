@@ -10,5 +10,5 @@ import lombok.Setter;
 public class UserRoleMetrics {
     private MetricForAdminUser metricForAdminUser;
     private MetricsForOperationsUser metricsForOperationsUser;
-    private MetricsForOtherUsers metricsForOtherUsers;
+    private OtherMetric otherMetric;
 }
