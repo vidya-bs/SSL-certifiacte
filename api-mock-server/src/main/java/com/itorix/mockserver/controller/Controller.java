@@ -207,7 +207,7 @@ public class Controller {
             Query query = new Query(criteria);
 
             log.debug("connected to db {}", mongoTemplate.getDb().getName());
-            log.debug("query formed {}", query.toString());
+            log.debug("query formed {}", query);
             List<Expectation> expectations = mongoTemplate.find(query, Expectation.class);
             List<Expectation> orderedExpectation = getExpectationByPriority(expectations, path);
 
