@@ -563,18 +563,13 @@ public class TestRunner {
 
     private void computeMaskingFields(Map<String, String> globalVars, MaskFields maskingFields, List<Header> header) {
         maskingFields.getMaskingFields().forEach(s -> {
-            header.forEach(m -> {
-                if (m.getValue().equals("{{" + s + "}}")) {
-                    m.setValue(MaskFieldUtil.getMaskedValue(globalVars.get(s)));
-                }
-
-                // testCase.getResponse().getVariables().forEach(v -> {
-                // if (s.equals(v.getName())) {
-                // v.setValue(MaskFieldUtil.getMaskedValue(v.getValue()));
-                // }
-                // });
-
-            });
+            if(header != null && header.size() > 0) {
+                header.forEach(m -> {
+                    if (m.getValue().equals("{{" + s + "}}")) {
+                        m.setValue(MaskFieldUtil.getMaskedValue(globalVars.get(s)));
+                    }
+                });
+            }
         });
     }
 
