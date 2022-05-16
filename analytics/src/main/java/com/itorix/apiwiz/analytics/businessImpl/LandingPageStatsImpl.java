@@ -35,6 +35,9 @@ public class LandingPageStatsImpl {
     @Autowired
     private MonitorStatsImpl monitorStatsImpl;
 
+    @Autowired
+    private UserRoleMetricsImpl userRoleMetricsImpl;
+
     public void generateWorkspaceDashboard(String userId) {
         WorkspaceDashboard workspaceDashboard = new WorkspaceDashboard();
         LandingPageMetrics landingPageMetrics = new LandingPageMetrics();
@@ -61,6 +64,8 @@ public class LandingPageStatsImpl {
         workspaceDashboard.setMonitorStats(monitorStatsImpl.createMonitorStats(userId));
 
         workspaceDashboard.setLandingPageMetrics(landingPageMetrics);
+
+        workspaceDashboard.setUserRoleMetrics(userRoleMetricsImpl.createUserRoleMetrics());
 
         mongoTemplate.save(workspaceDashboard);
 
