@@ -69,9 +69,15 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 	public ResponseEntity<?> createPipeline(@RequestBody PipelineGroups pipelineGroups,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwType,
 			HttpServletRequest request) {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
 				+ jsessionId + ": requestUrl " + request.getRequestURI());
+		if(gwType != null){
+			pipelineGroups.setGwType(gwType);
+		} else{
+			pipelineGroups.setGwType("apigee");
+		}
 		return managePipeline(pipelineGroups, jsessionId, interactionid, true, HttpStatus.CREATED);
 	}
 
@@ -79,9 +85,15 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 	public ResponseEntity<?> updatePipeline(@RequestBody PipelineGroups pipelineGroups,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwType,
 			HttpServletRequest request) {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
 				+ jsessionId + ": requestUrl " + request.getRequestURI());
+		if(gwType != null){
+			pipelineGroups.setGwType(gwType);
+		} else{
+			pipelineGroups.setGwType("apigee");
+		}
 		return managePipeline(pipelineGroups, jsessionId, interactionid, false, HttpStatus.NO_CONTENT);
 	}
 
