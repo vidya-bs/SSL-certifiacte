@@ -1525,7 +1525,7 @@ public class ApigeeUtil {
 
 	public String createSession(CommonConfiguration cfg) throws ItorixException {
 		if(cfg.getGwtype()!=null && cfg.getGwtype().equalsIgnoreCase("apigeex")){
-			String body = "{\"validity\":600,\"count\":15,\"tracesize\":5120}";
+			String body = "{\"validity\":600,\"count\":15,\"tracesize\":5120, \"timeout\": \"300\"}";
 			ResponseEntity<String> response = exchange(
 					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 						+ "/apis/" + cfg.getApiName() + "/revisions/" + cfg.getRevision() + "/debugsessions", cfg),
