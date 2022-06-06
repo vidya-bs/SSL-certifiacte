@@ -13,7 +13,6 @@ public abstract class AbstractObject implements BaseObject {
 	private Long cts;
 	private String createdUserName;
 	private String modifiedUserName;
-
 	private Long mts;
 	private String createdBy;
 	private String modifiedBy;

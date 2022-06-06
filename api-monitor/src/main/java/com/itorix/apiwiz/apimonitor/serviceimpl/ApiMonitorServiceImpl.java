@@ -156,6 +156,7 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 
 		variables.setCreatedBy(user.getFirstName() + " " + user.getLastName());
 		variables.setCts(System.currentTimeMillis());
+		variables.setMts(System.currentTimeMillis());
 		List<Header> headerVariables = variables.getVariables();
 
 		for (Header header : headerVariables) {
