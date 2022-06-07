@@ -55,7 +55,7 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	//@PreAuthorize("hasAnyRole('ADMIN')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users", consumes = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> updateUser(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
