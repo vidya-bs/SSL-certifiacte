@@ -78,3 +78,8 @@ https://projectlombok.org/download and install it.
  - In the VM arguments`-Dconfig.properties={configpath}/config.properties` and run.
 
  - The Application will be up and running
+
+
+**POSTMAN COLLECTIONS**
+APIwizPostmanCollection.json
+PostmanEnvironment.json
