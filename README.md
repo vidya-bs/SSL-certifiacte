@@ -79,3 +79,9 @@ https://projectlombok.org/download and install it.
 
  - The Application will be up and running
 
+**Import Postman Collection**
+Below postman collection can be used to invoke the backend APIs of Core API Platform
+
+[apiwiz-postman-collection.zip](https://github.com/itorix/apiwiz-core-platform-api/files/8853872/apiwiz-postman-collection.zip)
+
+
