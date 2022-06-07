@@ -79,7 +79,3 @@ https://projectlombok.org/download and install it.
 
  - The Application will be up and running
 
-
-**POSTMAN COLLECTIONS**
-APIwizPostmanCollection.json
-PostmanEnvironment.json
