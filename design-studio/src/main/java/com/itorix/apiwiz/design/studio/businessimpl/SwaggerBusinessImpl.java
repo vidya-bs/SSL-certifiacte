@@ -3613,10 +3613,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		} else {
 			mapper = Yaml.mapper();
 		}
-		// mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-		// false);
+
 		JsonNode rootNode = mapper.readTree(data);
-		// must have swagger node set
 		JsonNode swaggerNode = rootNode.get("openapi");
 		if (swaggerNode == null) {
 			swaggerNode = rootNode.get("swagger");
