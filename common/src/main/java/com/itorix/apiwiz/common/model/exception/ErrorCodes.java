@@ -381,6 +381,7 @@ public enum ErrorCodes {
 			put("Swagger-1006", 400);
 			put("Swagger-1007", 400);
 			put("Swagger-1008", 400);
+			put("Swagger-1009", 400);
 			put("Teams-1000", 400);
 			put("Teams-1001", 404);
 			put("Teams-1002", 400);
