@@ -173,6 +173,7 @@ public enum ErrorCodes {
 			put("Swagger-1006", "Request validation failed. Invalid xpath generator file.");
 			put("Swagger-1007", "Request validation failed. Invalid xpath entry - %s.");
 			put("Swagger-1008", "Request validation failed. Malformed URL Provided for Server Host - %s.");
+			put("Swagger-1009", "Incorrect OAS version. Please check the OAS version");
 
 			put("Teams-1000", "Request validation failed. Team name already exists.");
 			put("Teams-1001", "Resource not found. No records found for selected team name - %s.");
@@ -263,7 +264,8 @@ public enum ErrorCodes {
 			put("PM_1000", "Project by name %s already exists.");
 			put("PM_1001", "Project by name %s doesn't exists.");
 			put("PM_1002", "Cobination of Project name  %s & Proxy name %s doesn't exists.");
-			put("ScopeCategory-001", "Resource already exists. A records already exists for selected Category name - %s.");
+			put("ScopeCategory-001",
+					"Resource already exists. A records already exists for selected Category name - %s.");
 			put("ScopeCategory-002", "Resource not found. No records found for selected Category name - %s.");
 			put("Consent-003", "Resource not found. No consent API key found");
 			put("Consent-004", "Report can be generated only for 30 day duration");

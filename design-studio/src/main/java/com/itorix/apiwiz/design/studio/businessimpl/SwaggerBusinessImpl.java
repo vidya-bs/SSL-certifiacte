@@ -3605,6 +3605,31 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		}
 	}
 
+	public String oasCheck(String data) throws IOException {
+		ObjectMapper mapper;
+
+		if (data.trim().startsWith("{")) {
+			mapper = Json.mapper();
+		} else {
+			mapper = Yaml.mapper();
+		}
+
+		JsonNode rootNode = mapper.readTree(data);
+		JsonNode swaggerNode = rootNode.get("openapi");
+		if (swaggerNode == null) {
+			swaggerNode = rootNode.get("swagger");
+			if (swaggerNode != null) {
+				return swaggerNode.asText();
+			}
+			else {
+				throw new IllegalArgumentException("Swagger String has an invalid format.");
+			}
+		}
+			else {
+				return swaggerNode.asText();
+		}
+	}
+
 	/**
 	 * getListOfSwaggerNames
 	 *
