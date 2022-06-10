@@ -67,6 +67,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -112,6 +113,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 	@Autowired
 	private ApicUtil apicUtil;
+
+	private static final String STATUS_VALUE = "status";
 
 	/**
 	 * createSwagger
@@ -632,7 +635,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	public List<Revision> getListOfRevisions(String name, String status, String interactionid) {
 		// log("getListOfRevisions", interactionid, name);
 		List<SwaggerVO> swaggers = mongoTemplate
-				.find(new Query(Criteria.where("name").is(name).and("status").is(status)), SwaggerVO.class);
+				.find(new Query(Criteria.where("name").is(name).and(STATUS_VALUE).is(status)), SwaggerVO.class);
 		// baseRepository.find("name", name, SwaggerVO.class);
 		List<Revision> versions = new ArrayList<Revision>();
 		if (swaggers != null && swaggers.size() > 0)
@@ -699,7 +702,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		for (String name : names) {
 			// mongoTemplate.getCollection(mongoTemplate.getCollectionName(SwaggerVO.class)).distinct("name",
 			// new
-			// Query(new Criteria("status").is(status)).getQueryObject())
+			// Query(new Criteria(STATUS_VALUE).is(status)).getQueryObject())
 			SwaggerVO swaggerVO = baseRepository.findOne("name", name, SwaggerVO.class);
 			SwaggerVO swagger = new SwaggerVO();
 			swagger.setId(swaggerVO.getSwaggerId());
@@ -746,7 +749,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	private void getSwaggers() {
-		Aggregation aggregation = Aggregation.newAggregation(Aggregation.match(Criteria.where("status").is("Draft")),
+		Aggregation aggregation = Aggregation.newAggregation(
+				Aggregation.match(Criteria.where(STATUS_VALUE).is("Draft")),
 				Aggregation.group("name").last("mts").as("mts").max("revision").as("revision"),
 				Aggregation.sort(Sort.Direction.DESC, "mts"));
 		AggregationResults<Object> result = mongoTemplate.aggregate(aggregation, SwaggerVO.class, Object.class);
@@ -781,7 +785,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		log("getListOfSwaggerDetails", interactionid, jsessionid);
 		// getSwaggers();
 		Map<String, Object> filterFieldsAndValues = new HashMap<>();
-		filterFieldsAndValues.put("status", status);
+		filterFieldsAndValues.put(STATUS_VALUE, status);
 		filterFieldsAndValues.put("modified_date", modifiedDate);
 
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
@@ -996,7 +1000,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	public int getSwaggerCount(String status) {
 		List<String> names;
 		if (status != null) {
-			Query query = new Query(new Criteria("status").is(status));
+			Query query = new Query(new Criteria(STATUS_VALUE).is(status));
 			names = getList(mongoTemplate.getCollection(mongoTemplate.getCollectionName(SwaggerVO.class))
 					.distinct("name", query.getQueryObject(), String.class));
 		} else
@@ -1009,7 +1013,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		List<String> names;
 		if (status != null)
 			names = getList(mongoTemplate.getCollection(mongoTemplate.getCollectionName(Swagger3VO.class))
-					.distinct("name", new Query(new Criteria("status").is(status)).getQueryObject(), String.class));
+					.distinct("name", new Query(new Criteria(STATUS_VALUE).is(status)).getQueryObject(), String.class));
 		else
 			names = baseRepository.findDistinctValuesByColumnName(Swagger3VO.class, "name");
 		return names.size();
@@ -1042,7 +1046,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			throws ItorixException, JsonProcessingException, IOException {
 		log("getListOfSwaggerDetails", interactionid, jsessionid);
 		Map<String, Object> filterFieldsAndValues = new HashMap<>();
-		filterFieldsAndValues.put("status", status);
+		filterFieldsAndValues.put(STATUS_VALUE, status);
 		filterFieldsAndValues.put("modified_date", modifiedDate);
 
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
@@ -1236,7 +1240,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	public ArrayNode getListOfPublishedSwaggerDetails(String interactionid, String jsessionid, String status,
 			String partnerId) throws ItorixException, JsonProcessingException, IOException {
 		log("getListOfPublishedSwaggerDetails", interactionid, jsessionid);
-		List<SwaggerVO> list = baseRepository.find("status", status, SwaggerVO.class);
+		List<SwaggerVO> list = baseRepository.find(STATUS_VALUE, status, SwaggerVO.class);
 		ObjectMapper mapper = new ObjectMapper();
 		ArrayNode arrayNode = mapper.createArrayNode();
 
@@ -1426,7 +1430,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	public ArrayNode getListOfPublishedSwagger3Details(String interactionid, String jsessionid, String status,
 			String partnerId) throws ItorixException, JsonProcessingException, IOException {
 		log("getListOfPublishedSwaggerDetails", interactionid, jsessionid);
-		List<Swagger3VO> list = baseRepository.find("status", status, Swagger3VO.class);
+		List<Swagger3VO> list = baseRepository.find(STATUS_VALUE, status, Swagger3VO.class);
 		ObjectMapper mapper = new ObjectMapper();
 
 		ArrayNode arrayNode = mapper.createArrayNode();
@@ -1847,7 +1851,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		JSONObject jsonObject = new JSONObject(json);
 		String status = jsonObject.getString("state");
 		if (status.equals(SwaggerStatus.PUBLISH.getStatus())) {
-			swaggerVO = baseRepository.findOne("name", name, "status", status, SwaggerVO.class);
+			swaggerVO = baseRepository.findOne("name", name, STATUS_VALUE, status, SwaggerVO.class);
 			if (swaggerVO != null) {
 				swaggerVO.setStatus(SwaggerStatus.DRAFT.getStatus());
 				baseRepository.save(swaggerVO);
@@ -1902,7 +1906,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		JSONObject jsonObject = new JSONObject(json);
 		String status = jsonObject.getString("state");
 		if (status.equals(SwaggerStatus.PUBLISH.getStatus())) {
-			swaggerVO = baseRepository.findOne("name", name, "status", status, Swagger3VO.class);
+			swaggerVO = baseRepository.findOne("name", name, STATUS_VALUE, status, Swagger3VO.class);
 			if (swaggerVO != null) {
 				swaggerVO.setStatus(SwaggerStatus.DRAFT.getStatus());
 				baseRepository.save(swaggerVO);
@@ -2034,7 +2038,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 	private int getSwaggerCountbyStatus(String status) {
 		try {
-			Query query = new Query(Criteria.where("status").is(status));
+			Query query = new Query(Criteria.where(STATUS_VALUE).is(status));
 			int count = mongoTemplate.query(SwaggerVO.class).distinct("name").as(String.class).matching(query).all()
 					.size();
 			return count;
@@ -2070,7 +2074,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 	private int getSwagger3CountbyStatus(String status) {
 		try {
-			Query query = new Query(Criteria.where("status").is(status));
+			Query query = new Query(Criteria.where(STATUS_VALUE).is(status));
 			int count = mongoTemplate.query(Swagger3VO.class).distinct("name").as(String.class).matching(query).all()
 					.size();
 			return count;
@@ -3049,12 +3053,14 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			rootNode.set("metrics", metricsNode);
 		}
 		ArrayNode statsNode = mapper.createArrayNode();
-		List<String> distinctList = baseRepository.findDistinctValuesByColumnName(SwaggerVO.class, "status");
+		List<String> distinctList = baseRepository.findDistinctValuesByColumnName(SwaggerVO.class, STATUS_VALUE);
+
 		if (distinctList != null && distinctList.size() > 0) {
 			for (String status : distinctList) {
-				Query query = new Query();
-				query.addCriteria(Criteria.where("status").is(status));
-				List<SwaggerVO> publishList = baseRepository.find(query, SwaggerVO.class);
+				AggregationOperation aggregationOperations = Aggregation.match(Criteria.where(STATUS_VALUE).is(status));
+				Aggregation aggregation = Aggregation.newAggregation(aggregationOperations);
+				List<SwaggerVO> publishList = baseRepository.addAggregation(aggregation, "Design.Swagger.List",
+						SwaggerVO.class);
 				ObjectNode statNode = mapper.createObjectNode();
 				ArrayNode swaggersNode = mapper.createArrayNode();
 				statNode.put("name", status);
@@ -3125,11 +3131,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			rootNode.set("metrics", metricsNode);
 		}
 		ArrayNode statsNode = mapper.createArrayNode();
-		List<String> distinctList = baseRepository.findDistinctValuesByColumnName(Swagger3VO.class, "status");
+		List<String> distinctList = baseRepository.findDistinctValuesByColumnName(Swagger3VO.class, STATUS_VALUE);
 		if (distinctList != null && distinctList.size() > 0) {
 			for (String status : distinctList) {
 				Query query = new Query();
-				query.addCriteria(Criteria.where("status").is(status));
+				query.addCriteria(Criteria.where(STATUS_VALUE).is(status));
 				List<Swagger3VO> publishList = baseRepository.find(query, Swagger3VO.class);
 				ObjectNode statNode = mapper.createObjectNode();
 				ArrayNode swaggersNode = mapper.createArrayNode();
@@ -3785,7 +3791,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			}
 			Map<String, Object> json = parseSwaggerInfoNodes(vo.getSwagger(), oas);
 			json.put("swaggerId", vo.getSwaggerId());
-			json.put("status", vo.getStatus());
+			json.put(STATUS_VALUE, vo.getStatus());
 			json.put("createdBy", vo.getCreatedBy());
 			json.put("createdUsername", vo.getCreatedUserName());
 			return json;
@@ -3796,7 +3802,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			}
 			Map<String, Object> json = parseSwaggerInfoNodes(vo.getSwagger(), oas);
 			json.put("swaggerId", vo.getSwaggerId());
-			json.put("status", vo.getStatus());
+			json.put(STATUS_VALUE, vo.getStatus());
 			json.put("createdBy", vo.getCreatedBy());
 			json.put("createdUsername", vo.getCreatedUserName());
 			return json;
@@ -4125,7 +4131,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		swaggerData.setName(doc.getString("name"));
 		swaggerData.setOasVersion(doc.getString("oasVersion"));
 		swaggerData.setRevision(doc.getInteger("revision"));
-		swaggerData.setStatus(doc.getString("status"));
+		swaggerData.setStatus(doc.getString(STATUS_VALUE));
 		return swaggerData;
 	}
 
