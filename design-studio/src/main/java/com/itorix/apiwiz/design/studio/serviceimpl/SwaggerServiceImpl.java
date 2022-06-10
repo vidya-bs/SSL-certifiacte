@@ -4,6 +4,7 @@ import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -43,6 +44,9 @@ import io.swagger.generator.model.GeneratorInput;
 import io.swagger.generator.model.ResponseCode;
 import io.swagger.generator.online.Generator;
 import io.swagger.models.Swagger;
+import io.swagger.util.Json;
+import io.swagger.util.Yaml;
+
 import org.apache.commons.io.FileUtils;
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
@@ -137,7 +141,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 				swaggerBusiness.importSwaggers(file, type, gitURI, branch, authType, userName, password, personalToken),
 				HttpStatus.OK);
 	}
-
+	
 	/**
 	 * This method is used to create the swagger.
 	 *
@@ -161,10 +165,15 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
 			@RequestBody String json) throws Exception {
+		
 		if (oas == null || oas.trim().equals(""))
 			oas = "2.0";
 		HttpHeaders headers = new HttpHeaders();
 		if (oas.equals("2.0")) {
+			if (!swaggerBusiness.oasCheck(json).startsWith("2")) {
+				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1009"), "Swagger-1009");
+			}
+			
 			SwaggerVO swaggerVO = new SwaggerVO();
 			swaggerVO.setName(swaggername);
 			swaggerVO.setInteractionid(interactionid);
@@ -187,6 +196,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
 			headers.add("X-Swagger-id", swaggerVO.getSwaggerId());
 		} else if (oas.equals("3.0")) {
+			if (!swaggerBusiness.oasCheck(json).startsWith("3")) {
+				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1009"), "Swagger-1009");
+			}
+			
 			Swagger3VO swaggerVO = new Swagger3VO();
 			swaggerVO.setName(swaggername);
 			swaggerVO.setInteractionid(interactionid);
@@ -2232,7 +2245,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestParam("id") String swaggerid) throws Exception {
 		Map swaggerInfo = swaggerBusiness.getSwaggerInfo(jsessionid, swaggerid, oas);
 		HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.addAll("Access-Control-Expose-Headers", Arrays.asList("x-created-by", "x-created-user-name"));
+		httpHeaders.addAll("Access-Control-Expose-Headers", Arrays.asList("x-created-by", "x-created-user-name"));
 		httpHeaders.set("x-created-by", String.valueOf(swaggerInfo.remove("createdBy")));
 		httpHeaders.set("x-created-user-name", String.valueOf(swaggerInfo.remove("createdUsername")));
 		ResponseEntity<Object> responseEntity = new ResponseEntity<>(swaggerInfo, httpHeaders, HttpStatus.OK);
