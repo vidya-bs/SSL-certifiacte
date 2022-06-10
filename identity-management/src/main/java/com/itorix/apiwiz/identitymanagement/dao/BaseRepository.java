@@ -291,7 +291,11 @@ public class BaseRepository {
 		return aggregate.getMappedResults();
 	}
 
-    public void remove(Query query, Class<MailProperty> clazz) {
+	public void remove(Query query, Class<MailProperty> clazz) {
 		mongoTemplate.remove(query, clazz);
-    }
+	}
+
+	public List addAggregation(Aggregation aggregations, String collectionName, Class clazz) {
+		return mongoTemplate.aggregate(aggregations, collectionName, clazz).getMappedResults();
+	}
 }
