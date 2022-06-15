@@ -1728,7 +1728,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		return new ResponseEntity<Object>(obj, HttpStatus.OK);
 	}
 
-	@UnSecure
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swagger-gen/clients/servers")
 	public @ResponseBody ResponseEntity<Object> getClientsServers(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
