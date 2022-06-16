@@ -757,7 +757,7 @@ public interface SwaggerService {
 			@RequestParam(value = "timeunit", required = false) String timeunit,
 			@RequestParam(value = "timerange", required = false) String timerange) throws Exception;
 
-	@UnSecure
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swagger-gen/clients/servers")
 	public @ResponseBody ResponseEntity<Object> getClientsServers(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
