@@ -1,11 +1,6 @@
 package com.itorix.apiwiz.test.api.factory;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import com.itorix.apiwiz.test.executor.beans.HttpDeleteWithBody;
 import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -13,14 +8,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -30,6 +18,12 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class APIFactory {
 
@@ -118,10 +112,18 @@ public class APIFactory {
             SSLConnectionSocketFactory sslConnectionFactory, int timeout) throws ClientProtocolException, IOException {
         HttpResponse response = null;
         HttpClient client = getClient(sslConnectionFactory, timeout);
-        HttpDelete request = new HttpDelete(url);
+        HttpDeleteWithBody request = new HttpDeleteWithBody(url);
         addHeaders(request, headers);
+        addBody(request, body);
         response = client.execute(request);
         return response;
+    }
+
+    private static void addBody(HttpDeleteWithBody request, String body) {
+        if(null != body && !"".equalsIgnoreCase(body)) {
+            StringEntity entity = new StringEntity(body, ContentType.APPLICATION_JSON);
+            request.setEntity(entity);
+        }
     }
 
     public static HttpResponse invokeOptions(String url, Map<String, String> headers, String body, String testCaseId,
