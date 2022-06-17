@@ -44,8 +44,6 @@ import io.swagger.generator.model.GeneratorInput;
 import io.swagger.generator.model.ResponseCode;
 import io.swagger.generator.online.Generator;
 import io.swagger.models.Swagger;
-import io.swagger.util.Json;
-import io.swagger.util.Yaml;
 
 import org.apache.commons.io.FileUtils;
 import org.bson.types.ObjectId;
@@ -1707,7 +1705,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas == null || oas.trim().equals(""))
 			oas = "2.0";
 		if (oas.equals("2.0")) {
-			obj = swaggerBusiness.getSwaggerStats(timeunit, timerange);
+			return new ResponseEntity<Object>(swaggerBusiness.getSwaggerStats(timeunit, timerange), HttpStatus.OK);
 		} else if (oas.equals("3.0")) {
 			obj = swaggerBusiness.getSwagger3Stats(timeunit, timerange);
 		}

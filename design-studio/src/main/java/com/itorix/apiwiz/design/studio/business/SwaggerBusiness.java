@@ -1,7 +1,6 @@
 package com.itorix.apiwiz.design.studio.business;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -9,8 +8,6 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
-
-import io.swagger.models.Swagger;
 
 import org.json.JSONException;
 import org.springframework.stereotype.Service;
@@ -613,7 +610,7 @@ public interface SwaggerBusiness {
 	 * 
 	 * @throws ParseException
 	 */
-	public ObjectNode getSwaggerStats(String timeunit, String timerange) throws ParseException, ItorixException;
+	public SwaggerObjectResponse getSwaggerStats(String timeunit, String timerange) throws ParseException, ItorixException;
 
 	/**
 	 * getSwagger3Stats
