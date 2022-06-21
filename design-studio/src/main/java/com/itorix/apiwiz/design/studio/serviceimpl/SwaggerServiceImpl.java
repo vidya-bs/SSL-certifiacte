@@ -4,7 +4,6 @@ import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -20,7 +19,7 @@ import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
-import com.itorix.apiwiz.design.studio.businessimpl.SupportedCodeGenLangUtil;
+import com.itorix.apiwiz.design.studio.dao.SupportedCodeGenLangDao;
 import com.itorix.apiwiz.design.studio.businessimpl.Swagger3SDK;
 import com.itorix.apiwiz.design.studio.businessimpl.ValidateSchema;
 import com.itorix.apiwiz.design.studio.businessimpl.XlsUtil;
@@ -30,7 +29,6 @@ import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import com.itorix.apiwiz.design.studio.service.SwaggerService;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
-import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.opencsv.CSVReader;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
@@ -45,8 +43,6 @@ import io.swagger.generator.model.GeneratorInput;
 import io.swagger.generator.model.ResponseCode;
 import io.swagger.generator.online.Generator;
 import io.swagger.models.Swagger;
-import io.swagger.util.Json;
-import io.swagger.util.Yaml;
 
 import org.apache.commons.io.FileUtils;
 import org.bson.types.ObjectId;
@@ -119,7 +115,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	private ScmUtilImpl scmUtilImpl;
 
 	@Autowired
-	private SupportedCodeGenLangUtil codeGenLangUtil;
+	private SupportedCodeGenLangDao codeGenLangDao;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/puls")
 	public String checkPuls(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1742,8 +1738,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 			oas = "2.0";
 		}
 		try{
-			clientsServer.put("clients",codeGenLangUtil.getSupportedLanguages("client",oas));
-			clientsServer.put("servers",codeGenLangUtil.getSupportedLanguages("server",oas));
+			clientsServer.put("clients",codeGenLangDao.getSupportedLanguages("client",oas));
+			clientsServer.put("servers",codeGenLangDao.getSupportedLanguages("server",oas));
 		}catch(Exception ex){
 			clientsServer.put("clients", Clients.values());
 			clientsServer.put("servers", Servers.values());
@@ -1760,7 +1756,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@PathVariable("framework") String framework,
 			@RequestBody SupportedCodeGenLang langData) throws Exception{
 
-		SupportedCodeGenLang res = codeGenLangUtil.addLang(langData);
+		SupportedCodeGenLang res = codeGenLangDao.addLang(langData);
 		return new ResponseEntity<Object>(res,HttpStatus.OK);
 	}
 
@@ -1771,7 +1767,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@PathVariable("framework") String framework,
 			@RequestBody SupportedCodeGenLang langData) throws Exception{
 
-		SupportedCodeGenLang res = codeGenLangUtil.updateLang(framework,langData);
+		SupportedCodeGenLang res = codeGenLangDao.updateLang(framework,langData);
 		return new ResponseEntity<Object>(res,HttpStatus.OK);
 	}
 
@@ -1781,7 +1777,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("lang") String lang) throws Exception{
-		codeGenLangUtil.removeLang(lang);
+		codeGenLangDao.removeLang(lang);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
