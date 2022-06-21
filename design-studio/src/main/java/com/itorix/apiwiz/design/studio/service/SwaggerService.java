@@ -757,14 +757,14 @@ public interface SwaggerService {
 			@RequestParam(value = "timeunit", required = false) String timeunit,
 			@RequestParam(value = "timerange", required = false) String timerange) throws Exception;
 
-	@UnSecure
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swagger-gen/clients/servers")
 	public @ResponseBody ResponseEntity<Object> getClientsServers(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false) String oas) throws Exception;
 
-	@UnSecure
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swagger-gen/clients/servers/{framework}")
 	public @ResponseBody ResponseEntity<Object> createLangSupport(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
@@ -772,7 +772,7 @@ public interface SwaggerService {
 			@PathVariable("framework") String framework,
 			@RequestBody SupportedCodeGenLang langData) throws Exception;
 
-	@UnSecure
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swagger-gen/clients/servers/{framework}")
 	public @ResponseBody ResponseEntity<Object> updateLangSupport(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
@@ -780,7 +780,7 @@ public interface SwaggerService {
 			@PathVariable("framework") String framework,
 			@RequestBody SupportedCodeGenLang langData) throws Exception;
 
-	@UnSecure
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swagger-gen/clients/servers/{framework}")
 	public @ResponseBody ResponseEntity<Void> removeLangSupport(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,

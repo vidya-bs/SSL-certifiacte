@@ -29,6 +29,7 @@ import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import com.itorix.apiwiz.design.studio.service.SwaggerService;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
+import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.opencsv.CSVReader;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
@@ -1728,6 +1729,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		return new ResponseEntity<Object>(obj, HttpStatus.OK);
 	}
 
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swagger-gen/clients/servers")
 	public @ResponseBody ResponseEntity<Object> getClientsServers(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
@@ -1748,7 +1750,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		return new ResponseEntity<Object>(clientsServer, HttpStatus.OK);
 	}
 
-
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swagger-gen/clients/servers/{framework}")
 	public @ResponseBody ResponseEntity<Object> createLangSupport(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
@@ -1760,6 +1762,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		return new ResponseEntity<Object>(res,HttpStatus.OK);
 	}
 
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swagger-gen/clients/servers/{framework}")
 	public @ResponseBody ResponseEntity<Object> updateLangSupport(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
@@ -1771,7 +1774,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		return new ResponseEntity<Object>(res,HttpStatus.OK);
 	}
 
-
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swagger-gen/clients/servers/{lang}")
 	public @ResponseBody ResponseEntity<Void> removeLangSupport(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
