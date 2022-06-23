@@ -44,6 +44,7 @@ public class BaseRepository {
 			userId = userSession.getUserId();
 			username = userSession.getUsername();
 		} catch (Exception e) {
+			//TODO: Add Exception if necessary
 		}
 		String id = obj.getId();
 		long timestamp = System.currentTimeMillis();
@@ -74,6 +75,7 @@ public class BaseRepository {
 			userId = userSession.getUserId();
 			username = userSession.getUsername();
 		} catch (Exception e) {
+			//TODO:Add Exception
 		}
 		String id = obj.getId();
 		long timestamp = System.currentTimeMillis();
@@ -249,7 +251,7 @@ public class BaseRepository {
 		});
 
 		Criteria criteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()]));
-		return criteriaList.size() > 0 ? match(criteria) : null;
+		return !criteriaList.isEmpty() ? match(criteria) : null;
 	}
 
 	private SortOperation getSortOperation(String sortByModifiedTS) {
@@ -291,7 +293,11 @@ public class BaseRepository {
 		return aggregate.getMappedResults();
 	}
 
-    public void remove(Query query, Class<MailProperty> clazz) {
+	public void remove(Query query, Class<MailProperty> clazz) {
 		mongoTemplate.remove(query, clazz);
-    }
+	}
+
+	public <T> AggregationResults<T> addAggregation(Aggregation aggregations, String collectionName, Class clazz) {
+		return mongoTemplate.aggregate(aggregations, collectionName, clazz);
+	}
 }

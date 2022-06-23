@@ -369,7 +369,7 @@ public interface SwaggerService {
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('BASIC','PRO','TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/roles")
 	public ResponseEntity<Object> getRoles(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -761,7 +761,31 @@ public interface SwaggerService {
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swagger-gen/clients/servers")
 	public @ResponseBody ResponseEntity<Object> getClientsServers(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
-			@RequestHeader(value = "interactionid", required = false) String interactionid) throws Exception;
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "oas", required = false) String oas) throws Exception;
+
+	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/swagger-gen/clients/servers/{framework}")
+	public @ResponseBody ResponseEntity<Object> createLangSupport(
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@PathVariable("framework") String framework,
+			@RequestBody SupportedCodeGenLang langData) throws Exception;
+
+	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swagger-gen/clients/servers/{framework}")
+	public @ResponseBody ResponseEntity<Object> updateLangSupport(
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@PathVariable("framework") String framework,
+			@RequestBody SupportedCodeGenLang langData) throws Exception;
+
+	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swagger-gen/clients/servers/{framework}")
+	public @ResponseBody ResponseEntity<Void> removeLangSupport(
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@PathVariable("framework") String framework) throws Exception;
 
 	/**
 	 * Using this we will get the swagger name along with version and state.
