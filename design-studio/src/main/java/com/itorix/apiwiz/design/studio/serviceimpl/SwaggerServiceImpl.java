@@ -4,7 +4,6 @@ import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -20,6 +19,7 @@ import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
+import com.itorix.apiwiz.design.studio.dao.SupportedCodeGenLangDao;
 import com.itorix.apiwiz.design.studio.businessimpl.Swagger3SDK;
 import com.itorix.apiwiz.design.studio.businessimpl.ValidateSchema;
 import com.itorix.apiwiz.design.studio.businessimpl.XlsUtil;
@@ -44,8 +44,6 @@ import io.swagger.generator.model.GeneratorInput;
 import io.swagger.generator.model.ResponseCode;
 import io.swagger.generator.online.Generator;
 import io.swagger.models.Swagger;
-import io.swagger.util.Json;
-import io.swagger.util.Yaml;
 
 import org.apache.commons.io.FileUtils;
 import org.bson.types.ObjectId;
@@ -116,6 +114,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 
 	@Autowired
 	private ScmUtilImpl scmUtilImpl;
+
+	@Autowired
+	private SupportedCodeGenLangDao codeGenLangDao;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/puls")
 	public String checkPuls(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1732,11 +1733,55 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swagger-gen/clients/servers")
 	public @ResponseBody ResponseEntity<Object> getClientsServers(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
-			@RequestHeader(value = "interactionid", required = false) String interactionid) throws Exception {
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "oas", required = false) String oas) throws Exception {
 		Map clientsServer = new HashMap();
-		clientsServer.put("clients", Clients.values());
-		clientsServer.put("servers", Servers.values());
+		if(oas == null || oas.isEmpty()){
+			oas = "2.0";
+		}
+		try{
+			clientsServer.put("clients",codeGenLangDao.getSupportedLanguages("client",oas));
+			clientsServer.put("servers",codeGenLangDao.getSupportedLanguages("server",oas));
+		}catch(Exception ex){
+			clientsServer.put("clients", Clients.values());
+			clientsServer.put("servers", Servers.values());
+		}
+
 		return new ResponseEntity<Object>(clientsServer, HttpStatus.OK);
+	}
+
+	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/swagger-gen/clients/servers/{framework}")
+	public @ResponseBody ResponseEntity<Object> createLangSupport(
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@PathVariable("framework") String framework,
+			@RequestBody SupportedCodeGenLang langData) throws Exception{
+
+		SupportedCodeGenLang res = codeGenLangDao.addLang(langData);
+		return new ResponseEntity<Object>(res,HttpStatus.OK);
+	}
+
+	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swagger-gen/clients/servers/{framework}")
+	public @ResponseBody ResponseEntity<Object> updateLangSupport(
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@PathVariable("framework") String framework,
+			@RequestBody SupportedCodeGenLang langData) throws Exception{
+
+		SupportedCodeGenLang res = codeGenLangDao.updateLang(framework,langData);
+		return new ResponseEntity<Object>(res,HttpStatus.OK);
+	}
+
+	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swagger-gen/clients/servers/{lang}")
+	public @ResponseBody ResponseEntity<Void> removeLangSupport(
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@PathVariable("lang") String lang) throws Exception{
+		codeGenLangDao.removeLang(lang);
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
 	/**
