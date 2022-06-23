@@ -369,7 +369,7 @@ public interface SwaggerService {
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('BASIC','PRO','TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/roles")
 	public ResponseEntity<Object> getRoles(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
