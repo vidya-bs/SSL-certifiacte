@@ -1708,7 +1708,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas == null || oas.trim().equals(""))
 			oas = "2.0";
 		if (oas.equals("2.0")) {
-			obj = swaggerBusiness.getSwaggerStats(timeunit, timerange);
+			return new ResponseEntity<Object>(swaggerBusiness.getSwaggerStats(timeunit, timerange), HttpStatus.OK);
 		} else if (oas.equals("3.0")) {
 			obj = swaggerBusiness.getSwagger3Stats(timeunit, timerange);
 		}
