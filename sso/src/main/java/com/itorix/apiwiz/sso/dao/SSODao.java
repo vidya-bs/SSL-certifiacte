@@ -113,7 +113,11 @@ public class SSODao {
             userWorkspace.setRoles(projectRoles);
             userWorkspace.setActive(true);
             userWorkspace.setAcceptInvite(true);
-            user.getWorkspaces().add(userWorkspace);
+            if(user.getWorkspaces() == null) {
+                user.setWorkspaces(Arrays.asList(userWorkspace));
+            } else {
+                user.getWorkspaces().add(userWorkspace);
+            }
         } else {
             UserWorkspace userWorkspace = user.getUserWorkspace(workspaceId);
             if (projectRoles.size() >= 1) {
