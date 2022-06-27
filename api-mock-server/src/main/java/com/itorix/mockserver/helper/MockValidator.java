@@ -22,6 +22,8 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import com.itorix.mockserver.common.model.expectation.*;
+import com.itorix.mockserver.common.model.expectation.Body.Type;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
@@ -68,7 +70,7 @@ public class MockValidator {
 
             if (Body.Type.json.equals(expectation.getRequest().getBody().getType())) {
                 if (expectation.getRequest().getBody().isStrict()) {
-                    if (expectation.getRequest().getBody().getValue() == null) {
+                    if (expectation.getRequest().getBody().getValue() == null||expectation.getRequest().getBody().getType().equals(Type.none)) {
                         return false;
                     }
                     ObjectMapper mapper = new ObjectMapper();
