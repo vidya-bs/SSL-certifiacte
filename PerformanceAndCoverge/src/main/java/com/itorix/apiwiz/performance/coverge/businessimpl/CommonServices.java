@@ -147,7 +147,7 @@ public class CommonServices {
 			// instrumentService.savePostmanCollectionToMongo(cfg);
 			writeToFile(postmanFile.getInputStream(),
 					postmanFileBackUpLocation + "/" + postmanFile.getOriginalFilename());
-			
+
 			writeToFile(envFile.getInputStream(), postmanFileBackUpLocation + "/" + envFile.getOriginalFilename());
 			ZipUtil.pack(new File(postmanFileBackUpLocation), new File(postmanFileBackUpLocation + ".zip"));
 			GridFSFile gridFSFile = gridFsRepository
@@ -187,7 +187,7 @@ public class CommonServices {
 	 * were found in the session
 	 */
 	public JSONArray getTransactionIds(CommonConfiguration cfg, String sessionID) throws ItorixException {
-		
+
 		String result = apigeeUtil.getListOfTransactionIds(cfg, sessionID);
 		JSONArray txIds = (JSONArray) JSONSerializer.toJSON(result);
 		return txIds;
@@ -399,19 +399,19 @@ public class CommonServices {
 		// return executedFlowAndPoliciesMap;
 		return executedFlowAndPolicies;
 	}
-	
-	public List<ProxyEndpoint> fetchProxyEndPointsForApigeeX(CommonConfiguration cfg){
+
+	public List<ProxyEndpoint> fetchProxyEndPointsForApigeeX(CommonConfiguration cfg) {
 		String path;
 		try {
-			path = Paths.get(".").toAbsolutePath().normalize().toString() ;
-			byte[]  bundle = apigeeUtil.getApigeexAPIProxyRevision(cfg);
+			path = Paths.get(".").toAbsolutePath().normalize().toString();
+			byte[] bundle = apigeeUtil.getApigeexAPIProxyRevision(cfg);
 			System.out.println(File.separator);
-			
-			FileUtils.writeByteArrayToFile(new File( path + File.separator+ cfg.getApiName() + ".zip"), bundle);
+
+			FileUtils.writeByteArrayToFile(new File(path + File.separator + cfg.getApiName() + ".zip"), bundle);
 			ZIPUtil zipUtil = new ZIPUtil();
 			zipUtil.unzip(path + File.separator + cfg.getApiName() + ".zip", path);
-			
-			File folder = new File(path + File.separator + "apiproxy" + File.separator +  "proxies");
+
+			File folder = new File(path + File.separator + "apiproxy" + File.separator + "proxies");
 			File[] listOfFiles = folder.listFiles();
 			List<ProxyEndpoint> proxyEndPointList = new ArrayList<ProxyEndpoint>();
 			for (int i = 0; i < listOfFiles.length; i++) {
@@ -423,7 +423,7 @@ public class CommonServices {
 
 			}
 			return proxyEndPointList;
-			
+
 		} catch (RestClientException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -443,17 +443,16 @@ public class CommonServices {
 		return null;
 	}
 
-	
-	public List<TargetEndpoint> fetchTargetEndPointsForApigeeX(CommonConfiguration cfg){
+	public List<TargetEndpoint> fetchTargetEndPointsForApigeeX(CommonConfiguration cfg) {
 		String path;
 		try {
-			path = Paths.get(".").toAbsolutePath().normalize().toString() ;
-			byte[]  bundle = apigeeUtil.getApigeexAPIProxyRevision(cfg);
-			FileUtils.writeByteArrayToFile(new File( path + File.separator+ cfg.getApiName() + ".zip"), bundle);
+			path = Paths.get(".").toAbsolutePath().normalize().toString();
+			byte[] bundle = apigeeUtil.getApigeexAPIProxyRevision(cfg);
+			FileUtils.writeByteArrayToFile(new File(path + File.separator + cfg.getApiName() + ".zip"), bundle);
 			ZIPUtil zipUtil = new ZIPUtil();
 			zipUtil.unzip(path + File.separator + cfg.getApiName() + ".zip", path);
-			
-			File folder = new File(path + File.separator + "apiproxy" + File.separator +  "targets");
+
+			File folder = new File(path + File.separator + "apiproxy" + File.separator + "targets");
 			File[] listOfFiles = folder.listFiles();
 			List<TargetEndpoint> proxyEndPointList = new ArrayList<TargetEndpoint>();
 			for (int i = 0; i < listOfFiles.length; i++) {
@@ -465,7 +464,7 @@ public class CommonServices {
 
 			}
 			return proxyEndPointList;
-			
+
 		} catch (RestClientException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -484,7 +483,7 @@ public class CommonServices {
 		}
 		return null;
 	}
-	
+
 	public List<ProxyEndpoint> fetchProxyEndPoints(String org, String userName, String password, String rev,
 			String apiProxy, String type) throws ItorixException {
 
@@ -559,20 +558,20 @@ public class CommonServices {
 	}
 
 	public String getLatestDeploymentForAPIProxy(CommonConfiguration cfg) throws IOException, ItorixException {
-		if(cfg.getGwtype()!=null && cfg.getGwtype().equalsIgnoreCase("apigeex")){
+		if (cfg.getGwtype() != null && cfg.getGwtype().equalsIgnoreCase("apigeex")) {
 			String deploymentStr = apigeeUtil.getProxyDeploymentsForProxyInEnvironment(cfg);
 			JSONObject deploymentsObj = (JSONObject) JSONSerializer.toJSON(deploymentStr);
 			JSONArray deploymentsArr = (JSONArray) deploymentsObj.get("deployments");
 			for (Object deployment : deploymentsArr) {
 				JSONObject obj = (JSONObject) deployment;
 				String envStr = (String) obj.get("environment");
-				String rev =  (String) obj.get("revision");
-				if(cfg.getEnvironment().equals(envStr)){
+				String rev = (String) obj.get("revision");
+				if (cfg.getEnvironment().equals(envStr)) {
 					return rev;
 				}
 			}
 			return null;
-		}else{
+		} else {
 			String deployed = apigeeUtil.getProxyDeploymentsForProxyInEnvironment(cfg);
 			JSONObject deployments = (JSONObject) JSONSerializer.toJSON(deployed);
 			JSONArray proxyRevisions = (JSONArray) deployments.get("revision");
@@ -585,7 +584,7 @@ public class CommonServices {
 
 			return Collections.max(al) + "";
 		}
-		
+
 	}
 
 	public String getDeploymentsForEnvironment(CommonConfiguration cfg) throws IOException, ItorixException {
@@ -727,6 +726,15 @@ public class CommonServices {
 									ex.printStackTrace();
 								}
 								JSONArray txId = getTransactionIds(cfg, sessionID);
+
+								for (int x = 0; txId.isEmpty() && x < 5; x++) {
+									Thread.sleep(10000);
+									txId = getTransactionIds(cfg, sessionID);
+
+									if (!txId.isEmpty()) {
+										break;
+									}
+								}
 								if (traceAsXML)
 									traceList.add(getXMLTransactionData(cfg, sessionID, txId));
 								else
