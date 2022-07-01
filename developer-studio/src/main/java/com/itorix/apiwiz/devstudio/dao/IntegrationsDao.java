@@ -223,6 +223,20 @@ public class IntegrationsDao {
 			removeIntegratoin(integration);
 	}
 
+	public List<Integration> getAzureDevopsIntegration() {
+		List<Integration> integrations = getIntegration("AZUREDEVOPS");
+		if (integrations != null)
+			return integrations;
+		else
+			return new ArrayList<Integration>();
+	}
+	
+	public void removeAzureDevopsIntegrationIntegration() {
+		Integration integration = getIntegration("AZUREDEVOPS").get(0);
+		if (integration != null)
+			removeIntegratoin(integration);
+	}
+	
 	public String getGoServerVersion(GoCDIntegration goCDIntegration)
 			throws JsonMappingException, JsonProcessingException {
 		HttpHeaders headers = new HttpHeaders();

@@ -283,7 +283,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	
 	@Override
 	public ResponseEntity<?> getAzureIntegraton(String interactionid, String jsessionid) throws Exception {
-		return new ResponseEntity<>(integrationsDao.getCodeconnectIntegration(), HttpStatus.OK);
+		return new ResponseEntity<>(integrationsDao.getAzureDevopsIntegration(), HttpStatus.OK);
 	}
 
 	@Override
