@@ -1430,9 +1430,9 @@ public class ApigeeUtil {
 		return response;
 	}
 
-	public String getTraceResponse(CommonConfiguration cfg, String sessionID, String tid) throws ItorixException {
+	public String getTraceResponse(CommonConfiguration cfg, String sessionID, String tid) throws ItorixException, InterruptedException {
 		if(cfg.getGwtype()!=null && cfg.getGwtype().equalsIgnoreCase("apigeex")){	
-			
+			//Thread.sleep(3000);
 			ResponseEntity<String> response = exchange(
 					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 							+ "/apis/" + cfg.getApiName() + "/revisions/" + cfg.getRevision() + "/debugsessions/"
@@ -1547,8 +1547,9 @@ public class ApigeeUtil {
 		}
 	}
 
-	public String getListOfTransactionIds(CommonConfiguration cfg, String sessionID) throws ItorixException {
+	public String getListOfTransactionIds(CommonConfiguration cfg, String sessionID) throws ItorixException, InterruptedException {
 		if(cfg.getGwtype()!=null && cfg.getGwtype().equalsIgnoreCase("apigeex")){	
+			Thread.sleep(3000);
 			ResponseEntity<String> response = exchange(
 					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 					+ "/apis/" + cfg.getApiName() + "/revisions/" + cfg.getRevision() + "/debugsessions/"
@@ -1567,8 +1568,19 @@ public class ApigeeUtil {
 			return response.getBody();
 		}
 	}
+	
 
 	public String deleteSession(CommonConfiguration cfg, String sessionID) throws ItorixException {
+		if(cfg.getGwtype()!=null && cfg.getGwtype().equalsIgnoreCase("apigeex")){	
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+					+ "/apis/" + cfg.getApiName() + "/revisions/" + cfg.getRevision() + "/debugsessions/"
+					+ sessionID + "/data", cfg),
+					HttpMethod.DELETE, getHttpEntityX(cfg), new ParameterizedTypeReference<String>() {
+					}, cfg);
+			return response.getBody();
+		}
+		else{
 		ResponseEntity<String> response = exchange(
 				getSecureURL(
 						"v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment() + "/apis/"
@@ -1577,6 +1589,7 @@ public class ApigeeUtil {
 				HttpMethod.DELETE, getHttpEntity(cfg), new ParameterizedTypeReference<String>() {
 				}, cfg);
 		return response.getBody();
+		}
 	}
 
 	private HttpEntity<String> getHttpEntity(CommonConfiguration cfg) {

@@ -186,21 +186,21 @@ public class CommonServices {
 	 * transaction id's This method would return a list of transaction id's that
 	 * were found in the session
 	 */
-	public JSONArray getTransactionIds(CommonConfiguration cfg, String sessionID) throws ItorixException {
 
+	public JSONArray getTransactionIds(CommonConfiguration cfg, String sessionID) throws ItorixException, InterruptedException {
 		String result = apigeeUtil.getListOfTransactionIds(cfg, sessionID);
 		JSONArray txIds = (JSONArray) JSONSerializer.toJSON(result);
 		return txIds;
 	}
 
-	public String getTransactionId(CommonConfiguration cfg, String sessionID) throws ItorixException {
+	public String getTransactionId(CommonConfiguration cfg, String sessionID) throws ItorixException, InterruptedException {
 		String result = apigeeUtil.getListOfTransactionIds(cfg, sessionID);
 
 		return result;
 	}
 
 	public List<Trace> getTransactionData(CommonConfiguration cfg, String sessionID, JSONArray txIds)
-			throws JsonParseException, JsonMappingException, IOException, ItorixException {
+			throws JsonParseException, JsonMappingException, IOException, ItorixException, InterruptedException {
 
 		List<Trace> tracesList = new ArrayList<Trace>();
 		// Fetch trace for each and every transactionId
@@ -721,7 +721,7 @@ public class CommonServices {
 								testCase.getRequest().addHeader(new Header("itorix", "", sessionID));
 								try {
 									TestExecutor.invokeTestCase(testCase, globalVars, testStatus, true, false);
-									Thread.sleep(2000);
+									
 								} catch (Exception ex) {
 									ex.printStackTrace();
 								}
@@ -734,11 +734,13 @@ public class CommonServices {
 									if (!txId.isEmpty()) {
 										break;
 									}
+
 								}
 								if (traceAsXML)
 									traceList.add(getXMLTransactionData(cfg, sessionID, txId));
 								else
 									traceList.addAll(getTransactionData(cfg, sessionID, txId));
+								apigeeUtil.deleteSession(cfg,sessionID);
 							} else {
 								counter++;
 								if (counter > testCases.size()) {

@@ -280,5 +280,27 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 		integrationsDao.removeIntegratoin(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
+	
+	@Override
+	public ResponseEntity<?> getAzureIntegraton(String interactionid, String jsessionid) throws Exception {
+		return new ResponseEntity<>(integrationsDao.getCodeconnectIntegration(), HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> createupdateAzureIntegraton(String interactionid, String jsessionid,
+			GitIntegration gitIntegration) throws Exception {
+		Integration integration = new Integration();
+		integration.setType("AZURE");
+		integration.setGitIntegration(gitIntegration);
+		integrationsDao.updateGITIntegratoin(integration);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	public ResponseEntity<?> removeAzureIntegraton(String interactionid, String jsessionid, String id)
+			throws Exception {
+		integrationsDao.removeIntegratoin(id);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
 
 }
