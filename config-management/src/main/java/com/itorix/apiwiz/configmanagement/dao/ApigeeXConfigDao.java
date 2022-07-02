@@ -149,7 +149,7 @@ public class ApigeeXConfigDao {
 			String URL = targetConn.getUpdateTargetURL(targetConfig);
 			HTTPUtil httpConn = new HTTPUtil(target, URL,
 					apigeeUtil.getApigeeCredentials(targetConfig.getOrg(), targetConfig.getType()));
-			ResponseEntity<String> response = httpConn.doPost();
+			ResponseEntity<String> response = httpConn.doPut();
 			HttpStatus statusCode = response.getStatusCode();
 			if (statusCode.is2xxSuccessful())
 				return true;

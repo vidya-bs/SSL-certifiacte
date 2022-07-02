@@ -147,7 +147,7 @@ public class ApigeeConfigurationServiceImpl implements ApigeeConfigurationServic
 			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "jsessionid") String jsessionid, @RequestParam("type") String type,
 			@RequestParam("org") String org) throws Exception {
-		if(type != null && type.equalsIgnoreCase("apigeex")){
+		if((type != null && type.equalsIgnoreCase("apigeex")) || (gwtype != null && gwtype.equalsIgnoreCase("apigeex"))){
 			Object o = apigeeConfigurationBusiness.getApigeexHost(type, org);
 			return new ResponseEntity<Object>(o, HttpStatus.OK);
 		}else{
@@ -161,7 +161,7 @@ public class ApigeeConfigurationServiceImpl implements ApigeeConfigurationServic
 			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "jsessionid") String jsessionid, @RequestParam("type") String type,
 			@RequestParam("org") String org) throws Exception {
-		if(type != null && type.equalsIgnoreCase("apigeex")){
+		if((type != null && type.equalsIgnoreCase("apigeex")) || (gwtype != null && gwtype.equalsIgnoreCase("apigeex"))){
 			Object o = apigeeConfigurationBusiness.getApigeexAuthorization(type, org);
 			return new ResponseEntity<Object>(o, HttpStatus.OK);
 		} else {
