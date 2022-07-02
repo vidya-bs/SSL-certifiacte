@@ -73,11 +73,11 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			HttpServletRequest request) {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
 				+ jsessionId + ": requestUrl " + request.getRequestURI());
-		if(gwType != null){
-			pipelineGroups.setGwType(gwType);
-		} else{
-			pipelineGroups.setGwType("apigee");
-		}
+//		if(gwType != null){
+//			pipelineGroups.setGwType(gwType);
+//		} else{
+//			pipelineGroups.setGwType("apigee");
+//		}
 		return managePipeline(pipelineGroups, jsessionId, interactionid, true, HttpStatus.CREATED);
 	}
 
@@ -89,11 +89,11 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			HttpServletRequest request) {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
 				+ jsessionId + ": requestUrl " + request.getRequestURI());
-		if(gwType != null){
-			pipelineGroups.setGwType(gwType);
-		} else{
-			pipelineGroups.setGwType("apigee");
-		}
+//		if(gwType != null){
+//			pipelineGroups.setGwType(gwType);
+//		} else{
+//			pipelineGroups.setGwType("apigee");
+//		}
 		return managePipeline(pipelineGroups, jsessionId, interactionid, false, HttpStatus.NO_CONTENT);
 	}
 

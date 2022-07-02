@@ -71,16 +71,7 @@ public class PipelineGroups {
 		return pipelines;
 	}
 	
-	@JsonProperty("gwType")
-	private String gwType = null;
 
-	public String getGwType() {
-		return gwType;
-	}
-
-	public void setGwType(String gwType) {
-		this.gwType = gwType;
-	}
 
 	@JsonProperty("pipelines")
 	public void setPipelines(List<Pipeline> pipelines) {

@@ -35,7 +35,7 @@ public class DevportalServiceImpl implements DevportalService {
 			@RequestHeader(value = "type") String type, @PathVariable("org") String org, @RequestBody String body)
 					throws Exception {
 		if (body != null) {
-			if(gwtype != null && gwtype.equalsIgnoreCase("apigeex")){
+			if(type != null && type.equalsIgnoreCase("apigeex")){
 				String URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/developers";
 				HTTPUtil httpConn = new HTTPUtil(body, URL, apigeexUtil.getApigeeCredentials(org, type));
 				return devportaldao.proxyService(httpConn, "POST");
@@ -56,7 +56,7 @@ public class DevportalServiceImpl implements DevportalService {
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @RequestBody String body) throws Exception {
 		if (body != null) {
-			if(gwtype != null && gwtype.equalsIgnoreCase("apigeex")){
+			if(type != null && type.equalsIgnoreCase("apigeex")){
 				String URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/developers/" + email + "/apps";
 				HTTPUtil httpConn = new HTTPUtil(body, URL, apigeexUtil.getApigeeCredentials(org, type));
 				return devportaldao.proxyService(httpConn, "POST");
@@ -79,7 +79,7 @@ public class DevportalServiceImpl implements DevportalService {
 			@PathVariable("email") String email, @PathVariable("appName") String appName, @RequestBody String body)
 					throws Exception {
 		if (body != null) {
-			if(gwtype != null && gwtype.equalsIgnoreCase("apigeex")){
+			if(type != null && type.equalsIgnoreCase("apigeex")){
 				String URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/developers/" + email
 						+ "/apps/" + appName;
 				HTTPUtil httpConn = new HTTPUtil(body, URL, apigeexUtil.getApigeeCredentials(org, type));
@@ -104,7 +104,7 @@ public class DevportalServiceImpl implements DevportalService {
 			@PathVariable("appKey") String appKey, @RequestBody String body)
 					throws Exception {
 		if (body != null) {
-			if(gwtype != null && gwtype.equalsIgnoreCase("apigeex")){
+			if(type != null && type.equalsIgnoreCase("apigeex")){
 				String URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/developers/" + email
 						+ "/apps/" + appName + "/keys/" + appKey ;
 				HTTPUtil httpConn = new HTTPUtil(body, URL, apigeexUtil.getApigeeCredentials(org, type));
@@ -128,7 +128,7 @@ public class DevportalServiceImpl implements DevportalService {
 			@PathVariable("email") String email, @PathVariable("appName") String appName,
 			@PathVariable("appKey") String appKey, @PathVariable("product") String product)
 					throws Exception {
-		if(gwtype != null && gwtype.equalsIgnoreCase("apigeex")){
+		if(type != null && type.equalsIgnoreCase("apigeex")){
 			String URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/developers/" + email
 					+ "/apps/" + appName + "/keys/" + appKey + "/apiproducts/"  + product;
 			HTTPUtil httpConn = new HTTPUtil( URL, apigeexUtil.getApigeeCredentials(org, type));
@@ -149,7 +149,7 @@ public class DevportalServiceImpl implements DevportalService {
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @PathVariable("appName") String appName)
 					throws Exception {
-		if(gwtype != null && gwtype.equalsIgnoreCase("apigeex")){
+		if(type != null && type.equalsIgnoreCase("apigeex")){
 			String URL = apigeexUtil.getApigeeHost(org)  + "/v1/organizations/" + org + "/developers/" + email
 					+ "/apps/" + appName;
 			HTTPUtil httpConn = new HTTPUtil( URL, apigeexUtil.getApigeeCredentials(org, type));
@@ -169,7 +169,7 @@ public class DevportalServiceImpl implements DevportalService {
 			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type") String type, @PathVariable("org") String org,
 			@RequestParam(value = "expand", required = false) String expand) throws Exception {
-		if(gwtype != null && gwtype.equalsIgnoreCase("apigeex")){
+		if(type != null && type.equalsIgnoreCase("apigeex")){
 			String URL;
 			if (expand != null && expand != "")
 				URL = apigeexUtil.getApigeeHost(org)  + "/v1/organizations/" + org + "/apiproducts?expand=" + expand;
@@ -196,7 +196,7 @@ public class DevportalServiceImpl implements DevportalService {
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @RequestParam(value = "expand", required = false) String expand)
 					throws Exception {
-		if(gwtype != null && gwtype.equalsIgnoreCase("apigeex")){
+		if(type != null && type.equalsIgnoreCase("apigeex")){
 			String URL;
 			if (expand != null && expand != "")
 				URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/developers/" + email
@@ -224,7 +224,7 @@ public class DevportalServiceImpl implements DevportalService {
 			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @PathVariable("appName") String appName) throws Exception {
-		if(gwtype != null && gwtype.equalsIgnoreCase("apigeex")){
+		if(type != null && type.equalsIgnoreCase("apigeex")){
 			String URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/developers/" + email
 					+ "/apps/" + appName;
 			HTTPUtil httpConn = new HTTPUtil(URL, apigeexUtil.getApigeeCredentials(org, type));
@@ -247,7 +247,7 @@ public class DevportalServiceImpl implements DevportalService {
 			@RequestParam(value = "timeRange", required = false) String timeRange,
 			@RequestParam(value = "timeUnit", required = false) String timeUnit,
 			@RequestParam(value = "filter", required = false) String filter) throws Exception {
-		if(gwtype != null && gwtype.equalsIgnoreCase("apigeex")){
+		if(type != null && type.equalsIgnoreCase("apigeex")){
 			String URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/environments/" + env
 					+ "/stats/apps/";
 			String query = "";

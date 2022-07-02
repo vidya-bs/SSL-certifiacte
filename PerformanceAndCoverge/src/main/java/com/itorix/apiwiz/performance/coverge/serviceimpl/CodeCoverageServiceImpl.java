@@ -132,7 +132,7 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 		cfg.setTestsuiteId(testsuiteId);
 		cfg.setVariableId(variableId);
 		cfg.setUserName(user.getFirstName() + " " + user.getLastName());
-		cfg.setGwtype(gwtype);
+		cfg.setGwtype(type);
 		codeCoverageBackUpInfo = codeCoverageService.executeCodeCoverage(cfg);
 		return new ResponseEntity<Object>(codeCoverageBackUpInfo, HttpStatus.OK);
 	}
