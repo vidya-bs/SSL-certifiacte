@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.design.studio.model.SwaggerSubscriptionDao;
 import com.itorix.apiwiz.design.studio.service.SwaggerReleaseService;
 import com.itorix.apiwiz.design.studio.swaggerdiff.dao.SwaggerDiffService;
 import com.itorix.apiwiz.design.studio.swaggerdiff.model.DiffVO;
@@ -28,6 +29,9 @@ public class SwaggerReleaseServiceImpl implements SwaggerReleaseService {
 
 	@Autowired
 	private SwaggerDiffService swaggerDiffService;
+	
+	@Autowired
+	private SwaggerSubscriptionDao swaggerSubscriptionDao;
 
 	@Override
 	public ResponseEntity<Object> getDifference(@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -76,6 +80,7 @@ public class SwaggerReleaseServiceImpl implements SwaggerReleaseService {
 		if (missingFields.size() > 0)
 			raiseException(missingFields);
 		swaggerDiffService.saveReleaseNotes(text, oas, swaggerid, oldRevision, newRevision, summary);
+		swaggerSubscriptionDao.swaggerNotification(swaggerid, oas, summary, text);
 		return new ResponseEntity<Object>(HttpStatus.CREATED);
 	}
 
