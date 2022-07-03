@@ -37,6 +37,18 @@ public class Stage {
 
 	@JsonProperty("isSaaS")
 	private Boolean isSaas;
+	
+	@JsonProperty("gwType")
+	private String gwType;
+
+
+	public String getGwType() {
+		return gwType;
+	}
+
+	public void setGwType(String gwType) {
+		this.gwType = gwType;
+	}
 
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();

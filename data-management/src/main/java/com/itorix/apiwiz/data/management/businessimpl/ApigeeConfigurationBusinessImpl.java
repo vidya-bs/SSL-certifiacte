@@ -20,6 +20,7 @@ import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
+import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
 import com.itorix.apiwiz.data.management.business.ApigeeConfigurationBusiness;
 import com.itorix.apiwiz.datamanagement.service.ApigeeConfigurationService;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
@@ -36,6 +37,8 @@ public class ApigeeConfigurationBusinessImpl implements ApigeeConfigurationBusin
 
 	@Autowired
 	ApigeeUtil apigeeUtil;
+	@Autowired
+	ApigeeXUtill apigeexUtil;
 	@Autowired
 	ApplicationProperties applicationProperties;
 	@Autowired
@@ -200,6 +203,14 @@ public class ApigeeConfigurationBusinessImpl implements ApigeeConfigurationBusin
 
 	public Object getApigeeAuthorization(String type, String org) throws ItorixException {
 		return apigeeUtil.getApigeeAuth(org, type);
+	}
+	
+	public Object getApigeexAuthorization(String type, String org) throws Exception {
+		return apigeexUtil.getApigeeCredentials(org, type);
+	}
+
+	public Object getApigeexHost(String type, String org) throws ItorixException{
+		return apigeexUtil.getApigeeHost(org);
 	}
 
 	/*

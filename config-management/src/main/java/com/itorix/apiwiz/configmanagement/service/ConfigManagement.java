@@ -124,7 +124,6 @@ public interface ConfigManagement {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
-	// @UnSecure
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/config/caches/{cache}")
 	public ResponseEntity<Object> getCache(
@@ -186,7 +185,6 @@ public interface ConfigManagement {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
-	// @UnSecure
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/config/kvms/{kvm}")
 	public ResponseEntity<Object> getKVM(@RequestHeader(value = "interactionid", required = false) String interactionid,

@@ -508,7 +508,7 @@ public class SAMLConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFil
         private String entityId;
         private SAMLMessageStorageFactory storageFactory;
         private int responseSkew = 60;
-        private long maxAuthenticationAge = 7200;
+        private long maxAuthenticationAge = 180;
 
         public ServiceProvider protocol(String protocol) {
             this.protocol = protocol;

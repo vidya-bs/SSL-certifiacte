@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.common.util.http;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import org.apache.log4j.Logger;
@@ -11,13 +12,24 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import javax.net.ssl.SSLContext;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class HTTPUtil {
 	Logger logger = Logger.getLogger(HTTPUtil.class);
 
-	private RestTemplate restTemplate = new RestTemplate();
+	private RestTemplate restTemplate;
 
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -102,7 +114,8 @@ public class HTTPUtil {
 	}
 
 	private ResponseEntity<String> transport() {
-		this.headers = new HttpHeaders();
+		if(this.headers == null)
+			this.headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.set("Authorization", this.basicAuth);
@@ -114,12 +127,18 @@ public class HTTPUtil {
 			httpEntity = new HttpEntity<>(this.body, headers);
 		logger.debug("HTTPUtil::transport.request::" + getObj(this));
 		try {
+			restTemplate = this.getRestTemplate();
 			response = restTemplate.exchange(this.uRL, hTTPMethod, httpEntity,
 					new ParameterizedTypeReference<String>() {
 					});
 		} catch (Exception e) {
 			logger.error("HTTPUtil::transport.response error :: " + getObj(e));
-			throw e;
+			try {
+				throw e;
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 		logger.debug("HTTPUtil::transport.response::" + getObj(response));
 		return response;
@@ -132,5 +151,16 @@ public class HTTPUtil {
 		} catch (JsonProcessingException e) {
 			return "Parse exception";
 		}
+	}
+	
+	public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
+	    TrustStrategy acceptingTrustStrategy = (x509Certificates, s) -> true;
+	    SSLContext sslContext = org.apache.http.ssl.SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
+	    SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, new NoopHostnameVerifier());
+	    CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(csf).build();
+	    HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+	    requestFactory.setHttpClient(httpClient);
+	    RestTemplate restTemplate = new RestTemplate(requestFactory);
+	    return restTemplate;
 	}
 }

@@ -56,8 +56,6 @@ public class ConfigManagementDao {
 	@Autowired
 	private ProductService productService;
 
-	@Autowired
-	private ApplicationProperties applicationProperties;
 
 	@Autowired
 	private ApigeeUtil apigeeUtil;
@@ -93,7 +91,7 @@ public class ConfigManagementDao {
 			for (TargetConfig target : targets) {
 				target.trimData();
 			}
-			logger.info("inside getTargetSummary(): end");
+			//logger.info("inside getTargetSummary(): end");
 			return targets;
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
@@ -211,7 +209,6 @@ public class ConfigManagementDao {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public boolean updateTarget(TargetConfig config) throws ItorixException {
 		try {
 			config.setActiveFlag(Boolean.TRUE);
@@ -286,15 +283,10 @@ public class ConfigManagementDao {
 				HTTPUtil httpConn = new HTTPUtil(target, URL,
 						getApigeeCredentials(targetConfig.getOrg(), targetConfig.getType()));
 				ResponseEntity<String> response = httpConn.doPost();
-
 				HttpStatus statusCode = response.getStatusCode();
 				if (statusCode.is2xxSuccessful())
 					return true;
 				else if (statusCode.value() >= 401 && statusCode.value() <= 403)
-					// throw new ItorixException("Request validation failed.
-					// Exception connecting to apigee
-					// connector. " +
-					// statusCode.value(), "Configuration-1006");
 					throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1025"), "Configuration-1025");
 				else
 					throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");

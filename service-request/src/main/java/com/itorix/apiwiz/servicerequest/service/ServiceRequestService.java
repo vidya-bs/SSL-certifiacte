@@ -23,6 +23,7 @@ public interface ServiceRequestService {
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/config/servicerequests")
 	public ResponseEntity<?> createServiceRequest(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestBody ServiceRequest config, @RequestHeader(value = "JSESSIONID") String jsessionid)
 			throws Exception;
 
@@ -37,6 +38,7 @@ public interface ServiceRequestService {
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/config/servicerequests/changestatus")
 	public ResponseEntity<?> changeServiceRequestStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "org", required = false) String org,
 			@RequestParam(value = "env", required = false) String env,

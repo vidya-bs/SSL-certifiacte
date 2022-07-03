@@ -19,6 +19,7 @@ public interface DevportalService {
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/organizations/{org}/developers")
 	public ResponseEntity<String> createDeveloper(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type") String type, @PathVariable("org") String org, @RequestBody String body)
 			throws Exception;
 
@@ -27,6 +28,7 @@ public interface DevportalService {
 	public org.springframework.http.ResponseEntity<String> registerApp(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @RequestBody String body) throws Exception;
 
@@ -35,6 +37,7 @@ public interface DevportalService {
 	public org.springframework.http.ResponseEntity<String> updateApp(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @PathVariable("appName") String appName, @RequestBody String body)
 			throws Exception;
@@ -44,6 +47,7 @@ public interface DevportalService {
 	public org.springframework.http.ResponseEntity<String> updateAppProduct(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @PathVariable("appName") String appName,
 			@PathVariable("appKey") String appKey, @RequestBody String body)
@@ -54,6 +58,7 @@ public interface DevportalService {
 	public org.springframework.http.ResponseEntity<String> deleteAppProduct(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @PathVariable("appName") String appName,
 			@PathVariable("appKey") String appKey, @PathVariable("product") String product)
@@ -64,6 +69,7 @@ public interface DevportalService {
 	public org.springframework.http.ResponseEntity<String> deleteApp(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @PathVariable("appName") String appName)
 			throws Exception;
@@ -73,6 +79,7 @@ public interface DevportalService {
 	public org.springframework.http.ResponseEntity<String> getProducts(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type") String type, @PathVariable("org") String org,
 			@RequestParam(value = "expand", required = false) String expand) throws Exception;
 
@@ -81,6 +88,7 @@ public interface DevportalService {
 	public org.springframework.http.ResponseEntity<String> getApps(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @RequestParam(value = "expand", required = false) String expand)
 			throws Exception;
@@ -90,6 +98,7 @@ public interface DevportalService {
 	public org.springframework.http.ResponseEntity<String> getApp(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @PathVariable("appName") String appName) throws Exception;
 
@@ -98,6 +107,7 @@ public interface DevportalService {
 	public org.springframework.http.ResponseEntity<String> getPortalStats(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("env") String env, @RequestParam(value = "select", required = false) String select,
 			@RequestParam(value = "timeRange", required = false) String timeRange,
