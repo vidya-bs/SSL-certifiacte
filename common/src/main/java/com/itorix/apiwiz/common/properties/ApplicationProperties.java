@@ -67,6 +67,12 @@ public class ApplicationProperties {
 
 	@Value("${itorix.core.user.management.register.confirm.email.body}")
 	private String registermailBody;
+	
+	@Value("${itorix.core.user.management.swagger.subscription.notification.email.subject}")
+	private String swaggerSubscriptionSubject;
+	
+	@Value("${itorix.core.user.management.swagger.subscription.notification.email.body}")
+	private String swaggerSubscriptionMailBody;
 
 	// @Value("${app.mailutil.signature}")
 	private String mailSignature;
@@ -685,6 +691,22 @@ public class ApplicationProperties {
 
 	public void setUserActivationRedirectionLink(String userActivationRedirectionLink) {
 		this.userActivationRedirectionLink = userActivationRedirectionLink;
+	}
+	
+	public String getSwaggerSubscriptionMailBody() {
+		return swaggerSubscriptionMailBody;
+	}
+
+	public void setSwaggerSubscriptionMailBody(String swaggerSubscriptionMailBody) {
+		this.swaggerSubscriptionMailBody = swaggerSubscriptionMailBody;
+	}
+
+	public String getSwaggerSubscriptionSubject() {
+		return swaggerSubscriptionSubject;
+	}
+
+	public void setSwaggerSubject(String swaggerSubscriptionSubject) {
+		this.swaggerSubscriptionSubject = swaggerSubscriptionSubject;
 	}
 
 	public String getUserBlockingRedirectionLink() {

@@ -29,6 +29,9 @@ public class Body {
 
 		@JsonProperty("FORM_URL_ENCODED")
 		formURLEncoded,
+		
+		@JsonProperty("NONE")
+		none,
 	}
 
 	@JsonProperty("formParams")

@@ -19,6 +19,7 @@ import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
+import com.itorix.apiwiz.design.studio.dao.SupportedCodeGenLangDao;
 import com.itorix.apiwiz.design.studio.businessimpl.Swagger3SDK;
 import com.itorix.apiwiz.design.studio.businessimpl.ValidateSchema;
 import com.itorix.apiwiz.design.studio.businessimpl.XlsUtil;
@@ -26,7 +27,9 @@ import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import com.itorix.apiwiz.design.studio.service.SwaggerService;
+import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
+import com.itorix.apiwiz.identitymanagement.model.User;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.opencsv.CSVReader;
@@ -43,6 +46,7 @@ import io.swagger.generator.model.GeneratorInput;
 import io.swagger.generator.model.ResponseCode;
 import io.swagger.generator.online.Generator;
 import io.swagger.models.Swagger;
+
 import org.apache.commons.io.FileUtils;
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
@@ -103,6 +107,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 
 	@Autowired
 	JfrogUtilImpl jfrogUtilImpl;
+	
+	@Autowired
+	SwaggerSubscriptionDao swaggerSubscriptionDao;
 
 	@Autowired
 	private S3Connection s3Connection;
@@ -112,6 +119,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 
 	@Autowired
 	private ScmUtilImpl scmUtilImpl;
+
+	@Autowired
+	private SupportedCodeGenLangDao codeGenLangDao;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/puls")
 	public String checkPuls(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -137,7 +147,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 				swaggerBusiness.importSwaggers(file, type, gitURI, branch, authType, userName, password, personalToken),
 				HttpStatus.OK);
 	}
-
+	
 	/**
 	 * This method is used to create the swagger.
 	 *
@@ -161,10 +171,15 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
 			@RequestBody String json) throws Exception {
+		
 		if (oas == null || oas.trim().equals(""))
 			oas = "2.0";
 		HttpHeaders headers = new HttpHeaders();
 		if (oas.equals("2.0")) {
+			if (!swaggerBusiness.oasCheck(json).startsWith("2")) {
+				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1009"), "Swagger-1009");
+			}
+			
 			SwaggerVO swaggerVO = new SwaggerVO();
 			swaggerVO.setName(swaggername);
 			swaggerVO.setInteractionid(interactionid);
@@ -187,6 +202,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
 			headers.add("X-Swagger-id", swaggerVO.getSwaggerId());
 		} else if (oas.equals("3.0")) {
+			if (!swaggerBusiness.oasCheck(json).startsWith("3")) {
+				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1009"), "Swagger-1009");
+			}
+			
 			Swagger3VO swaggerVO = new Swagger3VO();
 			swaggerVO.setName(swaggername);
 			swaggerVO.setInteractionid(interactionid);
@@ -207,7 +226,76 @@ public class SwaggerServiceImpl implements SwaggerService {
 		}
 		return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
 	}
+	
+	/**
+	 * Using this we can subscribe to APIs
+	 * 
+	 * @param interactionid
+	 * @param jsessionid
+	 * @param swaggerSubscriptionReq
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiOperation(value = "API Subscription", notes = "", response = Void.class)
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Subscribed to API sucessfully", response = Void.class),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/subscribe")
+	public ResponseEntity<Void> swaggerSubscribe(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody SwaggerSubscriptionReq swaggerSubscriptionReq) throws Exception {
+		Subscriber subscriber = new Subscriber();
+		subscriber.setName(swaggerSubscriptionReq.getName());
+		subscriber.setEmailId(swaggerSubscriptionReq.getEmailId());
+		swaggerSubscriptionDao.swaggerSubscribe(swaggerSubscriptionReq.getSwaggerId(), swaggerSubscriptionReq.getSwaggerName(), swaggerSubscriptionReq.getOas(), subscriber);
+		return new ResponseEntity<Void>( HttpStatus.OK);
+	}
 
+	/**
+	 * Using this we can unsubscribe to APIs
+	 * 
+	 * @param interactionid
+	 * @param jsessionid
+	 * @param swaggerSubscriptionReq
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiOperation(value = "API Unsubscription", notes = "", response = Void.class)
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Unsubscribed to API sucessfully", response = Void.class),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/unsubscribe")
+	public ResponseEntity<Void> swaggerUnsubscribe(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody SwaggerSubscriptionReq swaggerSubscriptionReq) throws Exception {
+		swaggerSubscriptionDao.swaggerUnsubscribe(swaggerSubscriptionReq.getSwaggerId(), swaggerSubscriptionReq.getEmailId());
+		return new ResponseEntity<Void>( HttpStatus.OK);
+	}
+	
+	/**
+	 * Using this we get all the subscribers list of an API
+	 * 
+	 * @param interactionid
+	 * @param jsessionid
+	 * @param swaggerSubscriptionReq
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiOperation(value = "Get API Subscribers", notes = "", response = Void.class)
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Got the list of subscribers sucessfully", response = Void.class),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/getsubscribers")
+	public ResponseEntity<Set<Subscriber>> swaggerSubscribers(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody SwaggerSubscriptionReq swaggerSubscriptionReq)throws Exception {
+		Set<Subscriber> subscribers = swaggerSubscriptionDao.swaggerSubscribers(swaggerSubscriptionReq.getSwaggerId());
+		return new ResponseEntity<Set<Subscriber>>(subscribers, HttpStatus.OK);
+	}
+	
 	/**
 	 * Using this we can update are change the swagger version.
 	 *
@@ -1694,7 +1782,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas == null || oas.trim().equals(""))
 			oas = "2.0";
 		if (oas.equals("2.0")) {
-			obj = swaggerBusiness.getSwaggerStats(timeunit, timerange);
+			return new ResponseEntity<Object>(swaggerBusiness.getSwaggerStats(timeunit, timerange), HttpStatus.OK);
 		} else if (oas.equals("3.0")) {
 			obj = swaggerBusiness.getSwagger3Stats(timeunit, timerange);
 		}
@@ -1715,15 +1803,59 @@ public class SwaggerServiceImpl implements SwaggerService {
 		return new ResponseEntity<Object>(obj, HttpStatus.OK);
 	}
 
-	@UnSecure
+	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swagger-gen/clients/servers")
 	public @ResponseBody ResponseEntity<Object> getClientsServers(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
-			@RequestHeader(value = "interactionid", required = false) String interactionid) throws Exception {
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "oas", required = false) String oas) throws Exception {
 		Map clientsServer = new HashMap();
-		clientsServer.put("clients", Clients.values());
-		clientsServer.put("servers", Servers.values());
+		if(oas == null || oas.isEmpty()){
+			oas = "2.0";
+		}
+		try{
+			clientsServer.put("clients",codeGenLangDao.getSupportedLanguages("client",oas));
+			clientsServer.put("servers",codeGenLangDao.getSupportedLanguages("server",oas));
+		}catch(Exception ex){
+			clientsServer.put("clients", Clients.values());
+			clientsServer.put("servers", Servers.values());
+		}
+
 		return new ResponseEntity<Object>(clientsServer, HttpStatus.OK);
+	}
+
+	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/swagger-gen/clients/servers/{framework}")
+	public @ResponseBody ResponseEntity<Object> createLangSupport(
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@PathVariable("framework") String framework,
+			@RequestBody SupportedCodeGenLang langData) throws Exception{
+
+		SupportedCodeGenLang res = codeGenLangDao.addLang(langData);
+		return new ResponseEntity<Object>(res,HttpStatus.OK);
+	}
+
+	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swagger-gen/clients/servers/{framework}")
+	public @ResponseBody ResponseEntity<Object> updateLangSupport(
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@PathVariable("framework") String framework,
+			@RequestBody SupportedCodeGenLang langData) throws Exception{
+
+		SupportedCodeGenLang res = codeGenLangDao.updateLang(framework,langData);
+		return new ResponseEntity<Object>(res,HttpStatus.OK);
+	}
+
+	@UnSecure(ignoreValidation = true)
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swagger-gen/clients/servers/{lang}")
+	public @ResponseBody ResponseEntity<Void> removeLangSupport(
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@PathVariable("lang") String lang) throws Exception{
+		codeGenLangDao.removeLang(lang);
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
 	/**
@@ -2232,7 +2364,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestParam("id") String swaggerid) throws Exception {
 		Map swaggerInfo = swaggerBusiness.getSwaggerInfo(jsessionid, swaggerid, oas);
 		HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.addAll("Access-Control-Expose-Headers", Arrays.asList("x-created-by", "x-created-user-name"));
+		httpHeaders.addAll("Access-Control-Expose-Headers", Arrays.asList("x-created-by", "x-created-user-name"));
 		httpHeaders.set("x-created-by", String.valueOf(swaggerInfo.remove("createdBy")));
 		httpHeaders.set("x-created-user-name", String.valueOf(swaggerInfo.remove("createdUsername")));
 		ResponseEntity<Object> responseEntity = new ResponseEntity<>(swaggerInfo, httpHeaders, HttpStatus.OK);

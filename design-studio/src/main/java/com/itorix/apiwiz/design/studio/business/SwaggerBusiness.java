@@ -8,6 +8,7 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
+
 import org.json.JSONException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -609,7 +610,7 @@ public interface SwaggerBusiness {
 	 * 
 	 * @throws ParseException
 	 */
-	public ObjectNode getSwaggerStats(String timeunit, String timerange) throws ParseException, ItorixException;
+	public SwaggerObjectResponse getSwaggerStats(String timeunit, String timerange) throws ParseException, ItorixException;
 
 	/**
 	 * getSwagger3Stats
@@ -682,6 +683,16 @@ public interface SwaggerBusiness {
 	 * @return
 	 */
 	public SwaggerTeam findSwaggerTeam(String team_name, String interactionid) throws ItorixException;
+	
+	/**
+	 * oasCheck
+	 * 
+	 * @param data
+	 * @return
+	 * @throws IOException
+	 */
+	public String oasCheck(String data)
+			throws IOException;
 
 	/**
 	 * swaggerSearch
