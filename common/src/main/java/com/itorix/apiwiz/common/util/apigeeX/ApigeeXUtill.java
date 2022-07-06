@@ -202,6 +202,22 @@ public class ApigeeXUtill {
 				});
 		return response.getBody();
 	}
+	
+	
+	public String getProxies(String org) throws Exception {
+		String jsonKeyStr = getApigeeCredentials(org,"saas");
+		HttpHeaders headers = new HttpHeaders();
+		
+		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+		
+		headers.set("Authorization",  jsonKeyStr);
+		HttpEntity<String> httpEntity = new HttpEntity<String>(headers);
+		String url = HOST_URL + "/v1/organizations/" + org + "/apis";
+		ResponseEntity<String> response = exchange(url, HttpMethod.GET, httpEntity,
+				new ParameterizedTypeReference<String>() {
+				});
+		return response.getBody();
+	}
 
 	private <T> ResponseEntity<T> exchange(String url, HttpMethod method, HttpEntity<?> requestEntity,
 			ParameterizedTypeReference<T> responseType, Object... uriVariables) throws ItorixException {

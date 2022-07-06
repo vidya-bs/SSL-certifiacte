@@ -44,6 +44,9 @@ public class ApigeeXIntegrationDAO {
 				ApigeeXEnvironment apigeeXEnvironment = new ApigeeXEnvironment();
 				apigeeXEnvironment.setName(env);
 				evironments.add(apigeeXEnvironment);
+			}else{
+				evironments.add(apigeeXConfigurationVO.getEnvironments().stream()
+						.filter(p -> p.getName().equals(env)).findFirst().get());
 			}
 		}
 		apigeeXConfigurationVO.setEvironments(evironments);

@@ -58,6 +58,7 @@ import com.itorix.apiwiz.common.model.proxystudio.ProxyArtifacts;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.service.GridFsRepository;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
+import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
@@ -95,6 +96,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	private JfrogUtilImpl jfrogUtil;
 	@Autowired
 	private ApigeeUtil apigeeUtil;
+	
+	@Autowired
+	private ApigeeXUtill apigeeXUtil;
 	@Autowired
 	private IntegrationsDataDao integrationsDao;
 	@Autowired
@@ -174,12 +178,23 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * @param type
 	 * 
 	 * @return
-	 * 
-	 * @throws ItorixException
+	 * @throws ItorixException 
 	 */
 	public String getAPIsDeployedToEnvironment(String jsessionid, String organization, String environment,
 			String interactionid, String type) throws ItorixException {
 		logger.debug("OrganizationDataMigrationService.getAPIsDeployedToEnvironment");
+		if(type != null && type.equalsIgnoreCase("apigeex")){
+			
+			try {
+				return apigeeXUtil.getProxies(organization);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return null;
+			
+		}
+		else{
 		CommonConfiguration cfg = new CommonConfiguration();
 		cfg.setType(type);
 		cfg.setOrganization(organization);
@@ -189,6 +204,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
 		return apigeeUtil.getAPIsDeployedToEnvironment(cfg);
+		}
 	}
 
 	

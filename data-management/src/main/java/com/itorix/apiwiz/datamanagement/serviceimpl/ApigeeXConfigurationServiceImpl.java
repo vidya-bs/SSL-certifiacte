@@ -52,7 +52,7 @@ public class ApigeeXConfigurationServiceImpl implements ApigeeXConfigurationServ
 			String org) throws Exception {
 		ApigeeXConfigurationVO apigeeXConfigurationVo = apigeeXIntegrationDAO.getConfiguration(org);
 		if(apigeeXConfigurationVo == null){
-			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1003"), "Configuration-1003");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1004"), "Configuration-1004");
 		}
 		byte[] bytes = envFile.getBytes();
 		String jsonStr = new String(bytes, StandardCharsets.UTF_8);
@@ -78,7 +78,7 @@ public class ApigeeXConfigurationServiceImpl implements ApigeeXConfigurationServ
 		if(refresh != null && refresh.equalsIgnoreCase("true")){
 			return new ResponseEntity<>(apigeeXIntegrationDAO.updateConfiguration(org), HttpStatus.OK);
 		}else{
-		return new ResponseEntity<>(apigeeXIntegrationDAO.getConfiguration(org), HttpStatus.OK);
+			return new ResponseEntity<>(apigeeXIntegrationDAO.getConfiguration(org), HttpStatus.OK);
 		}
 	}
 	
