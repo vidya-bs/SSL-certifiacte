@@ -173,7 +173,7 @@ public class ApigeeXUtill {
 		query.addCriteria(Criteria.where("orgName").is(org));
 		ApigeeXConfigurationVO configVo = mongoTemplate.findOne(query, ApigeeXConfigurationVO.class);
 		if (configVo != null) {
-			return configVo.getEvironments();
+			return configVo.getEnvironments();
 		}
 		return null;
 	}
