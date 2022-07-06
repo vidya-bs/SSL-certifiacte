@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.itorix.apiwiz.common.model.apigeeX.ApigeeXConfigurationVO;
 import com.itorix.apiwiz.common.model.apigeeX.ApigeeXEnvironment;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.data.management.dao.ApigeeXIntegrationDAO;
 import com.itorix.apiwiz.datamanagement.service.ApigeeXConfigurationService;
@@ -31,7 +32,7 @@ public class ApigeeXConfigurationServiceImpl implements ApigeeXConfigurationServ
 			String org) throws Exception {
 		ApigeeXConfigurationVO apigeeXConfigurationVo = apigeeXIntegrationDAO.getConfiguration(org);
 		if(apigeeXConfigurationVo != null){
-			throw new ItorixException();
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1007"), "Configuration-1007");
 		}
 		byte[] bytes = envFile.getBytes();
 		String jsonStr = new String(bytes, StandardCharsets.UTF_8);
@@ -43,6 +44,27 @@ public class ApigeeXConfigurationServiceImpl implements ApigeeXConfigurationServ
 		return new ResponseEntity<>(HttpStatus.CREATED);
 		
 	}
+	
+	@Override
+	public ResponseEntity<Void> updateConfiguration(
+			String interactionid, String jsessionid, 
+			MultipartFile envFile,
+			String org) throws Exception {
+		ApigeeXConfigurationVO apigeeXConfigurationVo = apigeeXIntegrationDAO.getConfiguration(org);
+		if(apigeeXConfigurationVo == null){
+			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1003"), "Configuration-1003");
+		}
+		byte[] bytes = envFile.getBytes();
+		String jsonStr = new String(bytes, StandardCharsets.UTF_8);
+		ApigeeXConfigurationVO apigeeXConfigurationVO = new ApigeeXConfigurationVO();
+		apigeeXConfigurationVO.setOrgName(org);
+		apigeeXConfigurationVO.setJsonKey(jsonStr);
+		apigeeXConfigurationVO = apigeeXIntegrationDAO.poplulateEnvironments(apigeeXConfigurationVO);
+		apigeeXIntegrationDAO.saveJSONKey(apigeeXConfigurationVO);
+		return new ResponseEntity<>(HttpStatus.CREATED);
+		
+	}
+	
 
 	@Override
 	public ResponseEntity<?> getConfigurations(String interactionid, 
@@ -52,8 +74,12 @@ public class ApigeeXConfigurationServiceImpl implements ApigeeXConfigurationServ
 
 	@Override
 	public ResponseEntity<?> getConfiguration(String interactionid, 
-			String jsessionid, String org) throws Exception {
+			String jsessionid, String org, String refresh) throws Exception {
+		if(refresh != null && refresh.equalsIgnoreCase("true")){
+			return new ResponseEntity<>(apigeeXIntegrationDAO.updateConfiguration(org), HttpStatus.OK);
+		}else{
 		return new ResponseEntity<>(apigeeXIntegrationDAO.getConfiguration(org), HttpStatus.OK);
+		}
 	}
 	
 	@Override

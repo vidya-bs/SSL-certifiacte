@@ -15,7 +15,7 @@ public class ApigeeXConfigurationVO extends AbstractObject{
 	
 	private String orgName;
 	private String jsonKey;
-	private List<ApigeeXEnvironment> evironments;
+	private List<ApigeeXEnvironment> environments;
 	
 	public String getOrgName() {
 		return orgName;
@@ -29,18 +29,18 @@ public class ApigeeXConfigurationVO extends AbstractObject{
 	public void setJsonKey(String jsonKey) {
 		this.jsonKey = jsonKey;
 	}
-	public List<ApigeeXEnvironment> getEvironments() {
-		return evironments;
+	public List<ApigeeXEnvironment> getEnvironments() {
+		return environments;
 	}
-	public void setEvironments(List<ApigeeXEnvironment> evironments) {
-		this.evironments = evironments;
+	public void setEvironments(List<ApigeeXEnvironment> environments) {
+		this.environments = environments;
 	}
 	public List<String> getEnvironmentNames(){
-		if(null == evironments){
+		if(null == environments){
 			return null;
 		}else{
 			List<String> envNames = new ArrayList<>();
-			for(ApigeeXEnvironment env: evironments){
+			for(ApigeeXEnvironment env: environments){
 				envNames.add(env.getName());
 			}
 			return envNames;

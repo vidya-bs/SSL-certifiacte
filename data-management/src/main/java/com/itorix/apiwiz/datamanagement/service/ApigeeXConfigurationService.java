@@ -27,8 +27,16 @@ public interface ApigeeXConfigurationService {
 			@RequestParam(value = "envFile") MultipartFile envFile, 
 			@RequestParam("org") String org) throws Exception;
 	
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/apigeex/configurations", consumes = {
+	"multipart/form-data"})
+	public ResponseEntity<Void> updateConfiguration(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "jsessionid") String jsessionid,
+			@RequestParam(value = "envFile") MultipartFile envFile, 
+			@RequestParam("org") String org) throws Exception;
+	
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/apigeex/configurations")
-	public ResponseEntity<?> getConfigurations(
+	public ResponseEntity<?> getConfigurations(                                                                                              
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "jsessionid") String jsessionid) throws Exception;
 	
@@ -36,7 +44,8 @@ public interface ApigeeXConfigurationService {
 	public ResponseEntity<?> getConfiguration(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "jsessionid") String jsessionid,
-			@PathVariable("org") String org) throws Exception;
+			@PathVariable("org") String org,
+			@RequestParam(value = "refresh", required = false) String refresh) throws Exception;
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/apigeex/configurations/{org}")
 	public ResponseEntity<?> createEnvironmentSchedule(
