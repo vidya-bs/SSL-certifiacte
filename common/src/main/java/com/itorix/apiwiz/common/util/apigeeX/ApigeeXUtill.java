@@ -104,12 +104,7 @@ public class ApigeeXUtill {
 		String tokenResponse = getToken(jwt);
 		// JSONObject payload = (JSONObject)
 		// JSONValue.parseWithException(tokenResponse);
-
 		JsonNode payload = mapper.readTree(tokenResponse);
-		// System.out.printf(
-		// "access_token: %s\n", ((String)
-		// (payload.get("access_token"))).replaceAll("\\.+$", ""));
-		// System.out.printf("expires_in: %s\n", payload.get("expires_in"));
 		return ((String) (payload.get("access_token").asText())).replaceAll("\\.+$", "");
 	}
 
@@ -207,9 +202,7 @@ public class ApigeeXUtill {
 	public String getProxies(String org) throws Exception {
 		String jsonKeyStr = getApigeeCredentials(org,"saas");
 		HttpHeaders headers = new HttpHeaders();
-		
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-		
 		headers.set("Authorization",  jsonKeyStr);
 		HttpEntity<String> httpEntity = new HttpEntity<String>(headers);
 		String url = HOST_URL + "/v1/organizations/" + org + "/apis";

@@ -90,7 +90,6 @@ public class PolicyPerformanceServiceImpl implements PolicyPerformanceService {
 			MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Object> preparePolicyPerformance(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestParam(value = "gwtype", required = false) String gwtype,
 			@RequestParam(value = "postmanFile", required = false) MultipartFile postmanFile,
 			@RequestParam(value = "envFile", required = false) MultipartFile envFile, @RequestParam("org") String org,
 			@RequestParam("env") String env, @RequestParam("proxy") String proxy,
@@ -115,7 +114,7 @@ public class PolicyPerformanceServiceImpl implements PolicyPerformanceService {
 		cfg.setVariableId(variableId);
 		cfg.setPostmanFile(postmanFile);
 		cfg.setEnvFile(envFile);
-		cfg.setGwtype(gwtype);
+		cfg.setGwtype(type);
 		cfg.setUserName(user.getFirstName() + " " + user.getLastName());
 		Object obj = policyPerformanceService.executePolicyPerformance(cfg);
 		return new ResponseEntity<Object>(obj, HttpStatus.OK);
