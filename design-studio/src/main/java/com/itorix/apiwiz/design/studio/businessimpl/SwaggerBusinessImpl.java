@@ -1375,7 +1375,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
             }
             
             if (vo.getPartners() != null) {
-	            ArrayNode partners = mapper.valueToTree(vo.getPartners());
+	            ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
 	            itemNode.putArray("partners").addAll(partners);
             }
             
@@ -1455,7 +1455,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
             }
             
             if (vo.getPartners() != null) {
-	            ArrayNode partners = mapper.valueToTree(vo.getPartners());
+	            ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
 	            itemNode.putArray("partners").addAll(partners);
             }
             
@@ -1597,7 +1597,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
             }
             
             if (vo.getPartners() != null) {
-	            ArrayNode partners = mapper.valueToTree(vo.getPartners());
+	            ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
 	            itemNode.putArray("partners").addAll(partners);
             }
             
@@ -1677,7 +1677,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
             }
             
             if (vo.getPartners() != null) {
-	            ArrayNode partners = mapper.valueToTree(vo.getPartners());
+	            ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
 	            itemNode.putArray("partners").addAll(partners);
             }
             
