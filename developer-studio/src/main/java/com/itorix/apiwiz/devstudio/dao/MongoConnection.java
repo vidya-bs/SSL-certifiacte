@@ -39,6 +39,7 @@ import com.itorix.apiwiz.common.model.proxystudio.ProxyData;
 import com.itorix.apiwiz.common.model.proxystudio.apigeeassociations.Deployments;
 import com.itorix.apiwiz.common.model.proxystudio.apigeeassociations.ProxyApigeeDetails;
 import com.itorix.apiwiz.devstudio.businessImpl.ApigeeDetails;
+import com.itorix.apiwiz.devstudio.businessImpl.ApigeeXDetails;
 import com.itorix.apiwiz.devstudio.model.Operations;
 import com.itorix.apiwiz.devstudio.model.ProxyHistoryResponse;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
@@ -66,6 +67,8 @@ public class MongoConnection {
 	private MongoTemplate mongoTemplate;
 	@Autowired
 	private ApigeeDetails apigeeDetails;
+	@Autowired
+	private ApigeeXDetails apigeeXDetails;
 	@Autowired
 	private Operations operations;
 
@@ -360,8 +363,14 @@ public class MongoConnection {
 		String deployedStatus = "";
 		ProxyData proxyData = getProxyHistory(proxy);
 		for (Env env : orgEnv.getEnvs()) {
-			ProxyApigeeDetails proxyApigeeDetails = apigeeDetails.getDetailsByProxy(proxyData, orgEnv.getName(),
+			ProxyApigeeDetails proxyApigeeDetails ;
+			if(orgEnv.getType()!= null && orgEnv.getType().equalsIgnoreCase("apigeex")){
+				proxyApigeeDetails = apigeeXDetails.getDetailsByProxy(proxyData, orgEnv.getName(),
+						env.getName(), orgEnv.getType());
+			}else{
+			 proxyApigeeDetails = apigeeDetails.getDetailsByProxy(proxyData, orgEnv.getName(),
 					env.getName(), orgEnv.getType());
+			}
 			proxyData.setProxyApigeeDetails(proxyApigeeDetails);
 			List<Deployments> deployments = proxyData.getProxyApigeeDetails().getDeployments();
 			String revision = "created";

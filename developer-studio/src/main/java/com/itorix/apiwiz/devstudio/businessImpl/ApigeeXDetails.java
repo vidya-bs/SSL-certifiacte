@@ -32,6 +32,7 @@ import com.itorix.apiwiz.common.model.proxystudio.ProxyData;
 import com.itorix.apiwiz.common.model.proxystudio.apigeeassociations.*;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
+import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.http.HTTPUtil;
 import com.itorix.apiwiz.identitymanagement.model.Apigee;
@@ -40,14 +41,15 @@ import com.itorix.apiwiz.identitymanagement.model.User;
 // import com.itorix.hyggee.common.model.proxystudio.Product;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Component("apigeeDetails")
-public class ApigeeDetails {
+@Component("apigeeXDetails")
+public class ApigeeXDetails {
 
 	@Autowired
 	private ApigeeUtil apigeeUtil;
 
 	@Autowired
-	private ApplicationProperties applicationProperties;
+	private ApigeeXUtill apigeeXUtil;
+
 
 	private HTTPUtil httpUtil;
 
@@ -103,13 +105,14 @@ public class ApigeeDetails {
 			deploymentList = new ArrayList<Deployments>();
 		} else {
 			deploymentList = proxyApigeeDetails.getDeployments();
-				if(CollectionUtils.isEmpty(deploymentList) || ObjectUtils.isEmpty(deploymentList.get(0)))
-					deploymentList = new ArrayList<Deployments>();
+			if(CollectionUtils.isEmpty(deploymentList) || ObjectUtils.isEmpty(deploymentList.get(0)))
+				deploymentList = new ArrayList<Deployments>();
 		}
 
 		try {
 			Deployments deployments = getDeploymentsByProxy(proxy, org, env, type);
 			for (Deployments deployment : deploymentList) {
+				if(deployment != null)
 				if (deployment.getOrg().equals(org) && deployment.getEnv().equals(env)
 						&& deployment.getType().equalsIgnoreCase(type)) {
 					deployment.setProxies(deployments.getProxies());
@@ -128,14 +131,43 @@ public class ApigeeDetails {
 
 	private Deployments getDeploymentsByProxy(String proxy, String org, String env, String type) {
 		try {
-			ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(org, type);
+			if(type != null && type.equalsIgnoreCase("apigeex")){
+				return getDeploymentsByApigeexProxy(proxy, org, env, type);
+			}else{
+				ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(org, type);
+				User user = new User();
+				Apigee apigee = new Apigee();
+				apigee.setUserName(apigeeServiceUser.getUserName());
+				apigee.setPassword(apigeeServiceUser.getPassword());
+				user.setApigee(apigee);
+				this.apigeeURL = apigeeUtil.getApigeeHost(type == null ? "saas" : type, org);
+				List<Proxy> proxyList = this.getProxyList(apigeeURL, proxy, org, env, user, type);
+				Map<String, List<String>> proxiesAndProductsLinkedMap = getAllProductsInOrganization(apigeeURL, user, org,
+						type);
+				Map<String, List<String>> productsAndAppsLinkedMap = getAllAppsInOrganization(apigeeURL, user, org, type);
+				for (Proxy proxyObj : proxyList) {
+					if (proxyObj.getName().equals(proxy))
+						proxyObj.setProducts(this.addProductsToProxies(user, org, proxy, proxiesAndProductsLinkedMap,
+								productsAndAppsLinkedMap, type));
+				}
+				Deployments deployments = new Deployments();
+				deployments.setEnv(env);
+				deployments.setOrg(org);
+				deployments.setType(type);
+				deployments.setProxies(proxyList);
+				return deployments;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private Deployments getDeploymentsByApigeexProxy(String proxy, String org, String env, String type) {
+		try {
 			User user = new User();
-			Apigee apigee = new Apigee();
-			apigee.setUserName(apigeeServiceUser.getUserName());
-			apigee.setPassword(apigeeServiceUser.getPassword());
-			user.setApigee(apigee);
-			this.apigeeURL = apigeeUtil.getApigeeHost(type == null ? "saas" : type, org);
-			List<Proxy> proxyList = this.getProxyList(apigeeURL, proxy, org, env, user, type);
+			this.apigeeURL = apigeeXUtil.getApigeeHost(org);
+			List<Proxy> proxyList = this.getXProxyList(apigeeURL, proxy, org, env, user, type);
 			Map<String, List<String>> proxiesAndProductsLinkedMap = getAllProductsInOrganization(apigeeURL, user, org,
 					type);
 			Map<String, List<String>> productsAndAppsLinkedMap = getAllAppsInOrganization(apigeeURL, user, org, type);
@@ -155,6 +187,7 @@ public class ApigeeDetails {
 		}
 		return null;
 	}
+
 
 	private Deployments getDeployments(String proxy, String org, String env, String type) {
 		try {
@@ -212,7 +245,7 @@ public class ApigeeDetails {
 			for (String appName : appList) {
 				DevApp appProductChildren = new DevApp();
 				appProductChildren.setName(appName);
-				appProductChildren.setEmailList(getDeveloperMail(apigeeURL, user, appName, organization, type));
+				//appProductChildren.setEmailList(getDeveloperMail(apigeeURL, user, appName, organization, type));
 				devAppChildrenList.add(appProductChildren);
 			}
 		}
@@ -222,7 +255,17 @@ public class ApigeeDetails {
 	public Map<String, List<String>> getAllProductsInOrganization(String apigeeHost, User user, String organization,
 			String type) throws IOException {
 		Map<String, List<String>> proxyProductLinkMap = new HashMap<String, List<String>>();
-		String apigeeCred = apigeeUtil.getApigeeAuth(organization, type);
+		String apigeeCred = null;
+		if(type != null && type.equalsIgnoreCase("apigeex")){
+			apigeeHost = apigeeHost + "/";
+			try {
+				apigeeCred = apigeeXUtil.getApigeeCredentials(organization, type);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}else{
+			apigeeCred = apigeeUtil.getApigeeAuth(organization, type);
+		}
 		httpUtil.setBasicAuth(apigeeCred);
 		httpUtil.setuRL(apigeeHost + "v1/organizations/" + organization + "/apiproducts");
 		try {
@@ -230,39 +273,41 @@ public class ApigeeDetails {
 			HttpStatus statusCode = response.getStatusCode();
 			if (statusCode.is2xxSuccessful()) {
 				String apiProductsString = response.getBody();
-				JSONArray apiProducts = (JSONArray) JSONSerializer.toJSON(apiProductsString);
+				JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductsString);
+				//JSONArray apiProducts = (JSONArray) JSONSerializer.toJSON(apiProductsString);
+				JSONArray apiProducts = (JSONArray) proxyObject.get("apiProduct");
 				JSONArray productsData = new JSONArray();
 				for (Object apiObj : apiProducts) {
 					try{
-					final String apiProduct = (String) apiObj;
-					// If string contains spaces, it will not allow to process.
-					productsData.add(apiProduct);
-					String productUrl = apigeeHost + "v1/organizations/" + organization + "/apiproducts/" + apiProduct;
-					//productUrl = productUrl.replace(" ", "%20");
-					httpUtil.setBasicAuth(apigeeCred);
-					httpUtil.setuRL(productUrl);
-					response = makeCall(httpUtil, "GET");
-					String apiProductString = response.getBody();
-					ObjectMapper objectMapper = new ObjectMapper();
-					APIProduct productObj = new APIProduct();
-					productObj = objectMapper.readValue(apiProductString, APIProduct.class);
-					for (Object proxyName : productObj.getProxies()) {
-						String proxyLinkedInProduct = (String) proxyName;
-						if (proxyProductLinkMap.containsKey(proxyLinkedInProduct)) {
-							proxyProductLinkMap.get(proxyLinkedInProduct).add(productObj.getName());
-						} else {
-							List<String> products = new ArrayList<String>();
-							products.add(productObj.getName());
-							proxyProductLinkMap.put(proxyLinkedInProduct, products);
+						JSONObject prodObj = (JSONObject) apiObj;
+						final String apiProduct = (String) prodObj.get("name");
+						// If string contains spaces, it will not allow to process.
+						productsData.add(apiProduct);
+						String productUrl = apigeeHost + "v1/organizations/" + organization + "/apiproducts/" + apiProduct;
+						//productUrl = productUrl.replace(" ", "%20");
+						httpUtil.setBasicAuth(apigeeCred);
+						httpUtil.setuRL(productUrl);
+						response = makeCall(httpUtil, "GET");
+						String apiProductString = response.getBody();
+						ObjectMapper objectMapper = new ObjectMapper();
+						APIProduct productObj = new APIProduct();
+						productObj = objectMapper.readValue(apiProductString, APIProduct.class);
+						for (Object proxyName : productObj.getProxies()) {
+							String proxyLinkedInProduct = (String) proxyName;
+							if (proxyProductLinkMap.containsKey(proxyLinkedInProduct)) {
+								proxyProductLinkMap.get(proxyLinkedInProduct).add(productObj.getName());
+							} else {
+								List<String> products = new ArrayList<String>();
+								products.add(productObj.getName());
+								proxyProductLinkMap.put(proxyLinkedInProduct, products);
+							}
 						}
+						Thread.sleep(2);
+					}catch (HttpClientErrorException ex){
+						ex.printStackTrace();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
-					Thread.sleep(2);
-				}catch (HttpClientErrorException ex){
-					ex.printStackTrace();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 				}
 			}
 		} catch (IOException e) {
@@ -273,52 +318,64 @@ public class ApigeeDetails {
 
 	public Map<String, List<String>> getAllAppsInOrganization(String apigeeHost, User user, String organization,
 			String type) throws IOException {
-		String apigeeCred = apigeeUtil.getApigeeAuth(organization, type);
 		Map<String, List<String>> productsAppsLinkedMap = new HashMap<String, List<String>>();
+		String apigeeCred = null;
+		if(type != null && type.equalsIgnoreCase("apigeex")){
+			apigeeHost = apigeeHost + "/";
+			try {
+				apigeeCred = apigeeXUtil.getApigeeCredentials(organization, type);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}else{
+			apigeeCred = apigeeUtil.getApigeeAuth(organization, type);
+		}
 		httpUtil.setBasicAuth(apigeeCred);
-		httpUtil.setuRL(apigeeHost + "v1/organizations/" + organization + "/apiproducts");
+		httpUtil.setuRL(apigeeHost + "v1/organizations/" + organization + "/apps");
 		ResponseEntity<String> response = makeCall(httpUtil, "GET");
 		HttpStatus statusCode = response.getStatusCode();
 		if (statusCode.is2xxSuccessful()) {
 			String appsString = response.getBody();
-			JSONArray apps = (JSONArray) JSONSerializer.toJSON(appsString);
-			for (Object appObj : apps) {
-				@SuppressWarnings("unused")
-				final String app = (String) appObj;
+			JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(appsString);
+			JSONArray apps = (JSONArray) (JSONArray) proxyObject.get("app");
+			for (Object devObj : apps) {
+//				@SuppressWarnings("unused")
+//				final String app = (String) appObj;
 				try {
-					httpUtil.setBasicAuth(apigeeCred);
-					httpUtil.setuRL(apigeeHost + "/v1/organizations/" + organization + "/apps/");
-					response = makeCall(httpUtil, "GET");
-					String developerAppString = response.getBody();
+//					httpUtil.setBasicAuth(apigeeCred);
+//					httpUtil.setuRL(apigeeHost + "/v1/organizations/" + organization + "/apps/");
+//					response = makeCall(httpUtil, "GET");
+//					String developerAppString = response.getBody();
 					ObjectMapper objectMapper = new ObjectMapper();
-					JSONArray devApps = (JSONArray) JSONSerializer.toJSON(developerAppString);
-					for (Object devObj : devApps) {
+//					JSONArray devApps = (JSONArray) JSONSerializer.toJSON(developerAppString);
+//					for (Object devObj : devApps) {
 						try{
-						final String devApp = (String) devObj;
-						httpUtil.setBasicAuth(apigeeCred);
-						httpUtil.setuRL(apigeeHost + "/v1/organizations/" + organization + "/apps/" + devApp);
-						response = makeCall(httpUtil, "GET");
-						String developerApp = response.getBody();
-						App appObject = new App();
-						appObject = objectMapper.readValue(developerApp, App.class);
-						List<String> productsLinked = getAllProductsFromAppCredentials(appObject);
-						for (String apiProduct : productsLinked) {
-							if (productsAppsLinkedMap.containsKey(apiProduct)) {
-								for (Object productObjectName : appObject.getApiProducts()) {
-									productsAppsLinkedMap.get(apiProduct).add((String) productObjectName);
+							JSONObject appObj = (JSONObject) devObj;
+							final String devApp = (String) appObj.get("appId");
+							httpUtil.setBasicAuth(apigeeCred);
+							httpUtil.setuRL(apigeeHost + "/v1/organizations/" + organization + "/apps/" + devApp);
+							response = makeCall(httpUtil, "GET");
+							String developerApp = response.getBody();
+							App appObject = new App();
+							appObject = objectMapper.readValue(developerApp, App.class);
+							List<String> productsLinked = getAllProductsFromAppCredentials(appObject);
+							for (String apiProduct : productsLinked) {
+								if (productsAppsLinkedMap.containsKey(apiProduct)) {
+									for (Object productObjectName : appObject.getApiProducts()) {
+										productsAppsLinkedMap.get(apiProduct).add((String) productObjectName);
+									}
+								} else {
+									List<String> appsLinked = new ArrayList<String>();
+									appsLinked.add(appObject.getName());
+									productsAppsLinkedMap.put(apiProduct, appsLinked);
 								}
-							} else {
-								List<String> appsLinked = new ArrayList<String>();
-								appsLinked.add(appObject.getName());
-								productsAppsLinkedMap.put(apiProduct, appsLinked);
 							}
-						}
 						} catch (HttpClientErrorException e){
-							
+
 						}
 						Thread.sleep(2);
-					}
-					
+					//}
+
 				} catch (IOException | InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -409,6 +466,53 @@ public class ApigeeDetails {
 		}
 		return null;
 	}
+	
+	
+	
+	private List<Proxy> getXProxyList(String apigeeHost, String proxy, String organization, String env, User user,
+			String type) {
+		String apigeeCred = null;
+		try {
+			apigeeHost = apigeeXUtil.getApigeeHost(organization) + "/";
+			apigeeCred = apigeeXUtil.getApigeeCredentials(organization, type);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		httpUtil.setBasicAuth(apigeeCred);
+		httpUtil.setuRL(apigeeHost + "v1/organizations/" + organization + "/apis/" + proxy + "/deployments");
+		JSONObject proxyObject = null;
+		try {
+			ResponseEntity<String> response = makeCall(httpUtil, "GET");
+			HttpStatus statusCode = response.getStatusCode();
+			if (statusCode.is2xxSuccessful()) {
+				String stringResponse = response.getBody();
+				proxyObject = (JSONObject) JSONSerializer.toJSON(stringResponse);
+				List<Proxy> childList = new ArrayList<Proxy>();
+				if (null != proxyObject) {
+					JSONArray proxyList = (JSONArray) proxyObject.get("deployments");
+					if (null != proxyList) {
+						for (Object object : proxyList) {
+							JSONObject proxyObj = (JSONObject) object;
+							String envName = (String) proxyObj.get("environment");
+							if (envName.equals(env)) {
+								String revision = (String) proxyObj.get("revision");
+								Proxy proxyChild = new Proxy();
+								proxyChild.setName(proxy);
+								proxyChild.setRevision(revision);
+								childList.add(proxyChild);
+							}
+						}
+					}
+				}
+				return childList;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
 
 	private ResponseEntity<String> makeCall(HTTPUtil httpUtil, String method) {
 		ResponseEntity<String> response = null;
