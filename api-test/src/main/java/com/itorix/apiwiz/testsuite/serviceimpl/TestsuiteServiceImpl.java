@@ -4,14 +4,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.proxystudio.SwaggerVO;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.TenantContext;
 import com.itorix.apiwiz.identitymanagement.model.User;
+import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.itorix.apiwiz.testsuite.dao.TestSuiteDAO;
+import com.itorix.apiwiz.testsuite.download.TestSuiteReport;
 import com.itorix.apiwiz.testsuite.model.*;
 import com.itorix.apiwiz.testsuite.service.TestSuiteService;
+
+import io.swagger.v3.core.util.Json;
+
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -30,6 +36,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
@@ -39,8 +46,14 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
+import javax.xml.transform.TransformerException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -49,6 +62,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
 @CrossOrigin
 @RestController
@@ -65,6 +80,8 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 	@Autowired
 	private IdentityManagementDao commonServices;
 
+	@Autowired
+	private TestSuiteReport testSuiteReport;
 	@Value("${itorix.testsuit.agent:null}")
 	private String testSuitAgentPath;
 
@@ -315,6 +332,35 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 			HttpServletResponse response) throws JsonProcessingException, ItorixException {
 		return new ResponseEntity<>(dao.getTestSuiteResponseById(testsuiteresponseid), HttpStatus.OK);
 	}
+	
+	
+	
+	
+	public void getTestSuiteReportById(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid,
+			HttpServletRequest request, @PathVariable("testsuiteresponseid") String testsuiteresponseid,
+			@RequestParam(value = "format", required = false, defaultValue = "pdf") String format,
+			HttpServletResponse response) throws ItorixException {
+			TestSuiteResponse testresponse=dao.getTestSuiteResponseById(testsuiteresponseid);
+				try {
+					OutputStream output=testSuiteReport.getReport(testresponse, format);
+					ByteArrayOutputStream bos = (ByteArrayOutputStream)output;
+					InputStream inputStream = new ByteArrayInputStream(bos.toByteArray());
+								response.setContentType("application/octet-stream");
+								response.setHeader("Content-Disposition", String.format("inline; filename=\"pdfFile\""));
+								FileCopyUtils.copy(inputStream, response.getOutputStream());
+					        
+				} catch (IOException | TransformerException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+	}
+	
+	
+	
+	
 
 	public RestTemplate getRestTemplate() {
 
