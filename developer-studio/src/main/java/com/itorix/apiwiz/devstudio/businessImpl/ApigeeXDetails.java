@@ -62,6 +62,8 @@ public class ApigeeXDetails {
 
 	@Value("${itorix.core.apigee.edge.retry.timeout}")
 	private int retryTimeout;
+	
+	private Map<String, String> appsMap = new HashMap<>();
 
 	public ProxyData getDetails(ProxyData proxyData, User user) {
 		String proxy = proxyData.getProxyName();
@@ -113,11 +115,11 @@ public class ApigeeXDetails {
 			Deployments deployments = getDeploymentsByProxy(proxy, org, env, type);
 			for (Deployments deployment : deploymentList) {
 				if(deployment != null)
-				if (deployment.getOrg().equals(org) && deployment.getEnv().equals(env)
-						&& deployment.getType().equalsIgnoreCase(type)) {
-					deployment.setProxies(deployments.getProxies());
-					updated = true;
-				}
+					if (deployment.getOrg().equals(org) && deployment.getEnv().equals(env)
+							&& deployment.getType().equalsIgnoreCase(type)) {
+						deployment.setProxies(deployments.getProxies());
+						updated = true;
+					}
 			}
 			if (!updated)
 				deploymentList.add(deployments);
@@ -239,13 +241,14 @@ public class ApigeeXDetails {
 
 	private List<DevApp> addDeveloperAppsToProducts(User user, String product, String organization,
 			Map<String, List<String>> productsAndAppsLinkedMap, String type) throws IOException {
+		this.apigeeURL = apigeeXUtil.getApigeeHost(organization) + "/";
 		List<DevApp> devAppChildrenList = new ArrayList<DevApp>();
 		List<String> appList = productsAndAppsLinkedMap.get(product);
 		if (null != appList && appList.size() > 0) {
 			for (String appName : appList) {
 				DevApp appProductChildren = new DevApp();
 				appProductChildren.setName(appName);
-				//appProductChildren.setEmailList(getDeveloperMail(apigeeURL, user, appName, organization, type));
+				appProductChildren.setEmailList(getDeveloperMail(apigeeURL, user, appName, organization, type));
 				devAppChildrenList.add(appProductChildren);
 			}
 		}
@@ -274,7 +277,6 @@ public class ApigeeXDetails {
 			if (statusCode.is2xxSuccessful()) {
 				String apiProductsString = response.getBody();
 				JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductsString);
-				//JSONArray apiProducts = (JSONArray) JSONSerializer.toJSON(apiProductsString);
 				JSONArray apiProducts = (JSONArray) proxyObject.get("apiProduct");
 				JSONArray productsData = new JSONArray();
 				for (Object apiObj : apiProducts) {
@@ -339,45 +341,31 @@ public class ApigeeXDetails {
 			JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(appsString);
 			JSONArray apps = (JSONArray) (JSONArray) proxyObject.get("app");
 			for (Object devObj : apps) {
-//				@SuppressWarnings("unused")
-//				final String app = (String) appObj;
-				try {
-//					httpUtil.setBasicAuth(apigeeCred);
-//					httpUtil.setuRL(apigeeHost + "/v1/organizations/" + organization + "/apps/");
-//					response = makeCall(httpUtil, "GET");
-//					String developerAppString = response.getBody();
+				try{
 					ObjectMapper objectMapper = new ObjectMapper();
-//					JSONArray devApps = (JSONArray) JSONSerializer.toJSON(developerAppString);
-//					for (Object devObj : devApps) {
-						try{
-							JSONObject appObj = (JSONObject) devObj;
-							final String devApp = (String) appObj.get("appId");
-							httpUtil.setBasicAuth(apigeeCred);
-							httpUtil.setuRL(apigeeHost + "/v1/organizations/" + organization + "/apps/" + devApp);
-							response = makeCall(httpUtil, "GET");
-							String developerApp = response.getBody();
-							App appObject = new App();
-							appObject = objectMapper.readValue(developerApp, App.class);
-							List<String> productsLinked = getAllProductsFromAppCredentials(appObject);
-							for (String apiProduct : productsLinked) {
-								if (productsAppsLinkedMap.containsKey(apiProduct)) {
-									for (Object productObjectName : appObject.getApiProducts()) {
-										productsAppsLinkedMap.get(apiProduct).add((String) productObjectName);
-									}
-								} else {
-									List<String> appsLinked = new ArrayList<String>();
-									appsLinked.add(appObject.getName());
-									productsAppsLinkedMap.put(apiProduct, appsLinked);
-								}
+					JSONObject appObj = (JSONObject) devObj;
+					final String devApp = (String) appObj.get("appId");
+					httpUtil.setBasicAuth(apigeeCred);
+					httpUtil.setuRL(apigeeHost + "/v1/organizations/" + organization + "/apps/" + devApp);
+					response = makeCall(httpUtil, "GET");
+					String developerApp = response.getBody();
+					App appObject = new App();
+					appObject = objectMapper.readValue(developerApp, App.class);
+					List<String> productsLinked = getAllProductsFromAppCredentials(appObject);
+					appsMap.put(appObject.getName(), devApp);
+					for (String apiProduct : productsLinked) {
+						if (productsAppsLinkedMap.containsKey(apiProduct)) {
+							for (Object productObjectName : appObject.getApiProducts()) {
+								productsAppsLinkedMap.get(apiProduct).add((String) productObjectName);
 							}
-						} catch (HttpClientErrorException e){
-
+						} else {
+							List<String> appsLinked = new ArrayList<String>();
+							appsLinked.add(appObject.getName());
+							productsAppsLinkedMap.put(apiProduct, appsLinked);
 						}
-						Thread.sleep(2);
-					//}
+					}
+				} catch (HttpClientErrorException e){
 
-				} catch (IOException | InterruptedException e) {
-					e.printStackTrace();
 				}
 			}
 		}
@@ -395,28 +383,55 @@ public class ApigeeXDetails {
 	public List<String> getDeveloperMail(String apigeeHost, User user, String devAppName, String organization,
 			String type) {
 		try {
-
-			httpUtil.setBasicAuth(apigeeUtil.getApigeeAuth(organization, type));
-			httpUtil.setuRL(apigeeHost + "v1/organizations/" + organization + "/developers?app=" + devAppName);
-			ResponseEntity<String> response = makeCall(httpUtil, "GET");
-			HttpStatus statusCode = response.getStatusCode();
-			if (statusCode.is2xxSuccessful()) {
-				JSONObject developer = (JSONObject) JSONSerializer.toJSON(response.getBody());
-				ObjectMapper objectMapper = new ObjectMapper();
-				JSONArray email = (JSONArray) JSONSerializer
-						.toJSON(objectMapper.writeValueAsString(developer.get("developer")));
-				List<String> mailList = new ArrayList<String>();
-				for (int i = 0; i < email.size(); i++) {
-					JSONObject mail = (JSONObject) email.get(0);
-					mailList.add((String) mail.get("email"));
-				}
-				return mailList;
-			}
-		} catch (IOException e) {
+			List<String> mailList = new ArrayList<String>();
+			String id = appsMap.get(devAppName);
+			String mail = getDeveloperId(apigeeHost, user, id, organization, type);
+			mailList.add(mail);
+			return mailList;
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
+	
+	
+	
+	public String getDeveloperId(String apigeeHost, User user, String AppId, String organization,
+			String type) {
+		try {
+			httpUtil.setBasicAuth(apigeeXUtil.getApigeeCredentials(organization, type));
+			httpUtil.setuRL(apigeeHost + "v1/organizations/" + organization + "/apps/" + AppId);
+			ResponseEntity<String> response = makeCall(httpUtil, "GET");
+			HttpStatus statusCode = response.getStatusCode();
+			if (statusCode.is2xxSuccessful()) {
+				JSONObject devApp = (JSONObject) JSONSerializer.toJSON(response.getBody());
+				String developerId = (String) devApp.get("developerId");
+				return getDeveloperMailId(apigeeHost, user, developerId, organization, type);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public String getDeveloperMailId(String apigeeHost, User user, String AppId, String organization,
+			String type) {
+		try {
+			httpUtil.setBasicAuth(apigeeXUtil.getApigeeCredentials(organization, type));
+			httpUtil.setuRL(apigeeHost + "v1/organizations/" + organization + "/developers/" + AppId);
+			ResponseEntity<String> response = makeCall(httpUtil, "GET");
+			HttpStatus statusCode = response.getStatusCode();
+			if (statusCode.is2xxSuccessful()) {
+				JSONObject devApp = (JSONObject) JSONSerializer.toJSON(response.getBody());
+				String developerMail = (String) devApp.get("email");
+				return developerMail;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 
 	private List<String> getAllProductsFromAppCredentials(App app) {
 		List<Credential> credentialList = new ArrayList<Credential>();
@@ -466,9 +481,9 @@ public class ApigeeXDetails {
 		}
 		return null;
 	}
-	
-	
-	
+
+
+
 	private List<Proxy> getXProxyList(String apigeeHost, String proxy, String organization, String env, User user,
 			String type) {
 		String apigeeCred = null;
@@ -511,8 +526,8 @@ public class ApigeeXDetails {
 		}
 		return null;
 	}
-	
-	
+
+
 
 	private ResponseEntity<String> makeCall(HTTPUtil httpUtil, String method) {
 		ResponseEntity<String> response = null;
