@@ -58,6 +58,7 @@ import com.itorix.apiwiz.common.model.proxystudio.ProxyArtifacts;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.service.GridFsRepository;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
+import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
@@ -95,6 +96,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	private JfrogUtilImpl jfrogUtil;
 	@Autowired
 	private ApigeeUtil apigeeUtil;
+
+	@Autowired
+	private ApigeeXUtill apigeeXUtil;
 	@Autowired
 	private IntegrationsDataDao integrationsDao;
 	@Autowired
@@ -174,31 +178,40 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * @param type
 	 * 
 	 * @return
-	 * 
-	 * @throws ItorixException
+	 * @throws ItorixException 
 	 */
 	public String getAPIsDeployedToEnvironment(String jsessionid, String organization, String environment,
 			String interactionid, String type) throws ItorixException {
 		logger.debug("OrganizationDataMigrationService.getAPIsDeployedToEnvironment");
-		CommonConfiguration cfg = new CommonConfiguration();
-		cfg.setType(type);
-		cfg.setOrganization(organization);
-		cfg.setEnvironment(environment);
-		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(organization, type);
-		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
-		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
-		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		return apigeeUtil.getAPIsDeployedToEnvironment(cfg);
+		if(type != null && type.equalsIgnoreCase("apigeex")){
+			try {
+				return apigeeXUtil.getProxies(organization);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+		else{
+			CommonConfiguration cfg = new CommonConfiguration();
+			cfg.setType(type);
+			cfg.setOrganization(organization);
+			cfg.setEnvironment(environment);
+			ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(organization, type);
+			cfg.setApigeeEmail(apigeeServiceUser.getUserName());
+			cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
+			cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
+			return apigeeUtil.getAPIsDeployedToEnvironment(cfg);
+		}
 	}
 
-	
+
 	public ProxyBackUpInfo scheduleBackupProxies(CommonConfiguration cfg){
 		ProxyBackUpInfo proxyBackUpInfo = new ProxyBackUpInfo();
 		proxyBackUpInfo.setOrganization(cfg.getOrganization());
 		proxyBackUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		proxyBackUpInfo.setOperationId(cfg.getOperationId());
 		proxyBackUpInfo = baseRepository.save(proxyBackUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("BackupProxies");
@@ -207,7 +220,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		baseRepository.save(backupEvent);
 		return proxyBackUpInfo;
 	}
-	 
+
 	/**
 	 * This method will do the backup of api's or proxies.
 	 *
@@ -309,14 +322,14 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		}
 		return backupInfo;
 	}
-	
+
 	public SharedflowBackUpInfo scheduleBackupSharedflows(CommonConfiguration cfg){
 		SharedflowBackUpInfo sharedflowBackUpInfo = new SharedflowBackUpInfo();
 		sharedflowBackUpInfo.setOrganization(cfg.getOrganization());
 		sharedflowBackUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		sharedflowBackUpInfo.setOperationId(cfg.getOperationId());
 		sharedflowBackUpInfo = baseRepository.save(sharedflowBackUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("BackupSharedflow");
@@ -325,7 +338,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		baseRepository.save(backupEvent);
 		return sharedflowBackUpInfo;
 	}
-	
+
 	/**
 	 * This method will do the backup of shared flows.
 	 *
@@ -409,14 +422,14 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		}
 		return backupInfo;
 	}
-	
+
 	public AppBackUpInfo scheduleBackUpApps(CommonConfiguration cfg){
 		AppBackUpInfo backUpInfo = new AppBackUpInfo();
 		backUpInfo.setOrganization(cfg.getOrganization());
 		backUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		backUpInfo.setOperationId(cfg.getOperationId());
 		backUpInfo = baseRepository.save(backUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("BackupApps");
@@ -425,7 +438,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		baseRepository.save(backupEvent);
 		return backUpInfo;
 	}
-	
+
 
 	/**
 	 * This method will do the backup of apps.
@@ -446,7 +459,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			appBackupInfo = baseRepository.findById(id, AppBackUpInfo.class);
 		}else
 			appBackupInfo= new AppBackUpInfo();
-		
+
 		try {
 			ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(),
 					cfg.getType());
@@ -512,14 +525,14 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		}
 		return backupInfo;
 	}
-	
+
 	public ProductsBackUpInfo scheduleBackupProducts(CommonConfiguration cfg){
 		ProductsBackUpInfo backUpInfo = new ProductsBackUpInfo();
 		backUpInfo.setOrganization(cfg.getOrganization());
 		backUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		backUpInfo.setOperationId(cfg.getOperationId());
 		backUpInfo = baseRepository.save(backUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("BackupProducts");
@@ -618,14 +631,14 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 
 		return backupInfo;
 	}
-	
+
 	public DeveloperBackUpInfo scheduleBackupDevelopers(CommonConfiguration cfg){
 		DeveloperBackUpInfo backUpInfo = new DeveloperBackUpInfo();
 		backUpInfo.setOrganization(cfg.getOrganization());
 		backUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		backUpInfo.setOperationId(cfg.getOperationId());
 		backUpInfo = baseRepository.save(backUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("BackupDevelopers");
@@ -722,14 +735,14 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 
 		return backupInfo;
 	}
-	
+
 	public ResourceBackUpInfo scheduleBackupResources(CommonConfiguration cfg){
 		ResourceBackUpInfo backUpInfo = new ResourceBackUpInfo();
 		backUpInfo.setOrganization(cfg.getOrganization());
 		backUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		backUpInfo.setOperationId(cfg.getOperationId());
 		backUpInfo = baseRepository.save(backUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("BackupResources");
@@ -824,15 +837,15 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		}
 		return backupInfo;
 	}
-	
-	
+
+
 	public OrgBackUpInfo scheduleBackupOrganization(CommonConfiguration cfg){
 		OrgBackUpInfo backUpInfo = new OrgBackUpInfo();
 		backUpInfo.setOrganization(cfg.getOrganization());
 		backUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		backUpInfo.setOperationId(cfg.getOperationId());
 		backUpInfo = baseRepository.save(backUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("BackupOrganization");
@@ -861,7 +874,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			consoleInfo = baseRepository.findById(id, OrgBackUpInfo.class);
 		}else
 			consoleInfo = new OrgBackUpInfo();
-		
+
 		try {
 
 			long start = System.currentTimeMillis();
@@ -941,14 +954,14 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 
 		return backupInfo;
 	}
-	
+
 	public ResourceBackUpInfo scheduleBackupCaches(CommonConfiguration cfg){
 		ResourceBackUpInfo backUpInfo = new ResourceBackUpInfo();
 		backUpInfo.setOrganization(cfg.getOrganization());
 		backUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		backUpInfo.setOperationId(cfg.getOperationId());
 		backUpInfo = baseRepository.save(backUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("BackupCaches");
@@ -977,7 +990,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			resourceBackupInfo = baseRepository.findById(id, ResourceBackUpInfo.class);
 		}else
 			resourceBackupInfo = new ResourceBackUpInfo();
-		
+
 		try {
 			ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(),
 					cfg.getType());
@@ -1043,14 +1056,14 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		}
 		return backupInfo;
 	}
-	
+
 	public ResourceBackUpInfo scheduleBackupKVM(boolean delete, CommonConfiguration cfg){
 		ResourceBackUpInfo backUpInfo = new ResourceBackUpInfo();
 		backUpInfo.setOrganization(cfg.getOrganization());
 		backUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		backUpInfo.setOperationId(cfg.getOperationId());
 		backUpInfo = baseRepository.save(backUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("BackupKVM");
@@ -1060,7 +1073,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		baseRepository.save(backupEvent);
 		return backUpInfo;
 	}
-	
+
 	/**
 	 * This method will do the backup of KVM's.
 	 *
@@ -1080,7 +1093,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			resourceBackupInfo = baseRepository.findById(id, ResourceBackUpInfo.class);
 		}else
 			resourceBackupInfo = new ResourceBackUpInfo();
-		
+
 		try {
 			ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(),
 					cfg.getType());
@@ -1146,14 +1159,14 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		}
 		return backupInfo;
 	}
-	
+
 	public ResourceBackUpInfo scheduleBackupTargetServers(CommonConfiguration cfg){
 		ResourceBackUpInfo backUpInfo = new ResourceBackUpInfo();
 		backUpInfo.setOrganization(cfg.getOrganization());
 		backUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		backUpInfo.setOperationId(cfg.getOperationId());
 		backUpInfo = baseRepository.save(backUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("BackupTargetServers");
@@ -1248,14 +1261,14 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 
 		return backupInfo;
 	}
-	
+
 	public DeveloperBackUpInfo scheduleRestoreDevelopers(CommonConfiguration cfg){
 		DeveloperBackUpInfo backUpInfo = new DeveloperBackUpInfo();
 		backUpInfo.setOrganization(cfg.getOrganization());
 		backUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		backUpInfo.setOperationId(cfg.getOperationId());
 		backUpInfo = baseRepository.save(backUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("RestoreDevelopers");
@@ -1345,15 +1358,15 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		// FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
 		return "Success";
 	}
-	
-	
+
+
 	public ResourceBackUpInfo scheduleRestoreResources(CommonConfiguration cfg){
 		ResourceBackUpInfo backUpInfo = new ResourceBackUpInfo();
 		backUpInfo.setOrganization(cfg.getOrganization());
 		backUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		backUpInfo.setOperationId(cfg.getOperationId());
 		backUpInfo = baseRepository.save(backUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("RestoreResources");
@@ -2498,14 +2511,14 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		return "Success";
 	}
 
-	
+
 	public AppBackUpInfo scheduleRestoreApps(CommonConfiguration cfg){
 		AppBackUpInfo backUpInfo = new AppBackUpInfo();
 		backUpInfo.setOrganization(cfg.getOrganization());
 		backUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		backUpInfo.setOperationId(cfg.getOperationId());
 		backUpInfo = baseRepository.save(backUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("RestoreApps");
@@ -2514,7 +2527,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		baseRepository.save(backupEvent);
 		return backUpInfo;
 	}
-	
+
 	public BackupInfo restoreAPPs(CommonConfiguration cfg, String id) throws IOException, InterruptedException, ItorixException {
 		logger.debug("OrganizationDataMigrationService.restoreAPPs : interactionid=" + cfg.getInteractionid()
 		+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
@@ -2589,11 +2602,11 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 					if(ObjectUtils.isNotEmpty(appBackup.get("scopes")))
 						request.put("scopes", appBackup.get("scopes"));
 					if(ObjectUtils.isNotEmpty(appBackup.get("accessType")))
-					request.put("accessType", appBackup.get("accessType"));
+						request.put("accessType", appBackup.get("accessType"));
 					if(ObjectUtils.isNotEmpty(appBackup.get("appFamily")))
-					request.put("appFamily", appBackup.get("appFamily"));
+						request.put("appFamily", appBackup.get("appFamily"));
 					if(ObjectUtils.isNotEmpty(appBackup.get("attributes")))
-					request.put("attributes", appBackup.get("attributes"));
+						request.put("attributes", appBackup.get("attributes"));
 
 					final String finalDeveloperEmail = developerEmail;
 					cfg.setDeveloperEmail(finalDeveloperEmail);
@@ -2630,7 +2643,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 							JSONObject consumerKeyRequest = new JSONObject();
 							consumerKeyRequest.put("consumerKey", consumerKey);
 							consumerKeyRequest.put("consumerSecret", consumerSecret);
-							
+
 							apigeeUtil.createdeveloperKeysForDeveloperApp(cfg, consumerKeyRequest.toString());
 
 							JSONArray backupProducts = backupCredential.getJSONArray("apiProducts");
@@ -2670,7 +2683,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		backUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		backUpInfo.setOperationId(cfg.getOperationId());
 		backUpInfo = baseRepository.save(backUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("RestoreProducts");
@@ -2679,7 +2692,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		baseRepository.save(backupEvent);
 		return backUpInfo;
 	}
-	
+
 	public BackupInfo restoreAPIProducts1(CommonConfiguration cfg, String id) throws Exception {
 		logger.debug("OrganizationDataMigrationService.restoreAPIProducts1 : interactionid=" + cfg.getInteractionid()
 		+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
@@ -2691,7 +2704,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			productsBackupInfo = baseRepository.findById(id, ProductsBackUpInfo.class);
 		}else
 			productsBackupInfo = new ProductsBackUpInfo();
-		
+
 		productsBackupInfo.setOrganization(cfg.getOrganization());
 		productsBackupInfo.setStatus(Constants.STATUS_INPROGRESS);
 		productsBackupInfo.setOperationId(cfg.getOperationId());
@@ -2768,16 +2781,16 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 
 		return "Success";
 	}
-	
-	
-	
+
+
+
 	public ProxyBackUpInfo scheduleRestoreApiProxies(CommonConfiguration cfg){
 		ProxyBackUpInfo backUpInfo = new ProxyBackUpInfo();
 		backUpInfo.setOrganization(cfg.getOrganization());
 		backUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		backUpInfo.setOperationId(cfg.getOperationId());
 		backUpInfo = baseRepository.save(backUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("RestoreApiProxies");
@@ -2798,7 +2811,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			proxyBackUpInfo = baseRepository.findById(id, ProxyBackUpInfo.class);
 		}else
 			proxyBackUpInfo = new ProxyBackUpInfo();
-		
+
 		proxyBackUpInfo.setOrganization(cfg.getOrganization());
 		proxyBackUpInfo.setStatus(Constants.STATUS_INPROGRESS);
 		proxyBackUpInfo.setOperationId(cfg.getOperationId());
@@ -2817,14 +2830,14 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		backupInfo = proxyBackUpInfo;
 		return backupInfo;
 	}
-	
+
 	public SharedflowBackUpInfo scheduleRestoreSharedflows(CommonConfiguration cfg){
 		SharedflowBackUpInfo backUpInfo = new SharedflowBackUpInfo();
 		backUpInfo.setOrganization(cfg.getOrganization());
 		backUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		backUpInfo.setOperationId(cfg.getOperationId());
 		backUpInfo = baseRepository.save(backUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("RestoreSharedFlows");
@@ -2841,7 +2854,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		long start = System.currentTimeMillis();
 		BackupInfo backupInfo = null;
 		SharedflowBackUpInfo sharedflowBackUpInfo;
-		
+
 		if(id != null){
 			sharedflowBackUpInfo = baseRepository.findById(id, SharedflowBackUpInfo.class);
 		}else
@@ -2867,7 +2880,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		backUpInfo.setStatus(Constants.STATUS_SCHEDULED);
 		backUpInfo.setOperationId(cfg.getOperationId());
 		backUpInfo = baseRepository.save(backUpInfo);
-		
+
 		BackupEvent backupEvent = new BackupEvent();
 		backupEvent.setCfg(cfg);
 		backupEvent.setEvent("RestoreOrganization");
@@ -2876,8 +2889,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		baseRepository.save(backupEvent);
 		return backUpInfo;
 	}
-	
-	
+
+
 	public BackupInfo restoreOrganization(CommonConfiguration cfg, String id) throws Exception {
 		logger.debug("OrganizationDataMigrationService.restoreOrganization : interactionid=" + cfg.getInteractionid()
 		+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
@@ -2889,7 +2902,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			consoleInfo = baseRepository.findById(id, OrgBackUpInfo.class);
 		}else
 			consoleInfo = new OrgBackUpInfo();
-		
+
 		consoleInfo.setOrganization(cfg.getOrganization());
 		consoleInfo.setStatus(Constants.STATUS_INPROGRESS);
 		consoleInfo.setOperationId(cfg.getOperationId());
@@ -3290,7 +3303,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 									revison=revisonNode.get("name").asText();
 								}
 							}
-							
+
 							cfg.setApiName(proxyName);
 							APIProxyDeploymentDetailsResponse aPIProxyDeploymentDetailsResponse = apigeeUtil
 									.getAPIProxyDeploymentDetails(cfg);

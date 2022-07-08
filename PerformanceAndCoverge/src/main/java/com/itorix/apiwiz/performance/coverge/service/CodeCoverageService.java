@@ -67,6 +67,7 @@ public interface CodeCoverageService {
 			MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Object> prepareCodeCoverage(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestParam(value = "postmanFile", required = false) MultipartFile postmanFile,
 			@RequestParam(value = "envFile", required = false) MultipartFile envFile, @RequestParam("org") String org,
 			@RequestParam("env") String env, @RequestParam("proxy") String proxy,

@@ -39,6 +39,7 @@ import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.service.GridFsRepository;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
+import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.json.JSONUtil;
@@ -66,6 +67,8 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 	@Autowired
 	ApigeeUtil apigeeUtil;
 	@Autowired
+	private ApigeeXUtill apigeeXUtil;
+	@Autowired
 	JfrogUtilImpl jfrogUtil;
 	@Autowired
 	private IntegrationsDataDao integrationsDao;
@@ -91,7 +94,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 	 */
 	public BackupInfo doEnvironmentBackUp(CommonConfiguration cfg) throws Exception {
 		logger.debug("EnvironmentService.doEnvironmentBackUp : interactionid=" + cfg.getInteractionid()
-				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization());
+		+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization());
 		long start = System.currentTimeMillis();
 		BackupInfo backupInfo = null;
 		logger.debug("Inside the EnvironmentService.doEnvironmentBackUp(" + cfg + ")");
@@ -120,7 +123,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 			developersInfo = backupAppDevelopers(cfg);
 			ZipUtil.pack(new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization()),
 					new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
-			
+
 			try {
 				JfrogIntegration jfrogIntegration = getJfrogIntegration();
 				S3Integration s3Integration = getS3Integration();
@@ -136,12 +139,12 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 							jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
 					downloadURI = (String) obj.get("downloadURI");
 				}
-//				obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-//						applicationProperties.getDataRestoreBackup(),
-//						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
-//								+ "/artifactory/",
-//						"restore-backup/" + cfg.getOrganization() + "/" + start + "",
-//						applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+				//				obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
+				//						applicationProperties.getDataRestoreBackup(),
+				//						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
+				//								+ "/artifactory/",
+				//						"restore-backup/" + cfg.getOrganization() + "/" + start + "",
+				//						applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw e;
@@ -170,7 +173,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 		}
 		return backupInfo;
 	}
-	
+
 	private JfrogIntegration getJfrogIntegration() {
 		JfrogIntegration jfrogIntegration = integrationsDao.getJfrogIntegration().getJfrogIntegration();
 		if (jfrogIntegration != null) {
@@ -193,7 +196,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 		}
 		return jfrogIntegration;
 	}
-	
+
 	private S3Integration getS3Integration() {
 		S3Integration s3Integration = integrationsDao.getS3Integration().getS3Integration();
 		if (s3Integration != null) {
@@ -313,28 +316,39 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 	 * @param cfg
 	 * 
 	 * @return
-	 * 
-	 * @throws ItorixException
+	 * @throws Exception 
 	 */
-	public List<String> getEnvironmentDepolyedProxies(CommonConfiguration cfg) throws ItorixException {
+	public List<String> getEnvironmentDepolyedProxies(CommonConfiguration cfg) throws Exception {
 		logger.debug("EnvironmentService.getEnvironmentDepolyedProxies : interactionid=" + cfg.getInteractionid()
-				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
-				+ cfg);
+		+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
+		+ cfg);
 		List<String> envApiList = new ArrayList<String>();
-		if (cfg.getApigeeEmail() == null && cfg.getApigeePassword() == null) {
-			ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(),
-					cfg.getType());
-			cfg.setApigeeEmail(apigeeServiceUser.getUserName());
-			cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
+		if(cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")){
+			String serviceResponse = apigeeXUtil.getProxies(cfg.getOrganization());
+			JSONObject envJsonObject = (JSONObject) JSONSerializer.toJSON(serviceResponse);
+			JSONArray envApis = (JSONArray) envJsonObject.get("proxies");
+			for (int j = 0; j < envApis.size(); j++) {
+				JSONObject apiProxyObject = (JSONObject) envApis.get(j);
+				String apiName = (String) apiProxyObject.get("name");
+				envApiList.add(apiName);
+			}
 		}
-		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
-		String apisString = apigeeUtil.getAPIsDeployedToEnvironment(cfg);
-		JSONObject envJsonObject = (JSONObject) JSONSerializer.toJSON(apisString);
-		JSONArray envApis = (JSONArray) envJsonObject.get("aPIProxy");
-		for (int i = 0; i < envApis.size(); i++) {
-			JSONObject apiProxyObject = (JSONObject) envApis.get(i);
-			String apiName = (String) apiProxyObject.get("name");
-			envApiList.add(apiName);
+		else{
+			if (cfg.getApigeeEmail() == null && cfg.getApigeePassword() == null) {
+				ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(),
+						cfg.getType());
+				cfg.setApigeeEmail(apigeeServiceUser.getUserName());
+				cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
+			}
+			cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
+			String apisString = apigeeUtil.getAPIsDeployedToEnvironment(cfg);
+			JSONObject envJsonObject = (JSONObject) JSONSerializer.toJSON(apisString);
+			JSONArray envApis = (JSONArray) envJsonObject.get("aPIProxy");
+			for (int i = 0; i < envApis.size(); i++) {
+				JSONObject apiProxyObject = (JSONObject) envApis.get(i);
+				String apiName = (String) apiProxyObject.get("name");
+				envApiList.add(apiName);
+			}
 		}
 		return envApiList;
 	}
@@ -453,8 +467,8 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 	 */
 	private JSONObject backupAPIProductsOnEnvironments(CommonConfiguration cfg) throws IOException, ItorixException {
 		logger.debug("EnvironmentService.backupAPIProductsOnEnvironments : interactionid=" + cfg.getInteractionid()
-				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
-				+ cfg);
+		+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
+		+ cfg);
 		List<String> envApiList = cfg.getEnvApiList();
 		List<String> productList = apigeeUtil.listAPIProducts(cfg);
 		JSONObject productsList = new JSONObject();
@@ -666,8 +680,8 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 	public String restoreEnvironmentProxies(CommonConfiguration cfg)
 			throws IOException, InterruptedException, ItorixException {
 		logger.debug("EnvironmentService.restoreEnvironmentProxies : interactionid=" + cfg.getInteractionid()
-				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
-				+ cfg);
+		+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
+		+ cfg);
 		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
@@ -728,8 +742,8 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 	 */
 	private JSONArray backupAppsOnProductBasis(CommonConfiguration cfg) throws ItorixException {
 		logger.debug("EnvironmentService.backupAppsOnProductBasis : interactionid=" + cfg.getInteractionid()
-				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
-				+ cfg);
+		+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
+		+ cfg);
 		List<String> productList = JSONUtil.convertJSONObjectToList(cfg.getJsonArray());
 		List<String> listOfAppIds = apigeeUtil.listAppIDsInAnOrganization(cfg);
 		JSONArray appNames = new JSONArray();
@@ -909,11 +923,11 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 						jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
 				downloadURI = (String) obj.get("downloadURI");
 			}
-//			obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-//					applicationProperties.getDataRestoreBackup(),
-//					applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort() + "/artifactory/",
-//					"restore-backup/" + cfg.getOrganization() + "/" + start + "",
-//					applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+			//			obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
+			//					applicationProperties.getDataRestoreBackup(),
+			//					applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort() + "/artifactory/",
+			//					"restore-backup/" + cfg.getOrganization() + "/" + start + "",
+			//					applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

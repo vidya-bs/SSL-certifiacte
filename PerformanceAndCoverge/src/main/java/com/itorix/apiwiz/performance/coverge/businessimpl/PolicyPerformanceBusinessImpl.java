@@ -54,6 +54,7 @@ import com.itorix.apiwiz.common.model.Constants;
 import com.itorix.apiwiz.common.model.apigee.CommonConfiguration;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.postman.Trace;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
@@ -67,6 +68,8 @@ import com.itorix.apiwiz.performance.coverge.model.History;
 import com.itorix.apiwiz.performance.coverge.model.PolicyPerformanceBackUpInfo;
 import com.itorix.apiwiz.performance.coverge.model.Root;
 import com.itorix.apiwiz.performance.coverge.model.Transform;
+
+import com.itorix.apiwiz.test.Apigeex;
 
 import net.sf.json.JSONArray;
 
@@ -112,35 +115,59 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness 
 			e1.printStackTrace();
 			throw e1;
 		}
+		if (cfg.getGwtype() != null && cfg.getGwtype().equalsIgnoreCase("apigeex")) {
+			try {
+				List<Object> tracesObjects = commonServices.executeLivePostmanCollectionTraceAsObject(cfg,
+						backUpLocation);
+				Trace tracesList = new Trace();
+				Map<String, Object> policies = new HashMap<String, Object>();
+				HashMap<String, HashMap<String, Long>> nameMap1 = new HashMap<>();
+				HashMap<String, HashMap<String, Long>> nameMap2 = new HashMap<>();
+				for (int i = 0; i < tracesObjects.size(); i++) {
+					tracesList = (Trace) tracesObjects.get(i);
+					// for(Object a:tracesObjects){
+					// tracesList=(List<Trace>)a;
+					// }
 
-		try {
-			List<Object> tracesObjects = commonServices.executeLivePostmanCollectionXMLTraceAsObject(cfg,
-					backUpLocation);
-			log("executePolicyPerformance", cfg.getInteractionid(), "step5: getTransactionData:" + tracesObjects);
-			Root root = new Root();
-			List<Debug> dbgLst = new ArrayList<Debug>();
-			for (Object traceObj : tracesObjects) {
-				String trace = (String) traceObj;
-				log("executePolicyPerformance", cfg.getInteractionid(), "step 6: do policy performance :" + trace);
-				Document doc = getDoc(trace);
-				XPath xPath = XPathFactory.newInstance().newXPath();
-				NodeList nodeList = (NodeList) xPath.compile("//Data").evaluate(doc, XPathConstants.NODESET);
-				for (int i = 0; i < nodeList.getLength(); i++) {
-					Node nNode = nodeList.item(i);
-					String tmp = nodeToString(nNode);
-					Debug dbg = getPolicyTimes(tmp);
-					dbgLst.add(dbg);
+					log("executePolicyPerformance", cfg.getInteractionid(),
+							"step5: getTransactionData:" + tracesObjects);
+					Apigeex apigeex = new Apigeex();
+					policies.put("policies", apigeex.getTransactionData2(tracesList, nameMap1));
+					policies.put("stepTypes", apigeex.getTransactionData1(tracesList, nameMap2));
 				}
-				root.setDebugList((ArrayList<Debug>) dbgLst);
+				policyPerformanceInfo.setProxyStat(policies);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			Map<String, Object> policies = new HashMap<String, Object>();
-			policies.put("policies", root.getAverageTimes());
-			policies.put("stepTypes", root.getAveragePolicyTimes());
-			policyPerformanceInfo.setProxyStat(policies);
-		} catch (Exception e) {
-			e.printStackTrace();
+		} else {
+			try {
+				List<Object> tracesObjects = commonServices.executeLivePostmanCollectionXMLTraceAsObject(cfg,
+						backUpLocation);
+				log("executePolicyPerformance", cfg.getInteractionid(), "step5: getTransactionData:" + tracesObjects);
+				Root root = new Root();
+				List<Debug> dbgLst = new ArrayList<Debug>();
+				for (Object traceObj : tracesObjects) {
+					String trace = (String) traceObj;
+					log("executePolicyPerformance", cfg.getInteractionid(), "step 6: do policy performance :" + trace);
+					Document doc = getDoc(trace);
+					XPath xPath = XPathFactory.newInstance().newXPath();
+					NodeList nodeList = (NodeList) xPath.compile("//Data").evaluate(doc, XPathConstants.NODESET);
+					for (int i = 0; i < nodeList.getLength(); i++) {
+						Node nNode = nodeList.item(i);
+						String tmp = nodeToString(nNode);
+						Debug dbg = getPolicyTimes(tmp);
+						dbgLst.add(dbg);
+					}
+					root.setDebugList((ArrayList<Debug>) dbgLst);
+				}
+				Map<String, Object> policies = new HashMap<String, Object>();
+				policies.put("policies", root.getAverageTimes());
+				policies.put("stepTypes", root.getAveragePolicyTimes());
+				policyPerformanceInfo.setProxyStat(policies);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
-
 		long endtTime = System.nanoTime();
 		policyPerformanceInfo.setTimeTaken((endtTime - startTime) / 10000000);
 		policyPerformanceInfo.setStatus(Constants.STATUS_COMPLETED);

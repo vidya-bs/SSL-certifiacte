@@ -388,9 +388,24 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		ProxyStat ProxyStat = new ProxyStat();
 		Stats rootStatsType = new Stats();
 		// process codecoverage for proxyendpoints
-		List<ProxyEndpoint> proxyEndPoints = commonServices.fetchProxyEndPoints(cfg.getOrganization(),
-				cfg.getApigeeEmail(), cfg.getApigeePassword(), cfg.getRevision(), cfg.getApiName(), cfg.getType());
+		List<ProxyEndpoint> proxyEndPoints;
 
+
+		if( cfg.getGwtype() != null && cfg.getGwtype().equalsIgnoreCase("apigeex")){
+			proxyEndPoints= commonServices.fetchProxyEndPointsForApigeeX(cfg);
+		}else{
+		 proxyEndPoints = commonServices.fetchProxyEndPoints(cfg.getOrganization(),
+				cfg.getApigeeEmail(), cfg.getApigeePassword(), cfg.getRevision(), cfg.getApiName(), cfg.getType());
+		}
+		
+		List<TargetEndpoint> targetEndPoints;
+		if( cfg.getGwtype() != null && cfg.getGwtype().equalsIgnoreCase("apigeex")){
+			targetEndPoints= commonServices.fetchTargetEndPointsForApigeeX(cfg);
+		}else{
+			targetEndPoints = commonServices.fetchTargetEndPoints(cfg.getOrganization(),
+				cfg.getApigeeEmail(), cfg.getApigeePassword(), cfg.getRevision(), cfg.getApiName(), cfg.getType());
+		}
+		
 		List<EndpointStat> p = new ArrayList<EndpointStat>();
 		Set<String> totalPoliciesMap = new HashSet<>();
 		Set<String> executedPoliciesMap = new HashSet<>();
@@ -411,9 +426,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 			jaxbMarshaller.marshal(updatedEndpoint, s);
 		}
 		// process codecoverage for targetendpoints
-		List<TargetEndpoint> targetEndPoints = commonServices.fetchTargetEndPoints(cfg.getOrganization(),
-				cfg.getApigeeEmail(), cfg.getApigeePassword(), cfg.getRevision(), cfg.getApiName(), cfg.getType());
-		List<EndpointStat> t = new ArrayList<EndpointStat>();
+				List<EndpointStat> t = new ArrayList<EndpointStat>();
 		for (TargetEndpoint temp : targetEndPoints) {
 			TargetEndpoint updatedEndpoint = markExecutedPoliciesForTarget(temp, executedFlowAndPolicies);
 			EndpointStatVO stat = doAnalyticsForTargetEndpoint(updatedEndpoint);

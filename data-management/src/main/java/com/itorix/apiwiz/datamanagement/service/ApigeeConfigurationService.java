@@ -100,12 +100,14 @@ public interface ApigeeConfigurationService {
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/apigee/host")
 	public ResponseEntity<Object> getApigeeHost(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam("type") String type,
 			@RequestParam("org") String org) throws Exception;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/apigee/authorization")
 	public ResponseEntity<Object> getApigeeAuthorization(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam("type") String type,
 			@RequestParam("org") String org) throws Exception;
 
