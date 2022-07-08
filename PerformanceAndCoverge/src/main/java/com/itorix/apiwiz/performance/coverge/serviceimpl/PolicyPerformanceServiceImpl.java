@@ -114,6 +114,7 @@ public class PolicyPerformanceServiceImpl implements PolicyPerformanceService {
 		cfg.setVariableId(variableId);
 		cfg.setPostmanFile(postmanFile);
 		cfg.setEnvFile(envFile);
+		cfg.setGwtype(type);
 		cfg.setUserName(user.getFirstName() + " " + user.getLastName());
 		Object obj = policyPerformanceService.executePolicyPerformance(cfg);
 		return new ResponseEntity<Object>(obj, HttpStatus.OK);

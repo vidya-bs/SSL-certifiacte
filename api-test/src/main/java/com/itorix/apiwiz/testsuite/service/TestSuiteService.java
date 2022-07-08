@@ -3,6 +3,7 @@ package com.itorix.apiwiz.testsuite.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.itorix.apiwiz.testsuite.model.*;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -219,6 +221,21 @@ public interface TestSuiteService {
 			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid,
 			HttpServletRequest request, @PathVariable("testsuiteresponseid") String testsuiteresponseid,
 			HttpServletResponse response) throws JsonProcessingException, ItorixException;
+	
+	
+
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/testsuites/executions/{testsuiteresponseid}/download", produces = {
+			"application/json"})
+	public void getTestSuiteReportById(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid,
+			HttpServletRequest request, @PathVariable("testsuiteresponseid") String testsuiteresponseid,
+			@RequestParam(value = "format", required = false, defaultValue = "pdf") String format,
+			HttpServletResponse response) throws JsonProcessingException, ItorixException;
+	
+	
+	
 
 	@PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN', 'TEST') and hasAnyAuthority('TEAM','ENTERPRISE')")
 	@ApiOperation(value = "Trigger TestSuite", notes = "", code = 202)

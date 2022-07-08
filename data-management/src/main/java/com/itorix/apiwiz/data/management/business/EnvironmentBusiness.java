@@ -47,7 +47,7 @@ public interface EnvironmentBusiness {
 	 * 
 	 * @throws ItorixException
 	 */
-	public List<String> getEnvironmentDepolyedProxies(CommonConfiguration cfg) throws ItorixException;
+	public List<String> getEnvironmentDepolyedProxies(CommonConfiguration cfg) throws Exception;
 
 	/**
 	 * restoreEnvironment

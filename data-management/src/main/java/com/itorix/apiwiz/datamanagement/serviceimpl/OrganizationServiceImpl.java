@@ -164,20 +164,31 @@ public class OrganizationServiceImpl implements OrganizationService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "jsessionid") String jsessionid, @PathVariable("organization") String organization,
 			@RequestBody String json, @RequestParam(value = "type", required = false) String type) throws Exception {
+		Map<String, List<String>> resMap = new HashMap<>();
+		
 		org.json.JSONObject jsonObject = new org.json.JSONObject(json);
 		org.json.JSONArray jsonArray = jsonObject.getJSONArray("proxies");
-		Map<String, List<String>> resMap = new HashMap<>();
 		String serviceResponse = null;
 		for (int i = 0; i < jsonArray.length(); i++) {
 			serviceResponse = organizationBusiness.getAPIsDeployedToEnvironment(jsessionid, organization,
 					jsonArray.getString(i), interactionid, type);
 			List<String> list = new ArrayList<>();
-			JSONObject envJsonObject = (JSONObject) JSONSerializer.toJSON(serviceResponse);
-			JSONArray envApis = (JSONArray) envJsonObject.get("aPIProxy");
-			for (int j = 0; j < envApis.size(); j++) {
-				JSONObject apiProxyObject = (JSONObject) envApis.get(j);
-				String apiName = (String) apiProxyObject.get("name");
-				list.add(apiName);
+			if(type != null && type.equalsIgnoreCase("apigeex")){
+				JSONObject envJsonObject = (JSONObject) JSONSerializer.toJSON(serviceResponse);
+				JSONArray envApis = (JSONArray) envJsonObject.get("proxies");
+				for (int j = 0; j < envApis.size(); j++) {
+					JSONObject apiProxyObject = (JSONObject) envApis.get(j);
+					String apiName = (String) apiProxyObject.get("name");
+					list.add(apiName);
+				}
+			}else{
+				JSONObject envJsonObject = (JSONObject) JSONSerializer.toJSON(serviceResponse);
+				JSONArray envApis = (JSONArray) envJsonObject.get("aPIProxy");
+				for (int j = 0; j < envApis.size(); j++) {
+					JSONObject apiProxyObject = (JSONObject) envApis.get(j);
+					String apiName = (String) apiProxyObject.get("name");
+					list.add(apiName);
+				}
 			}
 			resMap.put(jsonArray.getString(i), list);
 		}
