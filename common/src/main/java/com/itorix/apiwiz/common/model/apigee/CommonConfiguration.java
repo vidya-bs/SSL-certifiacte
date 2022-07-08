@@ -24,7 +24,7 @@ public class CommonConfiguration {
 
 	private String organization;
 	private String environment;
-
+    private String gwtype; 
 	private String jsessionId;
 
 	private Boolean isCleanUpAndBackUp;
@@ -733,5 +733,13 @@ public class CommonConfiguration {
 
 	public void setVariableId(String variableId) {
 		this.variableId = variableId;
+	}
+
+	public String getGwtype() {
+		return gwtype;
+	}
+
+	public void setGwtype(String gwtype) {
+		this.gwtype = gwtype;
 	}
 }

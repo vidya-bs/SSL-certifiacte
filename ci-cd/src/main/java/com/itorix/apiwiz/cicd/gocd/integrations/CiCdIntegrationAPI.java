@@ -232,6 +232,7 @@ public class CiCdIntegrationAPI {
 		String version = pipelineGroups.getPipelines().get(0).getVersion();
 		String org = pipelineGroups.getPipelines().get(0).getStages().get(0).getOrgName();
 		String env = pipelineGroups.getPipelines().get(0).getStages().get(0).getEnvName();
+		String gwType = pipelineGroups.getPipelines().get(0).getStages().get(0).getGwType();
 
 		// Get Installation Type
 		Boolean isSaaS = pipelineGroups.getPipelines().get(0).getStages().get(0).getIsSaas();
@@ -254,12 +255,12 @@ public class CiCdIntegrationAPI {
 			tasks.add(new Task("pluggable_task", "passed", "buildProxy",
 					prepareGradleParams(BASE_DIR, PARTNER_NAME, proxyName, version, org, env,
 							config.getApigeeUserName(), config.getApigeePassword(), 0, 0, false, null, isSaaS,
-							projectName),
+							projectName, gwType),
 					goCDIntegration.getGradleHome()));
 			tasks.add(new Task("pluggable_task", "passed", "deployProxy",
 					prepareGradleParams(BASE_DIR, PARTNER_NAME, proxyName, version, org, env,
 							config.getApigeeUserName(), config.getApigeePassword(), 0, 0, true, null, isSaaS,
-							projectName),
+							projectName, gwType),
 					goCDIntegration.getGradleHome()));
 
 			if (pipelineGroups.getPipelines() != null && pipelineGroups.getPipelines().get(0) != null && pipelineGroups
@@ -285,7 +286,7 @@ public class CiCdIntegrationAPI {
 									BASE_DIR, PARTNER_NAME, proxyName, version, org, env, config.getApigeeUserName(),
 									config.getApigeePassword(), unitTestsAcceptancePer, 0, true, pipelineGroups
 											.getPipelines().get(0).getStages().get(0).getUnitTests().getArtifactType(),
-									isSaaS, projectName),
+									isSaaS, projectName, gwType),
 							goCDIntegration.getGradleHome()));
 				}
 				artifacts.add(new Artifact(BASE_DIR + "unitTest.html", "", "build"));
@@ -314,7 +315,7 @@ public class CiCdIntegrationAPI {
 									config.getApigeeUserName(), config.getApigeePassword(), 0,
 									codeCoverageAcceptancePer, true, pipelineGroups.getPipelines().get(0).getStages()
 											.get(0).getCodeCoverage().getArtifactType(),
-									isSaaS, projectName),
+									isSaaS, projectName, gwType),
 							goCDIntegration.getGradleHome()));
 				}
 				artifacts.add(new Artifact(BASE_DIR + "codeCoverage.html", "", "build"));
@@ -335,7 +336,7 @@ public class CiCdIntegrationAPI {
 				tasks.add(new Task("pluggable_task", "failed", "publishOldVersion",
 						prepareGradleParams(BASE_DIR, PARTNER_NAME, proxyName, version, org, env,
 								config.getApigeeUserName(), config.getApigeePassword(), 0, 0, true, null, isSaaS,
-								projectName),
+								projectName, gwType),
 						goCDIntegration.getGradleHome()));
 			}
 		} else if (pipelineGroups.getPipelines().get(0).getType() != null
@@ -509,6 +510,7 @@ public class CiCdIntegrationAPI {
 		if (isSaaS == null) {
 			isSaaS = true;
 		}
+		
 
 		// fetch Artifact
 		if (goCDIntegration.getVersion().trim().equalsIgnoreCase("18.10.0"))
@@ -526,7 +528,8 @@ public class CiCdIntegrationAPI {
 		tasks.add(new Task("pluggable_task", "passed", "promoteDeployment",
 				prepareGradleParams(BASE_DIR, PARTNER_NAME, pipelineGroups.getPipelines().get(0).getProxyName(),
 						pipelineGroups.getPipelines().get(0).getVersion(), stage.getOrgName(), stage.getEnvName(),
-						config.getApigeeUserName(), config.getApigeePassword(), 0, 0, true, null, isSaaS, projectName),
+						config.getApigeeUserName(), config.getApigeePassword(), 0, 0, true, null, isSaaS, 
+						projectName, stage.getGwType()),
 				goCDIntegration.getGradleHome()));
 
 		String proxyName = pipelineGroups.getPipelines().get(0).getProxyName();
@@ -554,14 +557,14 @@ public class CiCdIntegrationAPI {
 					tasks.add(new Task("pluggable_task", "passed", "executeUnitTestCases",
 							prepareGradleParams(BASE_DIR, PARTNER_NAME, proxyName, version, org, env,
 									config.getApigeeUserName(), config.getApigeePassword(), unitTestsAcceptancePer, 0,
-									true, stage.getUnitTests().getArtifactType(), isSaaS, projectName),
+									true, stage.getUnitTests().getArtifactType(), isSaaS, projectName, stage.getGwType()),
 							goCDIntegration.getGradleHome()));
 				}
 			} else {
 				tasks.add(new Task("pluggable_task", "passed", "executeUnitTestCases",
 						prepareGradleParams(BASE_DIR, PARTNER_NAME, proxyName, version, org, env,
 								config.getApigeeUserName(), config.getApigeePassword(), unitTestsAcceptancePer, 0, true,
-								null, isSaaS, projectName),
+								null, isSaaS, projectName, stage.getGwType()),
 						goCDIntegration.getGradleHome()));
 			}
 			artifacts.add(new Artifact(BASE_DIR + "unitTest.html", "", "build"));
@@ -589,7 +592,7 @@ public class CiCdIntegrationAPI {
 							prepareGradleParams(BASE_DIR, PARTNER_NAME, proxyName, version, org, env,
 									config.getApigeeUserName(), config.getApigeePassword(), 0,
 									codeCoverageAcceptancePer, true, stage.getCodeCoverage().getArtifactType(), isSaaS,
-									projectName),
+									projectName, stage.getGwType()),
 							goCDIntegration.getGradleHome()));
 				}
 
@@ -597,7 +600,7 @@ public class CiCdIntegrationAPI {
 				tasks.add(new Task("pluggable_task", "passed", "executeCodeCoverage",
 						prepareGradleParams(BASE_DIR, PARTNER_NAME, proxyName, version, org, env,
 								config.getApigeeUserName(), config.getApigeePassword(), 0, codeCoverageAcceptancePer,
-								true, null, isSaaS, projectName),
+								true, null, isSaaS, projectName, stage.getGwType()),
 						goCDIntegration.getGradleHome()));
 			}
 			artifacts.add(new Artifact(BASE_DIR + "codecoverage.html", "", "build"));
@@ -615,7 +618,7 @@ public class CiCdIntegrationAPI {
 			tasks.add(new Task("pluggable_task", "failed", "publishOldVersion",
 					prepareGradleParams(BASE_DIR, PARTNER_NAME, proxyName, version, org, env,
 							config.getApigeeUserName(), config.getApigeePassword(), 0, 0, true, null, isSaaS,
-							projectName),
+							projectName, stage.getGwType()),
 					goCDIntegration.getGradleHome()));
 		}
 
@@ -701,7 +704,7 @@ public class CiCdIntegrationAPI {
 	public String prepareGradleParams(String baseDir, String partnerName, String proxyName, String version, String org,
 			String env, String apigeeUserName, String apigeePassword, int unitTestHoldThresholdpercent,
 			int codeCoverageThresholdPercent, boolean skipClean, ArtifactType artifactType, boolean isSaaS,
-			String projectName) {
+			String projectName, String gwType) {
 		String params = "-PbaseDir=" + baseDir + " -PpartnerName=" + partnerName + " -PName=" + proxyName
 				+ " -PversionName=" + version + " -Porg=" + org + " -Penv=" + env + " -Pusername=" + apigeeUserName
 				+ " -Ppassword=" + apigeePassword + " -PisSaaS=" + isSaaS;
@@ -719,6 +722,9 @@ public class CiCdIntegrationAPI {
 		}
 		if (projectName != null) {
 			params += " -PprojectName=" + projectName;
+		}
+		if (projectName != null) {
+			params += " -PgwType=" + gwType;
 		}
 		return params;
 	}

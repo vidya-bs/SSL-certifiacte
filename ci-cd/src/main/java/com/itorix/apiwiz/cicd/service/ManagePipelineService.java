@@ -59,7 +59,8 @@ public interface ManagePipelineService {
 			"application/json"})
 	public ResponseEntity<?> createPipeline(@RequestBody PipelineGroups pipelineGroups,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
-			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request);
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request);
 
 	@ApiOperation(value = "Update Pipeline", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
@@ -69,7 +70,8 @@ public interface ManagePipelineService {
 			"application/json"})
 	public ResponseEntity<?> updatePipeline(@RequestBody PipelineGroups pipelineGroups,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
-			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request);
+			@RequestHeader(value = "interactionid", required = false) String interactionid, 
+			@RequestHeader(value = "x-gwtype", required = false) String gwType,HttpServletRequest request);
 
 	@ApiOperation(value = "Delete Pipeline Group", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),

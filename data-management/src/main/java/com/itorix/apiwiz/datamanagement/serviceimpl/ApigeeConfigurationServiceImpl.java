@@ -20,8 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.itorix.apiwiz.common.model.apigee.ApigeeConfigurationVO;
 import com.itorix.apiwiz.common.model.apigee.ApigeeIntegrationVO;
 import com.itorix.apiwiz.common.model.apigee.ApigeeServiceUser;
+import com.itorix.apiwiz.common.model.apigeeX.ApigeeXConfigurationVO;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.data.management.business.ApigeeConfigurationBusiness;
+import com.itorix.apiwiz.data.management.dao.ApigeeXIntegrationDAO;
 import com.itorix.apiwiz.datamanagement.service.ApigeeConfigurationService;
 
 import io.swagger.annotations.Api;
@@ -36,6 +38,8 @@ public class ApigeeConfigurationServiceImpl implements ApigeeConfigurationServic
 
 	@Autowired
 	private ApigeeConfigurationBusiness apigeeConfigurationBusiness;
+	@Autowired
+	private ApigeeXIntegrationDAO apigeeXIntegrationDAO;
 	private static final Logger logger = LoggerFactory.getLogger(ApigeeConfigurationServiceImpl.class);
 
 	/**
@@ -100,6 +104,18 @@ public class ApigeeConfigurationServiceImpl implements ApigeeConfigurationServic
 				responseList.add(acvo);
 			}
 		}
+		List<ApigeeXConfigurationVO> listvo = apigeeXIntegrationDAO.getConfigurations();
+		if (listvo != null) {
+			for (ApigeeXConfigurationVO vo : listvo) {
+				ApigeeConfigurationVO acvo = new ApigeeConfigurationVO();
+				acvo.setId(vo.getId());
+				acvo.setOrgname(vo.getOrgName());
+				acvo.setType("apigeex");
+				acvo.setEnvironments(vo.getEnvironmentNames());
+				responseList.add(acvo);
+			}
+		}
+		
 		return new ResponseEntity<List<ApigeeConfigurationVO>>(responseList, HttpStatus.OK);
 	}
 
@@ -128,18 +144,30 @@ public class ApigeeConfigurationServiceImpl implements ApigeeConfigurationServic
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/apigee/host")
 	public ResponseEntity<Object> getApigeeHost(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "jsessionid") String jsessionid, @RequestParam("type") String type,
 			@RequestParam("org") String org) throws Exception {
-		Object o = apigeeConfigurationBusiness.getApigeeHost(type, org);
-		return new ResponseEntity<Object>(o, HttpStatus.OK);
+		if((type != null && type.equalsIgnoreCase("apigeex")) || (gwtype != null && gwtype.equalsIgnoreCase("apigeex"))){
+			Object o = apigeeConfigurationBusiness.getApigeexHost(type, org);
+			return new ResponseEntity<Object>(o, HttpStatus.OK);
+		}else{
+			Object o = apigeeConfigurationBusiness.getApigeeHost(type, org);
+			return new ResponseEntity<Object>(o, HttpStatus.OK);
+		}
 	}
 
 	public ResponseEntity<Object> getApigeeAuthorization(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "jsessionid") String jsessionid, @RequestParam("type") String type,
 			@RequestParam("org") String org) throws Exception {
-		Object o = apigeeConfigurationBusiness.getApigeeAuthorization(type, org);
-		return new ResponseEntity<Object>(o, HttpStatus.OK);
+		if((type != null && type.equalsIgnoreCase("apigeex")) || (gwtype != null && gwtype.equalsIgnoreCase("apigeex"))){
+			Object o = apigeeConfigurationBusiness.getApigeexAuthorization(type, org);
+			return new ResponseEntity<Object>(o, HttpStatus.OK);
+		} else {
+			Object o = apigeeConfigurationBusiness.getApigeeAuthorization(type, org);
+			return new ResponseEntity<Object>(o, HttpStatus.OK);
+		}
 	}
 
 	/**
