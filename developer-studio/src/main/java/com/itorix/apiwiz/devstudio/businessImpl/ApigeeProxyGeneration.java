@@ -147,8 +147,8 @@ public class ApigeeProxyGeneration {
 		Map<String, Object> proxy = new HashMap<String, Object>();
 		data.put("basePath", basePath);
 		List<String> virtualHostList = new ArrayList<String>();
-		virtualHostList.add("secure");
-		virtualHostList.add("default");
+		//virtualHostList.add("secure");
+		//virtualHostList.add("default");
 		data.put("proxy", proxy);
 		proxy.put("virtualHostList", virtualHostList);
 		proxy.put("name", proxyName);
