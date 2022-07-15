@@ -216,11 +216,12 @@ public class MockValidator {
     private boolean checkHeaderValues(Expectation expectation, MultiValueMap<String, String> actualHeaders) {
         Map<String, Boolean> result = new HashMap<>();
         for (NameMultiValue expectedHeader : expectation.getRequest().getHeaders()) {
-            Optional<List<String>> matchedValue = actualHeaders.values().stream()
-                    .filter(value -> value.equals(expectedHeader.getValue().getText())).findAny();
-            if (matchedValue.isPresent()) {
-                result.put(expectedHeader.getName().getKey(), checkAssertion(expectedHeader.getValue().getText(),
-                        matchedValue.get(), expectedHeader.getValue().getCondition().name()));
+            Optional<Map.Entry<String, List<String>>> matchedHeader = actualHeaders.entrySet().stream()
+                    .filter(e -> e.getKey().trim().equals(expectedHeader.getName().getKey().trim())).findAny();
+            if (matchedHeader.isPresent()) {
+                result.put(expectedHeader.getName().getKey(),
+                        checkAssertion(expectedHeader.getValue().getText(), matchedHeader.get().getValue(),
+                                expectedHeader.getValue().getCondition().name()));
             } else {
                 if (expectedHeader.getValue().getCondition().equals(Value.Condition.notEqualTo)) {
                     result.put(expectedHeader.getName().getKey(), true);
