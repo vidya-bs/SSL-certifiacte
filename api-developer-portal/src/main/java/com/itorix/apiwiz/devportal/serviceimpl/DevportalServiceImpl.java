@@ -3,6 +3,7 @@ package com.itorix.apiwiz.devportal.serviceimpl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,7 +31,9 @@ import net.sf.json.JSONSerializer;
 @CrossOrigin(origins = "*")
 @RestController
 public class DevportalServiceImpl implements DevportalService {
-
+	
+	private Logger logger = Logger.getLogger(DevportalDao.class);
+	
 	@Autowired
 	private ApigeeUtil apigeeUtil;
 
@@ -194,15 +197,13 @@ public class DevportalServiceImpl implements DevportalService {
 			try{
 				JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
 				JSONArray apiProducts = (JSONArray) proxyObject.get("apiProduct");
-				JSONArray productsData = new JSONArray();
-
 				for (Object apiObj : apiProducts) {
 					JSONObject prodObj = (JSONObject) apiObj;
 					final String apiProduct = (String) prodObj.get("name");
 					products.add(apiProduct);
-
 				}
 			}catch(Exception e) {
+				logger.error(e);
 				e.printStackTrace();
 			}
 			ObjectMapper objectMapper = new ObjectMapper();

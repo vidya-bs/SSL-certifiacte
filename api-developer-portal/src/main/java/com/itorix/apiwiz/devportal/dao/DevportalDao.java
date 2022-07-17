@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.devportal.dao;
 
+import org.apache.log4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,7 +13,9 @@ import com.itorix.apiwiz.common.util.http.HTTPUtil;
 
 @Component("devportalDao")
 public class DevportalDao {
-
+	
+	private Logger logger = Logger.getLogger(DevportalDao.class);
+	
 	/**
 	 * @param httpConn
 	 * @param method
@@ -49,8 +52,10 @@ public class DevportalDao {
 			else
 				throw new ItorixException("Invalid request data " + statusCode.value(), "Portal-1001");
 		} catch (ItorixException ex) {
+			logger .error(ex);
 			throw ex;
 		} catch (Exception ex) {
+			logger .error(ex);
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}

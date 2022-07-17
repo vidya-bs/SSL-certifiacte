@@ -135,10 +135,11 @@ public class HTTPUtil {
 					new ParameterizedTypeReference<String>() {
 					});
 		} catch (Exception e) {
-			logger.error("HTTPUtil::transport.response error :: " + getObj(e));
+			logger.error("HTTPUtil::transport.response error :: ", e);
 			try {
 				throw e;
 			} catch (Exception e1) {
+				logger.error(e1);
 				e1.printStackTrace();
 			}
 		}
