@@ -1,6 +1,12 @@
 package com.itorix.apiwiz.devportal.serviceimpl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,11 +15,17 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.common.model.proxystudio.APIProduct;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
 import com.itorix.apiwiz.common.util.http.HTTPUtil;
 import com.itorix.apiwiz.devportal.dao.DevportalDao;
 import com.itorix.apiwiz.devportal.service.DevportalService;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -176,7 +188,29 @@ public class DevportalServiceImpl implements DevportalService {
 			else
 				URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/apiproducts";
 			HTTPUtil httpConn = new HTTPUtil(URL, apigeexUtil.getApigeeCredentials(org, type));
-			return devportaldao.proxyService(httpConn, "GET");
+			ResponseEntity<String> response =  devportaldao.proxyService(httpConn, "GET");
+			List<String> products = new ArrayList<>();
+			String apiProductString = response.getBody();
+			try{
+				JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
+				JSONArray apiProducts = (JSONArray) proxyObject.get("apiProduct");
+				JSONArray productsData = new JSONArray();
+
+				for (Object apiObj : apiProducts) {
+					JSONObject prodObj = (JSONObject) apiObj;
+					final String apiProduct = (String) prodObj.get("name");
+					products.add(apiProduct);
+
+				}
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			ObjectMapper objectMapper = new ObjectMapper();
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			ResponseEntity<String> responseEntity = new ResponseEntity<String>(objectMapper.writeValueAsString(products), headers,
+					HttpStatus.OK);
+			return responseEntity;
 		}else{
 			String URL;
 			if (expand != null && expand != "")

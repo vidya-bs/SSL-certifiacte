@@ -4,6 +4,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,14 +22,16 @@ import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+//@Component
 public class HTTPUtil {
 	Logger logger = Logger.getLogger(HTTPUtil.class);
-
+//	@Autowired
 	private RestTemplate restTemplate;
 
 	private ObjectMapper mapper = new ObjectMapper();
@@ -136,7 +139,6 @@ public class HTTPUtil {
 			try {
 				throw e;
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
@@ -161,6 +163,7 @@ public class HTTPUtil {
 	    HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 	    requestFactory.setHttpClient(httpClient);
 	    RestTemplate restTemplate = new RestTemplate(requestFactory);
+	    restTemplate.setErrorHandler(new HttpErrorHandler());
 	    return restTemplate;
 	}
 }

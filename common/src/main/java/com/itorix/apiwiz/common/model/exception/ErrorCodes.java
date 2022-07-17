@@ -37,6 +37,9 @@ public enum ErrorCodes {
 			put("ProxyGen-1004", "Request validation failed. Resource or proxy name already exist.");
 			put("ProxyGen-1005", "Request validation failed. Source control connector info are invalid.");
 
+			
+			put("Portal-1000", "Request validation failed. Invalid data");
+			put("Portal-1001", "Request validation failed. Resource trying to retrieve does not exist");
 			put("Configuration-1000",
 					"Request validation failed. Please check the mandatory data fields and retry again.");
 			put("Configuration-1001", "Request validation failed. Resource or proxy name does not exist.");
@@ -283,6 +286,8 @@ public enum ErrorCodes {
 			put("ProxyGen-1003", 404);
 			put("ProxyGen-1004", 400);
 			put("ProxyGen-1005", 404);
+			put("Portal-1000", 400);
+			put("Portal-1001", 404);
 			put("Configuration-1000", 400);
 			put("Configuration-1001", 404);
 			put("Configuration-1002", 404);

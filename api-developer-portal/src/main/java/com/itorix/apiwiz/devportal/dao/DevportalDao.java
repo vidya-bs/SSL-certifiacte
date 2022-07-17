@@ -39,12 +39,15 @@ public class DevportalDao {
 				ResponseEntity<String> responseEntity = new ResponseEntity<String>(response.getBody(), headers,
 						HttpStatus.OK);
 				return responseEntity;
-			} else if (statusCode.value() >= 401 && statusCode.value() <= 403)
+			} else if (statusCode.value() >= 401 && statusCode.value() <= 403) {
 				throw new ItorixException(
 						"Request validation failed. Exception connecting to apigee connector. " + statusCode.value(),
 						"Configuration-1006");
+			}else if(statusCode.value() >= 404) {
+				throw new ItorixException("Request validation failed. Invalid data - " + statusCode.value(), "Portal-1001");
+			}
 			else
-				throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
+				throw new ItorixException("Invalid request data " + statusCode.value(), "Portal-1001");
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
