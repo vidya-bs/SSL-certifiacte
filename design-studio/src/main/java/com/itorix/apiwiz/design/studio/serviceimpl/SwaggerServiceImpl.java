@@ -19,17 +19,15 @@ import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
-import com.itorix.apiwiz.design.studio.dao.SupportedCodeGenLangDao;
 import com.itorix.apiwiz.design.studio.businessimpl.Swagger3SDK;
 import com.itorix.apiwiz.design.studio.businessimpl.ValidateSchema;
 import com.itorix.apiwiz.design.studio.businessimpl.XlsUtil;
+import com.itorix.apiwiz.design.studio.dao.SupportedCodeGenLangDao;
 import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import com.itorix.apiwiz.design.studio.service.SwaggerService;
-import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
-import com.itorix.apiwiz.identitymanagement.model.User;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.opencsv.CSVReader;
@@ -46,7 +44,6 @@ import io.swagger.generator.model.GeneratorInput;
 import io.swagger.generator.model.ResponseCode;
 import io.swagger.generator.online.Generator;
 import io.swagger.models.Swagger;
-
 import org.apache.commons.io.FileUtils;
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
@@ -1993,7 +1990,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 * 
 	 * @return
 	 */
-	@ApiOperation(value = "Genrate client", notes = "", code = 200)
+	@ApiOperation(value = "Genrate Server", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
@@ -2067,13 +2064,25 @@ public class SwaggerServiceImpl implements SwaggerService {
 						"Swagger-1001");
 			}
 			String filename = generateSwagger3SDK(vo, framework);
-			org.json.JSONObject obj = null;
-			obj = jfrogUtilImpl.uploadFiles(filename,
-					"/" + getWorkspaceId() + "/" + framework + "/" + System.currentTimeMillis());
-			new File(filename).delete();
+			String downloadURI = null;
+			S3Integration s3Integration = s3Connection.getS3Integration();
+			if (null != s3Integration) {
+				File file = new File(filename);
+				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+						"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(),
+						filename);
+			} else {
+				org.json.JSONObject obj = null;
+				obj = jfrogUtilImpl.uploadFiles(filename,
+						"/" + getWorkspaceId() + "/" + framework + "/" + System.currentTimeMillis());
+				new File(filename).delete();
+				downloadURI = obj.getString("downloadURI");
+			}
 			ResponseCode responseCode = new ResponseCode();
-			responseCode.setLink(obj.getString("downloadURI"));
+			responseCode.setLink(downloadURI);
 			return new ResponseEntity<ResponseCode>(responseCode, HttpStatus.OK);
+
 		}
 		return new ResponseEntity<ResponseCode>(new ResponseCode(), HttpStatus.OK);
 	}
