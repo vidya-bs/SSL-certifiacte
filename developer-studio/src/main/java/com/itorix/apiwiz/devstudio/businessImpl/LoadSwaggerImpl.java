@@ -12,18 +12,19 @@ import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import net.sf.json.JSONSerializer;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LoadSwaggerImpl implements LoadSwagger {
+	
+	
 
 	@Override
 	public String loadProxySwaggerDetails(String content, String oas) throws JsonProcessingException, JSONException {
@@ -54,11 +55,18 @@ public class LoadSwaggerImpl implements LoadSwagger {
 			name = api.getInfo().getTitle();
 			version = api.getInfo().getVersion();
 		}
-		if (api.getServers() != null)
+		if (api.getServers() != null) {
 			basePath = api.getServers().get(0).getUrl();
+			try {
+				URL url=new URL (basePath);
+				basePath = url.getFile();
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+		}
 		proxy.setBasePath(basePath);
 		proxy.setName(name);
-		proxy.setDescription(name);
+		proxy.setDescription(name);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
 		Flows flows = new Flows();
 		proxy.setFlows(flows);
 		proxy.setVersion(getVersion(version));
@@ -333,9 +341,15 @@ public class LoadSwaggerImpl implements LoadSwagger {
 		if (api.getInfo() != null) {
 			name = api.getInfo().getTitle();
 		}
-		if (api.getServers() != null)
+		if (api.getServers() != null) {
 			basePath = api.getServers().get(0).getUrl();
-
+			try {
+				URL url=new URL (basePath);
+				basePath = url.getFile();
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+		}
 		proxy.setBasePath(basePath);
 		proxy.setName(name);
 		proxy.setDescription(name);
