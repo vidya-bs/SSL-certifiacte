@@ -154,7 +154,7 @@ public class TestRunner {
 
                         int numberOfTestCases = testCases.size();
                         int counter = 0;
-                        for (; succededTests.size() + failedTests.size() < numberOfTestCases; counter++) {
+                        for (; counter < numberOfTestCases; counter++) {
                             TestCase testCase = testCases.get(counter);
                             Long starttime = System.currentTimeMillis();
                             Map<String, Integer> testStatus = new HashMap<String, Integer>();
@@ -231,8 +231,13 @@ public class TestRunner {
 
                     scenarioSuccessSum += successRate;
                     scenario.setSuccessRate((int) Math.round(successRate));
-                } catch(HaltExecution ex) {
-                    logger.debug("Skipping processing of remaining scenarios. To process the remaining scenarios modify continueOnError flag on scenario {} ", scenario.getName());
+                } catch(Exception ex) {
+                    if(ex instanceof HaltExecution){
+                        logger.debug("Skipping processing of remaining scenarios. To process the remaining scenarios modify continueOnError flag on scenario {} ", scenario.getName());
+                    }else{
+                        logger.debug("An Error occurred while processing scenario {} : {}",scenario.getName(),ex.getMessage());
+                    }
+
                     scenario.setStatus("FAIL");
                     failedScenarios.add(scenario.getName());
                     double successRate = 0;
