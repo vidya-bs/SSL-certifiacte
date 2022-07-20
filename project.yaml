@@ -20,6 +20,7 @@ deployment:
         container: disable
         spaceName: NA
         awsCredProfile: NA
+        cloudProvider: NA
       - env: development
         branch: feature
         deployFlag: enable
@@ -31,6 +32,20 @@ deployment:
         container: enable
         spaceName: dev
         awsCredProfile: nonprod
+        cloudProvider: aws
+      - env: gcp-dev
+        branch: feature
+        deployFlag: enable
+        approval: disable
+        host: 34.70.37.110
+        pem: NA
+        configBranch: dev-gcp
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        container: enable
+        spaceName: apiwiz-system
+        awsCredProfile: NA
+        gcpCredProfile: nonprod
+        cloudProvider: google
       - env: stage
         branch: develop
         deployFlag: enable
@@ -42,6 +57,7 @@ deployment:
         container: enable
         spaceName: stage
         awsCredProfile: nonprod
+        cloudProvider: aws
       - env: production
         branch: main
         deployFlag: enable
@@ -53,6 +69,7 @@ deployment:
         container: enable
         spaceName: apiwiz-system
         awsCredProfile: default
+        cloudProvider: aws
   - appName: apimock
     buildImage: enable
     jarLocation: /api-mock-server/target
@@ -69,6 +86,7 @@ deployment:
         configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
         spaceName: NA
         awsCredProfile: NA
+        cloudProvider: NA
       - env: development
         branch: feature
         deployFlag: enable
@@ -80,6 +98,20 @@ deployment:
         pem: NA
         configBranch: dev
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        cloudProvider: aws
+      - env: gcp-dev
+        branch: feature
+        deployFlag: enable
+        approval: disable
+        host: 34.70.37.110
+        pem: NA
+        configBranch: dev-gcp
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        container: enable
+        spaceName: apiwiz-system
+        awsCredProfile: NA
+        gcpCredProfile: nonprod
+        cloudProvider: google
       - env: stage
         branch: develop
         deployFlag: enable
@@ -91,6 +123,7 @@ deployment:
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        cloudProvider: aws
       - env: production
         deployFlag: enable
         branch: main
@@ -102,6 +135,7 @@ deployment:
         pem: NA
         configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        cloudProvider: aws
   - appName: testsuite
     buildImage: enable
     jarLocation: /test-suite-lib/target
@@ -118,6 +152,7 @@ deployment:
         configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
         spaceName: NA
         awsCredProfile: NA
+        cloudProvider: NA
       - env: development
         branch: feature
         deployFlag: enable
@@ -129,6 +164,20 @@ deployment:
         pem: NA
         configBranch: dev
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        cloudProvider: aws
+      - env: gcp-dev
+        branch: feature
+        deployFlag: enable
+        approval: disable
+        host: 34.70.37.110
+        pem: NA
+        configBranch: dev-gcp
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        container: enable
+        spaceName: apiwiz-system
+        awsCredProfile: NA
+        gcpCredProfile: nonprod
+        cloudProvider: google
       - env: stage
         branch: develop
         deployFlag: enable
@@ -140,6 +189,7 @@ deployment:
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        cloudProvider: aws
       - env: production
         branch: main
         deployFlag: enable
@@ -151,6 +201,7 @@ deployment:
         pem: NA
         configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        cloudProvider: aws
   - appName: sso
     buildImage: enable
     jarName: sso-0.0.1-SNAPSHOT.jar
@@ -167,6 +218,7 @@ deployment:
         configBranch: local
         awsCredProfile: NA
         configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
+        cloudProvider: NA
       - env: development
         deployFlag: enable
         branch: feature
@@ -179,6 +231,20 @@ deployment:
         configBranch: dev
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         ssoHelmValueFileName: 'sso-values.yaml'
+        cloudProvider: aws
+      - env: gcp-dev
+        branch: feature
+        deployFlag: enable
+        approval: disable
+        host: 34.70.37.110
+        pem: NA
+        configBranch: dev-gcp
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        container: enable
+        spaceName: apiwiz-system
+        awsCredProfile: NA
+        gcpCredProfile: nonprod
+        cloudProvider: google
       - env: stage
         branch: develop
         deployFlag: enable
@@ -191,6 +257,7 @@ deployment:
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         ssoHelmValueFileName: 'sso-values.yaml'
+        cloudProvider: aws
       - env: production
         branch: main
         deployFlag: enable
@@ -203,6 +270,7 @@ deployment:
         configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
         ssoHelmValueFileName: 'sso-values.yaml'
+        cloudProvider: aws
   - appName: apimonitor
     buildImage: enable
     jarName: api-monitor-agent-0.0.1.jar
@@ -219,6 +287,20 @@ deployment:
         configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
         spaceName: NA
         awsCredProfile: NA
+        cloudProvider: NA
+      - env: gcp-dev
+        branch: feature
+        deployFlag: enable
+        approval: disable
+        host: 34.70.37.110
+        pem: NA
+        configBranch: dev-gcp
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        container: enable
+        spaceName: apiwiz-system
+        awsCredProfile: NA
+        gcpCredProfile: nonprod
+        cloudProvider: google
       - env: development
         branch: feature
         deployFlag: enable
@@ -230,6 +312,7 @@ deployment:
         pem: NA
         configBranch: dev
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        cloudProvider: aws
       - env: stage
         branch: develop
         deployFlag: enable
@@ -241,6 +324,7 @@ deployment:
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        cloudProvider: aws
       - env: production
         branch: main
         deployFlag: enable
@@ -252,6 +336,7 @@ deployment:
         pem: NA
         configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        cloudProvider: aws
   - appName: notification
     buildImage: enable
     jarName: notification-agent-0.0.1.jar
@@ -268,6 +353,7 @@ deployment:
         configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
         spaceName: NA
         awsCredProfile: NA
+        cloudProvider: NA
       - env: development
         branch: feature
         deployFlag: enable
@@ -279,6 +365,20 @@ deployment:
         pem: NA
         configBranch: dev
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        cloudProvider: aws
+      - env: gcp-dev
+        branch: feature
+        deployFlag: enable
+        approval: disable
+        host: 34.70.37.110
+        pem: NA
+        configBranch: dev-gcp
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        container: enable
+        spaceName: apiwiz-system
+        awsCredProfile: NA
+        gcpCredProfile: nonprod
+        cloudProvider: google
       - env: stage
         branch: develop
         deployFlag: enable
@@ -290,6 +390,7 @@ deployment:
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        cloudProvider: aws
       - env: production
         deployFlag: enable
         branch: main
@@ -301,6 +402,7 @@ deployment:
         pem: NA
         configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        cloudProvider: aws
   - appName: api-license
     buildImage: enable
     jarName: api-license-0.0.1-SNAPSHOT.jar
@@ -317,6 +419,7 @@ deployment:
         configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
         spaceName: NA
         awsCredProfile: NA
+        cloudProvider: NA
       - env: development
         branch: feature
         deployFlag: enable
@@ -328,6 +431,20 @@ deployment:
         pem: NA
         configBranch: dev
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        cloudProvider: aws
+      - env: gcp-dev
+        branch: feature
+        deployFlag: enable
+        approval: disable
+        host: 34.70.37.110
+        pem: NA
+        configBranch: dev-gcp
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        container: enable
+        spaceName: apiwiz-system
+        awsCredProfile: NA
+        gcpCredProfile: nonprod
+        cloudProvider: google
       - env: stage
         branch: develop
         deployFlag: enable
@@ -339,6 +456,7 @@ deployment:
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        cloudProvider: aws
       - env: production
         deployFlag: enable
         branch: main
@@ -350,6 +468,7 @@ deployment:
         pem: NA
         configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        cloudProvider: aws
   - appName: consent-api
     buildImage: enable
     jarName: api-consent-server-0.0.1-SNAPSHOT.jar
@@ -366,6 +485,7 @@ deployment:
         configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
         spaceName: NA
         awsCredProfile: NA
+        cloudProvider: NA
       - env: development
         branch: feature
         deployFlag: enable
@@ -377,6 +497,20 @@ deployment:
         pem: NA
         configBranch: dev
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        cloudProvider: aws
+      - env: gcp-dev
+        branch: feature
+        deployFlag: enable
+        approval: disable
+        host: 34.70.37.110
+        pem: NA
+        configBranch: dev-gcp
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        container: enable
+        spaceName: apiwiz-system
+        awsCredProfile: NA
+        gcpCredProfile: nonprod
+        cloudProvider: google
       - env: stage
         branch: develop
         deployFlag: enable
@@ -388,6 +522,7 @@ deployment:
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        cloudProvider: aws
       - env: production
         deployFlag: enable
         branch: main
@@ -399,3 +534,4 @@ deployment:
         pem: NA
         configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+        cloudProvider: aws
