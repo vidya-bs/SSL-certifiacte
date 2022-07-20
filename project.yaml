@@ -267,10 +267,10 @@ deployment:
         approval: enable
         host: NA
         pem: NA
-        configBranch: main
+        configBranch: tonikbank
         configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
-        ssoHelmValueFileName: 'sso-values.yaml'
         cloudProvider: aws
+        ssoHelmValueFileName: 'sso-tonikbank-values.yaml'
   - appName: apimonitor
     buildImage: enable
     jarName: api-monitor-agent-0.0.1.jar

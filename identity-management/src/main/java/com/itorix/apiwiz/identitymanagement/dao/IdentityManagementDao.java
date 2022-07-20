@@ -510,7 +510,7 @@ public class IdentityManagementDao {
 				throw new ItorixException(ErrorCodes.errorMessage.get("USER_005"), "USER_005");
 			}
 		} else {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Identity-1038"), domainId),
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Identity-1004"), domainId),
 					"Identity-1038");
 		}
 		return "";
