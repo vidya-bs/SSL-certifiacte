@@ -151,6 +151,7 @@ public class TestRunner {
                     }
                     if (scenario != null && scenario.getTestCases() != null) {
                         List<TestCase> testCases = scenario.getTestCases();
+                        testCases.parallelStream().forEach(testCase -> testCase.setStatus("DID NOT EXECUTE")); //Init TestCase Statuses
 
                         int numberOfTestCases = testCases.size();
                         int counter = 0;
