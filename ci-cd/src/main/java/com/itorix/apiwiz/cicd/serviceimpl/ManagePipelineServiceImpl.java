@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -502,9 +503,18 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 		try {
 			cicdIntegrationApi.pausePipeline(pipelineName);
 		} catch (Exception ex) {
+			if(ex instanceof HttpClientErrorException) {
+				if(((HttpClientErrorException) ex).getRawStatusCode()==409) {
+					log.error("The pipeline is already paused.Please unpause it first", ex.getCause());
+					return new ResponseEntity<>(new ErrorObj("The pipeline is already paused.Please unpause it first","CI-CD-GOCD-400"),
+							HttpStatus.BAD_REQUEST);
+				}
+			}
+			else {
 			log.error("Error while pausing pipeline. Please try after sometime.", ex.getCause());
 			return new ResponseEntity<>(new ErrorObj("Error while pausing pipeline. Please try after sometime.", ""),
 					HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 		}
 		pipelineDao.updatePipelineStatus(groupName, pipelineName, "Paused",
 				commonServices.getUserDetailsFromSessionID(jsessionId));
