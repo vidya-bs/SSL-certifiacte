@@ -487,7 +487,7 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 					+ testSuite.getTestSuiteAgent() + "/" + testSuitContextPath + TEST_SUITE_CANCEL;
 			ResponseEntity<String> result;
 			try {
-				result = restTemplate.postForEntity(url, httpEntity, String.class);
+				result = restTemplate.postForEntity(testSuitAgentPath + testSuitContextPath + TEST_SUITE_CANCEL, httpEntity, String.class);
 				if (!result.getStatusCode().is2xxSuccessful()) {
 					logger.error("error returned from test suit agent url {} ,  {} ", url, result.getBody());
 					throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-100803"), "Testsuite-100803");
