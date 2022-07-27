@@ -60,6 +60,8 @@ https://drive.google.com/file/d/1daxPArY5o_1XDS-laJKS8KuoltH8DMgi/view?ts=628e56
 
  - Change the `server.port` to 9001.
 
+ - Add `spring.data.mongodb.uri=mongodb://localhost:27017//` below `# MongoDB Configuration Setting`.
+
  - Add the appdata path before `/logs` in the `itorix.core.log.location` data (5th line).
 
  - Change the path for all the instance of `/opt` to the path of your appdata folder and save it.
