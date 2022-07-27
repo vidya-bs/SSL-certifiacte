@@ -839,12 +839,13 @@ public class CiCdIntegrationAPI {
 		if (CiCdIntegrationHelper.getConfirmHeader(goCDIntegration.getVersion()) != null) {
 			headers.set(CiCdIntegrationHelper.getConfirmHeader(goCDIntegration.getVersion()), "true");
 			headers.set("Accept", "application/vnd.go.cd.v1+json");
+			headers.setBasicAuth(goCDIntegration.getUsername(), goCDIntegration.getPassword());
 		} else
 			headers.set("Confirm", "true");
 		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.getInterceptors()
-				.add(new BasicAuthorizationInterceptor(config.getCicdAuthUserName(), config.getCicdAuthPassword()));
-		HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
+//		restTemplate.getInterceptors()
+//				.add(new BasicAuthorizationInterceptor(config.getCicdAuthUserName(), config.getCicdAuthPassword()));
+		HttpEntity<String> requestEntity = new HttpEntity<>(headers);
 		ResponseEntity<String> responseEntity = restTemplate.exchange(goCDIntegration.getHostURL()
 				+ config.getPipelineEndPoint() + File.separator + name + File.separator + action, HttpMethod.POST,
 				requestEntity, String.class);
