@@ -139,6 +139,11 @@ public class TestRunner {
         // TODO: Parallelization based on number of processors available
 
         if (testSuite.getScenarios() != null) {
+            testSuite.getScenarios().parallelStream().forEach(scenario -> {
+                if(scenario != null && scenario.getTestCases() != null){
+                    scenario.getTestCases().parallelStream().forEach(testCase -> testCase.setStatus("DID NOT EXECUTE")); //Init TestCase Statuses
+                }
+            });
             for (Scenario scenario : testSuite.getScenarios()) {
                 Map<String, Boolean> succededTests = new HashMap<>();
                 Map<String, Boolean> failedTests = new HashMap<>();
