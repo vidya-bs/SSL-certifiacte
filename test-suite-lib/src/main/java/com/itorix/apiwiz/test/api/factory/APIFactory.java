@@ -2,7 +2,6 @@ package com.itorix.apiwiz.test.api.factory;
 
 import com.itorix.apiwiz.test.executor.beans.HttpDeleteWithBody;
 import org.apache.http.Consts;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -113,26 +112,17 @@ public class APIFactory {
             SSLConnectionSocketFactory sslConnectionFactory, int timeout) throws ClientProtocolException, IOException {
         HttpResponse response = null;
         HttpClient client = getClient(sslConnectionFactory, timeout);
-        HttpRequestBase request=null;
-        if(null != body && !body.isEmpty()){
-         request = new HttpDeleteWithBody(url);  
-         addBody(request, body);
-        }
-        else
-        {
-        	request=new HttpDelete(url);
-        }
+        HttpDeleteWithBody request = new HttpDeleteWithBody(url);
         addHeaders(request, headers);
-
+        addBody(request, body);
         response = client.execute(request);
-        
         return response;
     }
 
-    private static void addBody(HttpRequestBase request, String body) {
+    private static void addBody(HttpDeleteWithBody request, String body) {
         if(null != body && !"".equalsIgnoreCase(body)) {
             StringEntity entity = new StringEntity(body, ContentType.APPLICATION_JSON);
-            ((HttpEntityEnclosingRequestBase) request).setEntity(entity);
+            request.setEntity(entity);
         }
     }
 
