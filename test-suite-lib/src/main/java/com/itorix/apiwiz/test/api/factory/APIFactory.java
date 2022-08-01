@@ -114,7 +114,7 @@ public class APIFactory {
         HttpResponse response = null;
         HttpClient client = getClient(sslConnectionFactory, timeout);
         HttpRequestBase request=null;
-        if(null != body && !"".equalsIgnoreCase(body)){
+        if(null != body && !body.isEmpty()){
          request = new HttpDeleteWithBody(url);  
          addBody(request, body);
         }
