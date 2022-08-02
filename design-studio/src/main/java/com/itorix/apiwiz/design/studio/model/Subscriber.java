@@ -16,7 +16,7 @@ import lombok.experimental.FieldDefaults;
 public class Subscriber extends AbstractObject{
 	public enum Type {
 		DEVELOPER,
-		USER
+		CONSUMER
 	}
 	@JsonProperty("name")
 	String name;
