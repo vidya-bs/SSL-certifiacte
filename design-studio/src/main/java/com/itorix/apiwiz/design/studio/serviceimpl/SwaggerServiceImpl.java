@@ -285,9 +285,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 		Subscriber subscriber = new Subscriber();
 		subscriber.setName(swaggerSubscriptionReq.getName());
 		subscriber.setEmailId(swaggerSubscriptionReq.getEmailId());
-		swaggerSubscriptionDao.swaggerSubscribe(swaggerSubscriptionReq.getSwaggerId(),
-				swaggerSubscriptionReq.getSwaggerName(), swaggerSubscriptionReq.getOas(), subscriber);
-		return new ResponseEntity<Void>(HttpStatus.OK);
+		subscriber.setType(swaggerSubscriptionReq.getType());
+		swaggerSubscriptionDao.swaggerSubscribe(swaggerSubscriptionReq.getSwaggerId(), swaggerSubscriptionReq.getSwaggerName(), swaggerSubscriptionReq.getOas(), subscriber);
+		return new ResponseEntity<Void>( HttpStatus.OK);
 	}
 
 	/**
@@ -2070,8 +2070,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public @ResponseBody ResponseEntity<Object> createLangSupport(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@PathVariable("framework") String framework, @RequestBody SupportedCodeGenLang langData)
-			throws Exception {
+			@PathVariable("framework") String framework,
+			@RequestBody SupportedCodeGenLang langData) throws Exception{
 
 		SupportedCodeGenLang res = codeGenLangDao.addLang(langData);
 		return new ResponseEntity<Object>(res, HttpStatus.OK);
