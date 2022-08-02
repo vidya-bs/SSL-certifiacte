@@ -56,6 +56,9 @@ public class Scenario {
 		this.description = description;
 	}
 
+	@JsonProperty("depends")
+	private String dependsOn;
+
 	@JsonProperty("testCases")
 	public List<TestCase> getTestCases() {
 		if (this.testCases == null)
@@ -116,5 +119,13 @@ public class Scenario {
 		if (this.testCases != null && this.testCases.size() > 0)
 			return Boolean.TRUE;
 		return Boolean.FALSE;
+	}
+
+	public String getDependsOn() {
+		return dependsOn;
+	}
+
+	public void setDependsOn(String dependsOn) {
+		this.dependsOn = dependsOn;
 	}
 }

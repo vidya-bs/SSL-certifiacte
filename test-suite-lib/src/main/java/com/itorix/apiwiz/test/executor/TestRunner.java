@@ -98,12 +98,14 @@ public class TestRunner {
         }
     }
 
+    public static double scenarioSuccessSum = 0.0;
+    public static boolean canContinue = true;
     public TestSuiteResponse executeTestSuite(String testSuiteResponseID, TestSuite testSuite, Variables vars,
-            Boolean skipAssertions, Boolean isMonitoring, int globalTimeout) {
+                                              Boolean skipAssertions, Boolean isMonitoring, int globalTimeout) {
         List<String> succededScenarios = new ArrayList<String>();
         List<String> failedScenarios = new ArrayList<String>();
-        double scenarioSuccessSum = 0.0;
-
+        scenarioSuccessSum = 0.0;
+        canContinue = true;
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, String> encryptedVariables = null;
         List<Header> encryptedVariableHeaders = null;
@@ -144,115 +146,21 @@ public class TestRunner {
                     scenario.getTestCases().parallelStream().forEach(testCase -> testCase.setStatus("DID NOT EXECUTE")); //Init TestCase Statuses
                 }
             });
+            Map<String, Scenario> scenarios = new HashMap<>();
             for (Scenario scenario : testSuite.getScenarios()) {
-                Map<String, Boolean> succededTests = new HashMap<>();
-                Map<String, Boolean> failedTests = new HashMap<>();
-                try {
-                    logger.debug("executing scenario for testSuiteResponseID" + testSuiteResponseID);
-
-                    if (cancellationExecutor.getAndRemoveTestSuiteCancellationId(testSuiteResponseID)) {
-                        return new TestSuiteResponse(testSuite.getId(), null, testSuite,
-                                TestExecutorEntity.STATUSES.CANCELLED.getValue());
+                scenarios.put(scenario.getName(), scenario);
+            }
+            for (Scenario scenario : testSuite.getScenarios()) {
+                if (canContinue) {
+                    TestSuiteResponse testSuiteResponse = null;
+                    try {
+                        executeScenarios(scenarios, scenario, testSuiteResponseID, testSuite, globalVars, maskingFields, encryptedVariables, skipAssertions, isMonitoring, globalTimeout, succededScenarios, failedScenarios, testSuiteResponse);
+                    } catch (Exception e) {
+                        throw e;
                     }
-                    if (scenario != null && scenario.getTestCases() != null) {
-                        List<TestCase> testCases = scenario.getTestCases();
-
-                        int numberOfTestCases = testCases.size();
-                        int counter = 0;
-                        for (; counter < numberOfTestCases; counter++) {
-                            TestCase testCase = testCases.get(counter);
-                            Long starttime = System.currentTimeMillis();
-                            Map<String, Integer> testStatus = new HashMap<String, Integer>();
-                            try {
-                                if (canExecuteTestCase(testCase, succededTests, failedTests)) {
-                                    String sslReference = fillTemplate(testCase.getSslReference(), globalVars);
-                                    SSLConnectionSocketFactory sslConnectionFactory = dao
-                                            .getSSLConnectionFactory(sslReference);
-
-                                    // creating maskingFields object in case it is null, just to avoid null checks at many
-                                    // places
-                                    if (maskingFields == null) {
-                                        maskingFields = new MaskFields();
-                                    }
-                                    invokeTestCase(testCase, globalVars, encryptedVariables, maskingFields, testStatus,
-                                            skipAssertions, isMonitoring, sslConnectionFactory, globalTimeout);
-                                } else {
-                                    counter++;
-                                    if (counter > testCases.size()) {
-                                        counter = 0;
-                                    }
-                                    continue;
-                                }
-                                if (testStatus.get("FAIL") == null) {
-                                    testCases.get(counter).setStatus("PASS");
-                                    succededTests.put(testCase.getName(), true);
-                                } else {
-                                    testCases.get(counter).setStatus("FAIL");
-                                    logger.debug("test case execution failed for {}", testCase.getName());
-                                    failedTests.put(testCase.getName(), true);
-                                }
-                            } catch(HaltExecution ex) {
-                                logger.debug("Halting execution of test cases since a test case {} failed. ", testCase.getName());
-                                testCase.setStatus("FAIL");
-                                testCase.setMessage(ex.getMessage());
-                                computeHeaders(testCase.getRequest().getHeaders(), globalVars);
-                                failedTests.put(testCase.getName(), true);
-                                if(!scenario.isContinueOnError()) {
-                                    throw new HaltExecution("Scenario " + scenario.getName() + " is configured to skip upcoming test scenarios");
-                                }
-                                break;
-
-                            }catch (AssertionError | Exception ex) {
-                                logger.error("Error executing {} , {} ", testCase.getName(), ex);
-                                testCase.setStatus("FAIL");
-                                testCase.setMessage(ex.getMessage());
-                                computeHeaders(testCase.getRequest().getHeaders(), globalVars);
-                                failedTests.put(testCase.getName(), true);
-                                if(!scenario.isContinueOnError()) {
-                                    throw new HaltExecution("Scenario " + scenario.getName() + " is configured to skip upcoming test scenarios");
-                                }
-                            } finally {
-                                testCase.setDuration(System.currentTimeMillis() - starttime);
-                                if (counter > testCases.size()) {
-                                    counter = 0;
-                                }
-                            }
-                        }
+                    if (testSuiteResponse != null) {
+                        return testSuiteResponse;
                     }
-                    if (!failedTests.isEmpty()) {
-                        scenario.setStatus("FAIL");
-                        failedScenarios.add(scenario.getName());
-                    } else {
-                        scenario.setStatus("PASS");
-                        succededScenarios.add(scenario.getName());
-                    }
-
-                    double successRate = 0;
-
-                    if (!CollectionUtils.isEmpty(succededTests)) {
-                        successRate = Double
-                                .valueOf(((double) succededTests.size() / scenario.getTestCases().size()) * 100);
-                    }
-
-                    scenarioSuccessSum += successRate;
-                    scenario.setSuccessRate((int) Math.round(successRate));
-                } catch(Exception ex) {
-                    if(ex instanceof HaltExecution){
-                        logger.debug("Skipping processing of remaining scenarios. To process the remaining scenarios modify continueOnError flag on scenario {} ", scenario.getName());
-                    }else{
-                        logger.debug("An Error occurred while processing scenario {} : {}",scenario.getName(),ex.getMessage());
-                    }
-
-                    scenario.setStatus("FAIL");
-                    failedScenarios.add(scenario.getName());
-                    double successRate = 0;
-                    if (!CollectionUtils.isEmpty(succededTests)) {
-                        successRate = Double
-                                .valueOf(((double) succededTests.size() / scenario.getTestCases().size()) * 100);
-                    }
-                    scenarioSuccessSum += successRate;
-                    scenario.setSuccessRate((int) Math.round(successRate));
-                    break;
                 }
             }
 
@@ -300,6 +208,133 @@ public class TestRunner {
         }
         return new TestSuiteResponse(testSuite.getId(), null, testSuite,
                 TestExecutorEntity.STATUSES.COMPLETED.getValue());
+    }
+
+    private void executeScenarios(Map<String, Scenario> scenarios, Scenario scenario, String testSuiteResponseID, TestSuite testSuite, Map<String, String> globalVars, MaskFields maskingFields, Map<String, String> encryptedVariables, Boolean skipAssertions, Boolean isMonitoring, int globalTimeout, List<String> succededScenarios, List<String> failedScenarios, TestSuiteResponse testSuiteResponse) {
+        if (scenario.getStatus() == null) {
+            Map<String, Boolean> succededTests = new HashMap<>();
+            Map<String, Boolean> failedTests = new HashMap<>();
+            try {
+                logger.debug("executing scenario for testSuiteResponseID" + testSuiteResponseID);
+
+                if (cancellationExecutor.getAndRemoveTestSuiteCancellationId(testSuiteResponseID)) {
+                    testSuiteResponse = new TestSuiteResponse(testSuite.getId(), null, testSuite,
+                            TestExecutorEntity.STATUSES.CANCELLED.getValue());
+                }
+                if (scenario.getDependsOn() != null) {
+                    Scenario childScenario = scenarios.get(scenario.getDependsOn());
+                    if (childScenario.getStatus() != null) {
+                        if (childScenario.getStatus() == "FAIL")
+                            scenario.setStatus("FAIL");
+                    } else {
+                        executeScenarios(scenarios, childScenario, testSuiteResponseID, testSuite, globalVars, maskingFields, encryptedVariables, skipAssertions, isMonitoring, globalTimeout, succededScenarios, failedScenarios, testSuiteResponse);
+                    }
+                }
+                if (scenario.getStatus() == null || (scenario.getStatus() == "FAIL" && scenario.isContinueOnError())){
+                    if (scenario != null && scenario.getTestCases() != null) {
+                        List<TestCase> testCases = scenario.getTestCases();
+
+                        int numberOfTestCases = testCases.size();
+                        int counter = 0;
+                        for (; counter < numberOfTestCases; counter++) {
+                            TestCase testCase = testCases.get(counter);
+                            Long starttime = System.currentTimeMillis();
+                            Map<String, Integer> testStatus = new HashMap<String, Integer>();
+                            try {
+                                if (canExecuteTestCase(testCase, succededTests, failedTests)) {
+                                    String sslReference = fillTemplate(testCase.getSslReference(), globalVars);
+                                    SSLConnectionSocketFactory sslConnectionFactory = dao
+                                            .getSSLConnectionFactory(sslReference);
+
+                                    // creating maskingFields object in case it is null, just to avoid null checks at many
+                                    // places
+                                    if (maskingFields == null) {
+                                        maskingFields = new MaskFields();
+                                    }
+                                    invokeTestCase(testCase, globalVars, encryptedVariables, maskingFields, testStatus,
+                                            skipAssertions, isMonitoring, sslConnectionFactory, globalTimeout);
+                                } else {
+                                    counter++;
+                                    if (counter > testCases.size()) {
+                                        counter = 0;
+                                    }
+                                    continue;
+                                }
+                                if (testStatus.get("FAIL") == null) {
+                                    testCases.get(counter).setStatus("PASS");
+                                    succededTests.put(testCase.getName(), true);
+                                } else {
+                                    testCases.get(counter).setStatus("FAIL");
+                                    logger.debug("test case execution failed for {}", testCase.getName());
+                                    failedTests.put(testCase.getName(), true);
+                                }
+                            } catch (HaltExecution ex) {
+                                logger.debug("Halting execution of test cases since a test case {} failed. ", testCase.getName());
+                                testCase.setStatus("FAIL");
+                                testCase.setMessage(ex.getMessage());
+                                computeHeaders(testCase.getRequest().getHeaders(), globalVars);
+                                failedTests.put(testCase.getName(), true);
+                                if (!scenario.isContinueOnError()) {
+                                    throw new HaltExecution("Scenario " + scenario.getName() + " is configured to skip upcoming test scenarios");
+                                }
+                                break;
+
+                            } catch (AssertionError | Exception ex) {
+                                logger.error("Error executing {} , {} ", testCase.getName(), ex);
+                                testCase.setStatus("FAIL");
+                                testCase.setMessage(ex.getMessage());
+                                computeHeaders(testCase.getRequest().getHeaders(), globalVars);
+                                failedTests.put(testCase.getName(), true);
+                                if (!scenario.isContinueOnError()) {
+                                    throw new HaltExecution("Scenario " + scenario.getName() + " is configured to skip upcoming test scenarios");
+                                }
+                            } finally {
+                                testCase.setDuration(System.currentTimeMillis() - starttime);
+                                if (counter > testCases.size()) {
+                                    counter = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (scenario.getStatus() == "FAIL" && !scenario.isContinueOnError()){
+                    canContinue = false;
+                }
+                if (!failedTests.isEmpty()) {
+                    scenario.setStatus("FAIL");
+                    failedScenarios.add(scenario.getName());
+                } else {
+                    scenario.setStatus("PASS");
+                    succededScenarios.add(scenario.getName());
+                }
+
+                double successRate = 0;
+
+                if (!CollectionUtils.isEmpty(succededTests)) {
+                    successRate = Double
+                            .valueOf(((double) succededTests.size() / scenario.getTestCases().size()) * 100);
+                }
+
+                scenarioSuccessSum += successRate;
+                scenario.setSuccessRate((int) Math.round(successRate));
+            } catch(Exception ex) {
+                if(ex instanceof HaltExecution){
+                    logger.debug("Skipping processing of remaining scenarios. To process the remaining scenarios modify continueOnError flag on scenario {} ", scenario.getName());
+                }else{
+                    logger.debug("An Error occurred while processing scenario {} : {}",scenario.getName(),ex.getMessage());
+                }
+
+                scenario.setStatus("FAIL");
+                failedScenarios.add(scenario.getName());
+                double successRate = 0;
+                if (!CollectionUtils.isEmpty(succededTests)) {
+                    successRate = Double
+                            .valueOf(((double) succededTests.size() / scenario.getTestCases().size()) * 100);
+                }
+                scenarioSuccessSum += successRate;
+                scenario.setSuccessRate((int) Math.round(successRate));
+            }
+        }
     }
 
     // public TestSuiteResponse executeTestSuiteForCodeCoverage(TestSuite testSuite, Variables vars) {
