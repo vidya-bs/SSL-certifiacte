@@ -14,13 +14,19 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Subscriber extends AbstractObject{
-	
+	public enum Type {
+		DEVELOPER,
+		USER
+	}
 	@JsonProperty("name")
 	String name;
 	
 	@JsonProperty("emailId")
 	String emailId;
-	
+
+	@JsonProperty("type")
+	Type type;
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -37,7 +43,11 @@ public class Subscriber extends AbstractObject{
 			return false;
 		Subscriber subscriber = (Subscriber) obj;
 		return this.emailId.equals(subscriber.emailId);
-		
+
+	}
+
+	public void setType(String type){
+		this.type = Type.valueOf(type);
 	}
 }
 
