@@ -2,7 +2,6 @@ package com.itorix.apiwiz.design.studio.dao;
 
 import com.itorix.apiwiz.design.studio.model.ApiRatings;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -14,20 +13,19 @@ import java.util.List;
 
 @Component
 public class ApiRatingsDao {
-    @Qualifier("masterMongoTemplate")
     @Autowired
-    private MongoTemplate masterMongoTemplate;
+    private MongoTemplate mongoTemplate;
 
 
     public ResponseEntity<?> postRating(String swaggerId,ApiRatings apiRatings) {
         apiRatings.setSwaggerId(swaggerId);
-        masterMongoTemplate.save(apiRatings);
+        mongoTemplate.save(apiRatings);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     public double getTotalRating(String swaggerId){
         Query query = new Query(Criteria.where("swaggerId").is(swaggerId));
-        List<ApiRatings> totalRatings = masterMongoTemplate.find(query, ApiRatings.class);
+        List<ApiRatings> totalRatings = mongoTemplate.find(query, ApiRatings.class);
         int totalRating = 0;
         for(ApiRatings apiRatings:totalRatings){
             totalRating+= apiRatings.getRating();
