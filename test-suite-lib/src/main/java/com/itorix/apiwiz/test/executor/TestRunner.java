@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
+import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
 import com.itorix.apiwiz.test.api.factory.APIFactory;
 import com.itorix.apiwiz.test.component.CancellationExecutor;
 import com.itorix.apiwiz.test.dao.ScenarioTimeOutDao;
@@ -65,6 +66,7 @@ public class TestRunner {
 
     @Autowired
     ScenarioTimeOutDao scenarioTimeOutDao;
+
 
     public enum API {
         GET, PUT, POST, DELETE, OPTIONS, PATCH;
@@ -160,10 +162,17 @@ public class TestRunner {
                     }
                     if (scenario != null && scenario.getTestCases() != null) {
 
-                        ScenarioTimeOut existingScenarioTimeOut = scenarioTimeOutDao.getExistingTimeOut(testSuiteResponseID);
-                        logger.info(String.format("Starting timeout for %s with testsuiteId %s is %s",scenario.getName(),testSuiteResponseID,LocalTime.now()));
-                        Thread.sleep(existingScenarioTimeOut.getTimeout());
-                        logger.info(String.format("Ending timeout for %s with testsuiteId %s is %s",scenario.getName(),testSuiteResponseID,LocalTime.now()));
+                        List<WorkspaceIntegration> integrations =  dao.getWorkspaceIntegration();
+                        String enable = integrations.stream()
+                                .filter(c->c.getPropertyKey().equalsIgnoreCase("enable"))
+                                .map(WorkspaceIntegration::getPropertyValue).findFirst().orElse(null);
+
+                        if(enable!=null && enable.equalsIgnoreCase("true")){
+                            ScenarioTimeOut existingScenarioTimeOut = scenarioTimeOutDao.getExistingTimeOut(testSuiteResponseID);
+                            logger.info(String.format("Starting timeout for %s with testsuiteId %s is %s",scenario.getName(),testSuiteResponseID,LocalTime.now()));
+                            Thread.sleep(existingScenarioTimeOut.getTimeout());
+                            logger.info(String.format("Ending timeout for %s with testsuiteId %s is %s",scenario.getName(),testSuiteResponseID,LocalTime.now()));
+                        }
 
                         List<TestCase> testCases = scenario.getTestCases();
 

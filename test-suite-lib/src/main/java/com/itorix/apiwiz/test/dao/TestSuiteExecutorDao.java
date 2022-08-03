@@ -1,4 +1,6 @@
 package com.itorix.apiwiz.test.dao;
+
+import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
 import com.itorix.apiwiz.test.db.TestExecutorEntity;
 import com.itorix.apiwiz.test.executor.beans.*;
 import com.itorix.apiwiz.test.executor.exception.ItorixException;
@@ -54,7 +56,6 @@ public class TestSuiteExecutorDao {
 
 	@Autowired
 	private ResourceLoader resourceLoader;
-
 
 	private static final Logger log = LoggerFactory.getLogger(TestSuiteExecutorDao.class);
 
@@ -213,4 +214,8 @@ public class TestSuiteExecutorDao {
 		}
 		return false;
 	}
+	public List<WorkspaceIntegration> getWorkspaceIntegration() {
+		return mongoTemplate.findAll(WorkspaceIntegration.class);
+	}
+
 }

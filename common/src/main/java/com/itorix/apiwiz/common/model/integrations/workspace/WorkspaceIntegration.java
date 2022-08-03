@@ -12,10 +12,6 @@ public class WorkspaceIntegration {
 	private String propertyKey;
 	private String propertyValue;
 	private boolean encrypt = false;
-	private Boolean enabled = false;
-	public Boolean getEnabled() {return enabled;}
-	public void setEnabled(Boolean enabled) {this.enabled = enabled;}
-
 	public boolean getEncrypt() {
 		return encrypt;
 	}
