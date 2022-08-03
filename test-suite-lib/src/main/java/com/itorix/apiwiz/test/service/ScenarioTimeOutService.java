@@ -9,17 +9,17 @@ import org.springframework.web.bind.annotation.*;
 public interface ScenarioTimeOutService {
     @PostMapping(value = "/v1/execute/timeout", consumes = { "application/json" }, produces = {
             "application/json" })
-    public ResponseEntity<?> createTimeOut(@RequestBody TimeOut requestBody) throws Exception;
+    public ResponseEntity<?> createTimeOut(@RequestHeader(value = "JSESSIONID") String jsessionid,@RequestBody TimeOut requestBody) throws Exception;
 
     @PutMapping(value = "/v1/execute/timeout", consumes = { "application/json" }, produces = {
             "application/json" })
-    public ResponseEntity<?> updateTimeOut(@RequestBody TimeOut requestBody) throws Exception;
+    public ResponseEntity<?> updateTimeOut(@RequestHeader(value = "JSESSIONID") String jsessionid,@RequestBody TimeOut requestBody) throws Exception;
 
     @DeleteMapping(value = "/v1/execute/timeout", consumes = { "application/json" }, produces = {
             "application/json"})
-    public ResponseEntity<?> deleteTimeOut(@RequestBody TimeOut requestBody) throws Exception;
+    public ResponseEntity<?> deleteTimeOut(@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
-    @GetMapping(value = "/v1/execute/timeout/{tenant}", consumes = { "application/json" }, produces = {
+    @GetMapping(value = "/v1/execute/timeout", consumes = { "application/json" }, produces = {
             "application/json"})
-    public TimeOut getTimeOut(@PathVariable String tenant) throws Exception;
+    public TimeOut getTimeOut(@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 }

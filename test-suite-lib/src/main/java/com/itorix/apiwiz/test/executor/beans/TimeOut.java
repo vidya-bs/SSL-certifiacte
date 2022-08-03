@@ -6,12 +6,11 @@ import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
-@Document(collection = "Test.Timeout.List")
+@Document(collection = "Test.Scenario.Timeout")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 public class TimeOut {
-    private String tenant;
     private boolean enabled;
     private int timeout;
     private String testAgentType="shared";
