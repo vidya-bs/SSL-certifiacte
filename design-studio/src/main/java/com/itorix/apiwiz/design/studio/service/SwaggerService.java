@@ -1273,4 +1273,21 @@ public interface SwaggerService {
 	public ResponseEntity<?> loadSwaggersToScan(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid);
 
+
+	@ApiOperation(value = "Clone existing Swagger. Creates a new clone based on the request details ", notes = "", code = 201)
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Swagger Cloned successfully", response = Void.class),
+			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggerId}/rate")
+	public ResponseEntity<?> postRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
+										  @RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+										@PathVariable("swaggerId")String swaggerId,@RequestBody ApiRatings apiRatings) throws Exception;
+
+	@ApiOperation(value = "Clone existing Swagger. Creates a new clone based on the request details ", notes = "", code = 201)
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Swagger Cloned successfully", response = Void.class),
+			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggerId}/rate")
+	public ResponseEntity<?> getTotalRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
+										@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+										@PathVariable("swaggerId")String swaggerId) throws Exception;
+
 }
