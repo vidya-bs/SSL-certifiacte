@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 
 @Component
 public class ScenarioTimeOutDao {
@@ -14,7 +16,8 @@ public class ScenarioTimeOutDao {
     private MongoTemplate mongoTemplate;
 
     public TimeOut getExistingTimeOut() {
-        return mongoTemplate.findAll(TimeOut.class).get(0);
+        List<TimeOut>timeOuts =  mongoTemplate.findAll(TimeOut.class);
+        return timeOuts.size()==0 ?null :timeOuts.get(0);
     }
 
     public void createTimeOut(TimeOut requestBody) {

@@ -22,6 +22,10 @@ public class ScenarioTimeOutServiceImpl implements ScenarioTimeOutService {
 
     @Override
     public ResponseEntity<Object> createTimeOut(String jsessionid,TimeOut requestBody) throws Exception {
+        TimeOut existingTimeout = scenarioTimeOutDao.getExistingTimeOut();
+        if(existingTimeout != null) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
         scenarioTimeOutDao.createTimeOut(requestBody);
         return new ResponseEntity<>(HttpStatus.OK);
     }
