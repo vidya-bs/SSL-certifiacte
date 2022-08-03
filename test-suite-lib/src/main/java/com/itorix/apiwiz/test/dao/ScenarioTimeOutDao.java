@@ -13,7 +13,7 @@ public class ScenarioTimeOutDao {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public TimeOut getExistingTimeOut(String tenant) {
+    public TimeOut getExistingTimeOut() {
         return mongoTemplate.findAll(TimeOut.class).get(0);
     }
 

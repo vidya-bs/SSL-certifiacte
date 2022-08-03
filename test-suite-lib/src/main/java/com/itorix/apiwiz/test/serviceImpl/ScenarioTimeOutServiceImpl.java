@@ -28,7 +28,7 @@ public class ScenarioTimeOutServiceImpl implements ScenarioTimeOutService {
 
     @Override
     public ResponseEntity<?> updateTimeOut(String jsessionid,TimeOut requestBody) throws Exception {
-        TimeOut existingTimeout = scenarioTimeOutDao.getExistingTimeOut(TenantContext.getCurrentTenant());
+        TimeOut existingTimeout = scenarioTimeOutDao.getExistingTimeOut();
         if(existingTimeout == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -38,7 +38,7 @@ public class ScenarioTimeOutServiceImpl implements ScenarioTimeOutService {
 
     @Override
     public ResponseEntity<?> deleteTimeOut(String jsessionid) throws Exception {
-        TimeOut existingTimeout = scenarioTimeOutDao.getExistingTimeOut(TenantContext.getCurrentTenant());
+        TimeOut existingTimeout = scenarioTimeOutDao.getExistingTimeOut();
         if(existingTimeout != null){
             scenarioTimeOutDao.deleteTimeOut();
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -48,6 +48,6 @@ public class ScenarioTimeOutServiceImpl implements ScenarioTimeOutService {
 
     @Override
     public TimeOut getTimeOut(String jsessionId) throws Exception {
-        return scenarioTimeOutDao.getExistingTimeOut(TenantContext.getCurrentTenant());
+        return scenarioTimeOutDao.getExistingTimeOut();
     }
 }
