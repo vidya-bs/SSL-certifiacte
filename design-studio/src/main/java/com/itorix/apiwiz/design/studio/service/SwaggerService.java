@@ -1274,16 +1274,16 @@ public interface SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid);
 
 
-	@ApiOperation(value = "Clone existing Swagger. Creates a new clone based on the request details ", notes = "", code = 201)
-	@ApiResponses(value = {@ApiResponse(code = 201, message = "Swagger Cloned successfully", response = Void.class),
-			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
+	@ApiOperation(value = "Creating Api rating .Rating api's based on user  rating's ", notes = "", code = 201)
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Api was rated successfully", response = Void.class),
+			@ApiResponse(code = 404, message = "Error while rating api", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggerId}/rate")
 	public ResponseEntity<?> postRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
 										  @RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 										@PathVariable("swaggerId")String swaggerId,@RequestBody ApiRatings apiRatings) throws Exception;
 
-	@ApiOperation(value = "Clone existing Swagger. Creates a new clone based on the request details ", notes = "", code = 201)
-	@ApiResponses(value = {@ApiResponse(code = 201, message = "Swagger Cloned successfully", response = Void.class),
+	@ApiOperation(value = "Getting Api rating .Getting api rating for particular swagger  ", notes = "", code = 201)
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Api rating retrieved successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggerId}/rate")
 	public ResponseEntity<?> getTotalRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
