@@ -7,6 +7,7 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.itorix.apiwiz.test.api.factory.APIFactory;
 import com.itorix.apiwiz.test.component.CancellationExecutor;
+import com.itorix.apiwiz.test.dao.ScenarioTimeOutDao;
 import com.itorix.apiwiz.test.dao.TestSuitExecutorSQLDao;
 import com.itorix.apiwiz.test.dao.TestSuiteExecutorDao;
 import com.itorix.apiwiz.test.db.TestExecutorEntity;
@@ -17,7 +18,6 @@ import com.itorix.apiwiz.test.executor.validators.JsonValidator;
 import com.itorix.apiwiz.test.executor.validators.ResponseValidator;
 import com.itorix.apiwiz.test.executor.validators.XmlValidator;
 import com.itorix.apiwiz.test.logging.LoggerService;
-import com.itorix.apiwiz.test.serviceImpl.ScenarioTimeOutServiceImpl;
 import com.itorix.apiwiz.test.util.MaskFieldUtil;
 import com.itorix.apiwiz.test.util.RSAEncryption;
 import org.apache.http.HttpResponse;
@@ -64,7 +64,7 @@ public class TestRunner {
     LoggerService loggerService;
 
     @Autowired
-    ScenarioTimeOutServiceImpl scenarioTimeOutService;
+    ScenarioTimeOutDao scenarioTimeOutDao;
 
     public enum API {
         GET, PUT, POST, DELETE, OPTIONS, PATCH;
@@ -80,7 +80,7 @@ public class TestRunner {
             TestSuite testSuite = dao.getTestSuiteById(response.getTestSuiteId());
             Variables variables = dao.getVariablesById(response.getConfigId());
             finalResponse = executeTestSuite(response.getId(), testSuite, variables, false, false,
-                    context.getGlobalTimeout(),context.getTenant());
+                    context.getGlobalTimeout());
             finalResponse.getTestSuite().setExecutionStatus(null);
             if (finalResponse != null) {
                 finalResponse.setConfigId(response.getConfigId());
@@ -104,7 +104,7 @@ public class TestRunner {
     }
 
     public TestSuiteResponse executeTestSuite(String testSuiteResponseID, TestSuite testSuite, Variables vars,
-                                              Boolean skipAssertions, Boolean isMonitoring, int globalTimeout, String tenant) {
+                                              Boolean skipAssertions, Boolean isMonitoring, int globalTimeout) {
         List<String> succededScenarios = new ArrayList<String>();
         List<String> failedScenarios = new ArrayList<String>();
         double scenarioSuccessSum = 0.0;
@@ -151,7 +151,7 @@ public class TestRunner {
             });
             for (Scenario scenario : testSuite.getScenarios()) {
                 try {
-                    TimeOut existingTimeOut = scenarioTimeOutService.getTimeOut(tenant);
+                    TimeOut existingTimeOut = scenarioTimeOutDao.getExistingTimeOut();
                     if(existingTimeOut.isEnabled()){
                         logger.info("Before timeout sleep : "+LocalTime.now());
                         Thread.sleep(existingTimeOut.getTimeout());
