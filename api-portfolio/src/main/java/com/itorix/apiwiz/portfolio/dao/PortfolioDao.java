@@ -304,8 +304,10 @@ public class PortfolioDao {
 		}
 
 		String workspace = masterMongoTemplate.findById(jsession, UserSession.class).getWorkspaceId();
-		deleteFileJfrogFile(
-				findById.getPortfolioImage().substring(findById.getPortfolioImage().indexOf(workspace)));
+		if (!StringUtils.isEmpty(findById.getPortfolioImage())) {
+			deleteFileJfrogFile(
+					findById.getPortfolioImage().substring(findById.getPortfolioImage().indexOf(workspace)));
+		}
 		downloadURI = updateToJfrog(portfolioId + "/" + fileName, imageBytes, jsession);
 		updatePortfolioPicture(portfolioId, downloadURI, jsession);
 		return downloadURI;
