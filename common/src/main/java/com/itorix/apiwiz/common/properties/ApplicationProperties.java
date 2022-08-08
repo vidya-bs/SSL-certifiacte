@@ -212,13 +212,13 @@ public class ApplicationProperties {
 	@Value("${spring.mail.password}")
 	private String cicdPassWord;
 
-	@Value("${spring.mail.properties.mail.smtp.connectiontimeout}")
+	@Value("${spring.mail.properties.mail.smtp.connectiontimeout:5000}")
 	private long smtpConnectionTimeOut;
 
-	@Value("${spring.mail.properties.mail.smtp.timeout}")
+	@Value("${spring.mail.properties.mail.smtp.timeout:5000}")
 	private long smtpTimeOut;
 
-	@Value("${spring.mail.properties.mail.smtp.writetimeout}")
+	@Value("${spring.mail.properties.mail.smtp.writetimeout:5000}")
 	private long smtpWriteTimeOut;
 
 	@Value("${spring.mail.properties.mail.smtp.from}")
