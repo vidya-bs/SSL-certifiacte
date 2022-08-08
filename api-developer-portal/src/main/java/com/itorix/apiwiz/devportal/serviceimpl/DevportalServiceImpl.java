@@ -239,7 +239,27 @@ public class DevportalServiceImpl implements DevportalService {
 			else
 				URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/developers/" + email + "/apps";
 			HTTPUtil httpConn = new HTTPUtil(URL, apigeexUtil.getApigeeCredentials(org, type));
-			return devportaldao.proxyService(httpConn, "GET");
+			 ResponseEntity<String> response=devportaldao.proxyService(httpConn, "GET");
+			List<String> products = new ArrayList<>();
+			String apiProductString = response.getBody();
+			try{
+				JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
+				JSONArray apiProducts = (JSONArray) proxyObject.get("app");
+				for (Object apiObj : apiProducts) {
+					JSONObject prodObj = (JSONObject) apiObj;
+					final String apiProduct = (String) prodObj.get("appId");
+					products.add(apiProduct);
+				}
+			}catch(Exception e) {
+				logger.error(e);
+				e.printStackTrace();
+			}
+			ObjectMapper objectMapper = new ObjectMapper();
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			ResponseEntity<String> responseEntity = new ResponseEntity<String>(objectMapper.writeValueAsString(products), headers,
+					HttpStatus.OK);
+			return responseEntity;
 		} else {
 			String URL;
 			if (expand != null && expand != "")
