@@ -1245,7 +1245,7 @@ public interface SwaggerService {
 			@PathVariable("dictionaryId") String dictionaryId, @PathVariable("schemaName") String schemaName);
 
 	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('BASIC','PRO','TEAM','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/refreshScanner")
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/refresh")
 	public ResponseEntity<?> loadSwaggersToScan(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid);
 
