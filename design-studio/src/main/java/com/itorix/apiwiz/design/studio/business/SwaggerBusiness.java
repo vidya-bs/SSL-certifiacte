@@ -762,4 +762,6 @@ public interface SwaggerBusiness {
 	public SwaggerDictionary getSwaggerDictionary(String swaggerId, Integer revision);
 
 	public DictionarySwagger getSwaggerAssociatedWithDictionary(String dictionaryId, String schemaName);
+
+	List<String> loadSwaggersToScan(String interactionid, String jsessionid);
 }

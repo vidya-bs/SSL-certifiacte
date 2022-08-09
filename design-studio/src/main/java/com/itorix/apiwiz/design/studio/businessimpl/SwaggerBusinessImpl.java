@@ -4154,6 +4154,17 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return dictionarySwagger;
     }
 
+    @Override
+    public List<String> loadSwaggersToScan(String interactionid, String jsessionid) {
+
+        List<String> swaggersList = mongoTemplate.findDistinct("swaggerId", SwaggerVO.class,
+            String.class);
+
+        swaggersList.addAll(mongoTemplate.findDistinct("swaggerId", Swagger3VO.class, String.class));
+
+        return swaggersList;
+    }
+
     private SwaggerData getSwaggerData(Document doc) {
         SwaggerData swaggerData = new SwaggerData();
         swaggerData.setId(doc.getString("swaggerId"));
