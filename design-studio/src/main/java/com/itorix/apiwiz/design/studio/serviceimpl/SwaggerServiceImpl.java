@@ -2808,6 +2808,18 @@ public class SwaggerServiceImpl implements SwaggerService {
 		}
 	}
 
+	@Override
+	public ResponseEntity<?> loadSwaggersToScan(String interactionid, String jsessionid) {
+		List<String> swaggersList = swaggerBusiness.loadSwaggersToScan(interactionid, jsessionid);
+		ScannerDTO scannerDTO = new ScannerDTO();
+		scannerDTO.setOperation("Create");
+		scannerDTO.setTenantId(getWorkspaceId());
+		scannerDTO.setSwaggerId(swaggersList);
+		callScannerAPI(scannerDTO);
+		return ResponseEntity.ok().body("Syncing "+swaggersList.size()+" Swaggers.");
+
+	}
+
 	private void callScannerAPI(ScannerDTO scannerDTO){
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
