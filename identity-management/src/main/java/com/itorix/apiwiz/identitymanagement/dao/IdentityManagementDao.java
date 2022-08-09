@@ -1242,13 +1242,13 @@ public class IdentityManagementDao {
 			requiredDetails.setEmail(user.getEmail());
 			// requiredDetails.setStatus(user.getUserStatus());
 			requiredDetails.setStatus(user.getUserWorkspace(workspaceId).getActive() ? "active" : "locked");
-			requiredDetails.setCts(user.getCts());
+			requiredDetails.setCts(user.getCts() != null ? user.getCts() : user.getMts() != null ? user.getMts() : System.currentTimeMillis());
 			requiredDetails.setCreatedUserName(user.getCreatedUserName());
 			List<UserWorkspace> workspaces = user.getWorkspaces();
 			if (workspaces != null) {
 				List<UserInfo> userworkspaces = new ArrayList<>();
 				for (UserWorkspace workspace : workspaces) {
-					if (workspace.getName().equals(workspaceId)) {
+					if (workspace.getWorkspace().getName().equals(workspaceId)) {
 						if (!workspace.getAcceptInvite()) {
 							canAdd = true;
 							UserInfo userworkspace = new UserInfo();
