@@ -70,15 +70,14 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 	public ResponseEntity<?> createPipeline(@RequestBody PipelineGroups pipelineGroups,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwType,
-			HttpServletRequest request) {
+			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request) {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
 				+ jsessionId + ": requestUrl " + request.getRequestURI());
-//		if(gwType != null){
-//			pipelineGroups.setGwType(gwType);
-//		} else{
-//			pipelineGroups.setGwType("apigee");
-//		}
+		// if(gwType != null){
+		// pipelineGroups.setGwType(gwType);
+		// } else{
+		// pipelineGroups.setGwType("apigee");
+		// }
 		return managePipeline(pipelineGroups, jsessionId, interactionid, true, HttpStatus.CREATED);
 	}
 
@@ -86,15 +85,14 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 	public ResponseEntity<?> updatePipeline(@RequestBody PipelineGroups pipelineGroups,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwType,
-			HttpServletRequest request) {
+			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request) {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
 				+ jsessionId + ": requestUrl " + request.getRequestURI());
-//		if(gwType != null){
-//			pipelineGroups.setGwType(gwType);
-//		} else{
-//			pipelineGroups.setGwType("apigee");
-//		}
+		// if(gwType != null){
+		// pipelineGroups.setGwType(gwType);
+		// } else{
+		// pipelineGroups.setGwType("apigee");
+		// }
 		return managePipeline(pipelineGroups, jsessionId, interactionid, false, HttpStatus.NO_CONTENT);
 	}
 
@@ -428,6 +426,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 	}
 
 	@Override
+	@UnSecure(ignoreValidation = true)
 	public ResponseEntity<?> sendNotifications(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestBody String emailBody, @RequestParam("pipelineName") String pipelineName,
@@ -503,17 +502,18 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 		try {
 			cicdIntegrationApi.pausePipeline(pipelineName);
 		} catch (Exception ex) {
-			if(ex instanceof HttpClientErrorException) {
-				if(((HttpClientErrorException) ex).getRawStatusCode()==409) {
+			if (ex instanceof HttpClientErrorException) {
+				if (((HttpClientErrorException) ex).getRawStatusCode() == 409) {
 					log.error("The pipeline is already paused.Please unpause it first", ex.getCause());
-					return new ResponseEntity<>(new ErrorObj("The pipeline is already paused.Please unpause it first","CI-CD-GOCD-400"),
+					return new ResponseEntity<>(
+							new ErrorObj("The pipeline is already paused.Please unpause it first", "CI-CD-GOCD-400"),
 							HttpStatus.BAD_REQUEST);
 				}
-			}
-			else {
-			log.error("Error while pausing pipeline. Please try after sometime.", ex.getCause());
-			return new ResponseEntity<>(new ErrorObj("Error while pausing pipeline. Please try after sometime.", ""),
-					HttpStatus.INTERNAL_SERVER_ERROR);
+			} else {
+				log.error("Error while pausing pipeline. Please try after sometime.", ex.getCause());
+				return new ResponseEntity<>(
+						new ErrorObj("Error while pausing pipeline. Please try after sometime.", ""),
+						HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		}
 		pipelineDao.updatePipelineStatus(groupName, pipelineName, "Paused",
