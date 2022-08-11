@@ -426,7 +426,6 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 	}
 
 	@Override
-	@UnSecure(ignoreValidation = true)
 	public ResponseEntity<?> sendNotifications(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestBody String emailBody, @RequestParam("pipelineName") String pipelineName,

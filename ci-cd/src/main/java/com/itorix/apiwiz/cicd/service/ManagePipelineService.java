@@ -210,8 +210,7 @@ public interface ManagePipelineService {
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Accepted", response = String.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 
-	@UnSecure(ignoreValidation = true)
-	// @PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	 @PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/pipelines/notifications")
 	public ResponseEntity<?> sendNotifications(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
