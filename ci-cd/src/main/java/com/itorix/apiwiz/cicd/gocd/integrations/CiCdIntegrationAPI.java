@@ -187,7 +187,7 @@ public class CiCdIntegrationAPI {
 			buildAttributes.setDestination("PipelineBuild");
 			buildAttributes.setInvertFilter(false);
 			buildAttributes.setName("BuildPolling");
-			buildAttributes.setAutoUpdate(true);
+			buildAttributes.setAutoUpdate(false);
 			buildAttributes.setUsername(buildScmUserName);
 			buildAttributes.setPassword(buildScmPassword);
 		} else {
@@ -206,7 +206,7 @@ public class CiCdIntegrationAPI {
 			buildAttributes.setDestination("PipelineBuild");
 			buildAttributes.setInvertFilter(false);
 			buildAttributes.setName("BuildPolling");
-			buildAttributes.setAutoUpdate(true);
+			buildAttributes.setAutoUpdate(false);
 			buildAttributes.setShallowClone(true);
 			buildMaterial.setAttributes(buildAttributes);
 		}
