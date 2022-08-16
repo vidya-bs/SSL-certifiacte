@@ -62,10 +62,6 @@ public class TestRunner {
     @Autowired
     LoggerService loggerService;
 
-    @Autowired
-    ScenarioTimeOutDao scenarioTimeOutDao;
-
-
     public enum API {
         GET, PUT, POST, DELETE, OPTIONS, PATCH;
     }
