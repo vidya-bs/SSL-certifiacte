@@ -28,15 +28,15 @@ public class Scenario {
     @JsonProperty("duration")
     private Long duration;
 
-    @JsonProperty("timeOut")
+    @JsonProperty("timeout")
     private int timeOut=0;
 
-    @JsonProperty("timeOut")
+    @JsonProperty("timeout")
     public int getTimeOut() {
         return timeOut;
     }
 
-    @JsonProperty("timeOut")
+    @JsonProperty("timeout")
     public void setTimeOut(int timeOut) {
         this.timeOut = timeOut;
     }
