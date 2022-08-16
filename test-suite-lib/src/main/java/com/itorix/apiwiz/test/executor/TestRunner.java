@@ -161,13 +161,8 @@ public class TestRunner {
                                 TestExecutorEntity.STATUSES.CANCELLED.getValue());
                     }
                     if (scenario != null && scenario.getTestCases() != null) {
-
-                        List<WorkspaceIntegration> integrations =  dao.getWorkspaceIntegration();
-                        String enable = integrations.stream()
-                                .filter(c->c.getPropertyKey().equalsIgnoreCase("enable"))
-                                .map(WorkspaceIntegration::getPropertyValue).findFirst().orElse(null);
-
-                        if(enable!=null && enable.equalsIgnoreCase("true")){
+                        WorkspaceIntegration timeoutEnable =  dao.getTimeoutEnable();
+                        if(timeoutEnable!=null && timeoutEnable.getPropertyValue().equalsIgnoreCase("true")){
                             ScenarioTimeOut existingScenarioTimeOut = scenarioTimeOutDao.getExistingTimeOut(testSuiteResponseID);
                             logger.info(String.format("Starting timeout for %s with testsuiteId %s is %s",scenario.getName(),testSuiteResponseID,LocalTime.now()));
                             Thread.sleep(existingScenarioTimeOut.getTimeout());
