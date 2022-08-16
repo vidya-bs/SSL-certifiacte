@@ -157,7 +157,7 @@ public class TestRunner {
                     if (scenario != null && scenario.getTestCases() != null) {
                         if(dao.getTimeoutEnable()){
                             logger.info(String.format("Starting timeout for ScenarioName: %s, TestsuiteId: %s, at time: %s",scenario.getName(),testSuiteResponseID,LocalTime.now()));
-                            Thread.sleep(scenario.getTimeOut());
+                            Thread.sleep(scenario.getTimeout());
                             logger.info(String.format("Ending timeout for ScenarioName: %s, TestsuiteId: %s, at time: %s",scenario.getName(),testSuiteResponseID,LocalTime.now()));
                         }
 
