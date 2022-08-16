@@ -1,16 +1,12 @@
 package com.itorix.apiwiz.test.serviceImpl;
 
 import com.itorix.apiwiz.test.dao.ScenarioTimeOutDao;
-import com.itorix.apiwiz.test.executor.beans.TimeOut;
-import com.itorix.apiwiz.test.executor.model.TenantContext;
+import com.itorix.apiwiz.test.executor.beans.ScenarioTimeOut;
 import com.itorix.apiwiz.test.service.ScenarioTimeOutService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
@@ -21,37 +17,37 @@ public class ScenarioTimeOutServiceImpl implements ScenarioTimeOutService {
     ScenarioTimeOutDao scenarioTimeOutDao;
 
     @Override
-    public ResponseEntity<Object> createTimeOut(String jsessionid,TimeOut requestBody) throws Exception {
-        TimeOut existingTimeout = scenarioTimeOutDao.getExistingTimeOut();
+    public ResponseEntity<Object> createTimeOut(String jsessionid, ScenarioTimeOut requestBody, String testsuiteId) throws Exception {
+        ScenarioTimeOut existingTimeout = scenarioTimeOutDao.getExistingTimeOut(testsuiteId);
         if(existingTimeout != null) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
-        scenarioTimeOutDao.createTimeOut(requestBody);
+        scenarioTimeOutDao.createTimeOut(requestBody,testsuiteId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<?> updateTimeOut(String jsessionid,TimeOut requestBody) throws Exception {
-        TimeOut existingTimeout = scenarioTimeOutDao.getExistingTimeOut();
+    public ResponseEntity<?> updateTimeOut(String jsessionid, ScenarioTimeOut requestBody, String testsuiteId) throws Exception {
+        ScenarioTimeOut existingTimeout = scenarioTimeOutDao.getExistingTimeOut(testsuiteId);
         if(existingTimeout == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        scenarioTimeOutDao.updateTimeOut(requestBody);
+        scenarioTimeOutDao.updateTimeOut(requestBody,testsuiteId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<?> deleteTimeOut(String jsessionid) throws Exception {
-        TimeOut existingTimeout = scenarioTimeOutDao.getExistingTimeOut();
+    public ResponseEntity<?> deleteTimeOut(String jsessionid,String testsuiteId) throws Exception {
+        ScenarioTimeOut existingTimeout = scenarioTimeOutDao.getExistingTimeOut(testsuiteId);
         if(existingTimeout != null){
-            scenarioTimeOutDao.deleteTimeOut();
+            scenarioTimeOutDao.deleteTimeOut(testsuiteId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @Override
-    public TimeOut getTimeOut(String jsessionId) throws Exception {
-        return scenarioTimeOutDao.getExistingTimeOut();
+    public ScenarioTimeOut getTimeOut(String jsessionId, String testsuiteId) throws Exception {
+        return scenarioTimeOutDao.getExistingTimeOut(testsuiteId);
     }
 }

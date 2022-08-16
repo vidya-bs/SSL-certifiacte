@@ -150,27 +150,21 @@ public class TestRunner {
                 }
             });
             for (Scenario scenario : testSuite.getScenarios()) {
-                try {
-                    TimeOut existingTimeOut = scenarioTimeOutDao.getExistingTimeOut();
-                    if(existingTimeOut.isEnabled()){
-                        logger.info("Before timeout sleep : "+LocalTime.now());
-                        Thread.sleep(existingTimeOut.getTimeout());
-                        logger.info("After timeout sleep : "+LocalTime.now());
-                    }
-                }
-                catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
                 Map<String, Boolean> succededTests = new HashMap<>();
                 Map<String, Boolean> failedTests = new HashMap<>();
                 try {
                     logger.debug("executing scenario for testSuiteResponseID" + testSuiteResponseID);
-
                     if (cancellationExecutor.getAndRemoveTestSuiteCancellationId(testSuiteResponseID)) {
                         return new TestSuiteResponse(testSuite.getId(), null, testSuite,
                                 TestExecutorEntity.STATUSES.CANCELLED.getValue());
                     }
                     if (scenario != null && scenario.getTestCases() != null) {
+
+                        ScenarioTimeOut existingScenarioTimeOut = scenarioTimeOutDao.getExistingTimeOut(testSuiteResponseID);
+                        logger.info(String.format("Starting timeout for %s with testsuiteId %s is %s",scenario.getName(),testSuiteResponseID,LocalTime.now()));
+                        Thread.sleep(existingScenarioTimeOut.getTimeout());
+                        logger.info(String.format("Ending timeout for %s with testsuiteId %s is %s",scenario.getName(),testSuiteResponseID,LocalTime.now()));
+
                         List<TestCase> testCases = scenario.getTestCases();
 
                         int numberOfTestCases = testCases.size();

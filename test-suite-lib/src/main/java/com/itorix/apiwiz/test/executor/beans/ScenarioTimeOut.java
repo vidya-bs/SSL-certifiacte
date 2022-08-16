@@ -10,8 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class TimeOut {
-    private boolean enabled;
+public class ScenarioTimeOut {
     private int timeout;
-    private String testAgentType="shared";
+    private String testSuiteId;
 }

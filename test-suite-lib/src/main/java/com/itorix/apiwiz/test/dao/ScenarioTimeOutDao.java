@@ -1,13 +1,12 @@
 package com.itorix.apiwiz.test.dao;
 
-import com.itorix.apiwiz.test.executor.beans.TimeOut;
+import com.itorix.apiwiz.test.executor.beans.ScenarioTimeOut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 
 @Component
@@ -15,39 +14,32 @@ public class ScenarioTimeOutDao {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public TimeOut getExistingTimeOut() {
-        List<TimeOut>timeOuts =  mongoTemplate.findAll(TimeOut.class);
-        return timeOuts.size()==0 ?null :timeOuts.get(0);
+    public ScenarioTimeOut getExistingTimeOut(String testsuiteId) {
+        Query query = new Query(Criteria.where("testSuiteId").is(testsuiteId));
+        return mongoTemplate.findOne(query, ScenarioTimeOut.class);
     }
 
-    public void createTimeOut(TimeOut requestBody) {
-        if(requestBody.getTestAgentType().equalsIgnoreCase("shared")){
-            if(requestBody.getTimeout()>250 || requestBody.getTimeout()<0){
-                requestBody.setTimeout(250);
-            }
+    public void createTimeOut(ScenarioTimeOut requestBody, String testsuiteId) {
+        if(requestBody.getTimeout()>250 || requestBody.getTimeout()<0){
+            requestBody.setTimeout(250);
         }
+        requestBody.setTestSuiteId(testsuiteId);
         mongoTemplate.save(requestBody);
     }
 
-    public void updateTimeOut(TimeOut requestBody) {
+    public void updateTimeOut(ScenarioTimeOut requestBody, String testsuiteId) {
         Update update = new Update();
-        if(requestBody.getTestAgentType().equalsIgnoreCase("shared")){
-            if(requestBody.getTimeout()>250 || requestBody.getTimeout()<0){
-                update.set("timeout",250);
-            }
-            else{
-                update.set("timeout",requestBody.getTimeout());
-            }
+        if(requestBody.getTimeout()>250 || requestBody.getTimeout()<0){
+            update.set("timeout",250);
         }
         else{
             update.set("timeout",requestBody.getTimeout());
         }
-        update.set("enabled",requestBody.isEnabled());
-        update.set("testAgentType",requestBody.getTestAgentType());
-        mongoTemplate.updateMulti(new Query(),update,TimeOut.class);
+        update.set("testsuiteId",testsuiteId);
+        mongoTemplate.updateMulti(new Query(),update, ScenarioTimeOut.class);
     }
-
-    public void deleteTimeOut() {
-        mongoTemplate.remove(new Query(),TimeOut.class);
+    public void deleteTimeOut(String testsuiteId) {
+        Query query = new Query(Criteria.where("testsuiteId").is(testsuiteId));
+        mongoTemplate.findAndRemove(query, ScenarioTimeOut.class);
     }
 }
