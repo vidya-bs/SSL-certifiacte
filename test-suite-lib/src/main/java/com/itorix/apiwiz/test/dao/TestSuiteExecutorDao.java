@@ -208,11 +208,8 @@ public class TestSuiteExecutorDao {
 
 		}
 	}
-	public String getTimeoutEnable() {
+	public Boolean getTimeoutEnable() {
 		WorkspaceIntegration integration =  mongoTemplate.findOne(Query.query(Criteria.where("_id").is("apiwiz.testsuite.scenario.timeout.enabled")), WorkspaceIntegration.class);
-		if(integration != null ) {
-			return integration.getPropertyValue();
-		}
-		return "";
+		return integration != null && integration.getPropertyValue().equalsIgnoreCase("true");
 	}
 }
