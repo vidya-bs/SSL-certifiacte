@@ -1277,7 +1277,7 @@ public interface SwaggerService {
 	@ApiOperation(value = "Creating Api rating .Rating api's based on user  rating's ", notes = "", code = 201)
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Api was rated successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Error while rating api", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggerId}/ratings")
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggerId}/rating")
 	public ResponseEntity<?> postRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
 										  @RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 										@PathVariable("swaggerId")String swaggerId,@RequestBody ApiRatings apiRatings) throws Exception;
