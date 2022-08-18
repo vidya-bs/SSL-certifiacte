@@ -50,7 +50,7 @@ public class ApiRatingsDao {
         }
         Map<String,Object> summary = new HashMap<>();
         summary.put("average",String.format("%.1f",(double)totalRating/totalRatings.size()));
-        summary.put("ratings", Arrays.toString(individualRatings));
+        summary.put("ratings", individualRatings);
         return summary;
     }
 
