@@ -28,8 +28,8 @@ public class ApiRatingsDao {
                HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    public Map<String,Object> getRatingSummary(String swaggerId){
-        List<ApiRatings> totalRatings = getRatings(swaggerId);
+    public Map<String,Object> getRatingSummary(String swaggerId,String oas,int revision){
+        List<ApiRatings> totalRatings = getRatings(swaggerId,oas,revision);
         int[] individualRatings = new int[5];
         int totalRating = 0;
         for(ApiRatings apiRatings:totalRatings){
@@ -54,8 +54,9 @@ public class ApiRatingsDao {
         return summary;
     }
 
-    public List<ApiRatings> getRatings(String swaggerId) {
-        Query query = new Query(Criteria.where("swaggerId").is(swaggerId));
+    public List<ApiRatings> getRatings(String swaggerId,String oas,int revison) {
+        Query query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oasVersion").is(oas)
+                .and("revision").is(revison));
         return mongoTemplate.find(query, ApiRatings.class);
     }
 

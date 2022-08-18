@@ -1285,17 +1285,17 @@ public interface SwaggerService {
 	@ApiOperation(value = "Getting Api rating .Getting api rating summary for particular swagger  ", notes = "", code = 201)
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Api rating retrieved successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggerId}/summary")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggerId}/{revision}/summary")
 	public ResponseEntity<?> getRatingSummary(@RequestHeader(value = "JSESSIONID") String jsessionid,
 										@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
-										@PathVariable("swaggerId")String swaggerId) throws Exception;
+										@PathVariable("swaggerId")String swaggerId,@PathVariable("revision")int revision) throws Exception;
 
 	@ApiOperation(value = "Getting Api rating .Getting all api ratings for particular swagger  ", notes = "", code = 201)
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Api rating retrieved successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggerId}/ratings")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggerId}/{revision}/rating")
 	public ResponseEntity<?> getAllRatings(@RequestHeader(value = "JSESSIONID") String jsessionid,
 											@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
-											@PathVariable("swaggerId")String swaggerId) throws Exception;
+											@PathVariable("swaggerId")String swaggerId,@PathVariable("revision")int revision) throws Exception;
 
 }

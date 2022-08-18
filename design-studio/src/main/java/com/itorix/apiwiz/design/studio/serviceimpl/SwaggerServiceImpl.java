@@ -2783,12 +2783,20 @@ public class SwaggerServiceImpl implements SwaggerService {
 
     }
 
-    @Override
-    public ResponseEntity<?> getAllRatings(@RequestHeader(value = "JSESSIONID") String jsessionid,
-                                           @RequestHeader(value = "email") String email,
-                                           @RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas, String swaggerId, int revision) {
-        return new ResponseEntity<>(apiRatingsDao.getRatings(swaggerId, oas, revision, email), HttpStatus.OK);
-    }
+	@Override
+	public ResponseEntity<?> getAllRatings(@RequestHeader(value = "JSESSIONID") String jsessionid,
+											@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,String swaggerId,int revison) {
+		return new ResponseEntity<>(apiRatingsDao.getRatings(swaggerId,oas,revison), HttpStatus.OK);
+	}
+	public ResponseEntity<?> loadSwaggersToScan(String interactionid, String jsessionid) {
+		List<String> swaggersList = swaggerBusiness.loadSwaggersToScan(interactionid, jsessionid);
+		ScannerDTO scannerDTO = new ScannerDTO();
+		scannerDTO.setOperation("Create");
+		scannerDTO.setTenantId(getWorkspaceId());
+		scannerDTO.setSwaggerId(swaggersList);
+		callScannerAPI(scannerDTO);
+		return ResponseEntity.ok().body("Syncing "+swaggersList.size()+" Swaggers.");
+
 
     @Override
     public ResponseEntity<?> deleteRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
@@ -2797,16 +2805,7 @@ public class SwaggerServiceImpl implements SwaggerService {
         return new ResponseEntity<>(apiRatingsDao.deleteRating(swaggerId, revision, oas, email), HttpStatus.NO_CONTENT);
     }
 
-    public ResponseEntity<?> loadSwaggersToScan(String interactionid, String jsessionid) {
-        List<String> swaggersList = swaggerBusiness.loadSwaggersToScan(interactionid, jsessionid);
-        ScannerDTO scannerDTO = new ScannerDTO();
-        scannerDTO.setOperation("Create");
-        scannerDTO.setTenantId(getWorkspaceId());
-        scannerDTO.setSwaggerId(swaggersList);
-        callScannerAPI(scannerDTO);
-        return ResponseEntity.ok().body("Syncing " + swaggersList.size() + " Swaggers.");
 
-    }
 
     private void callScannerAPI(ScannerDTO scannerDTO) {
         HttpHeaders httpHeaders = new HttpHeaders();

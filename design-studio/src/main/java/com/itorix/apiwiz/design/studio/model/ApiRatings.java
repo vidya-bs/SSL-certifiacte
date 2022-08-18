@@ -17,6 +17,6 @@ public class ApiRatings {
     private String email;
     private String comments;
     private int rating;
-    private int oasVersion;
+    private String oasVersion;
     private int revision;
 }
