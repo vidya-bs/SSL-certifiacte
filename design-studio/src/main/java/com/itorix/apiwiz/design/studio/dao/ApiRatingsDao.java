@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.design.studio.dao;
 
+import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.design.studio.model.ApiRatings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -9,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.*;
 
 @Component
 public class ApiRatingsDao {
@@ -18,18 +19,44 @@ public class ApiRatingsDao {
 
 
     public ResponseEntity<?> postRating(String swaggerId,ApiRatings apiRatings) {
-        apiRatings.setSwaggerId(swaggerId);
-        mongoTemplate.save(apiRatings);
-        return new ResponseEntity<>(HttpStatus.OK);
+        if(apiRatings.getRating()>0 && apiRatings.getRating()<=5){
+            apiRatings.setSwaggerId(swaggerId);
+            mongoTemplate.save(apiRatings);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        }
+       return new ResponseEntity<>(new ErrorObj("Rating should be between 1-5", "500"),
+               HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    public double getTotalRating(String swaggerId){
-        Query query = new Query(Criteria.where("swaggerId").is(swaggerId));
-        List<ApiRatings> totalRatings = mongoTemplate.find(query, ApiRatings.class);
+    public Map<String,Object> getRatingSummary(String swaggerId){
+        List<ApiRatings> totalRatings = getRatings(swaggerId);
+        int[] individualRatings = new int[5];
         int totalRating = 0;
         for(ApiRatings apiRatings:totalRatings){
-            totalRating+= apiRatings.getRating();
+            int rating = apiRatings.getRating();
+            totalRating+= rating;
+            switch(rating){
+                case 1:individualRatings[0]++;
+                    break;
+                case 2:individualRatings[1]++;
+                    break;
+                case 3:individualRatings[2]++;
+                    break;
+                case 4:individualRatings[3]++;
+                    break;
+                case 5:individualRatings[4]++;
+                    break;
+            }
         }
-        return (double)totalRating/totalRatings.size();
+        Map<String,Object> summary = new HashMap<>();
+        summary.put("average",String.format("%.1f",(double)totalRating/totalRatings.size()));
+        summary.put("ratings", Arrays.toString(individualRatings));
+        return summary;
     }
+
+    public List<ApiRatings> getRatings(String swaggerId) {
+        Query query = new Query(Criteria.where("swaggerId").is(swaggerId));
+        return mongoTemplate.find(query, ApiRatings.class);
+    }
+
 }
