@@ -18,4 +18,5 @@ public class ApiRatings {
     private String comments;
     private int rating;
     private int oasVersion;
+    private int revision;
 }
