@@ -29,7 +29,7 @@ public class Scenario {
     private Long duration;
 
     @JsonProperty("timeout")
-    private int timeout =0;
+    private int timeout;
 
     @JsonProperty("timeout")
     public int getTimeout() {
