@@ -1,6 +1,5 @@
 package com.itorix.apiwiz.test.dao;
 
-import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
 import com.itorix.apiwiz.test.db.TestExecutorEntity;
 import com.itorix.apiwiz.test.executor.beans.*;
 import com.itorix.apiwiz.test.executor.exception.ItorixException;
@@ -209,7 +208,7 @@ public class TestSuiteExecutorDao {
 		}
 	}
 	public boolean getTimeoutEnable() {
-		WorkspaceIntegration integration =  mongoTemplate.findOne(Query.query(Criteria.where("_id").is("apiwiz.testsuite.scenario.timeout.enabled")), WorkspaceIntegration.class);
+		com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration integration =  mongoTemplate.findOne(Query.query(Criteria.where("_id").is("apiwiz.testsuite.scenario.timeout.enabled")), com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration.class);
 		return integration != null && integration.getPropertyValue().equalsIgnoreCase("true");
 	}
 }

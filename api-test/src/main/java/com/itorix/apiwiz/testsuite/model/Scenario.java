@@ -37,7 +37,7 @@ public class Scenario {
 	private boolean continueOnError = true;
 
 	@JsonProperty("timeout")
-	private int timeout =0;
+	private int timeout ;
 
 	@JsonProperty("timeout")
 	public int getTimeout() {
