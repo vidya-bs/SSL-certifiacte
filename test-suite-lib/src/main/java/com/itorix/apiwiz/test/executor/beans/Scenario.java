@@ -19,9 +19,6 @@ public class Scenario {
     @JsonProperty("status")
     private String status;
 
-    @JsonProperty("depends")
-    private String dependsOn;
-
     @JsonProperty("testCases")
     private List<TestCase> testCases = null;
 
@@ -30,6 +27,19 @@ public class Scenario {
 
     @JsonProperty("duration")
     private Long duration;
+
+    @JsonProperty("timeout")
+    private int timeout;
+
+    @JsonProperty("timeout")
+    public int getTimeout() {
+        return timeout;
+    }
+
+    @JsonProperty("timeout")
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
 
     @JsonProperty("continueOnError")
     private boolean continueOnError = true;
@@ -96,13 +106,5 @@ public class Scenario {
 
     public void setContinueOnError(boolean continueOnError) {
         this.continueOnError = continueOnError;
-    }
-
-    public String getDependsOn() {
-        return dependsOn;
-    }
-
-    public void setDependsOn(String dependsOn) {
-        this.dependsOn = dependsOn;
     }
 }
