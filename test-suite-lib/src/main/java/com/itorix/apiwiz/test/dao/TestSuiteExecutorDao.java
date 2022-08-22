@@ -1,5 +1,4 @@
 package com.itorix.apiwiz.test.dao;
-
 import com.itorix.apiwiz.test.db.TestExecutorEntity;
 import com.itorix.apiwiz.test.executor.beans.*;
 import com.itorix.apiwiz.test.executor.exception.ItorixException;
@@ -55,6 +54,7 @@ public class TestSuiteExecutorDao {
 
 	@Autowired
 	private ResourceLoader resourceLoader;
+
 
 	private static final Logger log = LoggerFactory.getLogger(TestSuiteExecutorDao.class);
 
@@ -206,5 +206,11 @@ public class TestSuiteExecutorDao {
 
 		}
 	}
-
+	public boolean getTimeoutEnable() {
+		Document doc = mongoTemplate.findOne(Query.query(Criteria.where("_id").is("apiwiz.testsuite.scenario.timeout.enabled")),Document.class,"Connectors.Workspace.List");
+		if(doc!=null){
+			return doc.getString("propertyValue") != null && doc.getString("propertyValue").equalsIgnoreCase("true");
+		}
+		return false;
+	}
 }
