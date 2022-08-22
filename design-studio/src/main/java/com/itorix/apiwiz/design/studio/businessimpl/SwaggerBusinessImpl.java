@@ -115,6 +115,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.json.JSONException;
@@ -251,7 +252,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
     }
 
     public List<SwaggerImport> importSwaggers(MultipartFile zipFile, String type, String gitURI, String branch,
-        String authType, String userName, String password, String personalToken) throws Exception {
+        String authType, String userName, String password, String personalToken,String oas) throws Exception {
         RSAEncryption rsaEncryption = new RSAEncryption();
         String fileLocation = null;
         ZIPUtil unZip = new ZIPUtil();
@@ -310,15 +311,66 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
             throw new ItorixException(message, "General-1001");
         }
         List<File> files = unZip.getJsonFiles(fileLocation);
-        List<SwaggerImport> listSwaggers = importSwaggersFromFiles(files);
-        FileUtils.cleanDirectory(new File(fileLocation));
-        FileUtils.deleteDirectory(new File(fileLocation));
-        return listSwaggers;
+        if(files.isEmpty())
+        {
+            String message = "Invalid request data! Invalid file type";
+            throw new ItorixException(message, "General-1001");
+        }
+        else {
+            List<SwaggerImport> listSwaggers = new ArrayList<SwaggerImport>();
+            try {
+                listSwaggers = importSwaggersFromFiles(files, oas);
+            } catch (Exception e) {
+                throw new ItorixException(e.getMessage(),"General-1000");
+            }
+            finally {
+                FileUtils.cleanDirectory(new File(fileLocation));
+                FileUtils.deleteDirectory(new File(fileLocation));
+            }
+            return listSwaggers;
+        }
     }
 
-    private List<SwaggerImport> importSwaggersFromFiles(List<File> files) {
+    private List<SwaggerImport> importSwaggersFromFiles(List<File> files,String oas) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         List<SwaggerImport> listSwaggers = new ArrayList<SwaggerImport>();
+        String fileList = new String();
+        String message = "Swagger Version doesn't match : ";
+        for(File file:files) {
+            String filecontent = new String();
+            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("yaml")) {
+                filecontent = convertYamlToJson(FileUtils.readFileToString(file));
+            } else {
+                filecontent = FileUtils.readFileToString(file);
+            }
+
+            JsonNode swaggerObject = mapper.readTree(filecontent);
+            String version = getVersion(swaggerObject);
+            boolean isVersion2 = false;
+            if (version != null && (version.startsWith("\"1") || version.startsWith("1"))) {
+                isVersion2 = true;
+            } else if (version != null && (version.startsWith("\"2") || version.startsWith("2"))) {
+                isVersion2 = true;
+            }
+            if (isVersion2) {
+                if (oas != null && !StringUtils.equalsIgnoreCase("2.0", oas)) {
+                    if (!fileList.isEmpty())
+                        fileList = fileList.concat("," + file.getName());
+                    else
+                        fileList = fileList.concat(file.getName());
+                }
+            } else {
+                if (oas != null && !StringUtils.equalsIgnoreCase("3.0", oas)) {
+                    if (!fileList.isEmpty())
+                        fileList = fileList.concat(", " + file.getName());
+                    else
+                        fileList = fileList.concat(file.getName());
+                }
+            }
+        }
+        if(!fileList.isEmpty()){
+            throw new ItorixException(message + fileList, "General-1000");
+        }
         for (File file : files) {
             try {
                 String filecontent;
