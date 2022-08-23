@@ -50,8 +50,11 @@ public class ApiRatingsDao {
             }
         }
         Map<String,Object> summary = new HashMap<>();
-        summary.put("average",(double)totalRating/totalRatings.size());
         summary.put("ratings", individualRatings);
+        if(totalRating==0)
+            summary.put("average",null);
+        else
+            summary.put("average",(double)totalRating/totalRatings.size());
         return summary;
     }
 
@@ -65,6 +68,7 @@ public class ApiRatingsDao {
         for(int i=0;i<totalRatings.size();i++){
             if(totalRatings.get(i).getEmail().equals(email)){
                 Collections.swap(totalRatings,0,i);
+                break;
             }
         }
         return totalRatings;
@@ -76,7 +80,6 @@ public class ApiRatingsDao {
             Update update = new Update();
             update.set("comments",apiRatings.getComments());
             update.set("rating",apiRatings.getRating());
-            apiRatings.setSwaggerId(swaggerId);
             mongoTemplate.upsert(query,update,ApiRatings.class);
             return new ResponseEntity<>(HttpStatus.OK);
         }
