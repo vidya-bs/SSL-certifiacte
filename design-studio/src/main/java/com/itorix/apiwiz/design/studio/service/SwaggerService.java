@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -1282,20 +1283,36 @@ public interface SwaggerService {
 										  @RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 										@PathVariable("swaggerId")String swaggerId,@RequestBody ApiRatings apiRatings) throws Exception;
 
-	@ApiOperation(value = "Getting Api rating .Getting api rating summary for particular swagger  ", notes = "", code = 201)
-	@ApiResponses(value = {@ApiResponse(code = 201, message = "Api rating retrieved successfully", response = Void.class),
+	@ApiOperation(value = "Editing Api rating .Rating api's based on user rating's ", notes = "", code = 200)
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Api was edited successfully", response = Void.class),
+			@ApiResponse(code = 404, message = "Error while editing api", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggerId}/rating")
+	public ResponseEntity<?> editRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
+										@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+										@PathVariable("swaggerId")String swaggerId,@RequestBody ApiRatings apiRatings) throws Exception;
+
+	@ApiOperation(value = "Getting Api rating .Getting api rating summary for particular swagger  ", notes = "", code = 200)
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Api rating retrieved successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggerId}/{revision}/summary")
 	public ResponseEntity<?> getRatingSummary(@RequestHeader(value = "JSESSIONID") String jsessionid,
 										@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 										@PathVariable("swaggerId")String swaggerId,@PathVariable("revision")int revision) throws Exception;
 
-	@ApiOperation(value = "Getting Api rating .Getting all api ratings for particular swagger  ", notes = "", code = 201)
-	@ApiResponses(value = {@ApiResponse(code = 201, message = "Api rating retrieved successfully", response = Void.class),
+	@ApiOperation(value = "Getting Api rating .Getting all api ratings for particular swagger  ", notes = "", code = 200)
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Api rating retrieved successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggerId}/{revision}/rating")
 	public ResponseEntity<?> getAllRatings(@RequestHeader(value = "JSESSIONID") String jsessionid,
 											@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
-											@PathVariable("swaggerId")String swaggerId,@PathVariable("revision")int revision) throws Exception;
+											@PathVariable("swaggerId")String swaggerId,@PathVariable("revision")int revision, @RequestBody HashMap<String,String> email) throws Exception;
+
+	@ApiOperation(value = "Deleting Api rating", notes = "", code = 204)
+	@ApiResponses(value = {@ApiResponse(code = 204, message = "Api was deleted successfully", response = Void.class),
+			@ApiResponse(code = 404, message = "Error while deleting api", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggerId}/{revision}/delete")
+	public ResponseEntity<?> deleteRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
+										@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+										@PathVariable("swaggerId")String swaggerId,@PathVariable("revision")int revision, @RequestBody HashMap<String,String> email) throws Exception;
 
 }

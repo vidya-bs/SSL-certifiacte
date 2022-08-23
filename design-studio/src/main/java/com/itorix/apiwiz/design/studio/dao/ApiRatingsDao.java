@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -29,7 +30,7 @@ public class ApiRatingsDao {
     }
 
     public Map<String,Object> getRatingSummary(String swaggerId,String oas,int revision){
-        List<ApiRatings> totalRatings = getRatings(swaggerId,oas,revision);
+        List<ApiRatings> totalRatings  =  ratingsList(swaggerId,oas,revision);
         int[] individualRatings = new int[5];
         int totalRating = 0;
         for(ApiRatings apiRatings:totalRatings){
@@ -54,10 +55,38 @@ public class ApiRatingsDao {
         return summary;
     }
 
-    public List<ApiRatings> getRatings(String swaggerId,String oas,int revison) {
+    public List<ApiRatings> ratingsList(String swaggerId, String oas, int revision) {
         Query query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oasVersion").is(oas)
-                .and("revision").is(revison));
-        return mongoTemplate.find(query, ApiRatings.class);
+                .and("revision").is(revision));
+        return  mongoTemplate.find(query, ApiRatings.class);
+    }
+    public List<ApiRatings> getRatings(String swaggerId, String oas, int revision, String email) {
+        List<ApiRatings> totalRatings  = ratingsList(swaggerId,oas,revision);
+        for(int i=0;i<totalRatings.size();i++){
+            if(totalRatings.get(i).getEmail().equals(email)){
+                Collections.swap(totalRatings,0,i);
+            }
+        }
+        return totalRatings;
     }
 
+    public ResponseEntity<?> editRating(String swaggerId, ApiRatings apiRatings) {
+        if(apiRatings.getRating()>0 && apiRatings.getRating()<=5){
+            Query query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oasVersion").is(apiRatings.getOasVersion()).and("revision").is(apiRatings.getRevision()).and("email").is(apiRatings.getEmail()));
+            Update update = new Update();
+            update.set("comments",apiRatings.getComments());
+            update.set("rating",apiRatings.getRating());
+            apiRatings.setSwaggerId(swaggerId);
+            mongoTemplate.upsert(query,update,ApiRatings.class);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ErrorObj("Rating should be between 1-5", "500"),
+         HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    public ResponseEntity<?> deleteRating(String swaggerId, int revision, String oas, String email) {
+        Query query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oasVersion").is(oas).and("revision").is(revision).and("email").is(email));
+        mongoTemplate.remove(query,ApiRatings.class);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
