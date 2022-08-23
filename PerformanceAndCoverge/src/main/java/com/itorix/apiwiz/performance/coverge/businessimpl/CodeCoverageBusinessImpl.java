@@ -220,7 +220,6 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		try {
 			executeXslts(applicationProperties.getMonitorDir() + timeStamp + "/");
 		} catch (TransformerException e) {
-			logger.error(e.getMessage());
 			logger.error("Exception occurred", e);
 			throw e;
 		}
@@ -271,8 +270,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 				downloadURI = obj.getString("downloadURI");
 			}
 		} catch (Exception e) {
-			logger.error("Error Storing file in Artifactory : " + e.getMessage());
-			logger.error("Exception occurred", e);
+			logger.error("Error Storing file in Artifactory : ",e);
 		}
 
 		// try {
@@ -1470,8 +1468,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 				downloadURI = obj.getString("downloadURI");
 			}
 		} catch (Exception e) {
-			logger.error("Error Storing file in Artifactory : " + e.getMessage());
-			logger.error("Exception occurred", e);
+			logger.error("Error Storing file in Artifactory : " ,e);
 		}
 		// TODO We need to delete the hard copy of zipFileName
 		long end = System.currentTimeMillis();

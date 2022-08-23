@@ -636,7 +636,7 @@ public class CommonServices {
 					backupLocation + "/" + cfg.getEnvFile().getOriginalFilename());
 			return "Success";
 		} catch (IOException e) {
-			logger.error(e.getMessage());
+			logger.error("Exception occurred",e);
 			throw e;
 		}
 	}
@@ -667,7 +667,7 @@ public class CommonServices {
 						backupLocation + "/" + cfg.getEnvFile().getOriginalFilename(), cfg);
 			}
 		} catch (IOException e) {
-			logger.error(e.getMessage());
+			logger.error("Exception occurred",e);
 			throw e;
 		}
 	}
@@ -699,7 +699,7 @@ public class CommonServices {
 						backupLocation + "/" + cfg.getEnvFile().getOriginalFilename(), cfg);
 			}
 		} catch (IOException e) {
-			logger.error(e.getMessage());
+			logger.error("Exception occurred",e);
 			throw e;
 		}
 	}
@@ -782,7 +782,7 @@ public class CommonServices {
 				return postmanCollectionRunner.executePostManCollectionTraceAsObject(postManFileName, envFileName, cfg);
 			}
 		} catch (IOException e) {
-			logger.error(e.getMessage());
+			logger.error("Exception occurred",e);
 			throw e;
 		}
 	}
@@ -802,7 +802,7 @@ public class CommonServices {
 					backupLocation + "/" + cfg.getEnvFile().getOriginalFilename());
 			return "Success";
 		} catch (IOException e) {
-			logger.error(e.getMessage());
+			logger.error("Exception occurred",e);
 			throw e;
 		}
 	}

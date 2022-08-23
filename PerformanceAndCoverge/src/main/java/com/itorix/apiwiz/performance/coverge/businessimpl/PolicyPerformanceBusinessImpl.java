@@ -111,7 +111,7 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness 
 			log("executePolicyPerformance", cfg.getInteractionid(), "step 1: getProxyDeployedRevision" + rev);
 			cfg.setRevision(rev);
 		} catch (IOException e1) {
-			logger.error(e1.getMessage());
+			logger.error("Excception occurred",e1);
 			e1.printStackTrace();
 			throw e1;
 		}

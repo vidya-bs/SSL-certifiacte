@@ -87,8 +87,7 @@ public class PerformanceAndCoveragePostmanCollectionRunner {
 		try {
 			return runCollectionTraceAsObject(postManFileName, envFileName, null, false, cfg);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-
+			logger.error("Exception occurred",e);
 			throw e;
 		}
 	}
@@ -101,8 +100,7 @@ public class PerformanceAndCoveragePostmanCollectionRunner {
 
 			return runCollection(collection, env, null, false);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-
+			logger.error("Exception occurred",e);
 			throw e;
 		}
 	}
