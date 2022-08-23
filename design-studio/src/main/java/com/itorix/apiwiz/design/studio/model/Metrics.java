@@ -7,6 +7,6 @@ import java.util.HashMap;
 
 @Data
 public class Metrics implements Serializable {
-    private String type;
-    private HashMap<String, Object> values;
+	private String type;
+	private HashMap<String, Object> values;
 }

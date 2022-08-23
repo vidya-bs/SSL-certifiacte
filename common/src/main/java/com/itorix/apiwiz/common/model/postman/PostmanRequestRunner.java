@@ -45,6 +45,7 @@ public class PostmanRequestRunner {
 	private RestTemplate setupRestTemplate(PostmanRequest request) {
 		RestTemplate restTemplate = new RestTemplate(httpClientRequestFactory);
 		if (request.dataMode != null && request.dataMode.equals("urlencoded")) {
+			logger.debug("Setting message convertors ");
 			List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>();
 			converters.add(new FormHttpMessageConverter());
 			StringHttpMessageConverter stringConv = new StringHttpMessageConverter();
@@ -83,6 +84,7 @@ public class PostmanRequestRunner {
 		}
 
 		long startMillis = System.currentTimeMillis();
+		logger.debug("Making a call to {}", uri);
 		httpResponse = restTemplate.exchange(uri, HttpMethod.valueOf(request.method), entity, String.class);
 		Set<Entry<String, List<String>>> entries = entity.getHeaders().entrySet();
 		for (Entry<String, List<String>> ent : entries) {

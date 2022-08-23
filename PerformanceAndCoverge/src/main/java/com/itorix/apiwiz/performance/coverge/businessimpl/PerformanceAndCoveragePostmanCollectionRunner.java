@@ -57,7 +57,7 @@ public class PerformanceAndCoveragePostmanCollectionRunner {
 			logger.debug(mapper.writeValueAsString(result));
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 	}
 
@@ -65,8 +65,7 @@ public class PerformanceAndCoveragePostmanCollectionRunner {
 		try {
 			return runCollection(postManFileName, envFileName, null, false);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 			throw e;
 		}
 	}
@@ -76,8 +75,8 @@ public class PerformanceAndCoveragePostmanCollectionRunner {
 		try {
 			return runCollectionTraceAsObject(postManFileName, envFileName, null, false, cfg);
 		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+
+			logger.error("Exception occurred", e);
 			throw e;
 		}
 	}
@@ -89,7 +88,7 @@ public class PerformanceAndCoveragePostmanCollectionRunner {
 			return runCollectionTraceAsObject(postManFileName, envFileName, null, false, cfg);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			e.printStackTrace();
+
 			throw e;
 		}
 	}
@@ -103,7 +102,7 @@ public class PerformanceAndCoveragePostmanCollectionRunner {
 			return runCollection(collection, env, null, false);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			e.printStackTrace();
+
 			throw e;
 		}
 	}
@@ -232,7 +231,7 @@ public class PerformanceAndCoveragePostmanCollectionRunner {
 					return isSuccessful;
 				}
 			} catch (Throwable e) {
-				e.printStackTrace();
+				logger.error("Exception occurred", e);
 				runResult.failedRequest++;
 				runResult.failedRequestName.add(folder.name + "." + r.name);
 				return false;
@@ -284,7 +283,7 @@ public class PerformanceAndCoveragePostmanCollectionRunner {
 				 * !isSuccessful) { return isSuccessful; }
 				 */
 			} catch (Throwable e) {
-				e.printStackTrace();
+				logger.error("Exception occurred", e);
 				runResult.failedRequest++;
 				runResult.failedRequestName.add(folder.name + "." + r.name);
 				// return false;
@@ -303,7 +302,7 @@ public class PerformanceAndCoveragePostmanCollectionRunner {
 	 * runResult.failedRequest++; runResult.failedRequestName.add(req.name); }
 	 * isSuccessful = runSuccess && isSuccessful; if (haltOnError &&
 	 * !isSuccessful) { return isSuccessful; } } catch (Throwable e) {
-	 * e.printStackTrace(); runResult.failedRequest++;
+	 * log.error("Exception occurred",e)(); runResult.failedRequest++;
 	 * runResult.failedRequestName.add( req.name); return false; }
 	 * 
 	 * } return isSuccessful; }
@@ -327,7 +326,7 @@ public class PerformanceAndCoveragePostmanCollectionRunner {
 								return isSuccessful;
 							}
 						} catch (Throwable e) {
-							e.printStackTrace();
+							logger.error("Exception occurred", e);
 							runResult.failedRequest++;
 							runResult.failedRequestName.add(req.name);
 							return false;
@@ -349,7 +348,7 @@ public class PerformanceAndCoveragePostmanCollectionRunner {
 						return isSuccessful;
 					}
 				} catch (Throwable e) {
-					e.printStackTrace();
+					logger.error("Exception occurred", e);
 					runResult.failedRequest++;
 					runResult.failedRequestName.add(req.name);
 					return false;
@@ -402,7 +401,7 @@ public class PerformanceAndCoveragePostmanCollectionRunner {
 							 * isSuccessful; }
 							 */
 						} catch (Throwable e) {
-							e.printStackTrace();
+							logger.error("Exception occurred", e);
 							runResult.failedRequest++;
 							runResult.failedRequestName.add(req.name);
 							// return false;
@@ -445,7 +444,7 @@ public class PerformanceAndCoveragePostmanCollectionRunner {
 					 * (haltOnError && !isSuccessful) { return isSuccessful; }
 					 */
 				} catch (Throwable e) {
-					e.printStackTrace();
+					logger.error("Exception occurred", e);
 					runResult.failedRequest++;
 					runResult.failedRequestName.add(req.name);
 					// return false;

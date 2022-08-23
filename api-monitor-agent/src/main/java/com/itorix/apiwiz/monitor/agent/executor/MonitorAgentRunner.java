@@ -315,6 +315,7 @@ public class MonitorAgentRunner {
             RequestModel requestModel = new RequestModel();
             try {
                 if (!CollectionUtils.isEmpty(notification.getEmails())) {
+                    logger.debug("Setting Email contents to request Model");
                     String[] emailContentToReplace = emailContentParser.getRelevantEmailContent(notificationDetail,
                             notificationData);
                     String mailBody = emailContentParser.getEmailBody(emailContentToReplace);
@@ -337,6 +338,7 @@ public class MonitorAgentRunner {
 
                 HttpEntity<RequestModel> httpEntity = new HttpEntity<>(requestModel, headers);
                 String monitorUrl = notificationAgentPath + notificationContextPath + NOTIFICATION_AGENT_NOTIFY;
+                log.debug("Making a call to {}",monitorUrl);
                 ResponseEntity<String> result = restTemplate.postForEntity(monitorUrl, httpEntity, String.class);
                 if (!result.getStatusCode().is2xxSuccessful()) {
                     log.error("error returned from notification agent", result.getBody());

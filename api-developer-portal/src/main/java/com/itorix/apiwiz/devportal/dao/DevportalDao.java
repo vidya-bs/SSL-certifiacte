@@ -13,9 +13,9 @@ import com.itorix.apiwiz.common.util.http.HTTPUtil;
 
 @Component("devportalDao")
 public class DevportalDao {
-	
+
 	private Logger logger = Logger.getLogger(DevportalDao.class);
-	
+
 	/**
 	 * @param httpConn
 	 * @param method
@@ -46,16 +46,16 @@ public class DevportalDao {
 				throw new ItorixException(
 						"Request validation failed. Exception connecting to apigee connector. " + statusCode.value(),
 						"Configuration-1006");
-			}else if(statusCode.value() >= 404) {
-				throw new ItorixException("Request validation failed. Invalid data - " + statusCode.value(), "Portal-1001");
-			}
-			else
+			} else if (statusCode.value() >= 404) {
+				throw new ItorixException("Request validation failed. Invalid data - " + statusCode.value(),
+						"Portal-1001");
+			} else
 				throw new ItorixException("Invalid request data " + statusCode.value(), "Portal-1001");
 		} catch (ItorixException ex) {
-			logger .error(ex);
+			logger.error(ex);
 			throw ex;
 		} catch (Exception ex) {
-			logger .error(ex);
+			logger.error(ex);
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}

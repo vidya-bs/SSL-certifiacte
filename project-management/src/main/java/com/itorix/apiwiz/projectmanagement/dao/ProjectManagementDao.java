@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -101,7 +102,7 @@ import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
 import net.sf.json.JSONObject;
-
+@Slf4j
 @Component
 public class ProjectManagementDao {
 
@@ -236,7 +237,7 @@ public class ProjectManagementDao {
 			try {
 				json = mapper.writeValueAsString(particularProject);
 			} catch (JsonProcessingException e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 			return json;
 		} else {
@@ -683,7 +684,7 @@ public class ProjectManagementDao {
 			return true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 
 		return false;
@@ -797,10 +798,10 @@ public class ProjectManagementDao {
 			br.close();
 			reader = stringBuilder.toString();
 		} catch (MongoException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			logger.error("getFile " + fileName + " : " + e.getMessage());
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			logger.error("getFile " + fileName + " : " + e.getMessage());
 		}
 		return reader;
@@ -817,7 +818,7 @@ public class ProjectManagementDao {
 			gfsFile.setFilename(fileName);
 			gfsFile.save();
 		} catch (MongoException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			logger.error("insertFile " + e.getMessage());
 			throw e;
 		}
@@ -831,7 +832,7 @@ public class ProjectManagementDao {
 				gfs.remove(fileName);
 			return true;
 		} catch (MongoException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			logger.error("insertFile " + e.getMessage());
 			throw e;
 		}
@@ -985,25 +986,26 @@ public class ProjectManagementDao {
 					projectFile.setInUse(true);
 					switch (ext) {
 						case "WSDL" :
+							log.debug("Setting project file type as WSDL");
 							projectFile.setType("WSDL");
 							break;
 						case "XSD" :
-							projectFile.setType("XSD");
+							log.debug("Setting project file type as XSD");
 							break;
 						default :
-							projectFile.setType("ATTACHMENT");
+							log.debug("Setting project file type as Attachment");
 					}
 					updateProjectFile(projectFile);
 				}
 				updateProject(project, jsessionId);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		try {
 			org.apache.commons.io.FileUtils.deleteDirectory(new File(zipLocation));
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -1015,7 +1017,7 @@ public class ProjectManagementDao {
 			Pipelines pipelines = mapper.readValue(pipelineStr, Pipelines.class);
 			project.getProxies().get(0).setPipelines(pipelines.getPipelines());
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return project;
 	}
@@ -1058,7 +1060,7 @@ public class ProjectManagementDao {
 			response.setConfigKVM("true");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return response;
 	}
@@ -1114,6 +1116,7 @@ public class ProjectManagementDao {
 			RestTemplate restTemplate = new RestTemplate();
 			HttpEntity<PipelineGroups> requestEntity = new HttpEntity<>(pipelineGroups, headers);
 			// ResponseEntity<String> response =
+			log.debug("Making a call to {}", hostUrl);
 			restTemplate.exchange(hostUrl, HttpMethod.POST, requestEntity, String.class);
 		} catch (Exception e) {
 			throw new ItorixException("error creating pipeline", "", e);
@@ -1140,6 +1143,7 @@ public class ProjectManagementDao {
 			headers.set("JSESSIONID", jsessionId);
 			RestTemplate restTemplate = new RestTemplate();
 			HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
+			log.debug("Making a call to {}", hostUrl);
 			ResponseEntity<PipelineGroups> response = restTemplate.exchange(hostUrl, HttpMethod.GET, requestEntity,
 					PipelineGroups.class);
 			return response.getBody();
@@ -1229,15 +1233,15 @@ public class ProjectManagementDao {
 			return codeGenHistory;
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			throw new ItorixException("unable to create repo ", "", e);
 		} catch (ItorixException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			throw new ItorixException("unable to create repo ", "", e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -1249,7 +1253,7 @@ public class ProjectManagementDao {
 					applicationProperties.getProxyScmUserName(), applicationProperties.getProxyScmPassword());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return repoName;
 	}
@@ -1257,7 +1261,8 @@ public class ProjectManagementDao {
 	private void createSCMBranch(ProxySCMDetails proxySCMDetails) throws ItorixException {
 		scmUtilImpl.createBranch(proxySCMDetails.getBranch(), "", proxySCMDetails.getHostUrl(),
 				applicationProperties.getProxyScmPassword());
-				//proxySCMDetails.getUsername(), applicationProperties.getProxyScmPassword());
+		// proxySCMDetails.getUsername(),
+		// applicationProperties.getProxyScmPassword());
 	}
 
 	private ProxySCMDetails populateProxySCMDetails(Project project) throws ItorixException {
@@ -1367,13 +1372,13 @@ public class ProjectManagementDao {
 			return listCategory;
 		} catch (JsonParseException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		} catch (JsonMappingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -1427,7 +1432,7 @@ public class ProjectManagementDao {
 			createPromotePipeline(scmPromote, projectName, proxyName, jsessionid);
 		} catch (ItorixException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 

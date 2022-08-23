@@ -613,7 +613,8 @@ public interface SwaggerBusiness {
 	 * 
 	 * @throws ParseException
 	 */
-	public SwaggerObjectResponse getSwaggerStats(String timeunit, String timerange) throws ParseException, ItorixException;
+	public SwaggerObjectResponse getSwaggerStats(String timeunit, String timerange)
+			throws ParseException, ItorixException;
 
 	/**
 	 * getSwagger3Stats
@@ -686,7 +687,7 @@ public interface SwaggerBusiness {
 	 * @return
 	 */
 	public SwaggerTeam findSwaggerTeam(String team_name, String interactionid) throws ItorixException;
-	
+
 	/**
 	 * oasCheck
 	 * 
@@ -694,8 +695,7 @@ public interface SwaggerBusiness {
 	 * @return
 	 * @throws IOException
 	 */
-	public String oasCheck(String data)
-			throws IOException;
+	public String oasCheck(String data) throws IOException;
 
 	/**
 	 * swaggerSearch

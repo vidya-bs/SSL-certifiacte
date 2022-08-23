@@ -204,12 +204,12 @@ public class ApigeeConfigurationBusinessImpl implements ApigeeConfigurationBusin
 	public Object getApigeeAuthorization(String type, String org) throws ItorixException {
 		return apigeeUtil.getApigeeAuth(org, type);
 	}
-	
+
 	public Object getApigeexAuthorization(String type, String org) throws Exception {
 		return apigeexUtil.getApigeeCredentials(org, type);
 	}
 
-	public Object getApigeexHost(String type, String org) throws ItorixException{
+	public Object getApigeexHost(String type, String org) throws ItorixException {
 		return apigeexUtil.getApigeeHost(org);
 	}
 

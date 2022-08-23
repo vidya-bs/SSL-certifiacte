@@ -10,9 +10,9 @@ import java.util.Map;
 @Setter
 public class MonitorStats {
 
-    private Map<String, Integer> topFiveMonitorsBasedOnUptime;
+	private Map<String, Integer> topFiveMonitorsBasedOnUptime;
 
-    private Map<String, Long> topFiveMonitorsBasedOnLatency;
+	private Map<String, Long> topFiveMonitorsBasedOnLatency;
 
-    private List<MonitorExecutionMetric> monitorCountByExecStatus;
+	private List<MonitorExecutionMetric> monitorCountByExecStatus;
 }

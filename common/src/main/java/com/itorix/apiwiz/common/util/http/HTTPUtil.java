@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 //@Component
 public class HTTPUtil {
 	Logger logger = Logger.getLogger(HTTPUtil.class);
-//	@Autowired
+	// @Autowired
 	private RestTemplate restTemplate;
 
 	private ObjectMapper mapper = new ObjectMapper();
@@ -117,7 +117,7 @@ public class HTTPUtil {
 	}
 
 	private ResponseEntity<String> transport() {
-		if(this.headers == null)
+		if (this.headers == null)
 			this.headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		headers.setContentType(MediaType.APPLICATION_JSON);
@@ -155,16 +155,17 @@ public class HTTPUtil {
 			return "Parse exception";
 		}
 	}
-	
+
 	public RestTemplate getRestTemplate() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
-	    TrustStrategy acceptingTrustStrategy = (x509Certificates, s) -> true;
-	    SSLContext sslContext = org.apache.http.ssl.SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
-	    SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, new NoopHostnameVerifier());
-	    CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(csf).build();
-	    HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-	    requestFactory.setHttpClient(httpClient);
-	    RestTemplate restTemplate = new RestTemplate(requestFactory);
-	    restTemplate.setErrorHandler(new HttpErrorHandler());
-	    return restTemplate;
+		TrustStrategy acceptingTrustStrategy = (x509Certificates, s) -> true;
+		SSLContext sslContext = org.apache.http.ssl.SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy)
+				.build();
+		SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, new NoopHostnameVerifier());
+		CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(csf).build();
+		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+		requestFactory.setHttpClient(httpClient);
+		RestTemplate restTemplate = new RestTemplate(requestFactory);
+		restTemplate.setErrorHandler(new HttpErrorHandler());
+		return restTemplate;
 	}
 }

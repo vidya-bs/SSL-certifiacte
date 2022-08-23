@@ -3,6 +3,7 @@ package com.itorix.apiwiz.servicerequest.serviceImpl;
 import java.time.Instant;
 import java.util.Date;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ import com.itorix.apiwiz.servicerequest.model.ServiceRequest;
 import com.itorix.apiwiz.servicerequest.model.ServiceRequestComments;
 import com.itorix.apiwiz.servicerequest.model.ServiceRequestTypes;
 import com.itorix.apiwiz.servicerequest.service.ServiceRequestService;
-
+@Slf4j
 @CrossOrigin
 @RestController
 public class ServiceRequestServiceImpl implements ServiceRequestService {
@@ -40,9 +41,8 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 	@Override
 	public ResponseEntity<?> createServiceRequest(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
-			@RequestBody ServiceRequest config, @RequestHeader(value = "JSESSIONID") String jsessionid)
-			throws Exception {
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype, @RequestBody ServiceRequest config,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
 		config.setCreatedUser(user.getFirstName() + " " + user.getLastName());
 		config.setCreatedUserEmailId(user.getEmail());
@@ -51,7 +51,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 		config.setModifiedDate(new Date(System.currentTimeMillis()));
 		config.setStatus("Review");
 		config.setCreated(false);
-		//config.setGwType(gwtype);
+		// config.setGwType(gwtype);
 		config.setActiveFlag(Boolean.TRUE);
 		config = serviceRequestDao.createServiceRequest(config);
 		HttpHeaders headers = new HttpHeaders();
@@ -228,8 +228,8 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable(value = "requestId") String requestId, @RequestHeader(value = "JSESSIONID") String jsessionid)
 			throws Exception {
-String req= null;
-	System.out.println("no");
+		String req = null;
+		log.info("no");
 		serviceRequestDao.revertServiceRequest(requestId);
 		return new ResponseEntity<Void>(HttpStatus.CREATED);
 	}

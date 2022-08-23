@@ -116,6 +116,7 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness 
 			throw e1;
 		}
 		if (cfg.getGwtype() != null && cfg.getGwtype().equalsIgnoreCase("apigeex")) {
+			logger.debug("Setting proxy stat for policy performance");
 			try {
 				List<Object> tracesObjects = commonServices.executeLivePostmanCollectionTraceAsObject(cfg,
 						backUpLocation);
@@ -137,7 +138,7 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness 
 				}
 				policyPerformanceInfo.setProxyStat(policies);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error("Exception occurred", e);
 			}
 		} else {
 			try {
@@ -165,7 +166,7 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness 
 				policies.put("stepTypes", root.getAveragePolicyTimes());
 				policyPerformanceInfo.setProxyStat(policies);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error("Exception occurred", e);
 			}
 		}
 		long endtTime = System.nanoTime();
@@ -212,7 +213,7 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness 
 			Document doc = builder.parse(input);
 			return doc;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -231,7 +232,7 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness 
 			t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 			t.transform(new DOMSource(node), new StreamResult(sw));
 		} catch (TransformerException te) {
-			logger.error("nodeToString Transformer Exception");
+			logger.error("nodeToString Transformer Exception", te);
 		}
 		return sw.toString();
 	}
@@ -261,17 +262,17 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness 
 			Debug debug = (Debug) JAXBContext.newInstance(Debug.class).createUnmarshaller().unmarshal(XMLReader);
 			return debug;
 		} catch (JAXBException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (XMLStreamException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (TransformerException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (JsonGenerationException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (JsonMappingException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -310,6 +311,7 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness 
 		List<History> history = new ArrayList<History>();
 		Criteria criteria = new Criteria();
 		if (filter) {
+			logger.debug("Getting policy performance list");
 			SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 			Query query = new Query();
 			if (proxy != null) {

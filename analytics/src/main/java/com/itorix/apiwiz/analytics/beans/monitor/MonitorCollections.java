@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 public class MonitorCollections extends AbstractObject {
 
-    private String name;
-    private String summary;
+	private String name;
+	private String summary;
 
 }

@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.portfolio.dao;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -34,7 +35,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+@Slf4j
 @Component
 public class ExcelReader {
 
@@ -59,6 +60,7 @@ public class ExcelReader {
 		for (Portfolio portfolio : portfolios) {
 			Query query = new Query().addCriteria(Criteria.where("name").is(portfolio.getName()));
 			if (mongoTemplate.count(query, Portfolio.class) != 0) {
+				log.debug("Performing operations for portfolioDao");
 				Portfolio dbPortfolio = mongoTemplate.findOne(query, Portfolio.class);
 				portfolioData.put(portfolio.getName(), "updated");
 				for (Projects project : portfolio.getProjects()) {
@@ -144,6 +146,7 @@ public class ExcelReader {
 			}
 			Projects project = null;
 			if (ObjectUtils.isEmpty(portfolio.getProjects())) {
+				log.debug("Setting projects to projectList");
 				List<Projects> projectList = new ArrayList<>();
 				project = createProject(dataElement);
 				projectList.add(project);

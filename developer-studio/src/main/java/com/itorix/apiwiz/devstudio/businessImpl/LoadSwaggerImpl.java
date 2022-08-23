@@ -10,6 +10,7 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.ParseOptions;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang3.StringUtils;
@@ -21,10 +22,10 @@ import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+@Slf4j
 public class LoadSwaggerImpl implements LoadSwagger {
-	
-	
+
+
 
 	@Override
 	public String loadProxySwaggerDetails(String content, String oas) throws JsonProcessingException, JSONException {
@@ -61,12 +62,12 @@ public class LoadSwaggerImpl implements LoadSwagger {
 				URL url=new URL (basePath);
 				basePath = url.getFile();
 			} catch (MalformedURLException e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		}
 		proxy.setBasePath(basePath);
 		proxy.setName(name);
-		proxy.setDescription(name);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+		proxy.setDescription(name);
 		Flows flows = new Flows();
 		proxy.setFlows(flows);
 		proxy.setVersion(getVersion(version));
@@ -75,8 +76,8 @@ public class LoadSwaggerImpl implements LoadSwagger {
 		net.sf.json.JSONObject jsonSwaggerObject = (net.sf.json.JSONObject) JSONSerializer.toJSON(content);
 		net.sf.json.JSONObject jsonPaths = null;
 		if (null != jsonSwaggerObject.get("paths")) {
-			jsonPaths = (net.sf.json.JSONObject) JSONSerializer
-					.toJSON(jsonSwaggerObject.get("paths").toString());
+			log.debug("Loading Proxy3 Swagger details");
+			jsonPaths = (net.sf.json.JSONObject) JSONSerializer.toJSON(jsonSwaggerObject.get("paths").toString());
 			Set<Map.Entry<String, JSONObject>> set = jsonPaths.entrySet();
 			Iterator<Map.Entry<String, JSONObject>> iterator = set.iterator();
 			String path = null;
@@ -86,7 +87,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 				net.sf.json.JSONObject operation = (net.sf.json.JSONObject) JSONSerializer.toJSON(entry.getValue());
 				for (Object obj : operation.keySet()) {
 					String methodType = (String) obj;
-					if(isValidMethod(methodType)){
+					if (isValidMethod(methodType)) {
 						Object operationJsonValue = operation.get(methodType);
 						net.sf.json.JSONObject js = (net.sf.json.JSONObject) operationJsonValue;
 						try {
@@ -109,6 +110,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 								String targetBasepath = js.get("x-targetBasepath").toString();
 								flow.setTargetBasepath(targetBasepath);
 							} catch (Exception ex) {
+								log.error("Exception occurred", ex);
 							}
 
 							try {
@@ -126,18 +128,24 @@ public class LoadSwaggerImpl implements LoadSwagger {
 													.get(keyStr);
 											if(StringUtils.isNotEmpty(element.stream().findFirst().get().toString())){
 												metadataItem.setName(keyStr);
-												metadataItem.setValue(element.stream().findFirst().get().toString());
+												if(element.size()>1) {
+													metadataItem.setValue(getComaseperatedStr(element));
+												}else
+													metadataItem.setValue(element.stream().findFirst().get().toString());
 												metadata.add(metadataItem);
 											}
 										} catch (Exception ex) {
+											log.error("Exception occurred", ex);
 										}
 									}
 									flow.setMetadata(metadata);
 								}
 							} catch (Exception ex) {
+								log.error("Exception occurred", ex);
 							}
 							flowList.add(flow);
 						} catch (Exception e) {
+							log.error("Exception occurred", e);
 						}
 					}
 				}
@@ -304,17 +312,23 @@ public class LoadSwaggerImpl implements LoadSwagger {
 											net.sf.json.JSONArray element = (net.sf.json.JSONArray) jsonItem
 													.get(keyStr);
 											metadataItem.setName(keyStr);
+											if(element.size()>1) {
+												metadataItem.setValue(getComaseperatedStr(element));
+											}else
 											metadataItem.setValue(element.stream().findFirst().get().toString());
 											metadata.add(metadataItem);
 										} catch (Exception ex) {
+											log.error("Exception occurred", ex);
 										}
 									}
 									flow.setMetadata(metadata);
 								}
 							} catch (Exception ex) {
+								log.error("Exception occurred", ex);
 							}
 
 						} catch (Exception e) {
+							log.error("Exception occurred", e);
 						}
 
 						if (flow.getPath() != null && flow.getVerb() != null)
@@ -333,6 +347,18 @@ public class LoadSwaggerImpl implements LoadSwagger {
 		return mapper.writeValueAsString(proxy).toString();
 	}
 
+	private String getComaseperatedStr(net.sf.json.JSONArray element) {
+		String value = "";
+		for(int i=0; i< element.size();i++) {
+			if(i==0)
+				value = value + element.get(i).toString();
+			else
+				value = value + "," + element.get(i).toString();
+		}
+		return value;
+	}
+
+
 	public String loadTargetSwagger3Details(String content) throws JsonProcessingException, JSONException {
 		OpenAPI api = getOpenAPI(content);
 		String basePath = null;
@@ -347,7 +373,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 				URL url=new URL (basePath);
 				basePath = url.getFile();
 			} catch (MalformedURLException e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		}
 		proxy.setBasePath(basePath);
@@ -420,6 +446,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 								try {
 									description = js.get("operationId").toString().replaceAll("\\s", "");
 								} catch (Exception ex) {
+									log.error("Exception occurred", ex);
 								}
 							}
 							flow.setDescription(description);
@@ -427,8 +454,10 @@ public class LoadSwaggerImpl implements LoadSwagger {
 								String targetBasepath = js.get("x-targetBasepath").toString();
 								flow.setTargetBasepath(targetBasepath);
 							} catch (Exception ex) {
+								log.error("Exception occurred", ex);
 							}
 						} catch (Exception e) {
+							log.error("Exception occurred", e);
 						}
 						if (flow.getPath() != null && flow.getVerb() != null)
 							if (!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())

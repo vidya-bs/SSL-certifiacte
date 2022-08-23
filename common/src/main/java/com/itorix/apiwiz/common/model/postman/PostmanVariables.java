@@ -75,7 +75,7 @@ public class PostmanVariables {
 		String result = orig;
 		for (String var : allMatches) {
 			String varVal = getVal(var);
-			// System.out.println(var + " ==> " + varVal);
+			// log.info(var + " ==> " + varVal);
 			result = result.replace((CharSequence) var, (CharSequence) varVal);
 		}
 

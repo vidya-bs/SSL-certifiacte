@@ -9,10 +9,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
+@Slf4j
 public class XmlValidator extends ResponseValidator {
 
     private DocumentBuilderFactory factory;
@@ -49,7 +50,7 @@ public class XmlValidator extends ResponseValidator {
         try {
             value = XPathFactory.newInstance().newXPath().evaluate(path + "/text()", document);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            log.error("Exception occurred",ex);
         }
         return value;
     }

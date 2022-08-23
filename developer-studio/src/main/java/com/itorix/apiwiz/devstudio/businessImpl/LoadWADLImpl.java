@@ -17,11 +17,12 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
-
+@Slf4j
 public class LoadWADLImpl implements LoadWADL {
 
 	@Override
@@ -44,7 +45,7 @@ public class LoadWADLImpl implements LoadWADL {
 			if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 				Element eElement = (Element) nNode;
 				String path = eElement.getAttribute("path");
-				// System.out.println("path : " + path);
+				// log.info("path : " + path);
 				NodeList methodList = nNode.getChildNodes();
 				for (int i = 0; i < methodList.getLength(); i++) {
 					Node methodNode = methodList.item(i);
@@ -126,7 +127,7 @@ public class LoadWADLImpl implements LoadWADL {
 			Document doc = builder.parse(input);
 			return doc;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}

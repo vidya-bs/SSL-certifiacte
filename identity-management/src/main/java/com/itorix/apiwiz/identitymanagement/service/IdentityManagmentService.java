@@ -55,7 +55,7 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
-	//@PreAuthorize("hasAnyRole('ADMIN')")
+	// @PreAuthorize("hasAnyRole('ADMIN')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users", consumes = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> updateUser(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -191,14 +191,12 @@ public interface IdentityManagmentService {
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/connector/smtp")
 	public @ResponseBody ResponseEntity<?> deleteSMTPConnector(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid)
-			throws ItorixException;
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/connector/smtp")
 	public @ResponseBody ResponseEntity<?> getSMTPConnector(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid)
-			throws ItorixException;
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException;
 
 	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/{userId}/remove-workspace")
@@ -509,7 +507,5 @@ public interface IdentityManagmentService {
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/saml/idpMetadata/{workspaceId}")
 	public @ResponseBody ResponseEntity<Object> getIdpMetadata(@PathVariable(required = true) String workspaceId)
 			throws Exception;
-
-
 
 }

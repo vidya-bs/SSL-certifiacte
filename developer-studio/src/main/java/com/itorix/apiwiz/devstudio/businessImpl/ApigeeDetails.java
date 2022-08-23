@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +40,7 @@ import com.itorix.apiwiz.identitymanagement.model.User;
 // import com.itorix.hyggee.common.model.proxystudio.DevApp;
 // import com.itorix.hyggee.common.model.proxystudio.Product;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+@Slf4j
 @Component("apigeeDetails")
 public class ApigeeDetails {
 
@@ -81,7 +82,7 @@ public class ApigeeDetails {
 					if (revision != null && !revision.equals(""))
 						envEnv.setStatus("deployed");
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			}
 		}
@@ -103,8 +104,8 @@ public class ApigeeDetails {
 			deploymentList = new ArrayList<Deployments>();
 		} else {
 			deploymentList = proxyApigeeDetails.getDeployments();
-				if(CollectionUtils.isEmpty(deploymentList) || ObjectUtils.isEmpty(deploymentList.get(0)))
-					deploymentList = new ArrayList<Deployments>();
+			if (CollectionUtils.isEmpty(deploymentList) || ObjectUtils.isEmpty(deploymentList.get(0)))
+				deploymentList = new ArrayList<Deployments>();
 		}
 
 		try {
@@ -121,7 +122,7 @@ public class ApigeeDetails {
 			if (deploymentList.size() > 0)
 				proxyApigeeDetails.setDeployments(deploymentList);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return proxyApigeeDetails;
 	}
@@ -151,7 +152,7 @@ public class ApigeeDetails {
 			deployments.setProxies(proxyList);
 			return deployments;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -181,7 +182,7 @@ public class ApigeeDetails {
 			deployments.setProxies(proxyList);
 			return deployments;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -209,6 +210,7 @@ public class ApigeeDetails {
 		List<DevApp> devAppChildrenList = new ArrayList<DevApp>();
 		List<String> appList = productsAndAppsLinkedMap.get(product);
 		if (null != appList && appList.size() > 0) {
+			log.debug("Adding developer apps to products");
 			for (String appName : appList) {
 				DevApp appProductChildren = new DevApp();
 				appProductChildren.setName(appName);
@@ -229,44 +231,48 @@ public class ApigeeDetails {
 			ResponseEntity<String> response = makeCall(httpUtil, "GET");
 			HttpStatus statusCode = response.getStatusCode();
 			if (statusCode.is2xxSuccessful()) {
+				log.debug("Getting all products in organization");
 				String apiProductsString = response.getBody();
 				JSONArray apiProducts = (JSONArray) JSONSerializer.toJSON(apiProductsString);
 				JSONArray productsData = new JSONArray();
 				for (Object apiObj : apiProducts) {
-					try{
-					final String apiProduct = (String) apiObj;
-					// If string contains spaces, it will not allow to process.
-					productsData.add(apiProduct);
-					String productUrl = apigeeHost + "v1/organizations/" + organization + "/apiproducts/" + apiProduct;
-					//productUrl = productUrl.replace(" ", "%20");
-					httpUtil.setBasicAuth(apigeeCred);
-					httpUtil.setuRL(productUrl);
-					response = makeCall(httpUtil, "GET");
-					String apiProductString = response.getBody();
-					ObjectMapper objectMapper = new ObjectMapper();
-					APIProduct productObj = new APIProduct();
-					productObj = objectMapper.readValue(apiProductString, APIProduct.class);
-					for (Object proxyName : productObj.getProxies()) {
-						String proxyLinkedInProduct = (String) proxyName;
-						if (proxyProductLinkMap.containsKey(proxyLinkedInProduct)) {
-							proxyProductLinkMap.get(proxyLinkedInProduct).add(productObj.getName());
-						} else {
-							List<String> products = new ArrayList<String>();
-							products.add(productObj.getName());
-							proxyProductLinkMap.put(proxyLinkedInProduct, products);
+					try {
+						final String apiProduct = (String) apiObj;
+						// If string contains spaces, it will not allow to
+						// process.
+						productsData.add(apiProduct);
+						String productUrl = apigeeHost + "v1/organizations/" + organization + "/apiproducts/"
+								+ apiProduct;
+						// productUrl = productUrl.replace(" ", "%20");
+						httpUtil.setBasicAuth(apigeeCred);
+						httpUtil.setuRL(productUrl);
+						response = makeCall(httpUtil, "GET");
+						String apiProductString = response.getBody();
+						ObjectMapper objectMapper = new ObjectMapper();
+						APIProduct productObj = new APIProduct();
+						productObj = objectMapper.readValue(apiProductString, APIProduct.class);
+						for (Object proxyName : productObj.getProxies()) {
+							String proxyLinkedInProduct = (String) proxyName;
+							if (proxyProductLinkMap.containsKey(proxyLinkedInProduct)) {
+								proxyProductLinkMap.get(proxyLinkedInProduct).add(productObj.getName());
+							} else {
+								List<String> products = new ArrayList<String>();
+								products.add(productObj.getName());
+								proxyProductLinkMap.put(proxyLinkedInProduct, products);
+							}
 						}
+						Thread.sleep(2);
+					} catch (HttpClientErrorException ex) {
+						log.error("Exception occurred", ex);
+
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						log.error("Exception occurred", e);
 					}
-					Thread.sleep(2);
-				}catch (HttpClientErrorException ex){
-					ex.printStackTrace();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return proxyProductLinkMap;
 	}
@@ -293,34 +299,34 @@ public class ApigeeDetails {
 					ObjectMapper objectMapper = new ObjectMapper();
 					JSONArray devApps = (JSONArray) JSONSerializer.toJSON(developerAppString);
 					for (Object devObj : devApps) {
-						try{
-						final String devApp = (String) devObj;
-						httpUtil.setBasicAuth(apigeeCred);
-						httpUtil.setuRL(apigeeHost + "/v1/organizations/" + organization + "/apps/" + devApp);
-						response = makeCall(httpUtil, "GET");
-						String developerApp = response.getBody();
-						App appObject = new App();
-						appObject = objectMapper.readValue(developerApp, App.class);
-						List<String> productsLinked = getAllProductsFromAppCredentials(appObject);
-						for (String apiProduct : productsLinked) {
-							if (productsAppsLinkedMap.containsKey(apiProduct)) {
-								for (Object productObjectName : appObject.getApiProducts()) {
-									productsAppsLinkedMap.get(apiProduct).add((String) productObjectName);
+						try {
+							final String devApp = (String) devObj;
+							httpUtil.setBasicAuth(apigeeCred);
+							httpUtil.setuRL(apigeeHost + "/v1/organizations/" + organization + "/apps/" + devApp);
+							response = makeCall(httpUtil, "GET");
+							String developerApp = response.getBody();
+							App appObject = new App();
+							appObject = objectMapper.readValue(developerApp, App.class);
+							List<String> productsLinked = getAllProductsFromAppCredentials(appObject);
+							for (String apiProduct : productsLinked) {
+								if (productsAppsLinkedMap.containsKey(apiProduct)) {
+									for (Object productObjectName : appObject.getApiProducts()) {
+										productsAppsLinkedMap.get(apiProduct).add((String) productObjectName);
+									}
+								} else {
+									List<String> appsLinked = new ArrayList<String>();
+									appsLinked.add(appObject.getName());
+									productsAppsLinkedMap.put(apiProduct, appsLinked);
 								}
-							} else {
-								List<String> appsLinked = new ArrayList<String>();
-								appsLinked.add(appObject.getName());
-								productsAppsLinkedMap.put(apiProduct, appsLinked);
 							}
-						}
-						} catch (HttpClientErrorException e){
-							
+						} catch (HttpClientErrorException e) {
+
 						}
 						Thread.sleep(2);
 					}
-					
+
 				} catch (IOException | InterruptedException e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			}
 		}
@@ -344,6 +350,7 @@ public class ApigeeDetails {
 			ResponseEntity<String> response = makeCall(httpUtil, "GET");
 			HttpStatus statusCode = response.getStatusCode();
 			if (statusCode.is2xxSuccessful()) {
+				log.debug("Getting developer mail");
 				JSONObject developer = (JSONObject) JSONSerializer.toJSON(response.getBody());
 				ObjectMapper objectMapper = new ObjectMapper();
 				JSONArray email = (JSONArray) JSONSerializer
@@ -356,7 +363,7 @@ public class ApigeeDetails {
 				return mailList;
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -382,6 +389,7 @@ public class ApigeeDetails {
 			ResponseEntity<String> response = makeCall(httpUtil, "GET");
 			HttpStatus statusCode = response.getStatusCode();
 			if (statusCode.is2xxSuccessful()) {
+				log.debug("Getting proxy list");
 				String stringResponse = response.getBody();
 				proxyObject = (JSONObject) JSONSerializer.toJSON(stringResponse);
 				List<Proxy> childList = new ArrayList<Proxy>();
@@ -405,7 +413,7 @@ public class ApigeeDetails {
 				return childList;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -431,7 +439,7 @@ public class ApigeeDetails {
 				Thread.sleep(retryTimeout);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		} while (true);
 	}

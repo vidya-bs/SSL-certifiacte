@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +41,7 @@ import com.itorix.apiwiz.identitymanagement.model.User;
 // import com.itorix.hyggee.common.model.proxystudio.DevApp;
 // import com.itorix.hyggee.common.model.proxystudio.Product;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+@Slf4j
 @Component("apigeeXDetails")
 public class ApigeeXDetails {
 
@@ -49,7 +50,6 @@ public class ApigeeXDetails {
 
 	@Autowired
 	private ApigeeXUtill apigeeXUtil;
-
 
 	private HTTPUtil httpUtil;
 
@@ -62,7 +62,7 @@ public class ApigeeXDetails {
 
 	@Value("${itorix.core.apigee.edge.retry.timeout}")
 	private int retryTimeout;
-	
+
 	private Map<String, String> appsMap = new HashMap<>();
 
 	public ProxyData getDetails(ProxyData proxyData, User user) {
@@ -85,7 +85,7 @@ public class ApigeeXDetails {
 					if (revision != null && !revision.equals(""))
 						envEnv.setStatus("deployed");
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			}
 		}
@@ -107,14 +107,14 @@ public class ApigeeXDetails {
 			deploymentList = new ArrayList<Deployments>();
 		} else {
 			deploymentList = proxyApigeeDetails.getDeployments();
-			if(CollectionUtils.isEmpty(deploymentList) || ObjectUtils.isEmpty(deploymentList.get(0)))
+			if (CollectionUtils.isEmpty(deploymentList) || ObjectUtils.isEmpty(deploymentList.get(0)))
 				deploymentList = new ArrayList<Deployments>();
 		}
 
 		try {
 			Deployments deployments = getDeploymentsByProxy(proxy, org, env, type);
 			for (Deployments deployment : deploymentList) {
-				if(deployment != null)
+				if (deployment != null)
 					if (deployment.getOrg().equals(org) && deployment.getEnv().equals(env)
 							&& deployment.getType().equalsIgnoreCase(type)) {
 						deployment.setProxies(deployments.getProxies());
@@ -126,16 +126,16 @@ public class ApigeeXDetails {
 			if (deploymentList.size() > 0)
 				proxyApigeeDetails.setDeployments(deploymentList);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return proxyApigeeDetails;
 	}
 
 	private Deployments getDeploymentsByProxy(String proxy, String org, String env, String type) {
 		try {
-			if(type != null && type.equalsIgnoreCase("apigeex")){
+			if (type != null && type.equalsIgnoreCase("apigeex")) {
 				return getDeploymentsByApigeexProxy(proxy, org, env, type);
-			}else{
+			} else {
 				ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(org, type);
 				User user = new User();
 				Apigee apigee = new Apigee();
@@ -144,9 +144,10 @@ public class ApigeeXDetails {
 				user.setApigee(apigee);
 				this.apigeeURL = apigeeUtil.getApigeeHost(type == null ? "saas" : type, org);
 				List<Proxy> proxyList = this.getProxyList(apigeeURL, proxy, org, env, user, type);
-				Map<String, List<String>> proxiesAndProductsLinkedMap = getAllProductsInOrganization(apigeeURL, user, org,
+				Map<String, List<String>> proxiesAndProductsLinkedMap = getAllProductsInOrganization(apigeeURL, user,
+						org, type);
+				Map<String, List<String>> productsAndAppsLinkedMap = getAllAppsInOrganization(apigeeURL, user, org,
 						type);
-				Map<String, List<String>> productsAndAppsLinkedMap = getAllAppsInOrganization(apigeeURL, user, org, type);
 				for (Proxy proxyObj : proxyList) {
 					if (proxyObj.getName().equals(proxy))
 						proxyObj.setProducts(this.addProductsToProxies(user, org, proxy, proxiesAndProductsLinkedMap,
@@ -160,7 +161,7 @@ public class ApigeeXDetails {
 				return deployments;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -185,11 +186,10 @@ public class ApigeeXDetails {
 			deployments.setProxies(proxyList);
 			return deployments;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
-
 
 	private Deployments getDeployments(String proxy, String org, String env, String type) {
 		try {
@@ -216,7 +216,7 @@ public class ApigeeXDetails {
 			deployments.setProxies(proxyList);
 			return deployments;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -259,14 +259,14 @@ public class ApigeeXDetails {
 			String type) throws IOException {
 		Map<String, List<String>> proxyProductLinkMap = new HashMap<String, List<String>>();
 		String apigeeCred = null;
-		if(type != null && type.equalsIgnoreCase("apigeex")){
+		if (type != null && type.equalsIgnoreCase("apigeex")) {
 			apigeeHost = apigeeHost + "/";
 			try {
 				apigeeCred = apigeeXUtil.getApigeeCredentials(organization, type);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
-		}else{
+		} else {
 			apigeeCred = apigeeUtil.getApigeeAuth(organization, type);
 		}
 		httpUtil.setBasicAuth(apigeeCred);
@@ -280,13 +280,15 @@ public class ApigeeXDetails {
 				JSONArray apiProducts = (JSONArray) proxyObject.get("apiProduct");
 				JSONArray productsData = new JSONArray();
 				for (Object apiObj : apiProducts) {
-					try{
+					try {
 						JSONObject prodObj = (JSONObject) apiObj;
 						final String apiProduct = (String) prodObj.get("name");
-						// If string contains spaces, it will not allow to process.
+						// If string contains spaces, it will not allow to
+						// process.
 						productsData.add(apiProduct);
-						String productUrl = apigeeHost + "v1/organizations/" + organization + "/apiproducts/" + apiProduct;
-						//productUrl = productUrl.replace(" ", "%20");
+						String productUrl = apigeeHost + "v1/organizations/" + organization + "/apiproducts/"
+								+ apiProduct;
+						// productUrl = productUrl.replace(" ", "%20");
 						httpUtil.setBasicAuth(apigeeCred);
 						httpUtil.setuRL(productUrl);
 						response = makeCall(httpUtil, "GET");
@@ -305,15 +307,15 @@ public class ApigeeXDetails {
 							}
 						}
 						Thread.sleep(2);
-					}catch (HttpClientErrorException ex){
-						ex.printStackTrace();
+					} catch (HttpClientErrorException ex) {
+						log.error("Exception occurred", ex);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						log.error("Exception occurred", e);
 					}
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return proxyProductLinkMap;
 	}
@@ -322,14 +324,14 @@ public class ApigeeXDetails {
 			String type) throws IOException {
 		Map<String, List<String>> productsAppsLinkedMap = new HashMap<String, List<String>>();
 		String apigeeCred = null;
-		if(type != null && type.equalsIgnoreCase("apigeex")){
+		if (type != null && type.equalsIgnoreCase("apigeex")) {
 			apigeeHost = apigeeHost + "/";
 			try {
 				apigeeCred = apigeeXUtil.getApigeeCredentials(organization, type);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
-		}else{
+		} else {
 			apigeeCred = apigeeUtil.getApigeeAuth(organization, type);
 		}
 		httpUtil.setBasicAuth(apigeeCred);
@@ -341,7 +343,7 @@ public class ApigeeXDetails {
 			JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(appsString);
 			JSONArray apps = (JSONArray) (JSONArray) proxyObject.get("app");
 			for (Object devObj : apps) {
-				try{
+				try {
 					ObjectMapper objectMapper = new ObjectMapper();
 					JSONObject appObj = (JSONObject) devObj;
 					final String devApp = (String) appObj.get("appId");
@@ -364,7 +366,7 @@ public class ApigeeXDetails {
 							productsAppsLinkedMap.put(apiProduct, appsLinked);
 						}
 					}
-				} catch (HttpClientErrorException e){
+				} catch (HttpClientErrorException e) {
 
 				}
 			}
@@ -389,15 +391,12 @@ public class ApigeeXDetails {
 			mailList.add(mail);
 			return mailList;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
-	
-	
-	
-	public String getDeveloperId(String apigeeHost, User user, String AppId, String organization,
-			String type) {
+
+	public String getDeveloperId(String apigeeHost, User user, String AppId, String organization, String type) {
 		try {
 			httpUtil.setBasicAuth(apigeeXUtil.getApigeeCredentials(organization, type));
 			httpUtil.setuRL(apigeeHost + "v1/organizations/" + organization + "/apps/" + AppId);
@@ -409,13 +408,12 @@ public class ApigeeXDetails {
 				return getDeveloperMailId(apigeeHost, user, developerId, organization, type);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
-	
-	public String getDeveloperMailId(String apigeeHost, User user, String AppId, String organization,
-			String type) {
+
+	public String getDeveloperMailId(String apigeeHost, User user, String AppId, String organization, String type) {
 		try {
 			httpUtil.setBasicAuth(apigeeXUtil.getApigeeCredentials(organization, type));
 			httpUtil.setuRL(apigeeHost + "v1/organizations/" + organization + "/developers/" + AppId);
@@ -427,11 +425,10 @@ public class ApigeeXDetails {
 				return developerMail;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
-
 
 	private List<String> getAllProductsFromAppCredentials(App app) {
 		List<Credential> credentialList = new ArrayList<Credential>();
@@ -477,12 +474,10 @@ public class ApigeeXDetails {
 				return childList;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
-
-
 
 	private List<Proxy> getXProxyList(String apigeeHost, String proxy, String organization, String env, User user,
 			String type) {
@@ -491,7 +486,7 @@ public class ApigeeXDetails {
 			apigeeHost = apigeeXUtil.getApigeeHost(organization) + "/";
 			apigeeCred = apigeeXUtil.getApigeeCredentials(organization, type);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		httpUtil.setBasicAuth(apigeeCred);
 		httpUtil.setuRL(apigeeHost + "v1/organizations/" + organization + "/apis/" + proxy + "/deployments");
@@ -522,12 +517,10 @@ public class ApigeeXDetails {
 				return childList;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
-
-
 
 	private ResponseEntity<String> makeCall(HTTPUtil httpUtil, String method) {
 		ResponseEntity<String> response = null;
@@ -550,7 +543,7 @@ public class ApigeeXDetails {
 				Thread.sleep(retryTimeout);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		} while (true);
 	}

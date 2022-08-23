@@ -5,8 +5,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
+import lombok.extern.flogger.Flogger;
 import org.apache.commons.collections.CollectionUtils;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
@@ -28,7 +32,7 @@ import com.itorix.apiwiz.marketing.events.model.EventRegistration;
 
 @Component
 public class EventsDao {
-
+	private static final Logger logger = LoggerFactory.getLogger(EventsDao.class);
 	@Qualifier("masterMongoTemplate")
 	@Autowired
 	private MongoTemplate masterMongoTemplate;
@@ -131,7 +135,7 @@ public class EventsDao {
 			}
 			return downloadURI;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 			throw new ItorixException(ErrorCodes.errorMessage.get("Marketing-1000"), "Marketing-1000");
 		}
 	}

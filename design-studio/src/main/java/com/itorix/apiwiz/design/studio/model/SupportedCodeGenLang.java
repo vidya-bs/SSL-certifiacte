@@ -38,4 +38,3 @@ public class SupportedCodeGenLang {
 		this.oas3Compatible = oas3Compatible;
 	}
 }
-

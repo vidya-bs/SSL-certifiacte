@@ -357,6 +357,7 @@ public class Controller {
         for (Variable variable : variables) {
             try {
                 if (variable.getRef().equals(Variable.Ref.header)) {
+                    log.debug("Fetching variable extract");
                     List<String> variableValueList = headerVariables.get(variable.getPath());
                     if (!CollectionUtils.isEmpty(variableValueList)) {
                         variableExtract.put(variable.getName(), String.join(",", variableValueList));
@@ -494,9 +495,9 @@ public class Controller {
             ObjectMapper mapper = new ObjectMapper();
             JsonSchemaGenerator schemaGen = new JsonSchemaGenerator(mapper);
             JsonSchema schema = schemaGen.generateSchema(Expectation.class);
-            System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(schema));
+            log.info(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(schema));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred",e);
         }
     }
 
