@@ -1302,17 +1302,19 @@ public interface SwaggerService {
 	@ApiOperation(value = "Getting Api rating .Getting all api ratings for particular swagger  ", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Api rating retrieved successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggerId}/{revision}/rating/{email}")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggerId}/{revision}/rating")
 	public ResponseEntity<?> getAllRatings(@RequestHeader(value = "JSESSIONID") String jsessionid,
+										   @RequestHeader(value = "email") String email,
 											@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
-											@PathVariable("swaggerId")String swaggerId,@PathVariable("revision")int revision,@PathVariable("email")String email ) throws Exception;
+											@PathVariable("swaggerId")String swaggerId,@PathVariable("revision")int revision ) throws Exception;
 
 	@ApiOperation(value = "Deleting Api rating", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "Api was deleted successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Error while deleting api", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggerId}/{revision}/delete/{email}")
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggerId}/{revision}/delete")
 	public ResponseEntity<?> deleteRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
+										  @RequestHeader(value = "email") String email,
 										@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
-										@PathVariable("swaggerId")String swaggerId,@PathVariable("revision")int revision,@PathVariable("email")String email) throws Exception;
+										@PathVariable("swaggerId")String swaggerId,@PathVariable("revision")int revision) throws Exception;
 
 }

@@ -2818,14 +2818,16 @@ else
 
 	@Override
 	public ResponseEntity<?> getAllRatings(@RequestHeader(value = "JSESSIONID") String jsessionid,
-											@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,String swaggerId,int revision,HashMap<String,String> email) {
-		return new ResponseEntity<>(apiRatingsDao.getRatings(swaggerId,oas,revision,email.get("email")), HttpStatus.OK);
+										   @RequestHeader(value = "email") String email,
+											@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,String swaggerId,int revision) {
+		return new ResponseEntity<>(apiRatingsDao.getRatings(swaggerId,oas,revision,email), HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseEntity<?> deleteRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
-										@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,String swaggerId, int revision,HashMap<String,String> email) {
-		return new ResponseEntity<>(apiRatingsDao.deleteRating(swaggerId,revision,oas,email.get("email")), HttpStatus.NO_CONTENT);
+										  @RequestHeader(value = "email") String email,
+										@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,String swaggerId, int revision) {
+		return new ResponseEntity<>(apiRatingsDao.deleteRating(swaggerId,revision,oas,email), HttpStatus.NO_CONTENT);
 	}
 
 	public ResponseEntity<?> loadSwaggersToScan(String interactionid, String jsessionid) {
