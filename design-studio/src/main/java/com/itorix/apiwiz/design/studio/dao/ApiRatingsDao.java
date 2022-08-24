@@ -28,6 +28,7 @@ public class ApiRatingsDao {
             }
             apiRatings.setSwaggerId(swaggerId);
             apiRatings.setCts(System.currentTimeMillis());
+            apiRatings.setCreatedBy(apiRatings.getUserName());
             mongoTemplate.save(apiRatings);
             return new ResponseEntity<>(HttpStatus.CREATED);
         }
@@ -91,6 +92,7 @@ public class ApiRatingsDao {
             update.set("comments",apiRatings.getComments());
             update.set("rating",apiRatings.getRating());
             update.set("mts",System.currentTimeMillis());
+            update.set("modifiedBy",apiRatings.getUserName());
             mongoTemplate.upsert(query,update,ApiRatings.class);
             return new ResponseEntity<>(HttpStatus.OK);
         }
