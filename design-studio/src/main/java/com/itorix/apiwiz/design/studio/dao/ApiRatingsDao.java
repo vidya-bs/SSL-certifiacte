@@ -22,6 +22,7 @@ public class ApiRatingsDao {
     public ResponseEntity<?> postRating(String swaggerId,ApiRatings apiRatings) {
         if(apiRatings.getRating()>0 && apiRatings.getRating()<=5){
             apiRatings.setSwaggerId(swaggerId);
+            apiRatings.setCts(System.currentTimeMillis());
             mongoTemplate.save(apiRatings);
             return new ResponseEntity<>(HttpStatus.CREATED);
         }
@@ -80,6 +81,7 @@ public class ApiRatingsDao {
             Update update = new Update();
             update.set("comments",apiRatings.getComments());
             update.set("rating",apiRatings.getRating());
+            update.set("mts",System.currentTimeMillis());
             mongoTemplate.upsert(query,update,ApiRatings.class);
             return new ResponseEntity<>(HttpStatus.OK);
         }
