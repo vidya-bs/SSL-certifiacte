@@ -2818,8 +2818,8 @@ else
 
 	@Override
 	public ResponseEntity<?> getAllRatings(@RequestHeader(value = "JSESSIONID") String jsessionid,
-											@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,String swaggerId,int revison) {
-		return new ResponseEntity<>(apiRatingsDao.getRatings(swaggerId,oas,revison), HttpStatus.OK);
+											@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,String swaggerId,int revision,HashMap<String,String> email) {
+		return new ResponseEntity<>(apiRatingsDao.getRatings(swaggerId,oas,revision,email.get("email")), HttpStatus.OK);
 	}
 
 	@Override

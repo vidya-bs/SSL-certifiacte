@@ -21,6 +21,11 @@ public class ApiRatingsDao {
 
     public ResponseEntity<?> postRating(String swaggerId,ApiRatings apiRatings) {
         if(apiRatings.getRating()>0 && apiRatings.getRating()<=5){
+            Query query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oasVersion").is(apiRatings.getOasVersion()).and("revision").is(apiRatings.getRevision()).and("email").is(apiRatings.getEmail()));
+            if(mongoTemplate.findOne(query,ApiRatings.class) != null){
+                return new ResponseEntity<>(new ErrorObj("review already existed", "409"),
+                        HttpStatus.CONFLICT);
+            }
             apiRatings.setSwaggerId(swaggerId);
             apiRatings.setCts(System.currentTimeMillis());
             mongoTemplate.save(apiRatings);
@@ -78,6 +83,10 @@ public class ApiRatingsDao {
     public ResponseEntity<?> editRating(String swaggerId, ApiRatings apiRatings) {
         if(apiRatings.getRating()>0 && apiRatings.getRating()<=5){
             Query query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oasVersion").is(apiRatings.getOasVersion()).and("revision").is(apiRatings.getRevision()).and("email").is(apiRatings.getEmail()));
+            if(mongoTemplate.findOne(query,ApiRatings.class) == null){
+                return new ResponseEntity<>(new ErrorObj("Cannot find rating", "404"),
+                        HttpStatus.NOT_FOUND);
+            }
             Update update = new Update();
             update.set("comments",apiRatings.getComments());
             update.set("rating",apiRatings.getRating());
