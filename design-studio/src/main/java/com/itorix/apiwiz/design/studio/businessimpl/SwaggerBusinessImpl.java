@@ -4123,6 +4123,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
     @Override
     public DeleteResult deleteSwagger2BasePath(SwaggerVO vo) {
+        log.debug("delete Swagger2BasePath :{} ",vo.getName());
         Criteria criteriaWithSwaggerId = Criteria.where("swaggerId").is(vo.getSwaggerId());
         Criteria criteriaWithSwaggerName = Criteria.where("name").is(vo.getName());
         Query query = new Query(new Criteria().orOperator(criteriaWithSwaggerId, criteriaWithSwaggerName));
@@ -4131,6 +4132,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
     @Override
     public DeleteResult deleteSwagger3BasePath(Swagger3VO vo) {
+        log.debug("delete Swagger2BasePath :{} ",vo.getName());
         Criteria criteriaWithSwaggerId = Criteria.where("swaggerId").is(vo.getSwaggerId());
         Criteria criteriaWithSwaggerName = Criteria.where("name").is(vo.getName());
         Query query = new Query(new Criteria().orOperator(criteriaWithSwaggerId, criteriaWithSwaggerName));
