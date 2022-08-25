@@ -537,10 +537,12 @@ public class ConfigManagementDao {
 			@SuppressWarnings("unchecked")
 			//List<CacheConfig> data = (ArrayList<CacheConfig>) getAllActiveCaches(config);
 			CacheConfig cacheConfig = config;
+			logger.debug("Creating cache"+ cacheConfig);
 			if (isResourceAvailable(cacheService.getUpdateCacheURL(cacheConfig),
 					getApigeeCredentials(cacheConfig.getOrg(), cacheConfig.getType()))) {
 				return updateApigeeCache(config, user);
 			} else {
+				logger.debug("Cache is not available"+ cacheConfig.getDescription());
 				ApigeeCache cache = cacheService.getCacheBody(cacheConfig);
 				String URL = cacheService.getCacheURL(cacheConfig);
 				HTTPUtil httpConn = new HTTPUtil(cache, URL,
