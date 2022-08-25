@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * The interface Swagger business.
+ */
 @Service
 public interface SwaggerBusiness {
 
@@ -770,4 +773,21 @@ public interface SwaggerBusiness {
 
 	/*Delete swagger3.0 BasePath*/
 	public DeleteResult  deleteSwagger3BasePath(Swagger3VO vo);
+
+
+	/**
+	 * Find swaggers count long.
+	 *
+	 * @param swaggerId the swagger id
+	 * @return the long
+	 */
+	public Long findSwaggersCount(String swaggerId);
+
+	/**
+	 * Find swaggers 3 vo count long.
+	 *
+	 * @param swaggerId the swagger id
+	 * @return the long
+	 */
+	public Long findSwaggers3VOCount(String swaggerId);
 }

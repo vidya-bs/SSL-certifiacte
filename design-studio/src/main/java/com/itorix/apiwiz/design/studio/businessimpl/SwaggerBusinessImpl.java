@@ -89,6 +89,9 @@ import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
+/**
+ * The type Swagger business.
+ */
 @Service
 @Slf4j
 public class SwaggerBusinessImpl implements SwaggerBusiness {
@@ -4137,6 +4140,18 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         Criteria criteriaWithSwaggerName = Criteria.where("name").is(vo.getName());
         Query query = new Query(new Criteria().orOperator(criteriaWithSwaggerId, criteriaWithSwaggerName));
         return removeBasePath(query, Swagger3BasePath.class);
+    }
+
+    @Override
+    public Long findSwaggersCount(String swaggerId) {
+        Query query = new Query(Criteria.where("swaggerId").is(swaggerId));
+        return mongoTemplate.count(query, SwaggerVO.class);
+    }
+
+    @Override
+    public Long findSwaggers3VOCount(String swaggerId) {
+        Query query = new Query(Criteria.where("swaggerId").is(swaggerId));
+        return mongoTemplate.count(query, Swagger3VO.class);
     }
 
     private DeleteResult removeBasePath(Query query, Class clazz){

@@ -945,9 +945,16 @@ public class SwaggerServiceImpl implements SwaggerService {
 						"Swagger-1000");
 			}
 			swaggerBusiness.deleteSwaggerVersion(vo.getName(), revision, interactionid);
-			scannerDTO.setTenantId(getWorkspaceId());
-			scannerDTO.setOperation("Delete");
-			scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+			if (swaggerBusiness.findSwaggersCount(vo.getSwaggerId()) < 1) {
+				swaggerBusiness.deleteSwagger2BasePath(vo);
+				scannerDTO.setTenantId(getWorkspaceId());
+				scannerDTO.setOperation("Delete");
+				scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+			}else {
+				scannerDTO.setTenantId(getWorkspaceId());
+				scannerDTO.setOperation("Update");
+				scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+			}
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
@@ -955,9 +962,16 @@ public class SwaggerServiceImpl implements SwaggerService {
 						"Swagger-1000");
 			}
 			swaggerBusiness.deleteSwagger3Version(vo.getName(), revision, interactionid);
-			scannerDTO.setTenantId(getWorkspaceId());
-			scannerDTO.setOperation("Delete");
-			scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+			if (swaggerBusiness.findSwaggers3VOCount(vo.getSwaggerId()) < 1) {
+				swaggerBusiness.deleteSwagger3BasePath(vo);
+				scannerDTO.setTenantId(getWorkspaceId());
+				scannerDTO.setOperation("Delete");
+				scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+			}else {
+				scannerDTO.setTenantId(getWorkspaceId());
+				scannerDTO.setOperation("Update");
+				scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+			}
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
