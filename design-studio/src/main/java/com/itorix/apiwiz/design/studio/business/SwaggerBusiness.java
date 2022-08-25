@@ -8,7 +8,7 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
-
+import com.mongodb.client.result.DeleteResult;
 import org.json.JSONException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -764,4 +764,10 @@ public interface SwaggerBusiness {
 	public DictionarySwagger getSwaggerAssociatedWithDictionary(String dictionaryId, String schemaName);
 
 	List<String> loadSwaggersToScan(String interactionid, String jsessionid);
+
+	/*Delete swagger2.0 BasePath*/
+	public DeleteResult deleteSwagger2BasePath(SwaggerVO vo);
+
+	/*Delete swagger3.0 BasePath*/
+	public DeleteResult  deleteSwagger3BasePath(Swagger3VO vo);
 }
