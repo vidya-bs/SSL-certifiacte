@@ -955,7 +955,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 						"Swagger-1000");
 			}
 			swaggerBusiness.deleteSwagger3Version(vo.getName(), revision, interactionid);
-
+			scannerDTO.setTenantId(getWorkspaceId());
 			scannerDTO.setOperation("Delete");
 			scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
 		}
