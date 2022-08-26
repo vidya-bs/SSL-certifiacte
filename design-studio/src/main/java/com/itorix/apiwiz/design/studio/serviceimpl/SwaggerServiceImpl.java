@@ -365,8 +365,7 @@ public class SwaggerServiceImpl implements SwaggerService {
             @RequestHeader(value = "JSESSIONID") String jsessionid,
             @PathVariable("swaggerid") String swaggerId,
             @PathVariable("emailid") String emailId) throws Exception {
-        IsSubscribedUser isSubscribedUser = swaggerSubscriptionDao.checkSubscriber(swaggerId, emailId);
-        return new ResponseEntity<IsSubscribedUser>(isSubscribedUser, HttpStatus.OK);
+        return new ResponseEntity<IsSubscribedUser>(swaggerSubscriptionDao.checkSubscriber(swaggerId, emailId), HttpStatus.OK);
     }
 
     /**
