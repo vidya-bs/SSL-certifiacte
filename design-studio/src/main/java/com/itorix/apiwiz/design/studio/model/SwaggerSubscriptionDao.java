@@ -196,12 +196,16 @@ public class SwaggerSubscriptionDao {
 	 * @param emailId
 	 * @return
 	 */
-	public Boolean checkSubscriber(String swaggerId, String emailId) {
+	public IsSubscribedUser checkSubscriber(String swaggerId, String emailId) {
+		IsSubscribedUser isSubscribedUser = new IsSubscribedUser();
 		Query query = Query.query(Criteria.where("swaggerId").is(swaggerId).andOperator(Criteria.where("subscribers").elemMatch(Criteria.where("emailId").is(emailId))));
 		List<SwaggerSubscription> swaggers = baseRepository.find(query, SwaggerSubscription.class);
 		if (swaggers.size() > 0) {
-			return true;
+			isSubscribedUser.setIsSubscribed(true);
+
+		}else {
+			isSubscribedUser.setIsSubscribed(false);
 		}
-		return false;
+		return isSubscribedUser;
 	}
 }

@@ -360,13 +360,13 @@ public class SwaggerServiceImpl implements SwaggerService {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
             @ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
     @RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/checksubscriber/{swaggerid}/{emailid}")
-    public ResponseEntity<Boolean> checkSubscriber(
+    public ResponseEntity<IsSubscribedUser> checkSubscriber(
             @RequestHeader(value = "interactionid", required = false) String interactionid,
             @RequestHeader(value = "JSESSIONID") String jsessionid,
             @PathVariable("swaggerid") String swaggerId,
             @PathVariable("emailid") String emailId) throws Exception {
-        Boolean status = swaggerSubscriptionDao.checkSubscriber(swaggerId, emailId);
-        return new ResponseEntity<Boolean>(status, HttpStatus.OK);
+        IsSubscribedUser isSubscribedUser = swaggerSubscriptionDao.checkSubscriber(swaggerId, emailId);
+        return new ResponseEntity<IsSubscribedUser>(isSubscribedUser, HttpStatus.OK);
     }
 
     /**
