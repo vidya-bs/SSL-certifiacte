@@ -85,7 +85,15 @@ public class SwaggerSubscriptionDao {
 	
 	@Autowired
 	ApplicationProperties applicationProperties;
-	
+
+	/**
+	 * Adds subscriber to swagger
+	 *
+	 * @param swaggerId
+	 * @param swaggerName
+	 * @param oas
+	 * @param subscriber
+	 */
 	public void swaggerSubscribe(String swaggerId, String swaggerName, String oas, Subscriber subscriber) {
 		SwaggerSubscription swagger = baseRepository.findOne("swaggerId", swaggerId, SwaggerSubscription.class);
 		if (swagger == null) {
@@ -101,7 +109,13 @@ public class SwaggerSubscriptionDao {
 			baseRepository.save(swagger);
 		}
 	}
-	
+
+	/**
+	 * Unsubscribes user from swagger
+	 *
+	 * @param swaggerId
+	 * @param emailId
+	 */
 	public void swaggerUnsubscribe(String swaggerId, String emailId) {
 		SwaggerSubscription swagger = baseRepository.findOne("swaggerId", swaggerId, SwaggerSubscription.class);
 		if (swagger != null) {
@@ -110,6 +124,12 @@ public class SwaggerSubscriptionDao {
 		}
 	}
 
+	/**
+	 * returns all the subscribers of a swagger
+	 *
+	 * @param swaggerId
+	 * @return
+	 */
 	public Set<Subscriber> swaggerSubscribers(String swaggerId) {
 		SwaggerSubscription swagger = baseRepository.findOne("swaggerId", swaggerId, SwaggerSubscription.class);
 		if (swagger != null) {
@@ -119,6 +139,16 @@ public class SwaggerSubscriptionDao {
 		}
 
 	}
+
+	/**
+	 * Notifies subscribers about the changes
+	 *
+	 * @param swaggerId
+	 * @param oas
+	 * @param summary
+	 * @param text
+	 * @throws MessagingException
+	 */
 
 	public void swaggerNotification(String swaggerId, String oas, String summary, String text) throws MessagingException {
 		SwaggerSubscription swaggerSubscription = baseRepository.findOne("swaggerId", swaggerId, SwaggerSubscription.class);
@@ -158,5 +188,20 @@ public class SwaggerSubscriptionDao {
 
 			}
 		}
+	}
+	/**
+	 * returns if user is a subscriber of the swagger
+	 *
+	 * @param swaggerId
+	 * @param emailId
+	 * @return
+	 */
+	public Boolean checkSubscriber(String swaggerId, String emailId) {
+		Query query = Query.query(Criteria.where("swaggerId").is(swaggerId).andOperator(Criteria.where("subscribers").elemMatch(Criteria.where("emailId").is(emailId))));
+		List<SwaggerSubscription> swaggers = baseRepository.find(query, SwaggerSubscription.class);
+		if (swaggers.size() > 0) {
+			return true;
+		}
+		return false;
 	}
 }
