@@ -97,13 +97,14 @@ public interface SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestBody SwaggerSubscriptionReq swaggerSubscriptionReq) throws Exception;
-	
+
 	/**
 	 * Using this we can unsubscribe to APIs
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
-	 * @param swaggerSubscriptionReq
+	 * @param swaggerId
+	 * @param emailId
 	 * @return
 	 * @throws Exception
 	 */
@@ -111,18 +112,19 @@ public interface SwaggerService {
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Unsubscribed to API successfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/unsubscribe")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/unsubscribe/{swaggerid}/{emailid}")
 	public ResponseEntity<Void> swaggerUnsubscribe(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody SwaggerSubscriptionReq swaggerSubscriptionReq) throws Exception;
+			@PathVariable("swaggerid") String swaggerId,
+			@PathVariable("emailid") String emailId) throws Exception;
 	
 	/**
 	 * Using this we get all the subscribers list of an API
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
-	 * @param swaggerSubscriptionReq
+	 * @param swaggerId
 	 * @return
 	 * @throws Exception
 	 */
@@ -130,18 +132,19 @@ public interface SwaggerService {
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Got the list of subscribers successfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/getsubscribers")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/getsubscribers/{swaggerid}")
 	public ResponseEntity<Set<Subscriber>> swaggerSubscribers(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody SwaggerSubscriptionReq swaggerSubscriptionReq)throws Exception;
+			@PathVariable("swaggerid") String swaggerId)throws Exception;
 
 	/**
 	 * This method returns if the user is subscriber of particular Swagger
 	 *
 	 * @param interactionid
 	 * @param jsessionid
-	 * @param swaggerSubscriptionReq
+	 * @param swaggerId
+	 * @param emailId
 	 * @return
 	 * @throws Exception
 	 */
@@ -149,11 +152,12 @@ public interface SwaggerService {
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Returned subscriber successfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/checksubscriber")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/checksubscriber/{swaggerid}/{emailid}")
 	public ResponseEntity<Boolean> checkSubscriber(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody SwaggerSubscriptionReq swaggerSubscriptionReq)throws Exception;
+			@PathVariable("swaggerid") String swaggerId,
+			@PathVariable("emailid") String emailId)throws Exception;
 
 	/**
 	 * Using this we can update are change the swagger version.
