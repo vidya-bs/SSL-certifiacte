@@ -63,7 +63,7 @@ public interface SwaggerBusiness {
 	public Swagger3VO findSwagger(Swagger3VO swaggerVO);
 
 	public List<SwaggerImport> importSwaggers(MultipartFile zipFile, String type, String gitURI, String branch,
-			String authType, String userName, String password, String personalToken) throws Exception;
+			String authType, String userName, String password, String personalToken,String oas) throws Exception;
 
 	/**
 	 * findSwagger
