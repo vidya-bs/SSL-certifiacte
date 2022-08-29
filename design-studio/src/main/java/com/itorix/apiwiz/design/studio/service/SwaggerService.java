@@ -43,6 +43,7 @@ public interface SwaggerService {
 	public ResponseEntity<Object> importSwaggers(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas") String oas,
 			@RequestParam(value = "file", required = false) MultipartFile file,
 			@RequestParam(value = "type", required = true) String type,
 			@RequestParam(value = "gitURI", required = false) String gitURI,
