@@ -985,8 +985,9 @@ public class ServiceRequestDao {
 		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
 		query.limit(limit > 0 ? limit : 10);
 		query.addCriteria(Criteria.where("type").is(type));
-		List<String> allServiceRequests = getList(mongoTemplate.getCollection("Config.ServiceRequests").distinct("name",
-				query.getQueryObject(), String.class));
+		List<String> allServiceRequests = mongoTemplate.findDistinct(query, "name", ServiceRequest.class, String.class);
+//		List<String> allServiceRequests = getList(mongoTemplate.getCollection("Config.ServiceRequests").distinct("name",
+//				query.getQueryObject(), String.class));
 		net.sf.json.JSONObject serviceRequestList = new net.sf.json.JSONObject();
 		Collections.sort(allServiceRequests);
 		serviceRequestList.put("ServiceRequest", allServiceRequests);

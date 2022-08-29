@@ -291,11 +291,11 @@ public enum ErrorCodes {
 			put("Configuration-1000", 400);
 			put("Configuration-1001", 404);
 			put("Configuration-1002", 404);
-			put("Configuration-1003", 401);
+			put("Configuration-1003", 404);
 			put("Configuration-1004", 404);
 			put("Configuration-1005", 400);
 			put("Configuration-1006", 400);
-			put("Configuration-1007", 401);
+			put("Configuration-1007", 400);
 			put("Configuration-1008", 400);
 			put("Configuration-1009", 400);
 			put("Configuration-1010", 400);

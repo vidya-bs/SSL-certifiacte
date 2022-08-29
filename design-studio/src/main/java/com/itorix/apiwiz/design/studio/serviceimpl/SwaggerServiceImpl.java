@@ -23,41 +23,14 @@ import com.itorix.apiwiz.design.studio.businessimpl.Swagger3SDK;
 import com.itorix.apiwiz.design.studio.businessimpl.ValidateSchema;
 import com.itorix.apiwiz.design.studio.businessimpl.XlsUtil;
 import com.itorix.apiwiz.design.studio.dao.SupportedCodeGenLangDao;
-import com.itorix.apiwiz.design.studio.model.AsociateSwaggerPartnerRequest;
-import com.itorix.apiwiz.design.studio.model.Clients;
-import com.itorix.apiwiz.design.studio.model.GenrateClientRequest;
-import com.itorix.apiwiz.design.studio.model.Revision;
-import com.itorix.apiwiz.design.studio.model.RowData;
-import com.itorix.apiwiz.design.studio.model.ScannerDTO;
-import com.itorix.apiwiz.design.studio.model.Servers;
-import com.itorix.apiwiz.design.studio.model.Subscriber;
-import com.itorix.apiwiz.design.studio.model.SupportedCodeGenLang;
-import com.itorix.apiwiz.design.studio.model.Swagger3Comment;
-import com.itorix.apiwiz.design.studio.model.Swagger3ReviewComents;
-import com.itorix.apiwiz.design.studio.model.Swagger3VO;
-import com.itorix.apiwiz.design.studio.model.SwaggerCloneDetails;
-import com.itorix.apiwiz.design.studio.model.SwaggerComment;
-import com.itorix.apiwiz.design.studio.model.SwaggerDocumentationVO;
-import com.itorix.apiwiz.design.studio.model.SwaggerHistoryResponse;
-import com.itorix.apiwiz.design.studio.model.SwaggerImport;
-import com.itorix.apiwiz.design.studio.model.SwaggerIntegrations;
-import com.itorix.apiwiz.design.studio.model.SwaggerLockResponse;
-import com.itorix.apiwiz.design.studio.model.SwaggerMetadata;
-import com.itorix.apiwiz.design.studio.model.SwaggerPartner;
-import com.itorix.apiwiz.design.studio.model.SwaggerReview;
-import com.itorix.apiwiz.design.studio.model.SwaggerReviewComents;
-import com.itorix.apiwiz.design.studio.model.SwaggerSubscriptionDao;
-import com.itorix.apiwiz.design.studio.model.SwaggerSubscriptionReq;
-import com.itorix.apiwiz.design.studio.model.SwaggerTeam;
-import com.itorix.apiwiz.design.studio.model.SwaggerVO;
-import com.itorix.apiwiz.design.studio.model.ValidationResponse;
-import com.itorix.apiwiz.design.studio.model.XmlSchemaVo;
+import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import com.itorix.apiwiz.design.studio.service.SwaggerService;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
+import com.mongodb.client.result.DeleteResult;
 import com.opencsv.CSVReader;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
@@ -72,23 +45,6 @@ import io.swagger.generator.model.GeneratorInput;
 import io.swagger.generator.model.ResponseCode;
 import io.swagger.generator.online.Generator;
 import io.swagger.models.Swagger;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
@@ -97,23 +53,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -928,7 +882,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 			}
 
 			swaggerBusiness.deleteSwagger(vo.getName(), interactionid);
-
+			DeleteResult result = swaggerBusiness.deleteSwagger2BasePath(vo);
+			logger.debug("Result of Deletion of the basePath : "+ result.getDeletedCount());
 			scannerDTO.setTenantId(getWorkspaceId());
 			scannerDTO.setOperation("Delete");
 			scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
@@ -939,6 +894,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 						"Swagger-1000");
 			}
 			swaggerBusiness.deleteSwagger3(vo.getName(), interactionid);
+			DeleteResult result = swaggerBusiness.deleteSwagger3BasePath(vo);
+			logger.debug("Result of Deletion of the basePath : "+ result.getDeletedCount());
 			scannerDTO.setTenantId(getWorkspaceId());
 			scannerDTO.setOperation("Delete");
 			scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
@@ -989,9 +946,16 @@ public class SwaggerServiceImpl implements SwaggerService {
 						"Swagger-1000");
 			}
 			swaggerBusiness.deleteSwaggerVersion(vo.getName(), revision, interactionid);
-			scannerDTO.setTenantId(getWorkspaceId());
-			scannerDTO.setOperation("Delete");
-			scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+			if (swaggerBusiness.findSwaggersCount(vo.getSwaggerId()) < 1) {
+				swaggerBusiness.deleteSwagger2BasePath(vo);
+				scannerDTO.setTenantId(getWorkspaceId());
+				scannerDTO.setOperation("Delete");
+				scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+			}else {
+				scannerDTO.setTenantId(getWorkspaceId());
+				scannerDTO.setOperation("Update");
+				scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+			}
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
@@ -999,9 +963,16 @@ public class SwaggerServiceImpl implements SwaggerService {
 						"Swagger-1000");
 			}
 			swaggerBusiness.deleteSwagger3Version(vo.getName(), revision, interactionid);
-			scannerDTO.setTenantId(getWorkspaceId());
-			scannerDTO.setOperation("Delete");
-			scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+			if (swaggerBusiness.findSwaggers3VOCount(vo.getSwaggerId()) < 1) {
+				swaggerBusiness.deleteSwagger3BasePath(vo);
+				scannerDTO.setTenantId(getWorkspaceId());
+				scannerDTO.setOperation("Delete");
+				scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+			}else {
+				scannerDTO.setTenantId(getWorkspaceId());
+				scannerDTO.setOperation("Update");
+				scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+			}
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
