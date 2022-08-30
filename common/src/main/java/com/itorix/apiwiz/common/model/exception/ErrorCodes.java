@@ -84,6 +84,7 @@ public enum ErrorCodes {
 			put("Configuration-1029", "Resource not found. Please check the request and retry again.");
 			put("Configuration-1030", "Request validation failed. Approval type provided doesn't match the enum type.");
 			put("Configuration-1031", "Resource authorization validation failed. Please contact your workspace admin.");
+			put("Configuration-1032", "Resource status cannot be updated.");
 
 			put("USER_012", "Sorry! UserDomain Already Exists.");
 			put("USER_013", "Sorry! UserDomain Doesn't Exists.");
@@ -320,6 +321,7 @@ public enum ErrorCodes {
 			put("Configuration-1029", 400);
 			put("Configuration-1030", 400);
 			put("Configuration-1031", 400);
+			put("Configuration-1032", 400);
 			put("Identity-1000", 400);
 			put("Identity-1001", 400);
 			put("Identity-1002", 400);
