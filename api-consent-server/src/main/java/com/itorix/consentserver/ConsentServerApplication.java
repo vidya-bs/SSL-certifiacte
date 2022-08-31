@@ -6,7 +6,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@ComponentScan({"com.itorix.consentserver"})
+@ComponentScan({"com.itorix.consentserver", "com.itorix.apiwiz.validator"})
 @EnableScheduling
 @SpringBootApplication
 @PropertySource(value = "file:${config.properties}", ignoreResourceNotFound = true)
