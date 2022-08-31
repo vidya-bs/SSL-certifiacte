@@ -20,8 +20,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 @Slf4j
-//@Configuration
-//@EnableScheduling
 public class ContentServerExecutorConfig implements SchedulingConfigurer {
 
 
