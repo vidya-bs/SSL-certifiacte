@@ -13,6 +13,7 @@ import java.util.Map;
 
 import javax.mail.MessagingException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,7 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.result.UpdateResult;
 
 @Component
+@Slf4j
 public class ServiceRequestDao {
 
 	@Qualifier("masterMongoTemplate")
@@ -407,7 +409,32 @@ public class ServiceRequestDao {
 		List<ServiceRequest> serviceRequests = (ArrayList<ServiceRequest>) getAllActiveServiceRequests(config);
 		if (serviceRequests.size() > 0) {
 			ServiceRequest serviceRequest = serviceRequests.get(0);
-			serviceRequest.setStatus(config.getStatus());
+			if (config.getStatus().equals("Review")) {
+				if (serviceRequest.getStatus().equals("Change Required"))
+					serviceRequest.setStatus(config.getStatus());
+				else {
+					throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1032"), "Configuration-1032");
+				}
+			} else if (config.getStatus().equals("Approved")) {
+				if (serviceRequest.getStatus().equals("Review")) {
+					serviceRequest.setStatus(config.getStatus());
+				} else {
+					throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1032"), "Configuration-1032");
+				}
+			} else if (config.getStatus().equals("Change Required")) {
+				if(serviceRequest.getStatus().equals("Review")) {
+					serviceRequest.setStatus(config.getStatus());
+				}else {
+					throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1032"), "Configuration-1032");
+				}
+			}else if (config.getStatus().equals("Rejected")) {
+				if(serviceRequest.getStatus().equals("Review")
+						|| serviceRequest.getStatus().equals("Change Required")) {
+					serviceRequest.setStatus(config.getStatus());
+				}else {
+					throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1032"), "Configuration-1032");
+				}
+			}
 			updateServiceRequestStatus(serviceRequest, user);
 		} else {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1029"), "Configuration-1029");
@@ -490,6 +517,7 @@ public class ServiceRequestDao {
 		boolean isCreatedorUpdated = false;
 		ServiceRequest serviceRequest = config;
 		Query query = null;
+		log.debug("Update service request status : {}", config);
 		if (config.getStatus().equalsIgnoreCase("Approved")) {
 			if (serviceRequest.isCreated()) {
 				if ("TargetServer".equalsIgnoreCase(serviceRequest.getType())) {
@@ -778,9 +806,30 @@ public class ServiceRequestDao {
 			Update update = Update.fromDocument(dbDoc, "_id");
 			UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
 			return result.isModifiedCountAvailable();
-		} else {
+		}else if (config.getStatus().equalsIgnoreCase("Review")) {
+			if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
+				query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("name").is(config.getName())
+						.and("type").is(serviceRequest.getType()).and("isSaaS").is(config.getIsSaaS()).and("activeFlag")
+						.is(Boolean.TRUE));
+			} else {
+				query = new Query(
+						Criteria.where("org").is(serviceRequest.getOrg()).and("env").is(serviceRequest.getEnv())
+								.and("name").is(config.getName()).and("type").is(serviceRequest.getType()).and("isSaaS")
+								.is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
+			}
+			serviceRequest.setStatus("Review");
+			serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
+			sendEmailTo(serviceRequest);
+			Document dbDoc = new Document();
+			mongoTemplate.getConverter().write(serviceRequest, dbDoc);
+			Update update = Update.fromDocument(dbDoc, "_id");
+			UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
+			return result.isModifiedCountAvailable();
+		}  else {
 			if ((!config.getStatus().equalsIgnoreCase("Change Required")
-					|| config.getStatus().equalsIgnoreCase("Approved")))
+					&& (!config.getStatus().equalsIgnoreCase("Approved")))
+					&& (!config.getStatus().equalsIgnoreCase("Review"))
+					&& (!config.getStatus().equalsIgnoreCase("Rejected")))
 				throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1030"), "Configuration-1030");
 
 			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1031"), "Configuration-1031");
