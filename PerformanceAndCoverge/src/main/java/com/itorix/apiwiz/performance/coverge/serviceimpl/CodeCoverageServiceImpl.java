@@ -37,7 +37,6 @@ import com.itorix.apiwiz.common.service.GridFsRepository;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.User;
-import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.itorix.apiwiz.performance.coverge.businessimpl.CodeCoverageBusinessImpl;
 import com.itorix.apiwiz.performance.coverge.businessimpl.PostManService;
 import com.itorix.apiwiz.performance.coverge.model.CodeCoverageBackUpInfo;
@@ -89,9 +88,7 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 	 * @param type
 	 * @param headers
 	 * @param jsessionid
-	 * @param request
-	 * @param response
-	 * 
+	 *
 	 * @return
 	 * 
 	 * @throws IOException
@@ -105,8 +102,7 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 			MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Object> prepareCodeCoverage(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
-			@RequestParam(value = "postmanFile", required = false) MultipartFile postmanFile,
+      @RequestParam(value = "postmanFile", required = false) MultipartFile postmanFile,
 			@RequestParam(value = "envFile", required = false) MultipartFile envFile, @RequestParam("org") String org,
 			@RequestParam("env") String env, @RequestParam("proxy") String proxy,
 			@RequestParam(value = "testsuiteId", required = false) String testsuiteId,
