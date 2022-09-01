@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
-import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.itorix.apiwiz.performance.coverge.model.CodeCoverageBackUpInfo;
 import com.itorix.apiwiz.performance.coverge.model.CodeCoverageVO;
 import com.itorix.apiwiz.performance.coverge.model.History;
@@ -35,12 +34,12 @@ import io.swagger.annotations.ApiResponses;
 public interface CodeCoverageService {
 
 	/**
-	 *
-	 *
 	 * <h1>http://hostname:port/v1/buildconfig/codecoverage</h1>
-	 *
+	 * <p>
 	 * Using this we can test the the code coverage how much we done
 	 *
+	 * @param request
+	 * @param response
 	 * @param interactionid
 	 * @param postmanFile
 	 * @param envFile
@@ -50,11 +49,7 @@ public interface CodeCoverageService {
 	 * @param type
 	 * @param headers
 	 * @param jsessionid
-	 * @param request
-	 * @param response
-	 * 
 	 * @return
-	 * 
 	 * @throws IOException
 	 * @throws JAXBException
 	 */
@@ -67,7 +62,6 @@ public interface CodeCoverageService {
 			MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Object> prepareCodeCoverage(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestParam(value = "postmanFile", required = false) MultipartFile postmanFile,
 			@RequestParam(value = "envFile", required = false) MultipartFile envFile, @RequestParam("org") String org,
 			@RequestParam("env") String env, @RequestParam("proxy") String proxy,
