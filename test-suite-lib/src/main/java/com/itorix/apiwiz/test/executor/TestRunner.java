@@ -224,13 +224,15 @@ public class TestRunner {
                 if (scenario.getDependsOn() != null) {
                     Scenario childScenario = scenarios.get(scenario.getDependsOn());
                     if (childScenario.getStatus() != null) {
-                        if (childScenario.getStatus() == "FAIL")
+                        if (childScenario.getStatus().equals("FAIL"))
                             scenario.setStatus("FAIL");
                     } else {
                         executeScenarios(scenarios, childScenario, testSuiteResponseID, testSuite, globalVars, maskingFields, encryptedVariables, skipAssertions, isMonitoring, globalTimeout, succededScenarios, failedScenarios, testSuiteResponse);
+                        if (scenarios.get(scenario.getDependsOn()).getStatus().equals("FAIL"))
+                            scenario.setStatus("FAIL");
                     }
                 }
-                if (scenario.getStatus() == null || (scenario.getStatus() == "FAIL" && scenario.isContinueOnError())){
+                if (scenario.getStatus() == null || (scenario.getStatus().equals("FAIL") && scenario.isContinueOnError())){
                     if (scenario != null && scenario.getTestCases() != null) {
                         List<TestCase> testCases = scenario.getTestCases();
 
@@ -297,15 +299,18 @@ public class TestRunner {
                         }
                     }
                 }
-                if (scenario.getStatus() == "FAIL" && !scenario.isContinueOnError()){
+
+                if (null != scenario.getStatus() && scenario.getStatus().equals("FAIL") && !scenario.isContinueOnError()){
                     canContinue = false;
                 }
-                if (!failedTests.isEmpty()) {
-                    scenario.setStatus("FAIL");
-                    failedScenarios.add(scenario.getName());
-                } else {
-                    scenario.setStatus("PASS");
-                    succededScenarios.add(scenario.getName());
+                if (null == scenario.getStatus() || !scenario.getStatus().equals("FAIL")) {
+                    if (!failedTests.isEmpty()) {
+                        scenario.setStatus("FAIL");
+                        failedScenarios.add(scenario.getName());
+                    } else {
+                        scenario.setStatus("PASS");
+                        succededScenarios.add(scenario.getName());
+                    }
                 }
 
                 double successRate = 0;
