@@ -407,7 +407,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			if(response != null)
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			else return ResponseEntity.ok("{}");
-		} catch (ItorixException e) {
+		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}

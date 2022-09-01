@@ -324,7 +324,7 @@ public class WorkspaceDao {
 		baseRepository.saveMongoDoc(mailProperty);
 	}
 
-    public Object getSMTPConnector() throws ItorixException {
+    public Object getSMTPConnector() {
 		List<MailProperty> allMailProps = baseRepository.findAll(MailProperty.class);
 		if(allMailProps != null && allMailProps.size() > 0) {
 			MailProperty mailProperty = allMailProps.get(0);
