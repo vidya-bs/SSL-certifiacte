@@ -331,7 +331,7 @@ public class WorkspaceDao {
 			mailProperty.setPassword(null);
 			return mailProperty;
 		}
-		throw new ItorixException();
+		else return null;
 	}
 
 	public void deleteSMTPConnector() {

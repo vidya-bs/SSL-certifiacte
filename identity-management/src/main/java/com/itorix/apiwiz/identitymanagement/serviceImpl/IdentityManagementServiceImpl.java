@@ -403,9 +403,12 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	@Override
 	public ResponseEntity<?> getSMTPConnector(String interactionid, String jsessionid) {
 		try {
-			return new ResponseEntity<>(workspaceDao.getSMTPConnector(), HttpStatus.OK);
+			Object response = workspaceDao.getSMTPConnector();
+			if(response != null)
+				return new ResponseEntity<>(response, HttpStatus.OK);
+			else return ResponseEntity.ok("{}");
 		} catch (ItorixException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
