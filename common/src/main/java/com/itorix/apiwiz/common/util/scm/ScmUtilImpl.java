@@ -100,6 +100,7 @@ public class ScmUtilImpl {
 		String[] urlParts = hostUrl.split("//");
 		if (scmSource.equalsIgnoreCase("git") || scmSource.equalsIgnoreCase("bitbucket")
 				|| scmSource.equalsIgnoreCase("gitlab")) {
+			logger.debug("Pushing files to SCMBase64");
 			File SourceDirectory = directory;
 			String separatorChar = String.valueOf(File.separatorChar);
 			File workingDirectory;
@@ -168,9 +169,10 @@ public class ScmUtilImpl {
 			restTemplate.getInterceptors().add(new BasicAuthorizationInterceptor(username, password));
 			HttpEntity<GitRepository> requestEntity = new HttpEntity<>(gItRepository, headers);
 			// ResponseEntity<String> response =
+			logger.debug("Making a call to {}", hostUrl);
 			restTemplate.exchange(hostUrl, HttpMethod.POST, requestEntity, String.class);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 			throw new ItorixException("unable to create repo ", "", e);
 		}
 	}
@@ -188,39 +190,44 @@ public class ScmUtilImpl {
 			git.branchRename().setNewName(newBranchName).call();
 		} catch (InvalidRemoteException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (TransportException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (GitAPIException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 	}
 
 	@SuppressWarnings("deprecation")
-	public void createBranch(String branchName, String description, String hostUrl, String token){//String userName, String password) {
+	public void createBranch(String branchName, String description, String hostUrl, String token) {// String
+																									// userName,
+																									// String
+																									// password)
+																									// {
 		try {
 			String time = Long.toString(System.currentTimeMillis());
 			String tempDirectory = applicationProperties.getTempDir() + File.separatorChar + "CloneDirectory" + time;
 			File cloningDirectory = new File(tempDirectory);
-//			Git git = Git.cloneRepository().setURI(hostUrl).setDirectory(cloningDirectory)
-//					.setCredentialsProvider(new UsernamePasswordCredentialsProvider(userName, password))
-//					.setNoCheckout(true).call();
-			
+			// Git git =
+			// Git.cloneRepository().setURI(hostUrl).setDirectory(cloningDirectory)
+			// .setCredentialsProvider(new
+			// UsernamePasswordCredentialsProvider(userName, password))
+			// .setNoCheckout(true).call();
+
 			String[] urlParts = hostUrl.split("//");
 			Git git = Git.cloneRepository().setURI(urlParts[0] + "//" + token + "@" + urlParts[1])
 					.setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
 					.setDirectory(cloningDirectory).call();
-			
+
 			if (containsBranch(git, branchName)) {
-	            git.branchCreate().setForce(true).setName(branchName).setStartPoint("origin/" + branchName).call();
-	            git.checkout().setName(branchName).call();
-	        } else {
-	            git.checkout().setCreateBranch(true).setName(branchName).call();
-	        }
-			
-			
+				git.branchCreate().setForce(true).setName(branchName).setStartPoint("origin/" + branchName).call();
+				git.checkout().setName(branchName).call();
+			} else {
+				git.checkout().setCreateBranch(true).setName(branchName).call();
+			}
+
 			try (Repository repository = new FileRepositoryBuilder().setGitDir(git.getRepository().getDirectory())
 					.readEnvironment().findGitDir().build()) {
 				File workingDirectory = new File(repository.getWorkTree().getAbsolutePath());
@@ -228,7 +235,7 @@ public class ScmUtilImpl {
 				File file = new File(fileName + "/readme.md");
 				FileUtils.writeStringToFile(file, " ");
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error("Exception occurred", e);
 			}
 			git.add().addFilepattern(".").call();
 			git.commit().setMessage("Initial commit").call();
@@ -236,8 +243,9 @@ public class ScmUtilImpl {
 			// push created branch to remote repository
 			// This matches to 'git push targetBranch:targetBranch'
 			RefSpec refSpec = new RefSpec().setSourceDestination(branchName, branchName);
-//			git.push().setRefSpecs(refSpec)
-//					.setCredentialsProvider(new UsernamePasswordCredentialsProvider(userName, password)).call();
+			// git.push().setRefSpecs(refSpec)
+			// .setCredentialsProvider(new
+			// UsernamePasswordCredentialsProvider(userName, password)).call();
 			PushCommand pc = git.push();
 			pc.setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, "")).setForce(true).setPushAll();
 			pc.call();
@@ -246,16 +254,16 @@ public class ScmUtilImpl {
 			FileUtils.deleteDirectory(cloningDirectory);
 		} catch (InvalidRemoteException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (TransportException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (GitAPIException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 	}
 
@@ -280,7 +288,7 @@ public class ScmUtilImpl {
 				File file = new File(fileName + "/readme.md");
 				FileUtils.writeStringToFile(file, " ");
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error("Exception occurred", e);
 			}
 			git.add().addFilepattern(".").call();
 			git.commit().setMessage(comments).call();
@@ -293,16 +301,16 @@ public class ScmUtilImpl {
 			FileUtils.deleteDirectory(cloningDirectory);
 		} catch (InvalidRemoteException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (TransportException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (GitAPIException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 	}
 
@@ -534,7 +542,7 @@ public class ScmUtilImpl {
 						FileUtils.forceDelete(file);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Exception occurred", e);
 			}
 		}
 	}
@@ -581,11 +589,11 @@ public class ScmUtilImpl {
 				return result.getRepository().getDirectory().getParent();
 			}
 		} catch (InvalidRemoteException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (TransportException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (GitAPIException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -608,11 +616,11 @@ public class ScmUtilImpl {
 				return result.getRepository().getDirectory().getParent();
 			}
 		} catch (InvalidRemoteException e) {
-			e.printStackTrace();
+			logger.error("InvalidRemoteException occurred", e);
 		} catch (TransportException e) {
-			e.printStackTrace();
+			logger.error("TransportException occurred", e);
 		} catch (GitAPIException e) {
-			e.printStackTrace();
+			logger.error("GitAPIException occurred", e);
 		}
 		return null;
 	}

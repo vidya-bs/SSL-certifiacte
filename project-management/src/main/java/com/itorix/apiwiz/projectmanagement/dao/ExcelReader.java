@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.projectmanagement.dao;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -36,7 +37,7 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 
 import net.sf.json.JSONArray;
-
+@Slf4j
 public class ExcelReader {
 
 	public List<Map<String, String>> readExcelData(String fileName) throws IOException, InvalidFormatException {
@@ -46,6 +47,7 @@ public class ExcelReader {
 		List<Map<String, String>> dataElements = new ArrayList<>();
 		for (Row row : sheet)
 			if (row.getRowNum() > 0) {
+				log.debug("Reading Excel data");
 				Map<String, String> data = new HashMap<>();
 				for (Cell cell : row) {
 					try {
@@ -146,6 +148,7 @@ public class ExcelReader {
 	private List<ProjectMetaData> populateMetadata(Map<String, String> data) {
 		List<ProjectMetaData> projectMetaData = new ArrayList<ProjectMetaData>();
 		if (data.containsKey("gal_original_destination")) {
+			log.debug("Populating metadata");
 			ProjectMetaData gal_original_destination = new ProjectMetaData();
 			gal_original_destination.setName("kp.metadata.gal_original_destination");
 			gal_original_destination.setValue(data.get("gal_original_destination"));
@@ -240,7 +243,7 @@ public class ExcelReader {
 			return mapper.writeValueAsString(data);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -262,7 +265,7 @@ public class ExcelReader {
 					file + File.separatorChar + "attachments" + File.separatorChar));
 			project.getProxies().remove(1);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return project;
 	}
@@ -276,6 +279,7 @@ public class ExcelReader {
 			String ext = FilenameUtils.getExtension(file.getName()).toUpperCase();
 			switch (ext) {
 				case "WSDL" :
+					log.debug("Populating Attachments for WSDL file");
 					if (wsdlFiles == null)
 						wsdlFiles = new ArrayList<ProjectFile>();
 					ProjectFile wsdlFile = new ProjectFile();
@@ -283,6 +287,7 @@ public class ExcelReader {
 					wsdlFiles.add(wsdlFile);
 					break;
 				case "XSD" :
+					log.debug("Populating Attachments for XSD file");
 					if (xsdFiles == null)
 						xsdFiles = new ArrayList<ProjectFile>();
 					ProjectFile xsdFile = new ProjectFile();
@@ -290,6 +295,7 @@ public class ExcelReader {
 					xsdFiles.add(xsdFile);
 					break;
 				default :
+					log.debug("Populating Attachments");
 					if (attachments == null)
 						attachments = new ArrayList<ProjectFile>();
 					ProjectFile attachmentFile = new ProjectFile();
@@ -315,7 +321,7 @@ public class ExcelReader {
 			} else
 				value = context.read(path).toString();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurreed", ex);
 		}
 		return value;
 	}
@@ -325,6 +331,7 @@ public class ExcelReader {
 		for (Category category : policyTemplates) {
 			switch (category.getType()) {
 				case "trafficmanagement" :
+					log.debug("Enabling policies for trafficmanagement");
 					for (Policy policy : category.getPolicies()) {
 						switch (policy.getName()) {
 							case "spikearrest" :
@@ -334,6 +341,7 @@ public class ExcelReader {
 					}
 					break;
 				case "security" :
+					log.debug("Enabling policies for security");
 					for (Policy policy : category.getPolicies()) {
 						switch (policy.getName()) {
 							case "Authentication" :
@@ -350,6 +358,7 @@ public class ExcelReader {
 					}
 					break;
 				case "mediation" :
+					log.debug("Enabling policies for mediation");
 					for (Policy policy : category.getPolicies()) {
 						switch (policy.getName()) {
 							case "XFM_Req_Scrub_WSSE_Header_v1" :
@@ -376,6 +385,7 @@ public class ExcelReader {
 					}
 					break;
 				case "threatprotection" :
+					log.debug("Enabling policies for threatprotection");
 					for (Policy policy : category.getPolicies()) {
 						switch (policy.getName()) {
 							case "THR_Threat_SOAP_v1" :
@@ -397,6 +407,7 @@ public class ExcelReader {
 					}
 					break;
 				case "routing" :
+					log.debug("Enabling policies for routing");
 					for (Policy policy : category.getPolicies()) {
 						switch (policy.getName()) {
 							case "RTE_KPHC_Endpoint_Lookup_v1" :
@@ -413,6 +424,7 @@ public class ExcelReader {
 					}
 					break;
 				case "MessageValidation" :
+					log.debug("Enabling policies for MessageValidation");
 					for (Policy policy : category.getPolicies()) {
 						switch (policy.getName()) {
 							case "Schema_Validation_Request" :
@@ -439,6 +451,7 @@ public class ExcelReader {
 					}
 					break;
 				case "logging" :
+					log.debug("Enabling policies for logging");
 					for (Policy policy : category.getPolicies()) {
 						switch (policy.getName()) {
 							case "LOG_Req_Res_Err_v1" :

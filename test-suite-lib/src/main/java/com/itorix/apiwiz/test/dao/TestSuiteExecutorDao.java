@@ -56,6 +56,7 @@ public class TestSuiteExecutorDao {
 	@Autowired
 	private ResourceLoader resourceLoader;
 
+
 	private static final Logger log = LoggerFactory.getLogger(TestSuiteExecutorDao.class);
 
 	public List<TestSuiteResponse> getPendingTestSuites(int rows) {
@@ -206,5 +207,8 @@ public class TestSuiteExecutorDao {
 
 		}
 	}
-
+	public boolean getTimeoutEnable() {
+		com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration integration =  mongoTemplate.findOne(Query.query(Criteria.where("_id").is("apiwiz.testsuite.scenario.timeout.enabled")), com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration.class);
+		return integration != null && integration.getPropertyValue().equalsIgnoreCase("true");
+	}
 }

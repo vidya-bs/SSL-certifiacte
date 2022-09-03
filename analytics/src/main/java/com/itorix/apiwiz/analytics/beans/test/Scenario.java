@@ -31,6 +31,19 @@ public class Scenario {
     @JsonProperty("continueOnError")
     private boolean continueOnError = true;
 
+    @JsonProperty("timeout")
+    private int timeout;
+
+    @JsonProperty("timeout")
+    public int getTimeout() {
+        return timeout;
+    }
+
+    @JsonProperty("timeout")
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
     @JsonProperty("name")
     public String getName() {
         return name;
@@ -71,9 +84,13 @@ public class Scenario {
         this.status = status;
     }
 
-    public int getSuccessRate() {
-        return successRate;
-    }
+	@JsonProperty("depends")
+	private String dependsOn;
+
+	public int getSuccessRate() {
+		return successRate;
+	}
+
 
     public void setSuccessRate(int successRate) {
         this.successRate = successRate;
@@ -91,7 +108,17 @@ public class Scenario {
         return continueOnError;
     }
 
-    public void setContinueOnError(boolean continueOnError) {
-        this.continueOnError = continueOnError;
-    }
+
+	public void setContinueOnError(boolean continueOnError) {
+		this.continueOnError = continueOnError;
+	}
+
+	public String getDependsOn() {
+		return dependsOn;
+	}
+
+	public void setDependsOn(String dependsOn) {
+		this.dependsOn = dependsOn;
+	}
+
 }

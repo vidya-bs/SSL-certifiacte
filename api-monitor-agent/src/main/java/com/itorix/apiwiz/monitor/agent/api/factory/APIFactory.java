@@ -50,6 +50,7 @@ public class APIFactory {
     private static HttpClient getClient(SSLConnectionSocketFactory sslConnectionFactory, int timeout) {
         HttpClient client;
         if (sslConnectionFactory != null) {
+            logger.debug("Getting client details");
             client = HttpClientBuilder.create().setSSLSocketFactory(sslConnectionFactory)
                     .setDefaultRequestConfig(requestConfigWithTimeout(timeout)).build();
         } else {
@@ -77,8 +78,9 @@ public class APIFactory {
     private static void updatePostPutRequest(Map<String, String> headers, List<NameValuePair> params, String type,
             String body, HttpEntityEnclosingRequestBase request) throws UnsupportedEncodingException {
         if (body == null) {
-
+        logger.debug("Updating post put request");
             if (type.equals("multi-part")) {
+                logger.debug("Setting entity");
                 headers.remove("Content-Type");
                 MultipartEntityBuilder entitybuilder = MultipartEntityBuilder.create();
                 entitybuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);

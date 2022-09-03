@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +28,7 @@ import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-
+@Slf4j
 @Component
 public class TargetGen {
 
@@ -195,7 +196,7 @@ public class TargetGen {
 	}
 
 	public Template getTemplate(String file) throws IOException {
-		System.out.println("***************************Template FILE ***********: " + file);
+		log.info("***************************Template FILE ***********: " + file);
 		String reader = mongoConnection.getFile(file);
 		Configuration conf = new Configuration();
 		StringTemplateLoader tloader = new StringTemplateLoader();

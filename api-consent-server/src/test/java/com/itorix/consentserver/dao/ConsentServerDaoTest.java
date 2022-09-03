@@ -1,10 +1,11 @@
 package com.itorix.consentserver.dao;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@Slf4j
 class ConsentServerDaoTest {
 
     @Test
@@ -20,7 +21,7 @@ class ConsentServerDaoTest {
 
         scopes.forEach(s -> {
             if(!scopeCategory.contains(s)) {
-                System.out.println("No Match " + s);
+                log.info("No Match " + s);
             }
         });
 

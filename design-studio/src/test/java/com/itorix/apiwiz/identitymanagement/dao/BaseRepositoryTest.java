@@ -11,6 +11,7 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.BeforeClass;
@@ -27,7 +28,7 @@ import static com.itorix.apiwiz.identitymanagement.model.Constants.SWAGGER_PROJE
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 import static org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter.filter;
 import static org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Eq.valueOf;
-
+@Slf4j
 public class BaseRepositoryTest {
 
 	private static MongoTemplate mongoTemplate = null;
@@ -95,7 +96,7 @@ public class BaseRepositoryTest {
 
 		List<String> names = new LinkedList<>();
 		results.getMappedResults().stream().forEach(d -> names.add(d.getString("_id")));
-		System.out.println(names);
+		log.info(String.valueOf(names));
 	}
 
 	private SortOperation getSortOperation(String sortByModifiedTS) {
@@ -141,7 +142,7 @@ public class BaseRepositoryTest {
 				Document.class);
 
 		List<Document> mappedResults = aggregate.getMappedResults();
-		System.out.println(mappedResults);
+		log.info(String.valueOf(mappedResults));
 		HashMap<String, List<String>> output = new HashMap<>();
 		DictionarySwagger dictionarySwagger = new DictionarySwagger();
 
@@ -225,7 +226,7 @@ public class BaseRepositoryTest {
 		}
 
 		ObjectMapper objectMapper = new ObjectMapper();
-		System.out.println(objectMapper.writeValueAsString(dictionarySwagger));
+		log.info(objectMapper.writeValueAsString(dictionarySwagger));
 
 	}
 

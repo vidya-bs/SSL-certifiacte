@@ -37,7 +37,6 @@ public class ApigeexProduct {
 		this.name = name;
 	}
 
-
 	public String getDisplayName() {
 		return displayName;
 	}

@@ -9,9 +9,12 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-public class Transform {
 
+public class Transform {
+	private static final Logger logger = LoggerFactory.getLogger(Transform.class);
 	/**
 	 * Simple transformation method.
 	 *
@@ -28,7 +31,7 @@ public class Transform {
 		Transformer transformer = tFactory.newTransformer(new StreamSource(new File(xsltPath)));
 		StreamResult result = new StreamResult(new StringWriter());
 		transformer.transform(new StreamSource(new File(sourcePath)), result);
-		// System.out.println(((StringWriter)result.getWriter()).getBuffer().toString());
+		// log.info(((StringWriter)result.getWriter()).getBuffer().toString());
 		return result;
 	}
 
@@ -39,7 +42,7 @@ public class Transform {
 		transformer.setOutputProperty("method", "html");
 		StreamResult result = new StreamResult(new StringWriter());
 		transformer.transform(source, result);
-		//System.out.println(((StringWriter) result.getWriter()).getBuffer().toString());
+		// log.info(((StringWriter) result.getWriter()).getBuffer().toString());
 		return result;
 	}
 
@@ -49,10 +52,10 @@ public class Transform {
 			simpleTransform("C:/Sudhakar/codeGen/debug.xml", "C:/Sudhakar/codeGen/codecoverage_debug.xslt");
 		} catch (TransformerException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 
 		long endtTime = System.nanoTime();
-		System.out.println((endtTime - startTime) / 10000000);
+		logger.info(String.valueOf((endtTime - startTime) / 10000000));
 	}
 }

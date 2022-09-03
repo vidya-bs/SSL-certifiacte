@@ -22,6 +22,7 @@ import com.itorix.apiwiz.configmanagement.model.apigee.services.TargetConnection
 import com.itorix.apiwiz.identitymanagement.model.User;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-
+@Slf4j
 @Component
 public class ConfigManagementDao {
 
@@ -55,7 +56,6 @@ public class ConfigManagementDao {
 
 	@Autowired
 	private ProductService productService;
-
 
 	@Autowired
 	private ApigeeUtil apigeeUtil;
@@ -91,7 +91,7 @@ public class ConfigManagementDao {
 			for (TargetConfig target : targets) {
 				target.trimData();
 			}
-			//logger.info("inside getTargetSummary(): end");
+			// logger.info("inside getTargetSummary(): end");
 			return targets;
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
@@ -307,7 +307,7 @@ public class ConfigManagementDao {
 			if (statusCode.is2xxSuccessful())
 				isPresent = true;
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return isPresent;
 	}
@@ -535,7 +535,8 @@ public class ConfigManagementDao {
 	public Object createApigeeCache(CacheConfig config, User user) throws ItorixException {
 		try {
 			@SuppressWarnings("unchecked")
-			//List<CacheConfig> data = (ArrayList<CacheConfig>) getAllActiveCaches(config);
+			// List<CacheConfig> data = (ArrayList<CacheConfig>)
+			// getAllActiveCaches(config);
 			CacheConfig cacheConfig = config;
 			logger.debug("Creating cache"+ cacheConfig);
 			if (isResourceAvailable(cacheService.getUpdateCacheURL(cacheConfig),
@@ -861,11 +862,11 @@ public class ConfigManagementDao {
 									&& propertyNode.path("value").textValue().equals("true"))
 								cps = true;
 						} catch (Exception e) {
-							e.printStackTrace();
+							log.error("Exception occurred", e);
 						}
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 				return cps;
 			} else if (statusCode.value() >= 401 && statusCode.value() <= 403)
@@ -941,7 +942,8 @@ public class ConfigManagementDao {
 			metadata.setResourceType("product");
 
 			if (obj.size() > 0) {
-				Query query = new Query(Criteria.where("org").is(productConfig.getOrg()).and("name").is(productConfig.getName()));
+				Query query = new Query(
+						Criteria.where("org").is(productConfig.getOrg()).and("name").is(productConfig.getName()));
 				Update update = new Update();
 				update.set("createdUser", productConfig.getCreatedUser());
 				update.set("modifiedUser", productConfig.getModifiedUser());
@@ -954,10 +956,14 @@ public class ConfigManagementDao {
 				update.set("environments", productConfig.getEnvironments());
 				update.set("proxies", productConfig.getProxies());
 				update.set("approvalType", productConfig.getApprovalType());
-				if(productConfig.getQuota() != null) update.set("quota", productConfig.getQuota());
-				if(productConfig.getQuotaInterval() != null) update.set("quotaInterval", productConfig.getQuotaInterval());
-				if(productConfig.getQuotaTimeUnit() != null) update.set("quotaTimeUnit", productConfig.getQuotaTimeUnit());
-				if(productConfig.getScopes() !=null && productConfig.getScopes().size() > 0) update.set("scopes", productConfig.getScopes());
+				if (productConfig.getQuota() != null)
+					update.set("quota", productConfig.getQuota());
+				if (productConfig.getQuotaInterval() != null)
+					update.set("quotaInterval", productConfig.getQuotaInterval());
+				if (productConfig.getQuotaTimeUnit() != null)
+					update.set("quotaTimeUnit", productConfig.getQuotaTimeUnit());
+				if (productConfig.getScopes() != null && productConfig.getScopes().size() > 0)
+					update.set("scopes", productConfig.getScopes());
 				update.set("attributes", productConfig.getAttributes());
 				mongoTemplate.updateMulti(query, update, ProductConfig.class);
 			}

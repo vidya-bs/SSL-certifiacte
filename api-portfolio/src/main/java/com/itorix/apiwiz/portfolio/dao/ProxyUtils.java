@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.mail.MessagingException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
@@ -78,6 +79,7 @@ import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryList;
 import com.itorix.apiwiz.servicerequest.dao.ServiceRequestDao;
 import com.itorix.apiwiz.servicerequest.model.ServiceRequest;
 
+@Slf4j
 @Component
 public class ProxyUtils {
 
@@ -144,7 +146,7 @@ public class ProxyUtils {
 					getBranchType(proxyGen.getProxySCMDetails().getBranch()), jsessionId);
 			mongoTemplate.save(portfolio);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return response;
 	}
@@ -165,7 +167,7 @@ public class ProxyUtils {
 		try {
 			promoteToMaster(projectProxy, scmPromote, projectName, proxyName, jsessionid);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -184,7 +186,7 @@ public class ProxyUtils {
 		try {
 			promoteToMaster(projectProxy, scmPromote, projectName, proxyName, jsessionid);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -235,6 +237,7 @@ public class ProxyUtils {
 			RestTemplate restTemplate = new RestTemplate();
 			HttpEntity<PipelineGroups> requestEntity = new HttpEntity<>(pipelineGroups, headers);
 			// ResponseEntity<String> response =
+			log.debug("Making a call to {}", hostUrl);
 			restTemplate.exchange(hostUrl, HttpMethod.POST, requestEntity, String.class);
 		} catch (Exception e) {
 			throw new ItorixException("error creating pipeline", "", e);
@@ -286,6 +289,7 @@ public class ProxyUtils {
 					CodeCoverage codecoverage = new CodeCoverage();
 					codecoverage.setEnabled("false");
 					if (null != stage.getCodeCoverage()) {
+						log.debug("Performing operations to code coverage");
 						codecoverage.setEnabled(stage.getCodeCoverage().getEnabled());
 						codecoverage.setAcceptance(stage.getCodeCoverage().getAcceptance());
 						codecoverage.setArtifactType(stage.getCodeCoverage().getArtifactType());
@@ -316,6 +320,7 @@ public class ProxyUtils {
 			headers.set("JSESSIONID", jsessionId);
 			RestTemplate restTemplate = new RestTemplate();
 			HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
+			log.debug("Making a call to {}", hostUrl);
 			ResponseEntity<PipelineGroups> response = restTemplate.exchange(hostUrl, HttpMethod.GET, requestEntity,
 					PipelineGroups.class);
 			return response.getBody();
@@ -385,7 +390,7 @@ public class ProxyUtils {
 			codeGenHistory.setPortfolio(proxyPortfolio);
 			return codeGenHistory;
 		} catch (ItorixException e) {
-			e.printStackTrace();
+			log.error("Exception while populating proxy generation object", e);
 			throw new ItorixException("unable to create repo ", "", e);
 		}
 	}
@@ -400,11 +405,11 @@ public class ProxyUtils {
 		Proxy proxy = new Proxy();
 		String path = "";
 		try {
-			System.out.println(mapper.writeValueAsString(projectProxy.getBasePaths()));
+			log.info(mapper.writeValueAsString(projectProxy.getBasePaths()));
 			path = mapper.writeValueAsString(projectProxy.getBasePaths()).replaceAll("\"", "").replaceAll("\\[", "")
 					.replaceAll("\\]", "");
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		proxy.setBasePath(path);
 		proxy.setName(projectProxy.getName());
@@ -424,26 +429,26 @@ public class ProxyUtils {
 		proxySCMDetails.setBranch(branch);
 		proxySCMDetails.setScmSource("GIT");
 		proxySCMDetails.setHostUrl(GIT_HOST_URL + repoName);
-		proxySCMDetails.setUsername(getBuildScmProp("itorix.core.scm.username" ));
+		proxySCMDetails.setUsername(getBuildScmProp("itorix.core.scm.username"));
 		proxySCMDetails.setPassword(getBuildScmProp("itorix.core.scm.token"));
 		createSCMBranch(proxySCMDetails);
 		return proxySCMDetails;
 	}
-	
+
 	private String getBuildScmProp(String key) {
-		try{
-		Query query = new Query();
-		query.addCriteria(Criteria.where("propertyKey").is(key));
-		WorkspaceIntegration integration = mongoTemplate.findOne(query, WorkspaceIntegration.class);
-		if (integration != null) {
-			RSAEncryption rSAEncryption;
-			rSAEncryption = new RSAEncryption();
-			return integration.getEncrypt()
-					? rSAEncryption.decryptText(integration.getPropertyValue())
-					: integration.getPropertyValue();
-		} 
-		}catch(Exception e){
-			
+		try {
+			Query query = new Query();
+			query.addCriteria(Criteria.where("propertyKey").is(key));
+			WorkspaceIntegration integration = mongoTemplate.findOne(query, WorkspaceIntegration.class);
+			if (integration != null) {
+				RSAEncryption rSAEncryption;
+				rSAEncryption = new RSAEncryption();
+				return integration.getEncrypt()
+						? rSAEncryption.decryptText(integration.getPropertyValue())
+						: integration.getPropertyValue();
+			}
+		} catch (Exception e) {
+
 		}
 		return null;
 	}
@@ -454,14 +459,15 @@ public class ProxyUtils {
 			scmUtilImpl.createRepository(repoName, "Created from Itorix platform", "https://api.github.com/user/repos",
 					applicationProperties.getProxyScmUserName(), applicationProperties.getProxyScmPassword());
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return repoName;
 	}
 
 	private void createSCMBranch(ProxySCMDetails proxySCMDetails) throws ItorixException {
-		scmUtilImpl.createBranch(proxySCMDetails.getBranch(), "", proxySCMDetails.getHostUrl(), proxySCMDetails.getPassword());
-				//proxySCMDetails.getUsername(), proxySCMDetails.getPassword());
+		scmUtilImpl.createBranch(proxySCMDetails.getBranch(), "", proxySCMDetails.getHostUrl(),
+				proxySCMDetails.getPassword());
+		// proxySCMDetails.getUsername(), proxySCMDetails.getPassword());
 	}
 
 	private String getBranchType(String branchName) {
@@ -510,6 +516,7 @@ public class ProxyUtils {
 			if (null != gitIntegration) {
 				RSAEncryption rSAEncryption = new RSAEncryption();
 				if (gitIntegration.getAuthType().equalsIgnoreCase("token")) {
+					log.debug("Promoting scmUtilImpl to GIT");
 					String token = rSAEncryption.decryptText(gitIntegration.getToken());
 					scmUtilImpl.promoteToGitToken(sourceBranch, targetBranch, hostUrl, gitType, token, null);
 				} else {
@@ -520,7 +527,7 @@ public class ProxyUtils {
 			}
 			createPromotePipeline(projectProxy, scmPromote, projectName, proxyName, jsessionid);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -535,7 +542,7 @@ public class ProxyUtils {
 		try {
 			createPromotePipeline(projectProxy, scmPromote, projectName, proxyName, jsessionid);
 		} catch (ItorixException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -620,7 +627,7 @@ public class ProxyUtils {
 			config.setUserRole(roles);
 			serviceRequestDao.changeServiceRequestStatus(config, user);
 		} catch (MessagingException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -632,7 +639,7 @@ public class ProxyUtils {
 			value = value.replaceAll("\"endpoints\"", "\"Endpoints\"").replaceAll("\"endpoint\"", "\"Endpoint\"");
 			return value;
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			return "";
 		}
 	}

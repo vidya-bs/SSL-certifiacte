@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -21,6 +22,7 @@ import com.itorix.apiwiz.portfolio.dao.PortfolioDao;
 import com.itorix.apiwiz.portfolio.model.db.Portfolio;
 
 /** @author vphani */
+@Slf4j
 @Component
 public class PipelineDao {
 
@@ -70,6 +72,7 @@ public class PipelineDao {
 
 		// Save PipelineGroups
 		if (pipelineGroups != null && pipelineGroups.getProjectName() != null) {
+			log.debug("Saving PipelineGroups");
 			Query query = new Query(Criteria.where("_id").is(pipelineGroups.getProjectName()));
 			List<PipelineGroups> projects = mongoTemplate.find(query, PipelineGroups.class);
 			Metadata groupMetadata = null;
@@ -193,19 +196,19 @@ public class PipelineDao {
 		}
 	}
 
-	public List<String> getPipelineContacts(String portfolioId){
+	public List<String> getPipelineContacts(String portfolioId) {
 		List<String> mailList = new ArrayList<>();
-		try{
-			Portfolio portfolio= portfolioDao.getPortfolio(portfolioId, true);
-			if(!ObjectUtils.isEmpty(portfolio)){
+		try {
+			Portfolio portfolio = portfolioDao.getPortfolio(portfolioId, true);
+			if (!ObjectUtils.isEmpty(portfolio)) {
 				portfolio.getTeams();
 			}
-		}catch(Exception e){
-			
+		} catch (Exception e) {
+			log.error("Exception occurred : {}",e.getMessage());
 		}
 		return mailList;
 	}
-	
+
 	public void deletePipelineGroup(String groupName) {
 		mongoTemplate.remove(new Query(Criteria.where("_id").is(groupName)), PipelineGroups.class);
 		// TODO: Delete Pipeline from Pipelines as well

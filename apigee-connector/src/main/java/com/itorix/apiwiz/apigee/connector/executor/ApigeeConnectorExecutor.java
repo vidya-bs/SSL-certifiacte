@@ -62,8 +62,7 @@ public class ApigeeConnectorExecutor {
 	            			apigeeEnvProxies.setProxies(proxies);
 	            			apigeeConnectorDao.SaveProxies(apigeeEnvProxies);
 	            		} catch (ItorixException e) {
-	            			log.error(e.getMessage(),e);
-							e.printStackTrace();
+							log.error("Exception occurred",e);
 						} finally{
 							sqlDao.updateField(executorEntity.getId(), "status",ExecutorEntity.STATUSES.COMPLETED.getValue());
 						}
@@ -77,7 +76,7 @@ public class ApigeeConnectorExecutor {
 	            		log.info("executing codecoverage");
 	            		break;
 	            	}
-	            	default : System.out.println("");
+	            	default : log.info("");
 	            }
 			}
 			

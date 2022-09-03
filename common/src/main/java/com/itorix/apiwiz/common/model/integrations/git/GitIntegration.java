@@ -38,7 +38,7 @@ public class GitIntegration {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.password);
 		} catch (Exception e) {
-			// e.printStackTrace();
+			// log.error("Exception occurred",e)();
 		}
 		return decryptedPassword;
 	}
@@ -54,7 +54,7 @@ public class GitIntegration {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.token);
 		} catch (Exception e) {
-			// e.printStackTrace();
+			// log.error("Exception occurred",e)();
 		}
 		return decryptedPassword;
 	}

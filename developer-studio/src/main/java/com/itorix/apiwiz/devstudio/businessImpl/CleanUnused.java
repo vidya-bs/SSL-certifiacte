@@ -23,6 +23,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -30,7 +31,7 @@ import com.itorix.apiwiz.common.model.proxystudio.ProxyArtifacts;
 import com.itorix.apiwiz.common.model.proxystudio.ProxyEndpoint;
 
 import org.w3c.dom.Node;
-
+@Slf4j
 public class CleanUnused {
 	private static String resources = "";
 
@@ -58,7 +59,7 @@ public class CleanUnused {
 				if (!resource.isEmpty())
 					sharedflows.add(resource);
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		}
 		try {
@@ -107,7 +108,7 @@ public class CleanUnused {
 					proxyEndpoints.add(endpoint);
 				}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return proxyEndpoints;
 	}
@@ -129,7 +130,7 @@ public class CleanUnused {
 			reader.close();
 			return (outString.toString());
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return "";
 	}
@@ -159,7 +160,7 @@ public class CleanUnused {
 		// }
 		// reader.close();
 		// } catch (IOException e) {
-		// e.printStackTrace();
+		// log.error("Exception occurred",e);
 		// }
 		return virtualHosts;
 	}
@@ -178,65 +179,65 @@ public class CleanUnused {
 		if (fList != null)
 			for (File file : fList) {
 				try {
-					// System.out.println("file: " + file.getName());
+					// log.info("file: " + file.getName());
 					StringTokenizer tokenString = new StringTokenizer(file.getName(), ".");
 					list = list + tokenString.nextToken() + "\n";
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			}
 		fList = finder(proxiesPath);
 		if (fList != null)
 			for (File file : fList) {
 				try {
-					System.out.println("file: " + file.getName()); // .getCanonicalPath());
+					log.info("file: " + file.getName()); // .getCanonicalPath());
 					data = data + readNames(file.getCanonicalPath(), "//Name");
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			}
 		fList = finder(targetsPath);
 		if (fList != null)
 			for (File file : fList) {
 				try {
-					System.out.println("file: " + file.getCanonicalPath());
+					log.info("file: " + file.getCanonicalPath());
 					data = data + readNames(file.getCanonicalPath(), "//Name");
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			}
 		try {
 			data = removeDuplicates(data);
 			String invalidPolicies = "";
-			System.out.println("==================================================================");
-			System.out.println("Policies not used: ");
-			System.out.println("==================================================================");
+			log.info("==================================================================");
+			log.info("Policies not used: ");
+			log.info("==================================================================");
 			StringTokenizer tokenString = new StringTokenizer(list, "\n");
 			while (tokenString.hasMoreElements()) {
 				String tk = (String) tokenString.nextElement();
 				if (!data.contains(tk))
 					invalidPolicies = invalidPolicies + policiesPath + tk + ".xml\n";
 			}
-			System.out.println(invalidPolicies);
+			log.info(invalidPolicies);
 			String disablePolicies = getDisabledPolicies(data, policiesPath);
-			System.out.println("==================================================================");
-			System.out.println("Policies disabled: ");
-			System.out.println("==================================================================");
-			System.out.println(disablePolicies);
+			log.info("==================================================================");
+			log.info("Policies disabled: ");
+			log.info("==================================================================");
+			log.info(disablePolicies);
 			String invalidResources = getInvalidResources(invalidPolicies, resourcesPath);
-			System.out.println("==================================================================");
-			System.out.println("invalid Resources : ");
-			System.out.println("==================================================================");
-			System.out.println(invalidResources);
-			System.out.println("==================================================================");
-			System.out.println("removed files : ");
-			System.out.println("==================================================================");
-			System.out.println(removeUnused(invalidPolicies + invalidResources));
+			log.info("==================================================================");
+			log.info("invalid Resources : ");
+			log.info("==================================================================");
+			log.info(invalidResources);
+			log.info("==================================================================");
+			log.info("removed files : ");
+			log.info("==================================================================");
+			log.info(removeUnused(invalidPolicies + invalidResources));
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		long stopTime = System.nanoTime();
-		System.out.println((stopTime - startTime) / 1000000);
+		log.info(String.valueOf((stopTime - startTime) / 1000000));
 	}
 
 	public static String readFile(String file) throws IOException {
@@ -252,7 +253,7 @@ public class CleanUnused {
 			reader.close();
 			return stringBuilder.toString();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return ls;
 	}
@@ -280,7 +281,7 @@ public class CleanUnused {
 					filesInXML = filesInXML + "\n" + tmp;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return filesInXML;
 	}
@@ -293,7 +294,7 @@ public class CleanUnused {
 			Document doc = builder.parse(input);
 			return doc;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -334,8 +335,8 @@ public class CleanUnused {
 						resources = resources + fileName.nextToken() + "\n";
 				}
 			} catch (Exception e) {
-				System.out.println(tk);
-				e.printStackTrace();
+				log.info(tk);
+				log.error("Exception occurred", e);
 			}
 		}
 		return list;
@@ -366,8 +367,8 @@ public class CleanUnused {
 					}
 				}
 			} catch (Exception e) {
-				System.out.println(tk);
-				e.printStackTrace();
+				log.info(tk);
+				log.error("Exception occurred", e);
 			}
 		}
 		return list;
@@ -384,7 +385,7 @@ public class CleanUnused {
 			bw.write(content);
 			bw.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -401,14 +402,14 @@ public class CleanUnused {
 	}
 
 	public static boolean deleteFile(String fileName) {
-		// System.out.println("Delete : " + fileName);
+		// log.info("Delete : " + fileName);
 		try {
 			File file = new File(fileName);
 			if (file.exists()) {
 				return (file.delete());
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return false;
 	}

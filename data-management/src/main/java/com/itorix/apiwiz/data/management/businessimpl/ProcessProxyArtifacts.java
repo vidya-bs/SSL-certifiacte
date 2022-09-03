@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.itorix.apiwiz.common.model.proxystudio.ProxyArtifacts;
 import com.itorix.apiwiz.common.util.http.HttpErrorHandler;
-
+@Slf4j
 @Service
 @SuppressWarnings("unchecked")
 public class ProcessProxyArtifacts {
@@ -47,7 +48,7 @@ public class ProcessProxyArtifacts {
 	// //CleanUnused.clean(proxyPath + System.getProperty("file.separator"));
 	// }
 	// catch(Exception e){
-	// e.printStackTrace();
+	// log.error("Exception occurred",e)();
 	// }
 	// }
 
@@ -90,7 +91,7 @@ public class ProcessProxyArtifacts {
 				if (!resource.isEmpty())
 					cacheResources.add(resource);
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		}
 		try {
@@ -145,7 +146,7 @@ public class ProcessProxyArtifacts {
 			reader.close();
 			return (outString.toString());
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return "";
 	}

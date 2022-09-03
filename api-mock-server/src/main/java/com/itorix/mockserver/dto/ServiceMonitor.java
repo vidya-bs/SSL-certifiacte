@@ -44,7 +44,7 @@ public class ServiceMonitor {
         } catch (ItorixException ex) {
             throw ex;
         } catch (Throwable ex) {
-            ex.printStackTrace();
+            LOGGER.error("Exception occurred",ex);
             if (response.getStatus() == 403) {
                 ErrorObj error = new ErrorObj();
                 error.setErrorMessage(SESSION_TOKEN_NAME + " specified in the header is not valid ", "Identity-1003");

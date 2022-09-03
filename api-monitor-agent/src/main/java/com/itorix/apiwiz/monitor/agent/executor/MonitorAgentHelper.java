@@ -60,9 +60,9 @@ public class MonitorAgentHelper {
 
         if (monitorRequest.getRequest() != null && monitorRequest.getRequest().getBody() != null
                 && monitorRequest.getRequest().getBody().getData() != null) {
+            logger.debug("Getting monitor request data");
             reqBody = fillTemplate(monitorRequest.getRequest().getBody().getData(), globalVars);
             String reqBodyToSet = fillTemplate(monitorRequest.getRequest().getBody().getData(), encryptedVariables);
-
             monitorRequest.getRequest().getBody().setData(reqBodyToSet);
         }
 

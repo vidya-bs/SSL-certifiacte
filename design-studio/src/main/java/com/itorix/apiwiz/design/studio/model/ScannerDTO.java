@@ -7,8 +7,8 @@ import lombok.Data;
 @Data
 public class ScannerDTO implements Serializable {
 
-  private List<String> swaggerId;
-  private String operation;
-  private String tenantId;
+	private List<String> swaggerId;
+	private String operation;
+	private String tenantId;
 
 }

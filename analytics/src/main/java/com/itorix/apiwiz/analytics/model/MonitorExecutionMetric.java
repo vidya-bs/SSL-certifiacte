@@ -6,9 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MonitorExecutionMetric {
-    private String monitorCollectionName;
-    private Integer failedExecutionCount;
-    private Integer successFullExecutionCount;
-    private Integer totalExecutionCount;
-    private Double avgLatency;
+	private String monitorCollectionName;
+	private Integer failedExecutionCount;
+	private Integer successFullExecutionCount;
+	private Integer totalExecutionCount;
+	private Double avgLatency;
 }

@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.common.service;
 
 import com.itorix.apiwiz.common.model.GridFsData;
+
 import com.mongodb.DBObject;
 import com.mongodb.client.gridfs.GridFSFindIterable;
 import com.mongodb.client.gridfs.model.GridFSFile;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -25,7 +28,7 @@ import org.springframework.stereotype.Component;
 
 @Component("gridFsRepository")
 public class GridFsRepository {
-
+	private static final Logger logger = LoggerFactory.getLogger(GridFsRepository.class);
 	@Autowired
 	GridFsOperations gridFsOperations;
 
@@ -43,13 +46,13 @@ public class GridFsRepository {
 					metaData);
 			gridFSFile = id.toString();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} finally {
 			if (inputStream != null) {
 				try {
 					inputStream.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.error("Exception occurred", e);
 				}
 			}
 		}
@@ -70,13 +73,13 @@ public class GridFsRepository {
 					metaData);
 
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} finally {
 			if (inputStream != null) {
 				try {
 					inputStream.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.error("Exception occurred", e);
 				}
 			}
 		}
@@ -91,7 +94,7 @@ public class GridFsRepository {
 			fileOutputStream.flush();
 			// gridFSDBFile.writeTo(filePath);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return new File(filePath);
 	}
@@ -118,7 +121,7 @@ public class GridFsRepository {
 		try {
 			gridFSDBFile.writeTo(filePath);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return new File(filePath);
 	}

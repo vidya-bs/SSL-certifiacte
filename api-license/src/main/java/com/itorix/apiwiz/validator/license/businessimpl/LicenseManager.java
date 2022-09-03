@@ -24,6 +24,7 @@ public class LicenseManager {
 		licenseToken.setNodeIds(licenseRequest.getClientIp());
 		licenseToken.setEmailId(licenseRequest.getEmailId());
 		licenseToken.setExpiry(licenseRequest.getExpiry());
+		licenseToken.setComponents(licenseRequest.getComponents());
 		try {
 			return encryption.encrypt(convertLicenseToJson(licenseToken));
 		} catch (GeneralSecurityException e) {

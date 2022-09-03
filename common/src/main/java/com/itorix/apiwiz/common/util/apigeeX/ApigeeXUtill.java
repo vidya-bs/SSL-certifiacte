@@ -61,14 +61,14 @@ public class ApigeeXUtill {
 
 	private static final String HOST_URL = "https://apigee.googleapis.com";
 	private static final String CLOUD_PLATFORM = "https://www.googleapis.com/auth/cloud-platform";
-	
+
 	@Value("${apigeex.host.header:#{null}}")
 	private String hostHeader;
-	
+
 	static {
 		Security.addProvider(new BouncyCastleProvider());
 	}
-	
+
 	public String getHostHeader() {
 		return hostHeader;
 	}
@@ -124,7 +124,7 @@ public class ApigeeXUtill {
 		} catch (KeyParseException exc0) {
 			throw exc0;
 		} catch (Exception exc1) {
-			exc1.printStackTrace();
+			logger.error("Exception occurred", exc1);
 			throw new KeyParseException("cannot instantiate private key", exc1);
 		}
 	}
@@ -147,6 +147,7 @@ public class ApigeeXUtill {
 				headers);
 		ResponseEntity<String> response = null;
 		try {
+			logger.debug("Making a call to {}", url);
 			response = restTemplate.exchange(url, HttpMethod.POST, httpEntity,
 					new ParameterizedTypeReference<String>() {
 					});
@@ -197,13 +198,12 @@ public class ApigeeXUtill {
 				});
 		return response.getBody();
 	}
-	
-	
+
 	public String getProxies(String org) throws Exception {
-		String jsonKeyStr = getApigeeCredentials(org,"saas");
+		String jsonKeyStr = getApigeeCredentials(org, "saas");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-		headers.set("Authorization",  jsonKeyStr);
+		headers.set("Authorization", jsonKeyStr);
 		HttpEntity<String> httpEntity = new HttpEntity<String>(headers);
 		String url = HOST_URL + "/v1/organizations/" + org + "/apis";
 		ResponseEntity<String> response = exchange(url, HttpMethod.GET, httpEntity,
@@ -224,6 +224,7 @@ public class ApigeeXUtill {
 					return false;
 				}
 			});
+			logger.debug("Making a call to {}", url);
 			response = restTemplate.exchange(url, method, requestEntity, responseType, uriVariables);
 
 		} catch (Exception e) {

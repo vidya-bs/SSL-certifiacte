@@ -9,6 +9,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.After;
@@ -38,6 +39,7 @@ import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.itorix.apiwiz.identitymanagement.service.BaseController;
 
+@Slf4j
 @Aspect
 @Component
 public class ServiceMonitor extends LoggerAspect {
@@ -85,7 +87,7 @@ public class ServiceMonitor extends LoggerAspect {
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Throwable ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 			if (response.getStatus() == 403) {
 				ErrorObj error = new ErrorObj();
 				error.setErrorMessage(ErrorCodes.errorMessage.get("Identity-1003"), "Identity-1003");
@@ -118,7 +120,7 @@ public class ServiceMonitor extends LoggerAspect {
 					mongoTemplate.save(activityLog);
 				}
 				// else {
-				// System.out.println("NO Activity log as JsessionId is null");
+				// log.info("NO Activity log as JsessionId is null");
 				// }
 			}
 		} catch (Throwable ex) {

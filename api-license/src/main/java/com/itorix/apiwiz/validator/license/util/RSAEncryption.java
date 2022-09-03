@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.validator.license.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.BadPaddingException;
@@ -16,7 +17,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-
+@Slf4j
 @Component
 public class RSAEncryption {
 
@@ -29,7 +30,7 @@ public class RSAEncryption {
 		try {
 			this.loadKeys();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred",e);
 		}
 	}
 
@@ -105,11 +106,11 @@ public class RSAEncryption {
 
 	public static void main(String[] args) throws Exception {
 		RSAEncryption ac = new RSAEncryption();
-		System.out.println(ac.decryptText("testkey1234"));
+		log.info(ac.decryptText("testkey1234"));
 		String msg = "Itorix@8102";
 		String encrypted_msg = ac.encryptText(msg);
 		String decrypted_msg = ac.decryptText(encrypted_msg);
-		System.out.println("Original Message: " + msg + "\nEncrypted Message: " + encrypted_msg + "\nDecrypted Message: " + decrypted_msg);
+		log.info("Original Message: " + msg + "\nEncrypted Message: " + encrypted_msg + "\nDecrypted Message: " + decrypted_msg);
 	}
 
 }

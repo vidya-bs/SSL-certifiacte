@@ -19,6 +19,7 @@ import com.itorix.apiwiz.test.executor.validators.XmlValidator;
 import com.itorix.apiwiz.test.logging.LoggerService;
 import com.itorix.apiwiz.test.util.MaskFieldUtil;
 import com.itorix.apiwiz.test.util.RSAEncryption;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -36,11 +37,13 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @SuppressWarnings("unused")
 @Component
 public class TestRunner {
@@ -99,7 +102,7 @@ public class TestRunner {
     }
 
     public TestSuiteResponse executeTestSuite(String testSuiteResponseID, TestSuite testSuite, Variables vars,
-            Boolean skipAssertions, Boolean isMonitoring, int globalTimeout) {
+                                              Boolean skipAssertions, Boolean isMonitoring, int globalTimeout) {
         List<String> succededScenarios = new ArrayList<String>();
         List<String> failedScenarios = new ArrayList<String>();
         double scenarioSuccessSum = 0.0;
@@ -131,7 +134,7 @@ public class TestRunner {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred",e);
         }
 
         Map<String, String> globalVars = getGlobalVars(vars);
@@ -149,12 +152,17 @@ public class TestRunner {
                 Map<String, Boolean> failedTests = new HashMap<>();
                 try {
                     logger.debug("executing scenario for testSuiteResponseID" + testSuiteResponseID);
-
                     if (cancellationExecutor.getAndRemoveTestSuiteCancellationId(testSuiteResponseID)) {
                         return new TestSuiteResponse(testSuite.getId(), null, testSuite,
                                 TestExecutorEntity.STATUSES.CANCELLED.getValue());
                     }
                     if (scenario != null && scenario.getTestCases() != null) {
+                        if(dao.getTimeoutEnable()){
+                            logger.info(String.format("Starting timeout for ScenarioName: %s, TestsuiteId: %s, at time: %s",scenario.getName(),testSuiteResponseID,LocalTime.now()));
+                            Thread.sleep(scenario.getTimeout());
+                            logger.info(String.format("Ending timeout for ScenarioName: %s, TestsuiteId: %s, at time: %s",scenario.getName(),testSuiteResponseID,LocalTime.now()));
+                        }
+
                         List<TestCase> testCases = scenario.getTestCases();
 
                         int numberOfTestCases = testCases.size();
@@ -731,7 +739,7 @@ public class TestRunner {
                     try {
                         validator = new XmlValidator(response.getBody().getData());
                     } catch (ParserConfigurationException | SAXException | IOException e) {
-                        e.printStackTrace();
+                        log.error("Exception occurred",e);
                     }
                 }
             }
@@ -750,7 +758,7 @@ public class TestRunner {
                                 value = validator.getAttributeValue(variable.getValue()).toString();
                             }
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            log.error("Exception occurred",e);
                         }
                     }
                     if (variable.getReference().equalsIgnoreCase("status")) {

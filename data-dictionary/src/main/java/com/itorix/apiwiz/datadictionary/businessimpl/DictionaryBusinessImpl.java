@@ -12,6 +12,7 @@ import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.mongodb.client.result.DeleteResult;
 
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@Slf4j
 @Service
 public class DictionaryBusinessImpl implements DictionaryBusiness {
 
@@ -50,17 +51,17 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 	}
 
 	public PortfolioVO createPortfolio(PortfolioVO portfolioVO) {
-		log("createPortfolio", portfolioVO.getInteractionid(), portfolioVO);
+		// log("createPortfolio", portfolioVO.getInteractionid(), portfolioVO);
 		if (null == portfolioVO.getDictionaryId())
 			portfolioVO.setDictionaryId(new ObjectId().toString());
 		// portfolioVO.setRevision(1);
 		PortfolioVO vo = baseRepository.save(portfolioVO);
-		log("createPortfolio", portfolioVO.getInteractionid(), vo);
+		// log("createPortfolio", portfolioVO.getInteractionid(), vo);
 		return vo;
 	}
 
 	public PortfolioVO createPortfolioRevision(PortfolioVO portfolioVO, String id) {
-		log("createPortfolio", portfolioVO.getInteractionid(), portfolioVO);
+		// log("createPortfolio", portfolioVO.getInteractionid(), portfolioVO);
 		PortfolioVO vo = baseRepository.save(portfolioVO);
 		List<PortfolioModel> models = findPortfolioModelsByportfolioID(id);
 		if (models != null) {
@@ -95,7 +96,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 							String name = model.getModelName();
 							strModels.add(name);
 						} catch (Exception e) {
-							e.printStackTrace();
+							log.error("Exception occurred", e);
 						}
 					}
 				portfolio.setModels(strModels);
@@ -129,7 +130,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 							portfolioModelResponse.setStatus(model.getStatus());
 							strModels.add(portfolioModelResponse);
 						} catch (Exception e) {
-							e.printStackTrace();
+							log.error("Exception occurred", e);
 						}
 					}
 				portfolio.setModels(strModels);
@@ -150,7 +151,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 					JsonNode jsonNode = mapper.readTree(model.getModel());
 					strModels.add(jsonNode);
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			}
 		portfolio.setModels(strModels);
@@ -245,7 +246,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 					JsonNode jsonNode = mapper.readTree(model.getModel());
 					strModels.add(jsonNode);
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			}
 		portfolio.setModels(strModels);

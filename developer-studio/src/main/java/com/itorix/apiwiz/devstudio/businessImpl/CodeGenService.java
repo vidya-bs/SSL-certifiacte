@@ -17,6 +17,7 @@ import java.util.Set;
 
 import javax.mail.MessagingException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -111,7 +112,7 @@ import freemarker.template.TemplateException;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
-
+@Slf4j
 @Component("codeGenService")
 public class CodeGenService {
 	@Value("${itorix.core.apigee.proxy.templates.base}")
@@ -175,7 +176,7 @@ public class CodeGenService {
 			zipfile.delete();
 			return mongoConnection.getFolder();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -199,9 +200,9 @@ public class CodeGenService {
 				mongoConnection.insertFile(fileInputStream, dir.getName());
 				fileInputStream.close();
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		}
 		return folder;
@@ -298,7 +299,7 @@ public class CodeGenService {
 					data.setProxyArtifacts(proxyArtifacts);
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 			codeGen.setDownloadURL(downloadURI);
 			codeGen.setUserCreated(operations.getUser().getFirstName() + " " + operations.getUser().getLastName());
@@ -333,7 +334,7 @@ public class CodeGenService {
 			response.setDownloadURI(downloadURI);
 			return response;
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 			throw new ItorixException(ex.getMessage(), "ProxyGen-1000", ex);
 		}
 	}
@@ -437,7 +438,7 @@ public class CodeGenService {
 						return swaggerStr;
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			}
 		}
@@ -609,7 +610,7 @@ public class CodeGenService {
 			}
 			return jsonNode;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -642,7 +643,7 @@ public class CodeGenService {
 				}
 
 			} catch (Exception ex) {
-
+				log.error("Exception occurred", ex);
 			}
 			config.setOrg(organization.getName());
 			config.setHost(host);
@@ -666,7 +667,7 @@ public class CodeGenService {
 			serviceRequestDao.createServiceRequest(config);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -698,7 +699,7 @@ public class CodeGenService {
 			config.setActiveFlag(Boolean.TRUE);
 			serviceRequestDao.createServiceRequest(config);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -710,7 +711,7 @@ public class CodeGenService {
 				RSAEncryption rSAEncryption = new RSAEncryption();
 				decryptedPassword = rSAEncryption.decryptText(jfrogIntegration.getPassword());
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 			jfrogIntegration.setPassword(decryptedPassword);
 		} else {
@@ -732,7 +733,7 @@ public class CodeGenService {
 			try {
 				decryptedPassword = s3Integration.getDecryptedSecret();
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		} else {
 			String key = applicationProperties.getS3key();
@@ -782,7 +783,7 @@ public class CodeGenService {
 				proxyData.setProxyArtifacts(data.getProxyArtifacts());
 				proxyData.setProjectName(data.getProjectName());
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		} else {
 			proxyData = data;
@@ -790,7 +791,7 @@ public class CodeGenService {
 		try {
 			mongoConnection.saveProxyHistory(proxyData);
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -869,7 +870,7 @@ public class CodeGenService {
 									&& history.getProxy().getRevision().equals(revision))
 								listData.add(proxyData.getProxyName());
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		}
 		return new ArrayList<String>(listData);
@@ -965,7 +966,7 @@ public class CodeGenService {
 				orgenvs.setOrgEnvs(orgEnvList);
 				return mongoConnection.updateAssociatedOrgs(proxy, orgenvs);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		}
 		return false;
@@ -975,7 +976,7 @@ public class CodeGenService {
 		try {
 			mongoConnection.saveProxyDetailsByOrgEnv(proxy, orgenv);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -1048,6 +1049,7 @@ public class CodeGenService {
 			RestTemplate restTemplate = new RestTemplate();
 			HttpEntity<PromoteProxyRequest> requestEntity = new HttpEntity<>(promoteProxyRequest, headers);
 			// ResponseEntity<String> response =
+			log.debug("Making a call to {}", hostUrl);
 			restTemplate.exchange(hostUrl, HttpMethod.POST, requestEntity, String.class);
 		} catch (Exception e) {
 			throw new ItorixException("error creating pipeline", "", e);
@@ -1167,7 +1169,7 @@ public class CodeGenService {
 					LoadSwagger swagger = new LoadSwaggerImpl();
 					proxyString = swagger.loadProxySwaggerDetails(content, oas);
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 					throw e;
 				}
 			} else if (operations.getType().equalsIgnoreCase("WADL")) {
@@ -1289,7 +1291,7 @@ public class CodeGenService {
 	}
 
 	public List<String> getFolders(String path) throws JsonParseException, JsonMappingException, IOException {
-		System.out.println("path received : " + path);
+		log.info("path received : " + path);
 		ObjectMapper mapper = new ObjectMapper();
 		String dbFolder = mongoConnection.getFolder();
 		Folder folder = mapper.readValue(dbFolder, Folder.class);
@@ -1343,7 +1345,7 @@ public class CodeGenService {
 						}
 				}
 			} catch (Exception ex) {
-
+				log.error("Exception occurred", ex);
 			}
 		}
 		if (status.contains("depricated")) {
@@ -1398,7 +1400,7 @@ public class CodeGenService {
 						return swagger;
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			}
 		}
@@ -1458,7 +1460,7 @@ public class CodeGenService {
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -1511,12 +1513,12 @@ public class CodeGenService {
 							&& virtualHost.getsSLInfo().getEnabled().equalsIgnoreCase("true")) ? "https" : "http")
 							+ "://" + hAlias + ":" + virtualHost.getPort();
 					hosts.add(host);
-					System.out.println(host);
+					log.info(host);
 				}
 				return hosts;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
