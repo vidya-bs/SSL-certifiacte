@@ -13,22 +13,20 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public interface DashboardService {
 
-    @ApiOperation(value = "Get Workspace Dashboard")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Ok", response = WorkspaceDashboard.class),
-            @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-    @RequestMapping(method = RequestMethod.GET, value = "/v1/analytics/workspace-dashboard", produces = {"application/json"})
-    ResponseEntity<?> getWorkspaceDashboard(
-            @RequestHeader(value = "interactionid", required = false) String interactionId,
-            @RequestHeader(value = "JSESSIONID") String jsessionid,
-            @RequestHeader(value = "userId", required = false) String userId)
-            throws ItorixException;
+	@ApiOperation(value = "Get Workspace Dashboard")
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = WorkspaceDashboard.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/analytics/workspace-dashboard", produces = {
+			"application/json"})
+	ResponseEntity<?> getWorkspaceDashboard(
+			@RequestHeader(value = "interactionid", required = false) String interactionId,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "userId", required = false) String userId) throws ItorixException;
 
-    @RequestMapping(method = RequestMethod.POST, value = "/v1/analytics/generate-dashboard", produces = {"application/json"})
-    ResponseEntity<?> generateDashboard(
-            @RequestHeader(value = "interactionid", required = false) String interactionId,
-            @RequestHeader(value = "JSESSIONID") String jsessionid,
-            @RequestHeader(value = "userId", required = false) String userId)
-            throws ItorixException;
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/analytics/generate-dashboard", produces = {
+			"application/json"})
+	ResponseEntity<?> generateDashboard(@RequestHeader(value = "interactionid", required = false) String interactionId,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "userId", required = false) String userId) throws ItorixException;
 
 }

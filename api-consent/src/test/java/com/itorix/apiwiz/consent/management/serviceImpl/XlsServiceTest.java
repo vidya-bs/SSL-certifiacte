@@ -22,31 +22,33 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class XlsServiceTest {
 
-    private static MongoTemplate mongoTemplate = null;
+	private static MongoTemplate mongoTemplate = null;
 
-    @InjectMocks
-    private XlsService xlsService;
+	@InjectMocks
+	private XlsService xlsService;
 
-    @Mock
-    private ApplicationProperties applicationProperties;
+	@Mock
+	private ApplicationProperties applicationProperties;
 
-    @BeforeClass
-    public static void init() {
-        ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017");
-        MongoClientSettings mongoClientSettings = MongoClientSettings.builder().applyConnectionString(connectionString)
-                .build();
-        MongoClients.create(mongoClientSettings);
-        mongoTemplate = new MongoTemplate(MongoClients.create(mongoClientSettings), "acme-team-dev");
-    }
+	@BeforeClass
+	public static void init() {
+		ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017");
+		MongoClientSettings mongoClientSettings = MongoClientSettings.builder().applyConnectionString(connectionString)
+				.build();
+		MongoClients.create(mongoClientSettings);
+		mongoTemplate = new MongoTemplate(MongoClients.create(mongoClientSettings), "acme-team-dev");
+	}
 
-    @Test
-    public void createConsentAuditXsl() throws IOException {
+	@Test
+	public void createConsentAuditXsl() throws IOException {
 
-        List<Consent> all = mongoTemplate.findAll(Consent.class);
+		List<Consent> all = mongoTemplate.findAll(Consent.class);
 
-        when(applicationProperties.getBackupDir()).thenReturn("/Users/balajivijayan/Projects/apiwiz/consent-management/temp");
+		when(applicationProperties.getBackupDir())
+				.thenReturn("/Users/balajivijayan/Projects/apiwiz/consent-management/temp");
 
-        xlsService.createConsentAuditXsl("consent-audit", all, Arrays.asList("lastName", "category", "userId", "firstName", "UserID", "status"));
+		xlsService.createConsentAuditXsl("consent-audit", all,
+				Arrays.asList("lastName", "category", "userId", "firstName", "UserID", "status"));
 
-    }
+	}
 }

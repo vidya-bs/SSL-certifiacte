@@ -34,17 +34,18 @@ public class TestSuiteReport {
 	@Autowired
 	ApplicationProperties app;
 
-	public OutputStream getReport(TestSuiteResponse testresponse,String format) throws IOException, TransformerException {
+	public OutputStream getReport(TestSuiteResponse testresponse, String format)
+			throws IOException, TransformerException {
 
 		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 		String json = ow.writeValueAsString(testresponse);
 		ObjectMapper jsonMapper = new ObjectMapper();
 		JsonNode node = jsonMapper.readValue(json, JsonNode.class);
-		return getXml(node,format);
+		return getXml(node, format);
 
 	}
 
-	public OutputStream getXml(JsonNode node,String format)
+	public OutputStream getXml(JsonNode node, String format)
 			throws JsonGenerationException, JsonMappingException, IOException, TransformerException {
 		XmlMapper xmlMapper = new XmlMapper();
 		xmlMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
@@ -53,30 +54,27 @@ public class TestSuiteReport {
 		StringWriter sw = new StringWriter();
 		xmlMapper.writeValue(sw, node);
 		String xmlString = sw.toString();
-		return getHtml(xmlString,format);
+		return getHtml(xmlString, format);
 
 	}
 
-	public OutputStream getHtml(String xmlString,String format) throws TransformerException, IOException {
+	public OutputStream getHtml(String xmlString, String format) throws TransformerException, IOException {
 		StreamSource xmlDoc = new StreamSource(new StringReader(xmlString));
-		InputStream xslt=this.getClass().getClassLoader().getResourceAsStream("report-html.xsl");
+		InputStream xslt = this.getClass().getClassLoader().getResourceAsStream("report-html.xsl");
 		StreamSource htmlXsl = new StreamSource(xslt);
 		StreamResult result = Transform.simpleTransform(xmlDoc, htmlXsl);
 		String html = result.getWriter().toString();
 		Document document = Jsoup.parse(html, "UTF-8");
 		document.outputSettings().syntax(Document.OutputSettings.Syntax.html);
-		 if(format.equalsIgnoreCase("html"))
-		 {
-			 String html1=document.toString();
-			 ByteArrayOutputStream out = new ByteArrayOutputStream();
-		      byte[] array = html1.getBytes();
-		      out.write(array);
-			 return out;
-		 }
-		 else
-		 {
-		return getPdf(document);
-		 }
+		if (format.equalsIgnoreCase("html")) {
+			String html1 = document.toString();
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			byte[] array = html1.getBytes();
+			out.write(array);
+			return out;
+		} else {
+			return getPdf(document);
+		}
 
 	}
 

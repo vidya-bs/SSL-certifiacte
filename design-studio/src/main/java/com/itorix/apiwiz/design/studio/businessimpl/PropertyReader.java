@@ -1,11 +1,13 @@
 package com.itorix.apiwiz.design.studio.businessimpl;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-
+@Slf4j
 public class PropertyReader {
 
 	public Properties readClassPathPropertyFile(String filePath) {
@@ -16,13 +18,13 @@ public class PropertyReader {
 
 			prop.load(input);
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		} finally {
 			if (input != null) {
 				try {
 					input.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			}
 		}
@@ -36,13 +38,13 @@ public class PropertyReader {
 			input = new FileInputStream(new File(filePath));
 			prop.load(input);
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		} finally {
 			if (input != null) {
 				try {
 					input.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			}
 		}

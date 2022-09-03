@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,6 +29,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 
 @Component
+@Slf4j
 public class CareersDao {
 	@Qualifier("masterMongoTemplate")
 	@Autowired
@@ -131,7 +133,7 @@ public class CareersDao {
 				}
 			}
 		} catch (Exception ex) {
-
+			log.error("Exception occurred", ex);
 		}
 		Map categories = new HashMap();
 		categories.put("category", categoryList);

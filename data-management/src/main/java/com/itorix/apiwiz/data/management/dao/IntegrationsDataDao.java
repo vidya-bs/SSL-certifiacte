@@ -3,6 +3,7 @@ package com.itorix.apiwiz.data.management.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -24,7 +25,7 @@ import com.itorix.apiwiz.common.model.integrations.Integration;
 import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
 import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
-
+@Slf4j
 @Component
 public class IntegrationsDataDao {
 
@@ -41,6 +42,7 @@ public class IntegrationsDataDao {
 	public void updateIntegratoin(Integration integration) {
 		List<Integration> dbIntegrationList = getIntegration(integration.getType());
 		if (dbIntegrationList != null && dbIntegrationList.size() > 0) {
+			log.debug("Updating Integration");
 			Integration dbIntegration = dbIntegrationList.get(0);
 			if (integration.getType().equalsIgnoreCase("JFROG"))
 				dbIntegration.setJfrogIntegration(integration.getJfrogIntegration());
@@ -55,6 +57,7 @@ public class IntegrationsDataDao {
 	public void updateApicIntegratoin(Integration integration) {
 		List<Integration> dbIntegrationList = getIntegration(integration.getType());
 		if (dbIntegrationList != null && dbIntegrationList.size() > 0) {
+			log.debug("Updating APIC Integration");
 			Integration dbIntegration = dbIntegrationList.get(0);
 			if (integration.getType().equalsIgnoreCase("APIC"))
 				dbIntegration.setApicIntegration(integration.getApicIntegration());
@@ -64,10 +67,10 @@ public class IntegrationsDataDao {
 		}
 	}
 
-	
 	public void updateS3Integratoin(Integration integration) {
 		List<Integration> dbIntegrationList = getIntegration(integration.getType());
 		if (dbIntegrationList != null && dbIntegrationList.size() > 0) {
+			log.debug("Updating S3 Integration");
 			Integration dbIntegration = dbIntegrationList.get(0);
 			if (integration.getType().equalsIgnoreCase("S3"))
 				dbIntegration.setS3Integration(integration.getS3Integration());
@@ -116,6 +119,7 @@ public class IntegrationsDataDao {
 		Integration dbIntegration = getGitIntegration(integration.getType(),
 				integration.getGitIntegration().getUserType());
 		if (dbIntegration != null) {
+			log.debug("Updating GIT Integration");
 			dbIntegration.setGitIntegration(integration.getGitIntegration());
 			baseRepository.save(dbIntegration);
 		} else {
@@ -168,6 +172,7 @@ public class IntegrationsDataDao {
 	public void updateJfrogIntegratoin(Integration integration) {
 		List<Integration> dbIntegrationList = getIntegration("JFROG");
 		if (dbIntegrationList != null && dbIntegrationList.size() > 0) {
+			log.debug("Updating Jfrog Integration");
 			Integration dbIntegration = dbIntegrationList.get(0);
 			dbIntegration.setJfrogIntegration(integration.getJfrogIntegration());
 			baseRepository.save(dbIntegration);
@@ -224,7 +229,6 @@ public class IntegrationsDataDao {
 			removeIntegratoin(integration);
 	}
 
-	
 	public String getGoServerVersion(GoCDIntegration goCDIntegration)
 			throws JsonMappingException, JsonProcessingException {
 		HttpHeaders headers = new HttpHeaders();
@@ -232,6 +236,7 @@ public class IntegrationsDataDao {
 		RestTemplate restTemplate = new RestTemplate();
 		HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
 		String url = goCDIntegration.getHostURL() + "/go/api/version";
+		log.debug("Making a call to {}", url);
 		ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode jsonResponse = mapper.readTree(responseEntity.getBody());

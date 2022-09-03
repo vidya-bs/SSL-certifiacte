@@ -9,7 +9,7 @@ import com.itorix.apiwiz.common.model.AbstractObject;
 @Component("targetXConfig")
 @Document(collection = "Connectors.ApigeeX.Configure.TargetServers.List")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class TargetConfig extends AbstractObject{
+public class TargetConfig extends AbstractObject {
 	private String org;
 	private String env;
 	private String type = "saas";
@@ -137,9 +137,6 @@ public class TargetConfig extends AbstractObject{
 	public void setIgnoreValidationErrors(boolean ignoreValidationErrors) {
 		this.ignoreValidationErrors = ignoreValidationErrors;
 	}
-
-	
-
 
 	public void trimData() {
 		this.type = null;

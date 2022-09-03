@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "Connectors.Apigee.ProxyNames")
 public class ApigeeEnvProxies {
-	
+
 	@Id
 	private String id;
 	private String org;
@@ -18,7 +18,7 @@ public class ApigeeEnvProxies {
 	private String type;
 	private List<String> proxies;
 	private Long cts;
-	
+
 	public String getId() {
 		return id;
 	}

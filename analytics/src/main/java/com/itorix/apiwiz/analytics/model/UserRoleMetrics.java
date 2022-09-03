@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserRoleMetrics {
-    private MetricForAdminUser metricForAdminUser;
-    private MetricsForOperationsUser metricsForOperationsUser;
-    private OtherMetric otherMetric;
+	private MetricForAdminUser metricForAdminUser;
+	private MetricsForOperationsUser metricsForOperationsUser;
+	private OtherMetric otherMetric;
 }

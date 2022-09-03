@@ -287,6 +287,7 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 		Object res = null;
 		try {
 			if (artifactType == null || artifactType.equalsIgnoreCase("Postman")) {
+				logger.debug("Getting Unit tests");
 				String postman = (String) postManService.getPostMan(org, env, proxy, interactionid,
 						PostManEnvFileInfo.UNIT_TEST, isSaaS);
 				String environment = (String) postManService.getEnvFile(org, env, proxy, interactionid,

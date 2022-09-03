@@ -113,7 +113,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			}
 			cicdIntegrationApi.createOrEditPipeline(pipelineGroups, isNew);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 			log.error("Error while creating/updating pipeline", ex.getCause());
 			return new ResponseEntity<>(new ErrorObj("Error while creating/updating pipeline", "CI-CD-CU500"),
 					HttpStatus.INTERNAL_SERVER_ERROR);

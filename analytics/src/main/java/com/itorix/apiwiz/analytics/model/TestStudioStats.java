@@ -11,6 +11,6 @@ import java.util.Map;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TestStudioStats {
-    private Map<String, Integer> topFiveTestsBasedOnSuccessRatio;
-    private List<TestSuiteExecutionMetric> testSuiteExecutionMetricsList;
+	private Map<String, Integer> topFiveTestsBasedOnSuccessRatio;
+	private List<TestSuiteExecutionMetric> testSuiteExecutionMetricsList;
 }

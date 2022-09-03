@@ -11,8 +11,8 @@ import java.util.Map;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OtherMetric {
-    private Map<String, Integer> oas2CountByStatus = new HashMap<>();
-    private Map<String, Integer> oas3CountByStatus = new HashMap<>();
-    private Integer virtualizationRequestsWithoutMatch;
-    private Integer noOfTestsWithLessThanFiftyPercentCoverage;
+	private Map<String, Integer> oas2CountByStatus = new HashMap<>();
+	private Map<String, Integer> oas3CountByStatus = new HashMap<>();
+	private Integer virtualizationRequestsWithoutMatch;
+	private Integer noOfTestsWithLessThanFiftyPercentCoverage;
 }

@@ -98,10 +98,8 @@ public class MongoConnection {
 			br.close();
 			reader = stringBuilder.toString();
 		} catch (MongoException e) {
-			e.printStackTrace();
 			logger.error("MongoConnection::getFile " + fileName + " : " + e.getMessage());
 		} catch (IOException e) {
-			e.printStackTrace();
 			logger.error("MongoConnection::getFile " + fileName + " : " + e.getMessage());
 		} finally {
 			if (mongo != null)
@@ -126,7 +124,6 @@ public class MongoConnection {
 			}
 			collection.insert(updateDocument);
 		} catch (MongoException e) {
-			e.printStackTrace();
 			logger.error("MongoConnection::updateDocument " + e.getMessage());
 		} finally {
 			if (mongo != null)
@@ -144,7 +141,7 @@ public class MongoConnection {
 			updateDocument.put("content", reader);
 			collection.insert(updateDocument);
 		} catch (MongoException e) {
-			e.printStackTrace();
+			logger.error("Exception occured", e);
 			logger.error("MongoConnection::updateDocument " + e.getMessage());
 		} finally {
 			if (mongo != null)
@@ -163,7 +160,7 @@ public class MongoConnection {
 			reader = (String) content.get("content");
 		} catch (Exception e) {
 			reader = updateDocument();
-			e.printStackTrace();
+			logger.error("Exception occured", e);
 			logger.error("MongoConnection::getFolder " + e.getMessage());
 		} finally {
 			if (mongo != null)
@@ -178,7 +175,7 @@ public class MongoConnection {
 			String fileName = file.getOriginalFilename();
 			return insertFile(inStream, fileName);
 		} catch (MongoException e) {
-			e.printStackTrace();
+			logger.error("Exception occured", e);
 			logger.error("MongoConnection::insertFile " + e.getMessage());
 			throw e;
 		} finally {
@@ -200,7 +197,7 @@ public class MongoConnection {
 			gfsFile.save();
 			return true;
 		} catch (MongoException e) {
-			e.printStackTrace();
+			logger.error("Exception occured", e);
 			logger.error("MongoConnection::insertFile " + e.getMessage());
 			throw e;
 		} finally {
@@ -222,7 +219,7 @@ public class MongoConnection {
 			}
 			return false;
 		} catch (MongoException e) {
-			e.printStackTrace();
+			logger.error("Exception occured", e);
 			logger.error("MongoConnection::removeFile " + e.getMessage());
 			throw e;
 		} finally {
@@ -242,7 +239,7 @@ public class MongoConnection {
 			return true;
 
 		} catch (MongoException e) {
-			e.printStackTrace();
+			logger.error("Exception occured", e);
 			logger.error("MongoConnection::saveProxyHistory " + e.getMessage());
 			throw e;
 		} finally {
@@ -264,7 +261,7 @@ public class MongoConnection {
 			return dbProxyData;
 
 		} catch (MongoException e) {
-			e.printStackTrace();
+			logger.error("Exception occured", e);
 			logger.error("MongoConnection::getProxyHistory " + e.getMessage());
 			throw e;
 		}
@@ -274,6 +271,7 @@ public class MongoConnection {
 		try {
 			ProxyData dbProxyData = mongoTemplate.findById(proxyName, ProxyData.class);
 			if (dbProxyData == null) {
+				logger.debug("Getting proxy history");
 				Query query = new Query();
 				query.addCriteria(Criteria.where("proxyName").is(proxyName));
 				dbProxyData = mongoTemplate.findOne(query, ProxyData.class);
@@ -281,7 +279,7 @@ public class MongoConnection {
 			return dbProxyData;
 
 		} catch (MongoException e) {
-			e.printStackTrace();
+
 			logger.error("MongoConnection::getProxyHistory " + e.getMessage());
 			throw e;
 		} finally {
@@ -301,7 +299,6 @@ public class MongoConnection {
 				history.add((String) content.get("ProxyData"));
 			}
 		} catch (MongoException e) {
-			e.printStackTrace();
 			logger.error("MongoConnection::getProxyHistory " + e.getMessage());
 			throw e;
 		} finally {
@@ -326,7 +323,6 @@ public class MongoConnection {
 			dbProxyData = mongoTemplate.find(query, ProxyData.class);
 			totalRecords = mongoTemplate.count(new Query(), ProxyData.class);
 		} catch (MongoException e) {
-			e.printStackTrace();
 			logger.error("MongoConnection::getProxyHistory " + e.getMessage());
 			throw e;
 		} finally {
@@ -363,13 +359,13 @@ public class MongoConnection {
 		String deployedStatus = "";
 		ProxyData proxyData = getProxyHistory(proxy);
 		for (Env env : orgEnv.getEnvs()) {
-			ProxyApigeeDetails proxyApigeeDetails ;
-			if(orgEnv.getType()!= null && orgEnv.getType().equalsIgnoreCase("apigeex")){
-				proxyApigeeDetails = apigeeXDetails.getDetailsByProxy(proxyData, orgEnv.getName(),
-						env.getName(), orgEnv.getType());
-			}else{
-			 proxyApigeeDetails = apigeeDetails.getDetailsByProxy(proxyData, orgEnv.getName(),
-					env.getName(), orgEnv.getType());
+			ProxyApigeeDetails proxyApigeeDetails;
+			if (orgEnv.getType() != null && orgEnv.getType().equalsIgnoreCase("apigeex")) {
+				proxyApigeeDetails = apigeeXDetails.getDetailsByProxy(proxyData, orgEnv.getName(), env.getName(),
+						orgEnv.getType());
+			} else {
+				proxyApigeeDetails = apigeeDetails.getDetailsByProxy(proxyData, orgEnv.getName(), env.getName(),
+						orgEnv.getType());
 			}
 			proxyData.setProxyApigeeDetails(proxyApigeeDetails);
 			List<Deployments> deployments = proxyData.getProxyApigeeDetails().getDeployments();
@@ -429,7 +425,7 @@ public class MongoConnection {
 		try {
 			return getProxyHistory(proxy);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception while getting proxy details", e);
 		}
 		return null;
 	}
@@ -452,13 +448,13 @@ public class MongoConnection {
 			data.setOrgEnvs(orgs);
 			return saveProxyHistory(data);
 		} catch (JsonParseException e) {
-			e.printStackTrace();
+			logger.error("JsonParseException occurred", e);
 			throw new ItorixException(e.getMessage(), "ProxyGen-1000", e);
 		} catch (JsonMappingException e) {
-			e.printStackTrace();
+			logger.error("JsonMappingException occurred", e);
 			throw new ItorixException(e.getMessage(), "ProxyGen-1000", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("IOException occurred", e);
 			throw new ItorixException(e.getMessage(), "ProxyGen-1000", e);
 		}
 	}
@@ -480,13 +476,13 @@ public class MongoConnection {
 			}
 			return saveProxyHistory(data);
 		} catch (JsonParseException e) {
-			e.printStackTrace();
+			logger.error("JsonParseException occurred", e);
 			throw new ItorixException(e.getMessage(), "ProxyGen-1000", e);
 		} catch (JsonMappingException e) {
-			e.printStackTrace();
+			logger.error("JsonMappingException occurred", e);
 			throw new ItorixException(e.getMessage(), "ProxyGen-1000", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("IOException occurred", e);
 			throw new ItorixException(e.getMessage(), "ProxyGen-1000", e);
 		}
 	}
@@ -504,7 +500,7 @@ public class MongoConnection {
 				history.add((String) content.get("schedulerData"));
 			}
 		} catch (MongoException e) {
-			e.printStackTrace();
+			logger.error("Exception occured", e);
 			logger.error("MongoConnection::getActiveSchedules " + e.getMessage());
 			throw e;
 		} finally {
@@ -527,7 +523,7 @@ public class MongoConnection {
 				return "true";
 			}
 		} catch (MongoException e) {
-			e.printStackTrace();
+
 			logger.error("MongoConnection::deleteScheduler " + e.getMessage());
 			throw e;
 		} finally {
@@ -551,7 +547,6 @@ public class MongoConnection {
 				data = (String) content.get("schedulerData");
 			}
 		} catch (MongoException e) {
-			e.printStackTrace();
 			logger.error("MongoConnection::getScheduler " + e.getMessage());
 			throw e;
 		} finally {
@@ -572,7 +567,6 @@ public class MongoConnection {
 				schedulers.add((String) content.get("schedulerData"));
 			}
 		} catch (MongoException e) {
-			e.printStackTrace();
 			logger.error("MongoConnection::getSchedulers " + e.getMessage());
 			throw e;
 		} finally {
@@ -592,7 +586,7 @@ public class MongoConnection {
 	public String getResourceFile(String projectName, String proxyName, String type, String fileName,
 			String destinationLocation) {
 		String projectFileName = findProjectFile(projectName, proxyName, type, fileName);
-		System.out.println("file name : " + projectFileName);
+		logger.info("file name : " + projectFileName);
 		String reader = null;
 		DB db = getDB();
 		try {
@@ -609,11 +603,11 @@ public class MongoConnection {
 			br.close();
 			reader = stringBuilder.toString();
 		} catch (MongoException e) {
-			e.printStackTrace();
+			logger.error("MongoException occurred", e);
 			logger.error("MongoConnection::getFile " + projectFileName + " : " + e.getMessage());
 		} catch (IOException e) {
-			e.printStackTrace();
-			logger.error("MongoConnection::getFile " + projectFileName + " : " + e.getMessage());
+			logger.error("Exception occured", e);
+			logger.error("IOException::getFile " + projectFileName + " : " + e.getMessage());
 		} finally {
 			if (mongo != null)
 				mongo.close();
@@ -624,7 +618,7 @@ public class MongoConnection {
 			FileUtils.writeStringToFile(new File(destinationLocation + fileName), reader);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occured", e);
 		}
 		return reader;
 	}
@@ -645,7 +639,7 @@ public class MongoConnection {
 				location = (String) content.get("location");
 			}
 		} catch (MongoException e) {
-			e.printStackTrace();
+			logger.error("Exception occured", e);
 			logger.error("MongoConnection::getProxyHistory " + e.getMessage());
 			throw e;
 		} finally {
@@ -791,7 +785,7 @@ public class MongoConnection {
 			mongoTemplate.remove(dbProxyData);
 
 		} catch (MongoException e) {
-			e.printStackTrace();
+			logger.error("Exception occured", e);
 			throw e;
 		} finally {
 			if (mongo != null)

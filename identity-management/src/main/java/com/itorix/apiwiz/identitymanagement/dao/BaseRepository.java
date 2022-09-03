@@ -44,7 +44,7 @@ public class BaseRepository {
 			userId = userSession.getUserId();
 			username = userSession.getUsername();
 		} catch (Exception e) {
-			//TODO: Add Exception if necessary
+			// TODO: Add Exception if necessary
 		}
 		String id = obj.getId();
 		long timestamp = System.currentTimeMillis();
@@ -75,7 +75,7 @@ public class BaseRepository {
 			userId = userSession.getUserId();
 			username = userSession.getUsername();
 		} catch (Exception e) {
-			//TODO:Add Exception
+			// TODO:Add Exception
 		}
 		String id = obj.getId();
 		long timestamp = System.currentTimeMillis();

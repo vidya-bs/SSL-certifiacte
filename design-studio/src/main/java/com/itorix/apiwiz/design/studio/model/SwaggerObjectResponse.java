@@ -7,9 +7,7 @@ import java.util.List;
 
 @Data
 public class SwaggerObjectResponse implements Serializable {
-    private Metrics metrics;
-    private List<Stat> stats;
+	private Metrics metrics;
+	private List<Stat> stats;
 
 }
-
-

@@ -9,6 +9,6 @@ import java.util.Map;
 @Setter
 public class ProxyStats {
 
-    private Map<String, Double> topFiveProxiesBasedOnCoverage;
-    private Map<String, Object> pipelineGroupStats;
+	private Map<String, Double> topFiveProxiesBasedOnCoverage;
+	private Map<String, Object> pipelineGroupStats;
 }

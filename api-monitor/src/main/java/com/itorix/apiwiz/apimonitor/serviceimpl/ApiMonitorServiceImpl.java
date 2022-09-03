@@ -152,7 +152,7 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 			@RequestHeader HttpHeaders headers, @RequestBody Variables variables,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, HttpServletRequest request,
 			HttpServletResponse response) throws JsonProcessingException, ItorixException {
- 		User user = commonServices.getUserDetailsFromSessionID(jsessionid);
+		User user = commonServices.getUserDetailsFromSessionID(jsessionid);
 
 		variables.setCreatedBy(user.getFirstName() + " " + user.getLastName());
 		variables.setCts(System.currentTimeMillis());

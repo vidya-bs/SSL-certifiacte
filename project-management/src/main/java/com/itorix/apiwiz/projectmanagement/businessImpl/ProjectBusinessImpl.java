@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.mail.MessagingException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -46,7 +47,7 @@ import com.itorix.apiwiz.identitymanagement.model.User;
 import com.itorix.apiwiz.projectmanagement.dao.ProjectManagementDao;
 import com.itorix.apiwiz.servicerequest.dao.ServiceRequestDao;
 import com.itorix.apiwiz.servicerequest.model.ServiceRequest;
-
+@Slf4j
 @Component
 public class ProjectBusinessImpl {
 
@@ -108,7 +109,7 @@ public class ProjectBusinessImpl {
 			config.setUserRole(roles);
 			serviceRequestDao.changeServiceRequestStatus(config, user);
 		} catch (MessagingException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -160,7 +161,7 @@ public class ProjectBusinessImpl {
 			serviceRequestDao.changeServiceRequestStatus(config, user);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -217,12 +218,13 @@ public class ProjectBusinessImpl {
 			headers.set("Authorization", apigeeUtil.getApigeeAuth(org, type));
 			RestTemplate restTemplate = new RestTemplate();
 			HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
+			log.debug("Making a call to {}", apigeeURL);
 			ResponseEntity<APIProduct> response = restTemplate.exchange(apigeeURL, HttpMethod.GET, requestEntity,
 					APIProduct.class);
 			APIProduct product = response.getBody();
 			return product;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -242,7 +244,7 @@ public class ProjectBusinessImpl {
 			return value;
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			return "";
 		}
 	}
@@ -276,6 +278,7 @@ public class ProjectBusinessImpl {
 					apigeeUtil.getApigeeAuth(org, isSaaS.equalsIgnoreCase("true") ? "saas" : "onprem"));
 			RestTemplate restTemplate = new RestTemplate();
 			HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
+			log.debug("Making a call to {}", apigeeURL);
 			ResponseEntity<VirtualHost> response = restTemplate.exchange(apigeeURL, HttpMethod.GET, requestEntity,
 					VirtualHost.class);
 			VirtualHost virtualHost = response.getBody();
@@ -286,12 +289,12 @@ public class ProjectBusinessImpl {
 							&& virtualHost.getsSLInfo().getEnabled().equalsIgnoreCase("true")) ? "https" : "http")
 							+ "://" + hAlias + ":" + virtualHost.getPort();
 					hosts.add(host);
-					System.out.println(host);
+					log.info(host);
 				}
 				return hosts;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -335,7 +338,7 @@ public class ProjectBusinessImpl {
 				createServiceProdutConfig(org, proxyName, null);
 			} catch (ItorixException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		}
 	}
@@ -346,7 +349,7 @@ public class ProjectBusinessImpl {
 			publishProxyConnections(projectName, proxyName, orgEnv);
 		} catch (ItorixException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -370,7 +373,7 @@ public class ProjectBusinessImpl {
 			projectManagementDao.updateProject(project, null);
 		} catch (ItorixException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -386,7 +389,7 @@ public class ProjectBusinessImpl {
 			// codeGenService.saveAssociatedOrgforProxy(proxyName,orgEnv);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 

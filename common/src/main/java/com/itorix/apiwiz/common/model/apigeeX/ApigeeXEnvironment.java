@@ -1,9 +1,9 @@
 package com.itorix.apiwiz.common.model.apigeeX;
 
 public class ApigeeXEnvironment {
-	
+
 	private String name;
-	
+
 	private String kvmProxy;
 	private String kvmProxyEndpoint;
 	private String kvmProxyKey;
@@ -31,7 +31,5 @@ public class ApigeeXEnvironment {
 	public void setKvmProxyKey(String kvmProxyKey) {
 		this.kvmProxyKey = kvmProxyKey;
 	}
-	
-	
 
 }

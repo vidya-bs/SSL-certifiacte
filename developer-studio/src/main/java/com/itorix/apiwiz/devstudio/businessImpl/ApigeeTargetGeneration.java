@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,7 @@ import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-
+@Slf4j
 @Component
 public class ApigeeTargetGeneration {
 	@Autowired
@@ -85,7 +86,7 @@ public class ApigeeTargetGeneration {
 					operations.add(mapApi);
 					mapApi.put("name", flow.getName());
 					mapApi.put("disablePathSuffix", flow.getDisablePathSuffix());
-					//operations.add(flow.getName());
+					// operations.add(flow.getName());
 				}
 				data.put("targetOperations", operations);
 				data.put("targetName", targetName);
@@ -166,7 +167,7 @@ public class ApigeeTargetGeneration {
 	}
 
 	public Template getTemplate(String file) throws IOException {
-		System.out.println(file);
+		log.info(file);
 		String reader = mongoConnection.getFile(file);
 		Configuration conf = new Configuration();
 		StringTemplateLoader tloader = new StringTemplateLoader();

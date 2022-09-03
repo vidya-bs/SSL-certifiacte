@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -24,7 +25,7 @@ import com.jayway.jsonpath.JsonPath;
 
 import io.swagger.models.Swagger;
 import io.swagger.parser.SwaggerParser;
-
+@Slf4j
 @Component
 public class ApicUtil {
 
@@ -40,7 +41,7 @@ public class ApicUtil {
 			mapper.setSerializationInclusion(Include.NON_NULL);
 			return (mapper.writeValueAsString(swagger));
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -54,7 +55,7 @@ public class ApicUtil {
 			mapper.setSerializationInclusion(Include.NON_NULL);
 			return (mapper.writeValueAsString(swagger));
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -85,7 +86,7 @@ public class ApicUtil {
 			OAS = processMetadata(OAS, metadataMap);
 			return removeResponseSchemaTag(OAS);
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -104,6 +105,7 @@ public class ApicUtil {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("type").is("APIC"));
 		List<Integration> dbIntegrations = mongoTemplate.find(query, Integration.class);
+		log.debug("getApicMapping : {}",query);
 		if (!CollectionUtils.isEmpty(dbIntegrations)) {
 			mappings = dbIntegrations.get(0).getApicIntegration().getMappings();
 		}
@@ -132,7 +134,7 @@ public class ApicUtil {
 			}
 			return jsonNode;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}

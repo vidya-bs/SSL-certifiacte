@@ -54,7 +54,7 @@ public class JfrogUtilImpl {
 	private void initValues() {
 		StringBuilder host = new StringBuilder();
 		host.append(applicationProperties.getJfrogHost());
-		System.out.println();
+		// log.info();
 		if (applicationProperties.getJfrogPort() != null && !applicationProperties.getJfrogPort().equals("0"))
 			host.append(":" + applicationProperties.getJfrogPort());
 		host.append("/artifactory/");
@@ -119,7 +119,7 @@ public class JfrogUtilImpl {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			obj.put("logtrail", "Unable to connect to artifactory");
 			throw (e);
 		}
@@ -173,9 +173,9 @@ public class JfrogUtilImpl {
 
 	public JSONObject uploadFiles(InputStream file, String artifactoryResourcePath) throws Exception {
 		JSONObject obj = new JSONObject();
-		System.out.println("artifactoryHost : " + artifactoryHost);
-		System.out.println("artifactoryResourcePath : " + artifactoryResourcePath);
-		System.out.println("artifactoryName : " + artifactoryName);
+		log.info("artifactoryHost : " + artifactoryHost);
+		log.info("artifactoryResourcePath : " + artifactoryResourcePath);
+		log.info("artifactoryName : " + artifactoryName);
 
 		obj = uploadFiles(file, artifactoryName, artifactoryHost, artifactoryResourcePath, username, userpassword);
 		return obj;
@@ -196,13 +196,13 @@ public class JfrogUtilImpl {
 				obj.put("md5", result.getChecksums().getMd5());
 				return obj;
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 				obj.put("logtrail", "Unable to Upload file.");
 				throw (e);
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			log.error("error while uploading file to jfrog", e);
 			obj.put("logtrail", "Unable to connect to artifactory");
 			throw (e);

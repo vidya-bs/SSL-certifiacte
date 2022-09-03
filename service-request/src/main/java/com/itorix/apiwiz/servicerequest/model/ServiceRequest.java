@@ -255,7 +255,7 @@ public class ServiceRequest {
 	public void setType(String type) {
 		this.type = type;
 	}
-	
+
 	public String getGwType() {
 		return gwType;
 	}

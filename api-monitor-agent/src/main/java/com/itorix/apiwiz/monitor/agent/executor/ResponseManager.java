@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
@@ -18,7 +19,7 @@ import com.itorix.apiwiz.monitor.agent.executor.validators.ResponseValidator;
 import com.itorix.apiwiz.monitor.agent.executor.validators.XmlValidator;
 import com.itorix.apiwiz.monitor.model.request.Response;
 import com.itorix.apiwiz.monitor.model.request.Variable;
-
+@Slf4j
 public class ResponseManager {
 
     public ResponseValidator gatherResponseData(HttpResponse actualResponse, Response response,
@@ -27,12 +28,14 @@ public class ResponseManager {
 
         ResponseValidator validator = null;
         if (response.getBody() != null && response.getBody().getType() != null) {
+            log.debug("Fetching validators");
             if (actualResponse.getEntity() != null) {
                 response.getBody().setData(EntityUtils.toString(actualResponse.getEntity(), "UTF-8"));
             }
 
             if (response.getBody() != null && response.getBody().getData() != null
                     && !response.getBody().getData().isEmpty()) {
+
                 if (response.getBody().getType().equalsIgnoreCase("json")) {
                     validator = new JsonValidator(response.getBody().getData());
                 }
@@ -57,7 +60,7 @@ public class ResponseManager {
                         try {
                             vars.put(variable.getName(), validator.getAttributeValue(variable.getValue()).toString());
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            log.error("Exception while getting attribute value");
                         }
                     }
                     if (variable.getReference().equalsIgnoreCase("status")) {

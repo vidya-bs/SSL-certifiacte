@@ -24,7 +24,7 @@ public class CommonConfiguration {
 
 	private String organization;
 	private String environment;
-    private String gwtype; 
+	private String gwtype;
 	private String jsessionId;
 
 	private Boolean isCleanUpAndBackUp;

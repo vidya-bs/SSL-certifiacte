@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -194,7 +195,7 @@ public class ApigeeProxyGeneration {
 			for (Flow flow : apiList.getFlow()) {
 				String apiName = flow.getName();
 				String fileName = removeFileExtension(tmplFile.getName(), true);
-				String dstPoliciesFile = dstPolicies + File.separatorChar 
+				String dstPoliciesFile = dstPolicies + File.separatorChar
 						+ tmplFile.getName().replaceAll(fileName, fileName + "-" + apiName  );
 
 				final Map<String, Object> apiDtls = new HashMap<String, Object>();
@@ -231,6 +232,7 @@ public class ApigeeProxyGeneration {
 									break;
 								}
 							}
+
 						}
 					}
 					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "").replace("-x-gw-cache-resource", "")

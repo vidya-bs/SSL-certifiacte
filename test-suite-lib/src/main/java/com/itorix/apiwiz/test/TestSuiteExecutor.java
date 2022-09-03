@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -26,6 +27,7 @@ import com.itorix.apiwiz.test.executor.model.TenantContext;
 @EnableAutoConfiguration
 @Component
 @EnableScheduling
+@Slf4j
 public class TestSuiteExecutor {
 
     private ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 5);
@@ -80,7 +82,7 @@ public class TestSuiteExecutor {
                         TestSuiteResponse.STATUSES.IN_PROGRESS.getValue());
 
             } catch (Exception ex) {
-                ex.printStackTrace();
+                log.error("Exception occurred",ex);
             }
             executor.execute(() -> testRunner.run(context));
         }

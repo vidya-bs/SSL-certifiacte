@@ -1,13 +1,14 @@
 package com.itorix.apiwiz.virtualization.model.logging;
 
 import com.itorix.hyggee.mockserver.client.serialization.ObjectMapperFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+@Slf4j
 @Document(collection = "Mock.Execution.Logs")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MockLog {
@@ -92,14 +93,14 @@ public class MockLog {
 	 * public MockRequest getHttpRequest() { ObjectMapper objectMapper =
 	 * ObjectMapperFactory.createObjectMapper(); try { return
 	 * objectMapper.readValue(httpRequest, MockRequest.class); } catch
-	 * (Exception e) { e.printStackTrace(); return null; } }
+	 * (Exception e) { log.error("Exception occurred",e)(); return null; } }
 	 */
 	public JsonNode getHttpRequest() {
 		ObjectMapper objectMapper = ObjectMapperFactory.createObjectMapper();
 		try {
 			return objectMapper.readTree(httpRequest);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			return null;
 		}
 		// return httpRequest;
@@ -113,14 +114,15 @@ public class MockLog {
 	 * public MockResponse getHttpResponse() { ObjectMapper objectMapper =
 	 * ObjectMapperFactory.createObjectMapper(); try { MockResponse response =
 	 * objectMapper.readValue(httpResponse, MockResponse.class); return
-	 * response; } catch (Exception e) { e.printStackTrace(); return null; } }
+	 * response; } catch (Exception e) { log.error("Exception occurred",e)();
+	 * return null; } }
 	 */
 	public JsonNode getHttpResponse() {
 		ObjectMapper objectMapper = ObjectMapperFactory.createObjectMapper();
 		try {
 			return objectMapper.readTree(httpResponse);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			return null;
 		}
 	}

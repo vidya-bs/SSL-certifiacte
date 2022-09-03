@@ -12,7 +12,7 @@ import com.itorix.apiwiz.common.model.configmanagement.KVMEntry;
 @Component("KVMxConfig")
 @Document(collection = "Connectors.ApigeeX.Configure.TargetServers.List")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class KVMConfig extends AbstractObject{
+public class KVMConfig extends AbstractObject {
 
 	private String name;
 	private String org;
@@ -21,7 +21,7 @@ public class KVMConfig extends AbstractObject{
 	private String encrypted;
 	private List<KVMEntry> entry;
 	private boolean activeFlag;
-	
+
 	public String getName() {
 		return name;
 	}
@@ -64,6 +64,5 @@ public class KVMConfig extends AbstractObject{
 	public void setActiveFlag(boolean activeFlag) {
 		this.activeFlag = activeFlag;
 	}
-	
-	
+
 }

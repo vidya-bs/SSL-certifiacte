@@ -15,6 +15,7 @@ import io.swagger.models.auth.AuthorizationValue;
 import io.swagger.parser.SwaggerParser;
 import io.swagger.util.Json;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
+@Slf4j
 public class Generator {
 	static Logger LOGGER = LoggerFactory.getLogger(Generator.class);
 
@@ -99,7 +100,7 @@ public class Generator {
 				swagger = new SwaggerParser().parse(mapper.writeValueAsString(node));
 			} catch (JsonProcessingException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		}
 		if (swagger == null) {
@@ -194,7 +195,7 @@ public class Generator {
 			outputFolder.deleteOnExit();
 			return outputFolder;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			return null;
 		}
 	}

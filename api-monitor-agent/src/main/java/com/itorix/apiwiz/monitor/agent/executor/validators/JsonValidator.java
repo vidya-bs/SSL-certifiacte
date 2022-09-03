@@ -4,7 +4,9 @@ import javax.xml.xpath.XPathExpressionException;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class JsonValidator extends ResponseValidator {
 
     private DocumentContext context;
@@ -37,7 +39,7 @@ public class JsonValidator extends ResponseValidator {
             // }
             value = context.read(path);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            log.error("Exception occurred",ex);
         }
         return value;
     }

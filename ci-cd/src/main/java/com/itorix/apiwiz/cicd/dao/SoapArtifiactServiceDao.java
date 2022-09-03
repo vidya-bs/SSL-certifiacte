@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.opensaml.xml.signature.Q;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ import com.itorix.apiwiz.common.service.GridFsRepository;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 // import com.mongodb.gridfs.GridFSFile;
 import com.mongodb.client.gridfs.model.GridFSFile;
-
+@Slf4j
 @Component
 public class SoapArtifiactServiceDao {
 
@@ -65,7 +66,7 @@ public class SoapArtifiactServiceDao {
 				soapUiEnvFileInfo = baseRepository.save(soapUiEnvFileInfo);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -77,6 +78,7 @@ public class SoapArtifiactServiceDao {
 		try {
 			SoapUiFileInfo soapuiFiledbInfo = findPostManByOrgEnvProxy(org, env, proxy, type, isSaaS);
 			if (soapuiFiledbInfo != null) {
+				log.debug("Saving soapuiFiledbInfo");
 				String oid = gridFsRepository.storeFile(new GridFsData(file.getInputStream(),
 						org + "-" + env + "-" + proxy + "-" + type + "_postManFile"));
 				// String oid = gridFSFile.getId().toString();
@@ -107,7 +109,7 @@ public class SoapArtifiactServiceDao {
 				soapUiFileInfo = baseRepository.save(soapUiFileInfo);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -164,7 +166,7 @@ public class SoapArtifiactServiceDao {
 				throw new ItorixException(new Throwable().getMessage(), "Connector-1001", new Throwable());
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -209,7 +211,7 @@ public class SoapArtifiactServiceDao {
 				soapUiEnvFileInfo = baseRepository.save(soapUiEnvFileInfo);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}

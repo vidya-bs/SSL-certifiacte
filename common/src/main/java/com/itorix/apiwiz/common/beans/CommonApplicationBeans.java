@@ -4,6 +4,8 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.NoSuchPaddingException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
@@ -19,7 +21,7 @@ import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 
 @Configuration
 public class CommonApplicationBeans {
-
+	private static final Logger logger = LoggerFactory.getLogger(CommonApplicationBeans.class);
 	@Bean(name = "restTemplate")
 	public RestTemplate restTemplateBean() {
 		RestTemplate restTemplate = new RestTemplate();
@@ -59,10 +61,10 @@ public class CommonApplicationBeans {
 			return rSAEncryption;
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (NoSuchPaddingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return null;
 	}
