@@ -20,9 +20,10 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.stereotype.Component;
-
+@Slf4j
 @Component
 public class RSAEncryption {
 
@@ -35,7 +36,7 @@ public class RSAEncryption {
         try {
             this.loadKeys();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred",e);
         }
     }
 
@@ -120,14 +121,14 @@ public class RSAEncryption {
 
     public static void main(String[] args) throws Exception {
         RSAEncryption ac = new RSAEncryption();
-        // System.out.println(ac.decryptText("testkey1234"));
+        // log.info(ac.decryptText("testkey1234"));
         // String msg = "Itorix@8102";
         // String encrypted_msg = ac.encryptText(msg);
         String decrypted_msg = ac.decryptText(
                 "XeX0u28Ya1a3CBm5tihMQFteeA6fZTy8avUIsJ0WnNOaEAM90Hcv9G2xo5z5hI4WMyHffxTAbP2LcXK4u6n5Pw==");
-        // System.out.println("Original Message: " + msg + "\nEncrypted Message: " + encrypted_msg + "\nDecrypted
+        // log.info("Original Message: " + msg + "\nEncrypted Message: " + encrypted_msg + "\nDecrypted
         // Message: " + decrypted_msg);
-        System.out.println(decrypted_msg);
+        log.info(decrypted_msg);
     }
 
 }

@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
 import org.testng.Assert;
 
 import net.minidev.json.JSONArray;
-
+@Slf4j
 public class ResponseValidator {
 
     public void assertTest(String path, String condition, Object value, boolean continueOnError) throws Exception {
@@ -70,7 +71,7 @@ public class ResponseValidator {
                 }
             }
         } catch (AssertionError | Exception ex) {
-            ex.printStackTrace();
+            log.error("Exception occurred");
             throw new Exception(ex.getMessage());
         }
     }
@@ -108,7 +109,7 @@ public class ResponseValidator {
                 }
             }
         } catch (AssertionError | Exception ex) {
-            ex.printStackTrace();
+            log.error("Exception occurred",ex);
             throw new Exception(ex.getMessage());
         }
     }

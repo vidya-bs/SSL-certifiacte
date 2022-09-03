@@ -74,6 +74,7 @@ public class TestSuiteDAO {
 		Query query = new Query().addCriteria(Criteria.where("key").is("testsuite"));
 		MetaData metaData = masterMongoTemplate.findOne(query, MetaData.class);
 		if (metaData != null) {
+			log.debug("Updating masterMongoTemplate");
 			Update update = new Update();
 			update.set("metadata", metadataStr);
 			masterMongoTemplate.updateFirst(query, update, MetaData.class);
@@ -136,6 +137,7 @@ public class TestSuiteDAO {
 		// UpdateResult result = mongoTemplate.updateFirst(query, update,
 		// Variables.class);
 		if (dbVariables != null) {
+			log.debug("Saving variables to mongoTemplate");
 			variables.setId(id);
 			String userId = null;
 			String username = null;
@@ -218,6 +220,7 @@ public class TestSuiteDAO {
 
 	public String createTestSuite(TestSuite testSuite) throws ItorixException {
 		if (validateName(testSuite.getName()) == true) {
+			log.debug("Saving details to testSuite");
 			String userId = null;
 			String username = null;
 			try {
@@ -556,7 +559,7 @@ public class TestSuiteDAO {
 				TestSuiteResponse.STATUSES.SCHEDULED.getValue());
 		String userName = "Cron Job";
 		String userId = "SYSTEM";
-		if(user != null) {
+		if (user != null) {
 			userName = user.getFirstName() + " " + user.getLastName();
 			userId = user.getId();
 		}
@@ -647,11 +650,12 @@ public class TestSuiteDAO {
 		log.debug(mapper.writeValueAsString(pipelineGroup));
 		HttpEntity<PipelineGroup> requestEntity = new HttpEntity<>(pipelineGroup, getCommonHttpHeaders());
 		try {
+			log.debug("Making a call to {}", config.getPipelineBaseUrl() + config.getPipelineAdminEndPoint());
 			response = restTemplate.postForObject(config.getPipelineBaseUrl() + config.getPipelineAdminEndPoint(),
 					requestEntity, String.class);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		// Un pausing pipeline
 		try {
@@ -677,6 +681,8 @@ public class TestSuiteDAO {
 		restTemplate.getInterceptors()
 				.add(new BasicAuthorizationInterceptor(config.getCicdAuthUserName(), config.getCicdAuthPassword()));
 		HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
+		log.debug("Making a call to {}", config.getPipelineBaseUrl() + config.getPipelineEndPoint() + File.separator
+				+ name + File.separator + action, HttpMethod.POST);
 		ResponseEntity<String> responseEntity = restTemplate.exchange(config.getPipelineBaseUrl()
 				+ config.getPipelineEndPoint() + File.separator + name + File.separator + action, HttpMethod.POST,
 				requestEntity, String.class);

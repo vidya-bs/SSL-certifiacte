@@ -91,6 +91,7 @@ public class Scenario {
 		return successRate;
 	}
 
+
     public void setSuccessRate(int successRate) {
         this.successRate = successRate;
     }
@@ -107,9 +108,11 @@ public class Scenario {
         return continueOnError;
     }
 
+
 	public void setContinueOnError(boolean continueOnError) {
 		this.continueOnError = continueOnError;
 	}
+
 	public String getDependsOn() {
 		return dependsOn;
 	}
@@ -117,4 +120,5 @@ public class Scenario {
 	public void setDependsOn(String dependsOn) {
 		this.dependsOn = dependsOn;
 	}
+
 }

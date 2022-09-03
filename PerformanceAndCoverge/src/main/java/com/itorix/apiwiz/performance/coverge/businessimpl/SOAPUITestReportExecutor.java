@@ -19,6 +19,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.xmlbeans.XmlException;
 import org.w3c.dom.Document;
@@ -42,7 +43,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
 import freemarker.template.Version;
-
+@Slf4j
 public class SOAPUITestReportExecutor {
 
 	private static final String REPORT_TEMPLATE = "firstClientReport.ftl";
@@ -81,7 +82,7 @@ public class SOAPUITestReportExecutor {
 			reportMap.put("failed", soupUITest.getFailed().toString());
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return reportMap;
 	}
@@ -157,12 +158,12 @@ public class SOAPUITestReportExecutor {
 	}
 
 	public static void main(String[] args) throws IOException {
-		// System.out.println(FileUtils.readFileToString(new
+		// log.info(FileUtils.readFileToString(new
 		// File("/Users/sudhakar/Desktop/REST-Itorix-soapui-project.xml")));
 		// Map<String, String> map =
 		// soapUIProjectTestReportExecutor(FileUtils.readFileToString(new
 		// File("/Users/sudhakar/Desktop/REST-Itorix-soapui-project.xml")),null);
 		// output = new ObjectMapper().writeValueAsString(map);
-		// System.out.println(map);
+		// log.info(map);
 	}
 }

@@ -19,6 +19,7 @@ import com.itorix.apiwiz.test.executor.validators.XmlValidator;
 import com.itorix.apiwiz.test.logging.LoggerService;
 import com.itorix.apiwiz.test.util.MaskFieldUtil;
 import com.itorix.apiwiz.test.util.RSAEncryption;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -42,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @SuppressWarnings("unused")
 @Component
 public class TestRunner {
@@ -132,7 +134,7 @@ public class TestRunner {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred",e);
         }
 
         Map<String, String> globalVars = getGlobalVars(vars);
@@ -737,7 +739,7 @@ public class TestRunner {
                     try {
                         validator = new XmlValidator(response.getBody().getData());
                     } catch (ParserConfigurationException | SAXException | IOException e) {
-                        e.printStackTrace();
+                        log.error("Exception occurred",e);
                     }
                 }
             }
@@ -756,7 +758,7 @@ public class TestRunner {
                                 value = validator.getAttributeValue(variable.getValue()).toString();
                             }
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            log.error("Exception occurred",e);
                         }
                     }
                     if (variable.getReference().equalsIgnoreCase("status")) {

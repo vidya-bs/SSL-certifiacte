@@ -32,14 +32,15 @@ public class LokiLogger {
 			try {
 				String content = mapper.writeValueAsString(errorLog).replaceAll("\"", "\\\\\\\"");
 				content = content.replaceAll("\"", "\\\\\\\"");
-				System.out.println(content);
+				log.info(content);
 				stream = stream.replaceAll("appValue", errorLog.getApplicationName()).replaceAll("content", content)
 						.replaceAll("epocTime", String.valueOf(System.currentTimeMillis()) + "000000");
-				System.out.println(stream);
+				log.info(stream);
 				HttpHeaders headers = new HttpHeaders();
 				headers.setContentType(MediaType.APPLICATION_JSON);
 				RestTemplate restTemplate = new RestTemplate();
 				HttpEntity<Object> requestEntity = new HttpEntity<>(stream, headers);
+				log.debug("Making a call to {}", notificationAgentPath);
 				ResponseEntity<String> response = restTemplate.exchange(notificationAgentPath, HttpMethod.POST,
 						requestEntity, new ParameterizedTypeReference<String>() {
 						});

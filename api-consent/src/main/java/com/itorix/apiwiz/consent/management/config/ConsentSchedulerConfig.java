@@ -22,40 +22,40 @@ import java.security.KeyStore;
 @Configuration
 public class ConsentSchedulerConfig {
 
-    @Autowired
-    private ResourceLoader resourceLoader;
+	@Autowired
+	private ResourceLoader resourceLoader;
 
-    @Value("${server.ssl.key-store-password:null}")
-    private String keyStorepassword;
+	@Value("${server.ssl.key-store-password:null}")
+	private String keyStorepassword;
 
-    @Value("${server.ssl.key-password:null}")
-    private String keypassword;
+	@Value("${server.ssl.key-password:null}")
+	private String keypassword;
 
-    @Value("${server.ssl.key-store:null}")
-    private String keyStoreFilePath;
+	@Value("${server.ssl.key-store:null}")
+	private String keyStoreFilePath;
 
-    @Bean(name="internalRestTemplate")
-    public RestTemplate internalRestTemplate() {
-        RestTemplate restTemplate = new RestTemplate();
+	@Bean(name = "internalRestTemplate")
+	public RestTemplate internalRestTemplate() {
+		RestTemplate restTemplate = new RestTemplate();
 
-        KeyStore keyStore;
-        HttpComponentsClientHttpRequestFactory requestFactory = null;
+		KeyStore keyStore;
+		HttpComponentsClientHttpRequestFactory requestFactory = null;
 
-        try {
-            keyStore = KeyStore.getInstance("jks");
-            Resource storeFile = resourceLoader.getResource(keyStoreFilePath);
-            keyStore.load(storeFile.getInputStream(), keyStorepassword.toCharArray());
-            SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
-                    new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy())
-                            .loadKeyMaterial(keyStore, keypassword.toCharArray()).build(),
-                    NoopHostnameVerifier.INSTANCE);
-            HttpClient httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
-            requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-            restTemplate.setRequestFactory(requestFactory);
-            return restTemplate;
-        } catch (Exception exception) {
-            return new RestTemplate(new HttpComponentsClientHttpRequestFactory());
-        }
-    }
+		try {
+			keyStore = KeyStore.getInstance("jks");
+			Resource storeFile = resourceLoader.getResource(keyStoreFilePath);
+			keyStore.load(storeFile.getInputStream(), keyStorepassword.toCharArray());
+			SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
+					new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy())
+							.loadKeyMaterial(keyStore, keypassword.toCharArray()).build(),
+					NoopHostnameVerifier.INSTANCE);
+			HttpClient httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
+			requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+			restTemplate.setRequestFactory(requestFactory);
+			return restTemplate;
+		} catch (Exception exception) {
+			return new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+		}
+	}
 
 }

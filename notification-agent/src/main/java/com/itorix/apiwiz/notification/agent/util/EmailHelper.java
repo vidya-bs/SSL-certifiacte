@@ -46,6 +46,7 @@ public class EmailHelper {
     public Properties getMailProperty(MailProperty mailProperty) {
         Properties props = new Properties();
         if(mailProperty != null) {
+            log.debug("Getting Mail properties");
             props.put(MAIL_PORT, mailProperty.getMailPort());
             props.put(MAIL_HOST, mailProperty.getMailHost());
             props.put(MAIL_ENABLE_START_TLS, mailProperty.isEnableStartTLS());

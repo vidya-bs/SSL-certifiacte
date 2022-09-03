@@ -43,6 +43,7 @@ public class MultiTenantMongoDbConfiguration {
     public MongoDbFactory multitenantFactory() throws UnknownHostException {
         String dbName = properties.getDatabase();
         if (!StringUtils.hasText(dbName)) {
+
             dbName = properties.getUri().substring(properties.getUri().lastIndexOf("/") + 1,
                     properties.getUri().length());
         }

@@ -2,6 +2,7 @@ package io.swagger.generator.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
+@Slf4j
 public class SwaggerUtilTest {
 
 	public void removeResponseSchemaTag() throws IOException {
@@ -30,7 +32,7 @@ public class SwaggerUtilTest {
 	public void checkReplaceURLWithPort() throws ItorixException {
 
 		String output = SwaggerUtil.replaceURL("http://example.com:8080/test?80", "/newPath");
-		System.out.println(output);
+		log.info(output);
 		assertTrue(output.equals("http://example.com:8080/newPath?80"));
 	}
 
@@ -42,7 +44,7 @@ public class SwaggerUtilTest {
 			assertTrue(m.getMessage().contains("Malformed URL Provided"));
 		}
 	}
-	
+
 	@Test
 	public void testOptional() {
 		String str = null;
@@ -50,7 +52,7 @@ public class SwaggerUtilTest {
 
 		Optional<String> str1 = Optional.ofNullable(str);
 		Optional<String> message1 = Optional.of(message);
-		System.out.println(str1.isPresent());
-		System.out.println(message1.isPresent());
+		log.info(String.valueOf(str1.isPresent()));
+		log.info(String.valueOf(message1.isPresent()));
 	}
 }

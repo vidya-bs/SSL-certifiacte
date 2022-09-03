@@ -29,71 +29,74 @@ import java.util.UUID;
 @Component
 public class DashboardScheduler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DashboardScheduler.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DashboardScheduler.class);
 
-    private static final String KEEPER_ID = UUID.randomUUID().toString();
+	private static final String KEEPER_ID = UUID.randomUUID().toString();
 
-    private static final String JOB_NAME = "generate_dashboard";
+	private static final String JOB_NAME = "generate_dashboard";
 
-    @Qualifier("masterMongoTemplate")
-    @Autowired
-    private MongoTemplate masterMongoTemplate;
+	@Qualifier("masterMongoTemplate")
+	@Autowired
+	private MongoTemplate masterMongoTemplate;
 
-    private MongoTemplate mongoTemplate;
+	private MongoTemplate mongoTemplate;
 
-    @Autowired
-    private MongoProperties mongoProperties;
+	@Autowired
+	private MongoProperties mongoProperties;
 
-    @Autowired
-    private LandingPageStatsImpl landingPageStatsImpl;
+	@Autowired
+	private LandingPageStatsImpl landingPageStatsImpl;
 
+	public boolean acquireLock() {
+		Query query = Query.query(Criteria.where("_id").is(JOB_NAME).and("keeperId").is(KEEPER_ID));
+		try {
+			UpdateResult upsert = masterMongoTemplate.upsert(query, Update.update("ts", new Date()),
+					PessimisticLock.class);
+			if (upsert.getUpsertedId() != null || upsert.getModifiedCount() > 0) {
+				return true;
+			}
+		} catch (DuplicateKeyException de) {
+			return false;
+		} catch (Exception ex) {
+			LOGGER.error("Error while acquiring lock ", ex);
+		}
+		return false;
+	}
 
-    public boolean acquireLock() {
-        Query query = Query.query(Criteria.where("_id").is(JOB_NAME).and("keeperId").is(KEEPER_ID));
-        try {
-            UpdateResult upsert = masterMongoTemplate.upsert(query, Update.update("ts", new Date()), PessimisticLock.class);
-            if(upsert.getUpsertedId() != null || upsert.getModifiedCount() > 0) {
-                return true;
-            }
-        } catch(DuplicateKeyException de) {
-            return false;
-        }catch (Exception ex) {
-            LOGGER.error("Error while acquiring lock ", ex);
-        }
-        return false;
-    }
+	public void releaseLock() {
+		masterMongoTemplate.setWriteConcern(WriteConcern.MAJORITY);
+		Query query = Query.query(Criteria.where("_id").is(JOB_NAME).and("keeperId").is(KEEPER_ID));
+		masterMongoTemplate.remove(query, PessimisticLock.class);
+	}
 
+	// @Scheduled(cron = "*/2 * * * *")
+	public void createDashBoard() {
+		if (acquireLock()) {
+			LOGGER.info("Acquired the lock!! Creating Dashboard {} ", KEEPER_ID);
 
-    public void releaseLock() {
-        masterMongoTemplate.setWriteConcern(WriteConcern.MAJORITY);
-        Query query = Query.query(Criteria.where("_id").is(JOB_NAME).and("keeperId").is(KEEPER_ID));
-        masterMongoTemplate.remove(query, PessimisticLock.class);
-    }
-
-
-    //@Scheduled(cron = "*/2 * * * *")
-    public void createDashBoard() {
-        if (acquireLock()) {
-            LOGGER.info("Acquired the lock!! Creating Dashboard {} ", KEEPER_ID);
-
-            try (MongoClient mongoClient = new MongoClient(new MongoClientURI(mongoProperties.getUri()));) {
-                MongoCursor<String> dbsCursor = mongoClient.listDatabaseNames().iterator();
-                while (dbsCursor.hasNext()) {
-                    String tenantId = dbsCursor.next();
-                    TenantContext.setCurrentTenant(tenantId);
-                    landingPageStatsImpl.generateWorkspaceDashboard(null); //Generate System Level Dashboard
-                    List<User> users = masterMongoTemplate.find(Query.query(Criteria.where("workspaces.workspace._id").in(Arrays.asList(tenantId))), User.class);
-                    for (User user : users) {
-                        landingPageStatsImpl.generateWorkspaceDashboard(user.getId());
-                    }
-                }
-            }
-            LOGGER.info("Dashboard created");
-            releaseLock();
-            LOGGER.info("Released Lock ");
-        } else {
-            LOGGER.info("I'm a follower {} ", KEEPER_ID);
-        }
-    }
+			try (MongoClient mongoClient = new MongoClient(new MongoClientURI(mongoProperties.getUri()));) {
+				MongoCursor<String> dbsCursor = mongoClient.listDatabaseNames().iterator();
+				while (dbsCursor.hasNext()) {
+					String tenantId = dbsCursor.next();
+					TenantContext.setCurrentTenant(tenantId);
+					landingPageStatsImpl.generateWorkspaceDashboard(null); // Generate
+																			// System
+																			// Level
+																			// Dashboard
+					List<User> users = masterMongoTemplate.find(
+							Query.query(Criteria.where("workspaces.workspace._id").in(Arrays.asList(tenantId))),
+							User.class);
+					for (User user : users) {
+						landingPageStatsImpl.generateWorkspaceDashboard(user.getId());
+					}
+				}
+			}
+			LOGGER.info("Dashboard created");
+			releaseLock();
+			LOGGER.info("Released Lock ");
+		} else {
+			LOGGER.info("I'm a follower {} ", KEEPER_ID);
+		}
+	}
 
 }

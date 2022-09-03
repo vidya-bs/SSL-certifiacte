@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -35,6 +36,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 @Component
+@Slf4j
 public class ProxyGenerator {
 
 	@Autowired
@@ -91,17 +93,17 @@ public class ProxyGenerator {
 					dstFile.close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				} catch (TemplateException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			} else {
 				try {
 					FileUtils.copyFile(file, new File(dstPolicyFileName));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			}
 		}
@@ -138,9 +140,9 @@ public class ProxyGenerator {
 							dstFile.close();
 							emptyCounter = ext.equals("") || ext.contains("default") ? emptyCounter + 1 : emptyCounter;
 						} catch (IOException e) {
-							e.printStackTrace();
+							log.error("Exception occurred", e);
 						} catch (TemplateException e) {
-							e.printStackTrace();
+							log.error("Exception occurred", e);
 						}
 					}
 				}
@@ -167,9 +169,9 @@ public class ProxyGenerator {
 				dstFile.flush();
 				dstFile.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			} catch (TemplateException e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		}
 	}
@@ -191,10 +193,10 @@ public class ProxyGenerator {
 					dstFile.close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				} catch (TemplateException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			}
 		}

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,7 +39,7 @@ import com.itorix.apiwiz.virtualization.model.Metadata;
 import com.itorix.apiwiz.virtualization.model.expectation.Expectation;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-
+@Slf4j
 @Component("groupServiceDAO")
 public class GroupServiceDAO {
 
@@ -180,7 +181,7 @@ public class GroupServiceDAO {
 				return vo;
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return null;
 	}
@@ -193,7 +194,7 @@ public class GroupServiceDAO {
 					return true;
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return false;
 	}
@@ -216,7 +217,7 @@ public class GroupServiceDAO {
 				throw new ItorixException(ErrorCodes.errorMessage.get("MockServer-1003"), "MockServer-1003");
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return null;
 	}
@@ -231,7 +232,7 @@ public class GroupServiceDAO {
 			UpdateResult result = mongoTemplate.updateFirst(query, update, GroupVO.class);
 			return result.wasAcknowledged();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return false;
 	}
@@ -244,7 +245,7 @@ public class GroupServiceDAO {
 			DeleteResult result = mongoTemplate.remove(query, GroupVO.class);
 			return result.wasAcknowledged();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return false;
 	}

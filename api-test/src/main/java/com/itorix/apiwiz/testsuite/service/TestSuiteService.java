@@ -17,7 +17,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -221,21 +220,15 @@ public interface TestSuiteService {
 			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid,
 			HttpServletRequest request, @PathVariable("testsuiteresponseid") String testsuiteresponseid,
 			HttpServletResponse response) throws JsonProcessingException, ItorixException;
-	
-	
 
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/testsuites/executions/{testsuiteresponseid}/download", produces = {
 			"application/json"})
-	public void getTestSuiteReportById(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
+	public void getTestSuiteReportById(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid,
 			HttpServletRequest request, @PathVariable("testsuiteresponseid") String testsuiteresponseid,
 			@RequestParam(value = "format", required = false, defaultValue = "pdf") String format,
 			HttpServletResponse response) throws JsonProcessingException, ItorixException;
-	
-	
-	
 
 	@PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN', 'TEST') and hasAnyAuthority('TEAM','ENTERPRISE')")
 	@ApiOperation(value = "Trigger TestSuite", notes = "", code = 202)

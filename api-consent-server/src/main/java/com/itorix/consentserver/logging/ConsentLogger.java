@@ -53,6 +53,7 @@ public class ConsentLogger {
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
         try {
+            log.debug("Making a call to {}",awsURL);
             ResponseEntity<String> response = restTemplate.exchange(awsURL, HttpMethod.GET, requestEntity,
                     new ParameterizedTypeReference<String>() {
                     });
@@ -73,6 +74,7 @@ public class ConsentLogger {
             RestTemplate restTemplate = new RestTemplate();
             HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
             try {
+                log.debug("Making a call to {}",awsPodURL);
                 ResponseEntity<String> response = restTemplate.exchange(awsPodURL, HttpMethod.GET, requestEntity,
                         new ParameterizedTypeReference<String>() {
                         });

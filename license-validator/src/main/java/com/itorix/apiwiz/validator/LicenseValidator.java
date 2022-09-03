@@ -80,7 +80,7 @@ public class LicenseValidator {
 //		decryption.loadKey();
 //		String token = "";
 //		String decrypt = decryption.decrypt(token);
-//		System.out.println(decrypt);
+//		log.info(decrypt);
 //		ObjectMapper objectMapper = new ObjectMapper();
 //		LicenseToken licenseToken = objectMapper.readValue(decrypt, LicenseToken.class);
 //

@@ -220,8 +220,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		try {
 			executeXslts(applicationProperties.getMonitorDir() + timeStamp + "/");
 		} catch (TransformerException e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 			throw e;
 		}
 
@@ -257,8 +256,8 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 				String workspace = userSessionToken.getWorkspaceId();
 				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
 						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-						workspace + "/codecoverage/"+ timeStamp + "/" + cfg.getOrganization() + "-" + cfg.getEnvironment() + "-"
-								+ cfg.getApiName() + ".zip",
+						workspace + "/codecoverage/" + timeStamp + "/" + cfg.getOrganization() + "-"
+								+ cfg.getEnvironment() + "-" + cfg.getApiName() + ".zip",
 						zipFileName);
 
 			} else {
@@ -271,8 +270,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 				downloadURI = obj.getString("downloadURI");
 			}
 		} catch (Exception e) {
-			logger.error("Error Storing file in Artifactory : " + e.getMessage());
-			e.printStackTrace();
+			logger.error("Error Storing file in Artifactory : ",e);
 		}
 
 		// try {
@@ -285,7 +283,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		// applicationProperties.getJfrogPassword());
 		// } catch (Exception e) {
 		// logger.error(e.getMessage());
-		// e.printStackTrace();
+		// log.error("Exception occurred",e)();
 		// throw e;
 		// }
 		// TODO We need to delete the hard copy of zipFileName
@@ -338,7 +336,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 					&& FilenameUtils.getExtension(f.getAbsolutePath()).equals("xml")) {
 				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 				DocumentBuilder docBuilder;
-				System.out.println(f.getAbsolutePath());
+				logger.info(f.getAbsolutePath());
 				String root = "";
 				try {
 					docBuilder = dbFactory.newDocumentBuilder();
@@ -347,7 +345,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 					root = node.getNodeName();
 					xmlDom.getElementsByTagName("TargetEndpoint");
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error("Exception while getting elements by tag name", e);
 				}
 				TransformerFactory fac = TransformerFactory.newInstance();
 				Transformer t = fac.newTransformer(streamProxyXslt);
@@ -390,22 +388,21 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		// process codecoverage for proxyendpoints
 		List<ProxyEndpoint> proxyEndPoints;
 
+		if (cfg.getGwtype() != null && cfg.getGwtype().equalsIgnoreCase("apigeex")) {
+			proxyEndPoints = commonServices.fetchProxyEndPointsForApigeeX(cfg);
+		} else {
+			proxyEndPoints = commonServices.fetchProxyEndPoints(cfg.getOrganization(), cfg.getApigeeEmail(),
+					cfg.getApigeePassword(), cfg.getRevision(), cfg.getApiName(), cfg.getType());
+		}
 
-		if( cfg.getGwtype() != null && cfg.getGwtype().equalsIgnoreCase("apigeex")){
-			proxyEndPoints= commonServices.fetchProxyEndPointsForApigeeX(cfg);
-		}else{
-		 proxyEndPoints = commonServices.fetchProxyEndPoints(cfg.getOrganization(),
-				cfg.getApigeeEmail(), cfg.getApigeePassword(), cfg.getRevision(), cfg.getApiName(), cfg.getType());
-		}
-		
 		List<TargetEndpoint> targetEndPoints;
-		if( cfg.getGwtype() != null && cfg.getGwtype().equalsIgnoreCase("apigeex")){
-			targetEndPoints= commonServices.fetchTargetEndPointsForApigeeX(cfg);
-		}else{
-			targetEndPoints = commonServices.fetchTargetEndPoints(cfg.getOrganization(),
-				cfg.getApigeeEmail(), cfg.getApigeePassword(), cfg.getRevision(), cfg.getApiName(), cfg.getType());
+		if (cfg.getGwtype() != null && cfg.getGwtype().equalsIgnoreCase("apigeex")) {
+			targetEndPoints = commonServices.fetchTargetEndPointsForApigeeX(cfg);
+		} else {
+			targetEndPoints = commonServices.fetchTargetEndPoints(cfg.getOrganization(), cfg.getApigeeEmail(),
+					cfg.getApigeePassword(), cfg.getRevision(), cfg.getApiName(), cfg.getType());
 		}
-		
+
 		List<EndpointStat> p = new ArrayList<EndpointStat>();
 		Set<String> totalPoliciesMap = new HashSet<>();
 		Set<String> executedPoliciesMap = new HashSet<>();
@@ -426,7 +423,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 			jaxbMarshaller.marshal(updatedEndpoint, s);
 		}
 		// process codecoverage for targetendpoints
-				List<EndpointStat> t = new ArrayList<EndpointStat>();
+		List<EndpointStat> t = new ArrayList<EndpointStat>();
 		for (TargetEndpoint temp : targetEndPoints) {
 			TargetEndpoint updatedEndpoint = markExecutedPoliciesForTarget(temp, executedFlowAndPolicies);
 			EndpointStatVO stat = doAnalyticsForTargetEndpoint(updatedEndpoint);
@@ -592,6 +589,8 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		}
 
 		if (allExecutedFlows.contains("TARGET_" + endpoint.getName())) {
+			logger.debug("Marking executed policies for target");
+
 			// PreFlow
 			for (com.itorix.apiwiz.common.model.policyperformance.target.endpoint.Step r : endpoint.getPreFlow()
 					.getRequest().getStep()) {
@@ -1303,7 +1302,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		String testSuiteResponseString;
 		try {
 			testSuiteResponseString = mapper.writeValueAsString(testSuiteResponse);
-			System.out.println(testSuiteResponseString);
+			logger.info(testSuiteResponseString);
 			com.itorix.apiwiz.testsuite.model.TestSuiteResponse testSuiteExecutionResponse = mapper
 					.readValue(testSuiteResponseString, com.itorix.apiwiz.testsuite.model.TestSuiteResponse.class);
 			testSuiteExecutionResponse.setCounter(String.valueOf(System.currentTimeMillis()));
@@ -1316,10 +1315,10 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 			testsuitDAO.saveTestSuiteResponse(testSuiteExecutionResponse);
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("JsonProcessingException occurred", e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("IOException occurred", e);
 		}
 	}
 
@@ -1420,8 +1419,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		try {
 			executeXslts(applicationProperties.getMonitorDir() + timeStamp + "/");
 		} catch (TransformerException e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 			throw e;
 		}
 
@@ -1470,8 +1468,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 				downloadURI = obj.getString("downloadURI");
 			}
 		} catch (Exception e) {
-			logger.error("Error Storing file in Artifactory : " + e.getMessage());
-			e.printStackTrace();
+			logger.error("Error Storing file in Artifactory : " ,e);
 		}
 		// TODO We need to delete the hard copy of zipFileName
 		long end = System.currentTimeMillis();
@@ -1611,7 +1608,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 	 * " step 8: delete session ::" + sessionStatus); // step 9: execute xslt
 	 * try { executeXslts(applicationProperties.getMonitorDir() + timeStamp +
 	 * "/"); } catch (TransformerException e) { logger.error(e.getMessage());
-	 * e.printStackTrace(); throw e; }
+	 * log.error("Exception occurred",e)(); throw e; }
 	 *
 	 * // step 10: copy supporting files File bootStrap = new
 	 * ClassPathResource("bootstrap.min.css").getFile(); String fileName =
@@ -1636,8 +1633,8 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 	 * applicationProperties.getJfrogPort() + "/artifactory/", timeStamp + "",
 	 * applicationProperties.getJfrogUserName(),
 	 * applicationProperties.getJfrogPassword()); } catch (Exception e) {
-	 * logger.error(e.getMessage()); e.printStackTrace(); throw e; } // TODO
-	 * need to implement the delete the zip directory. long end =
+	 * logger.error(e.getMessage()); log.error("Exception occurred",e)(); throw
+	 * e; } // TODO need to implement the delete the zip directory. long end =
 	 * System.currentTimeMillis();
 	 * codeCoverageBackUpInfo.setOrganization(cfg.getOrganization());
 	 * codeCoverageBackUpInfo.setEnvironment(cfg.getEnvironment());
@@ -1673,7 +1670,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 	// out.close();
 	// } catch (IOException e) {
 	//
-	// e.printStackTrace();
+	// log.error("Exception occurred",e)();
 	// }
 	// }
 

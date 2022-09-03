@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.User;
-
+@Slf4j
 @CrossOrigin
 @RestController
 public class ManagePackageServiceImpl implements ManagePackageService {
@@ -59,7 +60,7 @@ public class ManagePackageServiceImpl implements ManagePackageService {
 			headers.add("Access-Control-Expose-Headers", "x-packageid");
 			return new ResponseEntity<>(headers, HttpStatus.CREATED);
 		} catch (ItorixException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			return new ResponseEntity<>(new ErrorObj(e.getMessage(), e.errorCode), HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(new ErrorObj("Error while creating Package", "Package-1000"),
@@ -128,10 +129,10 @@ public class ManagePackageServiceImpl implements ManagePackageService {
 			return new ResponseEntity<>(packageDao.getPackageProxyData(proxyname), HttpStatus.OK);
 		} catch (ItorixException e) {
 			// logger.error(e.get);
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			return new ResponseEntity<>(new ErrorObj("invalid data", "CI-CD-CU400"), HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			return new ResponseEntity<>(new ErrorObj("invalid data", "Package-500"), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -213,7 +214,7 @@ public class ManagePackageServiceImpl implements ManagePackageService {
 			}
 
 		} catch (ItorixException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}

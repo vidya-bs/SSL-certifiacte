@@ -181,13 +181,11 @@ public interface ProxyIntegrations {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id) throws Exception;
 
-
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/azuredevops", produces = {"application/json"})
 
 	public ResponseEntity<?> getAzureIntegraton(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
-
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/integrations/azuredevops", produces = {"application/json"})
 
@@ -195,7 +193,6 @@ public interface ProxyIntegrations {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody GitIntegration gitIntegration)
 			throws Exception;
-
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/integrations/azuredevops/{id}", produces = {
 

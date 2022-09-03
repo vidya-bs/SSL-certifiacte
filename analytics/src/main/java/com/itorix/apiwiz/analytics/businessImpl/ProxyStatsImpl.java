@@ -17,65 +17,67 @@ import java.util.Map;
 
 @Component
 public class ProxyStatsImpl {
-    private static final String CODE_COVERAGE_LIST = "Connectors.Apigee.CodeCoverage.List";
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStatsImpl.class);
+	private static final String CODE_COVERAGE_LIST = "Connectors.Apigee.CodeCoverage.List";
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStatsImpl.class);
 
-    @Autowired
-    private MongoTemplate mongoTemplate;
+	@Autowired
+	private MongoTemplate mongoTemplate;
 
-    @Autowired
-    private PipelineStatsImpl pipelineStatsImpl;
+	@Autowired
+	private PipelineStatsImpl pipelineStatsImpl;
 
+	public ProxyStats createProxyStats(String userId) {
+		ProxyStats proxyStats = new ProxyStats();
+		proxyStats.setTopFiveProxiesBasedOnCoverage(getTopFiveProxiesBasedOnCoverage(userId));
 
-    public ProxyStats createProxyStats(String userId) {
-        ProxyStats proxyStats = new ProxyStats();
-        proxyStats.setTopFiveProxiesBasedOnCoverage(getTopFiveProxiesBasedOnCoverage(userId));
+		proxyStats.setPipelineGroupStats(pipelineStatsImpl.getPipelineStats());
 
-        proxyStats.setPipelineGroupStats(pipelineStatsImpl.getPipelineStats());
+		return proxyStats;
+	}
 
-        return proxyStats;
-    }
+	private Map<String, Double> getTopFiveProxiesBasedOnCoverage(String userId) {
+		Map<String, Double> topFiveProxiesBasedOnCoverage = new LinkedHashMap<>();
+		Aggregation aggregation = null;
 
+		if (userId != null) {
+			aggregation = getAggregationForUser(userId);
+		} else {
+			aggregation = getAggregation();
+		}
 
-    private Map<String, Double> getTopFiveProxiesBasedOnCoverage(String userId) {
-        Map<String, Double> topFiveProxiesBasedOnCoverage = new LinkedHashMap<>();
-        Aggregation aggregation = null;
+		AggregationResults<Document> aggregateResults = mongoTemplate.aggregate(aggregation, CODE_COVERAGE_LIST,
+				Document.class);
 
-        if(userId != null) {
-            aggregation = getAggregationForUser(userId);
-        } else {
-            aggregation = getAggregation();
-        }
+		for (Document mappedResult : aggregateResults.getMappedResults()) {
+			String proxyName = mappedResult.getString("_id");
+			Double avgCodeCoverage = mappedResult.getDouble("avgCodeCoverage");
+			topFiveProxiesBasedOnCoverage.put(proxyName, avgCodeCoverage);
+		}
 
-        AggregationResults<Document> aggregateResults = mongoTemplate.aggregate(aggregation, CODE_COVERAGE_LIST, Document.class);
+		return topFiveProxiesBasedOnCoverage;
+	}
 
-        for (Document mappedResult : aggregateResults.getMappedResults()) {
-            String proxyName = mappedResult.getString("_id");
-            Double avgCodeCoverage = mappedResult.getDouble("avgCodeCoverage");
-            topFiveProxiesBasedOnCoverage.put(proxyName, avgCodeCoverage);
-        }
+	private Aggregation getAggregationForUser(String userId) {
+		GroupOperation groupOperation = Aggregation.group("proxy")
+				.avg(ConvertOperators.Convert.convertValueOf("proxyStat.coverage").to(JsonSchemaObject.Type.DOUBLE))
+				.as("avgCodeCoverage");
 
-        return topFiveProxiesBasedOnCoverage;
-    }
+		SortOperation sortOperation = Aggregation.sort(Sort.Direction.DESC, "avgCodeCoverage");
 
-    private Aggregation getAggregationForUser(String userId) {
-        GroupOperation groupOperation = Aggregation.group("proxy").avg(ConvertOperators.Convert.convertValueOf("proxyStat.coverage").to(JsonSchemaObject.Type.DOUBLE)).as("avgCodeCoverage");
+		Aggregation aggregation = Aggregation.newAggregation(Aggregation.match(Criteria.where("createdBy").is(userId)),
+				groupOperation, sortOperation, Aggregation.limit(5));
+		return aggregation;
+	}
 
-        SortOperation sortOperation = Aggregation.sort(Sort.Direction.DESC, "avgCodeCoverage");
+	private Aggregation getAggregation() {
+		GroupOperation groupOperation = Aggregation.group("proxy")
+				.avg(ConvertOperators.Convert.convertValueOf("proxyStat.coverage").to(JsonSchemaObject.Type.DOUBLE))
+				.as("avgCodeCoverage");
 
-        Aggregation aggregation = Aggregation.newAggregation(Aggregation.match(Criteria.where("createdBy").is(userId)),
-                groupOperation, sortOperation, Aggregation.limit(5));
-        return aggregation;
-    }
+		SortOperation sortOperation = Aggregation.sort(Sort.Direction.DESC, "avgCodeCoverage");
 
-    private Aggregation getAggregation() {
-        GroupOperation groupOperation = Aggregation.group("proxy").avg(ConvertOperators.Convert.convertValueOf("proxyStat.coverage").to(JsonSchemaObject.Type.DOUBLE)).as("avgCodeCoverage");
-
-        SortOperation sortOperation = Aggregation.sort(Sort.Direction.DESC, "avgCodeCoverage");
-
-        Aggregation aggregation = Aggregation.newAggregation(groupOperation, sortOperation, Aggregation.limit(5));
-        return aggregation;
-    }
-
+		Aggregation aggregation = Aggregation.newAggregation(groupOperation, sortOperation, Aggregation.limit(5));
+		return aggregation;
+	}
 
 }

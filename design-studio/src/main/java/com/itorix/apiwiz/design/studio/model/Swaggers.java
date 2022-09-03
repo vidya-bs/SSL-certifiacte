@@ -6,7 +6,6 @@ import java.io.Serializable;
 
 @Data
 public class Swaggers implements Serializable {
-    private String name;
-    private Integer revision;
+	private String name;
+	private Integer revision;
 }
-

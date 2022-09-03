@@ -11,33 +11,31 @@ import java.util.Base64;
 @Component
 public class RSAKeyGenerator {
 
-    @Autowired
-    private BaseRepository baseRepository;
+	@Autowired
+	private BaseRepository baseRepository;
 
+	public String generateKeyPair(String tenantId) throws NoSuchAlgorithmException {
+		KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+		generator.initialize(512);
 
-    public String generateKeyPair(String tenantId) throws NoSuchAlgorithmException {
-        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-        generator.initialize(512);
+		KeyPair pair = generator.generateKeyPair();
+		PrivateKey privateKey = pair.getPrivate();
+		PublicKey publicKey = pair.getPublic();
 
-        KeyPair pair = generator.generateKeyPair();
-        PrivateKey privateKey = pair.getPrivate();
-        PublicKey publicKey = pair.getPublic();
+		String privateKeyStr = Base64.getEncoder().encodeToString(privateKey.getEncoded());
+		String publicKeyStr = Base64.getEncoder().encodeToString(publicKey.getEncoded());
 
-        String privateKeyStr = Base64.getEncoder().encodeToString(privateKey.getEncoded());
-        String publicKeyStr = Base64.getEncoder().encodeToString(publicKey.getEncoded());
+		ConsentKeyPair existingConsent = baseRepository.findOne("tenantId", tenantId, ConsentKeyPair.class);
 
+		if (existingConsent == null) {
+			existingConsent = new ConsentKeyPair();
+			existingConsent.setTenantId(tenantId);
+		}
+		existingConsent.setPrivateKey(privateKeyStr);
+		existingConsent.setPublicKey(publicKeyStr);
 
-        ConsentKeyPair existingConsent = baseRepository.findOne("tenantId", tenantId, ConsentKeyPair.class);
-
-        if (existingConsent == null) {
-            existingConsent = new ConsentKeyPair();
-            existingConsent.setTenantId(tenantId);
-        }
-        existingConsent.setPrivateKey(privateKeyStr);
-        existingConsent.setPublicKey(publicKeyStr);
-
-        baseRepository.save(existingConsent);
-        return publicKeyStr;
-    }
+		baseRepository.save(existingConsent);
+		return publicKeyStr;
+	}
 
 }

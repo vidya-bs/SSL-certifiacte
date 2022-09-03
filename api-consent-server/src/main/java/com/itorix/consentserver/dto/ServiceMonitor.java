@@ -55,7 +55,7 @@ public class ServiceMonitor {
         } catch (ItorixException ex) {
             throw ex;
         } catch (Throwable ex) {
-            ex.printStackTrace();
+            log.error("Exception occurred",ex);
             if (response.getStatus() == 403) {
                 ErrorObj error = new ErrorObj();
                 error.setErrorMessage(X_TENANT_KEY + " specified in the header is not valid ", "Identity-1003");

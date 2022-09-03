@@ -60,7 +60,9 @@ public class ConsentManagementDao {
 		ScopeCategory existingScopeCategory = baseRepository.findById(scopeCategory.getName(), ScopeCategory.class);
 
 		if (existingScopeCategory != null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ScopeCategory-001"), scopeCategory.getName()), "ScopeCategory-001");
+			throw new ItorixException(
+					String.format(ErrorCodes.errorMessage.get("ScopeCategory-001"), scopeCategory.getName()),
+					"ScopeCategory-001");
 		}
 
 		populateAuditDetails(scopeCategory);
@@ -93,7 +95,9 @@ public class ConsentManagementDao {
 		ScopeCategory existingScopeCategory = baseRepository.findById(scopeCategory.getName(), ScopeCategory.class);
 
 		if (existingScopeCategory == null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ScopeCategory-002"), scopeCategory.getName()), "ScopeCategory-002");
+			throw new ItorixException(
+					String.format(ErrorCodes.errorMessage.get("ScopeCategory-002"), scopeCategory.getName()),
+					"ScopeCategory-002");
 		}
 
 		String userId = null;
@@ -138,7 +142,6 @@ public class ConsentManagementDao {
 
 	}
 
-
 	public ScopeCategory getScopeCategoryByName(String name) {
 		ScopeCategory scopeCategory = baseRepository.findOne("name", name, ScopeCategory.class);
 		if (scopeCategory == null) {
@@ -163,7 +166,6 @@ public class ConsentManagementDao {
 		List<ScopeCategoryColumns> findAll = baseRepository.findAll(ScopeCategoryColumns.class);
 		return findAll.isEmpty() ? null : findAll.get(0);
 	}
-
 
 	public ConsentResponse getConsentsOverview(int offset, int pageSize, Map<String, String> searchParams) {
 		List<Criteria> searchCriteria = getConsentCriteria(searchParams);
@@ -218,18 +220,20 @@ public class ConsentManagementDao {
 	public String getConsentPublicKey() {
 		String tenantId = mongoTemplate.getDb().getName();
 		log.info("db Name {} ", tenantId);
-		ConsentKeyPair consentKeyPair = mongoTemplate.findOne(Query.query(Criteria.where("tenantId").is(tenantId)), ConsentKeyPair.class);
-		if(consentKeyPair != null ) {
+		ConsentKeyPair consentKeyPair = mongoTemplate.findOne(Query.query(Criteria.where("tenantId").is(tenantId)),
+				ConsentKeyPair.class);
+		if (consentKeyPair != null) {
 			return consentKeyPair.getPublicKey();
 		}
 		return "";
 	}
 
 	public Integer getConsentExpirationInterval() {
-		WorkspaceIntegration workspaceIntegration = mongoTemplate.findById("itorix.core.consent.expiry.interval", WorkspaceIntegration.class);
-		if(workspaceIntegration != null ) {
+		WorkspaceIntegration workspaceIntegration = mongoTemplate.findById("itorix.core.consent.expiry.interval",
+				WorkspaceIntegration.class);
+		if (workspaceIntegration != null) {
 			String propertyValue = workspaceIntegration.getPropertyValue();
-			if(propertyValue != null && !"".equals(propertyValue)) {
+			if (propertyValue != null && !"".equals(propertyValue)) {
 				return Integer.valueOf(propertyValue);
 			}
 		}
@@ -242,14 +246,13 @@ public class ConsentManagementDao {
 		return rsaKeyGenerator.generateKeyPair(tenantId);
 	}
 
-
 	public Workspace getWorkspace(String tenantName) {
 		return masterMongoTemplate.findOne(Query.query(Criteria.where("tenant").is(tenantName)), Workspace.class);
 	}
 
 	public String getWorkspaceKey(String tenantId) {
 		Workspace workspace = getWorkspace(tenantId);
-		if(workspace != null) {
+		if (workspace != null) {
 			return workspace.getKey();
 		}
 		return "";
@@ -257,8 +260,9 @@ public class ConsentManagementDao {
 
 	@SneakyThrows
 	public String getToken() {
-		ConsentKeyPair key = mongoTemplate.findOne(Query.query(Criteria.where("tenantId").is(getTenantId())), ConsentKeyPair.class);
-		if(key != null ) {
+		ConsentKeyPair key = mongoTemplate.findOne(Query.query(Criteria.where("tenantId").is(getTenantId())),
+				ConsentKeyPair.class);
+		if (key != null) {
 			return key.getPublicKey();
 		}
 		throw new ItorixException(ErrorCodes.errorMessage.get("Consent-003"), "Consent-003");
@@ -282,11 +286,11 @@ public class ConsentManagementDao {
 		return list;
 	}
 
-	public String getTenantId(){
+	public String getTenantId() {
 		return mongoTemplate.getDb().getName();
 	}
 
-    @SneakyThrows
+	@SneakyThrows
 	public ConsentAuditExportResponse generateExcelReport(String timeRange) {
 		SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
 		String timeRanges[] = timeRange.split("~");
@@ -301,27 +305,26 @@ public class ConsentManagementDao {
 
 		long diff = endDateTime - startTime;
 
-		if(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) > 30) {
+		if (TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) > 30) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Consent-004"), "Consent-004");
 		}
 
-		Query query = new Query(Criteria.where("cts")
-				.gte(startTime).lte(endDateTime)).with(Sort.by(Sort.Direction.DESC, "_id"));
-
+		Query query = new Query(Criteria.where("cts").gte(startTime).lte(endDateTime))
+				.with(Sort.by(Sort.Direction.DESC, "_id"));
 
 		List<Consent> consents = mongoTemplate.find(query, Consent.class);
 
-		if(consents.size() == 0 ) {
+		if (consents.size() == 0) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Consent-005"), "Consent-005");
 		}
-
 
 		return xlsService.createConsentAuditXsl("consent-audit", consents, getConsentColumnNames());
 
 	}
 
 	private List<String> getConsentColumnNames() {
-		ProjectionOperation projectionOperation = project().and(ObjectOperators.valueOf("consent").toArray()).as("consent");
+		ProjectionOperation projectionOperation = project().and(ObjectOperators.valueOf("consent").toArray())
+				.as("consent");
 
 		UnwindOperation unwindOperation = unwind("consent");
 
@@ -329,8 +332,8 @@ public class ConsentManagementDao {
 
 		Aggregation aggregation = newAggregation(projectionOperation, unwindOperation, groupOperation);
 
-
-		AggregationResults<Document> aggregationResult = mongoTemplate.aggregate(aggregation, Consent.class, Document.class);
+		AggregationResults<Document> aggregationResult = mongoTemplate.aggregate(aggregation, Consent.class,
+				Document.class);
 
 		return aggregationResult.getMappedResults().stream().map(d -> d.getString("_id")).collect(Collectors.toList());
 	}

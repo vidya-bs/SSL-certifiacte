@@ -72,6 +72,7 @@ public class MonitorAgentExecutorDao {
         Query query = new Query(Criteria.where("name").is(sslReference));
         Certificates certificate = mongoTemplate.findOne(query, Certificates.class);
         if (certificate != null) {
+            log.debug("Getting SSL Connection factory");
             try (ByteArrayInputStream instream = new ByteArrayInputStream(certificate.getContent());) {
 
                 Resource storeFile = resourceLoader.getResource(keyStoreFilePath);
@@ -116,6 +117,7 @@ public class MonitorAgentExecutorDao {
     public List<MonitorRequest> getMonitorRequests(String collectionId) {
         MonitorCollections monitorCollections = mongoTemplate.findById(collectionId, MonitorCollections.class);
         if (monitorCollections != null) {
+            log.debug("Getting monitor collections");
             return monitorCollections.getMonitorRequest();
         }
         return null;
@@ -159,6 +161,7 @@ public class MonitorAgentExecutorDao {
         List<NotificationDetails> notificationDetails = new ArrayList<>();
 
         if (monitor != null) {
+            log.debug("Adding notification details");
             for (Schedulers scheduler : monitor.getSchedulers()) {
                 NotificationDetails notificationDetail = new NotificationDetails();
                 notificationDetail.setNotifications(monitor.getNotifications());

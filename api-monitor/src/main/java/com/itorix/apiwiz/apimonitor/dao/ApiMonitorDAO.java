@@ -149,6 +149,7 @@ public class ApiMonitorDAO {
 		List<MonitorCollectionsResponse> monitorResponse = new ArrayList<>();
 
 		if (!CollectionUtils.isEmpty(monitorCollections)) {
+			log.debug("Setting monitor response");
 			Long counter = mongoTemplate.count(query, MonitorCollections.class);
 			Pagination pagination = new Pagination();
 			pagination.setOffset(offset);
@@ -363,6 +364,7 @@ public class ApiMonitorDAO {
 
 		List<ExecutionResult> requestExecution = mongoTemplate.find(queryReqExecution, ExecutionResult.class);
 		if (!CollectionUtils.isEmpty(requestExecution)) {
+			log.debug("Setting details to requestStats");
 			List<Long> timeSeries = requestExecution.stream().map(s -> s.getExecutedTime())
 					.collect(Collectors.toList());
 			List<Event> events = requestExecution.stream().map(s -> {
@@ -414,6 +416,7 @@ public class ApiMonitorDAO {
 		request.setMethod(requestExecution.getVerb());
 
 		if (requestExecution.getRequest() != null) {
+			log.debug("Performing operations to request");
 			request.setBody(requestExecution.getRequest().getBody());
 			request.setFormParams(requestExecution.getRequest().getFormParams());
 			request.setFormURLEncoded(requestExecution.getRequest().getFormURLEncoded());

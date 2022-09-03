@@ -12,12 +12,14 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.servers.ServerVariables;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import static org.junit.Assert.assertTrue;
+@Slf4j
 public class SwaggerValidatorTest {
 
 	@Test
@@ -146,1104 +148,435 @@ public class SwaggerValidatorTest {
 		// }\\n }\\n}\"}}}";
 		// Swagger swagger = parser.parse(swagger2Str);
 		//
-		// System.out.println(swagger.getBasePath());
+		// log.info(swagger.getBasePath());
 
 		String petStore = "{\"openapi\":\"3.0.0\",\"info\":{\"version\":\"1.0.0\",\"title\":\"Petstore Version 2\",\"description\":\"Swagger Petstore\",\"termsOfService\":\"http://www.apache.org/licenses/LICENSE-2.0.html\",\"license\":{\"name\":\"Apache 2.0\",\"url\":\"http://www.apache.org/licenses/LICENSE-2.0.html\"},\"contact\":{\"name\":\"API Support\",\"url\":\"http://www.example.com/support\",\"email\":\"support@example.com\"}},\"servers\":[{\"url\":\"http://petstore.swagger.io/v1\",\"description\":\"Development server\"},{\"url\":\"https://{username}.gigantic-server.com:{port}/{basePath}\",\"description\":\"The production API server\",\"variables\":{\"username\":{\"default\":\"demo\",\"description\":\"this value is assigned by the service provider, in this example `gigantic-server.com`\"},\"port\":{\"enum\":[\"8443\",\"443\"],\"default\":\"8443\"},\"basePath\":{\"default\":\"v2\"}}}],\"paths\":{\"/pets\":{\"summary\":\"An optional, string summary, intended to apply to all operations in this path.\",\"description\":\"An optional, string description, intended to apply to all operations in this path.\",\"servers\":[{\"url\":\"https://development.gigantic-server.com/v1\",\"description\":\"Development server\"},{\"url\":\"https://staging.gigantic-server.com/v1\",\"description\":\"Staging server\"},{\"url\":\"https://api.gigantic-server.com/v1\",\"description\":\"Production server\"},{\"url\":\"https://{username}.gigantic-server.com:{port}/{basePath}\",\"description\":\"The QA API server\",\"variables\":{\"username\":{\"default\":\"demo\",\"description\":\"this value is assigned by the service provider, in this example `gigantic-server.com`\"},\"port\":{\"enum\":[\"8443\",\"443\"],\"default\":\"8443\"},\"basePath\":{\"default\":\"v2\"}}}],\"parameters\":[{\"name\":\"authToken\",\"in\":\"header\",\"description\":\"token to be passed as a header\",\"required\":true,\"schema\":{\"type\":\"array\",\"items\":{\"type\":\"integer\",\"format\":\"int64\"}}},{\"name\":\"OriginHeader\",\"in\":\"header\",\"description\":\"OriginHeader to fetch\",\"required\":true,\"deprecated\":false,\"example\":\"api.itorix.com\",\"schema\":{\"type\":\"string\"}},{\"name\":\"id\",\"in\":\"query\",\"description\":\"ID of the object to fetch\",\"required\":false,\"allowEmptyValue\":false,\"examples\":{\"id-example\":{\"$ref\":\"#/components/examples/zip-example\"}},\"schema\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"style\":\"form\",\"explode\":true},{\"$ref\":\"#/components/parameters/interactionID\"}],\"get\":{\"summary\":\"List all pets\",\"description\":\"List all pets\",\"externalDocs\":{\"url\":\"https://www.google.com\",\"description\":\"External Documentation\"},\"operationId\":\"listPets\",\"security\":[{\"oauth2\":[\"write:pets\",\"read:pets\"]},{\"apiKey\":[]}],\"servers\":[{\"url\":\"https://development.gigantic-server.com/v1\",\"description\":\"Development server\"},{\"url\":\"https://{username}.gigantic-server.com:{port}/{basePath}\",\"description\":\"The QA API server\",\"variables\":{\"username\":{\"default\":\"demo\",\"description\":\"this value is assigned by the service provider, in this example `gigantic-server.com`\"},\"port\":{\"enum\":[\"8443\",\"443\"],\"default\":\"8443\"},\"basePath\":{\"default\":\"v2\"}}}],\"deprecated\":false,\"tags\":[\"pets\"],\"parameters\":[{\"name\":\"limit\",\"in\":\"query\",\"description\":\"How many items to return at one time (max 100)\",\"required\":false,\"schema\":{\"type\":\"integer\",\"format\":\"int32\"}}],\"responses\":{\"200\":{\"description\":\"A paged array of pets\",\"headers\":{\"x-next\":{\"description\":\"A link to the next page of responses\",\"schema\":{\"type\":\"string\"}},\"X-Rate-Limit-Limit\":{\"description\":\"The number of allowed requests in the current period\",\"schema\":{\"type\":\"integer\"}},\"X-Rate-Limit-Remaining\":{\"description\":\"The number of remaining requests in the current period\",\"schema\":{\"type\":\"integer\"}},\"X-Rate-Limit-Reset\":{\"description\":\"The number of seconds left in the current period\",\"schema\":{\"type\":\"integer\"}},\"Authorization\":{\"$ref\":\"#/components/headers/Authorization\"}},\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Pets\"}}},\"links\":{\"address\":{\"$ref\":\"#/components/links/address\"},\"pinCode\":{\"operationId\":\"pinCode\",\"description\":\"GET User pinCode\",\"parameters\":{\"userId\":\"$request.path.id\"}}}},\"400\":{\"description\":\"A simple string response\",\"content\":{\"text/plain\":{\"schema\":{\"type\":\"string\"}}},\"headers\":{\"X-Rate-Limit-Limit\":{\"description\":\"The number of allowed requests in the current period\",\"schema\":{\"type\":\"integer\"}},\"X-Rate-Limit-Remaining\":{\"description\":\"The number of remaining requests in the current period\",\"schema\":{\"type\":\"integer\"}},\"X-Rate-Limit-Reset\":{\"description\":\"The number of seconds left in the current period\",\"schema\":{\"type\":\"integer\"}}}},\"500\":{\"$ref\":\"#/components/responses/response1\"},\"default\":{\"description\":\"unexpected error\",\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Error\"}}}}}},\"post\":{\"summary\":\"Create a pet\",\"operationId\":\"createPets\",\"tags\":[\"pets\"],\"requestBody\":{\"description\":\"user to add to the system\",\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Pet\"},\"examples\":{\"user\":{\"summary\":\"User Example\",\"externalValue\":\"http://foo.bar/examples/user-example.json\"}}},\"application/xml\":{\"schema\":{\"$ref\":\"#/components/schemas/Pet\"},\"examples\":{\"user\":{\"summary\":\"User example in XML\",\"externalValue\":\"http://foo.bar/examples/user-example.xml\"}}},\"*/*\":{\"examples\":{\"user\":{\"summary\":\"User example in other format\",\"externalValue\":\"http://foo.bar/examples/user-example.whatever\"}}}}},\"responses\":{\"201\":{\"description\":\"Null response\"},\"default\":{\"description\":\"unexpected error\",\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Error\"}}}}}}},\"/pets/{petId}\":{\"parameters\":[{\"name\":\"petId\",\"in\":\"path\",\"required\":true,\"description\":\"The id of the pet to retrieve\",\"schema\":{\"type\":\"string\"}}],\"get\":{\"summary\":\"Info for a specific pet\",\"operationId\":\"showPetById\",\"tags\":[\"pets\"],\"responses\":{\"200\":{\"description\":\"Expected response to a valid request\",\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Pet\"}}}},\"default\":{\"description\":\"unexpected error\",\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Error\"}}}}}},\"put\":{\"summary\":\"update a pet\",\"operationId\":\"updatePet\",\"tags\":[\"pets\"],\"requestBody\":{\"$ref\":\"#/components/requestBodies/body1\"},\"responses\":{\"201\":{\"description\":\"Null response\"},\"default\":{\"description\":\"unexpected error\",\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Error\"}}}}}}}},\"components\":{\"schemas\":{\"Pet\":{\"type\":\"object\",\"nullable\":false,\"deprecated\":false,\"externalDocs\":{\"description\":\"Find more info here\",\"url\":\"https://example.com\"},\"required\":[\"id\",\"name\"],\"properties\":{\"id\":{\"type\":\"integer\",\"readOnly\":false,\"writeOnly\":false,\"format\":\"int64\"},\"name\":{\"type\":\"string\"},\"tag\":{\"type\":\"string\"}}},\"Pets\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/Pet\"}},\"Error\":{\"type\":\"object\",\"required\":[\"code\",\"message\"],\"properties\":{\"code\":{\"type\":\"integer\",\"format\":\"int32\"},\"message\":{\"type\":\"string\"}}},\"Person\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"format\":\"int32\",\"xml\":{\"attribute\":true}},\"name\":{\"type\":\"string\",\"xml\":{\"namespace\":\"http://example.com/schema/sample\",\"prefix\":\"sample\"}}}},\"animals\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"xml\":{\"name\":\"animal\"}}},\"cars\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"xml\":{\"name\":\"car\"}},\"xml\":{\"wrapped\":true}},\"planes\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"xml\":{\"name\":\"plane\"}},\"xml\":{\"name\":\"aliens\",\"wrapped\":true}},\"shoes\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"format\":\"int64\"},\"name\":{\"type\":\"string\"}},\"required\":[\"name\"],\"example\":\"{\\\"name\\\":\\\"test\\\",\\\"id\\\":123}\"},\"ErrorModel\":{\"type\":\"object\",\"required\":[\"message\",\"code\"],\"properties\":{\"message\":{\"type\":\"string\",\"example\":\"This is a error message example\"},\"code\":{\"type\":\"integer\",\"minimum\":100,\"maximum\":600}}},\"ExtendedErrorModel\":{\"allOf\":[{\"$ref\":\"#/components/schemas/ErrorModel\"},{\"$ref\":\"#/components/schemas/shoes\"},{\"type\":\"object\",\"required\":[\"rootCause\"],\"properties\":{\"rootCause\":{\"type\":\"string\"}}}]},\"simpleModel\":{\"type\":\"object\",\"additionalProperties\":{\"$ref\":\"#/components/schemas/ErrorModel\"},\"properties\":{\"message\":{\"type\":\"string\",\"example\":\"This is a error message example\"},\"code\":{\"type\":\"integer\",\"minimum\":100,\"maximum\":600}}},\"billingAddress\":{\"type\":\"object\",\"required\":[\"name\"],\"properties\":{\"name\":{\"type\":\"string\"},\"address\":{\"allOf\":[{\"$ref\":\"#/components/schemas/ErrorModel\"},{\"type\":\"object\",\"properties\":{\"addressType\":{\"type\":\"string\"}}}]},\"age\":{\"type\":\"integer\",\"format\":\"int32\",\"minimum\":0}}},\"PetOne\":{\"type\":\"object\",\"discriminator\":{\"propertyName\":\"petType\"},\"properties\":{\"name\":{\"type\":\"string\"},\"petType\":{\"type\":\"string\"}},\"required\":[\"name\",\"petType\"]},\"Cat\":{\"description\":\"A representation of a cat. Note that `Cat` will be used as the discriminator value.\",\"allOf\":[{\"$ref\":\"#/components/schemas/PetOne\"},{\"type\":\"object\",\"properties\":{\"huntingSkill\":{\"type\":\"string\",\"description\":\"The measured skill for hunting\",\"default\":\"lazy\",\"enum\":[\"clueless\",\"lazy\",\"adventurous\",\"aggressive\"]}},\"required\":[\"huntingSkill\"]}]},\"Dog\":{\"description\":\"A representation of a dog. Note that `Dog` will be used as the discriminator value.\",\"allOf\":[{\"$ref\":\"#/components/schemas/PetOne\"},{\"type\":\"object\",\"properties\":{\"packSize\":{\"type\":\"integer\",\"format\":\"int32\",\"description\":\"the size of the pack the dog is from\",\"default\":0,\"minimum\":0}},\"required\":[\"packSize\"]}]},\"PetTwo\":{\"type\":\"object\",\"discriminator\":{\"propertyName\":\"petType\",\"mapping\":{\"dog\":\"#/components/schemas/Dog\",\"monster\":\"https://gigantic-server.com/schemas/Monster/schema.json\"}},\"properties\":{\"name\":{\"type\":\"string\"},\"petType\":{\"type\":\"string\"}},\"required\":[\"name\",\"petType\"]}},\"links\":{\"address\":{\"operationId\":\"getUserAddress\",\"description\":\"GET User Address\",\"parameters\":{\"userId\":\"$response.body#/addressID\"}},\"employeeID\":{\"operationId\":\"employeeID\",\"description\":\"EmployeeID\",\"parameters\":{\"userId\":\"$request.path.employeeID\"}},\"departmentID\":{\"operationId\":\"departmentID\",\"description\":\"departmentID\",\"requestBody\":\"$request.body#/user/uuid\",\"parameters\":{\"userId\":\"$request.path.departmentID\"}},\"employeeName\":{\"operationId\":\"employeeName\",\"description\":\"employeeName \",\"parameters\":{\"userId\":\"$request.header.employeeName\"}},\"paymentID\":{\"operationId\":\"paymentID\",\"description\":\"payment ID \",\"parameters\":{\"userId\":\"$request.query.paymentID\"},\"server\":{\"url\":\"http://petstore.swagger.io/v1\",\"description\":\"Development server\"}},\"paymentMethod\":{\"operationRef\":\"#/paths/~12.0~1repositories~1{username}/get\",\"description\":\"payment Method\",\"parameters\":{\"userId\":\"$response.body#/username\"}},\"userUuid\":{\"operationId\":\"getUserAddressByUUID\",\"description\":\"payment ID \",\"parameters\":{\"userUuid\":\"$response.body#/uuid\"}},\"userName\":{\"operationId\":\"userName\",\"description\":\"user Name\",\"parameters\":{\"userUuid\":\"$response.body#/uuid\"},\"server\":{\"url\":\"https://{username}.gigantic-server.com:{port}/{basePath}\",\"description\":\"The production API server\",\"variables\":{\"username\":{\"default\":\"demo\",\"description\":\"this value is assigned by the service provider, in this example `gigantic-server.com`\"},\"port\":{\"enum\":[\"8443\",\"443\"],\"default\":\"8443\"},\"basePath\":{\"default\":\"v2\"}}}}},\"securitySchemes\":{\"basicAuth\":{\"type\":\"http\",\"scheme\":\"basic\"},\"apiKey\":{\"type\":\"apiKey\",\"description\":\"apiKey\",\"name\":\"api_key\",\"in\":\"header\"},\"jwt\":{\"type\":\"http\",\"description\":\"http\",\"scheme\":\"bearer\",\"bearerFormat\":\"JWT\"},\"oauth2\":{\"type\":\"oauth2\",\"description\":\"oauth2\",\"flows\":{\"implicit\":{\"authorizationUrl\":\"https://example.com/api/oauth/dialog\",\"scopes\":{\"write:pets\":\"modify pets in your account\",\"read:pets\":\"read your pets\"}},\"authorizationCode\":{\"authorizationUrl\":\"https://example.com/api/oauth/dialog\",\"tokenUrl\":\"https://example.com/api/oauth/token\",\"scopes\":{\"write:pets\":\"modify pets in your account\",\"read:pets\":\"read your pets\"}},\"clientCredentials\":{\"tokenUrl\":\"https://example.com/api/oauth/token\",\"scopes\":{\"write:pets\":\"modify pets in your account\",\"read:pets\":\"read your pets\"}},\"password\":{\"tokenUrl\":\"https://example.com/api/oauth/token\",\"refreshUrl\":\"https://example.com/api/oauth/refresh\",\"scopes\":{\"write:pets\":\"modify pets in your account\",\"read:pets\":\"read your pets\"}}}}},\"headers\":{\"Authorization\":{\"description\":\"The number of allowed requests in the current period\",\"schema\":{\"type\":\"integer\"}}},\"examples\":{\"examples1\":{\"description\":\"The number of allowed requests in the current period\",\"summary\":\"Example summary\",\"value\":\"{\\\"name\\\":\\\"test\\\",\\\"id\\\":123}\"},\"zip-example\":{\"description\":\"The number of allowed requests in the current period\",\"summary\":\"Example summary\",\"value\":\"[\\\"test\\\",\\\"test1\\\"]\"},\"examples2\":{\"description\":\"The number of allowed requests in the current period\",\"summary\":\"Example summary\",\"externalValue\":\"https://api.itorix.com/examples#example2.json\"},\"frog\":{\"summary\":\"An example of a dog with a cat's name\",\"value\":{\"name\":\"Puma\",\"petType\":\"Dog\",\"color\":\"Black\",\"gender\":\"Female\",\"breed\":\"Mixed\"}}},\"parameters\":{\"parameter1\":{\"name\":\"token\",\"in\":\"header\",\"description\":\"token to be passed as a header\",\"required\":true,\"schema\":{\"type\":\"array\",\"items\":{\"type\":\"integer\",\"format\":\"int64\"}},\"style\":\"simple\"},\"interactionID\":{\"name\":\"interactionID\",\"in\":\"header\",\"description\":\"token to be passed as a header\",\"required\":true,\"schema\":{\"type\":\"array\",\"items\":{\"type\":\"integer\",\"format\":\"int64\"}},\"style\":\"simple\"},\"parameter2\":{\"name\":\"username\",\"in\":\"path\",\"description\":\"username to fetch\",\"required\":true,\"schema\":{\"type\":\"string\"}},\"parameter3\":{\"name\":\"id\",\"in\":\"query\",\"description\":\"ID of the object to fetch\",\"required\":false,\"schema\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"style\":\"form\",\"explode\":true},\"parameter4\":{\"in\":\"query\",\"name\":\"coordinates\",\"content\":{\"application/json\":{\"schema\":{\"type\":\"object\",\"required\":[\"lat\",\"long\"],\"properties\":{\"lat\":{\"type\":\"number\"},\"long\":{\"type\":\"number\"}}}}}},\"parameter5\":{\"in\":\"query\",\"name\":\"freeForm\",\"schema\":{\"type\":\"object\",\"additionalProperties\":{\"type\":\"integer\"}},\"style\":\"form\"}},\"requestBodies\":{\"body1\":{\"description\":\"user to add to the system\",\"required\":true,\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Pet\"},\"examples\":{\"user\":{\"summary\":\"User Example\",\"externalValue\":\"http://foo.bar/examples/user-example.json\"}}},\"application/xml\":{\"schema\":{\"$ref\":\"#/components/schemas/Pet\"},\"examples\":{\"user\":{\"summary\":\"User example in XML\",\"externalValue\":\"http://foo.bar/examples/user-example.xml\"}}},\"text/plain\":{\"examples\":{\"user\":{\"summary\":\"User example in Plain text\",\"externalValue\":\"http://foo.bar/examples/user-example.txt\"}}},\"*/*\":{\"examples\":{\"user\":{\"summary\":\"User example in other format\",\"externalValue\":\"http://foo.bar/examples/user-example.whatever\"}}}}},\"body2\":{\"description\":\"user to add to the system\",\"required\":false,\"content\":{\"text/xml\":{\"schema\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}},\"body3\":{\"description\":\"user to add to the system\",\"required\":false,\"content\":{\"application/json\":{\"schema\":{\"$ref\":\"#/components/schemas/Pet\"},\"examples\":{\"cat\":{\"summary\":\"An example of a cat\",\"value\":{\"name\":\"Fluffy\",\"petType\":\"Cat\",\"color\":\"White\",\"gender\":\"male\",\"breed\":\"Persian\"}},\"dog\":{\"summary\":\"An example of a dog with a cat's name\",\"value\":{\"name\":\"Puma\",\"petType\":\"Dog\",\"color\":\"Black\",\"gender\":\"Female\",\"breed\":\"Mixed\"}}}}}},\"body4\":{\"description\":\"user to add to the system\",\"required\":false,\"content\":{\"application/octet-stream\":{\"schema\":{\"type\":\"string\",\"format\":\"binary\"}}}},\"body5\":{\"description\":\"user to add to the system\",\"required\":false,\"content\":{\"image/jpeg\":{\"schema\":{\"type\":\"string\",\"format\":\"binary\"}},\"image/png\":{\"schema\":{\"type\":\"string\",\"format\":\"binary\"}}}},\"body6\":{\"description\":\"user to add to the system\",\"required\":false,\"content\":{\"multipart/form-data\":{\"schema\":{\"properties\":{\"file\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"format\":\"binary\"}}}}}}},\"body7\":{\"description\":\"user to add to the system\",\"required\":false,\"content\":{\"application/x-www-form-urlencoded\":{\"schema\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"string\",\"format\":\"uuid\"},\"address\":{\"type\":\"object\",\"properties\":{}}}}}}},\"body8\":{\"description\":\"user to add to the system\",\"required\":false,\"content\":{\"multipart/form-data\":{\"schema\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"string\",\"format\":\"uuid\"},\"address\":{\"type\":\"object\",\"properties\":{}},\"profileImage\":{\"type\":\"string\",\"format\":\"binary\"},\"children\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"addresses\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/billingAddress\"}}}}}}},\"requestBody\":{\"description\":\"user to add to the system\",\"required\":false,\"content\":{\"multipart/mixed\":{\"schema\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"string\",\"format\":\"uuid\"},\"address\":{\"type\":\"object\",\"properties\":{}},\"historyMetadata\":{\"description\":\"metadata in XML format\",\"type\":\"object\",\"properties\":{}},\"profileImage\":{\"type\":\"string\",\"format\":\"binary\"}}},\"encoding\":{\"historyMetadata\":{\"contentType\":\"application/xml; charset=utf-8\"},\"profileImage\":{\"contentType\":\"image/png, image/jpeg\",\"headers\":{\"X-Rate-Limit-Limit\":{\"description\":\"The number of allowed requests in the current period\",\"schema\":{\"type\":\"integer\"}}}}}}}}},\"responses\":{\"response1\":{\"description\":\"A complex object array response\",\"content\":{\"application/json\":{\"schema\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/Pet\"}}}},\"links\":{\"address\":{\"operationId\":\"getUserAddress\",\"description\":\"GET User Address\",\"parameters\":{\"userId\":\"$request.path.id\"}},\"employeeID\":{\"$ref\":\"#/components/links/employeeID\"}}},\"response2\":{\"description\":\"A simple string response\",\"content\":{\"text/plain\":{\"schema\":{\"type\":\"string\"}}}},\"response3\":{\"description\":\"A simple string response\",\"content\":{\"text/plain\":{\"schema\":{\"type\":\"string\"}}},\"headers\":{\"X-Rate-Limit-Limit\":{\"description\":\"The number of allowed requests in the current period\",\"schema\":{\"type\":\"integer\"}},\"X-Rate-Limit-Remaining\":{\"description\":\"The number of remaining requests in the current period\",\"schema\":{\"type\":\"integer\"}},\"X-Rate-Limit-Reset\":{\"description\":\"The number of seconds left in the current period\",\"schema\":{\"type\":\"integer\"}}}},\"response4\":{\"description\":\"object created\"}}},\"tags\":[{\"name\":\"pet\",\"description\":\"Pets operations\",\"externalDocs\":{\"description\":\"Find more info here\",\"url\":\"https://example.com\"}},{\"name\":\"store\",\"description\":\"store operations\"}],\"security\":[{\"apiKey\":[]},{\"oauth2\":[\"write:pets\",\"read:pets\"]}],\"externalDocs\":{\"url\":\"https://www.itorix.com\",\"description\":\"External Documentation\"}}";
 
-		// System.out.println(url.getPath() + " " + url.getQuery());
+		// log.info(url.getPath() + " " + url.getQuery());
 
 		SwaggerParseResult swaggerParseResult = new OpenAPIParser().readContents(petStore, null, null);
 
-		// System.out.println(swaggerParseResult.getOpenAPI().getServers());
+		// log.info(swaggerParseResult.getOpenAPI().getServers());
 
 		OpenAPI openAPI = swaggerParseResult.getOpenAPI();
 
 		ObjectMapper objectMapper = new ObjectMapper();
 
-		System.out.println(objectMapper.writeValueAsString(openAPI));
+		log.info(objectMapper.writeValueAsString(openAPI));
 
 		for (Server s : swaggerParseResult.getOpenAPI().getServers()) {
-			System.out.println(s.getUrl());
+			log.info(s.getUrl());
 			ServerVariables variables = s.getVariables();
 			String urlStr = s.getUrl();;
 			if (variables != null) {
 				for (String k : variables.keySet()) {
-					// System.out.println(k + " ->" +
+					// log.info(k + " ->" +
 					// variables.get(k).getDefault());
 					if (s.getUrl().contains("{" + k + "}")) {
 						urlStr = urlStr.replace("{" + k + "}", variables.get(k).getDefault());
-						System.out.println("Replaced String " + urlStr);
+						log.info("Replaced String " + urlStr);
 					}
 				}
 			}
 			URL url = new URL(urlStr);
-			System.out.println(url.getPath());
+			log.info(url.getPath());
 		}
 
 	}
 
 	@Test
 	public void checkSwagger2Linting() {
-		String swagger2Str = "{\n" +
-				"  \"swagger\": \"2.0\",\n" +
-				"  \"info\": {\n" +
-				"    \"description\": \"This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.\",\n" +
-				"    \"version\": \"1.0.6\",\n" +
-				"    \"title\": \"Swagger Petstore\",\n" +
-				"    \"termsOfService\": \"http://swagger.io/terms/\",\n" +
-				"    \"contact\": {\n" +
-				"      \"email\": \"apiteam@swagger.io\"\n" +
-				"    },\n" +
-				"    \"license\": {\n" +
-				"      \"name\": \"Apache 2.0\",\n" +
-				"      \"url\": \"http://www.apache.org/licenses/LICENSE-2.0.html\"\n" +
-				"    }\n" +
-				"  },\n" +
-				"  \"host\": \"petstore.swagger.io\",\n" +
-				"  \"basePath\": \"/v2\",\n" +
-				"  \"tags\": [\n" +
-				"    {\n" +
-				"      \"name\": \"pet\",\n" +
-				"      \"description\": \"Everything about your Pets\",\n" +
-				"      \"externalDocs\": {\n" +
-				"        \"description\": \"Find out more\",\n" +
-				"        \"url\": \"http://swagger.io\"\n" +
-				"      }\n" +
-				"    },\n" +
-				"    {\n" +
-				"      \"name\": \"store\",\n" +
-				"      \"description\": \"Access to Petstore orders\"\n" +
-				"    },\n" +
-				"    {\n" +
-				"      \"name\": \"user\",\n" +
-				"      \"description\": \"Operations about user\",\n" +
-				"      \"externalDocs\": {\n" +
-				"        \"description\": \"Find out more about our store\",\n" +
-				"        \"url\": \"http://swagger.io\"\n" +
-				"      }\n" +
-				"    }\n" +
-				"  ],\n" +
-				"  \"schemes\": [\n" +
-				"    \"https\",\n" +
-				"    \"http\"\n" +
-				"  ],\n" +
-				"  \"paths\": {\n" +
-				"    \"/pet/{petId}/uploadImage\": {\n" +
-				"      \"post\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"pet\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"uploads an image\",\n" +
-				"        \"description\": \"\",\n" +
-				"        \"operationId\": \"uploadFile\",\n" +
-				"        \"consumes\": [\n" +
-				"          \"multipart/form-data\"\n" +
-				"        ],\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"name\": \"petId\",\n" +
-				"            \"in\": \"path\",\n" +
-				"            \"description\": \"ID of pet to update\",\n" +
-				"            \"required\": true,\n" +
-				"            \"type\": \"integer\",\n" +
-				"            \"format\": \"int64\"\n" +
-				"          },\n" +
-				"          {\n" +
-				"            \"name\": \"additionalMetadata\",\n" +
-				"            \"in\": \"formData\",\n" +
-				"            \"description\": \"Additional data to pass to server\",\n" +
-				"            \"required\": false,\n" +
-				"            \"type\": \"string\"\n" +
-				"          },\n" +
-				"          {\n" +
-				"            \"name\": \"file\",\n" +
-				"            \"in\": \"formData\",\n" +
-				"            \"description\": \"file to upload\",\n" +
-				"            \"required\": false,\n" +
-				"            \"type\": \"file\"\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"200\": {\n" +
-				"            \"description\": \"successful operation\",\n" +
-				"            \"schema\": {\n" +
-				"              \"$ref\": \"#/definitions/ApiResponse\"\n" +
-				"            }\n" +
-				"          }\n" +
-				"        },\n" +
-				"        \"security\": [\n" +
-				"          {\n" +
-				"            \"petstore_auth\": [\n" +
-				"              \"write:pets\",\n" +
-				"              \"read:pets\"\n" +
-				"            ]\n" +
-				"          }\n" +
-				"        ]\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"/pet\": {\n" +
-				"      \"post\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"pet\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Add a new pet to the store\",\n" +
-				"        \"description\": \"\",\n" +
-				"        \"operationId\": \"addPet\",\n" +
-				"        \"consumes\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"in\": \"body\",\n" +
-				"            \"name\": \"body\",\n" +
-				"            \"description\": \"Pet object that needs to be added to the store\",\n" +
-				"            \"required\": true,\n" +
-				"            \"schema\": {\n" +
-				"              \"$ref\": \"#/definitions/Pet\"\n" +
-				"            }\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"405\": {\n" +
-				"            \"description\": \"Invalid input\"\n" +
-				"          }\n" +
-				"        },\n" +
-				"        \"security\": [\n" +
-				"          {\n" +
-				"            \"petstore_auth\": [\n" +
-				"              \"write:pets\",\n" +
-				"              \"read:pets\"\n" +
-				"            ]\n" +
-				"          }\n" +
-				"        ]\n" +
-				"      },\n" +
-				"      \"put\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"pet\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Update an existing pet\",\n" +
-				"        \"description\": \"\",\n" +
-				"        \"operationId\": \"updatePet\",\n" +
-				"        \"consumes\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"in\": \"body\",\n" +
-				"            \"name\": \"body\",\n" +
-				"            \"description\": \"Pet object that needs to be added to the store\",\n" +
-				"            \"required\": true,\n" +
-				"            \"schema\": {\n" +
-				"              \"$ref\": \"#/definitions/Pet\"\n" +
-				"            }\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"400\": {\n" +
-				"            \"description\": \"Invalid ID supplied\"\n" +
-				"          },\n" +
-				"          \"404\": {\n" +
-				"            \"description\": \"Pet not found\"\n" +
-				"          },\n" +
-				"          \"405\": {\n" +
-				"            \"description\": \"Validation exception\"\n" +
-				"          }\n" +
-				"        },\n" +
-				"        \"security\": [\n" +
-				"          {\n" +
-				"            \"petstore_auth\": [\n" +
-				"              \"write:pets\",\n" +
-				"              \"read:pets\"\n" +
-				"            ]\n" +
-				"          }\n" +
-				"        ]\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"/pet/findByStatus\": {\n" +
-				"      \"get\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"pet\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Finds Pets by status\",\n" +
-				"        \"description\": \"Multiple status values can be provided with comma separated strings\",\n" +
-				"        \"operationId\": \"findPetsByStatus\",\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"name\": \"status\",\n" +
-				"            \"in\": \"query\",\n" +
-				"            \"description\": \"Status values that need to be considered for filter\",\n" +
-				"            \"required\": true,\n" +
-				"            \"type\": \"array\",\n" +
-				"            \"items\": {\n" +
-				"              \"type\": \"string\",\n" +
-				"              \"enum\": [\n" +
-				"                \"available\",\n" +
-				"                \"pending\",\n" +
-				"                \"sold\"\n" +
-				"              ],\n" +
-				"              \"default\": \"available\"\n" +
-				"            },\n" +
-				"            \"collectionFormat\": \"multi\"\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"200\": {\n" +
-				"            \"description\": \"successful operation\",\n" +
-				"            \"schema\": {\n" +
-				"              \"type\": \"array\",\n" +
-				"              \"items\": {\n" +
-				"                \"$ref\": \"#/definitions/Pet\"\n" +
-				"              }\n" +
-				"            }\n" +
-				"          },\n" +
-				"          \"400\": {\n" +
-				"            \"description\": \"Invalid status value\"\n" +
-				"          }\n" +
-				"        },\n" +
-				"        \"security\": [\n" +
-				"          {\n" +
-				"            \"petstore_auth\": [\n" +
-				"              \"write:pets\",\n" +
-				"              \"read:pets\"\n" +
-				"            ]\n" +
-				"          }\n" +
-				"        ]\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"/pet/findByTags\": {\n" +
-				"      \"get\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"pet\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Finds Pets by tags\",\n" +
-				"        \"description\": \"Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.\",\n" +
-				"        \"operationId\": \"findPetsByTags\",\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"name\": \"tags\",\n" +
-				"            \"in\": \"query\",\n" +
-				"            \"description\": \"Tags to filter by\",\n" +
-				"            \"required\": true,\n" +
-				"            \"type\": \"array\",\n" +
-				"            \"items\": {\n" +
-				"              \"type\": \"string\"\n" +
-				"            },\n" +
-				"            \"collectionFormat\": \"multi\"\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"200\": {\n" +
-				"            \"description\": \"successful operation\",\n" +
-				"            \"schema\": {\n" +
-				"              \"type\": \"array\",\n" +
-				"              \"items\": {\n" +
-				"                \"$ref\": \"#/definitions/Pet\"\n" +
-				"              }\n" +
-				"            }\n" +
-				"          },\n" +
-				"          \"400\": {\n" +
-				"            \"description\": \"Invalid tag value\"\n" +
-				"          }\n" +
-				"        },\n" +
-				"        \"security\": [\n" +
-				"          {\n" +
-				"            \"petstore_auth\": [\n" +
-				"              \"write:pets\",\n" +
-				"              \"read:pets\"\n" +
-				"            ]\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"deprecated\": true\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"/pet/{petId}\": {\n" +
-				"      \"get\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"pet\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Find pet by ID\",\n" +
-				"        \"description\": \"Returns a single pet\",\n" +
-				"        \"operationId\": \"getPetById\",\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"name\": \"petId\",\n" +
-				"            \"in\": \"path\",\n" +
-				"            \"description\": \"ID of pet to return\",\n" +
-				"            \"required\": true,\n" +
-				"            \"type\": \"integer\",\n" +
-				"            \"format\": \"int64\"\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"200\": {\n" +
-				"            \"description\": \"successful operation\",\n" +
-				"            \"schema\": {\n" +
-				"              \"$ref\": \"#/definitions/Pet\"\n" +
-				"            }\n" +
-				"          },\n" +
-				"          \"400\": {\n" +
-				"            \"description\": \"Invalid ID supplied\"\n" +
-				"          },\n" +
-				"          \"404\": {\n" +
-				"            \"description\": \"Pet not found\"\n" +
-				"          }\n" +
-				"        },\n" +
-				"        \"security\": [\n" +
-				"          {\n" +
-				"            \"api_key\": []\n" +
-				"          }\n" +
-				"        ]\n" +
-				"      },\n" +
-				"      \"post\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"pet\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Updates a pet in the store with form data\",\n" +
-				"        \"description\": \"\",\n" +
-				"        \"operationId\": \"updatePetWithForm\",\n" +
-				"        \"consumes\": [\n" +
-				"          \"application/x-www-form-urlencoded\"\n" +
-				"        ],\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"name\": \"petId\",\n" +
-				"            \"in\": \"path\",\n" +
-				"            \"description\": \"ID of pet that needs to be updated\",\n" +
-				"            \"required\": true,\n" +
-				"            \"type\": \"integer\",\n" +
-				"            \"format\": \"int64\"\n" +
-				"          },\n" +
-				"          {\n" +
-				"            \"name\": \"name\",\n" +
-				"            \"in\": \"formData\",\n" +
-				"            \"description\": \"Updated name of the pet\",\n" +
-				"            \"required\": false,\n" +
-				"            \"type\": \"string\"\n" +
-				"          },\n" +
-				"          {\n" +
-				"            \"name\": \"status\",\n" +
-				"            \"in\": \"formData\",\n" +
-				"            \"description\": \"Updated status of the pet\",\n" +
-				"            \"required\": false,\n" +
-				"            \"type\": \"string\"\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"405\": {\n" +
-				"            \"description\": \"Invalid input\"\n" +
-				"          }\n" +
-				"        },\n" +
-				"        \"security\": [\n" +
-				"          {\n" +
-				"            \"petstore_auth\": [\n" +
-				"              \"write:pets\",\n" +
-				"              \"read:pets\"\n" +
-				"            ]\n" +
-				"          }\n" +
-				"        ]\n" +
-				"      },\n" +
-				"      \"delete\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"pet\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Deletes a pet\",\n" +
-				"        \"description\": \"\",\n" +
-				"        \"operationId\": \"deletePet\",\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"name\": \"api_key\",\n" +
-				"            \"in\": \"header\",\n" +
-				"            \"required\": false,\n" +
-				"            \"type\": \"string\"\n" +
-				"          },\n" +
-				"          {\n" +
-				"            \"name\": \"petId\",\n" +
-				"            \"in\": \"path\",\n" +
-				"            \"description\": \"Pet id to delete\",\n" +
-				"            \"required\": true,\n" +
-				"            \"type\": \"integer\",\n" +
-				"            \"format\": \"int64\"\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"400\": {\n" +
-				"            \"description\": \"Invalid ID supplied\"\n" +
-				"          },\n" +
-				"          \"404\": {\n" +
-				"            \"description\": \"Pet not found\"\n" +
-				"          }\n" +
-				"        },\n" +
-				"        \"security\": [\n" +
-				"          {\n" +
-				"            \"petstore_auth\": [\n" +
-				"              \"write:pets\",\n" +
-				"              \"read:pets\"\n" +
-				"            ]\n" +
-				"          }\n" +
-				"        ]\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"/store/order\": {\n" +
-				"      \"post\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"store\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Place an order for a pet\",\n" +
-				"        \"description\": \"\",\n" +
-				"        \"operationId\": \"placeOrder\",\n" +
-				"        \"consumes\": [\n" +
-				"          \"application/json\"\n" +
-				"        ],\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"in\": \"body\",\n" +
-				"            \"name\": \"body\",\n" +
-				"            \"description\": \"order placed for purchasing the pet\",\n" +
-				"            \"required\": true,\n" +
-				"            \"schema\": {\n" +
-				"              \"$ref\": \"#/definitions/Order\"\n" +
-				"            }\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"200\": {\n" +
-				"            \"description\": \"successful operation\",\n" +
-				"            \"schema\": {\n" +
-				"              \"$ref\": \"#/definitions/Order\"\n" +
-				"            }\n" +
-				"          },\n" +
-				"          \"400\": {\n" +
-				"            \"description\": \"Invalid Order\"\n" +
-				"          }\n" +
-				"        }\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"/store/order/{orderId}\": {\n" +
-				"      \"get\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"store\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Find purchase order by ID\",\n" +
-				"        \"description\": \"For valid response try integer IDs with value >= 1 and <= 10. Other values will generated exceptions\",\n" +
-				"        \"operationId\": \"getOrderById\",\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"name\": \"orderId\",\n" +
-				"            \"in\": \"path\",\n" +
-				"            \"description\": \"ID of pet that needs to be fetched\",\n" +
-				"            \"required\": true,\n" +
-				"            \"type\": \"integer\",\n" +
-				"            \"maximum\": 10,\n" +
-				"            \"minimum\": 1,\n" +
-				"            \"format\": \"int64\"\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"200\": {\n" +
-				"            \"description\": \"successful operation\",\n" +
-				"            \"schema\": {\n" +
-				"              \"$ref\": \"#/definitions/Order\"\n" +
-				"            }\n" +
-				"          },\n" +
-				"          \"400\": {\n" +
-				"            \"description\": \"Invalid ID supplied\"\n" +
-				"          },\n" +
-				"          \"404\": {\n" +
-				"            \"description\": \"Order not found\"\n" +
-				"          }\n" +
-				"        }\n" +
-				"      },\n" +
-				"      \"delete\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"store\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Delete purchase order by ID\",\n" +
-				"        \"description\": \"For valid response try integer IDs with positive integer value. Negative or non-integer values will generate API errors\",\n" +
-				"        \"operationId\": \"deleteOrder\",\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"name\": \"orderId\",\n" +
-				"            \"in\": \"path\",\n" +
-				"            \"description\": \"ID of the order that needs to be deleted\",\n" +
-				"            \"required\": true,\n" +
-				"            \"type\": \"integer\",\n" +
-				"            \"minimum\": 1,\n" +
-				"            \"format\": \"int64\"\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"400\": {\n" +
-				"            \"description\": \"Invalid ID supplied\"\n" +
-				"          },\n" +
-				"          \"404\": {\n" +
-				"            \"description\": \"Order not found\"\n" +
-				"          }\n" +
-				"        }\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"/store/inventory\": {\n" +
-				"      \"get\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"store\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Returns pet inventories by status\",\n" +
-				"        \"description\": \"Returns a map of status codes to quantities\",\n" +
-				"        \"operationId\": \"getInventory\",\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [],\n" +
-				"        \"responses\": {\n" +
-				"          \"200\": {\n" +
-				"            \"description\": \"successful operation\",\n" +
-				"            \"schema\": {\n" +
-				"              \"type\": \"object\",\n" +
-				"              \"additionalProperties\": {\n" +
-				"                \"type\": \"integer\",\n" +
-				"                \"format\": \"int32\"\n" +
-				"              }\n" +
-				"            }\n" +
-				"          }\n" +
-				"        },\n" +
-				"        \"security\": [\n" +
-				"          {\n" +
-				"            \"api_key\": []\n" +
-				"          }\n" +
-				"        ]\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"/user/createWithArray\": {\n" +
-				"      \"post\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"user\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Creates list of users with given input array\",\n" +
-				"        \"description\": \"\",\n" +
-				"        \"operationId\": \"createUsersWithArrayInput\",\n" +
-				"        \"consumes\": [\n" +
-				"          \"application/json\"\n" +
-				"        ],\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"in\": \"body\",\n" +
-				"            \"name\": \"body\",\n" +
-				"            \"description\": \"List of user object\",\n" +
-				"            \"required\": true,\n" +
-				"            \"schema\": {\n" +
-				"              \"type\": \"array\",\n" +
-				"              \"items\": {\n" +
-				"                \"$ref\": \"#/definitions/User\"\n" +
-				"              }\n" +
-				"            }\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"default\": {\n" +
-				"            \"description\": \"successful operation\"\n" +
-				"          }\n" +
-				"        }\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"/user/createWithList\": {\n" +
-				"      \"post\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"user\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Creates list of users with given input array\",\n" +
-				"        \"description\": \"\",\n" +
-				"        \"operationId\": \"createUsersWithListInput\",\n" +
-				"        \"consumes\": [\n" +
-				"          \"application/json\"\n" +
-				"        ],\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"in\": \"body\",\n" +
-				"            \"name\": \"body\",\n" +
-				"            \"description\": \"List of user object\",\n" +
-				"            \"required\": true,\n" +
-				"            \"schema\": {\n" +
-				"              \"type\": \"array\",\n" +
-				"              \"items\": {\n" +
-				"                \"$ref\": \"#/definitions/User\"\n" +
-				"              }\n" +
-				"            }\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"default\": {\n" +
-				"            \"description\": \"successful operation\"\n" +
-				"          }\n" +
-				"        }\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"/user/{username}\": {\n" +
-				"      \"get\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"user\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Get user by user name\",\n" +
-				"        \"description\": \"\",\n" +
-				"        \"operationId\": \"getUserByName\",\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"name\": \"username\",\n" +
-				"            \"in\": \"path\",\n" +
-				"            \"description\": \"The name that needs to be fetched. Use user1 for testing. \",\n" +
-				"            \"required\": true,\n" +
-				"            \"type\": \"string\"\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"200\": {\n" +
-				"            \"description\": \"successful operation\",\n" +
-				"            \"schema\": {\n" +
-				"              \"$ref\": \"#/definitions/User\"\n" +
-				"            }\n" +
-				"          },\n" +
-				"          \"400\": {\n" +
-				"            \"description\": \"Invalid username supplied\"\n" +
-				"          },\n" +
-				"          \"404\": {\n" +
-				"            \"description\": \"User not found\"\n" +
-				"          }\n" +
-				"        }\n" +
-				"      },\n" +
-				"      \"put\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"user\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Updated user\",\n" +
-				"        \"description\": \"This can only be done by the logged in user.\",\n" +
-				"        \"operationId\": \"updateUser\",\n" +
-				"        \"consumes\": [\n" +
-				"          \"application/json\"\n" +
-				"        ],\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"name\": \"username\",\n" +
-				"            \"in\": \"path\",\n" +
-				"            \"description\": \"name that need to be updated\",\n" +
-				"            \"required\": true,\n" +
-				"            \"type\": \"string\"\n" +
-				"          },\n" +
-				"          {\n" +
-				"            \"in\": \"body\",\n" +
-				"            \"name\": \"body\",\n" +
-				"            \"description\": \"Updated user object\",\n" +
-				"            \"required\": true,\n" +
-				"            \"schema\": {\n" +
-				"              \"$ref\": \"#/definitions/User\"\n" +
-				"            }\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"400\": {\n" +
-				"            \"description\": \"Invalid user supplied\"\n" +
-				"          },\n" +
-				"          \"404\": {\n" +
-				"            \"description\": \"User not found\"\n" +
-				"          }\n" +
-				"        }\n" +
-				"      },\n" +
-				"      \"delete\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"user\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Delete user\",\n" +
-				"        \"description\": \"This can only be done by the logged in user.\",\n" +
-				"        \"operationId\": \"deleteUser\",\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"name\": \"username\",\n" +
-				"            \"in\": \"path\",\n" +
-				"            \"description\": \"The name that needs to be deleted\",\n" +
-				"            \"required\": true,\n" +
-				"            \"type\": \"string\"\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"400\": {\n" +
-				"            \"description\": \"Invalid username supplied\"\n" +
-				"          },\n" +
-				"          \"404\": {\n" +
-				"            \"description\": \"User not found\"\n" +
-				"          }\n" +
-				"        }\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"/user/login\": {\n" +
-				"      \"get\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"user\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Logs user into the system\",\n" +
-				"        \"description\": \"\",\n" +
-				"        \"operationId\": \"loginUser\",\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"name\": \"username\",\n" +
-				"            \"in\": \"query\",\n" +
-				"            \"description\": \"The user name for login\",\n" +
-				"            \"required\": true,\n" +
-				"            \"type\": \"string\"\n" +
-				"          },\n" +
-				"          {\n" +
-				"            \"name\": \"password\",\n" +
-				"            \"in\": \"query\",\n" +
-				"            \"description\": \"The password for login in clear text\",\n" +
-				"            \"required\": true,\n" +
-				"            \"type\": \"string\"\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"200\": {\n" +
-				"            \"description\": \"successful operation\",\n" +
-				"            \"headers\": {\n" +
-				"              \"X-Expires-After\": {\n" +
-				"                \"type\": \"string\",\n" +
-				"                \"format\": \"date-time\",\n" +
-				"                \"description\": \"date in UTC when token expires\"\n" +
-				"              },\n" +
-				"              \"X-Rate-Limit\": {\n" +
-				"                \"type\": \"integer\",\n" +
-				"                \"format\": \"int32\",\n" +
-				"                \"description\": \"calls per hour allowed by the user\"\n" +
-				"              }\n" +
-				"            },\n" +
-				"            \"schema\": {\n" +
-				"              \"type\": \"string\"\n" +
-				"            }\n" +
-				"          },\n" +
-				"          \"400\": {\n" +
-				"            \"description\": \"Invalid username/password supplied\"\n" +
-				"          }\n" +
-				"        }\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"/user/logout\": {\n" +
-				"      \"get\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"user\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Logs out current logged in user session\",\n" +
-				"        \"description\": \"\",\n" +
-				"        \"operationId\": \"logoutUser\",\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [],\n" +
-				"        \"responses\": {\n" +
-				"          \"default\": {\n" +
-				"            \"description\": \"successful operation\"\n" +
-				"          }\n" +
-				"        }\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"/user\": {\n" +
-				"      \"post\": {\n" +
-				"        \"tags\": [\n" +
-				"          \"user\"\n" +
-				"        ],\n" +
-				"        \"summary\": \"Create user\",\n" +
-				"        \"description\": \"This can only be done by the logged in user.\",\n" +
-				"        \"operationId\": \"createUser\",\n" +
-				"        \"consumes\": [\n" +
-				"          \"application/json\"\n" +
-				"        ],\n" +
-				"        \"produces\": [\n" +
-				"          \"application/json\",\n" +
-				"          \"application/xml\"\n" +
-				"        ],\n" +
-				"        \"parameters\": [\n" +
-				"          {\n" +
-				"            \"in\": \"body\",\n" +
-				"            \"name\": \"body\",\n" +
-				"            \"description\": \"Created user object\",\n" +
-				"            \"required\": true,\n" +
-				"            \"schema\": {\n" +
-				"              \"$ref\": \"#/definitions/User\"\n" +
-				"            }\n" +
-				"          }\n" +
-				"        ],\n" +
-				"        \"responses\": {\n" +
-				"          \"default\": {\n" +
-				"            \"description\": \"successful operation\"\n" +
-				"          }\n" +
-				"        }\n" +
-				"      }\n" +
-				"    }\n" +
-				"  },\n" +
-				"  \"securityDefinitions\": {\n" +
-				"    \"api_key\": {\n" +
-				"      \"type\": \"apiKey\",\n" +
-				"      \"name\": \"api_key\",\n" +
-				"      \"in\": \"header\"\n" +
-				"    },\n" +
-				"    \"petstore_auth\": {\n" +
-				"      \"type\": \"oauth2\",\n" +
-				"      \"authorizationUrl\": \"https://petstore.swagger.io/oauth/authorize\",\n" +
-				"      \"flow\": \"implicit\",\n" +
-				"      \"scopes\": {\n" +
-				"        \"read:pets\": \"read your pets\",\n" +
-				"        \"write:pets\": \"modify pets in your account\"\n" +
-				"      }\n" +
-				"    }\n" +
-				"  },\n" +
-				"  \"definitions\": {\n" +
-				"    \"ApiResponse\": {\n" +
-				"      \"type\": \"object\",\n" +
-				"      \"properties\": {\n" +
-				"        \"code\": {\n" +
-				"          \"type\": \"integer\",\n" +
-				"          \"format\": \"int32\"\n" +
-				"        },\n" +
-				"        \"type\": {\n" +
-				"          \"type\": \"string\"\n" +
-				"        },\n" +
-				"        \"message\": {\n" +
-				"          \"type\": \"string\"\n" +
-				"        }\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"Category\": {\n" +
-				"      \"type\": \"object\",\n" +
-				"      \"properties\": {\n" +
-				"        \"id\": {\n" +
-				"          \"type\": \"integer\",\n" +
-				"          \"format\": \"int64\"\n" +
-				"        },\n" +
-				"        \"name\": {\n" +
-				"          \"type\": \"string\"\n" +
-				"        }\n" +
-				"      },\n" +
-				"      \"xml\": {\n" +
-				"        \"name\": \"Category\"\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"Pet\": {\n" +
-				"      \"type\": \"object\",\n" +
-				"      \"required\": [\n" +
-				"        \"name\",\n" +
-				"        \"photoUrls\"\n" +
-				"      ],\n" +
-				"      \"properties\": {\n" +
-				"        \"id\": {\n" +
-				"          \"type\": \"integer\",\n" +
-				"          \"format\": \"int64\"\n" +
-				"        },\n" +
-				"        \"category\": {\n" +
-				"          \"$ref\": \"#/definitions/Category\"\n" +
-				"        },\n" +
-				"        \"name\": {\n" +
-				"          \"type\": \"string\",\n" +
-				"          \"example\": \"doggie\"\n" +
-				"        },\n" +
-				"        \"photoUrls\": {\n" +
-				"          \"type\": \"array\",\n" +
-				"          \"xml\": {\n" +
-				"            \"wrapped\": true\n" +
-				"          },\n" +
-				"          \"items\": {\n" +
-				"            \"type\": \"string\",\n" +
-				"            \"xml\": {\n" +
-				"              \"name\": \"photoUrl\"\n" +
-				"            }\n" +
-				"          }\n" +
-				"        },\n" +
-				"        \"tags\": {\n" +
-				"          \"type\": \"array\",\n" +
-				"          \"xml\": {\n" +
-				"            \"wrapped\": true\n" +
-				"          },\n" +
-				"          \"items\": {\n" +
-				"            \"xml\": {\n" +
-				"              \"name\": \"tag\"\n" +
-				"            },\n" +
-				"            \"$ref\": \"#/definitions/Tag\"\n" +
-				"          }\n" +
-				"        },\n" +
-				"        \"status\": {\n" +
-				"          \"type\": \"string\",\n" +
-				"          \"description\": \"pet status in the store\",\n" +
-				"          \"enum\": [\n" +
-				"            \"available\",\n" +
-				"            \"pending\",\n" +
-				"            \"sold\"\n" +
-				"          ]\n" +
-				"        }\n" +
-				"      },\n" +
-				"      \"xml\": {\n" +
-				"        \"name\": \"Pet\"\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"Tag\": {\n" +
-				"      \"type\": \"object\",\n" +
-				"      \"properties\": {\n" +
-				"        \"id\": {\n" +
-				"          \"type\": \"integer\",\n" +
-				"          \"format\": \"int64\"\n" +
-				"        },\n" +
-				"        \"name\": {\n" +
-				"          \"type\": \"string\"\n" +
-				"        }\n" +
-				"      },\n" +
-				"      \"xml\": {\n" +
-				"        \"name\": \"Tag\"\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"Order\": {\n" +
-				"      \"type\": \"object\",\n" +
-				"      \"properties\": {\n" +
-				"        \"id\": {\n" +
-				"          \"type\": \"integer\",\n" +
-				"          \"format\": \"int64\"\n" +
-				"        },\n" +
-				"        \"petId\": {\n" +
-				"          \"type\": \"integer\",\n" +
-				"          \"format\": \"int64\"\n" +
-				"        },\n" +
-				"        \"quantity\": {\n" +
-				"          \"type\": \"integer\",\n" +
-				"          \"format\": \"int32\"\n" +
-				"        },\n" +
-				"        \"shipDate\": {\n" +
-				"          \"type\": \"string\",\n" +
-				"          \"format\": \"date-time\"\n" +
-				"        },\n" +
-				"        \"status\": {\n" +
-				"          \"type\": \"string\",\n" +
-				"          \"description\": \"Order Status\",\n" +
-				"          \"enum\": [\n" +
-				"            \"placed\",\n" +
-				"            \"approved\",\n" +
-				"            \"delivered\"\n" +
-				"          ]\n" +
-				"        },\n" +
-				"        \"complete\": {\n" +
-				"          \"type\": \"boolean\"\n" +
-				"        }\n" +
-				"      },\n" +
-				"      \"xml\": {\n" +
-				"        \"name\": \"Order\"\n" +
-				"      }\n" +
-				"    },\n" +
-				"    \"User\": {\n" +
-				"      \"type\": \"object\",\n" +
-				"      \"properties\": {\n" +
-				"        \"id\": {\n" +
-				"          \"type\": \"integer\",\n" +
-				"          \"format\": \"int64\"\n" +
-				"        },\n" +
-				"        \"username\": {\n" +
-				"          \"type\": \"string\"\n" +
-				"        },\n" +
-				"        \"firstName\": {\n" +
-				"          \"type\": \"string\"\n" +
-				"        },\n" +
-				"        \"lastName\": {\n" +
-				"          \"type\": \"string\"\n" +
-				"        },\n" +
-				"        \"email\": {\n" +
-				"          \"type\": \"string\"\n" +
-				"        },\n" +
-				"        \"password\": {\n" +
-				"          \"type\": \"string\"\n" +
-				"        },\n" +
-				"        \"phone\": {\n" +
-				"          \"type\": \"string\"\n" +
-				"        },\n" +
-				"        \"userStatus\": {\n" +
-				"          \"type\": \"integer\",\n" +
-				"          \"format\": \"int32\",\n" +
-				"          \"description\": \"User Status\"\n" +
-				"        }\n" +
-				"      },\n" +
-				"      \"xml\": {\n" +
-				"        \"name\": \"User\"\n" +
-				"      }\n" +
-				"    }\n" +
-				"  },\n" +
-				"  \"externalDocs\": {\n" +
-				"    \"description\": \"Find out more about Swagger\",\n" +
-				"    \"url\": \"http://swagger.io\"\n" +
-				"  }\n" +
-				"}";
+		String swagger2Str = "{\n" + "  \"swagger\": \"2.0\",\n" + "  \"info\": {\n"
+				+ "    \"description\": \"This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.\",\n"
+				+ "    \"version\": \"1.0.6\",\n" + "    \"title\": \"Swagger Petstore\",\n"
+				+ "    \"termsOfService\": \"http://swagger.io/terms/\",\n" + "    \"contact\": {\n"
+				+ "      \"email\": \"apiteam@swagger.io\"\n" + "    },\n" + "    \"license\": {\n"
+				+ "      \"name\": \"Apache 2.0\",\n"
+				+ "      \"url\": \"http://www.apache.org/licenses/LICENSE-2.0.html\"\n" + "    }\n" + "  },\n"
+				+ "  \"host\": \"petstore.swagger.io\",\n" + "  \"basePath\": \"/v2\",\n" + "  \"tags\": [\n"
+				+ "    {\n" + "      \"name\": \"pet\",\n" + "      \"description\": \"Everything about your Pets\",\n"
+				+ "      \"externalDocs\": {\n" + "        \"description\": \"Find out more\",\n"
+				+ "        \"url\": \"http://swagger.io\"\n" + "      }\n" + "    },\n" + "    {\n"
+				+ "      \"name\": \"store\",\n" + "      \"description\": \"Access to Petstore orders\"\n" + "    },\n"
+				+ "    {\n" + "      \"name\": \"user\",\n" + "      \"description\": \"Operations about user\",\n"
+				+ "      \"externalDocs\": {\n" + "        \"description\": \"Find out more about our store\",\n"
+				+ "        \"url\": \"http://swagger.io\"\n" + "      }\n" + "    }\n" + "  ],\n" + "  \"schemes\": [\n"
+				+ "    \"https\",\n" + "    \"http\"\n" + "  ],\n" + "  \"paths\": {\n"
+				+ "    \"/pet/{petId}/uploadImage\": {\n" + "      \"post\": {\n" + "        \"tags\": [\n"
+				+ "          \"pet\"\n" + "        ],\n" + "        \"summary\": \"uploads an image\",\n"
+				+ "        \"description\": \"\",\n" + "        \"operationId\": \"uploadFile\",\n"
+				+ "        \"consumes\": [\n" + "          \"multipart/form-data\"\n" + "        ],\n"
+				+ "        \"produces\": [\n" + "          \"application/json\"\n" + "        ],\n"
+				+ "        \"parameters\": [\n" + "          {\n" + "            \"name\": \"petId\",\n"
+				+ "            \"in\": \"path\",\n" + "            \"description\": \"ID of pet to update\",\n"
+				+ "            \"required\": true,\n" + "            \"type\": \"integer\",\n"
+				+ "            \"format\": \"int64\"\n" + "          },\n" + "          {\n"
+				+ "            \"name\": \"additionalMetadata\",\n" + "            \"in\": \"formData\",\n"
+				+ "            \"description\": \"Additional data to pass to server\",\n"
+				+ "            \"required\": false,\n" + "            \"type\": \"string\"\n" + "          },\n"
+				+ "          {\n" + "            \"name\": \"file\",\n" + "            \"in\": \"formData\",\n"
+				+ "            \"description\": \"file to upload\",\n" + "            \"required\": false,\n"
+				+ "            \"type\": \"file\"\n" + "          }\n" + "        ],\n" + "        \"responses\": {\n"
+				+ "          \"200\": {\n" + "            \"description\": \"successful operation\",\n"
+				+ "            \"schema\": {\n" + "              \"$ref\": \"#/definitions/ApiResponse\"\n"
+				+ "            }\n" + "          }\n" + "        },\n" + "        \"security\": [\n" + "          {\n"
+				+ "            \"petstore_auth\": [\n" + "              \"write:pets\",\n"
+				+ "              \"read:pets\"\n" + "            ]\n" + "          }\n" + "        ]\n" + "      }\n"
+				+ "    },\n" + "    \"/pet\": {\n" + "      \"post\": {\n" + "        \"tags\": [\n"
+				+ "          \"pet\"\n" + "        ],\n" + "        \"summary\": \"Add a new pet to the store\",\n"
+				+ "        \"description\": \"\",\n" + "        \"operationId\": \"addPet\",\n"
+				+ "        \"consumes\": [\n" + "          \"application/json\",\n" + "          \"application/xml\"\n"
+				+ "        ],\n" + "        \"produces\": [\n" + "          \"application/json\",\n"
+				+ "          \"application/xml\"\n" + "        ],\n" + "        \"parameters\": [\n" + "          {\n"
+				+ "            \"in\": \"body\",\n" + "            \"name\": \"body\",\n"
+				+ "            \"description\": \"Pet object that needs to be added to the store\",\n"
+				+ "            \"required\": true,\n" + "            \"schema\": {\n"
+				+ "              \"$ref\": \"#/definitions/Pet\"\n" + "            }\n" + "          }\n"
+				+ "        ],\n" + "        \"responses\": {\n" + "          \"405\": {\n"
+				+ "            \"description\": \"Invalid input\"\n" + "          }\n" + "        },\n"
+				+ "        \"security\": [\n" + "          {\n" + "            \"petstore_auth\": [\n"
+				+ "              \"write:pets\",\n" + "              \"read:pets\"\n" + "            ]\n"
+				+ "          }\n" + "        ]\n" + "      },\n" + "      \"put\": {\n" + "        \"tags\": [\n"
+				+ "          \"pet\"\n" + "        ],\n" + "        \"summary\": \"Update an existing pet\",\n"
+				+ "        \"description\": \"\",\n" + "        \"operationId\": \"updatePet\",\n"
+				+ "        \"consumes\": [\n" + "          \"application/json\",\n" + "          \"application/xml\"\n"
+				+ "        ],\n" + "        \"produces\": [\n" + "          \"application/json\",\n"
+				+ "          \"application/xml\"\n" + "        ],\n" + "        \"parameters\": [\n" + "          {\n"
+				+ "            \"in\": \"body\",\n" + "            \"name\": \"body\",\n"
+				+ "            \"description\": \"Pet object that needs to be added to the store\",\n"
+				+ "            \"required\": true,\n" + "            \"schema\": {\n"
+				+ "              \"$ref\": \"#/definitions/Pet\"\n" + "            }\n" + "          }\n"
+				+ "        ],\n" + "        \"responses\": {\n" + "          \"400\": {\n"
+				+ "            \"description\": \"Invalid ID supplied\"\n" + "          },\n" + "          \"404\": {\n"
+				+ "            \"description\": \"Pet not found\"\n" + "          },\n" + "          \"405\": {\n"
+				+ "            \"description\": \"Validation exception\"\n" + "          }\n" + "        },\n"
+				+ "        \"security\": [\n" + "          {\n" + "            \"petstore_auth\": [\n"
+				+ "              \"write:pets\",\n" + "              \"read:pets\"\n" + "            ]\n"
+				+ "          }\n" + "        ]\n" + "      }\n" + "    },\n" + "    \"/pet/findByStatus\": {\n"
+				+ "      \"get\": {\n" + "        \"tags\": [\n" + "          \"pet\"\n" + "        ],\n"
+				+ "        \"summary\": \"Finds Pets by status\",\n"
+				+ "        \"description\": \"Multiple status values can be provided with comma separated strings\",\n"
+				+ "        \"operationId\": \"findPetsByStatus\",\n" + "        \"produces\": [\n"
+				+ "          \"application/json\",\n" + "          \"application/xml\"\n" + "        ],\n"
+				+ "        \"parameters\": [\n" + "          {\n" + "            \"name\": \"status\",\n"
+				+ "            \"in\": \"query\",\n"
+				+ "            \"description\": \"Status values that need to be considered for filter\",\n"
+				+ "            \"required\": true,\n" + "            \"type\": \"array\",\n"
+				+ "            \"items\": {\n" + "              \"type\": \"string\",\n" + "              \"enum\": [\n"
+				+ "                \"available\",\n" + "                \"pending\",\n" + "                \"sold\"\n"
+				+ "              ],\n" + "              \"default\": \"available\"\n" + "            },\n"
+				+ "            \"collectionFormat\": \"multi\"\n" + "          }\n" + "        ],\n"
+				+ "        \"responses\": {\n" + "          \"200\": {\n"
+				+ "            \"description\": \"successful operation\",\n" + "            \"schema\": {\n"
+				+ "              \"type\": \"array\",\n" + "              \"items\": {\n"
+				+ "                \"$ref\": \"#/definitions/Pet\"\n" + "              }\n" + "            }\n"
+				+ "          },\n" + "          \"400\": {\n"
+				+ "            \"description\": \"Invalid status value\"\n" + "          }\n" + "        },\n"
+				+ "        \"security\": [\n" + "          {\n" + "            \"petstore_auth\": [\n"
+				+ "              \"write:pets\",\n" + "              \"read:pets\"\n" + "            ]\n"
+				+ "          }\n" + "        ]\n" + "      }\n" + "    },\n" + "    \"/pet/findByTags\": {\n"
+				+ "      \"get\": {\n" + "        \"tags\": [\n" + "          \"pet\"\n" + "        ],\n"
+				+ "        \"summary\": \"Finds Pets by tags\",\n"
+				+ "        \"description\": \"Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.\",\n"
+				+ "        \"operationId\": \"findPetsByTags\",\n" + "        \"produces\": [\n"
+				+ "          \"application/json\",\n" + "          \"application/xml\"\n" + "        ],\n"
+				+ "        \"parameters\": [\n" + "          {\n" + "            \"name\": \"tags\",\n"
+				+ "            \"in\": \"query\",\n" + "            \"description\": \"Tags to filter by\",\n"
+				+ "            \"required\": true,\n" + "            \"type\": \"array\",\n"
+				+ "            \"items\": {\n" + "              \"type\": \"string\"\n" + "            },\n"
+				+ "            \"collectionFormat\": \"multi\"\n" + "          }\n" + "        ],\n"
+				+ "        \"responses\": {\n" + "          \"200\": {\n"
+				+ "            \"description\": \"successful operation\",\n" + "            \"schema\": {\n"
+				+ "              \"type\": \"array\",\n" + "              \"items\": {\n"
+				+ "                \"$ref\": \"#/definitions/Pet\"\n" + "              }\n" + "            }\n"
+				+ "          },\n" + "          \"400\": {\n" + "            \"description\": \"Invalid tag value\"\n"
+				+ "          }\n" + "        },\n" + "        \"security\": [\n" + "          {\n"
+				+ "            \"petstore_auth\": [\n" + "              \"write:pets\",\n"
+				+ "              \"read:pets\"\n" + "            ]\n" + "          }\n" + "        ],\n"
+				+ "        \"deprecated\": true\n" + "      }\n" + "    },\n" + "    \"/pet/{petId}\": {\n"
+				+ "      \"get\": {\n" + "        \"tags\": [\n" + "          \"pet\"\n" + "        ],\n"
+				+ "        \"summary\": \"Find pet by ID\",\n" + "        \"description\": \"Returns a single pet\",\n"
+				+ "        \"operationId\": \"getPetById\",\n" + "        \"produces\": [\n"
+				+ "          \"application/json\",\n" + "          \"application/xml\"\n" + "        ],\n"
+				+ "        \"parameters\": [\n" + "          {\n" + "            \"name\": \"petId\",\n"
+				+ "            \"in\": \"path\",\n" + "            \"description\": \"ID of pet to return\",\n"
+				+ "            \"required\": true,\n" + "            \"type\": \"integer\",\n"
+				+ "            \"format\": \"int64\"\n" + "          }\n" + "        ],\n"
+				+ "        \"responses\": {\n" + "          \"200\": {\n"
+				+ "            \"description\": \"successful operation\",\n" + "            \"schema\": {\n"
+				+ "              \"$ref\": \"#/definitions/Pet\"\n" + "            }\n" + "          },\n"
+				+ "          \"400\": {\n" + "            \"description\": \"Invalid ID supplied\"\n" + "          },\n"
+				+ "          \"404\": {\n" + "            \"description\": \"Pet not found\"\n" + "          }\n"
+				+ "        },\n" + "        \"security\": [\n" + "          {\n" + "            \"api_key\": []\n"
+				+ "          }\n" + "        ]\n" + "      },\n" + "      \"post\": {\n" + "        \"tags\": [\n"
+				+ "          \"pet\"\n" + "        ],\n"
+				+ "        \"summary\": \"Updates a pet in the store with form data\",\n"
+				+ "        \"description\": \"\",\n" + "        \"operationId\": \"updatePetWithForm\",\n"
+				+ "        \"consumes\": [\n" + "          \"application/x-www-form-urlencoded\"\n" + "        ],\n"
+				+ "        \"produces\": [\n" + "          \"application/json\",\n" + "          \"application/xml\"\n"
+				+ "        ],\n" + "        \"parameters\": [\n" + "          {\n"
+				+ "            \"name\": \"petId\",\n" + "            \"in\": \"path\",\n"
+				+ "            \"description\": \"ID of pet that needs to be updated\",\n"
+				+ "            \"required\": true,\n" + "            \"type\": \"integer\",\n"
+				+ "            \"format\": \"int64\"\n" + "          },\n" + "          {\n"
+				+ "            \"name\": \"name\",\n" + "            \"in\": \"formData\",\n"
+				+ "            \"description\": \"Updated name of the pet\",\n" + "            \"required\": false,\n"
+				+ "            \"type\": \"string\"\n" + "          },\n" + "          {\n"
+				+ "            \"name\": \"status\",\n" + "            \"in\": \"formData\",\n"
+				+ "            \"description\": \"Updated status of the pet\",\n" + "            \"required\": false,\n"
+				+ "            \"type\": \"string\"\n" + "          }\n" + "        ],\n" + "        \"responses\": {\n"
+				+ "          \"405\": {\n" + "            \"description\": \"Invalid input\"\n" + "          }\n"
+				+ "        },\n" + "        \"security\": [\n" + "          {\n" + "            \"petstore_auth\": [\n"
+				+ "              \"write:pets\",\n" + "              \"read:pets\"\n" + "            ]\n"
+				+ "          }\n" + "        ]\n" + "      },\n" + "      \"delete\": {\n" + "        \"tags\": [\n"
+				+ "          \"pet\"\n" + "        ],\n" + "        \"summary\": \"Deletes a pet\",\n"
+				+ "        \"description\": \"\",\n" + "        \"operationId\": \"deletePet\",\n"
+				+ "        \"produces\": [\n" + "          \"application/json\",\n" + "          \"application/xml\"\n"
+				+ "        ],\n" + "        \"parameters\": [\n" + "          {\n"
+				+ "            \"name\": \"api_key\",\n" + "            \"in\": \"header\",\n"
+				+ "            \"required\": false,\n" + "            \"type\": \"string\"\n" + "          },\n"
+				+ "          {\n" + "            \"name\": \"petId\",\n" + "            \"in\": \"path\",\n"
+				+ "            \"description\": \"Pet id to delete\",\n" + "            \"required\": true,\n"
+				+ "            \"type\": \"integer\",\n" + "            \"format\": \"int64\"\n" + "          }\n"
+				+ "        ],\n" + "        \"responses\": {\n" + "          \"400\": {\n"
+				+ "            \"description\": \"Invalid ID supplied\"\n" + "          },\n" + "          \"404\": {\n"
+				+ "            \"description\": \"Pet not found\"\n" + "          }\n" + "        },\n"
+				+ "        \"security\": [\n" + "          {\n" + "            \"petstore_auth\": [\n"
+				+ "              \"write:pets\",\n" + "              \"read:pets\"\n" + "            ]\n"
+				+ "          }\n" + "        ]\n" + "      }\n" + "    },\n" + "    \"/store/order\": {\n"
+				+ "      \"post\": {\n" + "        \"tags\": [\n" + "          \"store\"\n" + "        ],\n"
+				+ "        \"summary\": \"Place an order for a pet\",\n" + "        \"description\": \"\",\n"
+				+ "        \"operationId\": \"placeOrder\",\n" + "        \"consumes\": [\n"
+				+ "          \"application/json\"\n" + "        ],\n" + "        \"produces\": [\n"
+				+ "          \"application/json\",\n" + "          \"application/xml\"\n" + "        ],\n"
+				+ "        \"parameters\": [\n" + "          {\n" + "            \"in\": \"body\",\n"
+				+ "            \"name\": \"body\",\n"
+				+ "            \"description\": \"order placed for purchasing the pet\",\n"
+				+ "            \"required\": true,\n" + "            \"schema\": {\n"
+				+ "              \"$ref\": \"#/definitions/Order\"\n" + "            }\n" + "          }\n"
+				+ "        ],\n" + "        \"responses\": {\n" + "          \"200\": {\n"
+				+ "            \"description\": \"successful operation\",\n" + "            \"schema\": {\n"
+				+ "              \"$ref\": \"#/definitions/Order\"\n" + "            }\n" + "          },\n"
+				+ "          \"400\": {\n" + "            \"description\": \"Invalid Order\"\n" + "          }\n"
+				+ "        }\n" + "      }\n" + "    },\n" + "    \"/store/order/{orderId}\": {\n"
+				+ "      \"get\": {\n" + "        \"tags\": [\n" + "          \"store\"\n" + "        ],\n"
+				+ "        \"summary\": \"Find purchase order by ID\",\n"
+				+ "        \"description\": \"For valid response try integer IDs with value >= 1 and <= 10. Other values will generated exceptions\",\n"
+				+ "        \"operationId\": \"getOrderById\",\n" + "        \"produces\": [\n"
+				+ "          \"application/json\",\n" + "          \"application/xml\"\n" + "        ],\n"
+				+ "        \"parameters\": [\n" + "          {\n" + "            \"name\": \"orderId\",\n"
+				+ "            \"in\": \"path\",\n"
+				+ "            \"description\": \"ID of pet that needs to be fetched\",\n"
+				+ "            \"required\": true,\n" + "            \"type\": \"integer\",\n"
+				+ "            \"maximum\": 10,\n" + "            \"minimum\": 1,\n"
+				+ "            \"format\": \"int64\"\n" + "          }\n" + "        ],\n"
+				+ "        \"responses\": {\n" + "          \"200\": {\n"
+				+ "            \"description\": \"successful operation\",\n" + "            \"schema\": {\n"
+				+ "              \"$ref\": \"#/definitions/Order\"\n" + "            }\n" + "          },\n"
+				+ "          \"400\": {\n" + "            \"description\": \"Invalid ID supplied\"\n" + "          },\n"
+				+ "          \"404\": {\n" + "            \"description\": \"Order not found\"\n" + "          }\n"
+				+ "        }\n" + "      },\n" + "      \"delete\": {\n" + "        \"tags\": [\n"
+				+ "          \"store\"\n" + "        ],\n" + "        \"summary\": \"Delete purchase order by ID\",\n"
+				+ "        \"description\": \"For valid response try integer IDs with positive integer value. Negative or non-integer values will generate API errors\",\n"
+				+ "        \"operationId\": \"deleteOrder\",\n" + "        \"produces\": [\n"
+				+ "          \"application/json\",\n" + "          \"application/xml\"\n" + "        ],\n"
+				+ "        \"parameters\": [\n" + "          {\n" + "            \"name\": \"orderId\",\n"
+				+ "            \"in\": \"path\",\n"
+				+ "            \"description\": \"ID of the order that needs to be deleted\",\n"
+				+ "            \"required\": true,\n" + "            \"type\": \"integer\",\n"
+				+ "            \"minimum\": 1,\n" + "            \"format\": \"int64\"\n" + "          }\n"
+				+ "        ],\n" + "        \"responses\": {\n" + "          \"400\": {\n"
+				+ "            \"description\": \"Invalid ID supplied\"\n" + "          },\n" + "          \"404\": {\n"
+				+ "            \"description\": \"Order not found\"\n" + "          }\n" + "        }\n" + "      }\n"
+				+ "    },\n" + "    \"/store/inventory\": {\n" + "      \"get\": {\n" + "        \"tags\": [\n"
+				+ "          \"store\"\n" + "        ],\n"
+				+ "        \"summary\": \"Returns pet inventories by status\",\n"
+				+ "        \"description\": \"Returns a map of status codes to quantities\",\n"
+				+ "        \"operationId\": \"getInventory\",\n" + "        \"produces\": [\n"
+				+ "          \"application/json\"\n" + "        ],\n" + "        \"parameters\": [],\n"
+				+ "        \"responses\": {\n" + "          \"200\": {\n"
+				+ "            \"description\": \"successful operation\",\n" + "            \"schema\": {\n"
+				+ "              \"type\": \"object\",\n" + "              \"additionalProperties\": {\n"
+				+ "                \"type\": \"integer\",\n" + "                \"format\": \"int32\"\n"
+				+ "              }\n" + "            }\n" + "          }\n" + "        },\n"
+				+ "        \"security\": [\n" + "          {\n" + "            \"api_key\": []\n" + "          }\n"
+				+ "        ]\n" + "      }\n" + "    },\n" + "    \"/user/createWithArray\": {\n"
+				+ "      \"post\": {\n" + "        \"tags\": [\n" + "          \"user\"\n" + "        ],\n"
+				+ "        \"summary\": \"Creates list of users with given input array\",\n"
+				+ "        \"description\": \"\",\n" + "        \"operationId\": \"createUsersWithArrayInput\",\n"
+				+ "        \"consumes\": [\n" + "          \"application/json\"\n" + "        ],\n"
+				+ "        \"produces\": [\n" + "          \"application/json\",\n" + "          \"application/xml\"\n"
+				+ "        ],\n" + "        \"parameters\": [\n" + "          {\n" + "            \"in\": \"body\",\n"
+				+ "            \"name\": \"body\",\n" + "            \"description\": \"List of user object\",\n"
+				+ "            \"required\": true,\n" + "            \"schema\": {\n"
+				+ "              \"type\": \"array\",\n" + "              \"items\": {\n"
+				+ "                \"$ref\": \"#/definitions/User\"\n" + "              }\n" + "            }\n"
+				+ "          }\n" + "        ],\n" + "        \"responses\": {\n" + "          \"default\": {\n"
+				+ "            \"description\": \"successful operation\"\n" + "          }\n" + "        }\n"
+				+ "      }\n" + "    },\n" + "    \"/user/createWithList\": {\n" + "      \"post\": {\n"
+				+ "        \"tags\": [\n" + "          \"user\"\n" + "        ],\n"
+				+ "        \"summary\": \"Creates list of users with given input array\",\n"
+				+ "        \"description\": \"\",\n" + "        \"operationId\": \"createUsersWithListInput\",\n"
+				+ "        \"consumes\": [\n" + "          \"application/json\"\n" + "        ],\n"
+				+ "        \"produces\": [\n" + "          \"application/json\",\n" + "          \"application/xml\"\n"
+				+ "        ],\n" + "        \"parameters\": [\n" + "          {\n" + "            \"in\": \"body\",\n"
+				+ "            \"name\": \"body\",\n" + "            \"description\": \"List of user object\",\n"
+				+ "            \"required\": true,\n" + "            \"schema\": {\n"
+				+ "              \"type\": \"array\",\n" + "              \"items\": {\n"
+				+ "                \"$ref\": \"#/definitions/User\"\n" + "              }\n" + "            }\n"
+				+ "          }\n" + "        ],\n" + "        \"responses\": {\n" + "          \"default\": {\n"
+				+ "            \"description\": \"successful operation\"\n" + "          }\n" + "        }\n"
+				+ "      }\n" + "    },\n" + "    \"/user/{username}\": {\n" + "      \"get\": {\n"
+				+ "        \"tags\": [\n" + "          \"user\"\n" + "        ],\n"
+				+ "        \"summary\": \"Get user by user name\",\n" + "        \"description\": \"\",\n"
+				+ "        \"operationId\": \"getUserByName\",\n" + "        \"produces\": [\n"
+				+ "          \"application/json\",\n" + "          \"application/xml\"\n" + "        ],\n"
+				+ "        \"parameters\": [\n" + "          {\n" + "            \"name\": \"username\",\n"
+				+ "            \"in\": \"path\",\n"
+				+ "            \"description\": \"The name that needs to be fetched. Use user1 for testing. \",\n"
+				+ "            \"required\": true,\n" + "            \"type\": \"string\"\n" + "          }\n"
+				+ "        ],\n" + "        \"responses\": {\n" + "          \"200\": {\n"
+				+ "            \"description\": \"successful operation\",\n" + "            \"schema\": {\n"
+				+ "              \"$ref\": \"#/definitions/User\"\n" + "            }\n" + "          },\n"
+				+ "          \"400\": {\n" + "            \"description\": \"Invalid username supplied\"\n"
+				+ "          },\n" + "          \"404\": {\n" + "            \"description\": \"User not found\"\n"
+				+ "          }\n" + "        }\n" + "      },\n" + "      \"put\": {\n" + "        \"tags\": [\n"
+				+ "          \"user\"\n" + "        ],\n" + "        \"summary\": \"Updated user\",\n"
+				+ "        \"description\": \"This can only be done by the logged in user.\",\n"
+				+ "        \"operationId\": \"updateUser\",\n" + "        \"consumes\": [\n"
+				+ "          \"application/json\"\n" + "        ],\n" + "        \"produces\": [\n"
+				+ "          \"application/json\",\n" + "          \"application/xml\"\n" + "        ],\n"
+				+ "        \"parameters\": [\n" + "          {\n" + "            \"name\": \"username\",\n"
+				+ "            \"in\": \"path\",\n" + "            \"description\": \"name that need to be updated\",\n"
+				+ "            \"required\": true,\n" + "            \"type\": \"string\"\n" + "          },\n"
+				+ "          {\n" + "            \"in\": \"body\",\n" + "            \"name\": \"body\",\n"
+				+ "            \"description\": \"Updated user object\",\n" + "            \"required\": true,\n"
+				+ "            \"schema\": {\n" + "              \"$ref\": \"#/definitions/User\"\n" + "            }\n"
+				+ "          }\n" + "        ],\n" + "        \"responses\": {\n" + "          \"400\": {\n"
+				+ "            \"description\": \"Invalid user supplied\"\n" + "          },\n"
+				+ "          \"404\": {\n" + "            \"description\": \"User not found\"\n" + "          }\n"
+				+ "        }\n" + "      },\n" + "      \"delete\": {\n" + "        \"tags\": [\n"
+				+ "          \"user\"\n" + "        ],\n" + "        \"summary\": \"Delete user\",\n"
+				+ "        \"description\": \"This can only be done by the logged in user.\",\n"
+				+ "        \"operationId\": \"deleteUser\",\n" + "        \"produces\": [\n"
+				+ "          \"application/json\",\n" + "          \"application/xml\"\n" + "        ],\n"
+				+ "        \"parameters\": [\n" + "          {\n" + "            \"name\": \"username\",\n"
+				+ "            \"in\": \"path\",\n"
+				+ "            \"description\": \"The name that needs to be deleted\",\n"
+				+ "            \"required\": true,\n" + "            \"type\": \"string\"\n" + "          }\n"
+				+ "        ],\n" + "        \"responses\": {\n" + "          \"400\": {\n"
+				+ "            \"description\": \"Invalid username supplied\"\n" + "          },\n"
+				+ "          \"404\": {\n" + "            \"description\": \"User not found\"\n" + "          }\n"
+				+ "        }\n" + "      }\n" + "    },\n" + "    \"/user/login\": {\n" + "      \"get\": {\n"
+				+ "        \"tags\": [\n" + "          \"user\"\n" + "        ],\n"
+				+ "        \"summary\": \"Logs user into the system\",\n" + "        \"description\": \"\",\n"
+				+ "        \"operationId\": \"loginUser\",\n" + "        \"produces\": [\n"
+				+ "          \"application/json\",\n" + "          \"application/xml\"\n" + "        ],\n"
+				+ "        \"parameters\": [\n" + "          {\n" + "            \"name\": \"username\",\n"
+				+ "            \"in\": \"query\",\n" + "            \"description\": \"The user name for login\",\n"
+				+ "            \"required\": true,\n" + "            \"type\": \"string\"\n" + "          },\n"
+				+ "          {\n" + "            \"name\": \"password\",\n" + "            \"in\": \"query\",\n"
+				+ "            \"description\": \"The password for login in clear text\",\n"
+				+ "            \"required\": true,\n" + "            \"type\": \"string\"\n" + "          }\n"
+				+ "        ],\n" + "        \"responses\": {\n" + "          \"200\": {\n"
+				+ "            \"description\": \"successful operation\",\n" + "            \"headers\": {\n"
+				+ "              \"X-Expires-After\": {\n" + "                \"type\": \"string\",\n"
+				+ "                \"format\": \"date-time\",\n"
+				+ "                \"description\": \"date in UTC when token expires\"\n" + "              },\n"
+				+ "              \"X-Rate-Limit\": {\n" + "                \"type\": \"integer\",\n"
+				+ "                \"format\": \"int32\",\n"
+				+ "                \"description\": \"calls per hour allowed by the user\"\n" + "              }\n"
+				+ "            },\n" + "            \"schema\": {\n" + "              \"type\": \"string\"\n"
+				+ "            }\n" + "          },\n" + "          \"400\": {\n"
+				+ "            \"description\": \"Invalid username/password supplied\"\n" + "          }\n"
+				+ "        }\n" + "      }\n" + "    },\n" + "    \"/user/logout\": {\n" + "      \"get\": {\n"
+				+ "        \"tags\": [\n" + "          \"user\"\n" + "        ],\n"
+				+ "        \"summary\": \"Logs out current logged in user session\",\n"
+				+ "        \"description\": \"\",\n" + "        \"operationId\": \"logoutUser\",\n"
+				+ "        \"produces\": [\n" + "          \"application/json\",\n" + "          \"application/xml\"\n"
+				+ "        ],\n" + "        \"parameters\": [],\n" + "        \"responses\": {\n"
+				+ "          \"default\": {\n" + "            \"description\": \"successful operation\"\n"
+				+ "          }\n" + "        }\n" + "      }\n" + "    },\n" + "    \"/user\": {\n"
+				+ "      \"post\": {\n" + "        \"tags\": [\n" + "          \"user\"\n" + "        ],\n"
+				+ "        \"summary\": \"Create user\",\n"
+				+ "        \"description\": \"This can only be done by the logged in user.\",\n"
+				+ "        \"operationId\": \"createUser\",\n" + "        \"consumes\": [\n"
+				+ "          \"application/json\"\n" + "        ],\n" + "        \"produces\": [\n"
+				+ "          \"application/json\",\n" + "          \"application/xml\"\n" + "        ],\n"
+				+ "        \"parameters\": [\n" + "          {\n" + "            \"in\": \"body\",\n"
+				+ "            \"name\": \"body\",\n" + "            \"description\": \"Created user object\",\n"
+				+ "            \"required\": true,\n" + "            \"schema\": {\n"
+				+ "              \"$ref\": \"#/definitions/User\"\n" + "            }\n" + "          }\n"
+				+ "        ],\n" + "        \"responses\": {\n" + "          \"default\": {\n"
+				+ "            \"description\": \"successful operation\"\n" + "          }\n" + "        }\n"
+				+ "      }\n" + "    }\n" + "  },\n" + "  \"securityDefinitions\": {\n" + "    \"api_key\": {\n"
+				+ "      \"type\": \"apiKey\",\n" + "      \"name\": \"api_key\",\n" + "      \"in\": \"header\"\n"
+				+ "    },\n" + "    \"petstore_auth\": {\n" + "      \"type\": \"oauth2\",\n"
+				+ "      \"authorizationUrl\": \"https://petstore.swagger.io/oauth/authorize\",\n"
+				+ "      \"flow\": \"implicit\",\n" + "      \"scopes\": {\n"
+				+ "        \"read:pets\": \"read your pets\",\n"
+				+ "        \"write:pets\": \"modify pets in your account\"\n" + "      }\n" + "    }\n" + "  },\n"
+				+ "  \"definitions\": {\n" + "    \"ApiResponse\": {\n" + "      \"type\": \"object\",\n"
+				+ "      \"properties\": {\n" + "        \"code\": {\n" + "          \"type\": \"integer\",\n"
+				+ "          \"format\": \"int32\"\n" + "        },\n" + "        \"type\": {\n"
+				+ "          \"type\": \"string\"\n" + "        },\n" + "        \"message\": {\n"
+				+ "          \"type\": \"string\"\n" + "        }\n" + "      }\n" + "    },\n"
+				+ "    \"Category\": {\n" + "      \"type\": \"object\",\n" + "      \"properties\": {\n"
+				+ "        \"id\": {\n" + "          \"type\": \"integer\",\n" + "          \"format\": \"int64\"\n"
+				+ "        },\n" + "        \"name\": {\n" + "          \"type\": \"string\"\n" + "        }\n"
+				+ "      },\n" + "      \"xml\": {\n" + "        \"name\": \"Category\"\n" + "      }\n" + "    },\n"
+				+ "    \"Pet\": {\n" + "      \"type\": \"object\",\n" + "      \"required\": [\n"
+				+ "        \"name\",\n" + "        \"photoUrls\"\n" + "      ],\n" + "      \"properties\": {\n"
+				+ "        \"id\": {\n" + "          \"type\": \"integer\",\n" + "          \"format\": \"int64\"\n"
+				+ "        },\n" + "        \"category\": {\n" + "          \"$ref\": \"#/definitions/Category\"\n"
+				+ "        },\n" + "        \"name\": {\n" + "          \"type\": \"string\",\n"
+				+ "          \"example\": \"doggie\"\n" + "        },\n" + "        \"photoUrls\": {\n"
+				+ "          \"type\": \"array\",\n" + "          \"xml\": {\n" + "            \"wrapped\": true\n"
+				+ "          },\n" + "          \"items\": {\n" + "            \"type\": \"string\",\n"
+				+ "            \"xml\": {\n" + "              \"name\": \"photoUrl\"\n" + "            }\n"
+				+ "          }\n" + "        },\n" + "        \"tags\": {\n" + "          \"type\": \"array\",\n"
+				+ "          \"xml\": {\n" + "            \"wrapped\": true\n" + "          },\n"
+				+ "          \"items\": {\n" + "            \"xml\": {\n" + "              \"name\": \"tag\"\n"
+				+ "            },\n" + "            \"$ref\": \"#/definitions/Tag\"\n" + "          }\n"
+				+ "        },\n" + "        \"status\": {\n" + "          \"type\": \"string\",\n"
+				+ "          \"description\": \"pet status in the store\",\n" + "          \"enum\": [\n"
+				+ "            \"available\",\n" + "            \"pending\",\n" + "            \"sold\"\n"
+				+ "          ]\n" + "        }\n" + "      },\n" + "      \"xml\": {\n" + "        \"name\": \"Pet\"\n"
+				+ "      }\n" + "    },\n" + "    \"Tag\": {\n" + "      \"type\": \"object\",\n"
+				+ "      \"properties\": {\n" + "        \"id\": {\n" + "          \"type\": \"integer\",\n"
+				+ "          \"format\": \"int64\"\n" + "        },\n" + "        \"name\": {\n"
+				+ "          \"type\": \"string\"\n" + "        }\n" + "      },\n" + "      \"xml\": {\n"
+				+ "        \"name\": \"Tag\"\n" + "      }\n" + "    },\n" + "    \"Order\": {\n"
+				+ "      \"type\": \"object\",\n" + "      \"properties\": {\n" + "        \"id\": {\n"
+				+ "          \"type\": \"integer\",\n" + "          \"format\": \"int64\"\n" + "        },\n"
+				+ "        \"petId\": {\n" + "          \"type\": \"integer\",\n" + "          \"format\": \"int64\"\n"
+				+ "        },\n" + "        \"quantity\": {\n" + "          \"type\": \"integer\",\n"
+				+ "          \"format\": \"int32\"\n" + "        },\n" + "        \"shipDate\": {\n"
+				+ "          \"type\": \"string\",\n" + "          \"format\": \"date-time\"\n" + "        },\n"
+				+ "        \"status\": {\n" + "          \"type\": \"string\",\n"
+				+ "          \"description\": \"Order Status\",\n" + "          \"enum\": [\n"
+				+ "            \"placed\",\n" + "            \"approved\",\n" + "            \"delivered\"\n"
+				+ "          ]\n" + "        },\n" + "        \"complete\": {\n" + "          \"type\": \"boolean\"\n"
+				+ "        }\n" + "      },\n" + "      \"xml\": {\n" + "        \"name\": \"Order\"\n" + "      }\n"
+				+ "    },\n" + "    \"User\": {\n" + "      \"type\": \"object\",\n" + "      \"properties\": {\n"
+				+ "        \"id\": {\n" + "          \"type\": \"integer\",\n" + "          \"format\": \"int64\"\n"
+				+ "        },\n" + "        \"username\": {\n" + "          \"type\": \"string\"\n" + "        },\n"
+				+ "        \"firstName\": {\n" + "          \"type\": \"string\"\n" + "        },\n"
+				+ "        \"lastName\": {\n" + "          \"type\": \"string\"\n" + "        },\n"
+				+ "        \"email\": {\n" + "          \"type\": \"string\"\n" + "        },\n"
+				+ "        \"password\": {\n" + "          \"type\": \"string\"\n" + "        },\n"
+				+ "        \"phone\": {\n" + "          \"type\": \"string\"\n" + "        },\n"
+				+ "        \"userStatus\": {\n" + "          \"type\": \"integer\",\n"
+				+ "          \"format\": \"int32\",\n" + "          \"description\": \"User Status\"\n" + "        }\n"
+				+ "      },\n" + "      \"xml\": {\n" + "        \"name\": \"User\"\n" + "      }\n" + "    }\n"
+				+ "  },\n" + "  \"externalDocs\": {\n" + "    \"description\": \"Find out more about Swagger\",\n"
+				+ "    \"url\": \"http://swagger.io\"\n" + "  }\n" + "}";
 
 		SwaggerParser swaggerParser = new SwaggerParser();
 		Swagger swagger = swaggerParser.parse(swagger2Str);
 
 		SwaggerDeserializationResult swaggerDeserializationResult = swaggerParser.readWithInfo(swagger2Str);
-		System.out.println(swaggerDeserializationResult);
+		log.info(String.valueOf(swaggerDeserializationResult));
 
 	}
 
@@ -1432,10 +765,10 @@ public class SwaggerValidatorTest {
 
 		String swaggerJson = objectMapper.writeValueAsString(swagger);
 
-		System.out.println("Before deletion " + swaggerJson);
+		log.info("Before deletion " + swaggerJson);
 		assertTrue(swaggerJson.contains("responseSchema"));
 		String s = SwaggerUtil.removeResponseSchemaTag(swaggerJson);
-		System.out.println("After Deletion " + s);
+		log.info("After Deletion " + s);
 
 		assertTrue(!s.contains("responseSchema"));
 
@@ -1446,7 +779,7 @@ public class SwaggerValidatorTest {
 		// Object responseSchema = documentContext.read(responseSchemaPath);
 		//
 		// if(responseSchema != null ) {
-		// System.out.println(documentContext.delete(responseSchemaPath).jsonString());
+		// log.info(documentContext.delete(responseSchemaPath).jsonString());
 		// }
 
 	}

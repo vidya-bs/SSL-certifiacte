@@ -1,6 +1,7 @@
 package com.itorix.consentserver.crypto;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.BadPaddingException;
@@ -17,7 +18,7 @@ import java.util.Base64;
 
 import static javax.crypto.Cipher.DECRYPT_MODE;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
-
+@Slf4j
 @Component
 public class RSAEncryption {
 
@@ -32,9 +33,9 @@ public class RSAEncryption {
 		RSAEncryption ac = new RSAEncryption();
 		//ac.generateKeys();
 		String encryptText = ac.encryptText("80264bbd-6f76-40c4-8c3a-ac70f8183c26", "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIT6ip1esuvC0L7pWYkD0aEAF5R7t/sb4Bg28idUO+kJ25nNkzHG+PcCT/3du60R3Ns0HKX9ouxly3IIH4FGWhcCAwEAAQ==");
-		System.out.println(encryptText);
+		log.info(encryptText);
 		//String decryptText = ac.decryptText("bYinFpZJmboLvxNCjtWgbyWAU3K9ThA0d1IL2wmR6vFa8x6w/78K8yjPh0HAbcADOrNKGMADyjvkex99/IYH8w==", "MIIBVAIBADANBgkqhkiG9w0BAQEFAASCAT4wggE6AgEAAkEAhPqKnV6y68LQvulZiQPRoQAXlHu3+xvgGDbyJ1Q76Qnbmc2TMcb49wJP/d27rRHc2zQcpf2i7GXLcggfgUZaFwIDAQABAkAEacg15tGrT2DcJSRqjqzjWfxuWhjGBavPQeuRcJM4baWct6ZJRBhphkN5HfvQeTIrDTP/ldh9gTCR9K6gXQ2JAiEA8uL+djXSYY2O52m39uA13U8H7ou5Ycc7xgKDUrBDR30CIQCMKHpAEa9ryh8igHAL1oJ4R6B2g4KCbZaIa3y6VP4kIwIgJnVMx1jkU+//JaM2rs93l/AwmFPlaZcLXuH8+zXPoV0CICm8J+MKIR1Mu4avji3IO2OLmJmRwXwLG+cVcreddWvXAiEAu3bwylOlvIZ8vFCn4GAJay8+YRS4EMfgZjylYZfJJj0=");
-		//System.out.println("Decrypted Text " + decryptText);
+		//log.info("Decrypted Text " + decryptText);
 	}
 
 	public String encryptText(String msg, String publicKey) throws NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, NoSuchPaddingException {
@@ -64,7 +65,7 @@ public class RSAEncryption {
 		String privateKeyStr = Base64.getEncoder().encodeToString(privateKey.getEncoded());
 		String publicKeyStr =  Base64.getEncoder().encodeToString(publicKey.getEncoded());
 
-		System.out.println(privateKeyStr);
-		System.out.println(publicKeyStr);
+		log.info(privateKeyStr);
+		log.info(publicKeyStr);
 	}
 }

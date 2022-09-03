@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,7 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
+@Slf4j
 @CrossOrigin
 @RestController
 public class CollaborationServiceImpl implements CollaborationService {
@@ -218,7 +219,7 @@ public class CollaborationServiceImpl implements CollaborationService {
 				for (String teamName : responseSet)
 					teams.add(collaborationBusiness.getTeam(teamName, interactionid));
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return new ResponseEntity<Object>(teams, HttpStatus.OK);
 	}
