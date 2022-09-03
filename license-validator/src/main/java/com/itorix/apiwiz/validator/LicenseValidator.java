@@ -20,6 +20,7 @@ import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -34,6 +35,12 @@ public class LicenseValidator {
 	@Value("${itorix.license.token}")
 	private String licenseToken;
 
+	@Value("${app.name:}")
+	private String appName;
+
+	@Value("${application.name:}")
+	private String applicationName;
+
 	@PostConstruct
 	private void init() throws GeneralSecurityException, IOException, ParseException {
 		validateLicense();
@@ -45,6 +52,9 @@ public class LicenseValidator {
 		LicenseToken licenseTokenObj = objectMapper.readValue(decryptedLicenseToken, LicenseToken.class);
 		if(licenseTokenObj.getLicensePolicy().isCheckExpiry()) {
 			isLicenseExpired(licenseTokenObj.getExpiry());
+		}
+		if(licenseTokenObj.getLicensePolicy().isCheckAllowedComponents()){
+			isComponentsAllowed(licenseTokenObj.getComponents());
 		}
 	}
 
@@ -60,6 +70,20 @@ public class LicenseValidator {
 		return false;
 	}
 
+	public boolean isComponentsAllowed(Set<String> components) throws ParseException {
+		log.info("Checking Allowed Components {} ", components);
+		if (!appName.isEmpty() && !components.contains(appName)) {
+			String errorMsg = String.format("The app : %s is not supported in this License.Please contact APIwiz support to generate a valid license that suppports this component", appName);
+			log.error(errorMsg);
+			throw new IllegalArgumentException(errorMsg);
+		} else if (appName.isEmpty() && !components.contains(applicationName)) {
+			String errorMsg = String.format("The app : %s is not supported in this License.Please contact APIwiz support to generate a valid license that suppports this component", applicationName);
+			log.error(errorMsg);
+			throw new IllegalArgumentException(errorMsg);
+		}
+		;
+		return false;
+	}
 	private DateTimeFormatter getDateFormatter() {
 		return new DateTimeFormatterBuilder()
 				// date/time

@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -18,9 +19,9 @@ public class License {
 	@Id
 	private String id;
 	private String emailId;
-	private String userName;
-	@JsonIgnore
-	private String password;
+//	private String userName;
+//	@JsonIgnore
+//	private String password;
 	private List<String> clientIp;
 	private String clientName;
 	private List<String> workspaceName;
@@ -32,6 +33,7 @@ public class License {
 	private String createdUserName;
 	private String modifiedUserName;
 	private Long mts;
+	private Set<String> components;
 	@JsonIgnore
 	private int auditCount;
 }
