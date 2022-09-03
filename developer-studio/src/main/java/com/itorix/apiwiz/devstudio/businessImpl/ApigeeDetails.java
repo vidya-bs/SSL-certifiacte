@@ -320,13 +320,13 @@ public class ApigeeDetails {
 								}
 							}
 						} catch (HttpClientErrorException e) {
-
+							log.error("Exception occurred : {}",e.getMessage());
 						}
 						Thread.sleep(2);
 					}
 
 				} catch (IOException | InterruptedException e) {
-					log.error("Exception occurred", e);
+					log.error("Exception occurred : {}", e.getMessage());
 				}
 			}
 		}

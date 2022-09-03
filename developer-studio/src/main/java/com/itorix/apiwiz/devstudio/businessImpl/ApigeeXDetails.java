@@ -367,7 +367,7 @@ public class ApigeeXDetails {
 						}
 					}
 				} catch (HttpClientErrorException e) {
-
+					log.error("Exception occurred : {}", e.getMessage());
 				}
 			}
 		}

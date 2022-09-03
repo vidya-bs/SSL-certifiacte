@@ -232,33 +232,7 @@ public class ApigeeProxyGeneration {
 									break;
 								}
 							}
-							if(proxyMetadata.getName().equals("x_gw_cache_key")){
-								String string = proxyMetadata.getValue();
-								List<String> cacheKeys = new ArrayList<String>(Arrays.asList(string.split(" , ")));
-								apiDtls.put("cacheKeys", cacheKeys);
-							}
-							if(proxyMetadata.getName().equals("x-gw-cache-timeout-unit")){
-								if(proxyMetadata.getValue().equals("days")) {
-									for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata1 : flow.getMetadata()){
-										if(proxyMetadata1.getName().equals("x_gw_cache_timeout")) {
-											String count = proxyMetadata1.getValue();
-											long timeunit = Integer.valueOf(count) * 86400;
-											apiDtls.put("cacheTimeout", timeunit);
-										}
-									}
-								}
-								else {
-									for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata1 : flow.getMetadata()){
-										if(proxyMetadata1.getName().equals("x_gw_cache_timeout")) {
-											String count = proxyMetadata1.getValue();
-											apiDtls.put("cacheTimeout", count);
-										}
-									}
-								}
-								String string = proxyMetadata.getValue();
-								List<String> cacheKeys = new ArrayList<String>(Arrays.asList(string.split(" , ")));
-								apiDtls.put("cacheKeys", cacheKeys);
-							}
+
 						}
 					}
 					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "").replace("-x-gw-cache-resource", "")

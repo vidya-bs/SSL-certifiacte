@@ -204,7 +204,7 @@ public class PipelineDao {
 				portfolio.getTeams();
 			}
 		} catch (Exception e) {
-
+			log.error("Exception occurred : {}",e.getMessage());
 		}
 		return mailList;
 	}

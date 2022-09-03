@@ -990,9 +990,11 @@ public class ProjectManagementDao {
 							projectFile.setType("WSDL");
 							break;
 						case "XSD" :
+							projectFile.setType("XSD");
 							log.debug("Setting project file type as XSD");
 							break;
 						default :
+							projectFile.setType("ATTACHMENT");
 							log.debug("Setting project file type as Attachment");
 					}
 					updateProjectFile(projectFile);

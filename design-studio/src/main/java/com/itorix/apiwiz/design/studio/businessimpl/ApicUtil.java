@@ -105,6 +105,7 @@ public class ApicUtil {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("type").is("APIC"));
 		List<Integration> dbIntegrations = mongoTemplate.find(query, Integration.class);
+		log.debug("getApicMapping : {}",query);
 		if (!CollectionUtils.isEmpty(dbIntegrations)) {
 			mappings = dbIntegrations.get(0).getApicIntegration().getMappings();
 		}

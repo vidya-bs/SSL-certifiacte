@@ -128,9 +128,6 @@ public class LoadSwaggerImpl implements LoadSwagger {
 													.get(keyStr);
 											if(StringUtils.isNotEmpty(element.stream().findFirst().get().toString())){
 												metadataItem.setName(keyStr);
-												if(element.size()>1) {
-													metadataItem.setValue(getComaseperatedStr(element));
-												}else
 													metadataItem.setValue(element.stream().findFirst().get().toString());
 												metadata.add(metadataItem);
 											}
@@ -312,9 +309,6 @@ public class LoadSwaggerImpl implements LoadSwagger {
 											net.sf.json.JSONArray element = (net.sf.json.JSONArray) jsonItem
 													.get(keyStr);
 											metadataItem.setName(keyStr);
-											if(element.size()>1) {
-												metadataItem.setValue(getComaseperatedStr(element));
-											}else
 											metadataItem.setValue(element.stream().findFirst().get().toString());
 											metadata.add(metadataItem);
 										} catch (Exception ex) {
@@ -346,18 +340,6 @@ public class LoadSwaggerImpl implements LoadSwagger {
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper.writeValueAsString(proxy).toString();
 	}
-
-	private String getComaseperatedStr(net.sf.json.JSONArray element) {
-		String value = "";
-		for(int i=0; i< element.size();i++) {
-			if(i==0)
-				value = value + element.get(i).toString();
-			else
-				value = value + "," + element.get(i).toString();
-		}
-		return value;
-	}
-
 
 	public String loadTargetSwagger3Details(String content) throws JsonProcessingException, JSONException {
 		OpenAPI api = getOpenAPI(content);
