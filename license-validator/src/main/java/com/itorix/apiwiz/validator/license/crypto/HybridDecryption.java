@@ -17,7 +17,7 @@ import java.security.GeneralSecurityException;
 import java.util.Base64;
 
 @Component
-@ConditionalOnProperty(prefix = "license", name = "check", havingValue = "true")
+//@ConditionalOnProperty(prefix = "license", name = "check", havingValue = "true")
 public class HybridDecryption {
 
 	@Autowired
