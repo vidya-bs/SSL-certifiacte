@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.validator.license.model.db;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.itorix.apiwiz.validator.license.model.LicensePolicy;
 import com.itorix.apiwiz.validator.license.model.Status;
 import lombok.Getter;
@@ -14,6 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Document(collection = "Apiwiz.License.List")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class License {
 
 	@Id

@@ -8,7 +8,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -26,13 +25,14 @@ import java.util.Set;
 @Component
 @Getter
 @Setter
-@ConditionalOnProperty(prefix = "license", name = "check", havingValue = "true")
+//@ConditionalOnProperty(prefix = "license", name = "check", havingValue = "true")
 public class LicenseValidator {
+
 
 	@Autowired
 	private HybridDecryption hybridDecryption;
 
-	@Value("${itorix.license.token}")
+	@Value("${itorix.license.token:}")
 	private String licenseToken;
 
 	@Value("${app.name:}")
@@ -47,6 +47,11 @@ public class LicenseValidator {
 	}
 
 	private void validateLicense() throws GeneralSecurityException, IOException, ParseException {
+		if(licenseToken == null || licenseToken.isEmpty()) {
+			String errorMsg = "Missing License Key Configuration. Configure a valid license and restart the app";
+			logBlockMessage(errorMsg);
+			throw new IllegalArgumentException();
+		}
 		String decryptedLicenseToken = hybridDecryption.decrypt(licenseToken);
 		ObjectMapper objectMapper = new ObjectMapper();
 		LicenseToken licenseTokenObj = objectMapper.readValue(decryptedLicenseToken, LicenseToken.class);
@@ -58,13 +63,22 @@ public class LicenseValidator {
 		}
 	}
 
+	private void logBlockMessage(String errorMsg) {
+		log.error("\n\n" +
+				"**********************************************************************************************************************************************" +
+				"\n**********************************************************************************************************************************************\n" +
+				"\n" + errorMsg + "\n" +
+				"\n**********************************************************************************************************************************************\n" +
+				"**********************************************************************************************************************************************\n\n");
+	}
+
 	public boolean isLicenseExpired(String expiryDate) throws ParseException {
 		log.info("Checking license expiry date {} ", expiryDate);
 		OffsetDateTime expiry = OffsetDateTime.parse(expiryDate, getDateFormatter());
 		ZonedDateTime now = ZonedDateTime.now(Clock.systemUTC());
 		if(expiry.toInstant().isBefore(now.toInstant())) {
-			String errorMsg = String.format("The License has expired on %s. Please contact Itorix support to renew the license", expiry);
-			log.error(errorMsg);
+			String errorMsg = String.format("The License has expired on %s. Please contact APIwiz support to renew the license", expiry);
+			logBlockMessage(errorMsg);
 			throw new IllegalArgumentException(errorMsg);
 		};
 		return false;
@@ -73,12 +87,12 @@ public class LicenseValidator {
 	public boolean isComponentsAllowed(Set<String> components) throws ParseException {
 		log.info("Checking Allowed Components {} ", components);
 		if (!appName.isEmpty() && !components.contains(appName)) {
-			String errorMsg = String.format("The app : %s is not supported in this License.Please contact APIwiz support to generate a valid license that suppports this component", appName);
-			log.error(errorMsg);
+			String errorMsg = String.format("The app : %s is not supported in this License.Please contact APIwiz support to generate a valid license that supports this component", appName);
+			logBlockMessage(errorMsg);
 			throw new IllegalArgumentException(errorMsg);
 		} else if (appName.isEmpty() && !components.contains(applicationName)) {
-			String errorMsg = String.format("The app : %s is not supported in this License.Please contact APIwiz support to generate a valid license that suppports this component", applicationName);
-			log.error(errorMsg);
+			String errorMsg = String.format("The app : %s is not supported in this License.Please contact APIwiz support to generate a valid license that supports this component", applicationName);
+			logBlockMessage(errorMsg);
 			throw new IllegalArgumentException(errorMsg);
 		}
 		;
@@ -97,17 +111,5 @@ public class LicenseValidator {
 				// create formatter
 				.toFormatter();
 	}
-
-
-//	public static void main(String[] args) throws IOException, GeneralSecurityException {
-//		HybridDecryption decryption = new HybridDecryption();
-//		decryption.loadKey();
-//		String token = "";
-//		String decrypt = decryption.decrypt(token);
-//		log.info(decrypt);
-//		ObjectMapper objectMapper = new ObjectMapper();
-//		LicenseToken licenseToken = objectMapper.readValue(decrypt, LicenseToken.class);
-//
-//	}
 
 }
