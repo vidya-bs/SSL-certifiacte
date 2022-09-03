@@ -19,8 +19,8 @@ public class TargetConnectionX {
 		try {
 			String env = config.getEnv();
 			String org = config.getOrg();
-			String URL = apigeeXUtil.getApigeeHost( org)
-					+ "/v1/organizations/" + org + "/environments/" + env + "/targetservers";
+			String URL = apigeeXUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/environments/" + env
+					+ "/targetservers";
 			return URL;
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "ProxyGen-1000", ex);
@@ -31,8 +31,8 @@ public class TargetConnectionX {
 		try {
 			String env = config.getEnv();
 			String org = config.getOrg();
-			String URL = apigeeXUtil.getApigeeHost(org)
-					+ "/v1/organizations/" + org + "/environments/" + env + "/targetservers/" + config.getName();
+			String URL = apigeeXUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/environments/" + env
+					+ "/targetservers/" + config.getName();
 			return URL;
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "ProxyGen-1000", ex);
@@ -43,16 +43,15 @@ public class TargetConnectionX {
 		try {
 			ApigeexTarget target = new ApigeexTarget();
 			SSLInfo info = new SSLInfo();
-			
+
 			target.setHost(config.getHost());
 			target.setName(config.getName());
 			target.setIsEnabled(config.isEnabled());
 			target.setPort(config.getPort());
-			if (config.isClientAuthEnabled()){
+			if (config.isClientAuthEnabled()) {
 				info.setClientAuthEnabled("true");
 				target.setsSLInfo(info);
-			}
-			else
+			} else
 				info.setClientAuthEnabled("false");
 			if (config.isSslEnabled())
 				info.setEnabled("true");

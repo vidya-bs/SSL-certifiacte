@@ -33,35 +33,34 @@ import com.itorix.apiwiz.apimonitor.dao.ApiMonitorDAO;
 import com.itorix.apiwiz.apimonitor.model.Header;
 @RunWith(MockitoJUnitRunner.class)
 
-
 public class ApiMonitorServiceImplTest {
-@Mock
-private IdentityManagementDao commonServices;
+	@Mock
+	private IdentityManagementDao commonServices;
 
-@Mock
-private ApiMonitorDAO apiMonitorDAO;
+	@Mock
+	private ApiMonitorDAO apiMonitorDAO;
 
-
-@InjectMocks
-private ApiMonitorServiceImpl serviceImple;
+	@InjectMocks
+	private ApiMonitorServiceImpl serviceImple;
 
 	@Test
-	public void testMtsSetter() throws JsonProcessingException, ItorixException,NullPointerException {
-		
-		String interactionId="12345";
-		HttpHeaders header=mock(HttpHeaders.class);
-		Variables variable1=new Variables();
-		Variables variable=spy(variable1);
-		List<Header> headerList=new ArrayList<Header>();
-		String jsessionid="12345";
-		HttpServletRequest request=mock(HttpServletRequest.class);
+	public void testMtsSetter() throws JsonProcessingException, ItorixException, NullPointerException {
+
+		String interactionId = "12345";
+		HttpHeaders header = mock(HttpHeaders.class);
+		Variables variable1 = new Variables();
+		Variables variable = spy(variable1);
+		List<Header> headerList = new ArrayList<Header>();
+		String jsessionid = "12345";
+		HttpServletRequest request = mock(HttpServletRequest.class);
 		HttpServletResponse response = mock(HttpServletResponse.class);
 		Mockito.when(commonServices.getUserDetailsFromSessionID(Mockito.eq(jsessionid))).thenReturn(mock(User.class));
 		variable.setVariables(headerList);
-		ResponseEntity<?> responseEntity=serviceImple.createVariables(interactionId,header,variable,jsessionid,request,response);
-		Long mts=variable.getMts();
-		assertNotNull(mts);	
-		
+		ResponseEntity<?> responseEntity = serviceImple.createVariables(interactionId, header, variable, jsessionid,
+				request, response);
+		Long mts = variable.getMts();
+		assertNotNull(mts);
+
 	}
 
 }

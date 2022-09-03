@@ -86,6 +86,7 @@ public class WorkspaceDao {
 		HttpEntity<Object> httpEntity = new HttpEntity<>(reqBody, headers);
 		ResponseEntity<String> response = null;
 		try {
+			log.debug("Making a call to {}", connectionUrl);
 			response = restTemplate.postForEntity(connectionUrl, httpEntity, String.class);
 		} catch (Exception e) {
 			throw e;

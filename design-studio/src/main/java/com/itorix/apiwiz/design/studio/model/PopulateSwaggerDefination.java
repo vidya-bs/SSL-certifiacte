@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,7 +27,7 @@ import net.minidev.json.JSONArray;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.models.properties.RefProperty;
-
+@Slf4j
 public class PopulateSwaggerDefination {
 	private ObjectMapper mapper = new ObjectMapper();
 	static final Logger logger = Logger.getLogger(PopulateSwaggerDefination.class);
@@ -89,7 +90,7 @@ public class PopulateSwaggerDefination {
 			}
 			return schemas3;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -97,7 +98,7 @@ public class PopulateSwaggerDefination {
 	public Map<String, Model> populateDefinitons(List<RowData> rd, Map<String, Model> definitions) {
 		for (RowData r : rd) {
 			String xpath = r.getXpath();
-			// System.out.println(xpath);
+			// log.info(xpath);
 			String typ = r.getJsonType();
 			String[] xpathArray = xpath.split("/");
 			String lastBut = "";
@@ -178,10 +179,10 @@ public class PopulateSwaggerDefination {
 		String strDef;
 		try {
 			strDef = new ObjectMapper().writeValueAsString(definitions);
-			// System.out.println(strDef);
+			// log.info(strDef);
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return definitions;
 	}
@@ -235,7 +236,7 @@ public class PopulateSwaggerDefination {
 							: null,
 					map);
 			if (r.getMin().equals("1") && r.getMax().equals("1")) {
-				// System.out.println(last);
+				// log.info(last);
 				property.setRequired(true);
 			}
 			return property;
@@ -278,7 +279,7 @@ public class PopulateSwaggerDefination {
 			} else
 				value = context.read(path).toString();
 		} catch (Exception ex) {
-			// ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return value;
 	}

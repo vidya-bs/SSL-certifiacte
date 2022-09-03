@@ -306,7 +306,7 @@ public class PortfolioDao {
 		String workspace = masterMongoTemplate.findById(jsession, UserSession.class).getWorkspaceId();
 		if (!StringUtils.isEmpty(findById.getPortfolioImage())) {
 			deleteFileJfrogFile(
-					findById.getPortfolioImage().substring(findById.getPortfolioImage().indexOf(workspace)));
+					findById.getPortfolioImage().substring(findById.getPortfolioImage().indexOf(workspace)),jsession);
 		}
 		downloadURI = updateToJfrog(portfolioId + "/" + fileName, imageBytes, jsession);
 		updatePortfolioPicture(portfolioId, downloadURI, jsession);
@@ -380,7 +380,7 @@ public class PortfolioDao {
 	public void deletePortfolios(String portfolioId, String jsessionid) throws ItorixException {
 		Query query = new Query().addCriteria(Criteria.where("id").is(portfolioId));
 		String workspace = masterMongoTemplate.findById(jsessionid, UserSession.class).getWorkspaceId();
-		deleteFileJfrogFile("/" + workspace + "/portfolio/" + portfolioId);
+		deleteFileJfrogFile("/" + workspace + "/portfolio/" + portfolioId,jsessionid);
 		if (mongoTemplate.remove(query, Portfolio.class).getDeletedCount() == 0) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1002"), "Portfolio-1002");
 		}
@@ -450,7 +450,7 @@ public class PortfolioDao {
 		Query query = new Query(new Criteria().andOperator(Criteria.where("id").is(portfolioId),
 				Criteria.where("document").elemMatch(Criteria.where("id").is(documentId))));
 		String workspace = masterMongoTemplate.findById(jsessionid, UserSession.class).getWorkspaceId();
-		deleteFileJfrogFile("/" + workspace + "/portfolio/" + portfolioId + "/" + documentId);
+		deleteFileJfrogFile("/" + workspace + "/portfolio/" + portfolioId + "/" + documentId,jsessionid);
 		if (mongoTemplate.updateMulti(query,
 				new Update().pull("document", new Query().addCriteria(Criteria.where("_id").is(documentId))),
 				Portfolio.class).getModifiedCount() == 0) {
@@ -513,7 +513,7 @@ public class PortfolioDao {
 	public void deleteProduct(String portfolioId, String productId, String jsessionid) throws ItorixException {
 
 		String workspace = masterMongoTemplate.findById(jsessionid, UserSession.class).getWorkspaceId();
-		deleteFileJfrogFile("/" + workspace + "/portfolio/" + portfolioId + "/" + productId);
+		deleteFileJfrogFile("/" + workspace + "/portfolio/" + portfolioId + "/" + productId,jsessionid);
 
 		Query query = new Query(new Criteria().andOperator(Criteria.where("id").is(portfolioId),
 				Criteria.where("products").elemMatch(Criteria.where("id").is(productId))));
@@ -722,7 +722,7 @@ public class PortfolioDao {
 		}
 
 		String workspace = masterMongoTemplate.findById(jsessionid, UserSession.class).getWorkspaceId();
-		deleteFileJfrogFile("/" + workspace + "/portfolio/" + portfolioId + "/" + productId);
+		deleteFileJfrogFile("/" + workspace + "/portfolio/" + portfolioId + "/" + productId,jsessionid);
 
 		try {
 			downloadURI = updateToJfrog(portfolioId + "/" + productId + "/" + fileName, bytes, jsessionid);
@@ -749,7 +749,7 @@ public class PortfolioDao {
 	public String updatePortfolioDocument(String portfolioId, String documentId, byte[] bytes, String jsessionid,
 			String fileName, Integer revision) throws ItorixException {
 		String workspace = masterMongoTemplate.findById(jsessionid, UserSession.class).getWorkspaceId();
-		deleteFileJfrogFile("/" + workspace + "/portfolio/" + portfolioId + "/" + documentId);
+		deleteFileJfrogFile("/" + workspace + "/portfolio/" + portfolioId + "/" + documentId,jsessionid);
 		return updateToJfrog(
 				portfolioId + "/" + documentId + "/" + Integer.toString(revision) + "/" + fileName.replaceAll(" ", ""),
 				bytes, jsessionid);
@@ -778,11 +778,24 @@ public class PortfolioDao {
 		}
 	}
 
-	private void deleteFileJfrogFile(String folderPath) throws ItorixException {
-		try {
-			jfrogUtilImpl.deleteFileIgnore404(folderPath);
-		} catch (Exception e) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1016"), "Portfolio-1016");
+	private void deleteFileJfrogFile(String folderPath,String jsession) throws ItorixException {
+
+		S3Integration s3Integration = s3Connection.getS3Integration();
+		String workspace = masterMongoTemplate.findById(jsession, UserSession.class).getWorkspaceId();
+		if (s3Integration != null) {
+			try {
+				s3Utils.deleteFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+						workspace + "/portfolio/" + folderPath);
+			} catch (IOException e) {
+				throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1016"), "Portfolio-1016");
+			}
+		} else {
+			try {
+				jfrogUtilImpl.deleteFileIgnore404(folderPath);
+			} catch (Exception e) {
+				throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1016"), "Portfolio-1016");
+			}
 		}
 	}
 
@@ -1000,7 +1013,7 @@ public class PortfolioDao {
 						try {
 							if (s.getWsdlLocation().contains(workspace)) {
 								deleteFileJfrogFile(
-										s.getWsdlLocation().substring(s.getWsdlLocation().indexOf(workspace)));
+										s.getWsdlLocation().substring(s.getWsdlLocation().indexOf(workspace)),jsessionid);
 							}
 						} catch (ItorixException e) {
 							log.error("error when deleting proxy files");
@@ -1010,7 +1023,7 @@ public class PortfolioDao {
 						try {
 							if (s.getXsdLocation().contains(workspace)) {
 								deleteFileJfrogFile(
-										s.getXsdLocation().substring(s.getXsdLocation().indexOf(workspace)));
+										s.getXsdLocation().substring(s.getXsdLocation().indexOf(workspace)),jsessionid);
 							}
 
 						} catch (ItorixException e) {

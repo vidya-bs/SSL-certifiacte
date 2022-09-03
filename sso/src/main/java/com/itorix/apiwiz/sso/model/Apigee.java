@@ -2,12 +2,13 @@ package com.itorix.apiwiz.sso.model;
 
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
+@Slf4j
 @JsonPropertyOrder({ "userName", "password", "organizations" })
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Apigee {
@@ -31,7 +32,7 @@ public class Apigee {
             RSAEncryption rSAEncryption = new RSAEncryption();
             decryptedPassword = rSAEncryption.decryptText(this.password);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred",e);
         }
         return decryptedPassword;
     }

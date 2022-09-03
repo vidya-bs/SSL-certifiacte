@@ -72,5 +72,12 @@ public class S3Utils {
 		InputStream inputStream = s3object.getObjectContent();
 		return inputStream;
 	}
+	public void deleteFile(String key, String secret, Regions region, String bucketName, String path)
+			throws IOException{
+		AWSCredentials credentials = new BasicAWSCredentials(key, secret);
+		AmazonS3 s3client = AmazonS3ClientBuilder.standard()
+				.withCredentials(new AWSStaticCredentialsProvider(credentials)).withRegion(region).build();
+		s3client.deleteObject(bucketName,key);
+	}
 
 }

@@ -13,7 +13,6 @@ public class PipelineGroups {
 
 	public static final String LABEL_CREATED_TIME = "metadata.cts";
 
-
 	@Id
 	@JsonProperty("projectName")
 	private String projectName;

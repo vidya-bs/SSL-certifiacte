@@ -107,6 +107,7 @@ public class SSOServiceImpl implements SSOService {
             certificateHeaders.add("x-tenant", ((UserSession) authenticate).getWorkspaceId());
 
             HttpEntity<String> entity = new HttpEntity<>(certificateHeaders);
+            logger.debug("Making a call to {}",certificateUrl);
             ResponseEntity<String> result = restTemplate.exchange(certificateUrl, HttpMethod.GET, entity, String.class);
             url.append("?").append("code=").append(encryptText(((UserSession) authenticate).getId(), result.getBody()));
         } else {

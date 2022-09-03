@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -31,7 +32,7 @@ import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.design.studio.model.EmptyXlsRows;
 import com.itorix.apiwiz.design.studio.model.RowData;
 import com.itorix.apiwiz.design.studio.model.XmlSchemaVo;
-
+@Slf4j
 @Component
 public class XlsUtil {
 	private static final Logger logger = LoggerFactory.getLogger(XlsUtil.class);
@@ -102,9 +103,9 @@ public class XlsUtil {
 			file.close();
 
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return listRowDatas;
 	}
@@ -165,7 +166,7 @@ public class XlsUtil {
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return obj;
 	}

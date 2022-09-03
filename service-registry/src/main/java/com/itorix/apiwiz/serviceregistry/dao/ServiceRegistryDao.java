@@ -130,6 +130,7 @@ public class ServiceRegistryDao {
 		criteriaList.add(Criteria.where("id").is(serviceRegistryId));
 		Query query = Query.query(new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()])));
 		if (mongoTemplate.exists(query, ServiceRegistryList.class)) {
+			log.debug("Creating service registry entry");
 			ServiceRegistry serviceRegistry = new ServiceRegistry();
 			serviceRegistry.setServiceRegistryId(serviceRegistryId);
 			serviceRegistry.setData(entryies);
@@ -169,6 +170,7 @@ public class ServiceRegistryDao {
 		ServiceRegistryResponse response = new ServiceRegistryResponse();
 		List<ServiceRegistryList> testSuites = mongoTemplate.find(query, ServiceRegistryList.class);
 		if (testSuites != null) {
+			log.debug("Getting service registry");
 			Long counter = mongoTemplate.count(new Query(), ServiceRegistryList.class);
 			com.itorix.apiwiz.identitymanagement.model.Pagination pagination = new com.itorix.apiwiz.identitymanagement.model.Pagination();
 			pagination.setOffset(offset);
@@ -221,6 +223,7 @@ public class ServiceRegistryDao {
 		ServiceRegistryList registry = mongoTemplate.findOne(new Query(Criteria.where("_id").is(serviceRegistryId)),
 				ServiceRegistryList.class);
 		if (null != registry) {
+			log.debug("Publishing service registry");
 			List<Metadata> metadata = registry.getMetadata();
 			String proxyName = null;
 			String org = null;
@@ -282,6 +285,7 @@ public class ServiceRegistryDao {
 			RestTemplate restTemplate = new RestTemplate();
 			HttpEntity<Organization> requestEntity = new HttpEntity<>(organization, headers);
 			// ResponseEntity<String> response =
+			log.debug("Making a call to {}", hostUrl);
 			restTemplate.exchange(hostUrl, HttpMethod.POST, requestEntity, String.class);
 		} catch (Exception e) {
 			throw new ItorixException("error publishing regitry", "", e);

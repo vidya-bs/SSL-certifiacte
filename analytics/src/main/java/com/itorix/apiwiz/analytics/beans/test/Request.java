@@ -12,69 +12,69 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Request {
 
-    @JsonProperty("queryParams")
-    private List<QueryParam> queryParams = null;
+	@JsonProperty("queryParams")
+	private List<QueryParam> queryParams = null;
 
-    @JsonProperty("headers")
-    private List<Header> headers = null;
+	@JsonProperty("headers")
+	private List<Header> headers = null;
 
-    @JsonProperty("body")
-    private Body body;
+	@JsonProperty("body")
+	private Body body;
 
-    @JsonProperty("formParams")
-    private List<FormParam> formParams = null;
+	@JsonProperty("formParams")
+	private List<FormParam> formParams = null;
 
-    @JsonProperty("formURLEncoded")
-    private List<FormParam> formURLEncoded = null;
+	@JsonProperty("formURLEncoded")
+	private List<FormParam> formURLEncoded = null;
 
-    @JsonProperty("queryParams")
-    public List<QueryParam> getQueryParams() {
-        return queryParams;
-    }
+	@JsonProperty("queryParams")
+	public List<QueryParam> getQueryParams() {
+		return queryParams;
+	}
 
-    @JsonProperty("queryParams")
-    public void setQueryParams(List<QueryParam> queryParams) {
-        this.queryParams = queryParams;
-    }
+	@JsonProperty("queryParams")
+	public void setQueryParams(List<QueryParam> queryParams) {
+		this.queryParams = queryParams;
+	}
 
-    @JsonProperty("headers")
-    public List<Header> getHeaders() {
-        return headers;
-    }
+	@JsonProperty("headers")
+	public List<Header> getHeaders() {
+		return headers;
+	}
 
-    public void addHeader(Header header) {
-        if (this.headers == null)
-            this.headers = new ArrayList<Header>();
-        this.headers.add(header);
-    }
+	public void addHeader(Header header) {
+		if (this.headers == null)
+			this.headers = new ArrayList<Header>();
+		this.headers.add(header);
+	}
 
-    public void setHeaders(List<Header> headers) {
-        this.headers = headers;
-    }
+	public void setHeaders(List<Header> headers) {
+		this.headers = headers;
+	}
 
-    @JsonProperty("body")
-    public Body getBody() {
-        return body;
-    }
+	@JsonProperty("body")
+	public Body getBody() {
+		return body;
+	}
 
-    @JsonProperty("body")
-    public void setBody(Body body) {
-        this.body = body;
-    }
+	@JsonProperty("body")
+	public void setBody(Body body) {
+		this.body = body;
+	}
 
-    public List<FormParam> getFormURLEncoded() {
-        return formURLEncoded;
-    }
+	public List<FormParam> getFormURLEncoded() {
+		return formURLEncoded;
+	}
 
-    public void setFormURLEncoded(List<FormParam> formURLEncoded) {
-        this.formURLEncoded = formURLEncoded;
-    }
+	public void setFormURLEncoded(List<FormParam> formURLEncoded) {
+		this.formURLEncoded = formURLEncoded;
+	}
 
-    public List<FormParam> getFormParams() {
-        return formParams;
-    }
+	public List<FormParam> getFormParams() {
+		return formParams;
+	}
 
-    public void setFormParams(List<FormParam> formParams) {
-        this.formParams = formParams;
-    }
+	public void setFormParams(List<FormParam> formParams) {
+		this.formParams = formParams;
+	}
 }

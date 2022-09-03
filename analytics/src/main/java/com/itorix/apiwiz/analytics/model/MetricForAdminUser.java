@@ -9,9 +9,9 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MetricForAdminUser {
 
-    private Long numberOfUsers;
-    private Long numberOfLockedUsers;
-    private Long numberOfNewUsers;
-    private Integer totalTeams;
-    private Long numberOfNewTeams;
+	private Long numberOfUsers;
+	private Long numberOfLockedUsers;
+	private Long numberOfNewUsers;
+	private Integer totalTeams;
+	private Long numberOfNewTeams;
 }

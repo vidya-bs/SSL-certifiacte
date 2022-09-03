@@ -9,9 +9,9 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ConsentAuditExportResponse {
 
-    private String fileName;
-    private String downloadURI;
-    private String sha1;
-    private String md5;
+	private String fileName;
+	private String downloadURI;
+	private String sha1;
+	private String md5;
 
 }

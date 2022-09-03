@@ -5,6 +5,7 @@ import com.itorix.apiwiz.test.executor.beans.Assertion;
 import com.itorix.apiwiz.test.executor.beans.Response;
 import com.itorix.apiwiz.test.executor.beans.ResponseAssertions;
 import com.itorix.apiwiz.test.executor.beans.ResponseBodyValidation;
+import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -14,7 +15,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
+@Slf4j
 public class ResponseValidator {
 
     public static boolean isValidHeaders(Header[] headers, List<Assertion> assertionHeaders,
@@ -93,7 +94,7 @@ public class ResponseValidator {
                             testStatus.put("FAIL", testStatus.get("FAIL") + 1);
                         }
                         responeStatusAssertion.setMessage(ex.getMessage());
-                        ex.printStackTrace();
+                        log.error("Exception occurred",ex);
                         if (!responeStatusAssertion.isContinueOnError()) {
                             throw new HaltExecution();
                         }
@@ -119,7 +120,7 @@ public class ResponseValidator {
                     } else {
                         testStatus.put("FAIL", testStatus.get("FAIL") + 1);
                     }
-                    ex.printStackTrace();
+                    log.error("Exception occurred",ex);
                     if (!assertion.isContinueOnError()) {
                         throw new HaltExecution(ex.getMessage());
                     }
@@ -187,7 +188,7 @@ public class ResponseValidator {
                 }
             }
         } catch (AssertionError | Exception ex) {
-            ex.printStackTrace();
+            log.error("Exception occurred",ex);
             throw new Exception(ex.getMessage());
         }
     }
@@ -230,7 +231,7 @@ public class ResponseValidator {
                 }
             }
         } catch (AssertionError | Exception ex) {
-            ex.printStackTrace();
+            log.error("Exception occurred",ex);
             throw new Exception(ex.getMessage());
         }
     }

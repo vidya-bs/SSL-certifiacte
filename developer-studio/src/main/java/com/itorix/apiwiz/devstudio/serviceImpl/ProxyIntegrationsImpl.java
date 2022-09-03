@@ -280,7 +280,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 		integrationsDao.removeIntegratoin(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	@Override
 	public ResponseEntity<?> getAzureIntegraton(String interactionid, String jsessionid) throws Exception {
 		return new ResponseEntity<>(integrationsDao.getAzureDevopsIntegration(), HttpStatus.OK);

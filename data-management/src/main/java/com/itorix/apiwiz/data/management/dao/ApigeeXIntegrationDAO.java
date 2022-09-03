@@ -26,34 +26,35 @@ public class ApigeeXIntegrationDAO {
 	@Autowired
 	private ApigeeXUtill apigeeXUtill;
 
-	public void saveJSONKey(ApigeeXConfigurationVO apigeeXConfigurationVO){
+	public void saveJSONKey(ApigeeXConfigurationVO apigeeXConfigurationVO) {
 		ApigeeXConfigurationVO vo = getConfiguration(apigeeXConfigurationVO.getOrgName());
-		if( vo != null)
-		{
+		if (vo != null) {
 			apigeeXConfigurationVO.setId(vo.getId());
 		}
 		baseRepository.save(apigeeXConfigurationVO);
 	}
 
-	public ApigeeXConfigurationVO poplulateEnvironments(ApigeeXConfigurationVO apigeeXConfigurationVO) throws Exception{
-		List<String> envs = apigeeXUtill.getEnveronments(apigeeXConfigurationVO.getOrgName(), apigeeXConfigurationVO.getJsonKey());
+	public ApigeeXConfigurationVO poplulateEnvironments(ApigeeXConfigurationVO apigeeXConfigurationVO)
+			throws Exception {
+		List<String> envs = apigeeXUtill.getEnveronments(apigeeXConfigurationVO.getOrgName(),
+				apigeeXConfigurationVO.getJsonKey());
 		List<ApigeeXEnvironment> evironments = new ArrayList<>();
-		for(String env : envs){
-			if(apigeeXConfigurationVO.getEnvironments()==null || null == apigeeXConfigurationVO.getEnvironments().stream()
-					.filter(p -> p.getName().equals(env)).findFirst().get()){
+		for (String env : envs) {
+			if (apigeeXConfigurationVO.getEnvironments() == null || null == apigeeXConfigurationVO.getEnvironments()
+					.stream().filter(p -> p.getName().equals(env)).findFirst().get()) {
 				ApigeeXEnvironment apigeeXEnvironment = new ApigeeXEnvironment();
 				apigeeXEnvironment.setName(env);
 				evironments.add(apigeeXEnvironment);
-			}else{
-				evironments.add(apigeeXConfigurationVO.getEnvironments().stream()
-						.filter(p -> p.getName().equals(env)).findFirst().get());
+			} else {
+				evironments.add(apigeeXConfigurationVO.getEnvironments().stream().filter(p -> p.getName().equals(env))
+						.findFirst().get());
 			}
 		}
 		apigeeXConfigurationVO.setEvironments(evironments);
 		return apigeeXConfigurationVO;
 	}
 
-	public ApigeeXConfigurationVO updateConfiguration(String org) throws Exception{
+	public ApigeeXConfigurationVO updateConfiguration(String org) throws Exception {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("orgName").is(org));
 		ApigeeXConfigurationVO dbIntegrations = mongoTemplate.findOne(query, ApigeeXConfigurationVO.class);
@@ -61,30 +62,29 @@ public class ApigeeXIntegrationDAO {
 		baseRepository.save(apigeeXConfigurationVO);
 		return dbIntegrations;
 	}
-	
-	
-	public ApigeeXConfigurationVO getConfiguration(String org){
+
+	public ApigeeXConfigurationVO getConfiguration(String org) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("orgName").is(org));
 		ApigeeXConfigurationVO dbIntegrations = mongoTemplate.findOne(query, ApigeeXConfigurationVO.class);
 		return dbIntegrations;
 	}
 
-	public List<ApigeeXConfigurationVO> getConfigurations(){
+	public List<ApigeeXConfigurationVO> getConfigurations() {
 		List<ApigeeXConfigurationVO> dbIntegrations = mongoTemplate.findAll(ApigeeXConfigurationVO.class);
 		return dbIntegrations;
 	}
 
-	public void deleteConfiguration(String id){
+	public void deleteConfiguration(String id) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("id").is(id));
 		mongoTemplate.remove(query, ApigeeXConfigurationVO.class);
 	}
 
-	public ApigeeXConfigurationVO updateKVM(String org, ApigeeXEnvironment environment){
+	public ApigeeXConfigurationVO updateKVM(String org, ApigeeXEnvironment environment) {
 		ApigeeXConfigurationVO apigeeXConfigurationVO = getConfiguration(org);
-		for(ApigeeXEnvironment env : apigeeXConfigurationVO.getEnvironments()){
-			if(env.getName().equals(environment.getName())){
+		for (ApigeeXEnvironment env : apigeeXConfigurationVO.getEnvironments()) {
+			if (env.getName().equals(environment.getName())) {
 				env.setKvmProxy(environment.getKvmProxy());
 				env.setKvmProxyEndpoint(environment.getKvmProxyEndpoint());
 				env.setKvmProxyKey(environment.getKvmProxyKey());

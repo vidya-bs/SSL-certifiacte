@@ -17,8 +17,8 @@ public class XKVMService {
 		try {
 			String env = config.getEnv();
 			String org = config.getOrg();
-			String URL = apigeeXUtil.getApigeeHost(org)
-					+ "/v1/organizations/" + org + "/environments/" + env + "/keyvaluemaps";
+			String URL = apigeeXUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/environments/" + env
+					+ "/keyvaluemaps";
 			return URL;
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
@@ -29,8 +29,8 @@ public class XKVMService {
 		try {
 			String env = config.getEnv();
 			String org = config.getOrg();
-			String URL = apigeeXUtil.getApigeeHost(org)
-					+ "/v1/organizations/" + org + "/environments/" + env + "/keyvaluemaps/" + config.getName();
+			String URL = apigeeXUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/environments/" + env
+					+ "/keyvaluemaps/" + config.getName();
 			return URL;
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
@@ -39,8 +39,7 @@ public class XKVMService {
 
 	public String getCPSURL(KVMConfig config) throws ItorixException {
 		try {
-			return apigeeXUtil.getApigeeHost(config.getOrg())
-					+ "/v1/organizations/" + config.getOrg();
+			return apigeeXUtil.getApigeeHost(config.getOrg()) + "/v1/organizations/" + config.getOrg();
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
@@ -48,9 +47,8 @@ public class XKVMService {
 
 	public String getCPSKVMDeleteURL(KVMConfig config) throws ItorixException {
 		try {
-			return apigeeXUtil.getApigeeHost(config.getOrg())
-					+ "/v1/organizations/" + config.getOrg() + "/environments/" + config.getEnv() + "/keyvaluemaps/"
-					+ config.getName();
+			return apigeeXUtil.getApigeeHost(config.getOrg()) + "/v1/organizations/" + config.getOrg()
+					+ "/environments/" + config.getEnv() + "/keyvaluemaps/" + config.getName();
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
@@ -61,7 +59,7 @@ public class XKVMService {
 			ApigeeKVM apigeeKVM = new ApigeeKVM();
 			apigeeKVM.setName(config.getName());
 			apigeeKVM.setEncrypted("true");
-			//apigeeKVM.setEntry(config.getEntry());
+			// apigeeKVM.setEntry(config.getEntry());
 			return apigeeKVM;
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);

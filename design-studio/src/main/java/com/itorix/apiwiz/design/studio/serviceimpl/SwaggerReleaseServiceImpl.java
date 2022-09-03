@@ -29,7 +29,7 @@ public class SwaggerReleaseServiceImpl implements SwaggerReleaseService {
 
 	@Autowired
 	private SwaggerDiffService swaggerDiffService;
-	
+
 	@Autowired
 	private SwaggerSubscriptionDao swaggerSubscriptionDao;
 

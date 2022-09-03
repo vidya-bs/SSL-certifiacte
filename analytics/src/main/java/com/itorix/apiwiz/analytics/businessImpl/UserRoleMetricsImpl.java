@@ -28,120 +28,127 @@ import java.util.stream.Collectors;
 @Service
 public class UserRoleMetricsImpl {
 
-    @Qualifier("masterMongoTemplate")
-    @Autowired
-    private MongoTemplate masterMongoTemplate;
+	@Qualifier("masterMongoTemplate")
+	@Autowired
+	private MongoTemplate masterMongoTemplate;
 
-    @Autowired
-    private MongoTemplate mongoTemplate;
+	@Autowired
+	private MongoTemplate mongoTemplate;
 
-    public UserRoleMetrics createUserRoleMetrics() {
-        UserRoleMetrics userRoleMetrics = new UserRoleMetrics();
+	public UserRoleMetrics createUserRoleMetrics() {
+		UserRoleMetrics userRoleMetrics = new UserRoleMetrics();
 
-        MetricForAdminUser metricForAdminUser = generateMetricsForAdminUser();
-        userRoleMetrics.setMetricForAdminUser(metricForAdminUser);
+		MetricForAdminUser metricForAdminUser = generateMetricsForAdminUser();
+		userRoleMetrics.setMetricForAdminUser(metricForAdminUser);
 
-        MetricsForOperationsUser metricsForOperationsUser = generateMetricsForOperationsUser();
-        userRoleMetrics.setMetricsForOperationsUser(metricsForOperationsUser);
+		MetricsForOperationsUser metricsForOperationsUser = generateMetricsForOperationsUser();
+		userRoleMetrics.setMetricsForOperationsUser(metricsForOperationsUser);
 
-        userRoleMetrics.setOtherMetric(generateOtherMetrics());
+		userRoleMetrics.setOtherMetric(generateOtherMetrics());
 
-        return userRoleMetrics;
-    }
+		return userRoleMetrics;
+	}
 
+	private OtherMetric generateOtherMetrics() {
+		OtherMetric otherUserMetric = new OtherMetric();
+		Map<String, Integer> oas2CountByStatus = getOasCountByStatus("2.0");
+		otherUserMetric.setOas2CountByStatus(oas2CountByStatus);
 
-    private OtherMetric generateOtherMetrics() {
-        OtherMetric otherUserMetric = new OtherMetric();
-        Map<String, Integer> oas2CountByStatus = getOasCountByStatus("2.0");
-        otherUserMetric.setOas2CountByStatus(oas2CountByStatus);
+		Map<String, Integer> oas3CountByStatus = getOasCountByStatus("3.0");
+		otherUserMetric.setOas3CountByStatus(oas3CountByStatus);
+		otherUserMetric.setVirtualizationRequestsWithoutMatch(virtualizationRequestWithoutMatch());
+		otherUserMetric
+				.setNoOfTestsWithLessThanFiftyPercentCoverage(getNumberOfTestsWithLessThanFiftyPercentCoverage());
 
+		return otherUserMetric;
+	}
 
-        Map<String, Integer> oas3CountByStatus = getOasCountByStatus("3.0");
-        otherUserMetric.setOas3CountByStatus(oas3CountByStatus);
-        otherUserMetric.setVirtualizationRequestsWithoutMatch(virtualizationRequestWithoutMatch());
-        otherUserMetric.setNoOfTestsWithLessThanFiftyPercentCoverage(getNumberOfTestsWithLessThanFiftyPercentCoverage());
+	private Integer getNumberOfTestsWithLessThanFiftyPercentCoverage() {
+		return mongoTemplate
+				.find(Query.query(Criteria.where("successRatio").lte(50)), Document.class, "Test.Collections.List")
+				.size();
+	}
 
+	private Integer virtualizationRequestWithoutMatch() {
+		return mongoTemplate.find(Query.query(Criteria.where("wasMatched").is(Boolean.FALSE)), Document.class,
+				"Mock.Execution.Logs").size();
+	}
 
-        return otherUserMetric;
-    }
+	private Map<String, Integer> getOasCountByStatus(String version) {
+		String collectionName = version.equals("2.0") ? "Design.Swagger.List" : "Design.Swagger3.List";
+		GroupOperation groupOperation = Aggregation.group("status").count().as("count");
+		List<Document> mappedResults = mongoTemplate
+				.aggregate(Aggregation.newAggregation(groupOperation), collectionName, Document.class)
+				.getMappedResults();
+		Map<String, Integer> oas2CountByStatus = mappedResults.stream()
+				.collect(Collectors.toMap(d -> d.getString("_id"), d -> d.getInteger("count")));
+		return oas2CountByStatus;
+	}
 
-    private Integer getNumberOfTestsWithLessThanFiftyPercentCoverage() {
-        return mongoTemplate.find(Query.query(Criteria.where("successRatio").lte(50)), Document.class, "Test.Collections.List").size();
-    }
+	private MetricsForOperationsUser generateMetricsForOperationsUser() {
+		MetricsForOperationsUser metricsForOperationsUser = new MetricsForOperationsUser();
+		GroupOperation groupOperation = Aggregation.group("state").count().as("count");
+		Aggregation aggregation = Aggregation.newAggregation(groupOperation);
+		List<Document> mappedResults = mongoTemplate.aggregate(aggregation, "CICD.Release.Package.List", Document.class)
+				.getMappedResults();
+		Map<String, Integer> releasePackageCountByState = mappedResults.stream()
+				.collect(Collectors.toMap(d -> d.getString("_id"), d -> d.getInteger("count")));
 
-    private Integer virtualizationRequestWithoutMatch() {
-        return mongoTemplate.find(Query.query(Criteria.where("wasMatched").is(Boolean.FALSE)), Document.class, "Mock.Execution.Logs").size();
-    }
+		metricsForOperationsUser.setReleasePackageCountByStatus(releasePackageCountByState);
 
-    private Map<String, Integer> getOasCountByStatus(String version) {
-        String collectionName = version.equals("2.0") ? "Design.Swagger.List" : "Design.Swagger3.List";
-        GroupOperation groupOperation = Aggregation.group("status").count().as("count");
-        List<Document> mappedResults = mongoTemplate.aggregate(Aggregation.newAggregation(groupOperation), collectionName, Document.class).getMappedResults();
-        Map<String, Integer> oas2CountByStatus = mappedResults.stream().collect(Collectors.toMap(d -> d.getString("_id"), d -> d.getInteger("count")));
-        return oas2CountByStatus;
-    }
+		GroupOperation groupSR = Aggregation.group("type", "status").count().as("count");
+		Aggregation aggregationSR = Aggregation.newAggregation(groupSR);
 
+		List<Document> serviceRequestByStatus = mongoTemplate
+				.aggregate(aggregationSR, "Connectors.Apigee.ServiceRequest.Lists", Document.class).getMappedResults();
 
-    private MetricsForOperationsUser generateMetricsForOperationsUser() {
-        MetricsForOperationsUser metricsForOperationsUser = new MetricsForOperationsUser();
-        GroupOperation groupOperation = Aggregation.group("state").count().as("count");
-        Aggregation aggregation = Aggregation.newAggregation(groupOperation);
-        List<Document> mappedResults = mongoTemplate.aggregate(aggregation, "CICD.Release.Package.List", Document.class).getMappedResults();
-        Map<String, Integer> releasePackageCountByState = mappedResults.stream().collect(Collectors.toMap(d -> d.getString("_id"), d -> d.getInteger("count")));
+		metricsForOperationsUser.setServiceRequestByStatus(serviceRequestByStatus);
 
-        metricsForOperationsUser.setReleasePackageCountByStatus(releasePackageCountByState);
+		return metricsForOperationsUser;
 
-        GroupOperation groupSR = Aggregation.group("type", "status").count().as("count");
-        Aggregation aggregationSR = Aggregation.newAggregation(groupSR);
+	}
 
-        List<Document> serviceRequestByStatus = mongoTemplate.aggregate(aggregationSR, "Connectors.Apigee.ServiceRequest.Lists", Document.class).getMappedResults();
+	private MetricForAdminUser generateMetricsForAdminUser() {
+		MetricForAdminUser metricForAdminUser = new MetricForAdminUser();
 
-        metricsForOperationsUser.setServiceRequestByStatus(serviceRequestByStatus);
+		generateUserMetrics(metricForAdminUser);
 
-        return metricsForOperationsUser;
+		generateTeamMetrics(metricForAdminUser);
 
-    }
+		return metricForAdminUser;
+	}
 
+	private void generateUserMetrics(MetricForAdminUser metricForAdminUser) {
+		UserSession authentication = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		String currentTenant = authentication.getTenant() != null
+				? mongoTemplate.getDb().getName()
+				: authentication.getTenant();
 
-    private MetricForAdminUser generateMetricsForAdminUser() {
-        MetricForAdminUser metricForAdminUser = new MetricForAdminUser();
+		List<User> all = masterMongoTemplate.findAll(User.class);
 
-        generateUserMetrics(metricForAdminUser);
+		Set<User> usersFilterByWS = all.stream().filter(u -> u.containsWorkspace(currentTenant))
+				.collect(Collectors.toSet());
+		metricForAdminUser.setNumberOfUsers(usersFilterByWS.stream().count());
 
-        generateTeamMetrics(metricForAdminUser);
+		long numberOfLockedUsers = usersFilterByWS.stream().filter(u -> u.getUserWorkspace(currentTenant).getActive())
+				.count();
+		metricForAdminUser.setNumberOfLockedUsers(numberOfLockedUsers);
 
+		long unixEpoch = LocalDateTime.now().minusDays(5).toInstant(ZoneOffset.UTC).toEpochMilli();
 
-        return metricForAdminUser;
-    }
+		long numberOfNewUsersCreated = usersFilterByWS.stream()
+				.filter(u -> u.getCts() != null && u.getCts() >= unixEpoch).count();
 
-    private void generateUserMetrics(MetricForAdminUser metricForAdminUser) {
-        UserSession authentication = ServiceRequestContextHolder.getContext().getUserSessionToken();
-        String currentTenant = authentication.getTenant() != null ? mongoTemplate.getDb().getName() : authentication.getTenant();
+		metricForAdminUser.setNumberOfNewUsers(numberOfNewUsersCreated);
+	}
 
-        
-        List<User> all = masterMongoTemplate.findAll(User.class);
+	private void generateTeamMetrics(MetricForAdminUser metricForAdminUser) {
+		long unixEpoch = LocalDateTime.now().minusDays(5).toInstant(ZoneOffset.UTC).toEpochMilli();
+		List<SwaggerTeam> listOfTeams = mongoTemplate.findAll(SwaggerTeam.class);
+		int totalTeams = listOfTeams.size();
+		metricForAdminUser.setTotalTeams(totalTeams);
 
-        Set<User> usersFilterByWS = all.stream().filter(u -> u.containsWorkspace(currentTenant)).collect(Collectors.toSet());
-        metricForAdminUser.setNumberOfUsers(usersFilterByWS.stream().count());
-
-        long numberOfLockedUsers = usersFilterByWS.stream().filter(u -> u.getUserWorkspace(currentTenant).getActive()).count();
-        metricForAdminUser.setNumberOfLockedUsers(numberOfLockedUsers);
-
-
-        long unixEpoch = LocalDateTime.now().minusDays(5).toInstant(ZoneOffset.UTC).toEpochMilli();
-
-        long numberOfNewUsersCreated = usersFilterByWS.stream().filter(u -> u.getCts()!=null && u.getCts() >= unixEpoch).count();
-
-        metricForAdminUser.setNumberOfNewUsers(numberOfNewUsersCreated);
-    }
-
-    private void generateTeamMetrics(MetricForAdminUser metricForAdminUser) {
-        long unixEpoch = LocalDateTime.now().minusDays(5).toInstant(ZoneOffset.UTC).toEpochMilli();
-        List<SwaggerTeam> listOfTeams = mongoTemplate.findAll(SwaggerTeam.class);
-        int totalTeams = listOfTeams.size();
-        metricForAdminUser.setTotalTeams(totalTeams);
-
-        long numberOfNewTeams = listOfTeams.stream().filter(t -> t.getCts() >= unixEpoch).count();
-        metricForAdminUser.setNumberOfNewTeams(numberOfNewTeams);
-    }
+		long numberOfNewTeams = listOfTeams.stream().filter(t -> t.getCts() >= unixEpoch).count();
+		metricForAdminUser.setNumberOfNewTeams(numberOfNewTeams);
+	}
 }

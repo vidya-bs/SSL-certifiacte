@@ -37,10 +37,9 @@ public class Stage {
 
 	@JsonProperty("isSaaS")
 	private Boolean isSaas;
-	
+
 	@JsonProperty("gwType")
 	private String gwType;
-
 
 	public String getGwType() {
 		return gwType;

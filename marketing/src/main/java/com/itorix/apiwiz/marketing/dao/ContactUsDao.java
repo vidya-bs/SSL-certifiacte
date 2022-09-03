@@ -78,6 +78,7 @@ public class ContactUsDao {
 				headers.setContentType(MediaType.APPLICATION_JSON);
 				HttpEntity<RequestModel> httpEntity = new HttpEntity<>(requestModel, headers);
 				String monitorUrl = notificationAgentPath + notificationContextPath + NOTIFICATION_AGENT_NOTIFY;
+				log.debug("Making a call to {}", monitorUrl);
 				ResponseEntity<String> result = restTemplate.postForEntity(monitorUrl, httpEntity, String.class);
 				if (!result.getStatusCode().is2xxSuccessful()) {
 					log.error("error returned from notification agent", result.getBody());

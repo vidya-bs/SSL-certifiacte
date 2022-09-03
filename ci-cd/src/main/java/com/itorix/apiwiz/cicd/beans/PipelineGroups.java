@@ -70,8 +70,6 @@ public class PipelineGroups {
 	public List<Pipeline> getPipelines() {
 		return pipelines;
 	}
-	
-
 
 	@JsonProperty("pipelines")
 	public void setPipelines(List<Pipeline> pipelines) {
