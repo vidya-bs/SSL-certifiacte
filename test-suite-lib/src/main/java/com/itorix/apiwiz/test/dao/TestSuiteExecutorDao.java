@@ -208,7 +208,10 @@ public class TestSuiteExecutorDao {
 		}
 	}
 	public boolean getTimeoutEnable() {
-		com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration integration =  mongoTemplate.findOne(Query.query(Criteria.where("_id").is("apiwiz.testsuite.scenario.timeout.enabled")), com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration.class);
-		return integration != null && integration.getPropertyValue().equalsIgnoreCase("true");
+		Document doc = mongoTemplate.findOne(Query.query(Criteria.where("_id").is("apiwiz.testsuite.scenario.timeout.enabled")),Document.class,"Connectors.Workspace.List");
+		if(doc!=null){
+			return doc.getString("propertyValue") != null && doc.getString("propertyValue").equalsIgnoreCase("true");
+		}
+		return false;
 	}
 }
