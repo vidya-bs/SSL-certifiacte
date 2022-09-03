@@ -28,6 +28,19 @@ public class Scenario {
     @JsonProperty("duration")
     private Long duration;
 
+    @JsonProperty("timeout")
+    private int timeout;
+
+    @JsonProperty("timeout")
+    public int getTimeout() {
+        return timeout;
+    }
+
+    @JsonProperty("timeout")
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
     @JsonProperty("continueOnError")
     private boolean continueOnError = true;
 

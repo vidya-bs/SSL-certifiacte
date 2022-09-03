@@ -10,88 +10,115 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Scenario {
 
-	@JsonProperty("name")
-	private String name;
+    @JsonProperty("name")
+    private String name;
 
-	@JsonProperty("description")
-	private String description;
+    @JsonProperty("description")
+    private String description;
 
-	@JsonProperty("status")
-	private String status;
+    @JsonProperty("status")
+    private String status;
 
-	@JsonProperty("testCases")
-	private List<TestCase> testCases = null;
+    @JsonProperty("testCases")
+    private List<TestCase> testCases = null;
 
-	@JsonProperty("successRate")
-	private int successRate;
+    @JsonProperty("successRate")
+    private int successRate;
 
-	@JsonProperty("duration")
-	private Long duration;
+    @JsonProperty("duration")
+    private Long duration;
 
-	@JsonProperty("continueOnError")
-	private boolean continueOnError = true;
+    @JsonProperty("continueOnError")
+    private boolean continueOnError = true;
 
-	@JsonProperty("name")
-	public String getName() {
-		return name;
-	}
+    @JsonProperty("timeout")
+    private int timeout;
 
-	@JsonProperty("name")
-	public void setName(String name) {
-		this.name = name;
-	}
+    @JsonProperty("timeout")
+    public int getTimeout() {
+        return timeout;
+    }
 
-	@JsonProperty("description")
-	public String getDescription() {
-		return description;
-	}
+    @JsonProperty("timeout")
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
 
-	@JsonProperty("description")
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    @JsonProperty("name")
+    public String getName() {
+        return name;
+    }
 
-	@JsonProperty("testCases")
-	public List<TestCase> getTestCases() {
-		return testCases;
-	}
+    @JsonProperty("name")
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@JsonProperty("testCases")
-	public void setTestCases(List<TestCase> testCases) {
-		this.testCases = testCases;
-	}
+    @JsonProperty("description")
+    public String getDescription() {
+        return description;
+    }
 
-	@JsonProperty("status")
-	public String getStatus() {
-		return status;
-	}
+    @JsonProperty("description")
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	@JsonProperty("status")
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    @JsonProperty("testCases")
+    public List<TestCase> getTestCases() {
+        return testCases;
+    }
+
+    @JsonProperty("testCases")
+    public void setTestCases(List<TestCase> testCases) {
+        this.testCases = testCases;
+    }
+
+    @JsonProperty("status")
+    public String getStatus() {
+        return status;
+    }
+
+    @JsonProperty("status")
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+	@JsonProperty("depends")
+	private String dependsOn;
 
 	public int getSuccessRate() {
 		return successRate;
 	}
 
-	public void setSuccessRate(int successRate) {
-		this.successRate = successRate;
-	}
 
-	public Long getDuration() {
-		return duration;
-	}
+    public void setSuccessRate(int successRate) {
+        this.successRate = successRate;
+    }
 
-	public void setDuration(Long duration) {
-		this.duration = duration;
-	}
+    public Long getDuration() {
+        return duration;
+    }
 
-	public boolean isContinueOnError() {
-		return continueOnError;
-	}
+    public void setDuration(Long duration) {
+        this.duration = duration;
+    }
+
+    public boolean isContinueOnError() {
+        return continueOnError;
+    }
+
 
 	public void setContinueOnError(boolean continueOnError) {
 		this.continueOnError = continueOnError;
 	}
+
+	public String getDependsOn() {
+		return dependsOn;
+	}
+
+	public void setDependsOn(String dependsOn) {
+		this.dependsOn = dependsOn;
+	}
+
 }

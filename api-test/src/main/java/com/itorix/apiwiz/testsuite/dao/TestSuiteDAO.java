@@ -283,6 +283,9 @@ public class TestSuiteDAO {
 		Query query = new Query(Criteria.where("_id").is(testsuiteid));
 		TestSuite testSuite = mongoTemplate.findOne(query, TestSuite.class);
 		if (testSuite != null) {
+			if(scenario.getTimeout()>250 || scenario.getTimeout()<0){
+				scenario.setTimeout(250);
+			}
 			if (testSuite.getScenarios() == null) {
 				List<Scenario> scenarios = new ArrayList<>();
 				scenarios.add(scenario);

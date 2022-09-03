@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -101,7 +102,7 @@ public class TestRunner {
     }
 
     public TestSuiteResponse executeTestSuite(String testSuiteResponseID, TestSuite testSuite, Variables vars,
-            Boolean skipAssertions, Boolean isMonitoring, int globalTimeout) {
+                                              Boolean skipAssertions, Boolean isMonitoring, int globalTimeout) {
         List<String> succededScenarios = new ArrayList<String>();
         List<String> failedScenarios = new ArrayList<String>();
         double scenarioSuccessSum = 0.0;
@@ -151,12 +152,17 @@ public class TestRunner {
                 Map<String, Boolean> failedTests = new HashMap<>();
                 try {
                     logger.debug("executing scenario for testSuiteResponseID" + testSuiteResponseID);
-
                     if (cancellationExecutor.getAndRemoveTestSuiteCancellationId(testSuiteResponseID)) {
                         return new TestSuiteResponse(testSuite.getId(), null, testSuite,
                                 TestExecutorEntity.STATUSES.CANCELLED.getValue());
                     }
                     if (scenario != null && scenario.getTestCases() != null) {
+                        if(dao.getTimeoutEnable()){
+                            logger.info(String.format("Starting timeout for ScenarioName: %s, TestsuiteId: %s, at time: %s",scenario.getName(),testSuiteResponseID,LocalTime.now()));
+                            Thread.sleep(scenario.getTimeout());
+                            logger.info(String.format("Ending timeout for ScenarioName: %s, TestsuiteId: %s, at time: %s",scenario.getName(),testSuiteResponseID,LocalTime.now()));
+                        }
+
                         List<TestCase> testCases = scenario.getTestCases();
 
                         int numberOfTestCases = testCases.size();
