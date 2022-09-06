@@ -1,15 +1,15 @@
 package com.itorix.apiwiz.design.studio.model;
 
-import java.util.List;
+import java.util.Set;
 
 public class AsociateSwaggerPartnerRequest {
-	private List<String> partnerId;
+	private Set<String> partnerId;
 
-	public List<String> getPartnerId() {
+	public Set<String> getPartnerId() {
 		return partnerId;
 	}
 
-	public void setPartnerId(List<String> partnerId) {
+	public void setPartnerId(Set<String> partnerId) {
 		this.partnerId = partnerId;
 	}
 

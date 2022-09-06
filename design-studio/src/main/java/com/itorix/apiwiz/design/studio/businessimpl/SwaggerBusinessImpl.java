@@ -64,6 +64,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.FindAndReplaceOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -120,19 +121,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
     private static final String STATUS_VALUE = "status";
 
-    /**
-     * createSwagger
-     *
-     * @param swaggerVO
-     * @return SwaggerVO
-     */
-    public SwaggerVO createSwagger(SwaggerVO swaggerVO) {
-        log("createSwagger", swaggerVO.getInteractionid(), swaggerVO);
-        swaggerVO.setRevision(1);
-        swaggerVO.setStatus("Draft");
-        swaggerVO.setLock(false);
-        swaggerVO.setId(null);
-        swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
+	public SwaggerVO createSwagger(SwaggerVO swaggerVO) {
+		log("createSwagger", swaggerVO.getInteractionid(), swaggerVO);
+		swaggerVO.setRevision(1);
+		swaggerVO.setStatus("Draft");
+		swaggerVO.setLock(false);
+		swaggerVO.setId(null);
+		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
 
         try {
             Swagger swagger = convertToSwagger(swaggerVO.getSwagger());
@@ -141,62 +136,70 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
                 swaggerVO.setSwagger(apicUtil.getPolicyTemplates(swaggerVO.getSwagger()));
             }
 
-        } catch (Exception e) {
-            log.error("Exception occurred : {}",e.getMessage());
-        }
+		} catch (Exception e) {
+			log.error("Exception occurred", e);
+		}
 
         SwaggerVO details = baseRepository.save(swaggerVO);
         log("createSwagger", swaggerVO.getInteractionid(), details);
         return details;
     }
 
-    /**
-     * createSwagger
-     *
-     * @param swagger3VO
-     * @return Swagger3VO
-     */
-    public Swagger3VO createSwagger(Swagger3VO swaggerVO) {
-        log("createSwagger", swaggerVO.getInteractionid(), swaggerVO);
-        swaggerVO.setRevision(1);
-        swaggerVO.setStatus("Draft");
-        swaggerVO.setLock(false);
-        swaggerVO.setId(null);
-        swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
-        Swagger3VO details = baseRepository.save(swaggerVO);
-        log("createSwagger", swaggerVO.getInteractionid(), details);
-        return details;
-    }
+	public Swagger3VO createSwagger(Swagger3VO swaggerVO) {
+		log("createSwagger", swaggerVO.getInteractionid(), swaggerVO);
+		swaggerVO.setRevision(1);
+		swaggerVO.setStatus("Draft");
+		swaggerVO.setLock(false);
+		swaggerVO.setId(null);
+		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
+		Swagger3VO details = baseRepository.save(swaggerVO);
+		log("createSwagger", swaggerVO.getInteractionid(), details);
+		return details;
+	}
 
-    public boolean saveSwagger(SwaggerVO swaggerVO) throws ItorixException {
-        SwaggerVO vo = findSwagger(swaggerVO);
-        if (vo != null) {
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1002"), swaggerVO.getName()),
-                    "Swagger-1002");
-        }
-        swaggerVO.setRevision(1);
-        swaggerVO.setStatus("Draft");
-        swaggerVO.setLock(false);
-        swaggerVO.setId(null);
-        swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
-        baseRepository.save(swaggerVO);
-        return true;
-    }
+	/**
+	 * Save swagger boolean.
+	 *
+	 * @param swaggerVO the swagger vo
+	 * @return the boolean
+	 * @throws ItorixException the itorix exception
+	 */
+	public boolean saveSwagger(SwaggerVO swaggerVO) throws ItorixException {
+		SwaggerVO vo = findSwagger(swaggerVO);
+		if (vo != null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1002"), swaggerVO.getName()),
+					"Swagger-1002");
+		}
+		swaggerVO.setRevision(1);
+		swaggerVO.setStatus("Draft");
+		swaggerVO.setLock(false);
+		swaggerVO.setId(null);
+		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
+		baseRepository.save(swaggerVO);
+		return true;
+	}
 
-    public boolean saveSwagger(Swagger3VO swaggerVO) throws ItorixException {
-        Swagger3VO vo = findSwagger(swaggerVO);
-        if (vo != null) {
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1002"), swaggerVO.getName()),
-                    "Swagger-1002");
-        }
-        swaggerVO.setRevision(1);
-        swaggerVO.setStatus("Draft");
-        swaggerVO.setLock(false);
-        swaggerVO.setId(null);
-        swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
-        baseRepository.save(swaggerVO);
-        return true;
-    }
+	/**
+	 * Save swagger boolean.
+	 *
+	 * @param swaggerVO the swagger vo
+	 * @return the boolean
+	 * @throws ItorixException the itorix exception
+	 */
+	public boolean saveSwagger(Swagger3VO swaggerVO) throws ItorixException {
+		Swagger3VO vo = findSwagger(swaggerVO);
+		if (vo != null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1002"), swaggerVO.getName()),
+					"Swagger-1002");
+		}
+		swaggerVO.setRevision(1);
+		swaggerVO.setStatus("Draft");
+		swaggerVO.setLock(false);
+		swaggerVO.setId(null);
+		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
+		baseRepository.save(swaggerVO);
+		return true;
+	}
 
     private void raiseException(List<String> fileds) throws ItorixException {
         try {
@@ -300,139 +303,139 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
                 filecontent = FileUtils.readFileToString(file);
             }
 
-            JsonNode swaggerObject = mapper.readTree(filecontent);
-            String version = getVersion(swaggerObject);
-            boolean isVersion2 = false;
-            if (version != null && (version.startsWith("\"1") || version.startsWith("1"))) {
-                isVersion2 = true;
-            } else if (version != null && (version.startsWith("\"2") || version.startsWith("2"))) {
-                isVersion2 = true;
-            }
-            if (isVersion2) {
-                if (oas != null && !StringUtils.equalsIgnoreCase("2.0", oas)) {
-                    if (!fileList.isEmpty())
-                        fileList = fileList.concat("," + file.getName());
-                    else
-                        fileList = fileList.concat(file.getName());
-                }
-            } else {
-                if (oas != null && !StringUtils.equalsIgnoreCase("3.0", oas)) {
-                    if (!fileList.isEmpty())
-                        fileList = fileList.concat(", " + file.getName());
-                    else
-                        fileList = fileList.concat(file.getName());
-                }
-            }
-        }
-        if (!fileList.isEmpty()) {
-            throw new ItorixException(message + fileList, "General-1000");
-        }
-        for (File file : files) {
-            try {
-                String filecontent;
-                if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("yaml")) {
-                    filecontent = convertYamlToJson(FileUtils.readFileToString(file));
-                } else {
-                    filecontent = FileUtils.readFileToString(file);
-                }
+			JsonNode swaggerObject = mapper.readTree(filecontent);
+			String version = getVersion(swaggerObject);
+			boolean isVersion2 = false;
+			if (version != null && (version.startsWith("\"1") || version.startsWith("1"))) {
+				isVersion2 = true;
+			} else if (version != null && (version.startsWith("\"2") || version.startsWith("2"))) {
+				isVersion2 = true;
+			}
+			if (isVersion2) {
+				if (oas != null && !StringUtils.equalsIgnoreCase("2.0", oas)) {
+					if (!fileList.isEmpty())
+						fileList = fileList.concat("," + file.getName());
+					else
+						fileList = fileList.concat(file.getName());
+				}
+			} else {
+				if (oas != null && !StringUtils.equalsIgnoreCase("3.0", oas)) {
+					if (!fileList.isEmpty())
+						fileList = fileList.concat(", " + file.getName());
+					else
+						fileList = fileList.concat(file.getName());
+				}
+			}
+		}
+		if (!fileList.isEmpty()) {
+			throw new ItorixException(message + fileList, "General-1000");
+		}
+		for (File file : files) {
+			try {
+				String filecontent;
+				if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("yaml")) {
+					filecontent = convertYamlToJson(FileUtils.readFileToString(file));
+				} else {
+					filecontent = FileUtils.readFileToString(file);
+				}
 
-                JsonNode swaggerObject = mapper.readTree(filecontent);
-                boolean isVersion2 = false;
-                String version = getVersion(swaggerObject);
-                if (version != null && (version.startsWith("\"1") || version.startsWith("1"))) {
-                    isVersion2 = true;
-                } else if (version != null && (version.startsWith("\"2") || version.startsWith("2"))) {
-                    isVersion2 = true;
-                }
-                if (isVersion2) {
-                    JsonNode info = swaggerObject.path("info");
-                    if (info != null) {
-                        String swaggerName = info.get("title").asText();
-                        String reason = null;
-                        SwaggerVO swaggerVO = new SwaggerVO();
-                        swaggerVO.setName(swaggerName);
-                        swaggerVO.setSwagger(filecontent);
-                        SwaggerImport swagger = new SwaggerImport();
-                        swagger.setLoaded(false);
-                        swagger.setName(swaggerName);
-                        // swagger.setPath(file.getAbsolutePath());
-                        try {
-                            saveSwagger(swaggerVO);
-                            swagger.setSwaggerId(swaggerVO.getSwaggerId());
-                            swagger.setLoaded(true);
-                            reason = "swagger loadeds";
-                        } catch (ItorixException e) {
-                            if (e.errorCode.equals("Swagger-1002")) {
-                                reason = "swagger with same name exists";
-                                createSwaggerWithNewRevision(swaggerVO, null);
-                            }
-                            swagger.setReason(reason);
-                        }
-                        listSwaggers.add(swagger);
-                    } else {
-                        new ItorixException("invalid JSON file");
-                    }
-                } else {
-                    JsonNode info = swaggerObject.path("info");
-                    if (info != null) {
-                        String swaggerName = info.get("title").asText();
-                        String reason = null;
-                        Swagger3VO swaggerVO = new Swagger3VO();
-                        swaggerVO.setName(swaggerName);
-                        swaggerVO.setSwagger(filecontent);
-                        SwaggerImport swagger = new SwaggerImport();
-                        swagger.setLoaded(false);
-                        swagger.setName(swaggerName);
-                        swagger.setPath(file.getAbsolutePath());
-                        try {
-                            saveSwagger(swaggerVO);
-                            swagger.setSwaggerId(swaggerVO.getSwaggerId());
-                            swagger.setLoaded(true);
-                        } catch (ItorixException e) {
-                            if (e.errorCode.equals("Swagger-1002")) {
-                                reason = "swagger with same name exists";
-                                createSwaggerWithNewRevision(swaggerVO, null);
-                            }
-                            swagger.setReason(reason);
-                        }
-                        listSwaggers.add(swagger);
-                    } else {
-                        new ItorixException("invalid JSON file");
-                    }
-                }
-            } catch (Exception e) {
-                SwaggerImport swagger = new SwaggerImport();
-                swagger.setLoaded(false);
-                swagger.setName(file.getName());
-                swagger.setReason("invalid JSON file");
-                log.error("Exception occurred : {}",e.getMessage());
-            }
-        }
-        return listSwaggers;
-    }
+				JsonNode swaggerObject = mapper.readTree(filecontent);
+				boolean isVersion2 = false;
+				String version = getVersion(swaggerObject);
+				if (version != null && (version.startsWith("\"1") || version.startsWith("1"))) {
+					isVersion2 = true;
+				} else if (version != null && (version.startsWith("\"2") || version.startsWith("2"))) {
+					isVersion2 = true;
+				}
+				if (isVersion2) {
+					JsonNode info = swaggerObject.path("info");
+					if (info != null) {
+						String swaggerName = info.get("title").asText();
+						String reason = null;
+						SwaggerVO swaggerVO = new SwaggerVO();
+						swaggerVO.setName(swaggerName);
+						swaggerVO.setSwagger(filecontent);
+						SwaggerImport swagger = new SwaggerImport();
+						swagger.setLoaded(false);
+						swagger.setName(swaggerName);
+						// swagger.setPath(file.getAbsolutePath());
+						try {
+							saveSwagger(swaggerVO);
+							swagger.setSwaggerId(swaggerVO.getSwaggerId());
+							swagger.setLoaded(true);
+							reason = "swagger loadeds";
+						} catch (ItorixException e) {
+							if (e.errorCode.equals("Swagger-1002")) {
+								reason = "swagger with same name exists";
+								createSwaggerWithNewRevision(swaggerVO, null);
+							}
+							swagger.setReason(reason);
+						}
+						listSwaggers.add(swagger);
+					} else {
+						new ItorixException("invalid JSON file");
+					}
+				} else {
+					JsonNode info = swaggerObject.path("info");
+					if (info != null) {
+						String swaggerName = info.get("title").asText();
+						String reason = null;
+						Swagger3VO swaggerVO = new Swagger3VO();
+						swaggerVO.setName(swaggerName);
+						swaggerVO.setSwagger(filecontent);
+						SwaggerImport swagger = new SwaggerImport();
+						swagger.setLoaded(false);
+						swagger.setName(swaggerName);
+						swagger.setPath(file.getAbsolutePath());
+						try {
+							saveSwagger(swaggerVO);
+							swagger.setSwaggerId(swaggerVO.getSwaggerId());
+							swagger.setLoaded(true);
+						} catch (ItorixException e) {
+							if (e.errorCode.equals("Swagger-1002")) {
+								reason = "swagger with same name exists";
+								createSwaggerWithNewRevision(swaggerVO, null);
+							}
+							swagger.setReason(reason);
+						}
+						listSwaggers.add(swagger);
+					} else {
+						new ItorixException("invalid JSON file");
+					}
+				}
+			} catch (Exception e) {
+				SwaggerImport swagger = new SwaggerImport();
+				swagger.setLoaded(false);
+				swagger.setName(file.getName());
+				swagger.setReason("invalid JSON file");
+				log.error("Exception occurred : {}", e.getMessage());
+			}
+		}
+		return listSwaggers;
+	}
 
-    private String getVersion(JsonNode node) {
-        try {
-            if (node == null) {
-                return null;
-            }
-            JsonNode version = node.get("openapi");
-            if (version != null) {
-                return version.toString();
-            }
-            version = node.get("swagger");
-            if (version != null) {
-                return version.toString();
-            }
-            version = node.get("swaggerVersion");
-            if (version != null) {
-                return version.toString();
-            }
-        } catch (Exception ex) {
-
-        }
-        return null;
-    }
+	private String getVersion(JsonNode node) {
+		try {
+			if (node == null) {
+				return null;
+			}
+			JsonNode version = node.get("openapi");
+			if (version != null) {
+				return version.toString();
+			}
+			version = node.get("swagger");
+			if (version != null) {
+				return version.toString();
+			}
+			version = node.get("swaggerVersion");
+			if (version != null) {
+				return version.toString();
+			}
+		} catch (Exception ex) {
+			log.error("Exception occurred", ex);
+		}
+		return null;
+	}
 
     private String convertYamlToJson(String yaml) throws JsonParseException, JsonMappingException, IOException {
         ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
@@ -441,361 +444,243 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return jsonWriter.writeValueAsString(obj);
     }
 
-    /**
-     * findSwagger
-     *
-     * @param swaggerVO
-     * @return
-     */
-    public SwaggerVO findSwagger(SwaggerVO swaggerVO) {
-        log("findSwagger", swaggerVO.getInteractionid(), swaggerVO);
-        return baseRepository.findOne("name", swaggerVO.getName(), SwaggerVO.class);
-    }
+	public SwaggerVO findSwagger(SwaggerVO swaggerVO) {
+		log("findSwagger", swaggerVO.getInteractionid(), swaggerVO);
+		return baseRepository.findOne("name", swaggerVO.getName(), SwaggerVO.class);
+	}
 
-    /**
-     * findSwagger
-     *
-     * @param swagger3VO
-     * @return
-     */
-    public Swagger3VO findSwagger(Swagger3VO swaggerVO) {
-        log("findSwagger", swaggerVO.getInteractionid(), swaggerVO);
-        return baseRepository.findOne("name", swaggerVO.getName(), Swagger3VO.class);
-    }
+	public Swagger3VO findSwagger(Swagger3VO swaggerVO) {
+		log("findSwagger", swaggerVO.getInteractionid(), swaggerVO);
+		return baseRepository.findOne("name", swaggerVO.getName(), Swagger3VO.class);
+	}
 
-    /**
-     * findSwagger
-     *
-     * @param name
-     * @param interactionid
-     * @return
-     */
-    public SwaggerVO findSwagger(String name, String interactionid) throws ItorixException {
-        log("findSwagger", interactionid, name);
-        SwaggerVO vo = baseRepository.findOne("id", name, SwaggerVO.class);
-        if (vo == null) {
-            vo = baseRepository.findOne("swaggerId", name, SwaggerVO.class);
-        }
-        if (vo == null) {
-            vo = baseRepository.findOne("name", name, SwaggerVO.class);
-        }
-        return vo;
-    }
+	public SwaggerVO findSwagger(String name, String interactionid) throws ItorixException {
+		log("findSwagger", interactionid, name);
+		SwaggerVO vo = baseRepository.findOne("id", name, SwaggerVO.class);
+		if (vo == null) {
+			vo = baseRepository.findOne("swaggerId", name, SwaggerVO.class);
+		}
+		if (vo == null) {
+			vo = baseRepository.findOne("name", name, SwaggerVO.class);
+		}
+		return vo;
+	}
 
-    /**
-     * findSwagger
-     *
-     * @param name
-     * @param interactionid
-     * @return
-     */
-    public Swagger3VO findSwagger3(String name, String interactionid) throws ItorixException {
-        log("findSwagger", interactionid, name);
-        Swagger3VO vo = baseRepository.findOne("id", name, Swagger3VO.class);
-        if (vo == null) {
-            vo = baseRepository.findOne("swaggerId", name, Swagger3VO.class);
-        }
-        if (vo == null) {
-            vo = baseRepository.findOne("name", name, Swagger3VO.class);
-        }
-        return vo;
-    }
+	public Swagger3VO findSwagger3(String name, String interactionid) throws ItorixException {
+		log("findSwagger", interactionid, name);
+		Swagger3VO vo = baseRepository.findOne("id", name, Swagger3VO.class);
+		if (vo == null) {
+			vo = baseRepository.findOne("swaggerId", name, Swagger3VO.class);
+		}
+		if (vo == null) {
+			vo = baseRepository.findOne("name", name, Swagger3VO.class);
+		}
+		return vo;
+	}
 
-    /**
-     * createSwaggerWithNewRevision
-     *
-     * @param swaggerVO
-     * @param jsessionid
-     * @return
-     */
-    public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid) throws ItorixException {
-        log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), swaggerVO);
-        SwaggerVO vo = findSwagger(swaggerVO.getName(), swaggerVO.getInteractionid());
-        if (vo != null) {
-            swaggerVO.setName(vo.getName());
-        }
-        List<Revision> revisions = getListOfRevisions(swaggerVO.getName(), swaggerVO.getInteractionid());
-        if (revisions != null && revisions.size() > 0) {
-            Revision revision = Collections.max(revisions);
-            Integer newRevision = revision.getRevision() + 1;
-            swaggerVO.setRevision(newRevision);
-            swaggerVO.setStatus("Draft");
-            swaggerVO.setLock(false);
-            swaggerVO.setId(null);
-            swaggerVO.setSwaggerId(vo.getSwaggerId());
-            SwaggerVO details = baseRepository.save(swaggerVO);
-            log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), details);
-            return details;
-        }
-        return null;
-    }
+	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid) throws ItorixException {
+		log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), swaggerVO);
+		SwaggerVO vo = findSwagger(swaggerVO.getName(), swaggerVO.getInteractionid());
+		if (vo != null) {
+			swaggerVO.setName(vo.getName());
+		}
+		List<Revision> revisions = getListOfRevisions(swaggerVO.getName(), swaggerVO.getInteractionid());
+		if (revisions != null && revisions.size() > 0) {
+			Revision revision = Collections.max(revisions);
+			Integer newRevision = revision.getRevision() + 1;
+			swaggerVO.setRevision(newRevision);
+			swaggerVO.setStatus("Draft");
+			swaggerVO.setLock(false);
+			swaggerVO.setId(null);
+			swaggerVO.setSwaggerId(vo.getSwaggerId());
+			SwaggerVO details = baseRepository.save(swaggerVO);
+			log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), details);
+			return details;
+		}
+		return null;
+	}
 
-    /**
-     * createSwaggerWithNewRevision
-     *
-     * @param swaggerVO
-     * @param jsessionid
-     * @return
-     */
-    public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid) throws ItorixException {
-        log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), swaggerVO);
-        Swagger3VO vo = findSwagger3(swaggerVO.getName(), swaggerVO.getInteractionid());
-        if (vo != null) {
-            swaggerVO.setName(vo.getName());
-        }
-        List<Revision> revisions = getListOf3Revisions(swaggerVO.getName(), swaggerVO.getInteractionid());
-        if (revisions != null && revisions.size() > 0) {
-            Revision revision = Collections.max(revisions);
-            Integer newRevision = revision.getRevision() + 1;
-            swaggerVO.setRevision(newRevision);
-            swaggerVO.setStatus("Draft");
-            swaggerVO.setLock(false);
-            swaggerVO.setId(null);
-            swaggerVO.setSwaggerId(vo.getSwaggerId());
-            Swagger3VO details = baseRepository.save(swaggerVO);
-            log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), details);
-            return details;
-        }
-        return null;
-    }
+	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid) throws ItorixException {
+		log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), swaggerVO);
+		Swagger3VO vo = findSwagger3(swaggerVO.getName(), swaggerVO.getInteractionid());
+		if (vo != null) {
+			swaggerVO.setName(vo.getName());
+		}
+		List<Revision> revisions = getListOf3Revisions(swaggerVO.getName(), swaggerVO.getInteractionid());
+		if (revisions != null && revisions.size() > 0) {
+			Revision revision = Collections.max(revisions);
+			Integer newRevision = revision.getRevision() + 1;
+			swaggerVO.setRevision(newRevision);
+			swaggerVO.setStatus("Draft");
+			swaggerVO.setLock(false);
+			swaggerVO.setId(null);
+			swaggerVO.setSwaggerId(vo.getSwaggerId());
+			Swagger3VO details = baseRepository.save(swaggerVO);
+			log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), details);
+			return details;
+		}
+		return null;
+	}
 
-    /**
-     * updateSwagger
-     *
-     * @param vo
-     * @return
-     */
-    public SwaggerVO updateSwagger(SwaggerVO vo) {
-        log("updateSwagger", vo.getInteractionid(), vo);
-        SwaggerVO details = baseRepository.save(vo);
-        updateSwaggerBasePath(details.getName(), details);
-        log("updateSwagger", vo.getInteractionid(), details);
-        return details;
-    }
+	public SwaggerVO updateSwagger(SwaggerVO vo) {
+		log("updateSwagger", vo.getInteractionid(), vo);
+		SwaggerVO details = baseRepository.save(vo);
+		updateSwaggerBasePath(details.getName(), details);
+		log("updateSwagger", vo.getInteractionid(), details);
+		return details;
+	}
 
-    /**
-     * updateSwagger
-     *
-     * @param Swagger3VO
-     * @return
-     */
-    public Swagger3VO updateSwagger(Swagger3VO vo) {
-        log("updateSwagger", vo.getInteractionid(), vo);
-        Swagger3VO details = baseRepository.save(vo);
-        updateSwagger3BasePath(details.getName(), details);
-        log("updateSwagger", vo.getInteractionid(), details);
-        return details;
-    }
+	public Swagger3VO updateSwagger(Swagger3VO vo) {
+		log("updateSwagger", vo.getInteractionid(), vo);
+		Swagger3VO details = baseRepository.save(vo);
+		updateSwagger3BasePath(details.getName(), details);
+		log("updateSwagger", vo.getInteractionid(), details);
+		return details;
+	}
 
-    /**
-     * findSwagger
-     *
-     * @param swaggerVO
-     * @param revision
-     * @return
-     */
-    public SwaggerVO findSwagger(SwaggerVO swaggerVO, Integer revision) {
-        log("findSwagger", swaggerVO.getInteractionid(), swaggerVO, revision);
-        return baseRepository.findOne("name", swaggerVO.getName(), "revision", revision, SwaggerVO.class);
-    }
+	public SwaggerVO findSwagger(SwaggerVO swaggerVO, Integer revision) {
+		log("findSwagger", swaggerVO.getInteractionid(), swaggerVO, revision);
+		return baseRepository.findOne("name", swaggerVO.getName(), "revision", revision, SwaggerVO.class);
+	}
 
-    /**
-     * findSwagger
-     *
-     * @param swaggerVO
-     * @param revision
-     * @return
-     */
-    public Swagger3VO findSwagger(Swagger3VO swaggerVO, Integer revision) {
-        log("findSwagger", swaggerVO.getInteractionid(), swaggerVO, revision);
-        return baseRepository.findOne("name", swaggerVO.getName(), "revision", revision, Swagger3VO.class);
-    }
+	public Swagger3VO findSwagger(Swagger3VO swaggerVO, Integer revision) {
+		log("findSwagger", swaggerVO.getInteractionid(), swaggerVO, revision);
+		return baseRepository.findOne("name", swaggerVO.getName(), "revision", revision, Swagger3VO.class);
+	}
 
-    /**
-     * findSwagger
-     *
-     * @param swaggername
-     * @param revision
-     * @param interactionid
-     * @return
-     */
-    public SwaggerVO findSwagger(String swaggername, Integer revision, String interactionid) {
-        // log("findSwagger", interactionid, swaggername, revision);
-        return baseRepository.findOne("name", swaggername, "revision", revision, SwaggerVO.class);
-    }
+	public SwaggerVO findSwagger(String swaggername, Integer revision, String interactionid) {
+		// log("findSwagger", interactionid, swaggername, revision);
+		return baseRepository.findOne("name", swaggername, "revision", revision, SwaggerVO.class);
+	}
 
-    /**
-     * getListOfRevisions
-     *
-     * @param name
-     * @param interactionid
-     * @return
-     */
-    public List<Revision> getListOfRevisions(String name, String interactionid) {
-        // log("getListOfRevisions", interactionid, name);
-        List<SwaggerVO> swaggers;
-        swaggers = baseRepository.find("id", name, SwaggerVO.class);
-        if (swaggers != null && swaggers.size() > 0) {
-            name = swaggers.get(0).getName();
-        }
-        swaggers = baseRepository.find("name", name, SwaggerVO.class);
-        List<Revision> versions = new ArrayList<Revision>();
-        for (SwaggerVO swagger : swaggers) {
-            Revision version = new Revision();
-            version.setRevision(swagger.getRevision());
-            version.setStatus(swagger.getStatus());
-            version.setId(swagger.getSwaggerId() != null ? swagger.getSwaggerId() : swagger.getId());
-            versions.add(version);
-        }
-        // log("getListOfRevisions", interactionid, versions);
-        return versions;
-    }
+	public List<Revision> getListOfRevisions(String name, String interactionid) {
+		// log("getListOfRevisions", interactionid, name);
+		List<SwaggerVO> swaggers;
+		swaggers = baseRepository.find("id", name, SwaggerVO.class);
+		if (swaggers != null && swaggers.size() > 0) {
+			name = swaggers.get(0).getName();
+		}
+		swaggers = baseRepository.find("name", name, SwaggerVO.class);
+		List<Revision> versions = new ArrayList<Revision>();
+		for (SwaggerVO swagger : swaggers) {
+			Revision version = new Revision();
+			version.setRevision(swagger.getRevision());
+			version.setStatus(swagger.getStatus());
+			version.setId(swagger.getSwaggerId() != null ? swagger.getSwaggerId() : swagger.getId());
+			versions.add(version);
+		}
+		// log("getListOfRevisions", interactionid, versions);
+		return versions;
+	}
 
-    /**
-     * getListOfRevisions
-     *
-     * @param name
-     * @param interactionid
-     * @return
-     */
-    public List<Revision> getListOf3Revisions(String name, String interactionid) {
-        // log("getListOfRevisions", interactionid, name);
-        List<Swagger3VO> swaggers;
-        swaggers = baseRepository.find("id", name, Swagger3VO.class);
-        if (swaggers != null && swaggers.size() > 0) {
-            name = swaggers.get(0).getName();
-        }
-        swaggers = baseRepository.find("name", name, Swagger3VO.class);
-        List<Revision> versions = new ArrayList<Revision>();
-        for (Swagger3VO swagger : swaggers) {
-            Revision version = new Revision();
-            version.setRevision(swagger.getRevision());
-            version.setStatus(swagger.getStatus());
-            version.setId(swagger.getSwaggerId() != null ? swagger.getSwaggerId() : swagger.getId());
-            versions.add(version);
-        }
-        // log("getListOfRevisions", interactionid, versions);
-        return versions;
-    }
+	public List<Revision> getListOf3Revisions(String name, String interactionid) {
+		// log("getListOfRevisions", interactionid, name);
+		List<Swagger3VO> swaggers;
+		swaggers = baseRepository.find("id", name, Swagger3VO.class);
+		if (swaggers != null && swaggers.size() > 0) {
+			name = swaggers.get(0).getName();
+		}
+		swaggers = baseRepository.find("name", name, Swagger3VO.class);
+		List<Revision> versions = new ArrayList<Revision>();
+		for (Swagger3VO swagger : swaggers) {
+			Revision version = new Revision();
+			version.setRevision(swagger.getRevision());
+			version.setStatus(swagger.getStatus());
+			version.setId(swagger.getSwaggerId() != null ? swagger.getSwaggerId() : swagger.getId());
+			versions.add(version);
+		}
+		// log("getListOfRevisions", interactionid, versions);
+		return versions;
+	}
 
-    /**
-     * getListOfRevisions
-     *
-     * @param name
-     * @param interactionid
-     * @return
-     */
-    public List<Revision> getListOfRevisions(String name, String status, String interactionid) {
-        // log("getListOfRevisions", interactionid, name);
-        List<SwaggerVO> swaggers = mongoTemplate
-                .find(new Query(Criteria.where("name").is(name).and(STATUS_VALUE).is(status)), SwaggerVO.class);
-        // baseRepository.find("name", name, SwaggerVO.class);
-        List<Revision> versions = new ArrayList<Revision>();
-        if (swaggers != null && swaggers.size() > 0) {
-            for (SwaggerVO swagger : swaggers) {
-                Revision version = new Revision();
-                version.setRevision(swagger.getRevision());
-                version.setStatus(swagger.getStatus());
-                version.setId(swagger.getId());
-                versions.add(version);
-                // versions.add(new Revision(swagger.getRevision(),
-                // swagger.getStatus()));
-            }
-        }
-        log("getListOfRevisions", interactionid, versions);
-        return versions;
-    }
+	/**
+	 * Gets list of revisions.
+	 *
+	 * @param name          the name
+	 * @param status        the status
+	 * @param interactionid the interactionid
+	 * @return the list of revisions
+	 */
+	public List<Revision> getListOfRevisions(String name, String status, String interactionid) {
+		// log("getListOfRevisions", interactionid, name);
+		List<SwaggerVO> swaggers = mongoTemplate
+				.find(new Query(Criteria.where("name").is(name).and(STATUS_VALUE).is(status)), SwaggerVO.class);
+		// baseRepository.find("name", name, SwaggerVO.class);
+		List<Revision> versions = new ArrayList<Revision>();
+		if (swaggers != null && swaggers.size() > 0) {
+			for (SwaggerVO swagger : swaggers) {
+				Revision version = new Revision();
+				version.setRevision(swagger.getRevision());
+				version.setStatus(swagger.getStatus());
+				version.setId(swagger.getId());
+				versions.add(version);
+				// versions.add(new Revision(swagger.getRevision(),
+				// swagger.getStatus()));
+			}
+		}
+		log("getListOfRevisions", interactionid, versions);
+		return versions;
+	}
 
-    /**
-     * getListOfRevisions
-     *
-     * @param name
-     * @param interactionid
-     * @return
-     */
-    public List<Revision> getListOfSwagger3Revisions(String name, String interactionid) {
-        log("getListOfRevisions", interactionid, name);
-        List<Swagger3VO> swaggers = baseRepository.find("name", name, Swagger3VO.class);
-        List<Revision> versions = new ArrayList<Revision>();
-        for (Swagger3VO swagger : swaggers) {
-            Revision version = new Revision();
-            version.setRevision(swagger.getRevision());
-            version.setStatus(swagger.getStatus());
-            version.setId(swagger.getId());
-            versions.add(version);
-        }
-        log("getListOfRevisions", interactionid, versions);
-        return versions;
-    }
+	public List<Revision> getListOfSwagger3Revisions(String name, String interactionid) {
+		log("getListOfRevisions", interactionid, name);
+		List<Swagger3VO> swaggers = baseRepository.find("name", name, Swagger3VO.class);
+		List<Revision> versions = new ArrayList<Revision>();
+		for (Swagger3VO swagger : swaggers) {
+			Revision version = new Revision();
+			version.setRevision(swagger.getRevision());
+			version.setStatus(swagger.getStatus());
+			version.setId(swagger.getId());
+			versions.add(version);
+		}
+		log("getListOfRevisions", interactionid, versions);
+		return versions;
+	}
 
-    /**
-     * getListOfSwaggerNames
-     *
-     * @param interactionid
-     * @return
-     */
-    public List<String> getListOfSwaggerNames(String interactionid) throws ItorixException {
-        log("getListOfSwaggerNames", interactionid, "");
-        List<String> names = baseRepository.findDistinctValuesByColumnName(SwaggerVO.class, "name");
-        log("getListOfSwaggerNames", interactionid, names);
-        return names;
-    }
+	public List<String> getListOfSwaggerNames(String interactionid) throws ItorixException {
+		log("getListOfSwaggerNames", interactionid, "");
+		List<String> names = baseRepository.findDistinctValuesByColumnName(SwaggerVO.class, "name");
+		log("getListOfSwaggerNames", interactionid, names);
+		return names;
+	}
 
-    /**
-     * getSwaggerNames
-     *
-     * @param interactionid
-     * @return
-     */
-    public List<SwaggerVO> getSwaggerNames() throws ItorixException {
-        List<String> names = baseRepository.findDistinctValuesByColumnName(SwaggerVO.class, "name");
-        List<SwaggerVO> swaggerNames = new ArrayList<SwaggerVO>();
-        for (String name : names) {
-            // mongoTemplate.getCollection(mongoTemplate.getCollectionName(SwaggerVO.class)).distinct("name",
-            // new
-            // Query(new Criteria(STATUS_VALUE).is(status)).getQueryObject())
-            SwaggerVO swaggerVO = baseRepository.findOne("name", name, SwaggerVO.class);
-            SwaggerVO swagger = new SwaggerVO();
-            swagger.setId(swaggerVO.getSwaggerId());
-            swagger.setName(swaggerVO.getName());
-            swagger.setDescription(swaggerVO.getDescription());
-            swaggerNames.add(swagger);
-        }
-        return swaggerNames;
-    }
+	public List<SwaggerVO> getSwaggerNames() throws ItorixException {
+		List<String> names = baseRepository.findDistinctValuesByColumnName(SwaggerVO.class, "name");
+		List<SwaggerVO> swaggerNames = new ArrayList<SwaggerVO>();
+		for (String name : names) {
+			// mongoTemplate.getCollection(mongoTemplate.getCollectionName(SwaggerVO.class)).distinct("name",
+			// new
+			// Query(new Criteria(STATUS_VALUE).is(status)).getQueryObject())
+			SwaggerVO swaggerVO = baseRepository.findOne("name", name, SwaggerVO.class);
+			SwaggerVO swagger = new SwaggerVO();
+			swagger.setId(swaggerVO.getSwaggerId());
+			swagger.setName(swaggerVO.getName());
+			swagger.setDescription(swaggerVO.getDescription());
+			swaggerNames.add(swagger);
+		}
+		return swaggerNames;
+	}
 
-    /**
-     * getSwagger3Names
-     *
-     * @param interactionid
-     * @return
-     */
-    public List<Swagger3VO> getSwagger3Names() throws ItorixException {
-        List<String> names = baseRepository.findDistinctValuesByColumnName(Swagger3VO.class, "name");
-        List<Swagger3VO> swaggerNames = new ArrayList<Swagger3VO>();
-        for (String name : names) {
-            Swagger3VO swaggerVO = baseRepository.findOne("name", name, Swagger3VO.class);
-            Swagger3VO swagger = new Swagger3VO();
-            swagger.setId(swaggerVO.getSwaggerId());
-            swagger.setName(swaggerVO.getName());
-            swagger.setDescription(swaggerVO.getDescription());
-            swaggerNames.add(swagger);
-        }
-        return swaggerNames;
-    }
+	public List<Swagger3VO> getSwagger3Names() throws ItorixException {
+		List<String> names = baseRepository.findDistinctValuesByColumnName(Swagger3VO.class, "name");
+		List<Swagger3VO> swaggerNames = new ArrayList<Swagger3VO>();
+		for (String name : names) {
+			Swagger3VO swaggerVO = baseRepository.findOne("name", name, Swagger3VO.class);
+			Swagger3VO swagger = new Swagger3VO();
+			swagger.setId(swaggerVO.getSwaggerId());
+			swagger.setName(swaggerVO.getName());
+			swagger.setDescription(swaggerVO.getDescription());
+			swaggerNames.add(swagger);
+		}
+		return swaggerNames;
+	}
 
-    /**
-     * getListOfSwagger3Names
-     *
-     * @param interactionid
-     * @return
-     */
-    public List<String> getListOfSwagger3Names(String interactionid) throws ItorixException {
-        log("getListOfSwagger3Names", interactionid, "");
-        List<String> names = baseRepository.findDistinctValuesByColumnName(Swagger3VO.class, "name");
-        log("getListOfSwagger3Names", interactionid, names);
-        return names;
-    }
+	public List<String> getListOfSwagger3Names(String interactionid) throws ItorixException {
+		log("getListOfSwagger3Names", interactionid, "");
+		List<String> names = baseRepository.findDistinctValuesByColumnName(Swagger3VO.class, "name");
+		log("getListOfSwagger3Names", interactionid, names);
+		return names;
+	}
 
     private void getSwaggers() {
         Aggregation aggregation = newAggregation(Aggregation.match(Criteria.where(STATUS_VALUE).is("Draft")),
@@ -815,24 +700,15 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return list;
     }
 
-    /**
-     * getListOfSwaggerDetails
-     *
-     * @param interactionid
-     * @param jsessionid
-     * @return
-     * @throws IOException
-     * @throws JsonProcessingException
-     */
-    @SuppressWarnings("unchecked")
-    public SwaggerHistoryResponse getListOfSwaggerDetails(String status, String modifiedDate, String interactionid,
-                                                          String jsessionid, int offset, String oas, String swagger, int pageSize, String sortByModifiedDate)
-            throws ItorixException, JsonProcessingException, IOException {
-        log("getListOfSwaggerDetails", interactionid, jsessionid);
-        // getSwaggers();
-        Map<String, Object> filterFieldsAndValues = new HashMap<>();
-        filterFieldsAndValues.put(STATUS_VALUE, status);
-        filterFieldsAndValues.put("modified_date", modifiedDate);
+	@SuppressWarnings("unchecked")
+	public SwaggerHistoryResponse getListOfSwaggerDetails(String status, String modifiedDate, String interactionid,
+			String jsessionid, int offset, String oas, String swagger, int pageSize, String sortByModifiedDate)
+			throws ItorixException, JsonProcessingException, IOException {
+		log("getListOfSwaggerDetails", interactionid, jsessionid);
+		// getSwaggers();
+		Map<String, Object> filterFieldsAndValues = new HashMap<>();
+		filterFieldsAndValues.put(STATUS_VALUE, status);
+		filterFieldsAndValues.put("modified_date", modifiedDate);
 
         UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
         User user = getUserDetailsFromSessionID(jsessionid);
@@ -1080,23 +956,14 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return swaggerNames;
     }
 
-    /**
-     * getListOfSwaggerDetails
-     *
-     * @param interactionid
-     * @param jsessionid
-     * @return
-     * @throws IOException
-     * @throws JsonProcessingException
-     */
-    @SuppressWarnings("unchecked")
-    public SwaggerHistoryResponse getListOfSwagger3Details(String status, String modifiedDate, String interactionid,
-                                                           String jsessionid, int offset, String oas, String swagger, int pageSize, String sortByModifiedDate)
-            throws ItorixException, JsonProcessingException, IOException {
-        log("getListOfSwaggerDetails", interactionid, jsessionid);
-        Map<String, Object> filterFieldsAndValues = new HashMap<>();
-        filterFieldsAndValues.put(STATUS_VALUE, status);
-        filterFieldsAndValues.put("modified_date", modifiedDate);
+	@SuppressWarnings("unchecked")
+	public SwaggerHistoryResponse getListOfSwagger3Details(String status, String modifiedDate, String interactionid,
+			String jsessionid, int offset, String oas, String swagger, int pageSize, String sortByModifiedDate)
+			throws ItorixException, JsonProcessingException, IOException {
+		log("getListOfSwaggerDetails", interactionid, jsessionid);
+		Map<String, Object> filterFieldsAndValues = new HashMap<>();
+		filterFieldsAndValues.put(STATUS_VALUE, status);
+		filterFieldsAndValues.put("modified_date", modifiedDate);
 
         UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
         User user = getUserDetailsFromSessionID(jsessionid);
@@ -1283,22 +1150,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return swaggerRoles;
     }
 
-    /**
-     * getListOfPublishedSwaggerDetails
-     *
-     * @param interactionid
-     * @param jsessionid
-     * @param status
-     * @return
-     * @throws IOException
-     * @throws JsonProcessingException
-     */
-    public ArrayNode getListOfPublishedSwaggerDetails(String interactionid, String jsessionid, String status,
-                                                      String partnerId) throws ItorixException, JsonProcessingException, IOException {
-        log("getListOfPublishedSwaggerDetails", interactionid, jsessionid);
-        List<SwaggerVO> list = baseRepository.find(STATUS_VALUE, status, SwaggerVO.class);
-        ObjectMapper mapper = new ObjectMapper();
-        ArrayNode arrayNode = mapper.createArrayNode();
+	public ArrayNode getListOfPublishedSwaggerDetails(String interactionid, String jsessionid, String status,
+			String partnerId) throws ItorixException, JsonProcessingException, IOException {
+		log("getListOfPublishedSwaggerDetails", interactionid, jsessionid);
+		List<SwaggerVO> list = baseRepository.find(STATUS_VALUE, status, SwaggerVO.class);
+		ObjectMapper mapper = new ObjectMapper();
+		ArrayNode arrayNode = mapper.createArrayNode();
 
         for (SwaggerVO vo : list) {
             if (partnerId == null) {
@@ -1318,214 +1175,203 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return arrayNode;
     }
 
-    private boolean isPartnerAsociated(SwaggerVO vo, String partnerId) {
-        List<Revision> revisions = getListOfRevisions(vo.getName(), null);
-        if (null != revisions) {
-            Revision revision = revisions.stream().min((x, y) -> x.getRevision() - y.getRevision()).get();
-            try {
-                SwaggerVO swaggerVo = getSwaggerWithVersionNumber(vo.getSwaggerId(), revision.getRevision(), null);
-                List<String> partners = swaggerVo.getPartners();
-                if (null != partners) {
-                    if (partners.contains(partnerId)) {
-                        return true;
-                    }
-                }
-            } catch (ItorixException e) {
-                log.error("Exception occurred : {}",e.getMessage());
-            }
-        }
-        return false;
-    }
+	private boolean isPartnerAsociated(SwaggerVO vo, String partnerId) {
+		List<Revision> revisions = getListOfRevisions(vo.getName(), null);
+		if (null != revisions) {
+			Revision revision = revisions.stream().min((x, y) -> x.getRevision() - y.getRevision()).get();
+			try {
+				SwaggerVO swaggerVo = getSwaggerWithVersionNumber(vo.getSwaggerId(), revision.getRevision(), null);
+				Set<String> partners = swaggerVo.getPartners();
+				if (null != partners) {
+					if (partners.contains(partnerId)) {
+						return true;
+					}
+				}
+			} catch (ItorixException e) {
+				log.error("Exception occurred", e);
+			}
+		}
+		return false;
+	}
 
-    private void getPublishedSwaggerDetails(SwaggerVO vo, ArrayNode arrayNode)
-            throws JsonMappingException, JsonProcessingException, ItorixException {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode jsonNode = null;
-        for (int i = 0; i < arrayNode.size(); i++) {
-            jsonNode = arrayNode.get(i);
-            if (vo != null && jsonNode != null) {
-                if (vo.getName().equals(jsonNode.get("title").asText())) {
-                    arrayNode.remove(i);
-                }
-            }
-        }
-        if (null == jsonNode) {
-            ObjectNode rootNode = mapper.createObjectNode();
-            JsonNode swaggerJson = null;
-            rootNode.put("title", vo.getName());
-            ArrayNode items = mapper.createArrayNode();
-            ObjectNode itemNode = mapper.createObjectNode();
-            itemNode.put("title", vo.getName());
-            itemNode.put("swaggerId", vo.getSwaggerId());
-            itemNode.put("swaggerVersion", "2.0");
-            
-            SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(),"2.0");
-            if ( metadata != null) {
-            	if (metadata.getTeams() != null) {
-            	ArrayNode teams = mapper.valueToTree(metadata.getTeams());
-            	itemNode.putArray("teams").addAll(teams);
-            	}
-            	if (metadata.getProducts() != null)	{
-            	ArrayNode products = mapper.valueToTree(metadata.getProducts());
-            	itemNode.putArray("products").addAll(products);
-            	}
-            }
-            
-            if (vo.getPartners() != null) {
-	            ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
-	            itemNode.putArray("partners").addAll(partners);
-            }
-            
-            
-            ArrayNode revision = mapper.createArrayNode();
-            ObjectNode revisionNode = mapper.createObjectNode();
-            if (vo != null && vo.getSwagger() != null) {
-                swaggerJson = mapper.readTree(vo.getSwagger());
-                if (swaggerJson != null) {
-                    JsonNode infoNode = swaggerJson.get("info");
-                    if (infoNode != null) {
-                        revisionNode.put("name", infoNode.get("version").asText());
-                    }
-                }
-            }
-            String url = applicationProperties.getAppUrl() + applicationProperties.getAppDomain() + "/v1/swaggers/"
-                    + vo.getSwaggerId() + "/revisions/" + vo.getRevision();
-            revisionNode.put("url", url);
-            ArrayNode resources = mapper.createArrayNode();
-            if (swaggerJson != null) {
-                JsonNode pathsNode = swaggerJson.get("paths");
-                if (pathsNode != null) {
-                    Iterator<Map.Entry<String, JsonNode>> it = pathsNode.fields();
-                    // Iterator<JsonNode> it =pathsNode.elements();
-                    while (it.hasNext()) {
-                        Map.Entry<String, JsonNode> entry = it.next();
-                        JsonNode methodsNode = entry.getValue();
-                        Iterator<Map.Entry<String, JsonNode>> methods = methodsNode.fields();
-                        while (methods.hasNext()) {
-                            ObjectNode resource = mapper.createObjectNode();
-                            Map.Entry<String, JsonNode> method = methods.next();
-                            String httpMethod = method.getKey();
-                            if (org.springframework.http.HttpMethod.resolve(httpMethod.toUpperCase()) != null) {
-                                JsonNode methodNode = method.getValue();
-                                resource.put("method", method.getKey());
-                                resource.put("path", entry.getKey());
-                                if (methodNode.get("summary") != null) {
-                                    resource.put("summary", methodNode.get("summary").asText());
-                                }
-                                if (methodNode.get("operationId") != null) {
-                                    resource.put("operationId", methodNode.get("operationId").asText());
-                                }
-                                ArrayNode tagsNode = (ArrayNode) methodNode.get("tags");
-                                resource.set("tags", tagsNode);
-                                resources.add(resource);
-                            }
-                        }
-                    }
-                }
-            }
-            revisionNode.set("resources", resources);
-            revision.add(revisionNode);
-            itemNode.set("versions", revision);
-            items.add(itemNode);
-            rootNode.set("items", items);
-            arrayNode.add(rootNode);
-        } else {
-            ObjectNode rootNode = mapper.createObjectNode();
-            JsonNode swaggerJson = null;
-            rootNode.put("title", vo.getName());
-            ArrayNode items = mapper.createArrayNode();
-            ObjectNode itemNode = mapper.createObjectNode();
-            itemNode.put("title", vo.getName());
-            itemNode.put("swaggerId", vo.getSwaggerId());
-            itemNode.put("swaggerVersion", "2.0");
-            
-            SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(),"2.0");
-            if ( metadata != null) {
-            	if (metadata.getTeams() != null) {
-            	ArrayNode teams = mapper.valueToTree(metadata.getTeams());
-            	itemNode.putArray("teams").addAll(teams);
-            	}
-            	if (metadata.getProducts() != null)	{
-            	ArrayNode products = mapper.valueToTree(metadata.getProducts());
-            	itemNode.putArray("products").addAll(products);
-            	}
-            }
-            
-            if (vo.getPartners() != null) {
-	            ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
-	            itemNode.putArray("partners").addAll(partners);
-            }
-            
-            ArrayNode revision = mapper.createArrayNode();
-            ObjectNode revisionNode = mapper.createObjectNode();
-            if (vo != null && vo.getSwagger() != null) {
-                swaggerJson = mapper.readTree(vo.getSwagger());
-                if (swaggerJson != null) {
-                    JsonNode infoNode = swaggerJson.get("info");
-                    if (infoNode != null) {
-                        revisionNode.put("name", infoNode.get("version").asText());
-                    }
-                }
-            }
-            String url = applicationProperties.getAppUrl() + applicationProperties.getAppDomain() + "/v1/swaggers/"
-                    + vo.getSwaggerId() + "/revisions/" + vo.getRevision();
-            revisionNode.put("url", url);
-            ArrayNode resources = mapper.createArrayNode();
-            if (swaggerJson != null) {
-                JsonNode pathsNode = swaggerJson.get("paths");
-                if (pathsNode != null) {
-                    Iterator<Map.Entry<String, JsonNode>> it = pathsNode.fields();
-                    // Iterator<JsonNode> it =pathsNode.elements();
-                    while (it.hasNext()) {
-                        Map.Entry<String, JsonNode> entry = it.next();
-                        JsonNode methodsNode = entry.getValue();
-                        Iterator<Map.Entry<String, JsonNode>> methods = methodsNode.fields();
-                        while (methods.hasNext()) {
-                            ObjectNode resource = mapper.createObjectNode();
-                            Map.Entry<String, JsonNode> method = methods.next();
-                            String httpMethod = method.getKey();
-                            if (org.springframework.http.HttpMethod.resolve(httpMethod.toUpperCase()) != null) {
-                                JsonNode methodNode = method.getValue();
-                                resource.put("method", method.getKey());
-                                resource.put("path", entry.getKey());
-                                if (methodNode.get("summary") != null) {
-                                    resource.put("summary", methodNode.get("summary").asText());
-                                }
-                                if (methodNode.get("operationId") != null) {
-                                    resource.put("operationId", methodNode.get("operationId").asText());
-                                }
-                                ArrayNode tagsNode = (ArrayNode) methodNode.get("tags");
-                                resource.set("tags", tagsNode);
-                                resources.add(resource);
-                            }
-                        }
-                    }
-                }
-            }
-            revisionNode.set("resources", resources);
-            revision.add(revisionNode);
-            itemNode.set("versions", revision);
-            items.add(itemNode);
-            rootNode.set("items", items);
-            arrayNode.add(rootNode);
-        }
-    }
+	private void getPublishedSwaggerDetails(SwaggerVO vo, ArrayNode arrayNode)
+			throws JsonMappingException, JsonProcessingException, ItorixException {
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode jsonNode = null;
+		for (int i = 0; i < arrayNode.size(); i++) {
+			jsonNode = arrayNode.get(i);
+			if (vo != null && jsonNode != null) {
+				if (vo.getName().equals(jsonNode.get("title").asText())) {
+					arrayNode.remove(i);
+				}
+			}
+		}
+		if (null == jsonNode) {
+			ObjectNode rootNode = mapper.createObjectNode();
+			JsonNode swaggerJson = null;
+			rootNode.put("title", vo.getName());
+			ArrayNode items = mapper.createArrayNode();
+			ObjectNode itemNode = mapper.createObjectNode();
+			itemNode.put("title", vo.getName());
+			itemNode.put("swaggerId", vo.getSwaggerId());
+			itemNode.put("swaggerVersion", "2.0");
 
-    /**
-     * getListOfPublishedSwagger3Details
-     *
-     * @param interactionid
-     * @param jsessionid
-     * @param status
-     * @return
-     * @throws IOException
-     * @throws JsonProcessingException
-     */
-    public ArrayNode getListOfPublishedSwagger3Details(String interactionid, String jsessionid, String status,
-                                                       String partnerId) throws ItorixException, JsonProcessingException, IOException {
-        log("getListOfPublishedSwaggerDetails", interactionid, jsessionid);
-        List<Swagger3VO> list = baseRepository.find(STATUS_VALUE, status, Swagger3VO.class);
-        ObjectMapper mapper = new ObjectMapper();
+			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "2.0");
+			if (metadata != null) {
+				if (metadata.getTeams() != null) {
+					ArrayNode teams = mapper.valueToTree(metadata.getTeams());
+					itemNode.putArray("teams").addAll(teams);
+				}
+				if (metadata.getProducts() != null) {
+					ArrayNode products = mapper.valueToTree(metadata.getProducts());
+					itemNode.putArray("products").addAll(products);
+				}
+			}
+
+			if (vo.getPartners() != null) {
+				ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
+				itemNode.putArray("partners").addAll(partners);
+			}
+
+			ArrayNode revision = mapper.createArrayNode();
+			ObjectNode revisionNode = mapper.createObjectNode();
+			if (vo != null && vo.getSwagger() != null) {
+				swaggerJson = mapper.readTree(vo.getSwagger());
+				if (swaggerJson != null) {
+					JsonNode infoNode = swaggerJson.get("info");
+					if (infoNode != null) {
+						revisionNode.put("name", infoNode.get("version").asText());
+					}
+				}
+			}
+			String url = applicationProperties.getAppUrl() + applicationProperties.getAppDomain() + "/v1/swaggers/"
+					+ vo.getSwaggerId() + "/revisions/" + vo.getRevision();
+			revisionNode.put("url", url);
+			ArrayNode resources = mapper.createArrayNode();
+			if (swaggerJson != null) {
+				JsonNode pathsNode = swaggerJson.get("paths");
+				if (pathsNode != null) {
+					Iterator<Map.Entry<String, JsonNode>> it = pathsNode.fields();
+					// Iterator<JsonNode> it =pathsNode.elements();
+					while (it.hasNext()) {
+						Map.Entry<String, JsonNode> entry = it.next();
+						JsonNode methodsNode = entry.getValue();
+						Iterator<Map.Entry<String, JsonNode>> methods = methodsNode.fields();
+						while (methods.hasNext()) {
+							ObjectNode resource = mapper.createObjectNode();
+							Map.Entry<String, JsonNode> method = methods.next();
+							String httpMethod = method.getKey();
+							if (org.springframework.http.HttpMethod.resolve(httpMethod.toUpperCase()) != null) {
+								JsonNode methodNode = method.getValue();
+								resource.put("method", method.getKey());
+								resource.put("path", entry.getKey());
+								if (methodNode.get("summary") != null) {
+									resource.put("summary", methodNode.get("summary").asText());
+								}
+								if (methodNode.get("operationId") != null) {
+									resource.put("operationId", methodNode.get("operationId").asText());
+								}
+								ArrayNode tagsNode = (ArrayNode) methodNode.get("tags");
+								resource.set("tags", tagsNode);
+								resources.add(resource);
+							}
+						}
+					}
+				}
+			}
+			revisionNode.set("resources", resources);
+			revision.add(revisionNode);
+			itemNode.set("versions", revision);
+			items.add(itemNode);
+			rootNode.set("items", items);
+			arrayNode.add(rootNode);
+		} else {
+			ObjectNode rootNode = mapper.createObjectNode();
+			JsonNode swaggerJson = null;
+			rootNode.put("title", vo.getName());
+			ArrayNode items = mapper.createArrayNode();
+			ObjectNode itemNode = mapper.createObjectNode();
+			itemNode.put("title", vo.getName());
+			itemNode.put("swaggerId", vo.getSwaggerId());
+			itemNode.put("swaggerVersion", "2.0");
+
+			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "2.0");
+			if (metadata != null) {
+				if (metadata.getTeams() != null) {
+					ArrayNode teams = mapper.valueToTree(metadata.getTeams());
+					itemNode.putArray("teams").addAll(teams);
+				}
+				if (metadata.getProducts() != null) {
+					ArrayNode products = mapper.valueToTree(metadata.getProducts());
+					itemNode.putArray("products").addAll(products);
+				}
+			}
+
+			if (vo.getPartners() != null) {
+				ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
+				itemNode.putArray("partners").addAll(partners);
+			}
+
+			ArrayNode revision = mapper.createArrayNode();
+			ObjectNode revisionNode = mapper.createObjectNode();
+			if (vo != null && vo.getSwagger() != null) {
+				swaggerJson = mapper.readTree(vo.getSwagger());
+				if (swaggerJson != null) {
+					JsonNode infoNode = swaggerJson.get("info");
+					if (infoNode != null) {
+						revisionNode.put("name", infoNode.get("version").asText());
+					}
+				}
+			}
+			String url = applicationProperties.getAppUrl() + applicationProperties.getAppDomain() + "/v1/swaggers/"
+					+ vo.getSwaggerId() + "/revisions/" + vo.getRevision();
+			revisionNode.put("url", url);
+			ArrayNode resources = mapper.createArrayNode();
+			if (swaggerJson != null) {
+				JsonNode pathsNode = swaggerJson.get("paths");
+				if (pathsNode != null) {
+					Iterator<Map.Entry<String, JsonNode>> it = pathsNode.fields();
+					// Iterator<JsonNode> it =pathsNode.elements();
+					while (it.hasNext()) {
+						Map.Entry<String, JsonNode> entry = it.next();
+						JsonNode methodsNode = entry.getValue();
+						Iterator<Map.Entry<String, JsonNode>> methods = methodsNode.fields();
+						while (methods.hasNext()) {
+							ObjectNode resource = mapper.createObjectNode();
+							Map.Entry<String, JsonNode> method = methods.next();
+							String httpMethod = method.getKey();
+							if (org.springframework.http.HttpMethod.resolve(httpMethod.toUpperCase()) != null) {
+								JsonNode methodNode = method.getValue();
+								resource.put("method", method.getKey());
+								resource.put("path", entry.getKey());
+								if (methodNode.get("summary") != null) {
+									resource.put("summary", methodNode.get("summary").asText());
+								}
+								if (methodNode.get("operationId") != null) {
+									resource.put("operationId", methodNode.get("operationId").asText());
+								}
+								ArrayNode tagsNode = (ArrayNode) methodNode.get("tags");
+								resource.set("tags", tagsNode);
+								resources.add(resource);
+							}
+						}
+					}
+				}
+			}
+			revisionNode.set("resources", resources);
+			revision.add(revisionNode);
+			itemNode.set("versions", revision);
+			items.add(itemNode);
+			rootNode.set("items", items);
+			arrayNode.add(rootNode);
+		}
+	}
+
+	public ArrayNode getListOfPublishedSwagger3Details(String interactionid, String jsessionid, String status,
+			String partnerId) throws ItorixException, JsonProcessingException, IOException {
+		log("getListOfPublishedSwaggerDetails", interactionid, jsessionid);
+		List<Swagger3VO> list = baseRepository.find(STATUS_VALUE, status, Swagger3VO.class);
+		ObjectMapper mapper = new ObjectMapper();
 
         ArrayNode arrayNode = mapper.createArrayNode();
         for (Swagger3VO vo : list) {
@@ -1546,448 +1392,419 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return arrayNode;
     }
 
-    private boolean isPartnerAsociated(Swagger3VO vo, String partnerId) {
-        List<String> partners = vo.getPartners();
-        if (null != partners) {
-            if (partners.contains(partnerId)) {
-                return true;
-            }
-        }
-        return false;
-    }
+	private boolean isPartnerAsociated(Swagger3VO vo, String partnerId) {
+		Set<String> partners = vo.getPartners();
+		if (null != partners) {
+			if (partners.contains(partnerId)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-    private void getPublishedSwaggerDetails(Swagger3VO vo, ArrayNode arrayNode)
-            throws JsonMappingException, JsonProcessingException, ItorixException {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode jsonNode = null;
+	private void getPublishedSwaggerDetails(Swagger3VO vo, ArrayNode arrayNode)
+			throws JsonMappingException, JsonProcessingException, ItorixException {
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode jsonNode = null;
 
-        for (int i = 0; i < arrayNode.size(); i++) {
-            jsonNode = arrayNode.get(i);
-            if (vo != null && jsonNode != null) {
-                if (vo.getName().equals(jsonNode.get("title").asText())) {
-                    arrayNode.remove(i);
-                }
-            }
-        }
-        if (null == jsonNode) {
-            ObjectNode rootNode = mapper.createObjectNode();
-            JsonNode swaggerJson = null;
-            rootNode.put("title", vo.getName());
-            ArrayNode items = mapper.createArrayNode();
-            ObjectNode itemNode = mapper.createObjectNode();
-            itemNode.put("title", vo.getName());
-            itemNode.put("id", vo.getId());
-            itemNode.put("swaggerId", vo.getSwaggerId());
-            itemNode.put("swaggerVersion", "3.0");
-            
-            
-            SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(),"3.0");
-            if ( metadata != null) {
-            	if (metadata.getTeams() != null) {
-            	ArrayNode teams = mapper.valueToTree(metadata.getTeams());
-            	itemNode.putArray("teams").addAll(teams);
-            	}
-            	if (metadata.getProducts() != null)	{
-            	ArrayNode products = mapper.valueToTree(metadata.getProducts());
-            	itemNode.putArray("products").addAll(products);
-            	}
-            }
-            
-            if (vo.getPartners() != null) {
-	            ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
-	            itemNode.putArray("partners").addAll(partners);
-            }
-            
-            ArrayNode revision = mapper.createArrayNode();
-            ObjectNode revisionNode = mapper.createObjectNode();
-            if (vo != null && vo.getSwagger() != null) {
-                swaggerJson = mapper.readTree(vo.getSwagger());
-                if (swaggerJson != null) {
-                    JsonNode infoNode = swaggerJson.get("info");
-                    if (infoNode != null) {
-                        revisionNode.put("name", infoNode.get("version").asText());
-                    }
-                }
-            }
-            String url = applicationProperties.getAppUrl() + applicationProperties.getAppDomain() + "/v1/swaggers/"
-                    + vo.getSwaggerId() + "/revisions/" + vo.getRevision();
-            revisionNode.put("url", url);
-            ArrayNode resources = mapper.createArrayNode();
-            if (swaggerJson != null) {
-                JsonNode pathsNode = swaggerJson.get("paths");
-                if (pathsNode != null) {
-                    Iterator<Map.Entry<String, JsonNode>> it = pathsNode.fields();
-                    // Iterator<JsonNode> it =pathsNode.elements();
-                    while (it.hasNext()) {
-                        Map.Entry<String, JsonNode> entry = it.next();
-                        JsonNode methodsNode = entry.getValue();
-                        Iterator<Map.Entry<String, JsonNode>> methods = methodsNode.fields();
-                        while (methods.hasNext()) {
-                            ObjectNode resource = mapper.createObjectNode();
-                            Map.Entry<String, JsonNode> method = methods.next();
-                            String httpMethod = method.getKey();
-                            if (org.springframework.http.HttpMethod.resolve(httpMethod.toUpperCase()) != null) {
-                                JsonNode methodNode = method.getValue();
-                                resource.put("method", method.getKey());
-                                resource.put("path", entry.getKey());
-                                if (methodNode.get("summary") != null) {
-                                    resource.put("summary", methodNode.get("summary").asText());
-                                }
-                                if (methodNode.get("operationId") != null) {
-                                    resource.put("operationId", methodNode.get("operationId").asText());
-                                }
-                                ArrayNode tagsNode = (ArrayNode) methodNode.get("tags");
-                                resource.set("tags", tagsNode);
-                                resources.add(resource);
-                            }
-                        }
-                    }
-                }
-            }
-            revisionNode.set("resources", resources);
-            revision.add(revisionNode);
-            itemNode.set("versions", revision);
-            items.add(itemNode);
-            rootNode.set("items", items);
-            arrayNode.add(rootNode);
-        } else {
-            ObjectNode rootNode = mapper.createObjectNode();
-            JsonNode swaggerJson = null;
-            rootNode.put("title", vo.getName());
-            ArrayNode items = mapper.createArrayNode();
-            ObjectNode itemNode = mapper.createObjectNode();
-            itemNode.put("title", vo.getName());
-            itemNode.put("id", vo.getId());
-            itemNode.put("swaggerId", vo.getSwaggerId());
-            itemNode.put("swaggerVersion", "3.0");
-            
-            SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(),"3.0");
-            if ( metadata != null) {
-            	if (metadata.getTeams() != null) {
-            	ArrayNode teams = mapper.valueToTree(metadata.getTeams());
-            	itemNode.putArray("teams").addAll(teams);
-            	}
-            	if (metadata.getProducts() != null)	{
-            	ArrayNode products = mapper.valueToTree(metadata.getProducts());
-            	itemNode.putArray("products").addAll(products);
-            	}
-            }
-            
-            if (vo.getPartners() != null) {
-	            ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
-	            itemNode.putArray("partners").addAll(partners);
-            }
-            
-            ArrayNode revision = mapper.createArrayNode();
-            ObjectNode revisionNode = mapper.createObjectNode();
-            if (vo != null && vo.getSwagger() != null) {
-                swaggerJson = mapper.readTree(vo.getSwagger());
-                if (swaggerJson != null) {
-                    JsonNode infoNode = swaggerJson.get("info");
-                    if (infoNode != null) {
-                        revisionNode.put("name", infoNode.get("version").asText());
-                    }
-                }
-            }
-            String url = applicationProperties.getAppUrl() + applicationProperties.getAppDomain() + "/v1/swaggers/"
-                    + vo.getSwaggerId() + "/revisions/" + vo.getRevision();
-            revisionNode.put("url", url);
-            ArrayNode resources = mapper.createArrayNode();
-            if (swaggerJson != null) {
-                JsonNode pathsNode = swaggerJson.get("paths");
-                if (pathsNode != null) {
-                    Iterator<Map.Entry<String, JsonNode>> it = pathsNode.fields();
-                    // Iterator<JsonNode> it =pathsNode.elements();
-                    while (it.hasNext()) {
-                        Map.Entry<String, JsonNode> entry = it.next();
-                        JsonNode methodsNode = entry.getValue();
-                        Iterator<Map.Entry<String, JsonNode>> methods = methodsNode.fields();
-                        while (methods.hasNext()) {
-                            ObjectNode resource = mapper.createObjectNode();
-                            Map.Entry<String, JsonNode> method = methods.next();
-                            String httpMethod = method.getKey();
-                            if (org.springframework.http.HttpMethod.resolve(httpMethod.toUpperCase()) != null) {
-                                JsonNode methodNode = method.getValue();
-                                resource.put("method", method.getKey());
-                                resource.put("path", entry.getKey());
-                                if (methodNode.get("summary") != null) {
-                                    resource.put("summary", methodNode.get("summary").asText());
-                                }
-                                if (methodNode.get("operationId") != null) {
-                                    resource.put("operationId", methodNode.get("operationId").asText());
-                                }
-                                ArrayNode tagsNode = (ArrayNode) methodNode.get("tags");
-                                resource.set("tags", tagsNode);
-                                resources.add(resource);
-                            }
-                        }
-                    }
-                }
-            }
-            revisionNode.set("resources", resources);
-            revision.add(revisionNode);
-            itemNode.set("versions", revision);
-            items.add(itemNode);
-            rootNode.set("items", items);
-            arrayNode.add(rootNode);
-        }
-    }
-	
-    /**
-     * isMailidExist
-     *
-     * @param vo
-     * @param email
-     * @return
-     */
-    private boolean isMailidExist(SwaggerVO vo, String email) {
-        if (vo.getTeams() != null && vo.getTeams().size() > 0) {
-            for (String teamName : vo.getTeams()) {
-                SwaggerTeam team = baseRepository.findOne("name", teamName, SwaggerTeam.class);
-                for (SwaggerContacts contact : team.getContacts()) {
-                    boolean value = email.equals(contact.getEmail());
-                    if (value) {
-                        return true;
-                    }
-                }
-            }
-        } else {
-            return true;
-        }
-        return false;
-    }
+		for (int i = 0; i < arrayNode.size(); i++) {
+			jsonNode = arrayNode.get(i);
+			if (vo != null && jsonNode != null) {
+				if (vo.getName().equals(jsonNode.get("title").asText())) {
+					arrayNode.remove(i);
+				}
+			}
+		}
+		if (null == jsonNode) {
+			ObjectNode rootNode = mapper.createObjectNode();
+			JsonNode swaggerJson = null;
+			rootNode.put("title", vo.getName());
+			ArrayNode items = mapper.createArrayNode();
+			ObjectNode itemNode = mapper.createObjectNode();
+			itemNode.put("title", vo.getName());
+			itemNode.put("id", vo.getId());
+			itemNode.put("swaggerId", vo.getSwaggerId());
+			itemNode.put("swaggerVersion", "3.0");
 
-    /**
-     * isMailidExist
-     *
-     * @param vo
-     * @param email
-     * @return
-     */
-    private boolean isMailidExist(Swagger3VO vo, String email) {
-        if (vo.getTeams() != null && vo.getTeams().size() > 0) {
-            for (String teamName : vo.getTeams()) {
-                SwaggerTeam team = baseRepository.findOne("name", teamName, SwaggerTeam.class);
-                for (SwaggerContacts contact : team.getContacts()) {
-                    boolean value = email.equals(contact.getEmail());
-                    if (value) {
-                        return true;
-                    }
-                }
-            }
-        } else {
-            return true;
-        }
-        return false;
-    }
+			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "3.0");
+			if (metadata != null) {
+				if (metadata.getTeams() != null) {
+					ArrayNode teams = mapper.valueToTree(metadata.getTeams());
+					itemNode.putArray("teams").addAll(teams);
+				}
+				if (metadata.getProducts() != null) {
+					ArrayNode products = mapper.valueToTree(metadata.getProducts());
+					itemNode.putArray("products").addAll(products);
+				}
+			}
 
-    /**
-     * getSwagger
-     *
-     * @param name
-     * @param interactionid
-     * @return
-     */
-    public SwaggerVO getSwagger(String name, String interactionid) {
-        log("getSwagger", interactionid, name);
-        SwaggerVO vo = null;
-        vo = baseRepository.findOne("id", name, SwaggerVO.class);
-        if (vo == null) {
-            vo = baseRepository.findOne("swaggerId", name, SwaggerVO.class);
-        }
-        if (vo != null) {
-            name = vo.getName();
-        }
-        List<SwaggerVO> swaggers = baseRepository.find("name", name, SwaggerVO.class);
-        List<Revision> versions = new ArrayList<Revision>();
-        for (SwaggerVO swaggerVO : swaggers) {
-            versions.add(new Revision(swaggerVO.getRevision(), swaggerVO.getStatus()));
-        }
-        if (versions.size() > 0) {
-            Revision version = Collections.max(versions);
-            for (SwaggerVO swaggerVO : swaggers) {
-                if (swaggerVO.getRevision() == version.getRevision()) {
-                    return swaggerVO;
-                }
-            }
-        }
-        log("getSwagger", interactionid, vo);
-        return vo;
-    }
+			if (vo.getPartners() != null) {
+				ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
+				itemNode.putArray("partners").addAll(partners);
+			}
 
-    /**
-     * getSwagger
-     *
-     * @param name
-     * @param interactionid
-     * @return
-     */
-    public Swagger3VO getSwagger3(String name, String interactionid) {
-        log("getSwagger", interactionid, name);
-        Swagger3VO vo = null;
-        vo = baseRepository.findOne("id", name, Swagger3VO.class);
-        if (vo == null) {
-            vo = baseRepository.findOne("swaggerId", name, Swagger3VO.class);
-        }
-        if (vo != null) {
-            name = vo.getName();
-        }
-        List<Swagger3VO> swaggers = baseRepository.find("name", name, Swagger3VO.class);
-        List<Revision> versions = new ArrayList<Revision>();
-        for (Swagger3VO swaggerVO : swaggers) {
-            versions.add(new Revision(swaggerVO.getRevision(), swaggerVO.getStatus()));
-        }
-        if (swaggers.size() > 0) {
-            Revision version = Collections.max(versions);
-            for (Swagger3VO swaggerVO : swaggers) {
-                if (swaggerVO.getRevision() == version.getRevision()) {
-                    return swaggerVO;
-                }
-            }
-        }
-        log("getSwagger", interactionid, vo);
-        return vo;
-    }
+			ArrayNode revision = mapper.createArrayNode();
+			ObjectNode revisionNode = mapper.createObjectNode();
+			if (vo != null && vo.getSwagger() != null) {
+				swaggerJson = mapper.readTree(vo.getSwagger());
+				if (swaggerJson != null) {
+					JsonNode infoNode = swaggerJson.get("info");
+					if (infoNode != null) {
+						revisionNode.put("name", infoNode.get("version").asText());
+					}
+				}
+			}
+			String url = applicationProperties.getAppUrl() + applicationProperties.getAppDomain() + "/v1/swaggers/"
+					+ vo.getSwaggerId() + "/revisions/" + vo.getRevision();
+			revisionNode.put("url", url);
+			ArrayNode resources = mapper.createArrayNode();
+			if (swaggerJson != null) {
+				JsonNode pathsNode = swaggerJson.get("paths");
+				if (pathsNode != null) {
+					Iterator<Map.Entry<String, JsonNode>> it = pathsNode.fields();
+					// Iterator<JsonNode> it =pathsNode.elements();
+					while (it.hasNext()) {
+						Map.Entry<String, JsonNode> entry = it.next();
+						JsonNode methodsNode = entry.getValue();
+						Iterator<Map.Entry<String, JsonNode>> methods = methodsNode.fields();
+						while (methods.hasNext()) {
+							ObjectNode resource = mapper.createObjectNode();
+							Map.Entry<String, JsonNode> method = methods.next();
+							String httpMethod = method.getKey();
+							if (org.springframework.http.HttpMethod.resolve(httpMethod.toUpperCase()) != null) {
+								JsonNode methodNode = method.getValue();
+								resource.put("method", method.getKey());
+								resource.put("path", entry.getKey());
+								if (methodNode.get("summary") != null) {
+									resource.put("summary", methodNode.get("summary").asText());
+								}
+								if (methodNode.get("operationId") != null) {
+									resource.put("operationId", methodNode.get("operationId").asText());
+								}
+								ArrayNode tagsNode = (ArrayNode) methodNode.get("tags");
+								resource.set("tags", tagsNode);
+								resources.add(resource);
+							}
+						}
+					}
+				}
+			}
+			revisionNode.set("resources", resources);
+			revision.add(revisionNode);
+			itemNode.set("versions", revision);
+			items.add(itemNode);
+			rootNode.set("items", items);
+			arrayNode.add(rootNode);
+		} else {
+			ObjectNode rootNode = mapper.createObjectNode();
+			JsonNode swaggerJson = null;
+			rootNode.put("title", vo.getName());
+			ArrayNode items = mapper.createArrayNode();
+			ObjectNode itemNode = mapper.createObjectNode();
+			itemNode.put("title", vo.getName());
+			itemNode.put("id", vo.getId());
+			itemNode.put("swaggerId", vo.getSwaggerId());
+			itemNode.put("swaggerVersion", "3.0");
 
-    /**
-     * getSwaggerWithVersionNumber
-     *
-     * @param name
-     * @param revision
-     * @param interactionid
-     * @return
-     */
-    public SwaggerVO getSwaggerWithVersionNumber(String name, Integer revision, String interactionid)
-            throws ItorixException {
-        log("getSwaggerWithVersionNumber", interactionid, name, revision);
-        SwaggerVO swaggerVO = baseRepository.findOne("id", name, SwaggerVO.class);
-        if (swaggerVO == null) {
-            swaggerVO = baseRepository.findOne("swaggerId", name, SwaggerVO.class);
-        }
-        if (swaggerVO == null) {
-            swaggerVO = baseRepository.findOne("name", name, "revision", revision, SwaggerVO.class);
-        } else {
-            name = swaggerVO.getName();
-            swaggerVO = baseRepository.findOne("name", name, "revision", revision, SwaggerVO.class);
-        }
-        log("getSwaggerWithVersionNumber", interactionid, swaggerVO);
-        return swaggerVO;
-    }
+			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "3.0");
+			if (metadata != null) {
+				if (metadata.getTeams() != null) {
+					ArrayNode teams = mapper.valueToTree(metadata.getTeams());
+					itemNode.putArray("teams").addAll(teams);
+				}
+				if (metadata.getProducts() != null) {
+					ArrayNode products = mapper.valueToTree(metadata.getProducts());
+					itemNode.putArray("products").addAll(products);
+				}
+			}
 
-    /**
-     * getSwagger3WithVersionNumber
-     *
-     * @param name
-     * @param revision
-     * @param interactionid
-     * @return
-     */
-    public Swagger3VO getSwagger3WithVersionNumber(String name, Integer revision, String interactionid)
-            throws ItorixException {
-        log("getSwaggerWithVersionNumber", interactionid, name, revision);
-        Swagger3VO swaggerVO = baseRepository.findOne("id", name, Swagger3VO.class);
-        if (swaggerVO == null) {
-            swaggerVO = baseRepository.findOne("swaggerId", name, Swagger3VO.class);
-        }
-        if (swaggerVO == null) {
-            swaggerVO = baseRepository.findOne("name", name, "revision", revision, Swagger3VO.class);
-        } else {
-            name = swaggerVO.getName();
-            swaggerVO = baseRepository.findOne("name", name, "revision", revision, Swagger3VO.class);
-        }
-        log("getSwaggerWithVersionNumber", interactionid, swaggerVO);
-        return swaggerVO;
-    }
+			if (vo.getPartners() != null) {
+				ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
+				itemNode.putArray("partners").addAll(partners);
+			}
 
-    /**
-     * @param name
-     * @param revision
-     * @param interactionid
-     * @return
-     */
-    public List<SwaggerComment> getSwaggerComments(String name, Integer revision, String interactionid) {
-        log("getSwaggerComments", interactionid, name, revision);
-        List<SwaggerComment> comments = baseRepository.find("swaggerName", name, "swaggerRevision", revision,
-                SwaggerComment.class);
-        log("getSwaggerComments", interactionid, comments);
-        return comments;
-    }
+			ArrayNode revision = mapper.createArrayNode();
+			ObjectNode revisionNode = mapper.createObjectNode();
+			if (vo != null && vo.getSwagger() != null) {
+				swaggerJson = mapper.readTree(vo.getSwagger());
+				if (swaggerJson != null) {
+					JsonNode infoNode = swaggerJson.get("info");
+					if (infoNode != null) {
+						revisionNode.put("name", infoNode.get("version").asText());
+					}
+				}
+			}
+			String url = applicationProperties.getAppUrl() + applicationProperties.getAppDomain() + "/v1/swaggers/"
+					+ vo.getSwaggerId() + "/revisions/" + vo.getRevision();
+			revisionNode.put("url", url);
+			ArrayNode resources = mapper.createArrayNode();
+			if (swaggerJson != null) {
+				JsonNode pathsNode = swaggerJson.get("paths");
+				if (pathsNode != null) {
+					Iterator<Map.Entry<String, JsonNode>> it = pathsNode.fields();
+					// Iterator<JsonNode> it =pathsNode.elements();
+					while (it.hasNext()) {
+						Map.Entry<String, JsonNode> entry = it.next();
+						JsonNode methodsNode = entry.getValue();
+						Iterator<Map.Entry<String, JsonNode>> methods = methodsNode.fields();
+						while (methods.hasNext()) {
+							ObjectNode resource = mapper.createObjectNode();
+							Map.Entry<String, JsonNode> method = methods.next();
+							String httpMethod = method.getKey();
+							if (org.springframework.http.HttpMethod.resolve(httpMethod.toUpperCase()) != null) {
+								JsonNode methodNode = method.getValue();
+								resource.put("method", method.getKey());
+								resource.put("path", entry.getKey());
+								if (methodNode.get("summary") != null) {
+									resource.put("summary", methodNode.get("summary").asText());
+								}
+								if (methodNode.get("operationId") != null) {
+									resource.put("operationId", methodNode.get("operationId").asText());
+								}
+								ArrayNode tagsNode = (ArrayNode) methodNode.get("tags");
+								resource.set("tags", tagsNode);
+								resources.add(resource);
+							}
+						}
+					}
+				}
+			}
+			revisionNode.set("resources", resources);
+			revision.add(revisionNode);
+			itemNode.set("versions", revision);
+			items.add(itemNode);
+			rootNode.set("items", items);
+			arrayNode.add(rootNode);
+		}
+	}
 
-    /**
-     * getSwagger3Comments
-     *
-     * @param name
-     * @param revision
-     * @param interactionid
-     * @return
-     */
-    public List<Swagger3Comment> getSwagger3Comments(String name, Integer revision, String interactionid) {
-        log("getSwaggerComments", interactionid, name, revision);
-        List<Swagger3Comment> comments = baseRepository.find("swaggerName", name, "swaggerRevision", revision,
-                Swagger3Comment.class);
-        log("getSwaggerComments", interactionid, comments);
-        return comments;
-    }
+	private boolean isMailidExist(SwaggerVO vo, String email) {
+		if (vo.getTeams() != null && vo.getTeams().size() > 0) {
+			for (String teamName : vo.getTeams()) {
+				SwaggerTeam team = baseRepository.findOne("name", teamName, SwaggerTeam.class);
+				for (SwaggerContacts contact : team.getContacts()) {
+					boolean value = email.equals(contact.getEmail());
+					if (value) {
+						return true;
+					}
+				}
+			}
+		} else {
+			return true;
+		}
+		return false;
+	}
 
-    /**
-     * getLockStatus
-     *
-     * @param name
-     * @param revision
-     * @param interactionid
-     * @return
-     */
-    public Boolean getLockStatus(String name, Integer revision, String interactionid) {
-        log("getLockStatus", interactionid, name, revision);
-        SwaggerVO swaggerVO = baseRepository.findOne("name", name, "revision", revision, SwaggerVO.class);
-        log("getLockStatus", interactionid, swaggerVO);
-        return swaggerVO.getLock();
-    }
+	private boolean isMailidExist(Swagger3VO vo, String email) {
+		if (vo.getTeams() != null && vo.getTeams().size() > 0) {
+			for (String teamName : vo.getTeams()) {
+				SwaggerTeam team = baseRepository.findOne("name", teamName, SwaggerTeam.class);
+				for (SwaggerContacts contact : team.getContacts()) {
+					boolean value = email.equals(contact.getEmail());
+					if (value) {
+						return true;
+					}
+				}
+			}
+		} else {
+			return true;
+		}
+		return false;
+	}
 
-    /**
-     * getSwagger3LockStatus
-     *
-     * @param name
-     * @param revision
-     * @param interactionid
-     * @return
-     */
-    public Boolean getSwagger3LockStatus(String name, Integer revision, String interactionid) {
-        log("getLockStatus", interactionid, name, revision);
-        Swagger3VO swaggerVO = baseRepository.findOne("name", name, "revision", revision, Swagger3VO.class);
-        log("getLockStatus", interactionid, swaggerVO);
-        return swaggerVO.getLock();
-    }
+	public SwaggerVO getSwagger(String name, String interactionid) {
+		log("getSwagger", interactionid, name);
+		SwaggerVO vo = null;
+		vo = baseRepository.findOne("id", name, SwaggerVO.class);
+		if (vo == null) {
+			vo = baseRepository.findOne("swaggerId", name, SwaggerVO.class);
+		}
+		if (vo != null) {
+			name = vo.getName();
+		}
+		List<SwaggerVO> swaggers = baseRepository.find("name", name, SwaggerVO.class);
+		List<Revision> versions = new ArrayList<Revision>();
+		for (SwaggerVO swaggerVO : swaggers) {
+			versions.add(new Revision(swaggerVO.getRevision(), swaggerVO.getStatus()));
+		}
+		if (versions.size() > 0) {
+			Revision version = Collections.max(versions);
+			for (SwaggerVO swaggerVO : swaggers) {
+				if (swaggerVO.getRevision() == version.getRevision()) {
+					return swaggerVO;
+				}
+			}
+		}
+		log("getSwagger", interactionid, vo);
+		return vo;
+	}
 
-    /**
-     * updateStatus
-     *
-     * @param name
-     * @param revision
-     * @param json
-     * @param interactionid
-     * @param jsessionid
-     * @return
-     * @throws MessagingException
-     * @throws JSONException
-     */
-    public SwaggerVO updateStatus(String name, Integer revision, String json, String interactionid, String jsessionid)
-            throws MessagingException, JSONException, ItorixException {
-        log("updateStatus", interactionid, name, json, revision);
-        SwaggerVO swaggerVO = findSwagger(name, interactionid);
-        name = swaggerVO.getName();
-        JSONObject jsonObject = new JSONObject(json);
-        String status = jsonObject.getString("state");
-        if (status.equals(SwaggerStatus.PUBLISH.getStatus())) {
-            swaggerVO = baseRepository.findOne("name", name, STATUS_VALUE, status, SwaggerVO.class);
-            if (swaggerVO != null) {
-                swaggerVO.setStatus(SwaggerStatus.DRAFT.getStatus());
-                baseRepository.save(swaggerVO);
-            }
-        }
-        swaggerVO = baseRepository.findOne("name", name, "revision", revision, SwaggerVO.class);
-        swaggerVO.setJsessionid(jsessionid);
-        swaggerVO.setStatus(getStatus(status, swaggerVO.getStatus(), swaggerVO));
+	public Swagger3VO getSwagger3(String name, String interactionid) {
+		log("getSwagger", interactionid, name);
+		Swagger3VO vo = null;
+		vo = baseRepository.findOne("id", name, Swagger3VO.class);
+		if (vo == null) {
+			vo = baseRepository.findOne("swaggerId", name, Swagger3VO.class);
+		}
+		if (vo != null) {
+			name = vo.getName();
+		}
+		List<Swagger3VO> swaggers = baseRepository.find("name", name, Swagger3VO.class);
+		List<Revision> versions = new ArrayList<Revision>();
+		for (Swagger3VO swaggerVO : swaggers) {
+			versions.add(new Revision(swaggerVO.getRevision(), swaggerVO.getStatus()));
+		}
+		if (swaggers.size() > 0) {
+			Revision version = Collections.max(versions);
+			for (Swagger3VO swaggerVO : swaggers) {
+				if (swaggerVO.getRevision() == version.getRevision()) {
+					return swaggerVO;
+				}
+			}
+		}
+		log("getSwagger", interactionid, vo);
+		return vo;
+	}
+
+	/**
+	 * getSwaggerWithVersionNumber
+	 *
+	 * @param name
+	 * @param revision
+	 * @param interactionid
+	 * @return
+	 */
+	public SwaggerVO getSwaggerWithVersionNumber(String name, Integer revision, String interactionid)
+			throws ItorixException {
+		log("getSwaggerWithVersionNumber", interactionid, name, revision);
+		SwaggerVO swaggerVO = baseRepository.findOne("id", name, SwaggerVO.class);
+		if (swaggerVO == null) {
+			swaggerVO = baseRepository.findOne("swaggerId", name, SwaggerVO.class);
+		}
+		if (swaggerVO == null) {
+			swaggerVO = baseRepository.findOne("name", name, "revision", revision, SwaggerVO.class);
+		} else {
+			name = swaggerVO.getName();
+			swaggerVO = baseRepository.findOne("name", name, "revision", revision, SwaggerVO.class);
+		}
+		log("getSwaggerWithVersionNumber", interactionid, swaggerVO);
+		return swaggerVO;
+	}
+
+	/**
+	 * getSwagger3WithVersionNumber
+	 *
+	 * @param name
+	 * @param revision
+	 * @param interactionid
+	 * @return
+	 */
+	public Swagger3VO getSwagger3WithVersionNumber(String name, Integer revision, String interactionid)
+			throws ItorixException {
+		log("getSwaggerWithVersionNumber", interactionid, name, revision);
+		Swagger3VO swaggerVO = baseRepository.findOne("id", name, Swagger3VO.class);
+		if (swaggerVO == null) {
+			swaggerVO = baseRepository.findOne("swaggerId", name, Swagger3VO.class);
+		}
+		if (swaggerVO == null) {
+			swaggerVO = baseRepository.findOne("name", name, "revision", revision, Swagger3VO.class);
+		} else {
+			name = swaggerVO.getName();
+			swaggerVO = baseRepository.findOne("name", name, "revision", revision, Swagger3VO.class);
+		}
+		log("getSwaggerWithVersionNumber", interactionid, swaggerVO);
+		return swaggerVO;
+	}
+
+	/**
+	 * @param name
+	 * @param revision
+	 * @param interactionid
+	 * @return
+	 */
+	public List<SwaggerComment> getSwaggerComments(String name, Integer revision, String interactionid) {
+		log("getSwaggerComments", interactionid, name, revision);
+		List<SwaggerComment> comments = baseRepository.find("swaggerName", name, "swaggerRevision", revision,
+				SwaggerComment.class);
+		log("getSwaggerComments", interactionid, comments);
+		return comments;
+	}
+
+	/**
+	 * getSwagger3Comments
+	 *
+	 * @param name
+	 * @param revision
+	 * @param interactionid
+	 * @return
+	 */
+	public List<Swagger3Comment> getSwagger3Comments(String name, Integer revision, String interactionid) {
+		log("getSwaggerComments", interactionid, name, revision);
+		List<Swagger3Comment> comments = baseRepository.find("swaggerName", name, "swaggerRevision", revision,
+				Swagger3Comment.class);
+		log("getSwaggerComments", interactionid, comments);
+		return comments;
+	}
+
+	/**
+	 * getLockStatus
+	 *
+	 * @param name
+	 * @param revision
+	 * @param interactionid
+	 * @return
+	 */
+	public Boolean getLockStatus(String name, Integer revision, String interactionid) {
+		log("getLockStatus", interactionid, name, revision);
+		SwaggerVO swaggerVO = baseRepository.findOne("name", name, "revision", revision, SwaggerVO.class);
+		log("getLockStatus", interactionid, swaggerVO);
+		return swaggerVO.getLock();
+	}
+
+	/**
+	 * getSwagger3LockStatus
+	 *
+	 * @param name
+	 * @param revision
+	 * @param interactionid
+	 * @return
+	 */
+	public Boolean getSwagger3LockStatus(String name, Integer revision, String interactionid) {
+		log("getLockStatus", interactionid, name, revision);
+		Swagger3VO swaggerVO = baseRepository.findOne("name", name, "revision", revision, Swagger3VO.class);
+		log("getLockStatus", interactionid, swaggerVO);
+		return swaggerVO.getLock();
+	}
+
+	/**
+	 * updateStatus
+	 *
+	 * @param name
+	 * @param revision
+	 * @param json
+	 * @param interactionid
+	 * @param jsessionid
+	 * @return
+	 * @throws MessagingException
+	 * @throws JSONException
+	 */
+	public SwaggerVO updateStatus(String name, Integer revision, String json, String interactionid, String jsessionid)
+			throws MessagingException, JSONException, ItorixException {
+		log("updateStatus", interactionid, name, json, revision);
+		SwaggerVO swaggerVO = findSwagger(name, interactionid);
+		name = swaggerVO.getName();
+		JSONObject jsonObject = new JSONObject(json);
+		String status = jsonObject.getString("state");
+		if (status.equals(SwaggerStatus.PUBLISH.getStatus())) {
+			swaggerVO = baseRepository.findOne("name", name, STATUS_VALUE, status, SwaggerVO.class);
+			if (swaggerVO != null) {
+				swaggerVO.setStatus(SwaggerStatus.DRAFT.getStatus());
+				baseRepository.save(swaggerVO);
+			}
+		}
+		swaggerVO = baseRepository.findOne("name", name, "revision", revision, SwaggerVO.class);
+		swaggerVO.setJsessionid(jsessionid);
+		swaggerVO.setStatus(getStatus(status, swaggerVO.getStatus(), swaggerVO));
 
         baseRepository.save(swaggerVO);
         log("updateStatus", interactionid, swaggerVO);
@@ -2013,230 +1830,230 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return swaggerRoles;
     }
 
-    /**
-     * updateSwagger3Status
-     *
-     * @param namej
-     * @param revision
-     * @param json
-     * @param interactionid
-     * @param jsessionid
-     * @return
-     * @throws MessagingException
-     * @throws JSONException
-     */
-    public Swagger3VO updateSwagger3Status(String name, Integer revision, String json, String interactionid,
-                                           String jsessionid) throws MessagingException, JSONException, ItorixException {
-        log("updateStatus", interactionid, name, json, revision);
-        Swagger3VO swaggerVO = findSwagger3(name, interactionid);
-        name = swaggerVO.getName();
-        JSONObject jsonObject = new JSONObject(json);
-        String status = jsonObject.getString("state");
-        if (status.equals(SwaggerStatus.PUBLISH.getStatus())) {
-            swaggerVO = baseRepository.findOne("name", name, STATUS_VALUE, status, Swagger3VO.class);
-            if (swaggerVO != null) {
-                swaggerVO.setStatus(SwaggerStatus.DRAFT.getStatus());
-                baseRepository.save(swaggerVO);
-            }
-        }
-        swaggerVO = baseRepository.findOne("name", name, "revision", revision, Swagger3VO.class);
-        swaggerVO.setJsessionid(jsessionid);
-        swaggerVO.setStatus(getStatus(status, swaggerVO.getStatus(), swaggerVO));
-        baseRepository.save(swaggerVO);
-        log("updateStatus", interactionid, swaggerVO);
-        return swaggerVO;
-    }
+	/**
+	 * updateSwagger3Status
+	 *
+	 * @param namej
+	 * @param revision
+	 * @param json
+	 * @param interactionid
+	 * @param jsessionid
+	 * @return
+	 * @throws MessagingException
+	 * @throws JSONException
+	 */
+	public Swagger3VO updateSwagger3Status(String name, Integer revision, String json, String interactionid,
+			String jsessionid) throws MessagingException, JSONException, ItorixException {
+		log("updateStatus", interactionid, name, json, revision);
+		Swagger3VO swaggerVO = findSwagger3(name, interactionid);
+		name = swaggerVO.getName();
+		JSONObject jsonObject = new JSONObject(json);
+		String status = jsonObject.getString("state");
+		if (status.equals(SwaggerStatus.PUBLISH.getStatus())) {
+			swaggerVO = baseRepository.findOne("name", name, STATUS_VALUE, status, Swagger3VO.class);
+			if (swaggerVO != null) {
+				swaggerVO.setStatus(SwaggerStatus.DRAFT.getStatus());
+				baseRepository.save(swaggerVO);
+			}
+		}
+		swaggerVO = baseRepository.findOne("name", name, "revision", revision, Swagger3VO.class);
+		swaggerVO.setJsessionid(jsessionid);
+		swaggerVO.setStatus(getStatus(status, swaggerVO.getStatus(), swaggerVO));
+		baseRepository.save(swaggerVO);
+		log("updateStatus", interactionid, swaggerVO);
+		return swaggerVO;
+	}
 
-    /**
-     * getStatus
-     *
-     * @param status
-     * @param vo
-     * @return
-     * @throws MessagingException
-     */
-    private String getStatus(String status, String previousStatus, SwaggerVO vo) throws MessagingException {
-        if (status.equals(SwaggerStatus.DRAFT.getStatus())) {
-            return "Draft";
-        } else if (status.equals(SwaggerStatus.REVIEW.getStatus())) {
-            sendEmails(vo, status, previousStatus);
-            return "Review";
-        } else if (status.equals(SwaggerStatus.CHANGE_REQUIRED.getStatus())) {
-            sendEmails(vo, status, previousStatus);
-            return "Change Required";
-        } else if (status.equals(SwaggerStatus.APPROVED.getStatus())) {
-            sendEmails(vo, status, previousStatus);
-            return "Approved";
-        } else if (status.equals(SwaggerStatus.PUBLISH.getStatus())) {
-            sendEmails(vo, status, previousStatus);
-            return "Publish";
-        } else if (status.equals(SwaggerStatus.DEPRECATE.getStatus())) {
-            sendEmails(vo, status, previousStatus);
-            return "Deprecate";
-        }
-        return "Draft";
-    }
+	/**
+	 * getStatus
+	 *
+	 * @param status
+	 * @param vo
+	 * @return
+	 * @throws MessagingException
+	 */
+	private String getStatus(String status, String previousStatus, SwaggerVO vo) throws MessagingException {
+		if (status.equals(SwaggerStatus.DRAFT.getStatus())) {
+			return "Draft";
+		} else if (status.equals(SwaggerStatus.REVIEW.getStatus())) {
+			sendEmails(vo, status, previousStatus);
+			return "Review";
+		} else if (status.equals(SwaggerStatus.CHANGE_REQUIRED.getStatus())) {
+			sendEmails(vo, status, previousStatus);
+			return "Change Required";
+		} else if (status.equals(SwaggerStatus.APPROVED.getStatus())) {
+			sendEmails(vo, status, previousStatus);
+			return "Approved";
+		} else if (status.equals(SwaggerStatus.PUBLISH.getStatus())) {
+			sendEmails(vo, status, previousStatus);
+			return "Publish";
+		} else if (status.equals(SwaggerStatus.DEPRECATE.getStatus())) {
+			sendEmails(vo, status, previousStatus);
+			return "Deprecate";
+		}
+		return "Draft";
+	}
 
-    /**
-     * getSwagger3Status
-     *
-     * @param status
-     * @param vo
-     * @return
-     * @throws MessagingException
-     */
-    private String getStatus(String status, String previousStatus, Swagger3VO vo) throws MessagingException {
+	/**
+	 * getSwagger3Status
+	 *
+	 * @param status
+	 * @param vo
+	 * @return
+	 * @throws MessagingException
+	 */
+	private String getStatus(String status, String previousStatus, Swagger3VO vo) throws MessagingException {
 
-        if (status.equals(SwaggerStatus.DRAFT.getStatus())) {
-            return "Draft";
-        } else if (status.equals(SwaggerStatus.REVIEW.getStatus())) {
-            sendEmails(vo, status, previousStatus);
-            return "Review";
-        } else if (status.equals(SwaggerStatus.CHANGE_REQUIRED.getStatus())) {
-            sendEmails(vo, status, previousStatus);
-            return "Change Required";
-        } else if (status.equals(SwaggerStatus.APPROVED.getStatus())) {
-            sendEmails(vo, status, previousStatus);
-            return "Approved";
-        } else if (status.equals(SwaggerStatus.PUBLISH.getStatus())) {
-            sendEmails(vo, status, previousStatus);
-            return "Publish";
-        } else if (status.equals(SwaggerStatus.DEPRECATE.getStatus())) {
-            sendEmails(vo, status, previousStatus);
-            return "Deprecate";
-        }
-        return "Draft";
-    }
+		if (status.equals(SwaggerStatus.DRAFT.getStatus())) {
+			return "Draft";
+		} else if (status.equals(SwaggerStatus.REVIEW.getStatus())) {
+			sendEmails(vo, status, previousStatus);
+			return "Review";
+		} else if (status.equals(SwaggerStatus.CHANGE_REQUIRED.getStatus())) {
+			sendEmails(vo, status, previousStatus);
+			return "Change Required";
+		} else if (status.equals(SwaggerStatus.APPROVED.getStatus())) {
+			sendEmails(vo, status, previousStatus);
+			return "Approved";
+		} else if (status.equals(SwaggerStatus.PUBLISH.getStatus())) {
+			sendEmails(vo, status, previousStatus);
+			return "Publish";
+		} else if (status.equals(SwaggerStatus.DEPRECATE.getStatus())) {
+			sendEmails(vo, status, previousStatus);
+			return "Deprecate";
+		}
+		return "Draft";
+	}
 
-    private List<SwaggerTeam> getTeamsBySwaggerName(String swaggerName, String oas) {
-        Query query = new Query();
-        log.debug("getTeamsBySwaggerName : {}",query);
-        if (oas.equals("2.0")) {
-            query.addCriteria(Criteria.where("swaggers").is(swaggerName));
-        } else if (oas.equals("3.0")) {
-            query.addCriteria(Criteria.where("swagger3").is(swaggerName));
-        }
-        List<SwaggerTeam> teamlist = baseRepository.find(query, SwaggerTeam.class);
-        return teamlist;
-    }
+	private List<SwaggerTeam> getTeamsBySwaggerName(String swaggerName, String oas) {
+		Query query = new Query();
+		log.debug("getTeamsBySwaggerName : {}", query);
+		if (oas.equals("2.0")) {
+			query.addCriteria(Criteria.where("swaggers").is(swaggerName));
+		} else if (oas.equals("3.0")) {
+			query.addCriteria(Criteria.where("swagger3").is(swaggerName));
+		}
+		List<SwaggerTeam> teamlist = baseRepository.find(query, SwaggerTeam.class);
+		return teamlist;
+	}
 
-    /**
-     * sendEmails
-     *
-     * @param vo
-     * @param status
-     * @throws MessagingException
-     */
-    private void sendEmails(SwaggerVO vo, String status, String previousStatus) throws MessagingException {
-        String subject = MessageFormat.format(applicationProperties.getSwaggerChangeStatusSubject(), vo.getName());
-        User user = getUserDetailsFromSessionID(ServiceRequestContextHolder.getContext().getUserSessionToken().getId());
-        String userName = "";
-        if (user != null) {
-            userName = user.getFirstName() + " " + user.getLastName();
-        }
-        String body = MessageFormat.format(applicationProperties.getSwaggerChangeStatusBody(), vo.getName(), status,
-                getSwaggerCountbyStatus(status), previousStatus, getSwaggerCountbyStatus(previousStatus), userName,
-                getSwaggerCountbyUser(userName), vo.getRevision(), getSwaggerRevisionCount(vo.getName()));
-        List<SwaggerTeam> teams = getTeamsBySwaggerName(vo.getName(), "2.0");
-        if (teams != null) {
-            for (SwaggerTeam team : teams) {
-                // SwaggerTeam team = baseRepository.findOne("name", teamName,
-                // SwaggerTeam.class);
-                if (team != null) {
-                    EmailTemplate emailTemplate = new EmailTemplate();
-                    emailTemplate.setToMailId(getCOntactForTeam(team));
-                    emailTemplate.setSubject(subject);
-                    emailTemplate.setBody(body);
-                    // emailTemplate.setFotter(signature);
-                    mailUtil.sendEmail(emailTemplate);
-                }
-            }
-        } else {
-            EmailTemplate emailTemplate = new EmailTemplate();
-            emailTemplate.setToMailId(Arrays.asList(user.getEmail()));
-            emailTemplate.setSubject(subject);
-            emailTemplate.setBody(body);
-            mailUtil.sendEmail(emailTemplate);
-        }
-    }
+	/**
+	 * sendEmails
+	 *
+	 * @param vo
+	 * @param status
+	 * @throws MessagingException
+	 */
+	private void sendEmails(SwaggerVO vo, String status, String previousStatus) throws MessagingException {
+		String subject = MessageFormat.format(applicationProperties.getSwaggerChangeStatusSubject(), vo.getName());
+		User user = getUserDetailsFromSessionID(ServiceRequestContextHolder.getContext().getUserSessionToken().getId());
+		String userName = "";
+		if (user != null) {
+			userName = user.getFirstName() + " " + user.getLastName();
+		}
+		String body = MessageFormat.format(applicationProperties.getSwaggerChangeStatusBody(), vo.getName(), status,
+				getSwaggerCountbyStatus(status), previousStatus, getSwaggerCountbyStatus(previousStatus), userName,
+				getSwaggerCountbyUser(userName), vo.getRevision(), getSwaggerRevisionCount(vo.getName()));
+		List<SwaggerTeam> teams = getTeamsBySwaggerName(vo.getName(), "2.0");
+		if (teams != null) {
+			for (SwaggerTeam team : teams) {
+				// SwaggerTeam team = baseRepository.findOne("name", teamName,
+				// SwaggerTeam.class);
+				if (team != null) {
+					EmailTemplate emailTemplate = new EmailTemplate();
+					emailTemplate.setToMailId(getCOntactForTeam(team));
+					emailTemplate.setSubject(subject);
+					emailTemplate.setBody(body);
+					// emailTemplate.setFotter(signature);
+					mailUtil.sendEmail(emailTemplate);
+				}
+			}
+		} else {
+			EmailTemplate emailTemplate = new EmailTemplate();
+			emailTemplate.setToMailId(Arrays.asList(user.getEmail()));
+			emailTemplate.setSubject(subject);
+			emailTemplate.setBody(body);
+			mailUtil.sendEmail(emailTemplate);
+		}
+	}
 
-    private int getSwaggerCountbyStatus(String status) {
-        try {
-            Query query = new Query(Criteria.where(STATUS_VALUE).is(status));
-            log.debug("getSwaggerCountbyStatus : {}",query);
-            int count = mongoTemplate.query(SwaggerVO.class).distinct("name").as(String.class).matching(query).all()
-                    .size();
-            return count;
-        } catch (Exception e) {
-            log.error("Exception occurred : {}",e.getMessage());
-        }
-        return 0;
-    }
+	private int getSwaggerCountbyStatus(String status) {
+		try {
+			Query query = new Query(Criteria.where(STATUS_VALUE).is(status));
+			log.debug("getSwaggerCountbyStatus : {}", query);
+			int count = mongoTemplate.query(SwaggerVO.class).distinct("name").as(String.class).matching(query).all()
+					.size();
+			return count;
+		} catch (Exception e) {
+			log.error("Exception occurred : {}", e.getMessage());
+		}
+		return 0;
+	}
 
-    private int getSwaggerCountbyUser(String userId) {
-        try {
-            Query query = new Query(Criteria.where("createdUserName").is(userId));
-            log.debug("getSwaggerCountbyUser : {}",query);
-            int count = mongoTemplate.query(SwaggerVO.class).distinct("name").as(String.class).matching(query).all()
-                    .size();
-            return count;
-        } catch (Exception e) {
-            log.error("Exception occurred : {}",e.getMessage());
-        }
-        return 0;
-    }
+	private int getSwaggerCountbyUser(String userId) {
+		try {
+			Query query = new Query(Criteria.where("createdUserName").is(userId));
+			log.debug("getSwaggerCountbyUser : {}", query);
+			int count = mongoTemplate.query(SwaggerVO.class).distinct("name").as(String.class).matching(query).all()
+					.size();
+			return count;
+		} catch (Exception e) {
+			log.error("Exception occurred : {}", e.getMessage());
+		}
+		return 0;
+	}
 
-    private int getSwaggerRevisionCount(String swaggerName) {
-        try {
-            Query query = new Query(Criteria.where("name").is(swaggerName));
-            log.debug("getSwaggerRevisionCount : {}",query);
-            int count = mongoTemplate.query(SwaggerVO.class).distinct("revision").as(Integer.class).matching(query)
-                    .all().size();
-            return count;
-        } catch (Exception e) {
-            log.error("Exception occurred : {}",e.getMessage());
-        }
-        return 0;
-    }
+	private int getSwaggerRevisionCount(String swaggerName) {
+		try {
+			Query query = new Query(Criteria.where("name").is(swaggerName));
+			log.debug("getSwaggerRevisionCount : {}", query);
+			int count = mongoTemplate.query(SwaggerVO.class).distinct("revision").as(Integer.class).matching(query)
+					.all().size();
+			return count;
+		} catch (Exception e) {
+			log.error("Exception occurred : {}", e.getMessage());
+		}
+		return 0;
+	}
 
-    private int getSwagger3CountbyStatus(String status) {
-        try {
-            Query query = new Query(Criteria.where(STATUS_VALUE).is(status));
-            log.debug("getSwagger3CountbyStatus : {}",query);
-            int count = mongoTemplate.query(Swagger3VO.class).distinct("name").as(String.class).matching(query).all()
-                    .size();
-            return count;
-        } catch (Exception e) {
-            log.error("Exception occurred : {}",e.getMessage());
-        }
-        return 0;
-    }
+	private int getSwagger3CountbyStatus(String status) {
+		try {
+			Query query = new Query(Criteria.where(STATUS_VALUE).is(status));
+			log.debug("getSwagger3CountbyStatus : {}", query);
+			int count = mongoTemplate.query(Swagger3VO.class).distinct("name").as(String.class).matching(query).all()
+					.size();
+			return count;
+		} catch (Exception e) {
+			log.error("Exception occurred : {}", e.getMessage());
+		}
+		return 0;
+	}
 
-    private int getSwagger3CountbyUser(String userId) {
-        try {
-            Query query = new Query(Criteria.where("createdUserName").is(userId));
-            log.debug("getSwagger3CountbyUser : {}",query);
-            int count = mongoTemplate.query(Swagger3VO.class).distinct("name").as(String.class).matching(query).all()
-                    .size();
-            return count;
-        } catch (Exception e) {
-            log.error("Exception occurred : {}",e.getMessage());
-        }
-        return 0;
-    }
+	private int getSwagger3CountbyUser(String userId) {
+		try {
+			Query query = new Query(Criteria.where("createdUserName").is(userId));
+			log.debug("getSwagger3CountbyUser : {}", query);
+			int count = mongoTemplate.query(Swagger3VO.class).distinct("name").as(String.class).matching(query).all()
+					.size();
+			return count;
+		} catch (Exception e) {
+			log.error("Exception occurred : {}", e.getMessage());
+		}
+		return 0;
+	}
 
-    private int getSwagger3RevisionCount(String swaggerName) {
-        try {
-            Query query = new Query(Criteria.where("name").is(swaggerName));
-            log.debug("getSwagger3RevisionCount : {}",query);
-            int count = mongoTemplate.query(Swagger3VO.class).distinct("revision").as(Integer.class).matching(query)
-                    .all().size();
-            return count;
-        } catch (Exception e) {
-            log.error("Exception occurred : {}",e.getMessage());
-        }
-        return 0;
-    }
+	private int getSwagger3RevisionCount(String swaggerName) {
+		try {
+			Query query = new Query(Criteria.where("name").is(swaggerName));
+			log.debug("getSwagger3RevisionCount : {}", query);
+			int count = mongoTemplate.query(Swagger3VO.class).distinct("revision").as(Integer.class).matching(query)
+					.all().size();
+			return count;
+		} catch (Exception e) {
+			log.error("Exception occurred : {}", e.getMessage());
+		}
+		return 0;
+	}
 
     private void sendEmails(Swagger3VO vo, String status, String previousStatus) throws MessagingException {
         String subject = MessageFormat.format(applicationProperties.getSwaggerChangeStatusSubject(), vo.getName());
@@ -2273,40 +2090,40 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         }
     }
 
-    /**
-     * updateComment
-     *
-     * @param comment
-     */
-    public void updateComment(SwaggerComment comment) {
-        log("updateComment", comment.getInteractionid(), comment);
-        comment = baseRepository.save(comment);
-    }
+	/**
+	 * updateComment
+	 *
+	 * @param comment
+	 */
+	public void updateComment(SwaggerComment comment) {
+		log("updateComment", comment.getInteractionid(), comment);
+		comment = baseRepository.save(comment);
+	}
 
-    /**
-     * updateSwagger3Comment
-     *
-     * @param comment
-     */
-    public void updateSwagger3Comment(Swagger3Comment comment) {
-        log("updateComment", comment.getInteractionid(), comment);
-        comment = baseRepository.save(comment);
-    }
+	/**
+	 * updateSwagger3Comment
+	 *
+	 * @param comment
+	 */
+	public void updateSwagger3Comment(Swagger3Comment comment) {
+		log("updateComment", comment.getInteractionid(), comment);
+		comment = baseRepository.save(comment);
+	}
 
-    /**
-     * updateLockStatus
-     *
-     * @param swaggerVO
-     */
-    public void updateLockStatus(SwaggerVO swaggerVO, String jsessionid) {
-        log("updateLockStatus", swaggerVO.getInteractionid(), swaggerVO);
-        SwaggerVO vo = baseRepository.findOne("name", swaggerVO.getName(), "revision", swaggerVO.getRevision(),
-                SwaggerVO.class);
-        if (swaggerVO.getLock()) {
-            User user = getUserDetailsFromSessionID(jsessionid);
-            vo.setLockedBy(user.getFirstName() + " " + user.getLastName());
-            vo.setLockedAt(System.currentTimeMillis());
-            vo.setLockedByUserId(user.getId());
+	/**
+	 * updateLockStatus
+	 *
+	 * @param swaggerVO
+	 */
+	public void updateLockStatus(SwaggerVO swaggerVO, String jsessionid) {
+		log("updateLockStatus", swaggerVO.getInteractionid(), swaggerVO);
+		SwaggerVO vo = baseRepository.findOne("name", swaggerVO.getName(), "revision", swaggerVO.getRevision(),
+				SwaggerVO.class);
+		if (swaggerVO.getLock()) {
+			User user = getUserDetailsFromSessionID(jsessionid);
+			vo.setLockedBy(user.getFirstName() + " " + user.getLastName());
+			vo.setLockedAt(System.currentTimeMillis());
+			vo.setLockedByUserId(user.getId());
 
         } else {
             vo.setLockedBy(null);
@@ -2317,88 +2134,88 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         swaggerVO = baseRepository.save(vo);
     }
 
-    /**
-     * updateSwagger3LockStatus
-     *
-     * @param swagger3VO
-     */
-    public void updateSwagger3LockStatus(Swagger3VO swaggerVO, String jsessionid) {
-        log("updateLockStatus", swaggerVO.getInteractionid(), swaggerVO);
-        Swagger3VO vo = baseRepository.findOne("name", swaggerVO.getName(), "revision", swaggerVO.getRevision(),
-                Swagger3VO.class);
-        if (swaggerVO.getLock()) {
-            User user = getUserDetailsFromSessionID(jsessionid);
-            vo.setLockedBy(user.getFirstName() + " " + user.getLastName());
-            vo.setLockedAt(System.currentTimeMillis());
-            vo.setLockedByUserId(user.getId());
-        } else {
-            vo.setLockedBy(null);
-            vo.setLockedAt(null);
-            vo.setLockedByUserId(null);
-        }
-        vo.setLock(swaggerVO.getLock());
-        swaggerVO = baseRepository.save(vo);
-    }
+	/**
+	 * updateSwagger3LockStatus
+	 *
+	 * @param swagger3VO
+	 */
+	public void updateSwagger3LockStatus(Swagger3VO swaggerVO, String jsessionid) {
+		log("updateLockStatus", swaggerVO.getInteractionid(), swaggerVO);
+		Swagger3VO vo = baseRepository.findOne("name", swaggerVO.getName(), "revision", swaggerVO.getRevision(),
+				Swagger3VO.class);
+		if (swaggerVO.getLock()) {
+			User user = getUserDetailsFromSessionID(jsessionid);
+			vo.setLockedBy(user.getFirstName() + " " + user.getLastName());
+			vo.setLockedAt(System.currentTimeMillis());
+			vo.setLockedByUserId(user.getId());
+		} else {
+			vo.setLockedBy(null);
+			vo.setLockedAt(null);
+			vo.setLockedByUserId(null);
+		}
+		vo.setLock(swaggerVO.getLock());
+		swaggerVO = baseRepository.save(vo);
+	}
 
-    /**
-     * deprecate
-     *
-     * @param swaggerVO
-     * @return
-     */
-    public SwaggerVO deprecate(SwaggerVO swaggerVO) {
-        log("deprecate", swaggerVO.getInteractionid(), swaggerVO);
-        SwaggerVO vo = baseRepository.findOne("name", swaggerVO.getName(), "revision", swaggerVO.getRevision(),
-                SwaggerVO.class);
-        vo.setLock(swaggerVO.getLock());
-        return swaggerVO = baseRepository.save(vo);
-    }
+	/**
+	 * deprecate
+	 *
+	 * @param swaggerVO
+	 * @return
+	 */
+	public SwaggerVO deprecate(SwaggerVO swaggerVO) {
+		log("deprecate", swaggerVO.getInteractionid(), swaggerVO);
+		SwaggerVO vo = baseRepository.findOne("name", swaggerVO.getName(), "revision", swaggerVO.getRevision(),
+				SwaggerVO.class);
+		vo.setLock(swaggerVO.getLock());
+		return swaggerVO = baseRepository.save(vo);
+	}
 
-    /**
-     * deprecate
-     *
-     * @param swaggerVO
-     * @return
-     */
-    public Swagger3VO deprecate(Swagger3VO swaggerVO) {
-        log("deprecate", swaggerVO.getInteractionid(), swaggerVO);
-        Swagger3VO vo = baseRepository.findOne("name", swaggerVO.getName(), "revision", swaggerVO.getRevision(),
-                Swagger3VO.class);
-        vo.setLock(swaggerVO.getLock());
-        return swaggerVO = baseRepository.save(vo);
-    }
+	/**
+	 * deprecate
+	 *
+	 * @param swaggerVO
+	 * @return
+	 */
+	public Swagger3VO deprecate(Swagger3VO swaggerVO) {
+		log("deprecate", swaggerVO.getInteractionid(), swaggerVO);
+		Swagger3VO vo = baseRepository.findOne("name", swaggerVO.getName(), "revision", swaggerVO.getRevision(),
+				Swagger3VO.class);
+		vo.setLock(swaggerVO.getLock());
+		return swaggerVO = baseRepository.save(vo);
+	}
 
-    /**
-     * updateProxies
-     *
-     * @param swaggerVO
-     */
-    public void updateProxies(SwaggerVO swaggerVO) {
-        log("updateProxies", swaggerVO.getInteractionid(), swaggerVO);
-        SwaggerVO vo = baseRepository.findOne("name", swaggerVO.getName(), "revision", swaggerVO.getRevision(),
-                SwaggerVO.class);
-        Map<String, String> proxies = vo.getProxies();
-        proxies.putAll(swaggerVO.getProxies());
-        vo.setProxies(proxies);
-        swaggerVO = baseRepository.save(vo);
-    }
+	/**
+	 * updateProxies
+	 *
+	 * @param swaggerVO
+	 */
+	public void updateProxies(SwaggerVO swaggerVO) {
+		log("updateProxies", swaggerVO.getInteractionid(), swaggerVO);
+		SwaggerVO vo = baseRepository.findOne("name", swaggerVO.getName(), "revision", swaggerVO.getRevision(),
+				SwaggerVO.class);
+		Map<String, String> proxies = vo.getProxies();
+		proxies.putAll(swaggerVO.getProxies());
+		vo.setProxies(proxies);
+		swaggerVO = baseRepository.save(vo);
+	}
 
-    /**
-     * genarateXpath
-     *
-     * @param xsdFile
-     * @param elementName
-     * @param interactionid
-     * @return
-     * @throws Exception
-     */
-    public String genarateXpath(MultipartFile xsdFile, String elementName, String interactionid) throws Exception {
-        log("genarateXpath", interactionid, elementName);
-        long timeStamp = System.currentTimeMillis();
-        String xsdFileBackUpLocation = applicationProperties.getBackupDir() + timeStamp;
-        if (!new File(xsdFileBackUpLocation).exists()) {
-            new File(xsdFileBackUpLocation).mkdirs();
-        }
+	/**
+	 * genarateXpath
+	 *
+	 * @param xsdFile
+	 * @param elementName
+	 * @param interactionid
+	 * @return
+	 * @throws Exception
+	 */
+	public String genarateXpath(MultipartFile xsdFile, String elementName, String interactionid) throws Exception {
+		log("genarateXpath", interactionid, elementName);
+		long timeStamp = System.currentTimeMillis();
+		String xsdFileBackUpLocation = applicationProperties.getBackupDir() + timeStamp;
+		if (!new File(xsdFileBackUpLocation).exists()) {
+			new File(xsdFileBackUpLocation).mkdirs();
+		}
 
         String xsdFileLocation = xsdFileBackUpLocation + "/" + xsdFile.getOriginalFilename();
         writeToFile(xsdFile.getInputStream(), xsdFileLocation);
@@ -2409,214 +2226,214 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return fileLocation;
     }
 
-    /**
-     * genarateSwaggerDefinations
-     *
-     * @param swaggerVO
-     * @param xpathFile
-     * @param sheetName
-     * @param revision
-     * @return
-     * @throws Exception
-     */
-    public SwaggerVO genarateSwaggerDefinations(SwaggerVO swaggerVO, MultipartFile xpathFile, String sheetName,
-                                                Integer revision) throws Exception {
-        log("genarateSwaggerDefinations", swaggerVO.getInteractionid(), swaggerVO);
-        long timeStamp = System.currentTimeMillis();
-        String xpathFileBackUpLocation = applicationProperties.getBackupDir() + timeStamp;
-        if (!new File(xpathFileBackUpLocation).exists()) {
-            new File(xpathFileBackUpLocation).mkdirs();
-        }
-        String xpathFileLocation = xpathFileBackUpLocation + "/" + xpathFile.getOriginalFilename();
-        writeToFile(xpathFile.getInputStream(), xpathFileLocation);
-        XlsUtil xlsReader = new XlsUtil();
-        List<RowData> rowDataList = xlsReader.readExcel(xpathFileLocation, sheetName);
-        PopulateSwaggerDefination populateSwaggerDefination = new PopulateSwaggerDefination();
-        Swagger swagger = populateSwaggerDefination.populateDefinitons(rowDataList, new Swagger());
-        if (revision == null) {
-            swaggerVO.setRevision(1);
-            swaggerVO.setStatus("Draft");
-            swaggerVO.setLock(false);
-            swaggerVO.setId(null);
-            Info info = new Info();
-            info.setTitle(swaggerVO.getName());
-            swagger.setInfo(info);
-            ObjectMapper mapper = new ObjectMapper();
-            String swaggerString = mapper.writeValueAsString(swagger);
-            swaggerVO.setSwagger(swaggerString);
-        } else {
-            swaggerVO = baseRepository.findOne("name", swaggerVO.getName(), "revision", revision, SwaggerVO.class);
-            if (swaggerVO != null) {
-                Swagger s = new SwaggerParser().parse(swaggerVO.getSwagger().toString());
-                Map<String, Model> m = s.getDefinitions();
-                m.putAll(swagger.getDefinitions());
-                s.setDefinitions(m);
-                ObjectMapper mapper = new ObjectMapper();
-                String swaggerString = mapper.writeValueAsString(s);
-                swaggerVO.setSwagger(swaggerString);
-            }
-        }
-        SwaggerVO details = baseRepository.save(swaggerVO);
-        log("genarateSwaggerDefinations", swaggerVO.getInteractionid(), details);
-        return details;
-    }
+	/**
+	 * genarateSwaggerDefinations
+	 *
+	 * @param swaggerVO
+	 * @param xpathFile
+	 * @param sheetName
+	 * @param revision
+	 * @return
+	 * @throws Exception
+	 */
+	public SwaggerVO genarateSwaggerDefinations(SwaggerVO swaggerVO, MultipartFile xpathFile, String sheetName,
+			Integer revision) throws Exception {
+		log("genarateSwaggerDefinations", swaggerVO.getInteractionid(), swaggerVO);
+		long timeStamp = System.currentTimeMillis();
+		String xpathFileBackUpLocation = applicationProperties.getBackupDir() + timeStamp;
+		if (!new File(xpathFileBackUpLocation).exists()) {
+			new File(xpathFileBackUpLocation).mkdirs();
+		}
+		String xpathFileLocation = xpathFileBackUpLocation + "/" + xpathFile.getOriginalFilename();
+		writeToFile(xpathFile.getInputStream(), xpathFileLocation);
+		XlsUtil xlsReader = new XlsUtil();
+		List<RowData> rowDataList = xlsReader.readExcel(xpathFileLocation, sheetName);
+		PopulateSwaggerDefination populateSwaggerDefination = new PopulateSwaggerDefination();
+		Swagger swagger = populateSwaggerDefination.populateDefinitons(rowDataList, new Swagger());
+		if (revision == null) {
+			swaggerVO.setRevision(1);
+			swaggerVO.setStatus("Draft");
+			swaggerVO.setLock(false);
+			swaggerVO.setId(null);
+			Info info = new Info();
+			info.setTitle(swaggerVO.getName());
+			swagger.setInfo(info);
+			ObjectMapper mapper = new ObjectMapper();
+			String swaggerString = mapper.writeValueAsString(swagger);
+			swaggerVO.setSwagger(swaggerString);
+		} else {
+			swaggerVO = baseRepository.findOne("name", swaggerVO.getName(), "revision", revision, SwaggerVO.class);
+			if (swaggerVO != null) {
+				Swagger s = new SwaggerParser().parse(swaggerVO.getSwagger().toString());
+				Map<String, Model> m = s.getDefinitions();
+				m.putAll(swagger.getDefinitions());
+				s.setDefinitions(m);
+				ObjectMapper mapper = new ObjectMapper();
+				String swaggerString = mapper.writeValueAsString(s);
+				swaggerVO.setSwagger(swaggerString);
+			}
+		}
+		SwaggerVO details = baseRepository.save(swaggerVO);
+		log("genarateSwaggerDefinations", swaggerVO.getInteractionid(), details);
+		return details;
+	}
 
-    /**
-     * genarateSwaggerJsonDefinations
-     *
-     * @param swaggerVO
-     * @param rowDataList
-     * @param revision
-     * @return
-     * @throws Exception
-     */
-    public SwaggerVO genarateSwaggerJsonDefinations(SwaggerVO swaggerVO, List<RowData> rowDataList, Integer revision)
-            throws Exception {
-        log("genarateSwaggerJsonDefinations", swaggerVO.getInteractionid(), swaggerVO);
-        SwaggerVO dbswaggerVO = getSwagger(swaggerVO.getName(), "");
-        if (dbswaggerVO != null) {
-            swaggerVO.setName(dbswaggerVO.getName());
-        }
-        SwaggerVO details = null;
-        PopulateSwaggerDefination populateSwaggerDefination = new PopulateSwaggerDefination();
-        Swagger swagger = populateSwaggerDefination.populateDefinitons(rowDataList, new Swagger());
-        swagger = removeResponseSchema(swagger);
-        if (revision == null) {
-            swaggerVO.setRevision(1);
-            swaggerVO.setStatus("Draft");
-            swaggerVO.setLock(false);
-            swaggerVO.setId(null);
-            Info info = new Info();
-            info.setTitle(swaggerVO.getName());
-            swagger.setInfo(info);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.setSerializationInclusion(Include.NON_NULL);
-            String swaggerString = mapper.writeValueAsString(swagger);
-            swaggerVO.setSwagger(swaggerString);
-            // swaggerVO.setSwagger(swagger);
-            details = baseRepository.save(swaggerVO);
-        } else {
-            swaggerVO = baseRepository.findOne("name", swaggerVO.getName(), "revision", revision, SwaggerVO.class);
-            if (swaggerVO != null) {
-                Swagger s = new SwaggerParser().parse(swaggerVO.getSwagger().toString());
-                Map<String, Model> m = s.getDefinitions();
-                m.putAll(swagger.getDefinitions());
-                s.setDefinitions(m);
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.setSerializationInclusion(Include.NON_NULL);
-                s = removeResponseSchema(s);
-                String swaggerString = mapper.writeValueAsString(s);
-                swaggerString = SwaggerUtil.removeResponseSchemaTag(swaggerString);
-                swaggerVO.setSwagger(swaggerString);
-                details = baseRepository.save(swaggerVO);
-            }
-        }
-        log("genarateSwaggerJsonDefinations", swaggerVO.getInteractionid(), details);
-        return details;
-    }
+	/**
+	 * genarateSwaggerJsonDefinations
+	 *
+	 * @param swaggerVO
+	 * @param rowDataList
+	 * @param revision
+	 * @return
+	 * @throws Exception
+	 */
+	public SwaggerVO genarateSwaggerJsonDefinations(SwaggerVO swaggerVO, List<RowData> rowDataList, Integer revision)
+			throws Exception {
+		log("genarateSwaggerJsonDefinations", swaggerVO.getInteractionid(), swaggerVO);
+		SwaggerVO dbswaggerVO = getSwagger(swaggerVO.getName(), "");
+		if (dbswaggerVO != null) {
+			swaggerVO.setName(dbswaggerVO.getName());
+		}
+		SwaggerVO details = null;
+		PopulateSwaggerDefination populateSwaggerDefination = new PopulateSwaggerDefination();
+		Swagger swagger = populateSwaggerDefination.populateDefinitons(rowDataList, new Swagger());
+		swagger = removeResponseSchema(swagger);
+		if (revision == null) {
+			swaggerVO.setRevision(1);
+			swaggerVO.setStatus("Draft");
+			swaggerVO.setLock(false);
+			swaggerVO.setId(null);
+			Info info = new Info();
+			info.setTitle(swaggerVO.getName());
+			swagger.setInfo(info);
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.setSerializationInclusion(Include.NON_NULL);
+			String swaggerString = mapper.writeValueAsString(swagger);
+			swaggerVO.setSwagger(swaggerString);
+			// swaggerVO.setSwagger(swagger);
+			details = baseRepository.save(swaggerVO);
+		} else {
+			swaggerVO = baseRepository.findOne("name", swaggerVO.getName(), "revision", revision, SwaggerVO.class);
+			if (swaggerVO != null) {
+				Swagger s = new SwaggerParser().parse(swaggerVO.getSwagger().toString());
+				Map<String, Model> m = s.getDefinitions();
+				m.putAll(swagger.getDefinitions());
+				s.setDefinitions(m);
+				ObjectMapper mapper = new ObjectMapper();
+				mapper.setSerializationInclusion(Include.NON_NULL);
+				s = removeResponseSchema(s);
+				String swaggerString = mapper.writeValueAsString(s);
+				swaggerString = SwaggerUtil.removeResponseSchemaTag(swaggerString);
+				swaggerVO.setSwagger(swaggerString);
+				details = baseRepository.save(swaggerVO);
+			}
+		}
+		log("genarateSwaggerJsonDefinations", swaggerVO.getInteractionid(), details);
+		return details;
+	}
 
-    private Swagger removeResponseSchema(Swagger swagger) {
-        try {
-            Map<String, Path> swaggerPaths = swagger.getPaths();
-            if (swaggerPaths != null) {
-                Set<String> pathsSet = swaggerPaths.keySet();
-                for (String pathStr : pathsSet) {
-                    Path path = swaggerPaths.get(pathStr);
-                    List<Operation> operationList = path.getOperations();
-                    if (operationList != null) {
-                        for (Operation operation : operationList) {
-                            Map<String, Response> responseMap = operation.getResponses();
-                            if (responseMap != null) {
-                                Set<String> responseSet = responseMap.keySet();
-                                for (String key : responseSet) {
-                                    Response response = responseMap.get(key);
-                                    if (response != null) {
-                                        response.setResponseSchema(null);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
+	private Swagger removeResponseSchema(Swagger swagger) {
+		try {
+			Map<String, Path> swaggerPaths = swagger.getPaths();
+			if (swaggerPaths != null) {
+				Set<String> pathsSet = swaggerPaths.keySet();
+				for (String pathStr : pathsSet) {
+					Path path = swaggerPaths.get(pathStr);
+					List<Operation> operationList = path.getOperations();
+					if (operationList != null) {
+						for (Operation operation : operationList) {
+							Map<String, Response> responseMap = operation.getResponses();
+							if (responseMap != null) {
+								Set<String> responseSet = responseMap.keySet();
+								for (String key : responseSet) {
+									Response response = responseMap.get(key);
+									if (response != null) {
+										response.setResponseSchema(null);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
 
-        }
-        return swagger;
-    }
+		}
+		return swagger;
+	}
 
-    /**
-     * genarateSwaggerJsonDefinations
-     *
-     * @param swaggerVO
-     * @param rowDataList
-     * @param revision
-     * @return
-     * @throws Exception
-     */
-    public Swagger3VO genarateSwaggerJsonDefinations(Swagger3VO swaggerVO, List<RowData> rowDataList, Integer revision)
-            throws Exception {
-        log("genarateSwaggerJsonDefinations", swaggerVO.getInteractionid(), swaggerVO);
-        Swagger3VO dbswaggerVO = getSwagger3(swaggerVO.getName(), "");
-        if (dbswaggerVO != null) {
-            swaggerVO.setName(dbswaggerVO.getName());
-        }
-        Swagger3VO details = null;
-        PopulateSwaggerDefination populateSwaggerDefination = new PopulateSwaggerDefination();
-        OpenAPI swagger = populateSwaggerDefination.populateDefinitons(rowDataList, new OpenAPI());
-        if (revision == null) {
-            swaggerVO.setRevision(1);
-            swaggerVO.setStatus("Draft");
-            swaggerVO.setLock(false);
-            swaggerVO.setId(null);
-            io.swagger.v3.oas.models.info.Info info = new io.swagger.v3.oas.models.info.Info();
-            info.setTitle(swaggerVO.getName());
-            swagger.setInfo(info);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.setSerializationInclusion(Include.NON_NULL);
-            String swaggerString = mapper.writeValueAsString(swagger);
-            swaggerVO.setSwagger(swaggerString);
-            // swaggerVO.setSwagger(swagger);
-            details = baseRepository.save(swaggerVO);
-        } else {
-            swaggerVO = baseRepository.findOne("name", swaggerVO.getName(), "revision", revision, Swagger3VO.class);
-            if (swaggerVO != null) {
-                // OpenAPI s = getOpenAPI(swaggerVO.getSwagger().toString());
-                // Components components = s.getComponents();
-                // Map<String, Schema> schemas = components.getSchemas();
-                // schemas.putAll(swagger.getComponents().getSchemas());
-                // components.setSchemas(schemas);
-                // s.setComponents(components);
-                // ObjectMapper mapper = new ObjectMapper();
-                // mapper.setSerializationInclusion(Include.NON_NULL);
-                String swaggerString = populateSchemas(swaggerVO.getSwagger().toString(),
-                        swagger.getComponents().getSchemas());
-                // String swaggerString = mapper.writeValueAsString(s);
-                // System.out.println(swaggerString);
-                swaggerVO.setSwagger(swaggerString);
-                details = baseRepository.save(swaggerVO);
-            }
-        }
-        log("genarateSwaggerJsonDefinations", swaggerVO.getInteractionid(), details);
-        return details;
-    }
+	/**
+	 * genarateSwaggerJsonDefinations
+	 *
+	 * @param swaggerVO
+	 * @param rowDataList
+	 * @param revision
+	 * @return
+	 * @throws Exception
+	 */
+	public Swagger3VO genarateSwaggerJsonDefinations(Swagger3VO swaggerVO, List<RowData> rowDataList, Integer revision)
+			throws Exception {
+		log("genarateSwaggerJsonDefinations", swaggerVO.getInteractionid(), swaggerVO);
+		Swagger3VO dbswaggerVO = getSwagger3(swaggerVO.getName(), "");
+		if (dbswaggerVO != null) {
+			swaggerVO.setName(dbswaggerVO.getName());
+		}
+		Swagger3VO details = null;
+		PopulateSwaggerDefination populateSwaggerDefination = new PopulateSwaggerDefination();
+		OpenAPI swagger = populateSwaggerDefination.populateDefinitons(rowDataList, new OpenAPI());
+		if (revision == null) {
+			swaggerVO.setRevision(1);
+			swaggerVO.setStatus("Draft");
+			swaggerVO.setLock(false);
+			swaggerVO.setId(null);
+			io.swagger.v3.oas.models.info.Info info = new io.swagger.v3.oas.models.info.Info();
+			info.setTitle(swaggerVO.getName());
+			swagger.setInfo(info);
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.setSerializationInclusion(Include.NON_NULL);
+			String swaggerString = mapper.writeValueAsString(swagger);
+			swaggerVO.setSwagger(swaggerString);
+			// swaggerVO.setSwagger(swagger);
+			details = baseRepository.save(swaggerVO);
+		} else {
+			swaggerVO = baseRepository.findOne("name", swaggerVO.getName(), "revision", revision, Swagger3VO.class);
+			if (swaggerVO != null) {
+				// OpenAPI s = getOpenAPI(swaggerVO.getSwagger().toString());
+				// Components components = s.getComponents();
+				// Map<String, Schema> schemas = components.getSchemas();
+				// schemas.putAll(swagger.getComponents().getSchemas());
+				// components.setSchemas(schemas);
+				// s.setComponents(components);
+				// ObjectMapper mapper = new ObjectMapper();
+				// mapper.setSerializationInclusion(Include.NON_NULL);
+				String swaggerString = populateSchemas(swaggerVO.getSwagger().toString(),
+						swagger.getComponents().getSchemas());
+				// String swaggerString = mapper.writeValueAsString(s);
+				// System.out.println(swaggerString);
+				swaggerVO.setSwagger(swaggerString);
+				details = baseRepository.save(swaggerVO);
+			}
+		}
+		log("genarateSwaggerJsonDefinations", swaggerVO.getInteractionid(), details);
+		return details;
+	}
 
     private String populateSchemas(String swagger, Map<String, Schema> schemas) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(Include.NON_NULL);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        OpenAPI oAPI = getOpenAPI(swagger);
-        Components components = oAPI.getComponents();
-        Map<String, Schema> apischemas = components.getSchemas();
-        apischemas.putAll(schemas);
-        components.setSchemas(apischemas);
-        String componentsStr = "";
-        try {
-            componentsStr = mapper.writeValueAsString(components);
-        } catch (JsonProcessingException e1) {
-            log.error("Exception occurred : {}",e1.getMessage());
-        }
+		OpenAPI oAPI = getOpenAPI(swagger);
+		Components components = oAPI.getComponents();
+		Map<String, Schema> apischemas = components.getSchemas();
+		apischemas.putAll(schemas);
+		components.setSchemas(apischemas);
+		String componentsStr = "";
+		try {
+			componentsStr = mapper.writeValueAsString(components);
+		} catch (JsonProcessingException e1) {
+			log.error("Exception occurred : {}", e1.getMessage());
+		}
 
         try {
             ObjectNode objNode = (ObjectNode) mapper.readTree(swagger);
@@ -2627,44 +2444,44 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
             componentNode.putPOJO("schemas", apischemas);
             objNode.put("components", componentNode);
 
-            // System.out.println(mapper.writeValueAsString(objNode));
-            String swaggerStr = mapper.writeValueAsString(objNode).replaceAll("/definitions/", "/components/schemas/");
-            swaggerStr = swaggerStr.replaceAll(",\"extensions\":\\{}", "");
-            log.info(swaggerStr);
-            return swaggerStr;
-        } catch (JsonProcessingException e1) {
-            // TODO Auto-generated catch block
-            log.error("Exception occurred : {}",e1.getMessage());
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            log.error("Exception occurred : {}",e1.getMessage());
-        }
-        JSONObject swaggerObj = new JSONObject(swagger);
-        if (componentsStr != "") {
-            JSONObject componentsObj = new JSONObject(componentsStr);
-            swaggerObj.put("components", componentsObj);
-        }
-        // JSONObject componentsObj = swaggerObj.getJSONObject("components");
-        // JSONObject schemasObj;
-        // if(componentsObj == null){
-        // componentsObj = new JSONObject();
-        // schemasObj = new JSONObject();
-        // componentsObj.put("schemas", schemasObj);
-        // }
-        // else
-        // schemasObj = componentsObj.getJSONObject("schemas");
-        // for(String key: schemas.keySet()){
-        // schemasObj.put(key, schemas.get(key));
-        // }
-        // componentsObj.put("schemas", schemasObj);
-        // swaggerObj.put("components", componentsObj);
-        try {
-            return mapper.writeValueAsString(swaggerObj);
-        } catch (JsonProcessingException e) {
-            log.error("Exception occurred : {}",e.getMessage());
-        }
-        return swagger;
-    }
+			// System.out.println(mapper.writeValueAsString(objNode));
+			String swaggerStr = mapper.writeValueAsString(objNode).replaceAll("/definitions/", "/components/schemas/");
+			swaggerStr = swaggerStr.replaceAll(",\"extensions\":\\{}", "");
+			log.info(swaggerStr);
+			return swaggerStr;
+		} catch (JsonProcessingException e1) {
+			// TODO Auto-generated catch block
+			log.error("Exception occurred : {}", e1.getMessage());
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			log.error("Exception occurred : {}", e1.getMessage());
+		}
+		JSONObject swaggerObj = new JSONObject(swagger);
+		if (componentsStr != "") {
+			JSONObject componentsObj = new JSONObject(componentsStr);
+			swaggerObj.put("components", componentsObj);
+		}
+		// JSONObject componentsObj = swaggerObj.getJSONObject("components");
+		// JSONObject schemasObj;
+		// if(componentsObj == null){
+		// componentsObj = new JSONObject();
+		// schemasObj = new JSONObject();
+		// componentsObj.put("schemas", schemasObj);
+		// }
+		// else
+		// schemasObj = componentsObj.getJSONObject("schemas");
+		// for(String key: schemas.keySet()){
+		// schemasObj.put(key, schemas.get(key));
+		// }
+		// componentsObj.put("schemas", schemasObj);
+		// swaggerObj.put("components", componentsObj);
+		try {
+			return mapper.writeValueAsString(swaggerObj);
+		} catch (JsonProcessingException e) {
+			log.error("Exception occurred : {}", e.getMessage());
+		}
+		return swagger;
+	}
 
     private OpenAPI getOpenAPI(String swagger) {
         ParseOptions options = new ParseOptions();
@@ -2674,53 +2491,53 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return new OpenAPIV3Parser().readContents(swagger, null, options).getOpenAPI();
     }
 
-    /**
-     * createReview
-     *
-     * @param swaggerReview
-     * @throws MessagingException
-     */
-    public void createReview(SwaggerReview swaggerReview) throws MessagingException {
-        log("createReview", swaggerReview.getInteractionid(), swaggerReview);
-        swaggerReview = baseRepository.save(swaggerReview);
-        for (String teamName : swaggerReview.getTeamNames()) {
-            SwaggerTeam team = baseRepository.findOne("name", teamName, SwaggerTeam.class);
-            if (team != null) {
-                EmailTemplate emailTemplate = new EmailTemplate();
-                emailTemplate.setToMailId(getCOntactForTeam(team));
-                // TODO need to add dynamic message.
-                emailTemplate.setSubject(
-                        "-- Subject : Review Alert - for the following Swagger :" + swaggerReview.getSwaggerName());
-                emailTemplate.setBody("Please finish the review and update the comments ASAP");
-                emailTemplate.setFotter("Thanks, Support Team");
-                mailUtil.sendEmail(emailTemplate);
-            }
-        }
-    }
+	/**
+	 * createReview
+	 *
+	 * @param swaggerReview
+	 * @throws MessagingException
+	 */
+	public void createReview(SwaggerReview swaggerReview) throws MessagingException {
+		log("createReview", swaggerReview.getInteractionid(), swaggerReview);
+		swaggerReview = baseRepository.save(swaggerReview);
+		for (String teamName : swaggerReview.getTeamNames()) {
+			SwaggerTeam team = baseRepository.findOne("name", teamName, SwaggerTeam.class);
+			if (team != null) {
+				EmailTemplate emailTemplate = new EmailTemplate();
+				emailTemplate.setToMailId(getCOntactForTeam(team));
+				// TODO need to add dynamic message.
+				emailTemplate.setSubject(
+						"-- Subject : Review Alert - for the following Swagger :" + swaggerReview.getSwaggerName());
+				emailTemplate.setBody("Please finish the review and update the comments ASAP");
+				emailTemplate.setFotter("Thanks, Support Team");
+				mailUtil.sendEmail(emailTemplate);
+			}
+		}
+	}
 
-    /**
-     * createOrUpdateReviewComment
-     *
-     * @param swaggerReviewComents
-     */
-    public void createOrUpdateReviewComment(SwaggerReviewComents swaggerReviewComents) throws ItorixException {
-        log("createOrUpdateReviewComment", swaggerReviewComents.getInteractionid(), swaggerReviewComents);
-        if (swaggerReviewComents.getExternalFlag() != null && swaggerReviewComents.getExternalFlag().equals("true")) {
-            swaggerReviewComents = baseRepository.save(swaggerReviewComents);
-        } else {
-            swaggerReviewComents = baseRepository.save(swaggerReviewComents);
-        }
-    }
+	/**
+	 * createOrUpdateReviewComment
+	 *
+	 * @param swaggerReviewComents
+	 */
+	public void createOrUpdateReviewComment(SwaggerReviewComents swaggerReviewComents) throws ItorixException {
+		log("createOrUpdateReviewComment", swaggerReviewComents.getInteractionid(), swaggerReviewComents);
+		if (swaggerReviewComents.getExternalFlag() != null && swaggerReviewComents.getExternalFlag().equals("true")) {
+			swaggerReviewComents = baseRepository.save(swaggerReviewComents);
+		} else {
+			swaggerReviewComents = baseRepository.save(swaggerReviewComents);
+		}
+	}
 
-    /**
-     * createOrUpdateReviewComment
-     *
-     * @param swaggerReviewComents
-     */
-    public void createOrUpdateReviewComment(Swagger3ReviewComents swaggerReviewComents) throws ItorixException {
-        log("createOrUpdateReviewComment", swaggerReviewComents.getInteractionid(), swaggerReviewComents);
-        swaggerReviewComents = baseRepository.save(swaggerReviewComents);
-    }
+	/**
+	 * createOrUpdateReviewComment
+	 *
+	 * @param swaggerReviewComents
+	 */
+	public void createOrUpdateReviewComment(Swagger3ReviewComents swaggerReviewComents) throws ItorixException {
+		log("createOrUpdateReviewComment", swaggerReviewComents.getInteractionid(), swaggerReviewComents);
+		swaggerReviewComents = baseRepository.save(swaggerReviewComents);
+	}
 
     private User findByEmail(String email) {
         Query query = new Query();
@@ -2728,23 +2545,23 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return masterMongoTemplate.findOne(query, User.class);
     }
 
-    /**
-     * updateReviewComment
-     *
-     * @param swaggerReviewComents
-     * @throws Exception
-     */
-    public void updateReviewComment(SwaggerReviewComents swaggerReviewComents) throws Exception {
-        log("updateReviewComment", swaggerReviewComents.getInteractionid(), swaggerReviewComents);
-        SwaggerReviewComents sc = baseRepository.findById(swaggerReviewComents.getCommentId(),
-                SwaggerReviewComents.class);
-        if (sc != null) {
-            sc.setComment(swaggerReviewComents.getComment());
-            swaggerReviewComents = baseRepository.save(sc);
-        } else {
-            throw new Exception();
-        }
-    }
+	/**
+	 * updateReviewComment
+	 *
+	 * @param swaggerReviewComents
+	 * @throws Exception
+	 */
+	public void updateReviewComment(SwaggerReviewComents swaggerReviewComents) throws Exception {
+		log("updateReviewComment", swaggerReviewComents.getInteractionid(), swaggerReviewComents);
+		SwaggerReviewComents sc = baseRepository.findById(swaggerReviewComents.getCommentId(),
+				SwaggerReviewComents.class);
+		if (sc != null) {
+			sc.setComment(swaggerReviewComents.getComment());
+			swaggerReviewComents = baseRepository.save(sc);
+		} else {
+			throw new Exception();
+		}
+	}
 
     public void updateReviewComment(Swagger3ReviewComents swaggerReviewComents) throws Exception {
         log("updateReviewComment", swaggerReviewComents.getInteractionid(), swaggerReviewComents);
@@ -2757,35 +2574,35 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         }
     }
 
-    /**
-     * getReviewComment
-     *
-     * @param swaggerReviewComents
-     * @return
-     * @throws MessagingException
-     */
-    public ObjectNode getReviewComment(SwaggerReviewComents swaggerReviewComents)
-            throws MessagingException, ItorixException {
-        log("getReviewComment", swaggerReviewComents.getInteractionid(), swaggerReviewComents);
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode rootNode = mapper.createObjectNode();
-        ArrayNode arrayNode = mapper.createArrayNode();
-        List<SwaggerReviewComents> list = getReviewComments(swaggerReviewComents);
-        for (SwaggerReviewComents sc : list) {
-            ObjectNode objectNode = mapper.createObjectNode();
-            objectNode.put("id", sc.getId());
-            objectNode.put("swaggerName", sc.getSwaggerName());
-            objectNode.put("revision", sc.getRevision());
-            objectNode.put("comment", sc.getComment());
-            if (sc.getExternalFlag() != null) {
-                objectNode.put("externalFlag", sc.getExternalFlag());
-            }
-            User u1 = null;
-            u1 = getUser(sc.getCreatedBy());
-            if (u1 != null) {
-                objectNode.put("createdUserEmail", u1.getEmail());
-                u1 = null;
-            }
+	/**
+	 * getReviewComment
+	 *
+	 * @param swaggerReviewComents
+	 * @return
+	 * @throws MessagingException
+	 */
+	public ObjectNode getReviewComment(SwaggerReviewComents swaggerReviewComents)
+			throws MessagingException, ItorixException {
+		log("getReviewComment", swaggerReviewComents.getInteractionid(), swaggerReviewComents);
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode rootNode = mapper.createObjectNode();
+		ArrayNode arrayNode = mapper.createArrayNode();
+		List<SwaggerReviewComents> list = getReviewComments(swaggerReviewComents);
+		for (SwaggerReviewComents sc : list) {
+			ObjectNode objectNode = mapper.createObjectNode();
+			objectNode.put("id", sc.getId());
+			objectNode.put("swaggerName", sc.getSwaggerName());
+			objectNode.put("revision", sc.getRevision());
+			objectNode.put("comment", sc.getComment());
+			if (sc.getExternalFlag() != null) {
+				objectNode.put("externalFlag", sc.getExternalFlag());
+			}
+			User u1 = null;
+			u1 = getUser(sc.getCreatedBy());
+			if (u1 != null) {
+				objectNode.put("createdUserEmail", u1.getEmail());
+				u1 = null;
+			}
 
             u1 = getUser(sc.getModifiedBy());
             if (u1 != null) {
@@ -2836,35 +2653,35 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return rootNode;
     }
 
-    /**
-     * getReviewComment
-     *
-     * @param swaggerReviewComents
-     * @return
-     * @throws MessagingException
-     */
-    public ObjectNode getReviewComment(Swagger3ReviewComents swaggerReviewComents)
-            throws MessagingException, ItorixException {
-        log("getReviewComment", swaggerReviewComents.getInteractionid(), swaggerReviewComents);
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode rootNode = mapper.createObjectNode();
-        ArrayNode arrayNode = mapper.createArrayNode();
-        List<Swagger3ReviewComents> list = getReviewComments(swaggerReviewComents);
-        for (Swagger3ReviewComents sc : list) {
-            ObjectNode objectNode = mapper.createObjectNode();
-            objectNode.put("id", sc.getId());
-            objectNode.put("swaggerName", sc.getSwaggerName());
-            objectNode.put("revision", sc.getRevision());
-            objectNode.put("comment", sc.getComment());
-            if (sc.getExternalFlag() != null) {
-                objectNode.put("externalFlag", sc.getExternalFlag());
-            }
-            User u1 = null;
-            u1 = getUser(sc.getCreatedBy());
-            if (u1 != null) {
-                objectNode.put("createdUserEmail", u1.getEmail());
-                u1 = null;
-            }
+	/**
+	 * getReviewComment
+	 *
+	 * @param swaggerReviewComents
+	 * @return
+	 * @throws MessagingException
+	 */
+	public ObjectNode getReviewComment(Swagger3ReviewComents swaggerReviewComents)
+			throws MessagingException, ItorixException {
+		log("getReviewComment", swaggerReviewComents.getInteractionid(), swaggerReviewComents);
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode rootNode = mapper.createObjectNode();
+		ArrayNode arrayNode = mapper.createArrayNode();
+		List<Swagger3ReviewComents> list = getReviewComments(swaggerReviewComents);
+		for (Swagger3ReviewComents sc : list) {
+			ObjectNode objectNode = mapper.createObjectNode();
+			objectNode.put("id", sc.getId());
+			objectNode.put("swaggerName", sc.getSwaggerName());
+			objectNode.put("revision", sc.getRevision());
+			objectNode.put("comment", sc.getComment());
+			if (sc.getExternalFlag() != null) {
+				objectNode.put("externalFlag", sc.getExternalFlag());
+			}
+			User u1 = null;
+			u1 = getUser(sc.getCreatedBy());
+			if (u1 != null) {
+				objectNode.put("createdUserEmail", u1.getEmail());
+				u1 = null;
+			}
 
             u1 = getUser(sc.getModifiedBy());
             if (u1 != null) {
@@ -2947,21 +2764,21 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         }
     }
 
-    public void addReplayNodes(ObjectMapper mapper, Swagger3ReviewComents sc, ArrayNode replayNode) {
-        List<Swagger3ReviewComents> list = getReviewComments(sc);
-        if (list != null) {
-            for (Swagger3ReviewComents sc2 : list) {
-                ObjectNode objectNode1 = mapper.createObjectNode();
-                objectNode1.put("id", sc2.getId());
-                objectNode1.put("swaggerName", sc2.getSwaggerName());
-                objectNode1.put("revision", sc2.getRevision());
-                objectNode1.put("comment", sc2.getComment());
-                User u2 = null;
-                u2 = getUser(sc2.getCreatedBy());
-                if (u2 != null) {
-                    objectNode1.put("createdUserEmail", u2.getEmail());
-                    u2 = null;
-                }
+	public void addReplayNodes(ObjectMapper mapper, Swagger3ReviewComents sc, ArrayNode replayNode) {
+		List<Swagger3ReviewComents> list = getReviewComments(sc);
+		if (list != null) {
+			for (Swagger3ReviewComents sc2 : list) {
+				ObjectNode objectNode1 = mapper.createObjectNode();
+				objectNode1.put("id", sc2.getId());
+				objectNode1.put("swaggerName", sc2.getSwaggerName());
+				objectNode1.put("revision", sc2.getRevision());
+				objectNode1.put("comment", sc2.getComment());
+				User u2 = null;
+				u2 = getUser(sc2.getCreatedBy());
+				if (u2 != null) {
+					objectNode1.put("createdUserEmail", u2.getEmail());
+					u2 = null;
+				}
 
                 u2 = getUser(sc2.getModifiedBy());
                 if (u2 != null) {
@@ -2979,21 +2796,21 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         }
     }
 
-    /**
-     * getReviewComments
-     *
-     * @param sc
-     * @return
-     */
-    private List<SwaggerReviewComents> getReviewComments(SwaggerReviewComents sc) {
-        SwaggerVO swaggerVO = getSwagger(sc.getSwaggerName(), "");
-        if (swaggerVO != null) {
-            List<SwaggerReviewComents> list = baseRepository.find("swaggerName", swaggerVO.getName(), "revision",
-                    sc.getRevision(), "commentId", sc.getCommentId(), SwaggerReviewComents.class);
-            return list;
-        }
-        return null;
-    }
+	/**
+	 * getReviewComments
+	 *
+	 * @param sc
+	 * @return
+	 */
+	private List<SwaggerReviewComents> getReviewComments(SwaggerReviewComents sc) {
+		SwaggerVO swaggerVO = getSwagger(sc.getSwaggerName(), "");
+		if (swaggerVO != null) {
+			List<SwaggerReviewComents> list = baseRepository.find("swaggerName", swaggerVO.getName(), "revision",
+					sc.getRevision(), "commentId", sc.getCommentId(), SwaggerReviewComents.class);
+			return list;
+		}
+		return null;
+	}
 
     private List<Swagger3ReviewComents> getReviewComments(Swagger3ReviewComents sc) {
         Swagger3VO swaggerVO = getSwagger3(sc.getSwaggerName(), "");
@@ -3005,141 +2822,141 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return null;
     }
 
-    /**
-     * getCOntactForTeam
-     *
-     * @param team
-     * @return
-     */
-    private List<String> getCOntactForTeam(SwaggerTeam team) {
-        List<String> contactList = team.getContacts().stream().filter(o -> !o.getEmail().isEmpty())
-                .map(o -> o.getEmail()).collect(Collectors.toList());
-        // for (SwaggerContacts contact : team.getContacts())
-        // contactList.add(contact.getEmail());
-        return contactList;
-    }
+	/**
+	 * getCOntactForTeam
+	 *
+	 * @param team
+	 * @return
+	 */
+	private List<String> getCOntactForTeam(SwaggerTeam team) {
+		List<String> contactList = team.getContacts().stream().filter(o -> !o.getEmail().isEmpty())
+				.map(o -> o.getEmail()).collect(Collectors.toList());
+		// for (SwaggerContacts contact : team.getContacts())
+		// contactList.add(contact.getEmail());
+		return contactList;
+	}
 
-    /**
-     * deleteSwagger
-     *
-     * @param name
-     * @param interactionid
-     */
-    public void deleteSwagger(String name, String interactionid) {
-        log("deleteSwagger", interactionid, name);
-        baseRepository.delete("swaggerName", name, SwaggerReviewComents.class);
-        baseRepository.delete("name", name, SwaggerVO.class);
-    }
+	/**
+	 * deleteSwagger
+	 *
+	 * @param name
+	 * @param interactionid
+	 */
+	public void deleteSwagger(String name, String interactionid) {
+		log("deleteSwagger", interactionid, name);
+		baseRepository.delete("swaggerName", name, SwaggerReviewComents.class);
+		baseRepository.delete("name", name, SwaggerVO.class);
+	}
 
-    /**
-     * deleteSwagger3
-     *
-     * @param name
-     * @param interactionid
-     */
-    public void deleteSwagger3(String name, String interactionid) {
-        log("deleteSwagger", interactionid, name);
-        baseRepository.delete("swaggerName", name, Swagger3ReviewComents.class);
-        baseRepository.delete("name", name, Swagger3VO.class);
-    }
+	/**
+	 * deleteSwagger3
+	 *
+	 * @param name
+	 * @param interactionid
+	 */
+	public void deleteSwagger3(String name, String interactionid) {
+		log("deleteSwagger", interactionid, name);
+		baseRepository.delete("swaggerName", name, Swagger3ReviewComents.class);
+		baseRepository.delete("name", name, Swagger3VO.class);
+	}
 
-    /**
-     * deleteSwaggerVersion
-     *
-     * @param name
-     * @param revision
-     * @param interactionid
-     */
-    public void deleteSwaggerVersion(String name, Integer revision, String interactionid) {
-        log("deleteSwaggerVersion", interactionid, name, revision);
-        baseRepository.delete("swaggerName", name, "revision", revision, SwaggerReviewComents.class);
-        baseRepository.delete("name", name, "revision", revision, SwaggerVO.class);
-    }
+	/**
+	 * deleteSwaggerVersion
+	 *
+	 * @param name
+	 * @param revision
+	 * @param interactionid
+	 */
+	public void deleteSwaggerVersion(String name, Integer revision, String interactionid) {
+		log("deleteSwaggerVersion", interactionid, name, revision);
+		baseRepository.delete("swaggerName", name, "revision", revision, SwaggerReviewComents.class);
+		baseRepository.delete("name", name, "revision", revision, SwaggerVO.class);
+	}
 
-    /**
-     * deleteSwaggerVersion
-     *
-     * @param name
-     * @param revision
-     * @param interactionid
-     */
-    public void deleteSwagger3Version(String name, Integer revision, String interactionid) {
-        log("deleteSwaggerVersion", interactionid, name, revision);
-        baseRepository.delete("swaggerName", name, "revision", revision, Swagger3ReviewComents.class);
-        baseRepository.delete("name", name, "revision", revision, Swagger3VO.class);
-    }
+	/**
+	 * deleteSwaggerVersion
+	 *
+	 * @param name
+	 * @param revision
+	 * @param interactionid
+	 */
+	public void deleteSwagger3Version(String name, Integer revision, String interactionid) {
+		log("deleteSwaggerVersion", interactionid, name, revision);
+		baseRepository.delete("swaggerName", name, "revision", revision, Swagger3ReviewComents.class);
+		baseRepository.delete("name", name, "revision", revision, Swagger3VO.class);
+	}
 
-    /**
-     * log
-     *
-     * @param methodName
-     * @param interactionid
-     * @param body
-     */
-    private void log(String methodName, String interactionid, Object... body) {
+	/**
+	 * log
+	 *
+	 * @param methodName
+	 * @param interactionid
+	 * @param body
+	 */
+	private void log(String methodName, String interactionid, Object... body) {
 
         logger.debug("SwaggerService." + methodName + " | CorelationId=" + interactionid + " | request/response Body ="
                 + body);
     }
 
-    /**
-     * symmetricDifference
-     *
-     * @param existing
-     * @param newSet
-     * @return
-     */
-    @SuppressWarnings("unused")
-    private Set<String> symmetricDifference(Set<String> existing, Set<String> newSet) {
-        Set<String> result = new HashSet<String>(existing);
-        for (String element : newSet) {
-            if (!result.add(element)) {
-                result.remove(element);
-            }
-        }
-        return result;
-    }
+	/**
+	 * symmetricDifference
+	 *
+	 * @param existing
+	 * @param newSet
+	 * @return
+	 */
+	@SuppressWarnings("unused")
+	private Set<String> symmetricDifference(Set<String> existing, Set<String> newSet) {
+		Set<String> result = new HashSet<String>(existing);
+		for (String element : newSet) {
+			if (!result.add(element)) {
+				result.remove(element);
+			}
+		}
+		return result;
+	}
 
-    /**
-     * writeToFile
-     *
-     * @param uploadedInputStream
-     * @param uploadedFileLocation
-     */
-    @SuppressWarnings("resource")
-    private void writeToFile(InputStream uploadedInputStream, String uploadedFileLocation) {
-        File file = null;
-        try {
-            OutputStream out = new FileOutputStream(new File(uploadedFileLocation));
-            int read = 0;
-            byte[] bytes = new byte[1024];
-            file = new File(uploadedFileLocation);
-            out = new FileOutputStream(file);
-            while ((read = uploadedInputStream.read(bytes)) != -1) {
-                out.write(bytes, 0, read);
-            }
-            out.flush();
-            out.close();
-        } catch (IOException e) {
+	/**
+	 * writeToFile
+	 *
+	 * @param uploadedInputStream
+	 * @param uploadedFileLocation
+	 */
+	@SuppressWarnings("resource")
+	private void writeToFile(InputStream uploadedInputStream, String uploadedFileLocation) {
+		File file = null;
+		try {
+			OutputStream out = new FileOutputStream(new File(uploadedFileLocation));
+			int read = 0;
+			byte[] bytes = new byte[1024];
+			file = new File(uploadedFileLocation);
+			out = new FileOutputStream(file);
+			while ((read = uploadedInputStream.read(bytes)) != -1) {
+				out.write(bytes, 0, read);
+			}
+			out.flush();
+			out.close();
+		} catch (IOException e) {
 
-            log.error("Exception occurred : {}",e.getMessage());
-        }
-    }
+			log.error("Exception occurred : {}", e.getMessage());
+		}
+	}
 
-    /**
-     * getSwaggerStats
-     *
-     * @param timeunit
-     * @param timerange
-     * @return
-     * @throws ParseException
-     */
-    public SwaggerObjectResponse getSwaggerStats(String timeunit, String timerange)
-            throws ParseException, ItorixException {
-        log("getSwaggerStats", timeunit, timerange);
-        // TODO: Verify and remove blocks of code
-        // ObjectMapper mapper = new ObjectMapper();
-        SwaggerObjectResponse swaggerObjectResponse = new SwaggerObjectResponse();
+	/**
+	 * getSwaggerStats
+	 *
+	 * @param timeunit
+	 * @param timerange
+	 * @return
+	 * @throws ParseException
+	 */
+	public SwaggerObjectResponse getSwaggerStats(String timeunit, String timerange)
+			throws ParseException, ItorixException {
+		log("getSwaggerStats", timeunit, timerange);
+		// TODO: Verify and remove blocks of code
+		// ObjectMapper mapper = new ObjectMapper();
+		SwaggerObjectResponse swaggerObjectResponse = new SwaggerObjectResponse();
 
         boolean populateSwaggers = false;
         if (timeunit != null && timerange != null) {
@@ -3209,23 +3026,23 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return swaggerObjectResponse;
     }
 
-    /**
-     * getSwagger3Stats
-     *
-     * @param timeunit
-     * @param timerange
-     * @return
-     * @throws ParseException
-     */
-    public ObjectNode getSwagger3Stats(String timeunit, String timerange) throws ParseException, ItorixException {
-        log("getSwagger3Stats", timeunit, timerange);
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode rootNode = mapper.createObjectNode();
-        boolean populateSwaggers = false;
-        if (timeunit != null && timerange != null) {
-            populateSwaggers = true;
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-            String[] dates = timerange.split("~");
+	/**
+	 * getSwagger3Stats
+	 *
+	 * @param timeunit
+	 * @param timerange
+	 * @return
+	 * @throws ParseException
+	 */
+	public ObjectNode getSwagger3Stats(String timeunit, String timerange) throws ParseException, ItorixException {
+		log("getSwagger3Stats", timeunit, timerange);
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode rootNode = mapper.createObjectNode();
+		boolean populateSwaggers = false;
+		if (timeunit != null && timerange != null) {
+			populateSwaggers = true;
+			SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+			String[] dates = timerange.split("~");
 
             Date startDate = null;
             Date endDate = null;
@@ -3286,18 +3103,18 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return rootNode;
     }
 
-    /**
-     * getTeamStats
-     *
-     * @param timeunit
-     * @param timerange
-     * @return
-     * @throws ParseException
-     */
-    public ObjectNode getTeamStats(String timeunit, String timerange) throws ParseException, ItorixException {
-        log("getTeamStats", timeunit, timerange);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-        String[] dates = timerange.split("~");
+	/**
+	 * getTeamStats
+	 *
+	 * @param timeunit
+	 * @param timerange
+	 * @return
+	 * @throws ParseException
+	 */
+	public ObjectNode getTeamStats(String timeunit, String timerange) throws ParseException, ItorixException {
+		log("getTeamStats", timeunit, timerange);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+		String[] dates = timerange.split("~");
 
         Date startDate = null;
         Date endDate = null;
@@ -3353,25 +3170,25 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return rootNode;
     }
 
-    /**
-     * associateTeam
-     *
-     * @param swaggerName
-     * @param productSet
-     * @param interactionId
-     * @throws ItorixException
-     */
-    public void associateProduct(String swaggerName, Set<String> productSet, String oas) throws ItorixException {
-        Query query = new Query(Criteria.where("swaggerName").is(swaggerName).and("oas").is(oas));
-        log.debug("associateProduct : {}",query);
-        SwaggerMetadata metadata = mongoTemplate.findOne(query, SwaggerMetadata.class);
-        if (metadata == null) {
-            metadata = new SwaggerMetadata();
-            metadata.setSwaggerName(swaggerName);
-            metadata.setOas(oas);
-        }
-        metadata.setProducts(productSet);
-        mongoTemplate.save(metadata);
+	/**
+	 * associateTeam
+	 *
+	 * @param swaggerName
+	 * @param productSet
+	 * @param interactionId
+	 * @throws ItorixException
+	 */
+	public void associateProduct(String swaggerName, Set<String> productSet, String oas) throws ItorixException {
+		Query query = new Query(Criteria.where("swaggerName").is(swaggerName).and("oas").is(oas));
+		log.debug("associateProduct : {}", query);
+		SwaggerMetadata metadata = mongoTemplate.findOne(query, SwaggerMetadata.class);
+		if (metadata == null) {
+			metadata = new SwaggerMetadata();
+			metadata.setSwaggerName(swaggerName);
+			metadata.setOas(oas);
+		}
+		metadata.setProducts(productSet);
+		mongoTemplate.save(metadata);
 
         // SwaggerVO vo = baseRepository.findOne("name", swaggerName,
         // SwaggerVO.class);
@@ -3389,65 +3206,65 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         // }
     }
 
-    public SwaggerMetadata getSwaggerMetadata(String swaggerName, String oas) throws ItorixException {
-        Query query = new Query(Criteria.where("swaggerName").is(swaggerName).and("oas").is(oas));
-        log.debug("getSwaggerMetadata : {}",query);
-        SwaggerMetadata metadata = mongoTemplate.findOne(query, SwaggerMetadata.class);
-        return metadata;
-    }
+	public SwaggerMetadata getSwaggerMetadata(String swaggerName, String oas) throws ItorixException {
+		Query query = new Query(Criteria.where("swaggerName").is(swaggerName).and("oas").is(oas));
+		log.debug("getSwaggerMetadata : {}", query);
+		SwaggerMetadata metadata = mongoTemplate.findOne(query, SwaggerMetadata.class);
+		return metadata;
+	}
 
-    /**
-     * associateTeam
-     *
-     * @param swaggerName
-     * @param productSet
-     * @param interactionId
-     * @throws ItorixException
-     */
-    public void assoiateTeamsToProject(String team_name, Set<String> projectSet, String interactionId)
-            throws ItorixException {
-        SwaggerTeam team = baseRepository.findOne("name", team_name, SwaggerTeam.class);
-        if (team != null) {
-            if (team.getProjects() == null) {
-                team.setProjects(new HashSet<>());
-            }
-            team.setProjects(projectSet);
-            baseRepository.save(team);
-        } else {
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Teams-1001"), team_name),
-                    "Teams-1001");
-        }
-    }
+	/**
+	 * associateTeam
+	 *
+	 * @param swaggerName
+	 * @param productSet
+	 * @param interactionId
+	 * @throws ItorixException
+	 */
+	public void assoiateTeamsToProject(String team_name, Set<String> projectSet, String interactionId)
+			throws ItorixException {
+		SwaggerTeam team = baseRepository.findOne("name", team_name, SwaggerTeam.class);
+		if (team != null) {
+			if (team.getProjects() == null) {
+				team.setProjects(new HashSet<>());
+			}
+			team.setProjects(projectSet);
+			baseRepository.save(team);
+		} else {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Teams-1001"), team_name),
+					"Teams-1001");
+		}
+	}
 
-    /**
-     * associatePortfolio
-     *
-     * @param swaggerName
-     * @param productSet
-     * @param interactionId
-     * @throws ItorixException
-     */
-    public void associatePortfolio(String swaggerName, Set<String> portfolioSet, String interactionId)
-            throws ItorixException {
-        SwaggerVO vo = baseRepository.findOne("name", swaggerName, SwaggerVO.class);
-        if (vo != null) {
-            vo.setPortfolios(portfolioSet);
-            baseRepository.save(vo);
-        } else {
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
-        }
-    }
+	/**
+	 * associatePortfolio
+	 *
+	 * @param swaggerName
+	 * @param productSet
+	 * @param interactionId
+	 * @throws ItorixException
+	 */
+	public void associatePortfolio(String swaggerName, Set<String> portfolioSet, String interactionId)
+			throws ItorixException {
+		SwaggerVO vo = baseRepository.findOne("name", swaggerName, SwaggerVO.class);
+		if (vo != null) {
+			vo.setPortfolios(portfolioSet);
+			baseRepository.save(vo);
+		} else {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
+		}
+	}
 
-    /**
-     * findSwagger
-     *
-     * @param name
-     * @param interactionid
-     * @return
-     */
-    public SwaggerTeam findSwaggerTeam(String team_name, String interactionid) throws ItorixException {
-        return baseRepository.findOne("name", team_name, SwaggerTeam.class);
-    }
+	/**
+	 * findSwagger
+	 *
+	 * @param name
+	 * @param interactionid
+	 * @return
+	 */
+	public SwaggerTeam findSwaggerTeam(String team_name, String interactionid) throws ItorixException {
+		return baseRepository.findOne("name", team_name, SwaggerTeam.class);
+	}
 
     private void publishBasepaths() {
         List<String> names = baseRepository.findDistinctValuesByColumnName(SwaggerVO.class, "name");
@@ -3479,24 +3296,24 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         }
     }
 
-    public void updateSwaggerBasePath(String name, SwaggerVO vo) {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode swaggerJson = null;
-        try {
-            swaggerJson = mapper.readTree(vo.getSwagger());
-        } catch (JsonProcessingException e) {
-            log.error("Exception occurred : {}",e.getMessage());
-        } catch (IOException e) {
-            log.error("Exception occurred : {}",e.getMessage());
-        }
-        if (swaggerJson != null) {
-            String basepath = getBasepath(swaggerJson);
-            Swagger2BasePath basePath = new Swagger2BasePath();
-            basePath.setName(name);
-            basePath.setBasePath(basepath);
-            saveSwagger2BasePath(basePath);
-        }
-    }
+	public void updateSwaggerBasePath(String name, SwaggerVO vo) {
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode swaggerJson = null;
+		try {
+			swaggerJson = mapper.readTree(vo.getSwagger());
+		} catch (JsonProcessingException e) {
+			log.error("Exception occurred : {}", e.getMessage());
+		} catch (IOException e) {
+			log.error("Exception occurred : {}", e.getMessage());
+		}
+		if (swaggerJson != null) {
+			String basepath = getBasepath(swaggerJson);
+			Swagger2BasePath basePath = new Swagger2BasePath();
+			basePath.setName(name);
+			basePath.setBasePath(basepath);
+			saveSwagger2BasePath(basePath);
+		}
+	}
 
     public void updateSwagger3BasePath(String name, Swagger3VO vo) {
         logger.info("Updating Swagger3BasePath for URL {}", vo.getName());
@@ -3535,21 +3352,21 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return urlStr;
     }
 
-    public void saveSwagger2BasePath(Swagger2BasePath basePath) {
-        Query query = new Query(Criteria.where("name").is(basePath.getName()));
-        log.debug("saveSwagger2BasePath : {}",query);
-        Update update = new Update();
-        update.set("basePath", basePath.getBasePath());
-        mongoTemplate.upsert(query, update, Swagger2BasePath.class);
-    }
+	public void saveSwagger2BasePath(Swagger2BasePath basePath) {
+		Query query = new Query(Criteria.where("name").is(basePath.getName()));
+		log.debug("saveSwagger2BasePath : {}", query);
+		Update update = new Update();
+		update.set("basePath", basePath.getBasePath());
+		mongoTemplate.upsert(query, update, Swagger2BasePath.class);
+	}
 
-    public void saveSwagger3BasePath(Swagger3BasePath basePath) {
-        Query query = new Query(Criteria.where("name").is(basePath.getName()));
-        log.debug("saveSwagger3BasePath : {}",query);
-        Update update = new Update();
-        update.set("basePath", basePath.getBasePath());
-        mongoTemplate.upsert(query, update, Swagger3BasePath.class);
-    }
+	public void saveSwagger3BasePath(Swagger3BasePath basePath) {
+		Query query = new Query(Criteria.where("name").is(basePath.getName()));
+		log.debug("saveSwagger3BasePath : {}", query);
+		Update update = new Update();
+		update.set("basePath", basePath.getBasePath());
+		mongoTemplate.upsert(query, update, Swagger3BasePath.class);
+	}
 
     private List<Swagger2BasePath> getSwagger2BasePaths() {
         List<Swagger2BasePath> mappings = null;
@@ -3622,79 +3439,79 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         }
     }
 
-    private JsonNode getJsonNode(Object mappings) {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode jsonNode = null;
-        try {
-            jsonNode = mapper.readTree(mapper.writeValueAsString(mappings));
-        } catch (JsonProcessingException e) {
-            log.error("Exception occurred : {}",e.getMessage());
-        } catch (IOException e) {
-            log.error("Exception occurred : {}",e.getMessage());
-        }
-        return jsonNode;
-    }
+	private JsonNode getJsonNode(Object mappings) {
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode jsonNode = null;
+		try {
+			jsonNode = mapper.readTree(mapper.writeValueAsString(mappings));
+		} catch (JsonProcessingException e) {
+			log.error("Exception occurred : {}", e.getMessage());
+		} catch (IOException e) {
+			log.error("Exception occurred : {}", e.getMessage());
+		}
+		return jsonNode;
+	}
 
-    /**
-     * getEndOfDay
-     *
-     * @param date
-     * @return
-     */
-    public static Date getEndOfDay(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
-        calendar.set(Calendar.MINUTE, 59);
-        calendar.set(Calendar.SECOND, 00);
-        calendar.set(Calendar.MILLISECOND, 999);
-        return calendar.getTime();
-    }
+	/**
+	 * getEndOfDay
+	 *
+	 * @param date
+	 * @return
+	 */
+	public static Date getEndOfDay(Date date) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.set(Calendar.HOUR_OF_DAY, 23);
+		calendar.set(Calendar.MINUTE, 59);
+		calendar.set(Calendar.SECOND, 00);
+		calendar.set(Calendar.MILLISECOND, 999);
+		return calendar.getTime();
+	}
 
-    /**
-     * getStartOfDay
-     *
-     * @param date
-     * @return
-     */
-    public static Date getStartOfDay(Date date) {
-        LocalDateTime localDateTime = dateToLocalDateTime(date);
-        LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
-        return localDateTimeToDate(startOfDay);
-    }
+	/**
+	 * getStartOfDay
+	 *
+	 * @param date
+	 * @return
+	 */
+	public static Date getStartOfDay(Date date) {
+		LocalDateTime localDateTime = dateToLocalDateTime(date);
+		LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
+		return localDateTimeToDate(startOfDay);
+	}
 
-    /**
-     * getParticularHourOfDay
-     *
-     * @param date
-     * @param adjuster
-     * @return
-     */
-    public static Date getParticularHourOfDay(Date date, TemporalAdjuster adjuster) {
-        LocalDateTime localDateTime = dateToLocalDateTime(date);
-        LocalDateTime startOfDay = localDateTime.with(adjuster);
-        return localDateTimeToDate(startOfDay);
-    }
+	/**
+	 * getParticularHourOfDay
+	 *
+	 * @param date
+	 * @param adjuster
+	 * @return
+	 */
+	public static Date getParticularHourOfDay(Date date, TemporalAdjuster adjuster) {
+		LocalDateTime localDateTime = dateToLocalDateTime(date);
+		LocalDateTime startOfDay = localDateTime.with(adjuster);
+		return localDateTimeToDate(startOfDay);
+	}
 
-    /**
-     * localDateTimeToDate
-     *
-     * @param startOfDay
-     * @return
-     */
-    private static Date localDateTimeToDate(LocalDateTime startOfDay) {
-        return Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
-    }
+	/**
+	 * localDateTimeToDate
+	 *
+	 * @param startOfDay
+	 * @return
+	 */
+	private static Date localDateTimeToDate(LocalDateTime startOfDay) {
+		return Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
+	}
 
-    /**
-     * dateToLocalDateTime
-     *
-     * @param date
-     * @return
-     */
-    private static LocalDateTime dateToLocalDateTime(Date date) {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getTime()), ZoneId.systemDefault());
-    }
+	/**
+	 * dateToLocalDateTime
+	 *
+	 * @param date
+	 * @return
+	 */
+	private static LocalDateTime dateToLocalDateTime(Date date) {
+		return LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getTime()), ZoneId.systemDefault());
+	}
 
     private User getUserDetailsFromSessionID(String jsessionid) {
         UserSession userSessionToken = masterMongoTemplate.findById(jsessionid, UserSession.class);
@@ -3702,14 +3519,14 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return user;
     }
 
-    public User getUser(String userId) {
-        User user = masterMongoTemplate.findById(userId, User.class);
-        if (user != null) {
-            return user;
-        } else {
-            return null;
-        }
-    }
+	public User getUser(String userId) {
+		User user = masterMongoTemplate.findById(userId, User.class);
+		if (user != null) {
+			return user;
+		} else {
+			return null;
+		}
+	}
 
     private Swagger convertToSwagger(String data) throws IOException {
         ObjectMapper mapper;
@@ -3755,75 +3572,75 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         }
     }
 
-    /**
-     * getListOfSwaggerNames
-     *
-     * @param interactionid
-     * @return
-     * @throws JsonProcessingException
-     */
-    public Object swaggerSearch(String interactionid, String name, int limit)
-            throws ItorixException, JsonProcessingException {
-        log("searchSwagger", interactionid, "");
-        BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
-        log.debug("swaggerSearch : {}",query);
-        query.limit(limit > 0 ? limit : 10);
-        List<String> allSwaggers = getList(mongoTemplate.getCollection("Design.Swagger.List").distinct("name",
-                query.getQueryObject(), String.class));
-        Collections.sort(allSwaggers);
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode response = mapper.createObjectNode();
-        ArrayNode responseFields = mapper.createArrayNode();
-        for (String swaggerName : allSwaggers) {
-            SearchItem item = new SearchItem();
-            SwaggerVO swaggerVo = baseRepository.findOne("name", swaggerName, SwaggerVO.class);
-            item.setId(swaggerVo.getSwaggerId());
-            item.setName(swaggerName);
-            responseFields.addPOJO(item);
-        }
-        response.set("swaggers", responseFields);
-        return response;
-    }
+	/**
+	 * getListOfSwaggerNames
+	 *
+	 * @param interactionid
+	 * @return
+	 * @throws JsonProcessingException
+	 */
+	public Object swaggerSearch(String interactionid, String name, int limit)
+			throws ItorixException, JsonProcessingException {
+		log("searchSwagger", interactionid, "");
+		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
+		log.debug("swaggerSearch : {}", query);
+		query.limit(limit > 0 ? limit : 10);
+		List<String> allSwaggers = getList(mongoTemplate.getCollection("Design.Swagger.List").distinct("name",
+				query.getQueryObject(), String.class));
+		Collections.sort(allSwaggers);
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode response = mapper.createObjectNode();
+		ArrayNode responseFields = mapper.createArrayNode();
+		for (String swaggerName : allSwaggers) {
+			SearchItem item = new SearchItem();
+			SwaggerVO swaggerVo = baseRepository.findOne("name", swaggerName, SwaggerVO.class);
+			item.setId(swaggerVo.getSwaggerId());
+			item.setName(swaggerName);
+			responseFields.addPOJO(item);
+		}
+		response.set("swaggers", responseFields);
+		return response;
+	}
 
-    /**
-     * getListOfSwaggerNames
-     *
-     * @param interactionid
-     * @return
-     * @throws JsonProcessingException
-     */
-    public Object swagger3Search(String interactionid, String name, int limit)
-            throws ItorixException, JsonProcessingException {
-        log("searchSwagger", interactionid, "");
-        BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
-        log.debug("swagger3Search : {}",query);
-        query.limit(limit > 0 ? limit : 10);
-        List<String> allSwaggers = getList(mongoTemplate.getCollection("Design.Swagger3.List").distinct("name",
-                query.getQueryObject(), String.class));
-        Collections.sort(allSwaggers);
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode response = mapper.createObjectNode();
-        ArrayNode responseFields = mapper.createArrayNode();
-        for (String swaggerName : allSwaggers) {
-            SearchItem item = new SearchItem();
-            Swagger3VO swaggerVo = baseRepository.findOne("name", swaggerName, Swagger3VO.class);
-            item.setId(swaggerVo.getSwaggerId());
-            item.setName(swaggerName);
-            responseFields.addPOJO(item);
-        }
-        response.set("swaggers", responseFields);
-        return response;
-    }
+	/**
+	 * getListOfSwaggerNames
+	 *
+	 * @param interactionid
+	 * @return
+	 * @throws JsonProcessingException
+	 */
+	public Object swagger3Search(String interactionid, String name, int limit)
+			throws ItorixException, JsonProcessingException {
+		log("searchSwagger", interactionid, "");
+		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
+		log.debug("swagger3Search : {}", query);
+		query.limit(limit > 0 ? limit : 10);
+		List<String> allSwaggers = getList(mongoTemplate.getCollection("Design.Swagger3.List").distinct("name",
+				query.getQueryObject(), String.class));
+		Collections.sort(allSwaggers);
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode response = mapper.createObjectNode();
+		ArrayNode responseFields = mapper.createArrayNode();
+		for (String swaggerName : allSwaggers) {
+			SearchItem item = new SearchItem();
+			Swagger3VO swaggerVo = baseRepository.findOne("name", swaggerName, Swagger3VO.class);
+			item.setId(swaggerVo.getSwaggerId());
+			item.setName(swaggerName);
+			responseFields.addPOJO(item);
+		}
+		response.set("swaggers", responseFields);
+		return response;
+	}
 
-    /**
-     * findSwagger
-     *
-     * @param name
-     * @param interactionid
-     * @return
-     */
-    public void createOrUpdateGitIntegrations(String interactionid, String jsessionid, String swaggerid, String oas,
-                                              SwaggerIntegrations swaggerIntegrations) throws ItorixException {
+	/**
+	 * findSwagger
+	 *
+	 * @param name
+	 * @param interactionid
+	 * @return
+	 */
+	public void createOrUpdateGitIntegrations(String interactionid, String jsessionid, String swaggerid, String oas,
+			SwaggerIntegrations swaggerIntegrations) throws ItorixException {
 
         String swaggerName = null;
         if (oas.equals("3.0")) {
@@ -3848,59 +3665,59 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         baseRepository.save(swaggerIntegrations);
     }
 
-    /**
-     * getGitIntegrations
-     */
-    public SwaggerIntegrations getGitIntegrations(String interactionid, String jsessionid, String swaggerid, String oas)
-            throws ItorixException {
-        String swaggerName = null;
-        if (oas.equals("3.0")) {
-            Swagger3VO vo = getSwagger3(swaggerid, null);
-            swaggerName = vo != null ? vo.getName() : null;
-        } else {
-            SwaggerVO vo = getSwagger(swaggerid, null);
-            swaggerName = vo != null ? vo.getName() : null;
-        }
-        if (swaggerName == null) {
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
-        }
-        SwaggerIntegrations integrations = baseRepository.findOne("swaggerName", swaggerName, "oas", oas,
-                SwaggerIntegrations.class);
-        return integrations;
-    }
+	/**
+	 * getGitIntegrations
+	 */
+	public SwaggerIntegrations getGitIntegrations(String interactionid, String jsessionid, String swaggerid, String oas)
+			throws ItorixException {
+		String swaggerName = null;
+		if (oas.equals("3.0")) {
+			Swagger3VO vo = getSwagger3(swaggerid, null);
+			swaggerName = vo != null ? vo.getName() : null;
+		} else {
+			SwaggerVO vo = getSwagger(swaggerid, null);
+			swaggerName = vo != null ? vo.getName() : null;
+		}
+		if (swaggerName == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
+		}
+		SwaggerIntegrations integrations = baseRepository.findOne("swaggerName", swaggerName, "oas", oas,
+				SwaggerIntegrations.class);
+		return integrations;
+	}
 
-    /**
-     * deleteGitIntegrations
-     *
-     * @param name
-     * @param interactionid
-     * @return
-     */
-    public void deleteGitIntegrations(String interactionid, String jsessionid, String swaggerid, String oas)
-            throws ItorixException {
-        String swaggerName = null;
-        if (oas.equals("3.0")) {
-            Swagger3VO vo = getSwagger3(swaggerid, null);
-            swaggerName = vo != null ? vo.getName() : null;
-        } else {
-            SwaggerVO vo = getSwagger(swaggerid, null);
-            swaggerName = vo != null ? vo.getName() : null;
-        }
-        if (swaggerName == null) {
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
-        }
-        SwaggerIntegrations integrations = baseRepository.findOne("swaggerName", swaggerName, "oas", oas,
-                SwaggerIntegrations.class);
-        mongoTemplate.remove(integrations);
-    }
+	/**
+	 * deleteGitIntegrations
+	 *
+	 * @param name
+	 * @param interactionid
+	 * @return
+	 */
+	public void deleteGitIntegrations(String interactionid, String jsessionid, String swaggerid, String oas)
+			throws ItorixException {
+		String swaggerName = null;
+		if (oas.equals("3.0")) {
+			Swagger3VO vo = getSwagger3(swaggerid, null);
+			swaggerName = vo != null ? vo.getName() : null;
+		} else {
+			SwaggerVO vo = getSwagger(swaggerid, null);
+			swaggerName = vo != null ? vo.getName() : null;
+		}
+		if (swaggerName == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
+		}
+		SwaggerIntegrations integrations = baseRepository.findOne("swaggerName", swaggerName, "oas", oas,
+				SwaggerIntegrations.class);
+		mongoTemplate.remove(integrations);
+	}
 
-    public OpenAPI loadSwagger(String swagger) {
-        ParseOptions options = new ParseOptions();
-        options.setResolve(true);
-        options.setResolveCombinators(false);
-        options.setResolveFully(true);
-        return new OpenAPIV3Parser().readContents(swagger, null, options).getOpenAPI();
-    }
+	public OpenAPI loadSwagger(String swagger) {
+		ParseOptions options = new ParseOptions();
+		options.setResolve(true);
+		options.setResolveCombinators(false);
+		options.setResolveFully(true);
+		return new OpenAPIV3Parser().readContents(swagger, null, options).getOpenAPI();
+	}
 
     @SneakyThrows
     @Override
@@ -4077,104 +3894,104 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         }
     }
 
-    public void deletePartner(String partnerId) {
-        Query query = new Query(Criteria.where("id").is(partnerId));
-        log.debug("deletePartner : {}",query);
-        mongoTemplate.remove(query, SwaggerPartner.class);
-    }
+	public void deletePartner(String partnerId) {
+		Query query = new Query(Criteria.where("id").is(partnerId));
+		log.debug("deletePartner : {}", query);
+		mongoTemplate.remove(query, SwaggerPartner.class);
+	}
 
-    public SwaggerPartner getPartnerbyName(SwaggerPartner partner) {
-        Query query = new Query(Criteria.where("partnerName").is(partner.getPartnerName()));
-        log.debug("getPartnerbyName : {}",query);
-        SwaggerPartner swaggerPartner = mongoTemplate.findOne(query, SwaggerPartner.class);
-        return swaggerPartner;
-    }
+	public SwaggerPartner getPartnerbyName(SwaggerPartner partner) {
+		Query query = new Query(Criteria.where("partnerName").is(partner.getPartnerName()));
+		log.debug("getPartnerbyName : {}", query);
+		SwaggerPartner swaggerPartner = mongoTemplate.findOne(query, SwaggerPartner.class);
+		return swaggerPartner;
+	}
 
     public List<SwaggerPartner> getPartners() {
         return mongoTemplate.findAll(SwaggerPartner.class);
     }
 
-    public void associatePartners(String swaggerId, String oas, List<String> partners) {
-        if (oas.equals("3.0")) {
-            Swagger3VO vo = getSwagger3(swaggerId, null);
-            if (null != vo) {
-                List<Revision> revisions = getListOf3Revisions(vo.getName(), null);
-                if (null != revisions) {
-                    Revision revision = revisions.stream().min((x, y) -> x.getRevision() - y.getRevision()).get();
-                    try {
-                        Swagger3VO swaggerVo = getSwagger3WithVersionNumber(swaggerId, revision.getRevision(), null);
-                        swaggerVo.setPartners(partners);
-                        mongoTemplate.save(swaggerVo);
-                    } catch (ItorixException e) {
-                        log.error("Exception occurred : {}",e.getMessage());
-                    }
-                }
-            }
-        } else {
-            SwaggerVO vo = getSwagger(swaggerId, null);
-            if (null != vo) {
-                List<Revision> revisions = getListOfRevisions(vo.getName(), null);
-                if (null != revisions) {
-                    Revision revision = revisions.stream().min((x, y) -> x.getRevision() - y.getRevision()).get();
-                    try {
-                        SwaggerVO swaggerVo = getSwaggerWithVersionNumber(swaggerId, revision.getRevision(), null);
-                        swaggerVo.setPartners(partners);
-                        mongoTemplate.save(swaggerVo);
-                    } catch (ItorixException e) {
-                        log.error("Exception occurred : {}",e.getMessage());
-                    }
-                }
-            }
-        }
-    }
+	public void associatePartners(String swaggerId, String oas, List<String> partners) {
+		if (oas.equals("3.0")) {
+			Swagger3VO vo = getSwagger3(swaggerId, null);
+			if (null != vo) {
+				List<Revision> revisions = getListOf3Revisions(vo.getName(), null);
+				if (null != revisions) {
+					Revision revision = revisions.stream().min((x, y) -> x.getRevision() - y.getRevision()).get();
+					try {
+						Swagger3VO swaggerVo = getSwagger3WithVersionNumber(swaggerId, revision.getRevision(), null);
+						swaggerVo.setPartners(partners);
+						mongoTemplate.save(swaggerVo);
+					} catch (ItorixException e) {
+						log.error("Exception occurred : {}", e.getMessage());
+					}
+				}
+			}
+		} else {
+			SwaggerVO vo = getSwagger(swaggerId, null);
+			if (null != vo) {
+				List<Revision> revisions = getListOfRevisions(vo.getName(), null);
+				if (null != revisions) {
+					Revision revision = revisions.stream().min((x, y) -> x.getRevision() - y.getRevision()).get();
+					try {
+						SwaggerVO swaggerVo = getSwaggerWithVersionNumber(swaggerId, revision.getRevision(), null);
+						swaggerVo.setPartners(partners);
+						mongoTemplate.save(swaggerVo);
+					} catch (ItorixException e) {
+						log.error("Exception occurred : {}", e.getMessage());
+					}
+				}
+			}
+		}
+	}
 
-    public List<SwaggerPartner> getAssociatedPartners(String swaggerId, String oas) {
-        if (oas.equals("3.0")) {
-            Swagger3VO vo = getSwagger3(swaggerId, null);
-            if (null != vo) {
-                try {
-                    List<Revision> revisions = getListOf3Revisions(vo.getName(), null);
-                    if (null != revisions) {
-                        Revision revision = revisions.stream().min((x, y) -> x.getRevision() - y.getRevision()).get();
-                        Swagger3VO swaggerVo = getSwagger3WithVersionNumber(swaggerId, revision.getRevision(), null);
-                        return getswaggerPartners(swaggerVo.getPartners());
-                    }
-                } catch (ItorixException e) {
-                    log.error("Exception occurred : {}",e.getMessage());
-                }
-            }
-        } else {
-            SwaggerVO vo = getSwagger(swaggerId, null);
-            if (null != vo) {
-                try {
-                    List<Revision> revisions = getListOfRevisions(vo.getName(), null);
-                    if (null != revisions) {
-                        Revision revision = revisions.stream().min((x, y) -> x.getRevision() - y.getRevision()).get();
-                        SwaggerVO swaggerVo = getSwaggerWithVersionNumber(swaggerId, revision.getRevision(), null);
-                        return getswaggerPartners(swaggerVo.getPartners());
-                    }
-                } catch (ItorixException e) {
-                    log.error("Exception occurred : {}",e.getMessage());
-                }
-            }
-        }
-        return new ArrayList<SwaggerPartner>();
-    }
+	public List<SwaggerPartner> getAssociatedPartners(String swaggerId, String oas) {
+		if (oas.equals("3.0")) {
+			Swagger3VO vo = getSwagger3(swaggerId, null);
+			if (null != vo) {
+				try {
+					List<Revision> revisions = getListOf3Revisions(vo.getName(), null);
+					if (null != revisions) {
+						Revision revision = revisions.stream().min((x, y) -> x.getRevision() - y.getRevision()).get();
+						Swagger3VO swaggerVo = getSwagger3WithVersionNumber(swaggerId, revision.getRevision(), null);
+						return getswaggerPartners(swaggerVo.getPartners());
+					}
+				} catch (ItorixException e) {
+					log.error("Exception occurred : {}", e.getMessage());
+				}
+			}
+		} else {
+			SwaggerVO vo = getSwagger(swaggerId, null);
+			if (null != vo) {
+				try {
+					List<Revision> revisions = getListOfRevisions(vo.getName(), null);
+					if (null != revisions) {
+						Revision revision = revisions.stream().min((x, y) -> x.getRevision() - y.getRevision()).get();
+						SwaggerVO swaggerVo = getSwaggerWithVersionNumber(swaggerId, revision.getRevision(), null);
+						return getswaggerPartners(swaggerVo.getPartners());
+					}
+				} catch (ItorixException e) {
+					log.error("Exception occurred : {}", e.getMessage());
+				}
+			}
+		}
+		return new ArrayList<SwaggerPartner>();
+	}
 
-    private List<SwaggerPartner> getswaggerPartners(List<String> partnerId) {
-        List<SwaggerPartner> partners = new ArrayList<SwaggerPartner>();
-        try {
-            List<SwaggerPartner> dbPartners = mongoTemplate.findAll(SwaggerPartner.class);
-            for (String partner : partnerId) {
-                try {
-                    partners.add(dbPartners.stream().filter(p -> p.getId().equals(partner)).findFirst().get());
-                } catch (Exception e) {
-                }
-            }
-        } catch (Exception e) {
-        }
-        return partners;
-    }
+	private List<SwaggerPartner> getswaggerPartners(List<String> partnerId) {
+		List<SwaggerPartner> partners = new ArrayList<SwaggerPartner>();
+		try {
+			List<SwaggerPartner> dbPartners = mongoTemplate.findAll(SwaggerPartner.class);
+			for (String partner : partnerId) {
+				try {
+					partners.add(dbPartners.stream().filter(p -> p.getId().equals(partner)).findFirst().get());
+				} catch (Exception e) {
+				}
+			}
+		} catch (Exception e) {
+		}
+		return partners;
+	}
 
     @Override
     public void updateSwaggerDictionary(SwaggerDictionary swaggerDictionary) {
@@ -4281,33 +4098,142 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return removeBasePath(query, Swagger3BasePath.class);
     }
 
-    @Override
-    public Long findSwaggersCount(String swaggerId) {
-        Query query = new Query(Criteria.where("swaggerId").is(swaggerId));
-        log.debug("findSwaggersCount : {}",query);
-        return mongoTemplate.count(query, SwaggerVO.class);
-    }
+	@Override
+	public Long findSwaggersCount(String swaggerId) {
+		Query query = new Query(Criteria.where("swaggerId").is(swaggerId));
+		log.debug("findSwaggersCount : {}", query);
+		return mongoTemplate.count(query, SwaggerVO.class);
+	}
 
-    @Override
-    public Long findSwaggers3VOCount(String swaggerId) {
-        Query query = new Query(Criteria.where("swaggerId").is(swaggerId));
-        log.debug("findSwaggers3VOCount : {}",query);
-        return mongoTemplate.count(query, Swagger3VO.class);
-    }
+	@Override
+	public Long findSwaggers3VOCount(String swaggerId) {
+		Query query = new Query(Criteria.where("swaggerId").is(swaggerId));
+		log.debug("findSwaggers3VOCount : {}", query);
+		return mongoTemplate.count(query, Swagger3VO.class);
+	}
 
-    private DeleteResult removeBasePath(Query query, Class clazz) {
-        log.debug("removeBasePath : {}",query);
-        return mongoTemplate.remove(query, clazz);
-    }
+	@Override
+	public SwaggerProduct createProduct(SwaggerProduct swaggerProduct) throws ItorixException {
+		Query query = Query.query(Criteria.where("productName").is(swaggerProduct.getProductName()));
+		if (mongoTemplate.count(query, SwaggerProduct.class) > 1) {
+			log.error("Product already exists : {}", swaggerProduct.getProductName());
+			throw new ItorixException(
+					String.format(ErrorCodes.errorMessage.get("General-1001"), "Empty SwaggerProductId"),
+					"General-1001");
+		} else {
+			return mongoTemplate.save(swaggerProduct);
+		}
+	}
 
-    private SwaggerData getSwaggerData(Document doc) {
-        SwaggerData swaggerData = new SwaggerData();
-        swaggerData.setId(doc.getString("swaggerId"));
-        swaggerData.setName(doc.getString("name"));
-        swaggerData.setOasVersion(doc.getString("oasVersion"));
-        swaggerData.setRevision(doc.getInteger("revision"));
-        swaggerData.setStatus(doc.getString(STATUS_VALUE));
-        return swaggerData;
-    }
+	public SwaggerProduct updateProduct(SwaggerProduct swaggerProduct, String productId) throws ItorixException {
+		if (StringUtils.isEmpty(productId)) {
+			log.info("Empty Product id : {}", swaggerProduct.getId());
+			throw new ItorixException(
+					String.format(ErrorCodes.errorMessage.get("General-1001"), "Empty SwaggerProductId"),
+					"General-1001");
+		}
+		Query query = Query.query(Criteria.where("_id").is(productId));
+		Update update = new Update();
+		update.set("productName", swaggerProduct.getProductName());
+		update.set("productDescription", swaggerProduct.getProductDescription());
+		log.debug("Query for Update for Product : {}", query);
+		return mongoTemplate.findAndReplace(query, swaggerProduct, new FindAndReplaceOptions().returnNew());
+	}
+
+
+	public Boolean deleteProduct(String productId) {
+		Query query = Query.query(Criteria.where("_id").is(productId));
+		log.error("productId : {}", productId);
+		return mongoTemplate.remove(query, SwaggerProduct.class).wasAcknowledged();
+	}
+
+	@Override
+	public List<SwaggerProduct> getProductGroups(String interactionid, String jsessionid) {
+		log.info("interactionid : {}", interactionid);
+		return mongoTemplate.findAll(SwaggerProduct.class);
+	}
+
+	@Override
+	public void manageSwaggerProducts(String swaggerId,
+			Integer swaggerRevision, String oas, AsociateSwaggerProductRequest swaggerProductRequest)
+			throws ItorixException {
+		log.info("Managing Swagger Products : {}, Swagger :{}, SwaggerRevision :{}, Oas: {}",
+				swaggerProductRequest, swaggerId, swaggerRevision, oas);
+		Query swaggerQuery = new Query(
+				Criteria.where("swaggerId").is(swaggerId).and("revision").is(swaggerRevision));
+		Query metadataQuery = new Query(Criteria.where("oas").is(oas));
+		if (StringUtils.equalsIgnoreCase("2.0", oas)) {
+			SwaggerVO vo = mongoTemplate.findOne(swaggerQuery, SwaggerVO.class);
+			metadataQuery.addCriteria(Criteria.where("swaggerName").is(vo.getName()));
+			SwaggerMetadata swaggerMetadata = mongoTemplate.findOne(metadataQuery, SwaggerMetadata.class);
+			swaggerMetadata.setProducts(swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
+			mongoTemplate.save(swaggerMetadata);
+		} else if (StringUtils.equalsIgnoreCase("3.0", oas)) {
+			Swagger3VO vo = mongoTemplate.findOne(swaggerQuery, Swagger3VO.class);
+			metadataQuery.addCriteria(Criteria.where("swaggerName").is(vo.getName()));
+			SwaggerMetadata swaggerMetadata = mongoTemplate.findOne(metadataQuery, SwaggerMetadata.class);
+			swaggerMetadata.setProducts(swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
+			mongoTemplate.save(swaggerMetadata);
+		} else {
+			log.error("Invalid oas : {}", oas);
+			throw new ItorixException(
+					String.format(ErrorCodes.errorMessage.get("General-1001"), "Empty SwaggerProductId"),
+					"General-1001");
+		}
+	}
+
+	@Override
+	public List<SwaggerProduct> getSwaggerProducts(String swaggerId, Integer swaggerRevision, String oas, String interactionid,
+			String jsessionid, int offset, int pageSize) throws ItorixException {
+		log.info("Get Swagger Products : Swagger :{}, SwaggerRevision :{}, Oas: {}",
+				 swaggerId, swaggerRevision, oas);
+
+		Query swaggerQuery = new Query(Criteria.where("swaggerId").is(swaggerId)
+				.and("revision").is(swaggerRevision));
+
+		Query metadataQuery = new Query(Criteria.where("oas").is(oas));
+
+		List<SwaggerMetadata> swaggerMetadata = Collections.emptyList();
+		if(StringUtils.equals("2.0",oas)){
+			SwaggerVO vo = mongoTemplate.findOne(swaggerQuery, SwaggerVO.class);
+			metadataQuery.addCriteria(Criteria.where("swaggerName").is(vo.getName()));
+			swaggerMetadata = mongoTemplate.find(metadataQuery, SwaggerMetadata.class);
+		}
+		if(StringUtils.equals("3.0",oas)){
+			Swagger3VO vo = mongoTemplate.findOne(swaggerQuery, Swagger3VO.class);
+			metadataQuery.addCriteria(Criteria.where("swaggerName").is(vo.getName()));
+			swaggerMetadata = mongoTemplate.find(metadataQuery, SwaggerMetadata.class);
+		}else if (!oas.equals("3.0") && !oas.equals("2.0")){
+			log.error("Invalid oas : {}", oas);
+			throw new ItorixException(
+					String.format(ErrorCodes.errorMessage.get("General-1001"), "Invalid oas"),
+					"General-1001");
+		}
+
+		List<String> products = Collections.emptyList();
+		for(SwaggerMetadata metadata : swaggerMetadata){
+			if(metadata.getProducts() != null)
+			products.addAll(metadata.getProducts().stream().collect(Collectors.toList()));
+		}
+		Query productQuery = new Query(Criteria.where("_id").in(products));
+		log.error("productIds : {}", products.size());
+		List<SwaggerProduct> swaggerProducts = mongoTemplate.find(productQuery, SwaggerProduct.class);
+
+		return swaggerProducts;
+	}
+
+	private DeleteResult removeBasePath(Query query, Class clazz) {
+		log.debug("removeBasePath : {}", query);
+		return mongoTemplate.remove(query, clazz);
+	}
+	private SwaggerData getSwaggerData(Document doc) {
+		SwaggerData swaggerData = new SwaggerData();
+		swaggerData.setId(doc.getString("swaggerId"));
+		swaggerData.setName(doc.getString("name"));
+		swaggerData.setOasVersion(doc.getString("oasVersion"));
+		swaggerData.setRevision(doc.getInteger("revision"));
+		swaggerData.setStatus(doc.getString(STATUS_VALUE));
+		return swaggerData;
+	}
 
 }

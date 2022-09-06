@@ -56,7 +56,7 @@ public interface SwaggerBusiness {
 	/**
 	 * findSwagger
 	 *
-	 * @param swagger3VO
+	 * @param swaggerVO
 	 * 
 	 * @return
 	 */
@@ -117,7 +117,7 @@ public interface SwaggerBusiness {
 	/**
 	 * updateSwagger
 	 *
-	 * @param Swagger3VO
+	 * @param vo
 	 * 
 	 * @return
 	 */
@@ -136,7 +136,7 @@ public interface SwaggerBusiness {
 	/**
 	 * findSwagger
 	 *
-	 * @param swagger3VO
+	 * @param swaggerVO
 	 * @param revision
 	 * 
 	 * @return
@@ -438,7 +438,7 @@ public interface SwaggerBusiness {
 	/**
 	 * updateSwagger3LockStatus
 	 *
-	 * @param swagger3VO
+	 * @param swaggerVO
 	 */
 	public void updateSwagger3LockStatus(Swagger3VO swaggerVO, String jsessionid);
 
@@ -454,7 +454,7 @@ public interface SwaggerBusiness {
 	/**
 	 * deprecate
 	 *
-	 * @param Swagger3VO
+	 * @param swaggerVO
 	 * 
 	 * @return
 	 */
@@ -657,8 +657,8 @@ public interface SwaggerBusiness {
 	/**
 	 * associateTeam
 	 *
-	 * @param swaggerName
-	 * @param productSet
+	 * @param projectSet
+	 * @param team_name
 	 * @param interactionId
 	 * 
 	 * @throws ItorixException
@@ -670,7 +670,7 @@ public interface SwaggerBusiness {
 	 * associatePortfolio
 	 *
 	 * @param swaggerName
-	 * @param productSet
+	 * @param portfolioSet
 	 * @param interactionId
 	 * 
 	 * @throws ItorixException
@@ -681,7 +681,7 @@ public interface SwaggerBusiness {
 	/**
 	 * findSwagger
 	 *
-	 * @param name
+	 * @param team_name
 	 * @param interactionid
 	 * 
 	 * @return
@@ -752,7 +752,7 @@ public interface SwaggerBusiness {
 
 	public void deletePartner(String partnerid);
 
-	public void associatePartners(String swaggerId, String oas, List<String> partners);
+	public void associatePartners(String swaggerId, String oas, Set<String> partners);
 
 	public List<SwaggerPartner> getAssociatedPartners(String swaggerId, String oas);
 
@@ -790,4 +790,18 @@ public interface SwaggerBusiness {
 	 * @return the long
 	 */
 	public Long findSwaggers3VOCount(String swaggerId);
+
+  SwaggerProduct createProduct(SwaggerProduct swaggerProduct) throws ItorixException;
+
+	SwaggerProduct updateProduct(SwaggerProduct swaggerProduct, String productId) throws ItorixException;
+
+	Boolean deleteProduct(String productId);
+
+	List<SwaggerProduct> getProductGroups(String interactionid, String jsessionid);
+
+	void manageSwaggerProducts(String swaggerId, Integer swaggerRevision, String oas, AsociateSwaggerProductRequest swaggerProductRequest)
+			throws ItorixException;
+
+	List<SwaggerProduct> getSwaggerProducts(String swaggerId, Integer swaggerRevision, String oas,
+			String interactionid, String jsessionid, int offset, int pageSize) throws ItorixException;
 }

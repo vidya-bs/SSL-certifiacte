@@ -61,9 +61,9 @@ public interface SwaggerService {
 	 * @param jsessionid
 	 * @param swaggername
 	 * @param json
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -78,10 +78,10 @@ public interface SwaggerService {
 			@RequestHeader(value = "oas", required = false) String oas,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swaggername") String swaggername,
 			@RequestBody String json) throws Exception;
-	
+
 	/**
 	 * Using this we can subscribe to APIs
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param swaggerSubscriptionReq
@@ -89,10 +89,10 @@ public interface SwaggerService {
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "API Subscription", notes = "", response = Void.class)
-	@ApiResponses(value = {@ApiResponse(code = 201, message = "Subscribed to API sucessfully", response = Void.class),
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Subscribed to API successfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/subscribe")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/subscribe")
 	public ResponseEntity<Void> swaggerSubscribe(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
@@ -109,16 +109,16 @@ public interface SwaggerService {
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "API Unsubscription", notes = "", response = Void.class)
-	@ApiResponses(value = {@ApiResponse(code = 201, message = "Unsubscribed to API successfully", response = Void.class),
+	@ApiResponses(value = {
+			@ApiResponse(code = 201, message = "Unsubscribed to API successfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/unsubscribe/{swaggerid}/{emailid}")
 	public ResponseEntity<Void> swaggerUnsubscribe(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@PathVariable("swaggerid") String swaggerId,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swaggerid") String swaggerId,
 			@PathVariable("emailid") String emailId) throws Exception;
-	
+
 	/**
 	 * Using this we get all the subscribers list of an API
 	 *
@@ -129,14 +129,15 @@ public interface SwaggerService {
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "Get API Subscribers", notes = "", response = Void.class)
-	@ApiResponses(value = {@ApiResponse(code = 201, message = "Got the list of subscribers successfully", response = Void.class),
+	@ApiResponses(value = {
+			@ApiResponse(code = 201, message = "Got the list of subscribers successfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/getsubscribers/{swaggerid}")
 	public ResponseEntity<Set<Subscriber>> swaggerSubscribers(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@PathVariable("swaggerid") String swaggerId)throws Exception;
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swaggerid") String swaggerId)
+			throws Exception;
 
 	/**
 	 * This method returns if the user is subscriber of particular Swagger
@@ -149,15 +150,15 @@ public interface SwaggerService {
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "Check if user is a subscriber", notes = "", response = Void.class)
-	@ApiResponses(value = {@ApiResponse(code = 200, message = "Returned subscriber successfully", response = Void.class),
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Returned subscriber successfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/checksubscriber/{swaggerid}/{emailid}")
 	public ResponseEntity<IsSubscribedUser> checkSubscriber(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@PathVariable("swaggerid") String swaggerId,
-			@PathVariable("emailid") String emailId)throws Exception;
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swaggerid") String swaggerId,
+			@PathVariable("emailid") String emailId) throws Exception;
 
 	/**
 	 * Using this we can update are change the swagger version.
@@ -167,9 +168,9 @@ public interface SwaggerService {
 	 * @param create
 	 * @param swaggername
 	 * @param json
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -194,9 +195,9 @@ public interface SwaggerService {
 	 * @param swaggername
 	 * @param revision
 	 * @param json
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -217,9 +218,9 @@ public interface SwaggerService {
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param swaggername
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -243,9 +244,9 @@ public interface SwaggerService {
 	 * @param jsessionid
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException
 	 */
 	@ApiOperation(value = "Get List Of Swagger Names", notes = "", code = 200)
@@ -265,7 +266,7 @@ public interface SwaggerService {
 	 * @param jsessionid
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return @throws IOException @throws ItorixException @throws
 	 */
 	@ApiOperation(value = "Get List Of Swagger Details", notes = "", code = 200)
@@ -319,9 +320,9 @@ public interface SwaggerService {
 	 * @param swaggername
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException,Exception
 	 */
 	@ApiOperation(value = "Get Swagger", notes = "", code = 200)
@@ -345,9 +346,9 @@ public interface SwaggerService {
 	 * @param swaggername
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException,Exception
 	 */
 	@ApiOperation(value = "Delete Swagger", notes = "", code = 204)
@@ -370,9 +371,9 @@ public interface SwaggerService {
 	 * @param revision
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException
 	 */
 	@ApiOperation(value = "delete Swagger based on Revison", notes = "", code = 204)
@@ -395,7 +396,7 @@ public interface SwaggerService {
 	 * @param revision
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
 	 */
 	@ApiOperation(value = "Get Swagger With revision", notes = "", code = 200)
@@ -421,7 +422,7 @@ public interface SwaggerService {
 	 * @param json
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
 	 */
 	@ApiOperation(value = "Update Status", notes = "", code = 204)
@@ -491,7 +492,7 @@ public interface SwaggerService {
 	 * @param revision
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
 	 */
 	@ApiOperation(value = "Get Swagger Comments", notes = "", code = 200)
@@ -518,7 +519,7 @@ public interface SwaggerService {
 	 * @param swaggerVO
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
 	 */
 	@ApiOperation(value = "Update Lock Status", notes = "", code = 204)
@@ -544,7 +545,7 @@ public interface SwaggerService {
 	 * @param swaggerVO
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
 	 */
 	@ApiOperation(value = "Deprecate Swagger", notes = "", code = 200)
@@ -570,7 +571,7 @@ public interface SwaggerService {
 	 * @param revision
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
 	 */
 	@ApiOperation(value = "Update Proxies", notes = "", code = 204)
@@ -595,7 +596,7 @@ public interface SwaggerService {
 	 * @param revision
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
 	 */
 	@ApiOperation(value = "Get LockStatus", notes = "", code = 200)
@@ -621,9 +622,9 @@ public interface SwaggerService {
 	 * @param jsessionid
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "Genarate Xpath", notes = "", code = 200)
@@ -649,9 +650,9 @@ public interface SwaggerService {
 	 * @param jsessionid
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "GenarateSwaggerDefinations", notes = "", code = 201)
@@ -676,9 +677,9 @@ public interface SwaggerService {
 	 * @param jsessionid
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "Genarate Swagger Json Definations", notes = "", code = 201)
@@ -704,7 +705,7 @@ public interface SwaggerService {
 	 * @param swaggerReview
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
 	 */
 	@ApiOperation(value = "Create Review", notes = "", code = 201)
@@ -728,7 +729,7 @@ public interface SwaggerService {
 	 * @param swaggerReviewComments
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
 	 */
 	@ApiOperation(value = "Create Review Comment", notes = "", code = 201)
@@ -751,7 +752,7 @@ public interface SwaggerService {
 	 * @param swaggerReviewComments
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
 	 */
 	@ApiOperation(value = "Update Review Comment", notes = "", code = 204)
@@ -774,7 +775,7 @@ public interface SwaggerService {
 	 * @param swaggerReviewComments
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
 	 */
 	@ApiOperation(value = "Review Comment Replay", notes = "", code = 201)
@@ -798,7 +799,7 @@ public interface SwaggerService {
 	 * @param versionnumber
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
 	 */
 	@ApiOperation(value = "Update Swagger With new Revison", notes = "", code = 200)
@@ -851,16 +852,14 @@ public interface SwaggerService {
 	public @ResponseBody ResponseEntity<Object> createLangSupport(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@PathVariable("framework") String framework,
-			@RequestBody SupportedCodeGenLang langData) throws Exception;
+			@PathVariable("framework") String framework, @RequestBody SupportedCodeGenLang langData) throws Exception;
 
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swagger-gen/clients/servers/{framework}")
 	public @ResponseBody ResponseEntity<Object> updateLangSupport(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@PathVariable("framework") String framework,
-			@RequestBody SupportedCodeGenLang langData) throws Exception;
+			@PathVariable("framework") String framework, @RequestBody SupportedCodeGenLang langData) throws Exception;
 
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swagger-gen/clients/servers/{framework}")
@@ -876,7 +875,7 @@ public interface SwaggerService {
 	 * @param jsessionid
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
 	 */
 	@ApiOperation(value = "Genrate client", notes = "", code = 200)
@@ -898,7 +897,7 @@ public interface SwaggerService {
 	 * @param jsessionid
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
 	 */
 	@ApiOperation(value = "Genrate client", notes = "", code = 200)
@@ -922,7 +921,7 @@ public interface SwaggerService {
 	 * @param swaggerVO
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @throws ItorixException,Exception
 	 */
 	@ApiOperation(value = "Assoiate Product", notes = "", code = 204)
@@ -944,9 +943,9 @@ public interface SwaggerService {
 	 * @param swaggername
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException,Exception
 	 */
 	@ApiOperation(value = "Get Assoiated Products", notes = "", code = 200)
@@ -991,9 +990,9 @@ public interface SwaggerService {
 	 * @param swaggername
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException,Exception
 	 */
 	@ApiOperation(value = "Get Assoiated Projects", notes = "", code = 200)
@@ -1017,7 +1016,7 @@ public interface SwaggerService {
 	 * @param swaggerVO
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @throws ItorixException,Exception
 	 */
 	@ApiOperation(value = "Assoiate Product", notes = "", code = 204)
@@ -1039,9 +1038,9 @@ public interface SwaggerService {
 	 * @param swaggername
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException,Exception
 	 */
 	@ApiOperation(value = "Get Assoiated Portfolios", notes = "", code = 200)
@@ -1068,9 +1067,9 @@ public interface SwaggerService {
 	 * @param jsessionid
 	 * @param name
 	 * @param limit
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "v1/swaggers/search", produces = {"application/json"})
@@ -1087,9 +1086,9 @@ public interface SwaggerService {
 	 * @param jsessionid
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException,Exception
 	 */
 	@ApiOperation(value = "Get Assoiated Portfolios", notes = "", code = 200)
@@ -1109,9 +1108,9 @@ public interface SwaggerService {
 	 * @param jsessionid
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException,Exception
 	 */
 	@ApiOperation(value = "Create or update git Integration", notes = "", code = 200)
@@ -1149,9 +1148,9 @@ public interface SwaggerService {
 	 * @param swaggername
 	 * @param request
 	 * @param response
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException,Exception
 	 */
 	@ApiOperation(value = "Delete Swagger", notes = "", code = 204)
@@ -1269,63 +1268,101 @@ public interface SwaggerService {
 	public ResponseEntity<?> getSwaggerAssociatedWithSchemaName(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("dictionaryId") String dictionaryId, @PathVariable("schemaName") String schemaName);
 
-
-
 	@ApiOperation(value = "Creating Api rating .Rating api's based on user  rating's ", notes = "", code = 201)
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Api was rated successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Error while rating api", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggerId}/rating")
 	public ResponseEntity<?> postRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
-										  @RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
-										@PathVariable("swaggerId")String swaggerId,@RequestBody ApiRatings apiRatings) throws Exception;
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+			@PathVariable("swaggerId") String swaggerId, @RequestBody ApiRatings apiRatings) throws Exception;
 
 	@ApiOperation(value = "Editing Api rating .Rating api's based on user rating's ", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Api was edited successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Error while editing api", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggerId}/rating")
 	public ResponseEntity<?> editRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
-										@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
-										@PathVariable("swaggerId")String swaggerId,@RequestBody ApiRatings apiRatings) throws Exception;
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+			@PathVariable("swaggerId") String swaggerId, @RequestBody ApiRatings apiRatings) throws Exception;
 
 	@ApiOperation(value = "Getting Api rating .Getting api rating summary for particular swagger  ", notes = "", code = 200)
-	@ApiResponses(value = {@ApiResponse(code = 200, message = "Api rating retrieved successfully", response = Void.class),
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Api rating retrieved successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggerId}/{revision}/summary")
 	public ResponseEntity<?> getRatingSummary(@RequestHeader(value = "JSESSIONID") String jsessionid,
-										@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
-										@PathVariable("swaggerId")String swaggerId,@PathVariable("revision")int revision) throws Exception;
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+			@PathVariable("swaggerId") String swaggerId, @PathVariable("revision") int revision) throws Exception;
 
 	@ApiOperation(value = "Getting Api rating .Getting all api ratings for particular swagger  ", notes = "", code = 200)
-	@ApiResponses(value = {@ApiResponse(code = 200, message = "Api rating retrieved successfully", response = Void.class),
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Api rating retrieved successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggerId}/{revision}/rating")
 	public ResponseEntity<?> getAllRatings(@RequestHeader(value = "JSESSIONID") String jsessionid,
-										   @RequestHeader(value = "email") String email,
-											@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
-											@PathVariable("swaggerId")String swaggerId,@PathVariable("revision")int revision ) throws Exception;
-
-	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN') and hasAnyAuthority('BASIC','PRO','TEAM','ENTERPRISE')")
-	@ApiOperation(value = "Deleting Api rating", notes = "", code = 204)
-	@ApiResponses(value = {@ApiResponse(code = 204, message = "Api was deleted successfully", response = Void.class),
-			@ApiResponse(code = 404, message = "Error while deleting api", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggerId}/{revision}/admin/delete")
-	public ResponseEntity<?> deleteRatingAdmin(@RequestHeader(value = "JSESSIONID") String jsessionid,
-											   @RequestHeader(value = "ratingId") String ratingId,
-											   @RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
-											   @PathVariable("swaggerId") String swaggerId, @PathVariable("revision") int revision) throws Exception;
+			@RequestHeader(value = "email") String email,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+			@PathVariable("swaggerId") String swaggerId, @PathVariable("revision") int revision) throws Exception;
 
 	@ApiOperation(value = "Deleting Api rating", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "Api was deleted successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Error while deleting api", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggerId}/{revision}/delete")
 	public ResponseEntity<?> deleteRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
-										  @RequestHeader(value = "email") String email, @RequestHeader(value = "ratingId") String ratingId,
-										  @RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
-										  @PathVariable("swaggerId") String swaggerId, @PathVariable("revision") int revision) throws Exception;
+			@RequestHeader(value = "email") String email,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+			@PathVariable("swaggerId") String swaggerId, @PathVariable("revision") int revision) throws Exception;
+
 	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('BASIC','PRO','TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/refresh")
-	public ResponseEntity<?> loadSwaggersToScan(@RequestHeader(value = "interactionid", required = false) String interactionid,
+	public ResponseEntity<?> loadSwaggersToScan(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid);
 
+
+	//CPA-486
+ 	@PostMapping(value = "/v1/swaggers/product-groups", produces={"application/json"})
+	public ResponseEntity<?> createProduct(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "interactionid") String interactionid,
+			@RequestBody SwaggerProduct swaggerProduct) throws ItorixException;
+
+
+	@PutMapping(value = "/v1/swaggers/product-groups/{productId}", produces = {
+			"application/json"})
+	public ResponseEntity<?> updateProduct(@PathVariable("productId") String productId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerProduct swaggerProduct)
+			throws ItorixException;
+
+	@DeleteMapping( value = "/v1/swaggers/product-groups/{productId}", produces = {
+			"application/json"})
+	public ResponseEntity<?> deleteProduct(@PathVariable("productId") String productId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException;
+
+	@GetMapping(value = "/v1/swaggers/product-groups", produces = {"application/json"})
+	public ResponseEntity<?> getProductGroups(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException;
+
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggerId}/{swaggerRevision}/associate-product", produces = {
+			"application/json"})
+	public ResponseEntity<?> manageSwaggerProducts(@PathVariable("swaggerId") String swaggerId,
+			@PathVariable("swaggerRevision") Integer swaggerRevision,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+			@RequestBody AsociateSwaggerProductRequest swaggerProductRequest) throws ItorixException;
+
+	@GetMapping(value = "/v1/swaggers/{swaggerId}/{swaggerRevision}/associate-products", produces = {
+			"application/json"})
+	public ResponseEntity<?> getSwaggerProducts(@PathVariable("swaggerId") String swaggerId,
+			@PathVariable("swaggerRevision") Integer swaggerRevision,
+			@RequestHeader(value = "interactionid") String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas)
+			throws ItorixException;
 
 }
