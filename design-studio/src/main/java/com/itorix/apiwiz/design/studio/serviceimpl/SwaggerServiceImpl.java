@@ -2563,7 +2563,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestBody AsociateSwaggerPartnerRequest swaggerPartnerRequest) throws Exception {
-		swaggerBusiness.associatePartners(swaggerId, oas, swaggerPartnerRequest.getPartnerId());
+		swaggerBusiness.associatePartners(swaggerId, oas, swaggerPartnerRequest.getPartnerId().stream().collect(
+				Collectors.toSet()));
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}
 
