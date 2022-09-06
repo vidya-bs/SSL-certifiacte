@@ -761,12 +761,21 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestParam(value = "status", required = false) String status,
-			@RequestParam(value = "partnerID", required = false) String partnerID) throws Exception {
+			@RequestParam(value = "filterParams", required = false) Map<String, String> filterParams) throws Exception {
 
+		List<String> partners = filterParams.get("partnerId") != null ? Arrays.asList(
+				filterParams.get("partnerId").split(",")) : Collections.emptyList();
+		List<String> products = filterParams.get("productId") != null ? Arrays.asList(
+				filterParams.get("productId").split(",")) : Collections.emptyList();
+		List<String> teams = filterParams.get("teamId") != null ? Arrays.asList(
+				filterParams.get("teamId").split(",")) : Collections.emptyList();
 		String json = "";
-		ArrayNode node = swaggerBusiness.getListOfPublishedSwaggerDetails(interactionid, jsessionid, status, partnerID);
-		ArrayNode node3 = swaggerBusiness.getListOfPublishedSwagger3Details(interactionid, jsessionid, status,
-				partnerID);
+		ArrayNode node = swaggerBusiness.getListOfPublishedSwaggerDetails(interactionid, jsessionid,
+				status,
+				partners, products, teams);
+		ArrayNode node3 = swaggerBusiness.getListOfPublishedSwagger3Details(interactionid, jsessionid,
+				status,
+				partners, products, teams);
 		if (node3 != null && node3.size() > 0) {
 			for (JsonNode nodeElement : node3) {
 				node.add(nodeElement);

@@ -267,14 +267,14 @@ public interface SwaggerBusiness {
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param status
-	 * 
+	 * @param products
+	 * @param teams
 	 * @return
-	 * 
 	 * @throws IOException
 	 * @throws JsonProcessingException
 	 */
 	public ArrayNode getListOfPublishedSwaggerDetails(String interactionid, String jsessionid, String status,
-			String partnerId) throws ItorixException, JsonProcessingException, IOException;
+			List<String> partners, List<String> products, List<String> teams) throws ItorixException, JsonProcessingException, IOException;
 
 	/**
 	 * getListOfPublishedSwagger3Details
@@ -282,14 +282,15 @@ public interface SwaggerBusiness {
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param status
-	 * 
+	 * @param partners
+	 * @param products
+	 * @param teams
 	 * @return
-	 * 
 	 * @throws IOException
 	 * @throws JsonProcessingException
 	 */
 	public ArrayNode getListOfPublishedSwagger3Details(String interactionid, String jsessionid, String status,
-			String partnerId) throws ItorixException, JsonProcessingException, IOException;
+			List<String> partners, List<String> products, List<String> teams) throws ItorixException, JsonProcessingException, IOException;
 
 	/**
 	 * getSwagger

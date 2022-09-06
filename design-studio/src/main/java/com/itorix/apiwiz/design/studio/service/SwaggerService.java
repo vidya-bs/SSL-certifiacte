@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.generator.model.ResponseCode;
 import io.swagger.models.Swagger;
+import java.util.Map;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -309,7 +310,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@RequestParam(value = "status", required = false) String status,
-			@RequestParam(value = "partnerID", required = false) String partnerID) throws Exception;
+			@RequestParam(value = "filterParams", required = false) Map<String, String> filterParams) throws Exception;
 
 	/**
 	 * We need to pass the particular swagger name and we will get the

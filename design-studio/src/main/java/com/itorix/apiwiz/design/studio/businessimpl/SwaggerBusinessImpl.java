@@ -99,13 +99,13 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 @Slf4j
 public class SwaggerBusinessImpl implements SwaggerBusiness {
 
-    private static final Logger logger = LoggerFactory.getLogger(SwaggerBusinessImpl.class);
-    @Autowired
-    BaseRepository baseRepository;
-    @Autowired
-    ApplicationProperties applicationProperties;
-    @Autowired
-    private MongoTemplate mongoTemplate;
+	private static final Logger logger = LoggerFactory.getLogger(SwaggerBusinessImpl.class);
+	@Autowired
+	BaseRepository baseRepository;
+	@Autowired
+	ApplicationProperties applicationProperties;
+	@Autowired
+	private MongoTemplate mongoTemplate;
 
     @Qualifier("masterMongoTemplate")
     @Autowired
@@ -1150,30 +1150,52 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         return swaggerRoles;
     }
 
-	public ArrayNode getListOfPublishedSwaggerDetails(String interactionid, String jsessionid, String status,
-			String partnerId) throws ItorixException, JsonProcessingException, IOException {
+	public ArrayNode getListOfPublishedSwaggerDetails(String interactionid, String jsessionid,
+			String status,
+			List<String> partners, List<String> products, List<String> teams)
+			throws ItorixException, JsonProcessingException, IOException {
 		log("getListOfPublishedSwaggerDetails", interactionid, jsessionid);
 		List<SwaggerVO> list = baseRepository.find(STATUS_VALUE, status, SwaggerVO.class);
 		ObjectMapper mapper = new ObjectMapper();
 		ArrayNode arrayNode = mapper.createArrayNode();
 
-        for (SwaggerVO vo : list) {
-            if (partnerId == null) {
-                getPublishedSwaggerDetails(vo, arrayNode);
-            } else {
-                List<String> partnerList = partnerId.contains("/")
-                        ? Arrays.asList(partnerId.split("/"))
-                        : Arrays.asList(partnerId);
-                for (String partner : partnerList) {
-                    if (partner == null || isPartnerAsociated(vo, partner) == true) {
-                        getPublishedSwaggerDetails(vo, arrayNode);
-                    }
-                }
-            }
-        }
-        log("getListOfSwaggerDetails", interactionid, list);
-        return arrayNode;
-    }
+		if (partners.isEmpty() && products.isEmpty() && teams.isEmpty()) {
+			list.forEach(vo -> {
+				try {
+					getPublishedSwaggerDetails(vo, arrayNode);
+				} catch (JsonProcessingException | ItorixException e) {
+					log.error("Exception in getListOfPublishedSwaggerDetails : {}", e.getMessage());
+				}
+			});
+		} else {
+			List<String> swaggerNames = getAllFilteredSwaggerDetails(partners, products, teams, "3.0");
+			List<SwaggerVO> swaggerVos = list.stream().filter(swaggerVO -> {
+				if (swaggerNames.contains(swaggerVO.getName())) {
+					return true;
+				} else {
+					return false;
+				}
+			}).collect(Collectors.toList());
+			swaggerVos.forEach(vo -> {
+				try {
+					getPublishedSwaggerDetails(vo, arrayNode);
+				} catch (JsonProcessingException | ItorixException e) {
+					log.error("Exception in getListOfPublishedSwaggerDetails : {}", e.getMessage());
+				}
+			});
+		}
+		log("getListOfSwaggerDetails", interactionid, list);
+		return arrayNode;
+	}
+
+	private List<String> getAllFilteredSwaggerDetails(List<String> partners, List<String> products,
+			List<String> teams, String oas) {
+		Query query = new Query(
+				Criteria.where("teams").in(teams).and("partners").in(partners).and("products")
+						.in(products).and("oas").is(oas));
+		query.fields().include("swaggerName");
+		return mongoTemplate.find(query, String.class, "Design.Swagger.Metadata");
+	}
 
 	private boolean isPartnerAsociated(SwaggerVO vo, String partnerId) {
 		List<Revision> revisions = getListOfRevisions(vo.getName(), null);
@@ -1215,24 +1237,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("title", vo.getName());
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "2.0");
-
-			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "2.0");
-			if (metadata != null) {
-				if (metadata.getTeams() != null) {
-					ArrayNode teams = mapper.valueToTree(metadata.getTeams());
-					itemNode.putArray("teams").addAll(teams);
-				}
-				if (metadata.getProducts() != null) {
-					ArrayNode products = mapper.valueToTree(metadata.getProducts());
-					itemNode.putArray("products").addAll(products);
-				}
-			}
-
-			if (vo.getPartners() != null) {
-				ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
-				itemNode.putArray("partners").addAll(partners);
-			}
-
 			ArrayNode revision = mapper.createArrayNode();
 			ObjectNode revisionNode = mapper.createObjectNode();
 			if (vo != null && vo.getSwagger() != null) {
@@ -1294,24 +1298,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("title", vo.getName());
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "2.0");
-
-			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "2.0");
-			if (metadata != null) {
-				if (metadata.getTeams() != null) {
-					ArrayNode teams = mapper.valueToTree(metadata.getTeams());
-					itemNode.putArray("teams").addAll(teams);
-				}
-				if (metadata.getProducts() != null) {
-					ArrayNode products = mapper.valueToTree(metadata.getProducts());
-					itemNode.putArray("products").addAll(products);
-				}
-			}
-
-			if (vo.getPartners() != null) {
-				ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
-				itemNode.putArray("partners").addAll(partners);
-			}
-
 			ArrayNode revision = mapper.createArrayNode();
 			ObjectNode revisionNode = mapper.createObjectNode();
 			if (vo != null && vo.getSwagger() != null) {
@@ -1368,29 +1354,40 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	public ArrayNode getListOfPublishedSwagger3Details(String interactionid, String jsessionid, String status,
-			String partnerId) throws ItorixException, JsonProcessingException, IOException {
+			List<String> partners, List<String> products, List<String> teams) throws ItorixException, JsonProcessingException, IOException {
 		log("getListOfPublishedSwaggerDetails", interactionid, jsessionid);
 		List<Swagger3VO> list = baseRepository.find(STATUS_VALUE, status, Swagger3VO.class);
 		ObjectMapper mapper = new ObjectMapper();
 
-        ArrayNode arrayNode = mapper.createArrayNode();
-        for (Swagger3VO vo : list) {
-            if (partnerId == null) {
-                getPublishedSwaggerDetails(vo, arrayNode);
-            } else {
-                List<String> partnerList = partnerId.contains("/")
-                        ? Arrays.asList(partnerId.split("/"))
-                        : Arrays.asList(partnerId);
-                for (String partner : partnerList) {
-                    if (partner == null || isPartnerAsociated(vo, partner) == true) {
-                        getPublishedSwaggerDetails(vo, arrayNode);
-                    }
-                }
-            }
-        }
-        log("getListOfSwaggerDetails", interactionid, list);
-        return arrayNode;
-    }
+		ArrayNode arrayNode = mapper.createArrayNode();
+		if (partners.isEmpty() && products.isEmpty() && teams.isEmpty()) {
+			list.forEach(vo -> {
+				try {
+					getPublishedSwaggerDetails(vo, arrayNode);
+				} catch (JsonProcessingException | ItorixException e) {
+					log.error("Exception in getListOfPublishedSwaggerDetails : {}", e.getMessage());
+				}
+			});
+		} else {
+			List<String> swaggerNames = getAllFilteredSwaggerDetails(partners, products, teams, "3.0");
+			List<Swagger3VO> swaggerVos = list.stream().filter(swaggerVO -> {
+				if (swaggerNames.contains(swaggerVO.getName())) {
+					return true;
+				} else {
+					return false;
+				}
+			}).collect(Collectors.toList());
+			swaggerVos.forEach(vo -> {
+				try {
+					getPublishedSwaggerDetails(vo, arrayNode);
+				} catch (JsonProcessingException | ItorixException e) {
+					log.error("Exception in getListOfPublishedSwaggerDetails : {}", e.getMessage());
+				}
+			});
+		}
+		log("getListOfSwaggerDetails", interactionid, list);
+		return arrayNode;
+	}
 
 	private boolean isPartnerAsociated(Swagger3VO vo, String partnerId) {
 		Set<String> partners = vo.getPartners();
@@ -1425,24 +1422,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("id", vo.getId());
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "3.0");
-
-			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "3.0");
-			if (metadata != null) {
-				if (metadata.getTeams() != null) {
-					ArrayNode teams = mapper.valueToTree(metadata.getTeams());
-					itemNode.putArray("teams").addAll(teams);
-				}
-				if (metadata.getProducts() != null) {
-					ArrayNode products = mapper.valueToTree(metadata.getProducts());
-					itemNode.putArray("products").addAll(products);
-				}
-			}
-
-			if (vo.getPartners() != null) {
-				ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
-				itemNode.putArray("partners").addAll(partners);
-			}
-
 			ArrayNode revision = mapper.createArrayNode();
 			ObjectNode revisionNode = mapper.createObjectNode();
 			if (vo != null && vo.getSwagger() != null) {
@@ -1505,24 +1484,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("id", vo.getId());
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "3.0");
-
-			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "3.0");
-			if (metadata != null) {
-				if (metadata.getTeams() != null) {
-					ArrayNode teams = mapper.valueToTree(metadata.getTeams());
-					itemNode.putArray("teams").addAll(teams);
-				}
-				if (metadata.getProducts() != null) {
-					ArrayNode products = mapper.valueToTree(metadata.getProducts());
-					itemNode.putArray("products").addAll(products);
-				}
-			}
-
-			if (vo.getPartners() != null) {
-				ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
-				itemNode.putArray("partners").addAll(partners);
-			}
-
 			ArrayNode revision = mapper.createArrayNode();
 			ObjectNode revisionNode = mapper.createObjectNode();
 			if (vo != null && vo.getSwagger() != null) {
@@ -4166,13 +4127,29 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			SwaggerVO vo = mongoTemplate.findOne(swaggerQuery, SwaggerVO.class);
 			metadataQuery.addCriteria(Criteria.where("swaggerName").is(vo.getName()));
 			SwaggerMetadata swaggerMetadata = mongoTemplate.findOne(metadataQuery, SwaggerMetadata.class);
-			swaggerMetadata.setProducts(swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
+			if (swaggerMetadata.getProducts() != null) {
+				swaggerMetadata.getProducts()
+						.addAll(swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
+				vo.setProducts(swaggerMetadata.getProducts());
+			} else {
+				swaggerMetadata.setProducts(
+						swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
+				vo.setProducts(swaggerMetadata.getProducts());
+			}
 			mongoTemplate.save(swaggerMetadata);
 		} else if (StringUtils.equalsIgnoreCase("3.0", oas)) {
 			Swagger3VO vo = mongoTemplate.findOne(swaggerQuery, Swagger3VO.class);
 			metadataQuery.addCriteria(Criteria.where("swaggerName").is(vo.getName()));
 			SwaggerMetadata swaggerMetadata = mongoTemplate.findOne(metadataQuery, SwaggerMetadata.class);
-			swaggerMetadata.setProducts(swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
+			if (swaggerMetadata.getProducts() != null) {
+				swaggerMetadata.getProducts()
+						.addAll(swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
+				vo.setProducts(swaggerMetadata.getProducts());
+			} else {
+				swaggerMetadata.setProducts(
+						swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
+				vo.setProducts(swaggerMetadata.getProducts());
+			}
 			mongoTemplate.save(swaggerMetadata);
 		} else {
 			log.error("Invalid oas : {}", oas);
