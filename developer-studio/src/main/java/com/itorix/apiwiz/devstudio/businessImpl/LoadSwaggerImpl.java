@@ -25,10 +25,9 @@ import java.util.regex.Pattern;
 @Slf4j
 public class LoadSwaggerImpl implements LoadSwagger {
 
-
-
 	@Override
 	public String loadProxySwaggerDetails(String content, String oas) throws JsonProcessingException, JSONException {
+		log.debug("Loading Swagger details");
 		if (oas != null && oas.equals("3.0")) {
 			return loadProxySwagger3Details(content);
 		} else {
@@ -38,6 +37,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 
 	@Override
 	public String loadTargetSwaggerDetails(String content, String oas) throws JsonProcessingException, JSONException {
+		log.debug("Loading swagger details");
 		if (oas != null && oas.equals("3.0")) {
 			return loadTargetSwagger3Details(content);
 		} else {
@@ -46,6 +46,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 	}
 
 	public String loadProxySwagger3Details(String content) throws JsonProcessingException, JSONException {
+		log.debug("Loading Swagger3 details");
 		OpenAPI api = getOpenAPI(content);
 
 		String basePath = null;
@@ -59,10 +60,10 @@ public class LoadSwaggerImpl implements LoadSwagger {
 		if (api.getServers() != null) {
 			basePath = api.getServers().get(0).getUrl();
 			try {
-				URL url=new URL (basePath);
+				URL url = new URL(basePath);
 				basePath = url.getFile();
 			} catch (MalformedURLException e) {
-				log.error("Exception occurred", e);
+				log.error("MalformedURLException occurred", e);
 			}
 		}
 		proxy.setBasePath(basePath);
@@ -126,9 +127,13 @@ public class LoadSwaggerImpl implements LoadSwagger {
 											String keyStr = keySet.stream().findFirst().get();
 											net.sf.json.JSONArray element = (net.sf.json.JSONArray) jsonItem
 													.get(keyStr);
-											if(StringUtils.isNotEmpty(element.stream().findFirst().get().toString())){
+											if (StringUtils.isNotEmpty(element.stream().findFirst().get().toString())) {
 												metadataItem.setName(keyStr);
-													metadataItem.setValue(element.stream().findFirst().get().toString());
+												if (element.size() > 1) {
+													metadataItem.setValue(getComaseperatedStr(element));
+												} else
+													metadataItem
+															.setValue(element.stream().findFirst().get().toString());
 												metadata.add(metadataItem);
 											}
 										} catch (Exception ex) {
@@ -149,20 +154,18 @@ public class LoadSwaggerImpl implements LoadSwagger {
 			}
 		}
 
-
-
-		//		Paths paths = api.getPaths();
-		//		Set<Map.Entry<String, PathItem>> pathSet = paths.entrySet();
-		//		for (Map.Entry<String, PathItem> pathItem : pathSet) {
-		//			PathItem item = pathItem.getValue();
-		//			String path = pathItem.getKey();
-		//			List<Flow> pathFlows = getFlows(item, path);
-		//			if (pathFlows != null) {
-		//				for (Flow flow : pathFlows) {
-		//					flowList.add(flow);
-		//				}
-		//			}
-		//		}
+		// Paths paths = api.getPaths();
+		// Set<Map.Entry<String, PathItem>> pathSet = paths.entrySet();
+		// for (Map.Entry<String, PathItem> pathItem : pathSet) {
+		// PathItem item = pathItem.getValue();
+		// String path = pathItem.getKey();
+		// List<Flow> pathFlows = getFlows(item, path);
+		// if (pathFlows != null) {
+		// for (Flow flow : pathFlows) {
+		// flowList.add(flow);
+		// }
+		// }
+		// }
 		Flow flowsArray[] = new Flow[flowList.size()];
 		for (int i = 0; i < flowList.size(); i++) {
 			flowsArray[i] = flowList.get(i);
@@ -171,7 +174,6 @@ public class LoadSwaggerImpl implements LoadSwagger {
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper.writeValueAsString(proxy).toString();
 	}
-
 
 	private List<Flow> getFlows(PathItem item, String path) {
 		List<Flow> flowList = new ArrayList<Flow>();
@@ -233,8 +235,8 @@ public class LoadSwaggerImpl implements LoadSwagger {
 		return flowList;
 	}
 
-
 	private OpenAPI getOpenAPI(String swagger) {
+		log.debug("Fetching OpenAPI from {}", swagger);
 		ParseOptions options = new ParseOptions();
 		options.setResolve(true);
 		options.setResolveCombinators(false);
@@ -244,6 +246,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 
 	@SuppressWarnings("unchecked")
 	public String loadProxySwagger2Details(String content) throws JsonProcessingException, JSONException {
+		log.debug("Loading proxy swwagger2 details from {}", content);
 		net.sf.json.JSONObject jsonObject = (net.sf.json.JSONObject) JSONSerializer.toJSON(content);
 		String basePath = (String) jsonObject.get("basePath");
 		JSONObject nameJson = new JSONObject(jsonObject.get("info").toString());
@@ -309,7 +312,10 @@ public class LoadSwaggerImpl implements LoadSwagger {
 											net.sf.json.JSONArray element = (net.sf.json.JSONArray) jsonItem
 													.get(keyStr);
 											metadataItem.setName(keyStr);
-											metadataItem.setValue(element.stream().findFirst().get().toString());
+											if (element.size() > 1) {
+												metadataItem.setValue(getComaseperatedStr(element));
+											} else
+												metadataItem.setValue(element.stream().findFirst().get().toString());
 											metadata.add(metadataItem);
 										} catch (Exception ex) {
 											log.error("Exception occurred", ex);
@@ -341,10 +347,28 @@ public class LoadSwaggerImpl implements LoadSwagger {
 		return mapper.writeValueAsString(proxy).toString();
 	}
 
+	private String getComaseperatedStr(net.sf.json.JSONArray element) {
+		String value = "";
+		for (int i = 0; i < element.size(); i++) {
+			if (i == 0)
+				value = value + element.get(i).toString();
+			else
+				value = value + "," + element.get(i).toString();
+		}
+		return value;
+	}
+
 	public String loadTargetSwagger3Details(String content) throws JsonProcessingException, JSONException {
+		log.debug("Loading target swagger 3 details");
 		OpenAPI api = getOpenAPI(content);
 		String basePath = null;
 		String name = null;
+		String version = null;
+		if (api.getInfo() != null) {
+			name = api.getInfo().getTitle();
+			version = api.getInfo().getVersion();
+		}
+		
 		Target proxy = new Target();
 		if (api.getInfo() != null) {
 			name = api.getInfo().getTitle();
@@ -352,7 +376,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 		if (api.getServers() != null) {
 			basePath = api.getServers().get(0).getUrl();
 			try {
-				URL url=new URL (basePath);
+				URL url = new URL(basePath);
 				basePath = url.getFile();
 			} catch (MalformedURLException e) {
 				log.error("Exception occurred", e);
@@ -361,6 +385,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 		proxy.setBasePath(basePath);
 		proxy.setName(name);
 		proxy.setDescription(name);
+		proxy.setVersion(getVersion(version));
 		Flows flows = new Flows();
 		proxy.setFlows(flows);
 		List<Flow> flowList = new ArrayList<Flow>();
@@ -387,14 +412,17 @@ public class LoadSwaggerImpl implements LoadSwagger {
 
 	@SuppressWarnings("unchecked")
 	public String loadTargetSwagger2Details(String content) throws JsonProcessingException, JSONException {
+		log.debug("Loading target swagger 2 details");
 		net.sf.json.JSONObject jsonObject = (net.sf.json.JSONObject) JSONSerializer.toJSON(content);
 		String basePath = (String) jsonObject.get("basePath");
 		JSONObject nameJson = new JSONObject(jsonObject.get("info").toString());
 		String name = (String) nameJson.get("title");
+		String version = (String) nameJson.get("version");
 		Target proxy = new Target();
 		proxy.setBasePath(basePath);
 		proxy.setName(name);
 		proxy.setDescription(name);
+		proxy.setVersion(getVersion(version));
 		Flows flows = new Flows();
 		proxy.setFlows(flows);
 		List<Flow> flowList = new ArrayList<Flow>();
@@ -458,6 +486,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 	}
 
 	private String getVersion(String version) {
+		log.debug("Fetching version");
 		String proxyVersion = "v1";
 		if (version.length() >= 2 && version.length() <= 5) {
 			Pattern regexPattern = Pattern.compile("[a-zA-z]\\d\\d?");
@@ -487,23 +516,24 @@ public class LoadSwaggerImpl implements LoadSwagger {
 		return proxyVersion;
 	}
 
-	private boolean isValidMethod(String method){
-		switch(method.toUpperCase()){
-		case "POST" : {
-			return true;
-		}
-		case "PUT" : {
-			return true;
-		}
-		case "GET" : {
-			return true;
-		}
-		case "DELETE" : {
-			return true;
-		}
-		case "PATCH" : {
-			return true;
-		}
+	private boolean isValidMethod(String method) {
+		log.debug("Checking if it is a valid method");
+		switch (method.toUpperCase()) {
+			case "POST" : {
+				return true;
+			}
+			case "PUT" : {
+				return true;
+			}
+			case "GET" : {
+				return true;
+			}
+			case "DELETE" : {
+				return true;
+			}
+			case "PATCH" : {
+				return true;
+			}
 		}
 		return false;
 	}
