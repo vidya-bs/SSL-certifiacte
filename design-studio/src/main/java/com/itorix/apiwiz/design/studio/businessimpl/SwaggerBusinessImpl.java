@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.gson.JsonObject;
 import com.itorix.apiwiz.common.model.SearchItem;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
@@ -4304,6 +4303,32 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		List<SwaggerProduct> swaggerProducts = mongoTemplate.find(productQuery, SwaggerProduct.class);
 
 		return swaggerProducts;
+	}
+
+	/**
+	 * @param partnerIds
+	 * @return
+	 */
+	@Override
+	public List<SwaggerProduct> getProductGroupsByPartnerIds(List<String> partnerIds) {
+		Query query = Query.query(Criteria.where("productId").in(partnerIds));
+		log.debug("query : {}", query);
+
+		List<Set<String>> result = mongoTemplate.find(query, SwaggerMetadata.class).stream()
+				.map(swaggerMetadata -> {
+					return swaggerMetadata.getProducts();
+				}).collect(Collectors.toList());
+		Set<String> productId = new HashSet<>();
+		for (Set<String> product : result) {
+			for (String partnerId : product) {
+				productId.add(partnerId);
+			}
+		}
+
+		Query productQuery = new Query(
+				Criteria.where("_id").in(productId.stream().collect(Collectors.toList())));
+		log.debug("productQuery : {}", productQuery);
+		return mongoTemplate.find(productQuery, SwaggerProduct.class);
 	}
 
 	private DeleteResult removeBasePath(Query query, Class clazz) {

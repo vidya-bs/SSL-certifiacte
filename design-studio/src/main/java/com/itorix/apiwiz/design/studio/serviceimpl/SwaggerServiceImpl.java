@@ -2695,6 +2695,22 @@ public class SwaggerServiceImpl implements SwaggerService {
 		return ResponseEntity.ok(swaggerBusiness.getProductGroups(interactionid, jsessionid));
 	}
 
+	/**
+	 * @param interactionid
+	 * @param jsessionid
+	 * @param partnerIds
+	 * @return
+	 * @throws ItorixException
+	 */
+	@Override
+	public ResponseEntity<?> getProductGroupsByPartnerIds(String interactionid, String jsessionid,
+			Map<String, String> partnerIds) throws ItorixException {
+		List<String> partners = partnerIds.get("partnerIds") != null && !partnerIds.get("partnerIds").isEmpty() ? Arrays.asList(
+				partnerIds.get("partnerIds").split(",")) : Collections.emptyList();
+		logger.info("getProductGroupsByPartnerIds");
+		return ResponseEntity.ok().body(swaggerBusiness.getProductGroupsByPartnerIds(partners));
+	}
+
 	@Override
 	public ResponseEntity<?> manageSwaggerProducts(String swaggerId, Integer swaggerRevision,
 			String interactionid,

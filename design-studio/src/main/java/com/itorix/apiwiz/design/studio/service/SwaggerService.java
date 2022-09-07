@@ -1346,6 +1346,11 @@ public interface SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException;
 
+	@GetMapping(value = "/v1/swaggers/product-groups/partnerIds", produces = {"application/json"})
+	public ResponseEntity<?> getProductGroupsByPartnerIds(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam Map<String, String> partnerIds) throws ItorixException;
+
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggerId}/{swaggerRevision}/associate-product", produces = {
 			"application/json"})
 	public ResponseEntity<?> manageSwaggerProducts(@PathVariable("swaggerId") String swaggerId,

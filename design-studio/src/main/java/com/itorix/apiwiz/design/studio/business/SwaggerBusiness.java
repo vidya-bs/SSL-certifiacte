@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.proxystudio.apigeeassociations.Product;
 import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
@@ -805,4 +806,6 @@ public interface SwaggerBusiness {
 
 	List<SwaggerProduct> getSwaggerProducts(String swaggerId, Integer swaggerRevision, String oas,
 			String interactionid, String jsessionid, int offset, int pageSize) throws ItorixException;
+
+	List<SwaggerProduct> getProductGroupsByPartnerIds(List<String> partners);
 }
