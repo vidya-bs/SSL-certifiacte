@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -36,7 +37,7 @@ import com.itorix.hyggee.oas2.changelog.diff.SwaggerDiff;
 import com.itorix.hyggee.oas2.changelog.output.MarkdownRender;
 import com.itorix.hyggee.oas3.changelog.output.Swagger3MarkdownRender;
 import com.itorix.hyggee.oas3.changelog.compare.OpenAPIDiff;
-
+@Slf4j
 /** @author sudhakar */
 @Service
 public class SwaggerDiffService {
@@ -75,7 +76,7 @@ public class SwaggerDiffService {
 				return swaggerVO.getSwagger();
 			}
 		} catch (ItorixException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -88,7 +89,7 @@ public class SwaggerDiffService {
 			swagger = mapper.readValue(swagger3VO.getSwagger(), JsonNode.class);
 			return swagger;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -204,7 +205,7 @@ public class SwaggerDiffService {
 					newRevision, swaggerId, summary);
 			baseRepository.save(swaggerChangeLog);
 		} else {
-			System.out.println("no swagger");
+			log.info("no swagger");
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 		}
 	}

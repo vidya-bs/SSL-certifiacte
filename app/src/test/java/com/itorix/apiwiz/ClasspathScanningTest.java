@@ -1,5 +1,6 @@
 package com.itorix.apiwiz;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -10,7 +11,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+@Slf4j
 public class ClasspathScanningTest {
 
 	public static void main(String args[]) {
@@ -44,7 +45,7 @@ public class ClasspathScanningTest {
 					Arrays.asList(m.getAnnotations());
 				}
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		}
 	}

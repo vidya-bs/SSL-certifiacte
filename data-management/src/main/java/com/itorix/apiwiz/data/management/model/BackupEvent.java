@@ -8,14 +8,14 @@ import com.itorix.apiwiz.identitymanagement.model.AbstractObject;
 
 @Document(collection = "DataBackUpEvent")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class BackupEvent extends AbstractObject{
+public class BackupEvent extends AbstractObject {
 	private CommonConfiguration cfg;
 
 	private String event;
 	private String eventId;
 	private String status;
 	private boolean delete = false;
-	
+
 	public CommonConfiguration getCfg() {
 		return cfg;
 	}

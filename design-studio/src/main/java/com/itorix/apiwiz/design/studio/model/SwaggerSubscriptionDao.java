@@ -40,22 +40,23 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.mail.MessagingException;
-
+@Slf4j
 @Component
 
 public class SwaggerSubscriptionDao {
-	
+
 	@Autowired
 	private MongoTemplate mongoTemplate;
-	
+
 	@Autowired
 	BaseRepository baseRepository;
-	
+
 	@Autowired
 	private MailUtil mailUtil;
-	
+
 	@Autowired
 	ApplicationProperties applicationProperties;
+
 
 	/**
 	 * Adds subscriber to swagger
@@ -65,21 +66,23 @@ public class SwaggerSubscriptionDao {
 	 * @param oas
 	 * @param subscriber
 	 */
+
 	public void swaggerSubscribe(String swaggerId, String swaggerName, String oas, Subscriber subscriber) {
 		SwaggerSubscription swagger = baseRepository.findOne("swaggerId", swaggerId, SwaggerSubscription.class);
 		if (swagger == null) {
+			log.debug("Subscribing to swagger");
 			swagger = new SwaggerSubscription();
 			swagger.setSwaggerId(swaggerId);
 			swagger.setSwaggerName(swaggerName);
 			swagger.setOas(oas);
 			swagger.setSubscribers(subscriber);
 			baseRepository.save(swagger);
-		}
-		else {
-		swagger.setSubscribers(subscriber);	
+		} else {
+			swagger.setSubscribers(subscriber);
 			baseRepository.save(swagger);
 		}
 	}
+
 
 	/**
 	 * Unsubscribes user from swagger
@@ -87,9 +90,11 @@ public class SwaggerSubscriptionDao {
 	 * @param swaggerId
 	 * @param emailId
 	 */
+
 	public void swaggerUnsubscribe(String swaggerId, String emailId) {
 		SwaggerSubscription swagger = baseRepository.findOne("swaggerId", swaggerId, SwaggerSubscription.class);
 		if (swagger != null) {
+			log.debug("Unsubscribing to swagger");
 			swagger.removeSubscribers(emailId);
 			baseRepository.save(swagger);
 		}
@@ -105,11 +110,12 @@ public class SwaggerSubscriptionDao {
 		SwaggerSubscription swagger = baseRepository.findOne("swaggerId", swaggerId, SwaggerSubscription.class);
 		if (swagger != null) {
 			return swagger.getSubscribers();
-		}else {
+		} else {
 			return new HashSet<Subscriber>();
 		}
 
 	}
+
 
 	/**
 	 * Notifies subscribers about the changes
@@ -124,38 +130,40 @@ public class SwaggerSubscriptionDao {
 	public void swaggerNotification(String swaggerId, String oas, String summary, String text) throws MessagingException {
 		SwaggerSubscription swaggerSubscription = baseRepository.findOne("swaggerId", swaggerId, SwaggerSubscription.class);
 		if (swaggerSubscription	!= null) {
+
 			Set<Subscriber> subscribers = swaggerSubscription.getSubscribers();
 			if (!subscribers.isEmpty()) {
-				Path path = Paths.get(applicationProperties.getTempDir()+"changeLog.md");
+				Path path = Paths.get(applicationProperties.getTempDir() + "changeLog.md");
 				try {
-		            File file = new File(path.toString());
-		            file.createNewFile();
+					File file = new File(path.toString());
+					file.createNewFile();
 					FileWriter fw = new FileWriter(file.getAbsoluteFile());
-		            BufferedWriter bw = new BufferedWriter(fw);
-		
-		            // Write in file
-		            bw.write(text);
-		
-		            // Close connection
-		            bw.close();
-		            
+					BufferedWriter bw = new BufferedWriter(fw);
+
+					// Write in file
+					bw.write(text);
+
+					// Close connection
+					bw.close();
+
 					String swaggerName = swaggerSubscription.getSwaggerName();
-					String subject = MessageFormat.format(applicationProperties.getSwaggerSubscriptionSubject(), swaggerName);
-					for (Subscriber subscriber: subscribers) {
-						String body = MessageFormat.format(applicationProperties.getSwaggerSubscriptionMailBody(), subscriber.getName(), swaggerName, summary);
+					String subject = MessageFormat.format(applicationProperties.getSwaggerSubscriptionSubject(),
+							swaggerName);
+					for (Subscriber subscriber : subscribers) {
+						String body = MessageFormat.format(applicationProperties.getSwaggerSubscriptionMailBody(),
+								subscriber.getName(), swaggerName, summary);
 						EmailTemplate emailTemplate = new EmailTemplate();
 						emailTemplate.setToMailId(Arrays.asList(subscriber.getEmailId()));
 						emailTemplate.setSubject(subject);
 						emailTemplate.setBody(body);
-						mailUtil.sendEmailWtithAttachment(emailTemplate, path.toString(),"changeLog.md");
+						mailUtil.sendEmailWtithAttachment(emailTemplate, path.toString(), "changeLog.md");
 					}
 					file.delete();
 				}
-					
-				catch(IOException e) {
-					e.printStackTrace();
-				}
 
+				catch (IOException e) {
+					log.error("Exception occurred", e);
+				}
 
 			}
 		}

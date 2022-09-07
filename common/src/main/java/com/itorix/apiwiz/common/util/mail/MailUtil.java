@@ -28,7 +28,8 @@ public class MailUtil {
 
 	public void sendEmail(EmailTemplate emailTemplate) throws MessagingException {
 		try {
-			logger.debug("Initiating mail with subject {} to {} ", emailTemplate.getSubject(), emailTemplate.getToMailId());
+			logger.debug("Initiating mail with subject {} to {} ", emailTemplate.getSubject(),
+					emailTemplate.getToMailId());
 			JavaMailSender javaMailSender = emailHelper.getJavaMailSender();
 			MimeMessage msg = javaMailSender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(msg, true);
@@ -49,25 +50,25 @@ public class MailUtil {
 			helper.setText(emailTemplate.getBody(), true);
 			javaMailSender.send(msg);
 		} catch (MessagingException e) {
-			e.printStackTrace();
 			logger.error(e.getMessage(), e);
 			throw e;
 		} catch (Exception e) {
-			e.printStackTrace();
 			logger.error(e.getMessage(), e);
 		}
 	}
-	
-	public void sendEmailWtithAttachment(EmailTemplate emailTemplate, String path,String attachment) throws MessagingException {
+
+	public void sendEmailWtithAttachment(EmailTemplate emailTemplate, String path, String attachment)
+			throws MessagingException {
 		try {
-			logger.debug("Initiating mail with subject {} to {} ", emailTemplate.getSubject(), emailTemplate.getToMailId());
+			logger.debug("Initiating mail with subject {} to {} ", emailTemplate.getSubject(),
+					emailTemplate.getToMailId());
 			JavaMailSender javaMailSender = emailHelper.getJavaMailSender();
 			MimeMessage msg = javaMailSender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(msg, true);
-			
+
 			FileSystemResource file = new FileSystemResource(new File(path));
 			helper.addAttachment(attachment, file);
-			
+
 			String[] internetAddress = new String[emailTemplate.getToMailId().size()];
 			int i = 0;
 			for (String tomail : emailTemplate.getToMailId()) {
@@ -84,11 +85,11 @@ public class MailUtil {
 			helper.setText(emailTemplate.getBody(), true);
 			javaMailSender.send(msg);
 		} catch (MessagingException e) {
-			e.printStackTrace();
+
 			logger.error(e.getMessage(), e);
 			throw e;
 		} catch (Exception e) {
-			e.printStackTrace();
+
 			logger.error(e.getMessage(), e);
 		}
 	}

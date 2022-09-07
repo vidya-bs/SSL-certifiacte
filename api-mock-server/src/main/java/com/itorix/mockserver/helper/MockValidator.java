@@ -69,6 +69,7 @@ public class MockValidator {
             }
 
             if (Body.Type.json.equals(expectation.getRequest().getBody().getType())) {
+                log.debug("Validating JSON schema");
                 if (expectation.getRequest().getBody().isStrict()) {
                     if (expectation.getRequest().getBody().getValue() == null||expectation.getRequest().getBody().getType().equals(Type.none)) {
                         return false;
@@ -88,10 +89,13 @@ public class MockValidator {
                     }
                 }
             } else if (Body.Type.jsonSchema.equals(expectation.getRequest().getBody().getType())) {
+                log.debug("Validating JSON schema");
                 return validateJSONSchema(expectation.getRequest().getBody().getValue(), body);
             } else if (Body.Type.xmlSchema.equals(expectation.getRequest().getBody().getType())) {
+                log.debug("Validating XMLschema");
                 return validateXMLSchema(expectation.getRequest().getBody().getValue(), body);
             } else if (Body.Type.xml.equals(expectation.getRequest().getBody().getType())) {
+                log.debug("Validating XML body type");
                 if (expectation.getRequest().getBody().isStrict()) {
                     return isXMLEqual(expectation.getRequest().getBody().getValue(), body);
                 } else if (expectation.getRequest().getBody().isStrict()) {
@@ -102,6 +106,7 @@ public class MockValidator {
                 }
 
             } else if (Body.Type.formParams.equals(expectation.getRequest().getBody().getType())) {
+                log.debug("Validating formParams body type");
                 List<NameMultiValue> expectedformParams = expectation.getRequest().getBody().getFormParams();
                 if (!CollectionUtils.isEmpty(expectedformParams) && CollectionUtils.isEmpty(formParams)) {
                     return false;
@@ -109,6 +114,7 @@ public class MockValidator {
                 return validateFormParams(formParams, expectedformParams);
 
             } else if (Body.Type.formURLEncoded.equals(expectation.getRequest().getBody().getType())) {
+                log.debug("Validating formURLEncoded body type");
                 List<NameMultiValue> expectedformUrl = expectation.getRequest().getBody().getFormURLEncoded();
                 if (!CollectionUtils.isEmpty(expectedformUrl) && CollectionUtils.isEmpty(urlEncodedParam)) {
                     return false;
@@ -267,6 +273,7 @@ public class MockValidator {
 
     public boolean chechPath(Expectation expectation, String path) {
         if (Path.Condition.notEqualTo.equals(expectation.getRequest().getPath().getCondition())) {
+            log.debug("Checking expectation path");
             Path expectationPath = expectation.getRequest().getPath();
             AntPathMatcher matcher = new AntPathMatcher();
             return !matcher.match(expectationPath.getValue(), path);
@@ -327,7 +334,7 @@ public class MockValidator {
     }
 
     public static void main(String[] args) {
-        System.out.println(checkAssertion(Arrays.asList("A", "B"), Arrays.asList("B", "A"), "notEqualTo"));
+      System.out.println(checkAssertion(Arrays.asList("A", "B"), Arrays.asList("B", "A"), "notEqualTo"));
     }
 
     public static boolean checkAssertion(List<String> expectedValue, List<String> actualValue, String condition) {
@@ -377,7 +384,7 @@ public class MockValidator {
             Validator validator = schema.newValidator();
             validator.validate(new StreamSource(new StringReader(xml)));
         } catch (IOException | SAXException e) {
-            System.out.println("Exception: " + e.getMessage());
+            log.info("Exception: " + e.getMessage());
             return false;
         }
         return true;

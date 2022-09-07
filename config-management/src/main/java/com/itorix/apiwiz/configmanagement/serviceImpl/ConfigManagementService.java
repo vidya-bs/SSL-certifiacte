@@ -139,6 +139,7 @@ public class ConfigManagementService implements ConfigManagement {
 			@RequestParam(value = "type", required = false) String type,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		if (!target.equals("") && !org.equals("") && !env.equals("")) {
+			logger.debug("Updating Apigee Target");
 			TargetConfig config = new TargetConfig();
 			config.setName(target);
 			config.setOrg(org);
@@ -160,6 +161,7 @@ public class ConfigManagementService implements ConfigManagement {
 			@RequestParam(value = "type", required = false) String type,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		if (!target.equals("") && !org.equals("") && !env.equals("")) {
+			logger.debug("Updating Apigee Target");
 			TargetConfig config = new TargetConfig();
 			config.setName(target);
 			config.setOrg(org);
@@ -241,6 +243,7 @@ public class ConfigManagementService implements ConfigManagement {
 			@RequestParam(value = "env", required = false) String env,
 			@RequestParam(value = "type", required = false) String type) throws Exception {
 		if (cache != null && org != null && env != null) {
+			logger.debug("Getting Cache");
 			CacheConfig config = new CacheConfig();
 			config.setName(cache);
 			config.setOrg(org);

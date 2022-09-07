@@ -178,6 +178,7 @@ public enum ErrorCodes {
 			put("Swagger-1007", "Request validation failed. Invalid xpath entry - %s.");
 			put("Swagger-1008", "Request validation failed. Malformed URL Provided for Server Host - %s.");
 			put("Swagger-1009", "Incorrect OAS version. Please check the OAS version");
+			put("Swagger-1010", "File size should not be greater than 25MB");
 
 			put("Teams-1000", "Request validation failed. Team name already exists.");
 			put("Teams-1001", "Resource not found. No records found for selected team name - %s.");
@@ -389,6 +390,7 @@ public enum ErrorCodes {
 			put("Swagger-1007", 400);
 			put("Swagger-1008", 400);
 			put("Swagger-1009", 400);
+			put("Swagger-1010",400);
 			put("Teams-1000", 400);
 			put("Teams-1001", 404);
 			put("Teams-1002", 400);

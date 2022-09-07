@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -26,7 +27,7 @@ import com.itorix.apiwiz.common.service.GridFsRepository;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 // import com.mongodb.gridfs.GridFSFile;
 import com.mongodb.client.gridfs.model.GridFSFile;
-
+@Slf4j
 @Component
 public class PostmanArtifiactServiceDao {
 
@@ -62,7 +63,7 @@ public class PostmanArtifiactServiceDao {
 				postManEnvFileInfo = baseRepository.save(postManEnvFileInfo);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -104,7 +105,7 @@ public class PostmanArtifiactServiceDao {
 				postManEnvFileInfo = baseRepository.save(postManEnvFileInfo);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -138,6 +139,7 @@ public class PostmanArtifiactServiceDao {
 			PostManEnvFileInfo postManEnvFiledbInfo = findByOrgEnvProxy(org, env, proxy, type, false);
 			if (postManEnvFiledbInfo == null
 					|| (postManEnvFiledbInfo != null && postManEnvFiledbInfo.getEnvFileContent() == null)) {
+				log.debug("Saving postManEnvFiledbInfo");
 				GridFSFile gridFSFile = gridFsRepository
 						.store(new GridFsData(envFile.getInputStream(), org + "-" + env + "-" + proxy + "_envFile"));
 				String oid = gridFSFile.getId().toString();
@@ -161,7 +163,7 @@ public class PostmanArtifiactServiceDao {
 				throw new ItorixException(new Throwable().getMessage(), "Connector-1001", new Throwable());
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -205,7 +207,7 @@ public class PostmanArtifiactServiceDao {
 				postManEnvFileInfo = baseRepository.save(postManEnvFileInfo);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return null;
 	}
@@ -231,6 +233,7 @@ public class PostmanArtifiactServiceDao {
 	public Object deletePostManEnvFile(String org, String env, String proxy, String interactionid, String type,
 			String recordtype, boolean isSaaS) throws ItorixException {
 		if (recordtype != null && recordtype.equalsIgnoreCase("env")) {
+			log.debug("Deleting PostManEnvFileInfo");
 			PostManEnvFileInfo postManEnvFiledbInfo = findByOrgEnvProxy(org, env, proxy, type, isSaaS);
 			if (postManEnvFiledbInfo != null) {
 				baseRepository.delete(postManEnvFiledbInfo.getId(), PostManEnvFileInfo.class);
@@ -255,6 +258,7 @@ public class PostmanArtifiactServiceDao {
 		for (PostManFileInfo postManEnvFileInfo : postManEnvFileInfolist) {
 			Map<String, Object> postManEnvFileInfoMap = new HashMap<String, Object>();
 			if (postManEnvFileInfo.getOriginalPostManFileName() != null) {
+				log.debug("Adding postManEnvFileInfoMap to postManFileNamesList");
 				postManEnvFileInfoMap.put("id", postManEnvFileInfo.getId());
 				postManEnvFileInfoMap.put("fileName", postManEnvFileInfo.getOriginalPostManFileName());
 				postManEnvFileInfoMap.put("org", postManEnvFileInfo.getOrganization());
@@ -325,7 +329,7 @@ public class PostmanArtifiactServiceDao {
 			/*
 			 * OutputStream os = new ByteArrayOutputStream(); try {
 			 * os.write(filebytes); os.close(); } catch (IOException e){
-			 * e.printStackTrace(); }
+			 * log.error("Exception occurred",e)(); }
 			 */
 
 		} else {

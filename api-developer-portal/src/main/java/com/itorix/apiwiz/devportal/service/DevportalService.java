@@ -41,7 +41,7 @@ public interface DevportalService {
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @PathVariable("appName") String appName, @RequestBody String body)
 			throws Exception;
-	
+
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/organizations/{org}/developers/{email:.+}/apps/{appName}/keys/{appKey}")
 	public org.springframework.http.ResponseEntity<String> updateAppProduct(
@@ -50,9 +50,8 @@ public interface DevportalService {
 			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @PathVariable("appName") String appName,
-			@PathVariable("appKey") String appKey, @RequestBody String body)
-			throws Exception;
-	
+			@PathVariable("appKey") String appKey, @RequestBody String body) throws Exception;
+
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/organizations/{org}/developers/{email:.+}/apps/{appName}/keys/{appKey}/apiproducts/{product}")
 	public org.springframework.http.ResponseEntity<String> deleteAppProduct(
@@ -61,9 +60,8 @@ public interface DevportalService {
 			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @PathVariable("appName") String appName,
-			@PathVariable("appKey") String appKey, @PathVariable("product") String product)
-			throws Exception;
-	
+			@PathVariable("appKey") String appKey, @PathVariable("product") String product) throws Exception;
+
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/organizations/{org}/developers/{email:.+}/apps/{appName}")
 	public org.springframework.http.ResponseEntity<String> deleteApp(
@@ -71,8 +69,7 @@ public interface DevportalService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
-			@PathVariable("email") String email, @PathVariable("appName") String appName)
-			throws Exception;
+			@PathVariable("email") String email, @PathVariable("appName") String appName) throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/organizations/{org}/apiproducts")

@@ -16,6 +16,7 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 
+import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.InputSource;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -26,7 +27,7 @@ import com.itorix.apiwiz.common.model.proxystudio.Flows;
 import com.itorix.apiwiz.common.model.proxystudio.Proxy;
 import com.itorix.apiwiz.common.model.proxystudio.Target;
 import com.itorix.apiwiz.devstudio.business.LoadWSDL;
-
+@Slf4j
 public class LoadWSDLImpl implements LoadWSDL {
 
 	private static String convertYamlToJson(String yaml) throws JsonParseException, JsonMappingException, IOException {
@@ -46,12 +47,12 @@ public class LoadWSDLImpl implements LoadWSDL {
 		String targetName = null;
 		proxy.setBasePath(basePath.split("//")[1].split(".com")[1]);
 		Map<String, PortType> oper = definition.getPortTypes();
-		System.out.println("BasePath : " + basePath.split("//")[1].split(".com")[1]);
+		log.info("BasePath : " + basePath.split("//")[1].split(".com")[1]);
 		for (PortType portType : oper.values()) {
 			String[] name = portType.getQName().toString().split("}");
 			if (name.length >= 1)
 				targetName = name[1];
-			System.out.println(portType.getQName());
+			log.info(String.valueOf(portType.getQName()));
 			List<Operation> operationsList = portType.getOperations();
 			for (Operation operation : operationsList) {
 				Flow flow = new Flow();
@@ -83,12 +84,12 @@ public class LoadWSDLImpl implements LoadWSDL {
 		String targetName = null;
 		target.setBasePath(basePath);
 		Map<String, PortType> oper = definition.getPortTypes();
-		System.out.println("BasePath : " + basePath);
+		log.info("BasePath : " + basePath);
 		for (PortType portType : oper.values()) {
 			String[] name = portType.getQName().toString().split("}");
 			if (name.length >= 1)
 				targetName = name[1];
-			System.out.println(portType.getQName());
+			log.info(String.valueOf(portType.getQName()));
 			List<Operation> operationsList = portType.getOperations();
 			for (Operation operation : operationsList) {
 				Flow flow = new Flow();
@@ -129,7 +130,7 @@ public class LoadWSDLImpl implements LoadWSDL {
 			reader.close();
 			return stringBuilder.toString();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return ls;
 	}

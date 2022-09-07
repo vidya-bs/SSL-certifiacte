@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -30,7 +31,7 @@ import com.itorix.apiwiz.virtualization.model.expectation.Expectation;
 import com.itorix.apiwiz.virtualization.model.logging.MockLog;
 import com.itorix.hyggee.mockserver.client.serialization.ObjectMapperFactory;
 import com.mongodb.client.result.DeleteResult;
-
+@Slf4j
 @Component("scenarioServiceDAO")
 public class ScenarioServiceDAO {
 	@Autowired
@@ -51,7 +52,7 @@ public class ScenarioServiceDAO {
 			mongoTemplate.save(expectationVO);
 			return true;
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return false;
 	}
@@ -77,7 +78,7 @@ public class ScenarioServiceDAO {
 				throw new ItorixException("Record exists", "General-1000");
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return null;
 	}
@@ -96,7 +97,7 @@ public class ScenarioServiceDAO {
 				return true;
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return false;
 	}
@@ -107,7 +108,7 @@ public class ScenarioServiceDAO {
 			expectationDTOs = mongoTemplate.findAll(Expectation.class);
 			return expectationDTOs;
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return null;
 	}
@@ -118,7 +119,7 @@ public class ScenarioServiceDAO {
 			Expectation expectation = mongoTemplate.findOne(query, Expectation.class);
 			return expectation;
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return null;
 	}
@@ -129,7 +130,7 @@ public class ScenarioServiceDAO {
 			Expectation expectation = mongoTemplate.findOne(query, Expectation.class);
 			return expectation;
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return null;
 	}
@@ -140,7 +141,7 @@ public class ScenarioServiceDAO {
 			List<Expectation> expectation = mongoTemplate.find(query, Expectation.class);
 			return expectation;
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return null;
 	}
@@ -151,7 +152,7 @@ public class ScenarioServiceDAO {
 			DeleteResult result = mongoTemplate.remove(query, ExpectationVO.class);
 			return result.wasAcknowledged();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return false;
 	}
@@ -176,7 +177,7 @@ public class ScenarioServiceDAO {
 				return logentries;
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return null;
 	}
@@ -240,7 +241,7 @@ public class ScenarioServiceDAO {
 				return new GroupHistoryResponse();
 
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return null;
 	}
@@ -251,7 +252,7 @@ public class ScenarioServiceDAO {
 			MockLog logEntry = mongoTemplate.findOne(query, MockLog.class);
 			return logEntry;
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return null;
 	}
@@ -264,7 +265,7 @@ public class ScenarioServiceDAO {
 			searchItems.put("names", names);
 			searchItems.put("paths", paths);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("Exception occurred", ex);
 		}
 		return searchItems;
 	}
@@ -276,6 +277,7 @@ public class ScenarioServiceDAO {
 
 	public String createScenario(Expectation expectationRequest, String jsessionid) throws ItorixException {
 		if (!isExpectationExist(expectationRequest.getName())) {
+			log.debug("Returning expectationRequest");
 			User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
 			expectationRequest.setCreatedBy(user.getFirstName() + " " + user.getLastName());
 			expectationRequest.setCts(System.currentTimeMillis());

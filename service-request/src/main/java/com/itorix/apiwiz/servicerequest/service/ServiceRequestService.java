@@ -23,9 +23,8 @@ public interface ServiceRequestService {
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/config/servicerequests")
 	public ResponseEntity<?> createServiceRequest(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
-			@RequestBody ServiceRequest config, @RequestHeader(value = "JSESSIONID") String jsessionid)
-			throws Exception;
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype, @RequestBody ServiceRequest config,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','OPERATION') and hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/config/servicerequests")

@@ -51,7 +51,7 @@ public class JsessionAuthFilter extends OncePerRequestFilter {
         String apiKeyHeader = req.getHeader(API_KEY_NAME);
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-
+        log.debug("Setting Authentication");
             try {
                 if (StringUtils.hasText(apiKeyHeader) && rsaEncryption.decryptText(apiKey).equals(apiKeyHeader)) {
                     Authentication authentication = new UsernamePasswordAuthenticationToken("test", null,

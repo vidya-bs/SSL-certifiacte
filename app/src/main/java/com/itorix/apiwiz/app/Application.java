@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.app;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,6 +11,7 @@ import org.springframework.data.web.config.SpringDataWebConfiguration;;
 
 // @EnableAutoConfiguration(exclude = VelocityAutoConfiguration.class)
 // @EnableAutoConfiguration
+@Slf4j
 @ComponentScan("com.itorix.apiwiz")
 @SpringBootApplication
 @PropertySource(value = "file:${config.properties}", ignoreResourceNotFound = true)
@@ -19,8 +21,8 @@ public class Application {
 		try {
 			SpringApplication.run(Application.class, args);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
+			log.info(e.getMessage());
+			log.error("Exception occurred", e);
 		}
 	}
 }

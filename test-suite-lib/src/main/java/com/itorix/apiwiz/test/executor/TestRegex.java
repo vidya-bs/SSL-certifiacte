@@ -7,12 +7,14 @@ import java.util.regex.PatternSyntaxException;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class TestRegex {
 
     public static void main(String args[])
             throws JsonParseException, JsonMappingException, IOException, PatternSyntaxException {
-        final String regex = "(capture";
+        final String regex = "(capture)";
         final String string = "200";
         Pattern pattern = null;
         try {
@@ -25,14 +27,14 @@ public class TestRegex {
         final Matcher matcher = pattern.matcher(string);
 
         while (matcher.find()) {
-            System.out.println("Full match: " + matcher.group(0));
+            log.info("Full match: " + matcher.group(0));
             for (int i = 1; i <= matcher.groupCount(); i++) {
-                System.out.println("Group " + i + ": " + matcher.group(i));
+                log.info("Group " + i + ": " + matcher.group(i));
             }
         }
 
         boolean flag = Pattern.matches(regex, string);
-        System.out.println(flag);
+        log.info(String.valueOf(flag));
 
     }
 

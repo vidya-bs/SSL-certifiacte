@@ -8,13 +8,13 @@ import lombok.Setter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class LandingPageMetrics {
-    private int numberOfPortfoliosCreated;
-    private int numberOfSwaggersCreated;
-    private int numberOfProxiesCreated;
-    private int numberOfMockScenariosCreated;
-    private int numberOfTestSuitesCreated;
-    private int numberOfPipelinesCreated;
-    private int numberOfMonitorCollectionsCreated;
-    private int numberOfTestsExecuted;
-    private int numberOfPipelinesTriggered;
+	private int numberOfPortfoliosCreated;
+	private int numberOfSwaggersCreated;
+	private int numberOfProxiesCreated;
+	private int numberOfMockScenariosCreated;
+	private int numberOfTestSuitesCreated;
+	private int numberOfPipelinesCreated;
+	private int numberOfMonitorCollectionsCreated;
+	private int numberOfTestsExecuted;
+	private int numberOfPipelinesTriggered;
 }

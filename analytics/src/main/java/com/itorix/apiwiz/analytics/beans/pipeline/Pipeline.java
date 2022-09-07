@@ -45,11 +45,8 @@ public class Pipeline {
 	@JsonProperty("type")
 	private String type;
 
-
 	@JsonProperty("stages")
 	private List<Stage> stages = null;
-
-
 
 	@JsonProperty("status")
 	private String status;
@@ -142,7 +139,6 @@ public class Pipeline {
 	public void setAdditionalProperty(String name, Object value) {
 		this.additionalProperties.put(name, value);
 	}
-
 
 	@JsonProperty("projectName")
 	public String getProjectName() {

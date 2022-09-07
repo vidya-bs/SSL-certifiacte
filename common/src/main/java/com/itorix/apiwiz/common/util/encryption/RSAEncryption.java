@@ -1,6 +1,8 @@
 package com.itorix.apiwiz.common.util.encryption;
 
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -18,7 +20,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 public class RSAEncryption {
-
+	private static final Logger logger = LoggerFactory.getLogger(RSAEncryption.class);
 	private PrivateKey privateKey;
 	private PublicKey publicKey;
 	private Cipher cipher;
@@ -28,7 +30,7 @@ public class RSAEncryption {
 		try {
 			this.loadKeys();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 	}
 
@@ -113,18 +115,18 @@ public class RSAEncryption {
 
 	public static void main(String[] args) throws Exception {
 		RSAEncryption ac = new RSAEncryption();
-		System.out.println(ac.decryptText(
+		logger.info(ac.decryptText(
 				"CLnoEPujiZGwmoLvB0aVCGttQiU5F34xq18Jch8a1EDdC8ydxEmeSYPRtRQHnllMhf+SkNwxTSCo+LEazRdM4g=="));
-//		System.out.println(ac.decryptText(
-//				"gnqqXJkKwJq8h+jcFNxgipqrYQ1QfKWJ/4mNfVPbiLwuaZ4orglap/Orga9zU3mzz8YcbjQ/ntWNy+XSL4WVjg=="));
+		// logger.info(ac.decryptText(
+		// "gnqqXJkKwJq8h+jcFNxgipqrYQ1QfKWJ/4mNfVPbiLwuaZ4orglap/Orga9zU3mzz8YcbjQ/ntWNy+XSL4WVjg=="));
 		String msg = "Welcome";
 		String encrypted_msg = ac.encryptText(msg);
-		System.out.println("enc_message : " +encrypted_msg);
+		logger.info("enc_message : " + encrypted_msg);
 		String msg1 = "3ekGp5Xd6eDlNeeZbpuuuKEnP81MInAbby9TTRnnStc";
 		String encrypted_msg1 = ac.encryptText(msg1);
 		String decrypted_msg = ac.decryptText(encrypted_msg);
 		String decrypted_msg1 = ac.decryptText(encrypted_msg1);
-		System.out.println("Original Message: " + msg + msg1 + "\nEncrypted Message: " + encrypted_msg + encrypted_msg1
+		logger.info("Original Message: " + msg + msg1 + "\nEncrypted Message: " + encrypted_msg + encrypted_msg1
 				+ "\nDecrypted Message: " + decrypted_msg + decrypted_msg1);
 	}
 }

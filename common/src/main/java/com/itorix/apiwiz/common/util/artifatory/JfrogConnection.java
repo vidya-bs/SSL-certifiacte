@@ -3,6 +3,8 @@ package com.itorix.apiwiz.common.util.artifatory;
 import java.net.URLDecoder;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -15,10 +17,9 @@ import com.itorix.apiwiz.common.model.integrations.Integration;
 import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
-
 @Component
 public class JfrogConnection {
-
+	private static final Logger logger = LoggerFactory.getLogger(JfrogConnection.class);
 	@Autowired
 	ApplicationProperties applicationProperties;
 
@@ -33,7 +34,7 @@ public class JfrogConnection {
 				RSAEncryption rSAEncryption = new RSAEncryption();
 				decryptedPassword = rSAEncryption.decryptText(jfrogIntegration.getPassword());
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error("Exception occurred", e);
 			}
 			jfrogIntegration.setPassword(decryptedPassword);
 		} else {

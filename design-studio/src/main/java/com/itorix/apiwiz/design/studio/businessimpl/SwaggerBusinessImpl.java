@@ -142,7 +142,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred : {}",e.getMessage());
         }
 
         SwaggerVO details = baseRepository.save(swaggerVO);
@@ -211,7 +211,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
     }
 
     public List<SwaggerImport> importSwaggers(MultipartFile zipFile, String type, String gitURI, String branch,
-        String authType, String userName, String password, String personalToken,String oas) throws Exception {
+                                              String authType, String userName, String password, String personalToken, String oas) throws Exception {
         RSAEncryption rsaEncryption = new RSAEncryption();
         String fileLocation = null;
         ZIPUtil unZip = new ZIPUtil();
@@ -263,26 +263,23 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
                 zipFile.transferTo(targetFile);
                 unZip.unzip(file, fileLocation);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Exception occurred : {}",e.getMessage());
             }
         } else {
             String message = "Invalid request data! Invalid type provided supported values - git, file";
             throw new ItorixException(message, "General-1001");
         }
         List<File> files = unZip.getJsonFiles(fileLocation);
-        if(files.isEmpty())
-        {
+        if (files.isEmpty()) {
             String message = "Invalid request data! Invalid file type";
             throw new ItorixException(message, "General-1001");
-        }
-        else {
+        } else {
             List<SwaggerImport> listSwaggers = new ArrayList<SwaggerImport>();
             try {
                 listSwaggers = importSwaggersFromFiles(files, oas);
             } catch (Exception e) {
-                throw new ItorixException(e.getMessage(),"General-1000");
-            }
-            finally {
+                throw new ItorixException(e.getMessage(), "General-1000");
+            } finally {
                 FileUtils.cleanDirectory(new File(fileLocation));
                 FileUtils.deleteDirectory(new File(fileLocation));
             }
@@ -290,12 +287,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         }
     }
 
-    private List<SwaggerImport> importSwaggersFromFiles(List<File> files,String oas) throws Exception {
+    private List<SwaggerImport> importSwaggersFromFiles(List<File> files, String oas) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         List<SwaggerImport> listSwaggers = new ArrayList<SwaggerImport>();
         String fileList = new String();
         String message = "Swagger Version doesn't match : ";
-        for(File file:files) {
+        for (File file : files) {
             String filecontent = new String();
             if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("yaml")) {
                 filecontent = convertYamlToJson(FileUtils.readFileToString(file));
@@ -327,7 +324,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
                 }
             }
         }
-        if(!fileList.isEmpty()){
+        if (!fileList.isEmpty()) {
             throw new ItorixException(message + fileList, "General-1000");
         }
         for (File file : files) {
@@ -408,7 +405,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
                 swagger.setLoaded(false);
                 swagger.setName(file.getName());
                 swagger.setReason("invalid JSON file");
-                e.printStackTrace();
+                log.error("Exception occurred : {}",e.getMessage());
             }
         }
         return listSwaggers;
@@ -1334,7 +1331,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
                     }
                 }
             } catch (ItorixException e) {
-                e.printStackTrace();
+                log.error("Exception occurred : {}",e.getMessage());
             }
         }
         return false;
@@ -2113,6 +2110,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
     private List<SwaggerTeam> getTeamsBySwaggerName(String swaggerName, String oas) {
         Query query = new Query();
+        log.debug("getTeamsBySwaggerName : {}",query);
         if (oas.equals("2.0")) {
             query.addCriteria(Criteria.where("swaggers").is(swaggerName));
         } else if (oas.equals("3.0")) {
@@ -2165,11 +2163,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
     private int getSwaggerCountbyStatus(String status) {
         try {
             Query query = new Query(Criteria.where(STATUS_VALUE).is(status));
+            log.debug("getSwaggerCountbyStatus : {}",query);
             int count = mongoTemplate.query(SwaggerVO.class).distinct("name").as(String.class).matching(query).all()
                     .size();
             return count;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred : {}",e.getMessage());
         }
         return 0;
     }
@@ -2177,11 +2176,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
     private int getSwaggerCountbyUser(String userId) {
         try {
             Query query = new Query(Criteria.where("createdUserName").is(userId));
+            log.debug("getSwaggerCountbyUser : {}",query);
             int count = mongoTemplate.query(SwaggerVO.class).distinct("name").as(String.class).matching(query).all()
                     .size();
             return count;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred : {}",e.getMessage());
         }
         return 0;
     }
@@ -2189,11 +2189,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
     private int getSwaggerRevisionCount(String swaggerName) {
         try {
             Query query = new Query(Criteria.where("name").is(swaggerName));
+            log.debug("getSwaggerRevisionCount : {}",query);
             int count = mongoTemplate.query(SwaggerVO.class).distinct("revision").as(Integer.class).matching(query)
                     .all().size();
             return count;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred : {}",e.getMessage());
         }
         return 0;
     }
@@ -2201,11 +2202,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
     private int getSwagger3CountbyStatus(String status) {
         try {
             Query query = new Query(Criteria.where(STATUS_VALUE).is(status));
+            log.debug("getSwagger3CountbyStatus : {}",query);
             int count = mongoTemplate.query(Swagger3VO.class).distinct("name").as(String.class).matching(query).all()
                     .size();
             return count;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred : {}",e.getMessage());
         }
         return 0;
     }
@@ -2213,11 +2215,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
     private int getSwagger3CountbyUser(String userId) {
         try {
             Query query = new Query(Criteria.where("createdUserName").is(userId));
+            log.debug("getSwagger3CountbyUser : {}",query);
             int count = mongoTemplate.query(Swagger3VO.class).distinct("name").as(String.class).matching(query).all()
                     .size();
             return count;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred : {}",e.getMessage());
         }
         return 0;
     }
@@ -2225,11 +2228,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
     private int getSwagger3RevisionCount(String swaggerName) {
         try {
             Query query = new Query(Criteria.where("name").is(swaggerName));
+            log.debug("getSwagger3RevisionCount : {}",query);
             int count = mongoTemplate.query(Swagger3VO.class).distinct("revision").as(Integer.class).matching(query)
                     .all().size();
             return count;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred : {}",e.getMessage());
         }
         return 0;
     }
@@ -2611,7 +2615,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         try {
             componentsStr = mapper.writeValueAsString(components);
         } catch (JsonProcessingException e1) {
-            e1.printStackTrace();
+            log.error("Exception occurred : {}",e1.getMessage());
         }
 
         try {
@@ -2626,14 +2630,14 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
             // System.out.println(mapper.writeValueAsString(objNode));
             String swaggerStr = mapper.writeValueAsString(objNode).replaceAll("/definitions/", "/components/schemas/");
             swaggerStr = swaggerStr.replaceAll(",\"extensions\":\\{}", "");
-            System.out.println(swaggerStr);
+            log.info(swaggerStr);
             return swaggerStr;
         } catch (JsonProcessingException e1) {
             // TODO Auto-generated catch block
-            e1.printStackTrace();
+            log.error("Exception occurred : {}",e1.getMessage());
         } catch (IOException e1) {
             // TODO Auto-generated catch block
-            e1.printStackTrace();
+            log.error("Exception occurred : {}",e1.getMessage());
         }
         JSONObject swaggerObj = new JSONObject(swagger);
         if (componentsStr != "") {
@@ -2657,7 +2661,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         try {
             return mapper.writeValueAsString(swaggerObj);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            log.error("Exception occurred : {}",e.getMessage());
         }
         return swagger;
     }
@@ -3118,7 +3122,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
             out.close();
         } catch (IOException e) {
 
-            e.printStackTrace();
+            log.error("Exception occurred : {}",e.getMessage());
         }
     }
 
@@ -3359,6 +3363,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
      */
     public void associateProduct(String swaggerName, Set<String> productSet, String oas) throws ItorixException {
         Query query = new Query(Criteria.where("swaggerName").is(swaggerName).and("oas").is(oas));
+        log.debug("associateProduct : {}",query);
         SwaggerMetadata metadata = mongoTemplate.findOne(query, SwaggerMetadata.class);
         if (metadata == null) {
             metadata = new SwaggerMetadata();
@@ -3386,6 +3391,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
     public SwaggerMetadata getSwaggerMetadata(String swaggerName, String oas) throws ItorixException {
         Query query = new Query(Criteria.where("swaggerName").is(swaggerName).and("oas").is(oas));
+        log.debug("getSwaggerMetadata : {}",query);
         SwaggerMetadata metadata = mongoTemplate.findOne(query, SwaggerMetadata.class);
         return metadata;
     }
@@ -3479,9 +3485,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         try {
             swaggerJson = mapper.readTree(vo.getSwagger());
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            log.error("Exception occurred : {}",e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred : {}",e.getMessage());
         }
         if (swaggerJson != null) {
             String basepath = getBasepath(swaggerJson);
@@ -3531,6 +3537,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
     public void saveSwagger2BasePath(Swagger2BasePath basePath) {
         Query query = new Query(Criteria.where("name").is(basePath.getName()));
+        log.debug("saveSwagger2BasePath : {}",query);
         Update update = new Update();
         update.set("basePath", basePath.getBasePath());
         mongoTemplate.upsert(query, update, Swagger2BasePath.class);
@@ -3538,6 +3545,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
     public void saveSwagger3BasePath(Swagger3BasePath basePath) {
         Query query = new Query(Criteria.where("name").is(basePath.getName()));
+        log.debug("saveSwagger3BasePath : {}",query);
         Update update = new Update();
         update.set("basePath", basePath.getBasePath());
         mongoTemplate.upsert(query, update, Swagger3BasePath.class);
@@ -3620,9 +3628,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
         try {
             jsonNode = mapper.readTree(mapper.writeValueAsString(mappings));
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            log.error("Exception occurred : {}",e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Exception occurred : {}",e.getMessage());
         }
         return jsonNode;
     }
@@ -3758,6 +3766,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
             throws ItorixException, JsonProcessingException {
         log("searchSwagger", interactionid, "");
         BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
+        log.debug("swaggerSearch : {}",query);
         query.limit(limit > 0 ? limit : 10);
         List<String> allSwaggers = getList(mongoTemplate.getCollection("Design.Swagger.List").distinct("name",
                 query.getQueryObject(), String.class));
@@ -3787,6 +3796,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
             throws ItorixException, JsonProcessingException {
         log("searchSwagger", interactionid, "");
         BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
+        log.debug("swagger3Search : {}",query);
         query.limit(limit > 0 ? limit : 10);
         List<String> allSwaggers = getList(mongoTemplate.getCollection("Design.Swagger3.List").distinct("name",
                 query.getQueryObject(), String.class));
@@ -4069,11 +4079,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
     public void deletePartner(String partnerId) {
         Query query = new Query(Criteria.where("id").is(partnerId));
+        log.debug("deletePartner : {}",query);
         mongoTemplate.remove(query, SwaggerPartner.class);
     }
 
     public SwaggerPartner getPartnerbyName(SwaggerPartner partner) {
         Query query = new Query(Criteria.where("partnerName").is(partner.getPartnerName()));
+        log.debug("getPartnerbyName : {}",query);
         SwaggerPartner swaggerPartner = mongoTemplate.findOne(query, SwaggerPartner.class);
         return swaggerPartner;
     }
@@ -4094,7 +4106,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
                         swaggerVo.setPartners(partners);
                         mongoTemplate.save(swaggerVo);
                     } catch (ItorixException e) {
-                        e.printStackTrace();
+                        log.error("Exception occurred : {}",e.getMessage());
                     }
                 }
             }
@@ -4109,7 +4121,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
                         swaggerVo.setPartners(partners);
                         mongoTemplate.save(swaggerVo);
                     } catch (ItorixException e) {
-                        e.printStackTrace();
+                        log.error("Exception occurred : {}",e.getMessage());
                     }
                 }
             }
@@ -4128,7 +4140,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
                         return getswaggerPartners(swaggerVo.getPartners());
                     }
                 } catch (ItorixException e) {
-                    e.printStackTrace();
+                    log.error("Exception occurred : {}",e.getMessage());
                 }
             }
         } else {
@@ -4142,7 +4154,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
                         return getswaggerPartners(swaggerVo.getPartners());
                     }
                 } catch (ItorixException e) {
-                    e.printStackTrace();
+                    log.error("Exception occurred : {}",e.getMessage());
                 }
             }
         }
@@ -4253,7 +4265,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
     @Override
     public DeleteResult deleteSwagger2BasePath(SwaggerVO vo) {
-        log.debug("delete Swagger2BasePath :{} ",vo.getName());
+        log.debug("delete Swagger2BasePath :{} ", vo.getName());
         Criteria criteriaWithSwaggerId = Criteria.where("swaggerId").is(vo.getSwaggerId());
         Criteria criteriaWithSwaggerName = Criteria.where("name").is(vo.getName());
         Query query = new Query(new Criteria().orOperator(criteriaWithSwaggerId, criteriaWithSwaggerName));
@@ -4262,7 +4274,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
     @Override
     public DeleteResult deleteSwagger3BasePath(Swagger3VO vo) {
-        log.debug("delete Swagger2BasePath :{} ",vo.getName());
+        log.debug("delete Swagger2BasePath :{} ", vo.getName());
         Criteria criteriaWithSwaggerId = Criteria.where("swaggerId").is(vo.getSwaggerId());
         Criteria criteriaWithSwaggerName = Criteria.where("name").is(vo.getName());
         Query query = new Query(new Criteria().orOperator(criteriaWithSwaggerId, criteriaWithSwaggerName));
@@ -4272,16 +4284,19 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
     @Override
     public Long findSwaggersCount(String swaggerId) {
         Query query = new Query(Criteria.where("swaggerId").is(swaggerId));
+        log.debug("findSwaggersCount : {}",query);
         return mongoTemplate.count(query, SwaggerVO.class);
     }
 
     @Override
     public Long findSwaggers3VOCount(String swaggerId) {
         Query query = new Query(Criteria.where("swaggerId").is(swaggerId));
+        log.debug("findSwaggers3VOCount : {}",query);
         return mongoTemplate.count(query, Swagger3VO.class);
     }
 
-    private DeleteResult removeBasePath(Query query, Class clazz){
+    private DeleteResult removeBasePath(Query query, Class clazz) {
+        log.debug("removeBasePath : {}",query);
         return mongoTemplate.remove(query, clazz);
     }
 

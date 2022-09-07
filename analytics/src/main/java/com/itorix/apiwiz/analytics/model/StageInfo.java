@@ -8,8 +8,8 @@ import lombok.Setter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class StageInfo {
-    private String stageResult;
-    private String duration;
-    private String name;
-    private Long scheduled_date;
+	private String stageResult;
+	private String duration;
+	private String name;
+	private Long scheduled_date;
 }

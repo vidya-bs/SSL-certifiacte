@@ -46,7 +46,7 @@ public class GenericControllerExceptionHandler {
         loggerService.logServiceResponseForError("GenericControllerExceptionHandler", "handleThrowableException",
                 System.currentTimeMillis(), HttpStatus.INTERNAL_SERVER_ERROR, "General-1000",
                 ErrorCodes.errorMessage.get("General-1000"), response, request);
-        // ex.printStackTrace();
+        // log.error("Exception occurred")();
         ErrorObj error = new ErrorObj();
         error.setErrorMessage(ErrorCodes.errorMessage.get("General-1000"), "General-1000");
         ResponseEntity<ErrorObj> responseEntity = new ResponseEntity<ErrorObj>(error, HttpStatus.INTERNAL_SERVER_ERROR);

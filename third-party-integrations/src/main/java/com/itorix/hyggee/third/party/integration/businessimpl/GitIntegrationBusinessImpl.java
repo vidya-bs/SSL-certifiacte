@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -29,7 +31,7 @@ import com.itorix.hyggee.third.party.integration.model.GitHubUserResponse;
 
 @Component
 public class GitIntegrationBusinessImpl implements GitIntegrationBusiness {
-
+	private static final Logger logger = LoggerFactory.getLogger(GitIntegrationBusinessImpl.class);
 	@Autowired
 	private ApplicationProperties applicationProperties;
 
@@ -64,10 +66,10 @@ public class GitIntegrationBusinessImpl implements GitIntegrationBusiness {
 			gitHubUserResponse.setAvatar_url(rootNode.get("avatar_url").asText());
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return gitHubUserResponse;
 	}
@@ -114,10 +116,10 @@ public class GitIntegrationBusinessImpl implements GitIntegrationBusiness {
 			}
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 
 		return listGitHubUserReposResponse;

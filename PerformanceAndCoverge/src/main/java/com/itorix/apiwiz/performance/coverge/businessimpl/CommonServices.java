@@ -175,7 +175,7 @@ public class CommonServices {
 			postManBackUpInfo = baseRepository.save(postManBackUpInfo);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception while saving postman file", e);
 		}
 
 		return null;
@@ -187,13 +187,15 @@ public class CommonServices {
 	 * were found in the session
 	 */
 
-	public JSONArray getTransactionIds(CommonConfiguration cfg, String sessionID) throws ItorixException, InterruptedException {
+	public JSONArray getTransactionIds(CommonConfiguration cfg, String sessionID)
+			throws ItorixException, InterruptedException {
 		String result = apigeeUtil.getListOfTransactionIds(cfg, sessionID);
 		JSONArray txIds = (JSONArray) JSONSerializer.toJSON(result);
 		return txIds;
 	}
 
-	public String getTransactionId(CommonConfiguration cfg, String sessionID) throws ItorixException, InterruptedException {
+	public String getTransactionId(CommonConfiguration cfg, String sessionID)
+			throws ItorixException, InterruptedException {
 		String result = apigeeUtil.getListOfTransactionIds(cfg, sessionID);
 
 		return result;
@@ -405,7 +407,7 @@ public class CommonServices {
 		try {
 			path = Paths.get(".").toAbsolutePath().normalize().toString();
 			byte[] bundle = apigeeUtil.getApigeexAPIProxyRevision(cfg);
-			System.out.println(File.separator);
+			logger.info(File.separator);
 
 			FileUtils.writeByteArrayToFile(new File(path + File.separator + cfg.getApiName() + ".zip"), bundle);
 			ZIPUtil zipUtil = new ZIPUtil();
@@ -426,19 +428,19 @@ public class CommonServices {
 
 		} catch (RestClientException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("RestClientException occurred", e);
 		} catch (ItorixException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("ItorixException occurred", e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("IOException occurred", e);
 		} catch (ArchiveException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("ArchiveException occurred", e);
 		} catch (JAXBException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("JAXBException occurred", e);
 		}
 		return null;
 	}
@@ -467,19 +469,19 @@ public class CommonServices {
 
 		} catch (RestClientException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("RestClientException occurred", e);
 		} catch (ItorixException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("RestClientException occurred", e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("RestClientException occurred", e);
 		} catch (ArchiveException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("RestClientException occurred", e);
 		} catch (JAXBException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("RestClientException occurred", e);
 		}
 		return null;
 	}
@@ -512,10 +514,10 @@ public class CommonServices {
 
 			} catch (JAXBException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("JAXBException occurred", e);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Exception occurred", e);
 			}
 		}
 
@@ -547,10 +549,10 @@ public class CommonServices {
 
 			} catch (JAXBException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Exception occurred", e);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Exception occurred", e);
 			}
 		}
 
@@ -604,9 +606,11 @@ public class CommonServices {
 
 			switch (FilenameUtils.getExtension(tempFileName.getAbsolutePath())) {
 				case "postman_environment" :
+					logger.debug("Getting absolute path of envFileName");
 					envFileName = tempFileName.getAbsolutePath();
 					break;
 				case "json" :
+					logger.debug("Getting absolute path of postManFileName");
 					postManFileName = tempFileName.getAbsolutePath();
 					break;
 			}
@@ -632,7 +636,7 @@ public class CommonServices {
 					backupLocation + "/" + cfg.getEnvFile().getOriginalFilename());
 			return "Success";
 		} catch (IOException e) {
-			logger.error(e.getMessage());
+			logger.error("Exception occurred",e);
 			throw e;
 		}
 	}
@@ -663,7 +667,7 @@ public class CommonServices {
 						backupLocation + "/" + cfg.getEnvFile().getOriginalFilename(), cfg);
 			}
 		} catch (IOException e) {
-			logger.error(e.getMessage());
+			logger.error("Exception occurred",e);
 			throw e;
 		}
 	}
@@ -678,7 +682,7 @@ public class CommonServices {
 				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 				String stringTestSuite = mapper.writeValueAsString(testsuitDAO.getTestSuite(testsuiteId));
 				String stringvariables = mapper.writeValueAsString(testsuitDAO.getVariablesById(variableId));
-				System.out.println("testSuite : " + stringTestSuite);
+				logger.info("testSuite : " + stringTestSuite);
 				TestSuite testSuite = mapper.readValue(stringTestSuite, TestSuite.class);
 				Variables variables = mapper.readValue(stringvariables, Variables.class);
 				return executeTestsuiteForCodecoverage(testSuite, variables, cfg, false);
@@ -695,7 +699,7 @@ public class CommonServices {
 						backupLocation + "/" + cfg.getEnvFile().getOriginalFilename(), cfg);
 			}
 		} catch (IOException e) {
-			logger.error(e.getMessage());
+			logger.error("Exception occurred",e);
 			throw e;
 		}
 	}
@@ -721,9 +725,9 @@ public class CommonServices {
 								testCase.getRequest().addHeader(new Header("itorix", "", sessionID));
 								try {
 									TestExecutor.invokeTestCase(testCase, globalVars, testStatus, true, false);
-									
+
 								} catch (Exception ex) {
-									ex.printStackTrace();
+									logger.error("Exception occurred", ex);
 								}
 								JSONArray txId = getTransactionIds(cfg, sessionID);
 
@@ -740,7 +744,7 @@ public class CommonServices {
 									traceList.add(getXMLTransactionData(cfg, sessionID, txId));
 								else
 									traceList.addAll(getTransactionData(cfg, sessionID, txId));
-								apigeeUtil.deleteSession(cfg,sessionID);
+								apigeeUtil.deleteSession(cfg, sessionID);
 							} else {
 								counter++;
 								if (counter > testCases.size()) {
@@ -749,7 +753,7 @@ public class CommonServices {
 								continue;
 							}
 						} catch (Exception ex) {
-							ex.printStackTrace();
+							logger.error("Exception occurred", ex);
 						}
 					}
 				}
@@ -778,7 +782,7 @@ public class CommonServices {
 				return postmanCollectionRunner.executePostManCollectionTraceAsObject(postManFileName, envFileName, cfg);
 			}
 		} catch (IOException e) {
-			logger.error(e.getMessage());
+			logger.error("Exception occurred",e);
 			throw e;
 		}
 	}
@@ -798,7 +802,7 @@ public class CommonServices {
 					backupLocation + "/" + cfg.getEnvFile().getOriginalFilename());
 			return "Success";
 		} catch (IOException e) {
-			logger.error(e.getMessage());
+			logger.error("Exception occurred",e);
 			throw e;
 		}
 	}
@@ -819,7 +823,7 @@ public class CommonServices {
 					new File(postmanFileBackUpLocation + "/" + fileName));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 
 		return postmanFileBackUpLocation + "/" + fileName;
@@ -839,7 +843,7 @@ public class CommonServices {
 			out.flush();
 			out.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Exception while performing OutputStream file operations", e);
 		}
 	}
 
@@ -850,7 +854,7 @@ public class CommonServices {
 				FileUtils.copyFile(f, new File(dest + "/" + f.getName()));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Exception occurred", e);
 			}
 		}
 	}

@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 
@@ -31,7 +32,7 @@ import com.itorix.apiwiz.common.model.postman.Result;
 import com.itorix.apiwiz.common.model.postman.Trace;
 
 import net.sf.json.JSONArray;
-
+@Slf4j
 public class Apigeex {
 	public Map<String, Object> getTransactionData1(Trace tracesList, HashMap<String, HashMap<String, Long>> typeMap1)
 			throws JsonParseException, JsonMappingException, IOException, ItorixException, ParseException,
@@ -48,6 +49,7 @@ public class Apigeex {
 					Result r = resultList1.get(j);
 					Properties propertiesList = r.getProperties();
 					if (propertiesList != null) {
+						log.debug("Fetching transaction data");
 						List<Property> propertyList = propertiesList.getProperty();
 						for (int k = 0; k < propertyList.size(); k++) {
 							Property p1 = propertyList.get(k);
@@ -138,13 +140,13 @@ public class Apigeex {
 			}
 		}
 
-		System.out.println();
+		// log.info();
 		for (Object key : typeMap.keySet()) {
 			averageTime.add(typeMap.get(key));
 		}
 		Map<String, Object> policyTimes = new HashMap<String, Object>();
 		policyTimes.put("step", averageTime);
-		System.out.println(policyTimes);
+		log.info(String.valueOf(policyTimes));
 		return policyTimes;
 	}
 
@@ -163,6 +165,7 @@ public class Apigeex {
 					Result r = resultList1.get(j);
 					Properties propertiesList = r.getProperties();
 					if (propertiesList != null) {
+						log.debug("Fetching transaction data");
 						List<Property> propertyList = propertiesList.getProperty();
 						for (int k = 0; k < propertyList.size(); k++) {
 							Property p1 = propertyList.get(k);
@@ -270,7 +273,7 @@ public class Apigeex {
 		}
 		Map<String, Object> policyTimes2 = new HashMap<String, Object>();
 		policyTimes2.put("policy", averageTime2);
-		System.out.println(policyTimes2);
+		log.info(String.valueOf(policyTimes2));
 		return policyTimes2;
 	}
 }

@@ -8,11 +8,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @JsonPropertyOrder({"userName", "password", "organizations"})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Apigee {
-
+	private static final Logger logger = LoggerFactory.getLogger(Apigee.class);
 	private String userName;
 	private String password;
 	private Set<DashBoardOrganisations> organizations;
@@ -32,7 +34,7 @@ public class Apigee {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.password);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return decryptedPassword;
 	}

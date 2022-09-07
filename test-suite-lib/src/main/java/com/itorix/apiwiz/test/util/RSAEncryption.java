@@ -20,8 +20,9 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
-
+@Slf4j
 public class RSAEncryption {
 
     private PrivateKey privateKey;
@@ -33,7 +34,7 @@ public class RSAEncryption {
         try {
             this.loadKeys();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred",e);
         }
     }
 
@@ -118,12 +119,12 @@ public class RSAEncryption {
 
     public static void main(String[] args) throws Exception {
         RSAEncryption ac = new RSAEncryption();
-        System.out.println(ac.decryptText(
+        log.info(ac.decryptText(
                 "xyYxXRQ0r2+Tf17kNJppW/VqcWiyQKI+OrrYcGSi2GWCvFhxLZ1rnyRFkTbj5n+022dWcY2sIlUtydFKFC+LAA=="));
         String msg = "Itorix@8102";
         String encrypted_msg = ac.encryptText(msg);
         String decrypted_msg = ac.decryptText(encrypted_msg);
-        System.out.println("Original Message: " + msg + "\nEncrypted Message: " + encrypted_msg
+        log.info("Original Message: " + msg + "\nEncrypted Message: " + encrypted_msg
                 + "\nDecrypted Message: " + decrypted_msg);
     }
 

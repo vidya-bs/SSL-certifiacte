@@ -21,11 +21,11 @@ public class LicenseRepository {
 		String id = license.getId();
 		long timestamp = System.currentTimeMillis();
 		license.setMts(timestamp);
-		license.setModifiedUserName(license.getUserName());
-		if (id == null || id == "") {
-			license.setCts(timestamp);
-			license.setCreatedUserName(license.getUserName());
-		}
+//		license.setModifiedUserName(license.getUserName());
+//		if (id == null || id == "") {
+//			license.setCts(timestamp);
+//			license.setCreatedUserName(license.getUserName());
+//		}
 		return  mongoTemplate.save(license);
 	}
 

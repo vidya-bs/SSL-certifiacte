@@ -115,7 +115,7 @@ public class XPathGen {
 			bw.write(String.valueOf(buffer));
 			bw.close();
 		} else {
-			System.out.println("No Element with name:" + elementname);
+			logger.info("No Element with name:" + elementname);
 		}
 	}
 
@@ -186,7 +186,7 @@ public class XPathGen {
 			bw.write(String.valueOf(buffer));
 			bw.close();
 		} else {
-			System.out.println("No Element with name:" + elementname);
+			logger.info("No Element with name:" + elementname);
 		}
 	}
 
@@ -206,7 +206,7 @@ public class XPathGen {
 		while (itr.hasNext()) {
 			Object o = itr.next();
 			if (o instanceof QName) {
-				System.out.println(((QName) o).getLocalPart());
+				logger.info(((QName) o).getLocalPart());
 			}
 		}
 	}
@@ -227,7 +227,7 @@ public class XPathGen {
 		while (itr.hasNext()) {
 			Object o = itr.next();
 			if (o instanceof QName) {
-				System.out.println(((QName) o).getLocalPart());
+				logger.info(((QName) o).getLocalPart());
 			}
 		}
 	}
@@ -287,7 +287,7 @@ public class XPathGen {
 		} else {
 			QName refName = elm.getRefName();
 			if (refName == null) {
-				// System.out.println("Review XSD Error with Elemnt: " +
+				// logger.info("Review XSD Error with Elemnt: " +
 				// elementname + "/" +
 				// elm.getName());
 			} else {
@@ -446,7 +446,7 @@ public class XPathGen {
 		XmlSchemaContentModel cc = complexType.getContentModel();
 		if (cc != null) {
 			if (cc instanceof XmlSchemaComplexContent) {
-				// System.out.println(",Object");
+				// logger.info(",Object");
 				XmlSchemaContent ext = ((XmlSchemaComplexContent) cc).getContent();
 				if (ext instanceof XmlSchemaComplexContentExtension) {
 					XPathForXmlSchemaComplexContentExtension((XmlSchemaComplexContentExtension) ext, elementname,
@@ -463,7 +463,7 @@ public class XPathGen {
 
 		QName refName = groupRef.getRefName();
 		if (refName == null) {
-			// System.out.println("Review XSD Error with Elemnt: " + elementname
+			// logger.info("Review XSD Error with Elemnt: " + elementname
 			// + "/" + elm.getName());
 		} else {
 			// XmlSchemaVo xmlSchemaVo = new XmlSchemaVo();
@@ -648,10 +648,10 @@ public class XPathGen {
 				}
 			} else {
 				if ((attrs != null) && (bNotARef)) {
-					System.out.println("|Complex");
-					System.out.print(elementname + "/#text|1|1|String");
+					logger.info("|Complex");
+					logger.info(elementname + "/#text|1|1|String");
 				} else {
-					System.out.println("|String");
+					logger.info("|String");
 				}
 			}
 			if (attrs != null) {
@@ -674,7 +674,7 @@ public class XPathGen {
 				}
 			}
 		} else {
-			System.out.println("|String");
+			logger.info("|String");
 		}
 	}
 

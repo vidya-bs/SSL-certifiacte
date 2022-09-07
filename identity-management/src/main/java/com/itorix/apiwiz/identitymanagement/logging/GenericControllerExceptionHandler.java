@@ -26,6 +26,7 @@ import org.springframework.web.context.request.WebRequest;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 /**
  * The {@link GenericControllerExceptionHandler} handles exceptions thrown in
@@ -114,6 +115,22 @@ public class GenericControllerExceptionHandler {
 				"General-1001", ErrorCodes.errorMessage.get("General-1001"), response, request);
 		ErrorObj error = new ErrorObj();
 		error.setErrorMessage(ex.getMessage(), "General-1001");
+		ResponseEntity<ErrorObj> responseEntity = new ResponseEntity<ErrorObj>(error, HttpStatus.BAD_REQUEST);
+		return responseEntity;
+	}
+
+
+	@ExceptionHandler(MaxUploadSizeExceededException.class)
+	@ResponseBody
+	public ResponseEntity<ErrorObj> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex,final HttpServletResponse response,final HttpServletRequest request) throws ItorixException {
+
+		logger.error("inside handleBindException : {} ", ex);
+
+		loggerService.logException("GenericControllerExceptionHandler", "handleMaxUploadSizeExceededException",
+				System.currentTimeMillis(), HttpStatus.valueOf(ErrorCodes.responseCode.get("Swagger-1010")),
+				"Swagger-1010", ErrorCodes.errorMessage.get("Swagger-1010"), response, request);
+		ErrorObj error = new ErrorObj();
+		error.setErrorMessage(ErrorCodes.errorMessage.get("Swagger-1010"), "Swagger-1010");
 		ResponseEntity<ErrorObj> responseEntity = new ResponseEntity<ErrorObj>(error, HttpStatus.BAD_REQUEST);
 		return responseEntity;
 	}

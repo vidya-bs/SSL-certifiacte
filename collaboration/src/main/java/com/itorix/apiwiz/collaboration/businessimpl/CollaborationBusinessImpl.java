@@ -73,6 +73,7 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 	public void createTeam(SwaggerTeam swaggerTeam) throws ItorixException {
 		log("createTeam", swaggerTeam.getInteractionid(), swaggerTeam);
 		if (swaggerTeam != null) {
+			logger.debug("Saving swaggerTeam details");
 			Set<String> swaggerSet = swaggerTeam.getSwaggers();
 			if (swaggerSet != null)
 				for (String swaggerName : swaggerSet) {
@@ -241,6 +242,7 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 						"Teams-1001");
 			}
 		if (isAdmin || isTeamAdmin) {
+			logger.debug("Saving metadata to mongotemplate");
 			if (team.getSwaggers() != null)
 				for (String s : team.getSwaggers()) {
 					Query query = new Query(Criteria.where("swaggerName").is(s).and("oas").is("2.0"));
@@ -281,6 +283,7 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 		for (String teamName : teamSet) {
 			SwaggerTeam team = baseRepository.findOne("name", teamName, SwaggerTeam.class);
 			if (team != null) {
+				logger.debug("Saving team details");
 				SwaggerVO vo = baseRepository.findOne("name", swaggerName, SwaggerVO.class);
 				if (vo != null) {
 					Set<String> teams = vo.getTeams();

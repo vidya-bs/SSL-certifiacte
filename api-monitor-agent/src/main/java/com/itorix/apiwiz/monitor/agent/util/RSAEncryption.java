@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.monitor.agent.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,7 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-
+@Slf4j
 @Component
 public class RSAEncryption {
 
@@ -29,7 +30,7 @@ public class RSAEncryption {
         try {
             this.loadKeys();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred",e);
         }
     }
 
@@ -114,11 +115,11 @@ public class RSAEncryption {
 
     public static void main(String[] args) throws Exception {
         RSAEncryption ac = new RSAEncryption();
-        System.out.println(ac.decryptText("hdo8bcDRiQoFHogZsHn27Q2rel5rtkrLdYr3HLmm0WmCnA5ijVV8SQgl294qcGaGZ8MN2kqAHvqDz5EtwTHEhw=="));
+        log.info(ac.decryptText("hdo8bcDRiQoFHogZsHn27Q2rel5rtkrLdYr3HLmm0WmCnA5ijVV8SQgl294qcGaGZ8MN2kqAHvqDz5EtwTHEhw=="));
         String msg = "Itorix@8102";
         String encrypted_msg = ac.encryptText(msg);
         String decrypted_msg = ac.decryptText(encrypted_msg);
-        System.out.println("Original Message: " + msg + "\nEncrypted Message: " + encrypted_msg
+        log.info("Original Message: " + msg + "\nEncrypted Message: " + encrypted_msg
                 + "\nDecrypted Message: " + decrypted_msg);
 
 

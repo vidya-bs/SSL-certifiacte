@@ -13,19 +13,19 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SwaggerSubscriptionReq {
-	
+
 	@JsonProperty("oas")
 	String oas;
-	
+
 	@JsonProperty("swaggerId")
 	String swaggerId;
-	
+
 	@JsonProperty("swaggerName")
 	String swaggerName;
-	
+
 	@JsonProperty("name")
 	String name;
-	
+
 	@JsonProperty("emailId")
 	String emailId;
 

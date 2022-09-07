@@ -82,10 +82,10 @@ public class PackageDao {
 
 	@Autowired
 	private BaseRepository baseRepository;
-	
+
 	@Value("${itorix.core.apigee.cicd.package.notification.email.body}")
 	private String EMAIL_BODY;
-	
+
 	@Value("${itorix.core.apigee.cicd.package.notification.subject}")
 	private String EMAIL_SUBJECT;
 
@@ -135,8 +135,8 @@ public class PackageDao {
 		if (packageRequest.getMetadata().getModifiedUserEmail() != null
 				&& packageRequest.getMetadata().getModifiedUserEmail() != "")
 			toMailId.add(packageRequest.getMetadata().getModifiedUserEmail());
-		body = MessageFormat.format(EMAIL_BODY, packageRequest.getPackageName(), 
-				formatedDate, packageRequest.getState(), packageRequest.getMetadata().getCreatedBy());
+		body = MessageFormat.format(EMAIL_BODY, packageRequest.getPackageName(), formatedDate,
+				packageRequest.getState(), packageRequest.getMetadata().getCreatedBy());
 		emailTemplate.setToMailId(toMailId);
 		emailTemplate.setBody(body);
 		emailTemplate.setSubject(EMAIL_SUBJECT);
@@ -475,7 +475,7 @@ public class PackageDao {
 					packageProxy.setDevapps(devapps);
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error("Exception occurred", e);
 			}
 			ProxyArtifacts proxyArtifacts = proxyData.getProxyArtifacts();
 			if (proxyArtifacts != null) {
@@ -511,10 +511,10 @@ public class PackageDao {
 			return buildNumbers;
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return null;
 	}

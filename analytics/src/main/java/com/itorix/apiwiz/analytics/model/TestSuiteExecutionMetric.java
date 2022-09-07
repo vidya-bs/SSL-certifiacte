@@ -8,9 +8,9 @@ import lombok.Setter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TestSuiteExecutionMetric {
-    private String testSuiteName;
-    private Integer failedExecutionCount;
-    private Integer successFullExecutionCount;
-    private Integer totalExecutionCount;
-    private Integer averageExecutionTime;
+	private String testSuiteName;
+	private Integer failedExecutionCount;
+	private Integer successFullExecutionCount;
+	private Integer totalExecutionCount;
+	private Integer averageExecutionTime;
 }

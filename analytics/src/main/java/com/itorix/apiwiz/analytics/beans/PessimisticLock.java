@@ -5,36 +5,34 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
-
 @Document("PessimisticLock")
 public class PessimisticLock {
-    @Id
-    private String id;
-    private Date ts;
-    private String keeperId;
+	@Id
+	private String id;
+	private Date ts;
+	private String keeperId;
 
-    public String getId() {
-        return id;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
+	public Date getTs() {
+		return ts;
+	}
 
-    public Date getTs() {
-        return ts;
-    }
+	public void setTs(Date ts) {
+		this.ts = ts;
+	}
 
-    public void setTs(Date ts) {
-        this.ts = ts;
-    }
+	public String getKeeperId() {
+		return keeperId;
+	}
 
-    public String getKeeperId() {
-        return keeperId;
-    }
-
-    public void setKeeperId(String keeperId) {
-        this.keeperId = keeperId;
-    }
+	public void setKeeperId(String keeperId) {
+		this.keeperId = keeperId;
+	}
 }

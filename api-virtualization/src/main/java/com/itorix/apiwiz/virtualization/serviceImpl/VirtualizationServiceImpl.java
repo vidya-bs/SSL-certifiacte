@@ -100,6 +100,7 @@ public class VirtualizationServiceImpl implements VirtualizationService {
 			@PathVariable(value = "groupId", required = true) String groupId) {
 		logger.debug("inside deleteGroup method ");
 		if (groupId != null && !groupId.equals("")) {
+			logger.debug("Returning new response entity");
 			GroupVO group = new GroupVO();
 			group.setId(groupId);
 			if (groupService.deleteGroup(group)) {
@@ -177,6 +178,7 @@ public class VirtualizationServiceImpl implements VirtualizationService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid) throws Exception {
 		logger.debug("inside create scenario method ");
 		if (groupService.isValidGroup(expectationRequest.getGroupId())) {
+			logger.debug("Returning response");
 			String id = scenarioService.createScenario(expectationRequest, jsessionId);
 			ResponseEntity<Object> response = new org.springframework.http.ResponseEntity<Object>(
 					"{\"id\": \"" + id + "\"}", HttpStatus.CREATED);
