@@ -71,11 +71,13 @@ public class ApiRatingsDao {
         return  mongoTemplate.find(query, ApiRatings.class);
     }
     public List<ApiRatings> getRatings(String swaggerId, String oas, int revision, String email) {
-        List<ApiRatings> totalRatings  = ratingsList(swaggerId,oas,revision);
-        for(int i=0;i<totalRatings.size();i++){
-            if(totalRatings.get(i).getEmail().equals(email)){
-                Collections.swap(totalRatings,0,i);
-                break;
+        List<ApiRatings> totalRatings = ratingsList(swaggerId, oas, revision);
+        for (int i = 0; i < totalRatings.size(); i++) {
+            if(email != null) {
+                if (email.equals(totalRatings.get(i).getEmail())) {
+                    Collections.swap(totalRatings, 0, i);
+                    break;
+                }
             }
         }
         return totalRatings;
@@ -100,9 +102,18 @@ public class ApiRatingsDao {
          HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    public ResponseEntity<?> deleteRating(String swaggerId, int revision, String oas, String email) {
-        Query query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oasVersion").is(oas).and("revision").is(revision).and("email").is(email));
-        mongoTemplate.remove(query,ApiRatings.class);
+    public ResponseEntity<?> deleteRatingadmin(String swaggerId, int revision, String oas, String ratingId) {
+        Query query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oasVersion").is(oas).and("revision")
+                .is(revision).and("id").is(ratingId));
+        mongoTemplate.remove(query, ApiRatings.class);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    public ResponseEntity<?> deleteRating(String swaggerId, int revision, String oas, String email, String ratingId) {
+        Query query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oasVersion").is(oas).and("revision")
+                .is(revision).and("email").is(email).and("id").is(ratingId));
+        mongoTemplate.remove(query, ApiRatings.class);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
+
