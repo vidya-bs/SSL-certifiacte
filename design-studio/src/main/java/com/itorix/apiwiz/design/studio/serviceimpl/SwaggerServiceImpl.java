@@ -2792,19 +2792,19 @@ public class SwaggerServiceImpl implements SwaggerService {
 
     @Override
     public ResponseEntity<?> deleteRatingAdmin(@RequestHeader(value = "JSESSIONID") String jsessionid,
-                                               @RequestHeader(value = "ratingid") String ratingid,
+                                               @RequestHeader(value = "ratingId") String ratingId,
                                                @RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas, String swaggerId,
                                                int revision) {
-        return new ResponseEntity<>(apiRatingsDao.deleteRatingadmin(swaggerId, revision, oas, ratingid),
+        return new ResponseEntity<>(apiRatingsDao.deleteRatingadmin(swaggerId, revision, oas, ratingId),
                 HttpStatus.NO_CONTENT);
     }
 
     @Override
     public ResponseEntity<?> deleteRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
-                                          @RequestHeader(value = "email") String email, @RequestHeader(value = "ratingid") String ratingid,
+                                          @RequestHeader(value = "email") String email, @RequestHeader(value = "ratingId") String ratingId,
                                           @RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas, String swaggerId,
                                           int revision) {
-        return new ResponseEntity<>(apiRatingsDao.deleteRating(swaggerId, revision, oas, email, ratingid),
+        return new ResponseEntity<>(apiRatingsDao.deleteRating(swaggerId, revision, oas, email, ratingId),
                 HttpStatus.NO_CONTENT);
     }
 

@@ -1310,7 +1310,7 @@ public interface SwaggerService {
 			@ApiResponse(code = 404, message = "Error while deleting api", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggerId}/{revision}/admin/delete")
 	public ResponseEntity<?> deleteRatingAdmin(@RequestHeader(value = "JSESSIONID") String jsessionid,
-											   @RequestHeader(value = "ratingid") String ratingid,
+											   @RequestHeader(value = "ratingId") String ratingId,
 											   @RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 											   @PathVariable("swaggerId") String swaggerId, @PathVariable("revision") int revision) throws Exception;
 
@@ -1319,7 +1319,7 @@ public interface SwaggerService {
 			@ApiResponse(code = 404, message = "Error while deleting api", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggerId}/{revision}/delete")
 	public ResponseEntity<?> deleteRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
-										  @RequestHeader(value = "email") String email, @RequestHeader(value = "ratingid") String ratingid,
+										  @RequestHeader(value = "email") String email, @RequestHeader(value = "ratingId") String ratingId,
 										  @RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 										  @PathVariable("swaggerId") String swaggerId, @PathVariable("revision") int revision) throws Exception;
 	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('BASIC','PRO','TEAM','ENTERPRISE')")
