@@ -48,7 +48,9 @@ public class MailUtil {
 			}
 			helper.setFrom(emailHelper.getFromAddress());
 			helper.setText(emailTemplate.getBody(), true);
+			logger.info("Sending mail to with subject {} ", emailTemplate.getSubject());
 			javaMailSender.send(msg);
+			logger.info("Mail with subject {} sent successfully", emailTemplate.getSubject());
 		} catch (MessagingException e) {
 			logger.error(e.getMessage(), e);
 			throw e;
