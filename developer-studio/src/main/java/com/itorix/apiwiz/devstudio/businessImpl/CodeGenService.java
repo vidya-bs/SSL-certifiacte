@@ -1249,6 +1249,9 @@ public class CodeGenService {
 			target.setBuildTargetArtifact(operations.getFileName());
 			target.setBuildTargetArtifactType(operations.getType());
 			target.setOas(operations.getOas());
+			if (operations.getVersion() > 0)
+				target.setRevision(Integer.toString(operations.getVersion()));
+			target.setOas(operations.getOas());
 			return target;
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "ProxyGen-1000", ex);
