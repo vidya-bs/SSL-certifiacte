@@ -100,9 +100,18 @@ public class ApiRatingsDao {
          HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    public ResponseEntity<?> deleteRating(String swaggerId, int revision, String oas, String email) {
-        Query query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oasVersion").is(oas).and("revision").is(revision).and("email").is(email));
-        mongoTemplate.remove(query,ApiRatings.class);
+    public ResponseEntity<?> deleteRatingadmin(String swaggerId, int revision, String oas, String ratingid) {
+        Query query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oasVersion").is(oas).and("revision")
+                .is(revision).and("id").is(ratingid));
+        mongoTemplate.remove(query, ApiRatings.class);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    public ResponseEntity<?> deleteRating(String swaggerId, int revision, String oas, String email, String ratingid) {
+        Query query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oasVersion").is(oas).and("revision")
+                .is(revision).and("email").is(email).and("id").is(ratingid));
+        mongoTemplate.remove(query, ApiRatings.class);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
+
