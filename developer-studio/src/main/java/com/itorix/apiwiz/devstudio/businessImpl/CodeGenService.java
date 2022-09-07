@@ -1,5 +1,46 @@
 package com.itorix.apiwiz.devstudio.businessImpl;
-import lombok.extern.slf4j.Slf4j;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.mail.MessagingException;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
+import org.zeroturnaround.zip.ZipUtil;
+
+import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -7,7 +48,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.itorix.apiwiz.common.factory.IntegrationHelper;
 import com.itorix.apiwiz.common.model.SearchItem;
 import com.itorix.apiwiz.common.model.apigee.VirtualHost;
 import com.itorix.apiwiz.common.model.configmanagement.KVMEntry;
@@ -20,11 +60,24 @@ import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.model.projectmanagement.Organization;
 import com.itorix.apiwiz.common.model.projectmanagement.Project;
 import com.itorix.apiwiz.common.model.projectmanagement.ProxyConnection;
+import com.itorix.apiwiz.common.model.proxystudio.Category;
+import com.itorix.apiwiz.common.model.proxystudio.CodeGenHistory;
+import com.itorix.apiwiz.common.model.proxystudio.Env;
+import com.itorix.apiwiz.common.model.proxystudio.Folder;
+import com.itorix.apiwiz.common.model.proxystudio.OrgEnv;
+import com.itorix.apiwiz.common.model.proxystudio.OrgEnvs;
+import com.itorix.apiwiz.common.model.proxystudio.PromoteProxyRequest;
+import com.itorix.apiwiz.common.model.proxystudio.Proxy;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyArtifacts;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyData;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyEndpoint;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyPortfolio;
 import com.itorix.apiwiz.common.model.proxystudio.Scm;
-import com.itorix.apiwiz.common.model.proxystudio.*;
+import com.itorix.apiwiz.common.model.proxystudio.Swagger3VO;
+import com.itorix.apiwiz.common.model.proxystudio.SwaggerVO;
+import com.itorix.apiwiz.common.model.proxystudio.Target;
 import com.itorix.apiwiz.common.model.proxystudio.apigeeassociations.Deployments;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
-import com.itorix.apiwiz.common.util.StorageIntegration;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
@@ -36,7 +89,11 @@ import com.itorix.apiwiz.devstudio.business.LoadWADL;
 import com.itorix.apiwiz.devstudio.business.LoadWSDL;
 import com.itorix.apiwiz.devstudio.dao.IntegrationsDao;
 import com.itorix.apiwiz.devstudio.dao.MongoConnection;
-import com.itorix.apiwiz.devstudio.model.*;
+import com.itorix.apiwiz.devstudio.model.Artifact;
+import com.itorix.apiwiz.devstudio.model.Operations;
+import com.itorix.apiwiz.devstudio.model.PromoteSCM;
+import com.itorix.apiwiz.devstudio.model.ProxyGenResponse;
+import com.itorix.apiwiz.devstudio.model.ProxyHistoryResponse;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
@@ -54,27 +111,7 @@ import freemarker.template.TemplateException;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.BasicQuery;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.http.*;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
-import org.zeroturnaround.zip.ZipUtil;
 
-import java.io.*;
-import java.time.Instant;
-import java.util.*;
-
-@Slf4j
 @Component("codeGenService")
 public class CodeGenService {
 	@Value("${itorix.core.apigee.proxy.templates.base}")
@@ -120,8 +157,6 @@ public class CodeGenService {
 	private IdentityManagementDao identityManagementDao;
 	@Autowired
 	private ServiceRequestDao serviceRequestDao;
-	@Autowired
-	private IntegrationHelper integrationHelper;
 
 	public String uploadTemplates(MultipartFile file) {
 		String zipLocation = applicationProperties.getTempDir() + "unzip";
@@ -140,13 +175,12 @@ public class CodeGenService {
 			zipfile.delete();
 			return mongoConnection.getFolder();
 		} catch (Exception e) {
-			log.error("Exception occurred", e);
+			e.printStackTrace();
 		}
 		return null;
 	}
 
 	private Folder getFolder(String dirName) {
-		log.debug("Getting folder for {}", dirName);
 		File dir = new File(dirName);
 		Folder folder;
 		if (dir.isDirectory()) {
@@ -165,9 +199,9 @@ public class CodeGenService {
 				mongoConnection.insertFile(fileInputStream, dir.getName());
 				fileInputStream.close();
 			} catch (FileNotFoundException e) {
-				log.error("FileNotFoundException occurred", e);
+				e.printStackTrace();
 			} catch (IOException e) {
-				log.error("IOException occurred", e);
+				e.printStackTrace();
 			}
 		}
 		return folder;
@@ -244,10 +278,18 @@ public class CodeGenService {
 				}
 			}
 			try {
-				StorageIntegration storageIntegration = integrationHelper.getIntegration();
-				downloadURI = storageIntegration.uploadFile("proxy-generation/API/" + time + ".zip",
-						operations.getDir() + time + ".zip");
-
+				JfrogIntegration jfrogIntegration = getJfrogIntegration();
+				S3Integration s3Integration = getS3Integration();
+				if (null != s3Integration) {
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"proxy-generation/API/" + time + ".zip", operations.getDir() + time + ".zip");
+				} else if (null != jfrogIntegration) {
+					obj = ufile.uploadFiles(operations.getDir() + time + ".zip",
+							applicationProperties.getProxyGenerate(), jfrogIntegration.getHostURL() + "/artifactory/",
+							"proxy-generation/API", jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
+					downloadURI = (String) obj.get("downloadURI");
+				}
 				if (project != null)
 					data.setProjectName(project.getName());
 				if (null != codeGen.getPortfolio())
@@ -256,7 +298,7 @@ public class CodeGenService {
 					data.setProxyArtifacts(proxyArtifacts);
 
 			} catch (Exception e) {
-				log.error("Exception occurred", e);
+				e.printStackTrace();
 			}
 			codeGen.setDownloadURL(downloadURI);
 			codeGen.setUserCreated(operations.getUser().getFirstName() + " " + operations.getUser().getLastName());
@@ -291,7 +333,7 @@ public class CodeGenService {
 			response.setDownloadURI(downloadURI);
 			return response;
 		} catch (Exception ex) {
-			log.error("Exception occurred", ex);
+			ex.printStackTrace();
 			throw new ItorixException(ex.getMessage(), "ProxyGen-1000", ex);
 		}
 	}
@@ -380,9 +422,7 @@ public class CodeGenService {
 	}
 
 	private String getSwagger(String swaggerName, String revision, String oas) {
-		log.debug(" Getting Swagger from {}", swaggerName);
 		if ("2.0".equals(oas)) {
-			log.debug("Getting Swagger for oas {}", oas);
 			Query query = new Query();
 			query.addCriteria(Criteria.where("name").is(swaggerName));
 			query.addCriteria(Criteria.where("revision").is(Integer.parseInt(revision)));
@@ -397,7 +437,7 @@ public class CodeGenService {
 						return swaggerStr;
 					}
 				} catch (IOException e) {
-					log.error("Exception occurred", e);
+					e.printStackTrace();
 				}
 			}
 		}
@@ -430,7 +470,6 @@ public class CodeGenService {
 			String targeType = mapping.get("x-ibm-target-type");
 			String targetPath = mapping.get("x-ibm-target-path");
 			if (null != targetPath) {
-				log.debug("Creating APIC target for target type {}", targeType);
 				for (OrgEnv orgEnv : org) {
 					for (Env env : orgEnv.getEnvs()) {
 						String environment = getEnvironmet(mapping, orgEnv.getName(), env.getName(), orgEnv.getType());
@@ -448,7 +487,7 @@ public class CodeGenService {
 				}
 			}
 		} catch (Exception e) {
-			log.error("Exception occurred", e);
+
 		}
 	}
 
@@ -468,7 +507,7 @@ public class CodeGenService {
 				createKvmServiceConfig(orgEnv, name, endpointsStr);
 			}
 		} catch (Exception e) {
-			log.error("Exception occurred", e);
+
 		}
 	}
 
@@ -507,7 +546,6 @@ public class CodeGenService {
 			columnMapping.put(name, null);
 		for (String name : mapping.keySet()) {
 			if (name.contains("x-ibm-kvm-column-")) {
-				log.debug("Column mapping for {}", name);
 				String key = name.replaceAll("x-ibm-kvm-column-", "");
 				String value = mapping.get(name);
 				if (registryColumns.contains(key.trim())) {
@@ -550,7 +588,6 @@ public class CodeGenService {
 	}
 
 	private JsonNode parseNode(JsonNode node, String path) {
-		log.debug("Parsing node {}", node);
 		path = path.replace("x-ibm-policy/", "");
 		String[] paths = path.split("/");
 		try {
@@ -572,20 +609,18 @@ public class CodeGenService {
 			}
 			return jsonNode;
 		} catch (Exception e) {
-			log.error("Exception occurred", e);
+			e.printStackTrace();
 		}
 		return null;
 	}
 
 	private String getFieldName(String name) {
-		log.debug("Getting field name {}", name);
 		String[] tokens = name.split("=");
 		return tokens[1].replaceAll("'", "").replaceAll("#", ".");
 	}
 
 	private void createTargetServiceConfig(Organization organization, String name, String targrtURL)
 			throws ItorixException {
-		log.debug("Creating target service configuration for organization {}", organization);
 		try {
 			com.itorix.apiwiz.servicerequest.model.ServiceRequest config = new com.itorix.apiwiz.servicerequest.model.ServiceRequest();
 			config.setType("TargetServer");
@@ -607,7 +642,7 @@ public class CodeGenService {
 				}
 
 			} catch (Exception ex) {
-				log.error("Exception occurred", ex);
+
 			}
 			config.setOrg(organization.getName());
 			config.setHost(host);
@@ -631,13 +666,12 @@ public class CodeGenService {
 			serviceRequestDao.createServiceRequest(config);
 
 		} catch (Exception e) {
-			log.error("Exception occurred", e);
+			e.printStackTrace();
 		}
 	}
 
 	private void createKvmServiceConfig(Organization organization, String proxyName, String endpoints)
 			throws ItorixException {
-		log.debug("Creating kvm service config for organization {}", organization);
 		try {
 			com.itorix.apiwiz.servicerequest.model.ServiceRequest config = new com.itorix.apiwiz.servicerequest.model.ServiceRequest();
 			config.setType("KVM");
@@ -664,7 +698,7 @@ public class CodeGenService {
 			config.setActiveFlag(Boolean.TRUE);
 			serviceRequestDao.createServiceRequest(config);
 		} catch (Exception e) {
-			log.error("Exception occurred", e);
+			e.printStackTrace();
 		}
 	}
 
@@ -676,7 +710,7 @@ public class CodeGenService {
 				RSAEncryption rSAEncryption = new RSAEncryption();
 				decryptedPassword = rSAEncryption.decryptText(jfrogIntegration.getPassword());
 			} catch (Exception e) {
-				log.error("Exception occurred", e);
+				e.printStackTrace();
 			}
 			jfrogIntegration.setPassword(decryptedPassword);
 		} else {
@@ -698,7 +732,7 @@ public class CodeGenService {
 			try {
 				decryptedPassword = s3Integration.getDecryptedSecret();
 			} catch (Exception e) {
-				log.error("Exception occurred", e);
+				e.printStackTrace();
 			}
 		} else {
 			String key = applicationProperties.getS3key();
@@ -736,7 +770,6 @@ public class CodeGenService {
 	}
 
 	private void saveHistory(ProxyData data) {
-		log.debug("Saving history of data {}", data);
 		ProxyData proxyData = mongoConnection.getProxyHistory(data.getProxyName());
 		if (proxyData != null) {
 			try {
@@ -749,7 +782,7 @@ public class CodeGenService {
 				proxyData.setProxyArtifacts(data.getProxyArtifacts());
 				proxyData.setProjectName(data.getProjectName());
 			} catch (Exception e) {
-				log.error("Exception occurred", e);
+				e.printStackTrace();
 			}
 		} else {
 			proxyData = data;
@@ -757,7 +790,7 @@ public class CodeGenService {
 		try {
 			mongoConnection.saveProxyHistory(proxyData);
 		} catch (JsonProcessingException e) {
-			log.error("Exception occurred", e);
+			e.printStackTrace();
 		}
 	}
 
@@ -836,7 +869,7 @@ public class CodeGenService {
 									&& history.getProxy().getRevision().equals(revision))
 								listData.add(proxyData.getProxyName());
 			} catch (IOException e) {
-				log.error("Exception occurred", e);
+				e.printStackTrace();
 			}
 		}
 		return new ArrayList<String>(listData);
@@ -851,7 +884,6 @@ public class CodeGenService {
 	}
 
 	public ProxyArtifacts getProxyArtifacts(String proxy) throws ItorixException {
-		log.debug("Getting proxy artifacts from {}", proxy);
 		try {
 			ProxyData data = mongoConnection.getProxyHistory(proxy);
 			if (data != null) {
@@ -864,7 +896,6 @@ public class CodeGenService {
 	}
 
 	public List<ProxyConnection> getProxyConnections(String proxy) throws ItorixException {
-		log.debug("Fetching proxy connections from {}", proxy);
 		try {
 			ProxyData data = mongoConnection.getProxyHistory(proxy);
 			if (data != null) {
@@ -877,7 +908,6 @@ public class CodeGenService {
 	}
 
 	public String getProjectName(String proxy) throws ItorixException {
-		log.debug("Fetching project name from {}", proxy);
 		try {
 			ProxyData data = mongoConnection.getProxyHistory(proxy);
 			if (data != null) {
@@ -890,7 +920,6 @@ public class CodeGenService {
 	}
 
 	public ProxyData getProxyData(String proxy) throws ItorixException {
-		log.debug("Fetching proxy data  from {}", proxy);
 		try {
 			ProxyData data = mongoConnection.getProxyHistory(proxy);
 			if (data != null) {
@@ -903,9 +932,7 @@ public class CodeGenService {
 	}
 
 	public boolean saveAssociatedOrgs(String proxy, OrgEnvs orgenvs) throws ItorixException {
-		log.debug("Saving associated organisations from {}", proxy);
 		if (mongoConnection.updateAssociatedOrgs(proxy, orgenvs)) {
-			log.debug("Saving associated orgs for proxy {}", proxy);
 			try {
 				List<OrgEnv> orgEnvList = orgenvs.getOrgEnvs();
 				for (OrgEnv orgEnv : orgEnvList) {
@@ -927,7 +954,6 @@ public class CodeGenService {
 								}
 							}
 						} catch (Exception e) {
-							log.error("Exception occurred", e);
 						}
 						if (revision != null && revision != "") {
 							organization.setStatus("deployed");
@@ -939,18 +965,17 @@ public class CodeGenService {
 				orgenvs.setOrgEnvs(orgEnvList);
 				return mongoConnection.updateAssociatedOrgs(proxy, orgenvs);
 			} catch (Exception e) {
-				log.error("Exception occurred", e);
+				e.printStackTrace();
 			}
 		}
 		return false;
 	}
 
 	public void saveAssociatedOrgforProxy(String proxy, OrgEnv orgenv) {
-		log.debug("Saving associated organisations for {}", proxy);
 		try {
 			mongoConnection.saveProxyDetailsByOrgEnv(proxy, orgenv);
 		} catch (Exception e) {
-			log.error("Exception occurred", e);
+			e.printStackTrace();
 		}
 	}
 
@@ -1023,7 +1048,6 @@ public class CodeGenService {
 			RestTemplate restTemplate = new RestTemplate();
 			HttpEntity<PromoteProxyRequest> requestEntity = new HttpEntity<>(promoteProxyRequest, headers);
 			// ResponseEntity<String> response =
-			log.debug("Making a call to {}", hostUrl);
 			restTemplate.exchange(hostUrl, HttpMethod.POST, requestEntity, String.class);
 		} catch (Exception e) {
 			throw new ItorixException("error creating pipeline", "", e);
@@ -1101,7 +1125,6 @@ public class CodeGenService {
 	}
 
 	private String getVersion(String content) throws JsonMappingException, JsonProcessingException {
-		log.debug("Fetching version from {}", content);
 		if (content == null) {
 			return null;
 		}
@@ -1144,7 +1167,7 @@ public class CodeGenService {
 					LoadSwagger swagger = new LoadSwaggerImpl();
 					proxyString = swagger.loadProxySwaggerDetails(content, oas);
 				} catch (Exception e) {
-					log.error("Exception occurred", e);
+					e.printStackTrace();
 					throw e;
 				}
 			} else if (operations.getType().equalsIgnoreCase("WADL")) {
@@ -1226,9 +1249,6 @@ public class CodeGenService {
 			target.setBuildTargetArtifact(operations.getFileName());
 			target.setBuildTargetArtifactType(operations.getType());
 			target.setOas(operations.getOas());
-			if (operations.getVersion() > 0)
-				target.setRevision(Integer.toString(operations.getVersion()));
-			target.setOas(operations.getOas());
 			return target;
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "ProxyGen-1000", ex);
@@ -1269,8 +1289,7 @@ public class CodeGenService {
 	}
 
 	public List<String> getFolders(String path) throws JsonParseException, JsonMappingException, IOException {
-		log.debug(" Getting folders from {}", path);
-		log.info("path received : {}", path);
+		System.out.println("path received : " + path);
 		ObjectMapper mapper = new ObjectMapper();
 		String dbFolder = mongoConnection.getFolder();
 		Folder folder = mapper.readValue(dbFolder, Folder.class);
@@ -1291,7 +1310,6 @@ public class CodeGenService {
 	}
 
 	public boolean removeFile(String path, String file) throws JsonParseException, JsonMappingException, IOException {
-		log.debug("Remove file {}", file);
 		ObjectMapper mapper = new ObjectMapper();
 		String dbFolder = mongoConnection.getFolder();
 		Folder folder = mapper.readValue(dbFolder, Folder.class);
@@ -1313,11 +1331,9 @@ public class CodeGenService {
 	}
 
 	private String getDeploymentStatus(OrgEnvs orgEnvs) {
-		log.debug(" Getting deployment status for orgEnvs {}", orgEnvs);
 		List<String> status = new ArrayList<>();
 
 		if (orgEnvs != null) {
-			log.debug("Getting deployment status");
 			try {
 				for (OrgEnv orgEnv : orgEnvs.getOrgEnvs()) {
 					if (orgEnv.getEnvs() != null)
@@ -1327,7 +1343,7 @@ public class CodeGenService {
 						}
 				}
 			} catch (Exception ex) {
-				log.error("Exception occurred", ex);
+
 			}
 		}
 		if (status.contains("depricated")) {
@@ -1351,7 +1367,6 @@ public class CodeGenService {
 	}
 
 	public Object getCategories(String swaggerId, int revision, String oas) throws ItorixException {
-		log.debug("Fetching categories for {}", swaggerId);
 		try {
 			if (null != swaggerId && "2.0".equals(oas.trim())) {
 				Swagger swagger = getSwaggerbyId(swaggerId, revision, oas);
@@ -1368,9 +1383,7 @@ public class CodeGenService {
 	}
 
 	private Swagger getSwaggerbyId(String swaggerId, int revision, String oas) {
-		log.debug("Get Swagger by Id: {}", swaggerId);
 		if ("2.0".equals(oas)) {
-			log.debug("Getting Swagger by Id: {}", swaggerId);
 			Query query = new Query();
 			query.addCriteria(Criteria.where("swaggerId").is(swaggerId));
 			query.addCriteria(Criteria.where("revision").is(revision));
@@ -1385,7 +1398,7 @@ public class CodeGenService {
 						return swagger;
 					}
 				} catch (IOException e) {
-					log.error("Exception occurred", e);
+					e.printStackTrace();
 				}
 			}
 		}
@@ -1393,7 +1406,6 @@ public class CodeGenService {
 	}
 
 	public Object getCategories(String name) throws ItorixException {
-		log.debug("Getting categories for {}", name);
 		try {
 			if ((name != null) && (!name.equals(""))) {
 				Query query = new Query(Criteria.where("name").is(name));
@@ -1446,12 +1458,11 @@ public class CodeGenService {
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			log.error("Exception occurred", e);
+			e.printStackTrace();
 		}
 	}
 
 	public List<ProxyConnection> getProxyConnections(OrgEnv orgEnv, ProxyArtifacts proxyArtifacts) {
-		log.debug(" Getting proxy connections");
 		List<ProxyEndpoint> proxyEndpoints = proxyArtifacts.getProxyEndpoints();
 		List<ProxyConnection> proxyConnections = new ArrayList<ProxyConnection>();
 		for (Env env : orgEnv.getEnvs()) {
@@ -1480,7 +1491,6 @@ public class CodeGenService {
 	}
 
 	public List<String> getProxyConnectionURL(String org, String env, String isSaaS, String vHostName) {
-		log.debug("Getting proxy connection URL for org: {}", org);
 		try {
 			String apigeeURL = apigeeUtil.getApigeeHost(isSaaS.equalsIgnoreCase("true") ? "saas" : "onprem", org)
 					+ "v1/organizations/" + org + "/environments/" + env + "/virtualhosts/" + vHostName;
@@ -1501,12 +1511,12 @@ public class CodeGenService {
 							&& virtualHost.getsSLInfo().getEnabled().equalsIgnoreCase("true")) ? "https" : "http")
 							+ "://" + hAlias + ":" + virtualHost.getPort();
 					hosts.add(host);
-					log.info(host);
+					System.out.println(host);
 				}
 				return hosts;
 			}
 		} catch (Exception e) {
-			log.error("Exception occurred", e);
+			e.printStackTrace();
 		}
 		return null;
 	}
