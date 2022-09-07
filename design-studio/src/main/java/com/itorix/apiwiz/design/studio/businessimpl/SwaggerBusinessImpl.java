@@ -1168,7 +1168,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				}
 			});
 		} else {
-			List<String> swaggerNames = getAllFilteredSwaggerDetails(partners, products, teams, "3.0");
+			List<String> swaggerNames = getAllFilteredSwaggerDetails(partners, products, teams, "2.0");
 			List<SwaggerVO> swaggerVos = list.stream().filter(swaggerVO -> {
 				if (swaggerNames.contains(swaggerVO.getName())) {
 					return true;
@@ -1188,14 +1188,32 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return arrayNode;
 	}
 
-	private List<String> getAllFilteredSwaggerDetails(List<String> partners, List<String> products,
-			List<String> teams, String oas) {
-		Query query = new Query(
-				Criteria.where("teams").in(teams).and("partners").in(partners).and("products")
-						.in(products).and("oas").is(oas));
-		query.fields().include("swaggerName");
-		return mongoTemplate.find(query, String.class, "Design.Swagger.Metadata");
-	}
+  private List<String> getAllFilteredSwaggerDetails(List<String> partners, List<String> products,
+      List<String> teams, String oas) {
+    Criteria overviewCriteria = new Criteria();
+    List<Criteria> criteriaList = new ArrayList<>();
+    if (!teams.isEmpty()) {
+      Criteria teamCriteria = Criteria.where("teams").in(teams);
+      criteriaList.add(teamCriteria);
+    }
+    if (!products.isEmpty()) {
+      Criteria productCriteria = Criteria.where("products").in(products);
+      criteriaList.add(productCriteria);
+    }
+    if (!partners.isEmpty()) {
+      Criteria partnerCriteria = Criteria.where("partners").in(partners);
+      criteriaList.add(partnerCriteria);
+    }
+
+    Query query = Query.query(Criteria.where("oas").is(oas));
+    if (!criteriaList.isEmpty()) {
+      overviewCriteria.andOperator(criteriaList.stream().toArray(Criteria[]::new));
+      query.addCriteria(overviewCriteria);
+    }
+    return mongoTemplate.find(query, SwaggerMetadata.class).stream()
+        .map(swaggerMetadata -> swaggerMetadata.getSwaggerName()).collect(
+            Collectors.toList());
+  }
 
 	private boolean isPartnerAsociated(SwaggerVO vo, String partnerId) {
 		List<Revision> revisions = getListOfRevisions(vo.getName(), null);

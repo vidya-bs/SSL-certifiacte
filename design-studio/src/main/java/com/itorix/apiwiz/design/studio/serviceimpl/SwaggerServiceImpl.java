@@ -761,7 +761,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestParam(value = "status", required = false) String status,
-			@RequestParam(value = "filterParams", required = false) Map<String, String> filterParams) throws Exception {
+			@RequestParam Map<String, String> filterParams) throws Exception {
 
 		List<String> partners = filterParams.get("partnerId") != null ? Arrays.asList(
 				filterParams.get("partnerId").split(",")) : Collections.emptyList();
