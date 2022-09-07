@@ -2129,100 +2129,98 @@ public class SwaggerServiceImpl implements SwaggerService {
         return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
     }
 
-    /**
-     * Using this we will get the swagger name along with version and state.
-     *
-     * @param interactionid
-     * @param jsessionid
-     * @param request
-     * @param response
-     * @return
-     */
-    @ApiOperation(value = "Genrate client", notes = "", code = 200)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-    @RequestMapping(method = RequestMethod.POST, value = "/v1/swagger-gen/clients/{framework}", produces = {
-            MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Object> genrateClient(
-            @RequestHeader(value = "interactionid", required = false) String interactionid,
-            @RequestHeader(value = "JSESSIONID") String jsessionid,
-            @RequestHeader(value = "oas", required = false) String oas,
-            @PathVariable("framework") String framework,
-            @RequestBody GenrateClientRequest genrateClientRequest) throws Exception {
-        if (oas == null || oas.trim().equals("")) {
-            oas = "2.0";
-        }
-        if (oas.equals("2.0")) {
-            if (!clients.contains(framework)) {
-                throw new ItorixException(
-                        String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
-                                genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
-                        "Swagger-1001");
-            }
-            SwaggerVO vo = null;
-            vo = swaggerBusiness.getSwaggerWithVersionNumber(genrateClientRequest.getSwaggerName(),
-                    genrateClientRequest.getRevision(), interactionid);
-            if (vo == null) {
-                throw new ItorixException(
-                        String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
-                                genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
-                        "Swagger-1001");
-            }
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.setSerializationInclusion(Include.NON_NULL);
-            JsonNode json = mapper.readTree(vo.getSwagger());
-            GeneratorInput generatorInput = new GeneratorInput();
-            generatorInput.setSpec(json);
-            Map<String, String> options = new HashMap<>();
-            String outputFolder =
-                    applicationProperties.getSwageerGenDir() + "clients" + File.separator + framework
-                            + File.separator + genrateClientRequest.getSwaggerName() + "_client";
-            options.put("outputFolder", outputFolder);
-            generatorInput.setOptions(options);
-            String filename = Generator.generateClient(framework, generatorInput);
-            String downloadURI = null;
-            ResponseCode responseCode = new ResponseCode();
-            try {
-                File file = new File(filename);
-                StorageIntegration storageIntegration = integrationHelper.getIntegration();
-                downloadURI = storageIntegration.uploadFile("swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(), filename);
-                new File(filename).delete();
-                responseCode.setLink(downloadURI);
-            } catch (Exception e) {
-                responseCode.setCode("500");
-                return new ResponseEntity<Object>(responseCode, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-
-
-            return new ResponseEntity<Object>(responseCode, HttpStatus.OK);
-        } else if (oas.equals("3.0")) {
-            Swagger3VO vo = null;
-            vo = swaggerBusiness.getSwagger3WithVersionNumber(genrateClientRequest.getSwaggerName(),
-                    genrateClientRequest.getRevision(), interactionid);
-            if (vo == null) {
-                throw new ItorixException(
-                        String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
-                                genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
-                        "Swagger-1001");
-            }
-            String filename = generateSwagger3SDK(vo, framework);
-            String downloadURI = null;
-            ResponseCode responseCode = new ResponseCode();
-            try {
-                File file = new File(filename);
-                StorageIntegration storageIntegration = integrationHelper.getIntegration();
-                downloadURI = storageIntegration.uploadFile("swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(), filename);
-                new File(filename).delete();
-                responseCode.setLink(downloadURI);
-            } catch (Exception e) {
-                responseCode.setCode("500");
-                return new ResponseEntity<Object>(responseCode, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            return new ResponseEntity<Object>(responseCode, HttpStatus.OK);
-        }
-        return new ResponseEntity<Object>("", HttpStatus.OK);
-    }
+	/**
+	 * Using this we will get the swagger name along with version and state.
+	 *
+	 * @param interactionid
+	 * @param jsessionid
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@ApiOperation(value = "Genrate client", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/swagger-gen/clients/{framework}", produces = {
+			MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<Object> genrateClient(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = false) String oas,
+			@PathVariable("framework") String framework,
+			@RequestBody GenrateClientRequest genrateClientRequest) throws Exception {
+		if (oas == null || oas.trim().equals("")) {
+			oas = "2.0";
+		}
+		if (oas.equals("2.0")) {
+			if (!clients.contains(framework)) {
+				throw new ItorixException(
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
+								genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
+						"Swagger-1001");
+			}
+			SwaggerVO vo = null;
+			vo = swaggerBusiness.getSwaggerWithVersionNumber(genrateClientRequest.getSwaggerName(),
+					genrateClientRequest.getRevision(), interactionid);
+			if (vo == null) {
+				throw new ItorixException(
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
+								genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
+						"Swagger-1001");
+			}
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.setSerializationInclusion(Include.NON_NULL);
+			JsonNode json = mapper.readTree(vo.getSwagger());
+			GeneratorInput generatorInput = new GeneratorInput();
+			generatorInput.setSpec(json);
+			Map<String, String> options = new HashMap<>();
+			String outputFolder =
+					applicationProperties.getSwageerGenDir() + "clients" + File.separator + framework
+							+ File.separator + genrateClientRequest.getSwaggerName() + "_client";
+			options.put("outputFolder", outputFolder);
+			generatorInput.setOptions(options);
+			String filename = Generator.generateClient(framework, generatorInput);
+			String downloadURI = null;
+			ResponseCode responseCode = new ResponseCode();
+			try {
+				File file = new File(filename);
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(), filename);
+				new File(filename).delete();
+				responseCode.setLink(downloadURI);
+			} catch (Exception e) {
+				responseCode.setCode("500");
+				return new ResponseEntity<Object>(responseCode, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			return new ResponseEntity<Object>(responseCode, HttpStatus.OK);
+		} else if (oas.equals("3.0")) {
+			Swagger3VO vo = null;
+			vo = swaggerBusiness.getSwagger3WithVersionNumber(genrateClientRequest.getSwaggerName(),
+					genrateClientRequest.getRevision(), interactionid);
+			if (vo == null) {
+				throw new ItorixException(
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
+								genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
+						"Swagger-1001");
+			}
+			String filename = generateSwagger3SDK(vo, framework);
+			String downloadURI = null;
+			ResponseCode responseCode = new ResponseCode();
+			try {
+				File file = new File(filename);
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(), filename);
+				new File(filename).delete();
+				responseCode.setLink(downloadURI);
+			} catch (Exception e) {
+				responseCode.setCode("500");
+				return new ResponseEntity<Object>(responseCode, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			return new ResponseEntity<Object>(responseCode, HttpStatus.OK);
+		}
+		return new ResponseEntity<Object>("", HttpStatus.OK);
+	}
 
     private String getWorkspaceId() {
         UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
@@ -2242,89 +2240,95 @@ public class SwaggerServiceImpl implements SwaggerService {
         return name;
     }
 
-    /**
-     * Using this we will get the swagger name along with version and state.
-     *
-     * @param interactionid
-     * @param jsessionid
-     * @param request
-     * @param response
-     * @return
-     */
-    @ApiOperation(value = "Genrate Server", notes = "", code = 200)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-    @RequestMapping(method = RequestMethod.POST, value = "/v1/swagger-gen/servers/{framework}", produces = {
-            MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<ResponseCode> genrateServer(
-            @RequestHeader(value = "interactionid", required = false) String interactionid,
-            @RequestHeader(value = "JSESSIONID") String jsessionid,
-            @RequestHeader(value = "oas", required = false) String oas,
-            @PathVariable("framework") String framework,
-            @RequestBody GenrateClientRequest genrateClientRequest) throws Exception {
-        if (oas == null || oas.trim().equals("")) {
-            oas = "2.0";
-        }
-        if (oas.equals("2.0")) {
-            if (!servers.contains(framework)) {
-                throw new ItorixException(
-                        String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
-                                genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
-                        "Swagger-1001");
-            }
-            SwaggerVO vo = null;
-            vo = swaggerBusiness.getSwaggerWithVersionNumber(genrateClientRequest.getSwaggerName(),
-                    genrateClientRequest.getRevision(), interactionid);
-            if (vo == null) {
-                throw new ItorixException(
-                        String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
-                                genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
-                        "Swagger-1001");
-            }
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.setSerializationInclusion(Include.NON_NULL);
-            JsonNode json = mapper.readTree(vo.getSwagger());
-            GeneratorInput generatorInput = new GeneratorInput();
-            generatorInput.setSpec(json);
-            Map<String, String> options = new HashMap<>();
-            String outputFolder =
-                    applicationProperties.getSwageerGenDir() + "servers" + File.separator + framework
-                            + File.separator + genrateClientRequest.getSwaggerName() + "_server";
-            options.put("outputFolder", outputFolder);
-            generatorInput.setOptions(options);
-            String filename = Generator.generateServer(framework, generatorInput);
-            String downloadURI = null;
-            try {
-                File file = new File(filename);
-                StorageIntegration storageIntegration = integrationHelper.getIntegration();
-                downloadURI = storageIntegration.uploadFile("swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(), filename);
-            } catch (Exception e) {
-
-            }
-            new File(filename).delete();
-            ResponseCode responseCode = new ResponseCode();
-            responseCode.setLink(downloadURI);
-            return new ResponseEntity<ResponseCode>(responseCode, HttpStatus.OK);
-        } else if (oas.equals("3.0")) {
-            Swagger3VO vo = null;
-            vo = swaggerBusiness.getSwagger3WithVersionNumber(genrateClientRequest.getSwaggerName(),
-                    genrateClientRequest.getRevision(), interactionid);
-            if (vo == null) {
-                throw new ItorixException(
-                        String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
-                                genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
-                        "Swagger-1001");
-            }
-            String filename = generateSwagger3SDK(vo, framework);
-            String downloadURI = null;
-            File file = new File(filename);
-            StorageIntegration storageIntegration = integrationHelper.getIntegration();
-            downloadURI = storageIntegration.uploadFile("swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(), filename);
-
-            ResponseCode responseCode = new ResponseCode();
-            responseCode.setLink(downloadURI);
-            return new ResponseEntity<ResponseCode>(responseCode, HttpStatus.OK);
+	/**
+	 * Using this we will get the swagger name along with version and state.
+	 *
+	 * @param interactionid
+	 * @param jsessionid
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@ApiOperation(value = "Genrate Server", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/swagger-gen/servers/{framework}", produces = {
+			MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<ResponseCode> genrateServer(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = false) String oas,
+			@PathVariable("framework") String framework,
+			@RequestBody GenrateClientRequest genrateClientRequest) throws Exception {
+		if (oas == null || oas.trim().equals("")) {
+			oas = "2.0";
+		}
+		if (oas.equals("2.0")) {
+			if (!servers.contains(framework)) {
+				throw new ItorixException(
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
+								genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
+						"Swagger-1001");
+			}
+			SwaggerVO vo = null;
+			vo = swaggerBusiness.getSwaggerWithVersionNumber(genrateClientRequest.getSwaggerName(),
+					genrateClientRequest.getRevision(), interactionid);
+			if (vo == null) {
+				throw new ItorixException(
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
+								genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
+						"Swagger-1001");
+			}
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.setSerializationInclusion(Include.NON_NULL);
+			JsonNode json = mapper.readTree(vo.getSwagger());
+			GeneratorInput generatorInput = new GeneratorInput();
+			generatorInput.setSpec(json);
+			Map<String, String> options = new HashMap<>();
+			String outputFolder =
+					applicationProperties.getSwageerGenDir() + "servers" + File.separator + framework
+							+ File.separator + genrateClientRequest.getSwaggerName() + "_server";
+			options.put("outputFolder", outputFolder);
+			generatorInput.setOptions(options);
+			String filename = Generator.generateServer(framework, generatorInput);
+			String downloadURI = null;
+			ResponseCode responseCode = new ResponseCode();
+			try {
+				File file = new File(filename);
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(), filename);
+			} catch (Exception e) {
+				responseCode.setCode("500");
+				return new ResponseEntity<>(responseCode, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			new File(filename).delete();
+			responseCode.setLink(downloadURI);
+			return new ResponseEntity<ResponseCode>(responseCode, HttpStatus.OK);
+		} else if (oas.equals("3.0")) {
+			Swagger3VO vo = null;
+			vo = swaggerBusiness.getSwagger3WithVersionNumber(genrateClientRequest.getSwaggerName(),
+					genrateClientRequest.getRevision(), interactionid);
+			if (vo == null) {
+				throw new ItorixException(
+						String.format(ErrorCodes.errorMessage.get("Swagger-1001"),
+								genrateClientRequest.getSwaggerName(), genrateClientRequest.getRevision()),
+						"Swagger-1001");
+			}
+			String filename = generateSwagger3SDK(vo, framework);
+			String downloadURI = null;
+			ResponseCode responseCode = new ResponseCode();
+			try {
+				File file = new File(filename);
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(), filename);
+			}catch (Exception e) {
+				responseCode.setCode("500");
+				return new ResponseEntity<>(responseCode, HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			new File(filename).delete();
+			responseCode.setLink(downloadURI);
+			return new ResponseEntity<ResponseCode>(responseCode, HttpStatus.OK);
 
         }
         return new ResponseEntity<ResponseCode>(new ResponseCode(), HttpStatus.OK);

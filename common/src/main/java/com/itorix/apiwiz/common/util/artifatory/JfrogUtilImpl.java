@@ -1,21 +1,12 @@
 package com.itorix.apiwiz.common.util.artifatory;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-
+import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import com.itorix.apiwiz.common.util.StorageIntegration;
+import groovyx.net.http.HttpResponseException;
 import org.jfrog.artifactory.client.Artifactory;
 import org.jfrog.artifactory.client.ArtifactoryClient;
 import org.jfrog.artifactory.client.model.LightweightRepository;
 import org.jfrog.artifactory.client.model.Repository;
-// import org.jfrog.artifactory.client.model.repository.settings.impl.GenericRepositorySettingsImpl;
-import static org.jfrog.artifactory.client.model.impl.RepositoryTypeImpl.LOCAL;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -25,17 +16,26 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import groovyx.net.http.HttpResponseException;
+import static org.jfrog.artifactory.client.model.impl.RepositoryTypeImpl.LOCAL;
 
-@Component
-public class JfrogUtilImpl {
+@Component("Jfrog")
+public class JfrogUtilImpl extends StorageIntegration {
 
 	private static final Logger log = LoggerFactory.getLogger(JfrogUtilImpl.class);
 
 	@Autowired
 	private ApplicationProperties applicationProperties;
+
+	@Autowired
+	private JfrogConnection jfrogConnection;
 
 	private String artifactoryHost;
 
@@ -209,11 +209,14 @@ public class JfrogUtilImpl {
 		}
 	}
 
+	/*
 	public JSONObject deleteFile(String filePath) throws Exception {
 		JSONObject obj = new JSONObject();
 		obj = deleteFile(filePath, artifactoryName, artifactoryHost, username, userpassword);
 		return obj;
 	}
+
+	 */
 
 	public String deleteFileIgnore404(String filePath) throws Exception {
 		try {
@@ -267,5 +270,37 @@ public class JfrogUtilImpl {
 
 	private Map<String, String> getartifactoryDetails(String path) {
 		return null;
+	}
+
+	@Override
+	public String uploadFile(String path, String data) throws Exception {
+		String artifactoryBasePath = null;
+		String jfrogHost = applicationProperties.getJfrogHost();
+		if (jfrogHost.endsWith("/")){
+			jfrogHost = jfrogHost.substring(0, jfrogHost.length()-1);
+		}
+		if (applicationProperties.getJfrogPort() != null && applicationProperties.getJfrogPort().length() > 2) {
+			artifactoryBasePath = jfrogHost + ":" + applicationProperties.getJfrogPort();
+		}else {
+			artifactoryBasePath = applicationProperties.getJfrogHost();
+		}
+		org.json.JSONObject obj = uploadFiles(data, applicationProperties.getPipelineCodecoverage(), artifactoryBasePath + "/artifactory/", path, applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+		return obj.getString("downloadURI");
+	}
+
+	@Override
+	public String uploadFile(String path, InputStream data) throws Exception {
+		org.json.JSONObject obj = uploadFiles(data, applicationProperties.getPipelineCodecoverage(), applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort() + "/artifactory/", path, applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+		return obj.getString("downloadURI");
+	}
+
+	@Override
+	public InputStream getFile(String path) throws Exception {
+		return jfrogConnection.getArtifact(jfrogConnection.getJfrogIntegration(), path).getInputStream();
+	}
+
+	@Override
+	public void deleteFile(String path) throws Exception {
+		deleteFileIgnore404(path);
 	}
 }
