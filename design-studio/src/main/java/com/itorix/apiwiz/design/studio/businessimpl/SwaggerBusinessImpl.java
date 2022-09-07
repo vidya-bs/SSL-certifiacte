@@ -56,6 +56,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -1337,7 +1338,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
     }
 
     private void getPublishedSwaggerDetails(SwaggerVO vo, ArrayNode arrayNode)
-            throws JsonMappingException, JsonProcessingException {
+            throws JsonMappingException, JsonProcessingException, ItorixException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = null;
         for (int i = 0; i < arrayNode.size(); i++) {
@@ -1357,6 +1358,25 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
             itemNode.put("title", vo.getName());
             itemNode.put("swaggerId", vo.getSwaggerId());
             itemNode.put("swaggerVersion", "2.0");
+            
+            SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(),"2.0");
+            if ( metadata != null) {
+            	if (metadata.getTeams() != null) {
+            	ArrayNode teams = mapper.valueToTree(metadata.getTeams());
+            	itemNode.putArray("teams").addAll(teams);
+            	}
+            	if (metadata.getProducts() != null)	{
+            	ArrayNode products = mapper.valueToTree(metadata.getProducts());
+            	itemNode.putArray("products").addAll(products);
+            	}
+            }
+            
+            if (vo.getPartners() != null) {
+	            ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
+	            itemNode.putArray("partners").addAll(partners);
+            }
+            
+            
             ArrayNode revision = mapper.createArrayNode();
             ObjectNode revisionNode = mapper.createObjectNode();
             if (vo != null && vo.getSwagger() != null) {
@@ -1418,6 +1438,24 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
             itemNode.put("title", vo.getName());
             itemNode.put("swaggerId", vo.getSwaggerId());
             itemNode.put("swaggerVersion", "2.0");
+            
+            SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(),"2.0");
+            if ( metadata != null) {
+            	if (metadata.getTeams() != null) {
+            	ArrayNode teams = mapper.valueToTree(metadata.getTeams());
+            	itemNode.putArray("teams").addAll(teams);
+            	}
+            	if (metadata.getProducts() != null)	{
+            	ArrayNode products = mapper.valueToTree(metadata.getProducts());
+            	itemNode.putArray("products").addAll(products);
+            	}
+            }
+            
+            if (vo.getPartners() != null) {
+	            ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
+	            itemNode.putArray("partners").addAll(partners);
+            }
+            
             ArrayNode revision = mapper.createArrayNode();
             ObjectNode revisionNode = mapper.createObjectNode();
             if (vo != null && vo.getSwagger() != null) {
@@ -1519,7 +1557,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
     }
 
     private void getPublishedSwaggerDetails(Swagger3VO vo, ArrayNode arrayNode)
-            throws JsonMappingException, JsonProcessingException {
+            throws JsonMappingException, JsonProcessingException, ItorixException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = null;
 
@@ -1541,6 +1579,25 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
             itemNode.put("id", vo.getId());
             itemNode.put("swaggerId", vo.getSwaggerId());
             itemNode.put("swaggerVersion", "3.0");
+            
+            
+            SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(),"3.0");
+            if ( metadata != null) {
+            	if (metadata.getTeams() != null) {
+            	ArrayNode teams = mapper.valueToTree(metadata.getTeams());
+            	itemNode.putArray("teams").addAll(teams);
+            	}
+            	if (metadata.getProducts() != null)	{
+            	ArrayNode products = mapper.valueToTree(metadata.getProducts());
+            	itemNode.putArray("products").addAll(products);
+            	}
+            }
+            
+            if (vo.getPartners() != null) {
+	            ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
+	            itemNode.putArray("partners").addAll(partners);
+            }
+            
             ArrayNode revision = mapper.createArrayNode();
             ObjectNode revisionNode = mapper.createObjectNode();
             if (vo != null && vo.getSwagger() != null) {
@@ -1603,6 +1660,24 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
             itemNode.put("id", vo.getId());
             itemNode.put("swaggerId", vo.getSwaggerId());
             itemNode.put("swaggerVersion", "3.0");
+            
+            SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(),"3.0");
+            if ( metadata != null) {
+            	if (metadata.getTeams() != null) {
+            	ArrayNode teams = mapper.valueToTree(metadata.getTeams());
+            	itemNode.putArray("teams").addAll(teams);
+            	}
+            	if (metadata.getProducts() != null)	{
+            	ArrayNode products = mapper.valueToTree(metadata.getProducts());
+            	itemNode.putArray("products").addAll(products);
+            	}
+            }
+            
+            if (vo.getPartners() != null) {
+	            ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
+	            itemNode.putArray("partners").addAll(partners);
+            }
+            
             ArrayNode revision = mapper.createArrayNode();
             ObjectNode revisionNode = mapper.createObjectNode();
             if (vo != null && vo.getSwagger() != null) {
@@ -1657,7 +1732,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
             arrayNode.add(rootNode);
         }
     }
-
+	
     /**
      * isMailidExist
      *

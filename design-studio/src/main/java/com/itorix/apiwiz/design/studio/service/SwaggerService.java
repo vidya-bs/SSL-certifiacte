@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -96,45 +97,68 @@ public interface SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestBody SwaggerSubscriptionReq swaggerSubscriptionReq) throws Exception;
-	
+
 	/**
 	 * Using this we can unsubscribe to APIs
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
-	 * @param swaggerSubscriptionReq
+	 * @param swaggerId
+	 * @param emailId
 	 * @return
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "API Unsubscription", notes = "", response = Void.class)
-	@ApiResponses(value = {@ApiResponse(code = 201, message = "Unsubscribed to API sucessfully", response = Void.class),
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Unsubscribed to API successfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/unsubscribe")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/unsubscribe/{swaggerid}/{emailid}")
 	public ResponseEntity<Void> swaggerUnsubscribe(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody SwaggerSubscriptionReq swaggerSubscriptionReq) throws Exception;
+			@PathVariable("swaggerid") String swaggerId,
+			@PathVariable("emailid") String emailId) throws Exception;
 	
 	/**
 	 * Using this we get all the subscribers list of an API
-	 * 
+	 *
 	 * @param interactionid
 	 * @param jsessionid
-	 * @param swaggerSubscriptionReq
+	 * @param swaggerId
 	 * @return
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "Get API Subscribers", notes = "", response = Void.class)
-	@ApiResponses(value = {@ApiResponse(code = 201, message = "Got the list of subscribers sucessfully", response = Void.class),
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Got the list of subscribers successfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/getsubscribers")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/getsubscribers/{swaggerid}")
 	public ResponseEntity<Set<Subscriber>> swaggerSubscribers(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody SwaggerSubscriptionReq swaggerSubscriptionReq)throws Exception;
-	
+			@PathVariable("swaggerid") String swaggerId)throws Exception;
+
+	/**
+	 * This method returns if the user is subscriber of particular Swagger
+	 *
+	 * @param interactionid
+	 * @param jsessionid
+	 * @param swaggerId
+	 * @param emailId
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiOperation(value = "Check if user is a subscriber", notes = "", response = Void.class)
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Returned subscriber successfully", response = Void.class),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/checksubscriber/{swaggerid}/{emailid}")
+	public ResponseEntity<IsSubscribedUser> checkSubscriber(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("swaggerid") String swaggerId,
+			@PathVariable("emailid") String emailId)throws Exception;
+
 	/**
 	 * Using this we can update are change the swagger version.
 	 *
@@ -1245,9 +1269,63 @@ public interface SwaggerService {
 	public ResponseEntity<?> getSwaggerAssociatedWithSchemaName(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("dictionaryId") String dictionaryId, @PathVariable("schemaName") String schemaName);
 
+
+
+	@ApiOperation(value = "Creating Api rating .Rating api's based on user  rating's ", notes = "", code = 201)
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Api was rated successfully", response = Void.class),
+			@ApiResponse(code = 404, message = "Error while rating api", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggerId}/rating")
+	public ResponseEntity<?> postRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
+										  @RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+										@PathVariable("swaggerId")String swaggerId,@RequestBody ApiRatings apiRatings) throws Exception;
+
+	@ApiOperation(value = "Editing Api rating .Rating api's based on user rating's ", notes = "", code = 200)
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Api was edited successfully", response = Void.class),
+			@ApiResponse(code = 404, message = "Error while editing api", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggerId}/rating")
+	public ResponseEntity<?> editRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
+										@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+										@PathVariable("swaggerId")String swaggerId,@RequestBody ApiRatings apiRatings) throws Exception;
+
+	@ApiOperation(value = "Getting Api rating .Getting api rating summary for particular swagger  ", notes = "", code = 200)
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Api rating retrieved successfully", response = Void.class),
+			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggerId}/{revision}/summary")
+	public ResponseEntity<?> getRatingSummary(@RequestHeader(value = "JSESSIONID") String jsessionid,
+										@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+										@PathVariable("swaggerId")String swaggerId,@PathVariable("revision")int revision) throws Exception;
+
+	@ApiOperation(value = "Getting Api rating .Getting all api ratings for particular swagger  ", notes = "", code = 200)
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Api rating retrieved successfully", response = Void.class),
+			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggerId}/{revision}/rating")
+	public ResponseEntity<?> getAllRatings(@RequestHeader(value = "JSESSIONID") String jsessionid,
+										   @RequestHeader(value = "email") String email,
+											@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+											@PathVariable("swaggerId")String swaggerId,@PathVariable("revision")int revision ) throws Exception;
+
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN') and hasAnyAuthority('BASIC','PRO','TEAM','ENTERPRISE')")
+	@ApiOperation(value = "Deleting Api rating", notes = "", code = 204)
+	@ApiResponses(value = {@ApiResponse(code = 204, message = "Api was deleted successfully", response = Void.class),
+			@ApiResponse(code = 404, message = "Error while deleting api", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggerId}/{revision}/admin/delete")
+	public ResponseEntity<?> deleteRatingAdmin(@RequestHeader(value = "JSESSIONID") String jsessionid,
+											   @RequestHeader(value = "ratingId") String ratingId,
+											   @RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+											   @PathVariable("swaggerId") String swaggerId, @PathVariable("revision") int revision) throws Exception;
+
+	@ApiOperation(value = "Deleting Api rating", notes = "", code = 204)
+	@ApiResponses(value = {@ApiResponse(code = 204, message = "Api was deleted successfully", response = Void.class),
+			@ApiResponse(code = 404, message = "Error while deleting api", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggerId}/{revision}/delete")
+	public ResponseEntity<?> deleteRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
+										  @RequestHeader(value = "email") String email, @RequestHeader(value = "ratingId") String ratingId,
+										  @RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+										  @PathVariable("swaggerId") String swaggerId, @PathVariable("revision") int revision) throws Exception;
 	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('BASIC','PRO','TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/refresh")
 	public ResponseEntity<?> loadSwaggersToScan(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid);
+
 
 }

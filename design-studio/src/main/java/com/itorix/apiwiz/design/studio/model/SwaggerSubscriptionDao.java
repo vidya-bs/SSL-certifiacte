@@ -1,39 +1,10 @@
 package com.itorix.apiwiz.design.studio.model;
 
-import com.amazonaws.regions.Regions;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.itorix.apiwiz.common.model.SearchItem;
-import com.itorix.apiwiz.common.model.exception.ErrorCodes;
-import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
-import com.itorix.apiwiz.common.model.projectmanagement.Organization;
-import com.itorix.apiwiz.common.model.projectmanagement.ProjectProxyResponse;
-import com.itorix.apiwiz.common.model.proxystudio.ProxyPortfolio;
-import com.itorix.apiwiz.common.model.proxystudio.Scm;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
-import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.mail.EmailTemplate;
 import com.itorix.apiwiz.common.util.mail.MailUtil;
-import com.itorix.apiwiz.common.util.s3.S3Connection;
-import com.itorix.apiwiz.common.util.s3.S3Utils;
-import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
-import com.itorix.apiwiz.identitymanagement.model.Pagination;
-import com.itorix.apiwiz.identitymanagement.model.User;
-import com.itorix.apiwiz.identitymanagement.model.UserSession;
-import com.itorix.apiwiz.design.studio.model.SwaggerSubscription;
-import com.itorix.apiwiz.design.studio.swaggerdiff.dao.SwaggerDiffService;
-
-import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
-import org.json.JSONObject;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -86,6 +57,16 @@ public class SwaggerSubscriptionDao {
 	@Autowired
 	ApplicationProperties applicationProperties;
 
+
+	/**
+	 * Adds subscriber to swagger
+	 *
+	 * @param swaggerId
+	 * @param swaggerName
+	 * @param oas
+	 * @param subscriber
+	 */
+
 	public void swaggerSubscribe(String swaggerId, String swaggerName, String oas, Subscriber subscriber) {
 		SwaggerSubscription swagger = baseRepository.findOne("swaggerId", swaggerId, SwaggerSubscription.class);
 		if (swagger == null) {
@@ -102,6 +83,14 @@ public class SwaggerSubscriptionDao {
 		}
 	}
 
+
+	/**
+	 * Unsubscribes user from swagger
+	 *
+	 * @param swaggerId
+	 * @param emailId
+	 */
+
 	public void swaggerUnsubscribe(String swaggerId, String emailId) {
 		SwaggerSubscription swagger = baseRepository.findOne("swaggerId", swaggerId, SwaggerSubscription.class);
 		if (swagger != null) {
@@ -111,6 +100,12 @@ public class SwaggerSubscriptionDao {
 		}
 	}
 
+	/**
+	 * returns all the subscribers of a swagger
+	 *
+	 * @param swaggerId
+	 * @return
+	 */
 	public Set<Subscriber> swaggerSubscribers(String swaggerId) {
 		SwaggerSubscription swagger = baseRepository.findOne("swaggerId", swaggerId, SwaggerSubscription.class);
 		if (swagger != null) {
@@ -121,11 +116,21 @@ public class SwaggerSubscriptionDao {
 
 	}
 
-	public void swaggerNotification(String swaggerId, String oas, String summary, String text)
-			throws MessagingException {
-		SwaggerSubscription swaggerSubscription = baseRepository.findOne("swaggerId", swaggerId,
-				SwaggerSubscription.class);
-		if (swaggerSubscription != null) {
+
+	/**
+	 * Notifies subscribers about the changes
+	 *
+	 * @param swaggerId
+	 * @param oas
+	 * @param summary
+	 * @param text
+	 * @throws MessagingException
+	 */
+
+	public void swaggerNotification(String swaggerId, String oas, String summary, String text) throws MessagingException {
+		SwaggerSubscription swaggerSubscription = baseRepository.findOne("swaggerId", swaggerId, SwaggerSubscription.class);
+		if (swaggerSubscription	!= null) {
+
 			Set<Subscriber> subscribers = swaggerSubscription.getSubscribers();
 			if (!subscribers.isEmpty()) {
 				Path path = Paths.get(applicationProperties.getTempDir() + "changeLog.md");
@@ -162,5 +167,24 @@ public class SwaggerSubscriptionDao {
 
 			}
 		}
+	}
+	/**
+	 * returns if user is a subscriber of the swagger
+	 *
+	 * @param swaggerId
+	 * @param emailId
+	 * @return
+	 */
+	public IsSubscribedUser checkSubscriber(String swaggerId, String emailId) {
+		IsSubscribedUser isSubscribedUser = new IsSubscribedUser();
+		Query query = Query.query(Criteria.where("swaggerId").is(swaggerId).andOperator(Criteria.where("subscribers").elemMatch(Criteria.where("emailId").is(emailId))));
+		List<SwaggerSubscription> swaggers = baseRepository.find(query, SwaggerSubscription.class);
+		if (swaggers.size() > 0) {
+			isSubscribedUser.setIsSubscribed(true);
+
+		}else {
+			isSubscribedUser.setIsSubscribed(false);
+		}
+		return isSubscribedUser;
 	}
 }

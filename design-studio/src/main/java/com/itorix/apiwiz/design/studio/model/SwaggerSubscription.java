@@ -44,6 +44,7 @@ public class SwaggerSubscription extends AbstractObject {
 			Subscriber temp = new Subscriber();
 			temp.setName(subscriber.getName());
 			temp.setEmailId(subscriber.getEmailId());
+			temp.setType(subscriber.getType().toString());
 			swaggerSubscribers.add(temp);
 		}
 		return swaggerSubscribers;
