@@ -165,7 +165,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 			@RequestHeader(value = "jsessionid") String jsessionid, @PathVariable("organization") String organization,
 			@RequestBody String json, @RequestParam(value = "type", required = false) String type) throws Exception {
 		Map<String, List<String>> resMap = new HashMap<>();
-		
+
 		org.json.JSONObject jsonObject = new org.json.JSONObject(json);
 		org.json.JSONArray jsonArray = jsonObject.getJSONArray("proxies");
 		String serviceResponse = null;
@@ -173,7 +173,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 			serviceResponse = organizationBusiness.getAPIsDeployedToEnvironment(jsessionid, organization,
 					jsonArray.getString(i), interactionid, type);
 			List<String> list = new ArrayList<>();
-			if(type != null && type.equalsIgnoreCase("apigeex")){
+			if (type != null && type.equalsIgnoreCase("apigeex")) {
 				JSONObject envJsonObject = (JSONObject) JSONSerializer.toJSON(serviceResponse);
 				JSONArray envApis = (JSONArray) envJsonObject.get("proxies");
 				for (int j = 0; j < envApis.size(); j++) {
@@ -181,7 +181,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 					String apiName = (String) apiProxyObject.get("name");
 					list.add(apiName);
 				}
-			}else{
+			} else {
 				JSONObject envJsonObject = (JSONObject) JSONSerializer.toJSON(serviceResponse);
 				JSONArray envApis = (JSONArray) envJsonObject.get("aPIProxy");
 				for (int j = 0; j < envApis.size(); j++) {
@@ -1103,8 +1103,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/apigee/organizations/{organization}/backuporganization")
 	public ResponseEntity<BackupInfo> backUpOrganization(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "jsessionid") String jsessionid, 
-			@PathVariable("organization") String organization,
+			@RequestHeader(value = "jsessionid") String jsessionid, @PathVariable("organization") String organization,
 			@RequestParam(value = "isDepoyedOnly") boolean isDepoyedOnly,
 			@RequestParam(value = "type", required = false) String type) throws Exception {
 		CommonConfiguration cfg = new CommonConfiguration();

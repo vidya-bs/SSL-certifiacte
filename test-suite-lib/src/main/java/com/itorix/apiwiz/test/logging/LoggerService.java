@@ -78,7 +78,7 @@ public class LoggerService {
 				privateIp = json.get("privateIp").asText();
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
-				e.printStackTrace();
+				log.error("Exception occurred",e);
 			}
 			getPodHost();
 		}
@@ -106,7 +106,7 @@ public class LoggerService {
 			String message = logMessage.entrySet().stream().map(v -> v.getKey() + "=" + v.getValue()).collect(Collectors.joining("||"));
 			log.info(message);
 		} catch (Exception e) {
-			log.error("Error occured while Service request/response");
+			log.error("Error occured while Service request/response",e);
 		}
 	}
 

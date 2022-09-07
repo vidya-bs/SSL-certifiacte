@@ -86,6 +86,7 @@ public class ConsentServerDao {
     private void performEnumValidation(Consent consent, List<ScopeCategoryColumns> columns) throws ItorixException {
         List<ScopeCategoryColumnEntry> fieldsWithEnums = columns.get(0).getColumns().stream().filter(c -> c.getEnums() != null && !c.getEnums().isEmpty()).collect(Collectors.toList());
         if(!fieldsWithEnums.isEmpty()) {
+            log.debug("Performing Enum validation");
             for(ScopeCategoryColumnEntry categoryColumnEntry : fieldsWithEnums) {
                 String fieldValue = consent.getConsent().get(categoryColumnEntry.getName());
                 if(fieldValue != null) {

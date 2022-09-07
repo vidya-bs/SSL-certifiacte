@@ -60,6 +60,7 @@ public class MonitorAgentServiceImpl implements MonitorAgentService {
         String tenantName = ((String) headers.getFirst(TENANT_ID));
 
         if (StringUtils.hasText(tenantName)) {
+            log.debug("Returning new response entity");
             TenantContext.setCurrentTenant(tenantName);
             MonitorCollections collection = testSuiteExecutorDao.getMonitorCollections(collectionId, schedulerId);
             if (collection == null) {

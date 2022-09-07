@@ -15,9 +15,11 @@ import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ZIPUtil {
-
+	private static final Logger logger = LoggerFactory.getLogger(ZIPUtil.class);
 	public ZIPUtil() {
 	}
 
@@ -27,7 +29,7 @@ public class ZIPUtil {
 			unZip.unzip("C:/tmp/test/API.zip", "C:/tmp/test/unzip");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 	}
 
@@ -68,7 +70,7 @@ public class ZIPUtil {
 				out.close();
 
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				logger.error("Exception occurred", ex);
 			}
 		}
 		is.close();
@@ -96,7 +98,7 @@ public class ZIPUtil {
 				String fileName = ze.getName();
 				File newFile = new File(outputFolder + File.separator + fileName);
 
-				System.out.println("file unzip : " + newFile.getAbsoluteFile());
+				logger.info("file unzip : " + newFile.getAbsoluteFile());
 
 				// create all non exists folders
 				// else you will hit FileNotFoundException for compressed folder
@@ -116,10 +118,10 @@ public class ZIPUtil {
 			zis.closeEntry();
 			zis.close();
 
-			System.out.println("Done");
+			logger.info("Done");
 
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			logger.error("Exception occurred", ex);
 		}
 	}
 

@@ -1,6 +1,7 @@
 package com.itorix.mockserver.helper;
 
 import com.itorix.mockserver.common.model.expectation.*;
+import lombok.extern.slf4j.Slf4j;
 import org.mockito.InjectMocks;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -11,7 +12,7 @@ import java.util.Arrays;
 
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
-
+@Slf4j
 public class MockValidatorTest {
 
     @InjectMocks
@@ -57,7 +58,7 @@ public class MockValidatorTest {
         actualHeader.put("JSESSIONID", Arrays.asList("11111"));
         actualHeader.put("id", Arrays.asList("11"));
         boolean checkHeader = mockValidator.checkHeader(expectation, actualHeader);
-        System.out.println("is expectation matched ?  " + checkHeader);
+        log.info("is expectation matched ?  " + checkHeader);
         assertTrue(checkHeader);
     }
 
@@ -81,7 +82,7 @@ public class MockValidatorTest {
         actualHeader.put("JSESSIONID", Arrays.asList("11111"));
         actualHeader.put("id", Arrays.asList("10"));
         boolean checkHeader = mockValidator.checkHeader(expectation, actualHeader);
-        System.out.println("is expectation matched ?  " + checkHeader);
+        log.info("is expectation matched ?  " + checkHeader);
         assertFalse(checkHeader);
     }
 
@@ -106,7 +107,7 @@ public class MockValidatorTest {
         actualHeader.put("JSESSIONID", Arrays.asList("11111"));
         actualHeader.put("idx", Arrays.asList("11"));
         boolean checkHeader = mockValidator.checkHeader(expectation, actualHeader);
-        System.out.println("is header valid ?  " + checkHeader);
+        log.info("is header valid ?  " + checkHeader);
         assertTrue(checkHeader);
 
     }
@@ -150,7 +151,7 @@ public class MockValidatorTest {
         actualHeader.put("id", Arrays.asList("10"));
 
         boolean checkHeader = mockValidator.checkHeader(expectation, actualHeader);
-        System.out.println("is header valid ?  " + checkHeader);
+        log.info("is header valid ?  " + checkHeader);
         assertTrue(checkHeader);
 
     }
@@ -174,7 +175,7 @@ public class MockValidatorTest {
         actualHeader.put("id", Arrays.asList("10"));
 
         boolean checkHeader = mockValidator.checkHeader(expectation, actualHeader);
-        System.out.println("is header valid ?  " + checkHeader);
+        log.info("is header valid ?  " + checkHeader);
         assertTrue(checkHeader);
 
     }

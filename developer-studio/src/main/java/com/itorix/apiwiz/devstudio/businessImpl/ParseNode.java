@@ -7,7 +7,9 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ParseNode {
 
 	public JsonNode parse(JsonNode node, String path) {
@@ -79,21 +81,21 @@ public class ParseNode {
 			JsonNode node = mapper.readTree(new File(filePath));
 			String jsonPath = "x-EndpointExtension[Endpoint^name=Sandbox]";
 			JsonNode data = parseNode.parse(node, jsonPath);
-			System.out.println(mapper.writeValueAsString(data));
+			log.info(mapper.writeValueAsString(data));
 
 			String jsonPath1 = "x-ibm-configuration/assembly/execute[log.to.k2]/LogDetail";
-			System.out.println(mapper.writeValueAsString(parseNode.parse(node, jsonPath1)));
+			log.info(mapper.writeValueAsString(parseNode.parse(node, jsonPath1)));
 
 			String jsonPath2 = "Endpoint/url";
-			System.out.println(mapper.writeValueAsString(parseNode.parse(data, jsonPath2)));
+			log.info(mapper.writeValueAsString(parseNode.parse(data, jsonPath2)));
 
 			String jsonPath3 = "Endpoint/environments";
-			System.out.println(mapper.writeValueAsString(parseNode.parse(data, jsonPath3)));
+			log.info(mapper.writeValueAsString(parseNode.parse(data, jsonPath3)));
 
 			String jsonPath4 = "Endpoint/regions";
-			System.out.println(mapper.writeValueAsString(parseNode.parse(data, jsonPath4).findValues("region")));
+			log.info(mapper.writeValueAsString(parseNode.parse(data, jsonPath4).findValues("region")));
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 
 	}

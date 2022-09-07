@@ -12,7 +12,7 @@ import com.itorix.apiwiz.configmanagement.model.apigeeX.ApigeexProduct;
 
 @Component
 public class ProductXService {
-	
+
 	@Autowired
 	private ApigeeXUtill apigeeXUtil;
 

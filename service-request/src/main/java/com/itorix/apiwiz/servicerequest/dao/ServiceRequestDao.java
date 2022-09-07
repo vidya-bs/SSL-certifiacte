@@ -55,7 +55,6 @@ import com.itorix.apiwiz.servicerequest.model.ServiceRequestTypes;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.result.UpdateResult;
-
 @Component
 @Slf4j
 public class ServiceRequestDao {
@@ -118,7 +117,7 @@ public class ServiceRequestDao {
 									&& StringUtils.isNotBlank(config.getName())) {
 								query = new Query(
 										Criteria.where("org").is(config.getOrg()).and("name").is(config.getName())
-										.and("type").is(config.getType()).and("isSaaS").is(config.getIsSaaS()));
+												.and("type").is(config.getType()).and("isSaaS").is(config.getIsSaaS()));
 							}
 
 							Update update = new Update();
@@ -156,7 +155,8 @@ public class ServiceRequestDao {
 				} else if (StringUtils.isNotBlank(config.getType()) && StringUtils.isNotBlank(config.getOrg())
 						&& StringUtils.isNotBlank(config.getName())) {
 					query = new Query(Criteria.where("org").is(config.getOrg()).and("name").is(config.getName())
-							.and("type").is(config.getType()).and("isSaaS").is(config.getIsSaaS())).with(Sort.by(Direction.DESC, "mts"));
+							.and("type").is(config.getType()).and("isSaaS").is(config.getIsSaaS()))
+									.with(Sort.by(Direction.DESC, "mts"));
 				} else if (StringUtils.isNotBlank(config.getStatus()) && StringUtils.isNotBlank(config.getType())) {
 					query = new Query(Criteria.where("status").is(config.getStatus()).and("type").is(config.getType())
 							.and("isSaaS").is(config.getIsSaaS())).with(Sort.by(Direction.DESC, "mts"));
@@ -174,6 +174,7 @@ public class ServiceRequestDao {
 		try {
 			Query query = null;
 			if (config != null) {
+				log.debug("Fetching all active service requests");
 				if (StringUtils.isNotBlank(config.getType()) && StringUtils.isNotBlank(config.getOrg())
 						&& StringUtils.isNotBlank(config.getEnv()) && StringUtils.isNotBlank(config.getName())) {
 					query = new Query(Criteria.where("org").is(config.getOrg()).and("env").is(config.getEnv())
@@ -257,7 +258,7 @@ public class ServiceRequestDao {
 			mailUtil.sendEmail(emailTemplate);
 		} catch (Exception e) {
 
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -279,7 +280,7 @@ public class ServiceRequestDao {
 			return mongoTemplate.getCollection(mongoTemplate.getCollectionName(ServiceRequest.class))
 					.countDocuments(query.getQueryObject());
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return 0;
 	}
@@ -290,7 +291,7 @@ public class ServiceRequestDao {
 			return mongoTemplate.getCollection(mongoTemplate.getCollectionName(ServiceRequest.class))
 					.countDocuments(query.getQueryObject());
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return 0;
 	}
@@ -301,7 +302,7 @@ public class ServiceRequestDao {
 			return mongoTemplate.getCollection(mongoTemplate.getCollectionName(ServiceRequest.class))
 					.countDocuments(query.getQueryObject());
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return 0;
 	}
@@ -312,7 +313,7 @@ public class ServiceRequestDao {
 			return mongoTemplate.getCollection(mongoTemplate.getCollectionName(ServiceRequest.class))
 					.countDocuments(query.getQueryObject());
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		return 0;
 	}
@@ -325,7 +326,7 @@ public class ServiceRequestDao {
 					serviceRequest);
 
 			if (serviceRequests.size() > 0) {
-
+				log.debug("Updating service request");
 				if (StringUtils.isNotBlank(serviceRequest.getType()) && StringUtils.isNotBlank(serviceRequest.getOrg())
 						&& StringUtils.isNotBlank(serviceRequest.getEnv())
 						&& StringUtils.isNotBlank(serviceRequest.getName())) {
@@ -405,9 +406,11 @@ public class ServiceRequestDao {
 	}
 
 	@SuppressWarnings("unchecked")
-	public boolean changeServiceRequestStatus(ServiceRequest config, User user) throws ItorixException, MessagingException {
+	public boolean changeServiceRequestStatus(ServiceRequest config, User user)
+			throws ItorixException, MessagingException {
 		List<ServiceRequest> serviceRequests = (ArrayList<ServiceRequest>) getAllActiveServiceRequests(config);
 		if (serviceRequests.size() > 0) {
+			log.debug("Changing service request status");
 			ServiceRequest serviceRequest = serviceRequests.get(0);
 			if (config.getStatus().equals("Review")) {
 				if (serviceRequest.getStatus().equals("Change Required"))
@@ -442,12 +445,12 @@ public class ServiceRequestDao {
 		return false;
 	}
 
-	public boolean revertServiceRequestStatus(ServiceRequest config, User user) throws ItorixException, MessagingException{
+	public boolean revertServiceRequestStatus(ServiceRequest config, User user)
+			throws ItorixException, MessagingException {
 		return updateServiceRequestStatus(config, user);
 	}
 
-
-	private com.itorix.apiwiz.common.model.apigeeX.TargetConfig getTargetConf(ServiceRequest serviceRequest){
+	private com.itorix.apiwiz.common.model.apigeeX.TargetConfig getTargetConf(ServiceRequest serviceRequest) {
 		com.itorix.apiwiz.common.model.apigeeX.TargetConfig targetConfig = new com.itorix.apiwiz.common.model.apigeeX.TargetConfig();
 		targetConfig.setMts(Instant.now().toEpochMilli());
 		targetConfig.setModifiedUserName(serviceRequest.getModifiedUser());
@@ -470,8 +473,7 @@ public class ServiceRequestDao {
 		}
 		return targetConfig;
 	}
-	private com.itorix.apiwiz.common.model.apigeeX.KVMConfig getKVMConfig(ServiceRequest serviceRequest)
-	{
+	private com.itorix.apiwiz.common.model.apigeeX.KVMConfig getKVMConfig(ServiceRequest serviceRequest) {
 		com.itorix.apiwiz.common.model.apigeeX.KVMConfig kvmconfig = new com.itorix.apiwiz.common.model.apigeeX.KVMConfig();
 		kvmconfig.setMts(Instant.now().getEpochSecond());
 		kvmconfig.setModifiedBy(serviceRequest.getModifiedUser());
@@ -486,9 +488,8 @@ public class ServiceRequestDao {
 		}
 		return kvmconfig;
 	}
-	
-	private com.itorix.apiwiz.common.model.apigeeX.ProductConfig getProductConfig(ServiceRequest serviceRequest)
-	{
+
+	private com.itorix.apiwiz.common.model.apigeeX.ProductConfig getProductConfig(ServiceRequest serviceRequest) {
 		com.itorix.apiwiz.common.model.apigeeX.ProductConfig productconfig = new com.itorix.apiwiz.common.model.apigeeX.ProductConfig();
 		productconfig.setOrg(serviceRequest.getOrg());
 		productconfig.setName(serviceRequest.getName());
@@ -519,14 +520,16 @@ public class ServiceRequestDao {
 		Query query = null;
 		log.debug("Update service request status : {}", config);
 		if (config.getStatus().equalsIgnoreCase("Approved")) {
+			log.debug("Update service request status");
 			if (serviceRequest.isCreated()) {
 				if ("TargetServer".equalsIgnoreCase(serviceRequest.getType())) {
 
-					if(config.getGwType()!= null && config.getGwType().equalsIgnoreCase("apigeex")){
-						com.itorix.apiwiz.common.model.apigeeX.TargetConfig targetConfig = getTargetConf(serviceRequest);
+					if (config.getGwType() != null && config.getGwType().equalsIgnoreCase("apigeex")) {
+						com.itorix.apiwiz.common.model.apigeeX.TargetConfig targetConfig = getTargetConf(
+								serviceRequest);
 						isCreatedorUpdated = apigeeXConfigDao.updateTarget(targetConfig);
 						apigeeXConfigDao.createApigeeTarget(targetConfig, user);
-					}else{
+					} else {
 						TargetConfig targetConfig = new TargetConfig();
 						targetConfig.setModifiedDate(Instant.now().toString());
 						targetConfig.setModifiedUser(serviceRequest.getModifiedUser());
@@ -573,11 +576,11 @@ public class ServiceRequestDao {
 					isCreatedorUpdated = configManagementDao.updateCache(cacheConfig);
 					configManagementDao.createApigeeCache(cacheConfig, user);
 				} else if ("KVM".equalsIgnoreCase(serviceRequest.getType())) {
-					if(config.getGwType()!= null && config.getGwType().equalsIgnoreCase("apigeex")){
+					if (config.getGwType() != null && config.getGwType().equalsIgnoreCase("apigeex")) {
 						com.itorix.apiwiz.common.model.apigeeX.KVMConfig kvmconfig = getKVMConfig(serviceRequest);
 						isCreatedorUpdated = apigeeXConfigDao.updateKVM(kvmconfig);
 						apigeeXConfigDao.createApigeeKVM(kvmconfig, user);
-					}else{
+					} else {
 						KVMConfig kvmconfig = new KVMConfig();
 						kvmconfig.setModifiedDate(Instant.now().toString());
 						kvmconfig.setModifiedUser(serviceRequest.getModifiedUser());
@@ -594,11 +597,12 @@ public class ServiceRequestDao {
 						configManagementDao.createApigeeKVM(kvmconfig, user);
 					}
 				} else if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
-					if(config.getGwType()!= null && config.getGwType().equalsIgnoreCase("apigeex")){
-						com.itorix.apiwiz.common.model.apigeeX.ProductConfig productconfig = getProductConfig(serviceRequest);
+					if (config.getGwType() != null && config.getGwType().equalsIgnoreCase("apigeex")) {
+						com.itorix.apiwiz.common.model.apigeeX.ProductConfig productconfig = getProductConfig(
+								serviceRequest);
 						isCreatedorUpdated = apigeeXConfigDao.updateProduct(productconfig);;
 						apigeeXConfigDao.createApigeeProduct(productconfig, user);
-					}else{
+					} else {
 						ProductConfig productconfig = new ProductConfig();
 						productconfig.setModifiedDate(Instant.now().toString());
 						productconfig.setModifiedUser(serviceRequest.getModifiedUser());
@@ -628,8 +632,7 @@ public class ServiceRequestDao {
 				serviceRequest.setStatus("Approved");
 				serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
 				sendEmailTo(serviceRequest);
-				query = new Query(
-						Criteria.where("_id").is(serviceRequest.get_id()));
+				query = new Query(Criteria.where("_id").is(serviceRequest.get_id()));
 				Document dbDoc = new Document();
 				mongoTemplate.getConverter().write(serviceRequest, dbDoc);
 				Update update = Update.fromDocument(dbDoc, "_id");
@@ -637,11 +640,12 @@ public class ServiceRequestDao {
 				return result.isModifiedCountAvailable();
 			} else {
 				if ("TargetServer".equalsIgnoreCase(serviceRequest.getType())) {
-					if(config.getGwType()!= null && config.getGwType().equalsIgnoreCase("apigeex")){
-						com.itorix.apiwiz.common.model.apigeeX.TargetConfig targetConfig = getTargetConf(serviceRequest);
+					if (config.getGwType() != null && config.getGwType().equalsIgnoreCase("apigeex")) {
+						com.itorix.apiwiz.common.model.apigeeX.TargetConfig targetConfig = getTargetConf(
+								serviceRequest);
 						isCreatedorUpdated = apigeeXConfigDao.updateTarget(targetConfig);
 						apigeeXConfigDao.createApigeeTarget(targetConfig, user);
-					}else{
+					} else {
 						TargetConfig targetConfig = new TargetConfig();
 						targetConfig.setCreatedDate(Instant.now().toString());
 						targetConfig.setCreatedUser(serviceRequest.getCreatedUser());
@@ -694,11 +698,11 @@ public class ServiceRequestDao {
 					isCreatedorUpdated = configManagementDao.saveCache(cacheConfig);
 					configManagementDao.createApigeeCache(cacheConfig, user);
 				} else if ("KVM".equalsIgnoreCase(serviceRequest.getType())) {
-					if(config.getGwType()!= null && config.getGwType().equalsIgnoreCase("apigeex")){
+					if (config.getGwType() != null && config.getGwType().equalsIgnoreCase("apigeex")) {
 						com.itorix.apiwiz.common.model.apigeeX.KVMConfig kvmconfig = getKVMConfig(serviceRequest);
 						isCreatedorUpdated = apigeeXConfigDao.updateKVM(kvmconfig);
 						apigeeXConfigDao.createApigeeKVM(kvmconfig, user);
-					}else{
+					} else {
 						KVMConfig kvmconfig = new KVMConfig();
 						kvmconfig.setCreatedDate(Instant.now().toString());
 						kvmconfig.setCreatedUser(serviceRequest.getCreatedUser());
@@ -718,11 +722,12 @@ public class ServiceRequestDao {
 						configManagementDao.createApigeeKVM(kvmconfig, user);
 					}
 				} else if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
-					if(config.getGwType()!= null && config.getGwType().equalsIgnoreCase("apigeex")){
-						com.itorix.apiwiz.common.model.apigeeX.ProductConfig productconfig = getProductConfig(serviceRequest);
+					if (config.getGwType() != null && config.getGwType().equalsIgnoreCase("apigeex")) {
+						com.itorix.apiwiz.common.model.apigeeX.ProductConfig productconfig = getProductConfig(
+								serviceRequest);
 						isCreatedorUpdated = apigeeXConfigDao.updateProduct(productconfig);;
 						apigeeXConfigDao.createApigeeProduct(productconfig, user);
-					}else{
+					} else {
 						ProductConfig productconfig = new ProductConfig();
 						productconfig.setModifiedDate(Instant.now().toString());
 						productconfig.setModifiedUser(serviceRequest.getModifiedUser());
@@ -755,8 +760,7 @@ public class ServiceRequestDao {
 				serviceRequest.setStatus("Approved");
 				serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
 				sendEmailTo(serviceRequest);
-				query = new Query(
-						Criteria.where("_id").is(serviceRequest.get_id()));
+				query = new Query(Criteria.where("_id").is(serviceRequest.get_id()));
 				Document dbDoc = new Document();
 				mongoTemplate.getConverter().write(serviceRequest, dbDoc);
 				Update update = Update.fromDocument(dbDoc, "_id");
@@ -767,13 +771,13 @@ public class ServiceRequestDao {
 		} else if (config.getStatus().equalsIgnoreCase("Change Required")) {
 			if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
 				query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("name").is(config.getName())
-						.and("type").is(serviceRequest.getType()).and("isSaaS").is(config.getIsSaaS())
-						.and("activeFlag").is(Boolean.TRUE));
+						.and("type").is(serviceRequest.getType()).and("isSaaS").is(config.getIsSaaS()).and("activeFlag")
+						.is(Boolean.TRUE));
 			} else {
 				query = new Query(
 						Criteria.where("org").is(serviceRequest.getOrg()).and("env").is(serviceRequest.getEnv())
-						.and("name").is(config.getName()).and("type").is(serviceRequest.getType())
-						.and("isSaaS").is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
+								.and("name").is(config.getName()).and("type").is(serviceRequest.getType()).and("isSaaS")
+								.is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
 			}
 			serviceRequest.setStatus("Change Required");
 			serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
@@ -790,13 +794,13 @@ public class ServiceRequestDao {
 		} else if (config.getStatus().equalsIgnoreCase("Rejected")) {
 			if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
 				query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("name").is(config.getName())
-						.and("type").is(serviceRequest.getType()).and("isSaaS").is(config.getIsSaaS())
-						.and("activeFlag").is(Boolean.TRUE));
+						.and("type").is(serviceRequest.getType()).and("isSaaS").is(config.getIsSaaS()).and("activeFlag")
+						.is(Boolean.TRUE));
 			} else {
 				query = new Query(
 						Criteria.where("org").is(serviceRequest.getOrg()).and("env").is(serviceRequest.getEnv())
-						.and("name").is(config.getName()).and("type").is(serviceRequest.getType())
-						.and("isSaaS").is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
+								.and("name").is(config.getName()).and("type").is(serviceRequest.getType()).and("isSaaS")
+								.is(config.getIsSaaS()).and("activeFlag").is(Boolean.TRUE));
 			}
 			serviceRequest.setStatus("Rejected");
 			serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
@@ -979,7 +983,7 @@ public class ServiceRequestDao {
 				Query query = new Query();
 				query.addCriteria(
 						Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(DateUtil.getStartOfDay(startDate))
-						.lt(DateUtil.getEndOfDay(startDate)).and("type").is(type));
+								.lt(DateUtil.getEndOfDay(startDate)).and("type").is(type));
 				List<ServiceRequest> list = baseRepository.find(query, ServiceRequest.class);
 				// if(list!=null && list.size()>0){
 				ObjectNode valueNode = mapper.createObjectNode();

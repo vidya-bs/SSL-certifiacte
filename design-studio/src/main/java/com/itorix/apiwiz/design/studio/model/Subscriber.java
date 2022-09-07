@@ -13,14 +13,14 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Subscriber extends AbstractObject{
-	
+public class Subscriber extends AbstractObject {
+
 	@JsonProperty("name")
 	String name;
-	
+
 	@JsonProperty("emailId")
 	String emailId;
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -28,7 +28,7 @@ public class Subscriber extends AbstractObject{
 		result = prime * result + ((emailId == null) ? 0 : emailId.hashCode());
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -37,7 +37,6 @@ public class Subscriber extends AbstractObject{
 			return false;
 		Subscriber subscriber = (Subscriber) obj;
 		return this.emailId.equals(subscriber.emailId);
-		
+
 	}
 }
-

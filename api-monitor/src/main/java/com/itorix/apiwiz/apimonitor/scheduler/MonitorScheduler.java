@@ -153,6 +153,7 @@ public class MonitorScheduler {
 				TenantContext.setCurrentTenant(dbsCursor.next());
 				List<MonitorCollections> collections = apiMonitorDAO.getCollections();
 				if (!CollectionUtils.isEmpty(collections)) {
+					log.debug("Scheduling monitor execution");
 					for (MonitorCollections monitorCollection : collections) {
 						List<Schedulers> schedulers = monitorCollection.getSchedulers();
 						if (!CollectionUtils.isEmpty(schedulers)) {
@@ -191,12 +192,13 @@ public class MonitorScheduler {
 			body.put("schedulerId", schedulerId);
 			HttpEntity<Map<String, String>> httpEntity = new HttpEntity<>(body, headers);
 			String monitorUrl = monitorSuitAgentPath + monitorAgentContextPath + MONITOR_AGENT_EXECUTE;
+			log.debug("Making a call to {}", monitorUrl);
 			ResponseEntity<String> result = restTemplate.postForEntity(monitorUrl, httpEntity, String.class);
 			if (!result.getStatusCode().is2xxSuccessful()) {
 				log.error("error returned from monitor agent", result.getBody());
 			}
 		} catch (Exception e) {
-			log.error("error returned from monitor agent", e);
+			log.error("Error returned from monitor agent", e);
 		}
 	}
 
@@ -209,6 +211,7 @@ public class MonitorScheduler {
 				String workSpace = dbsCursor.next();
 				TenantContext.setCurrentTenant(workSpace);
 				if (apiMonitorDAO.canExecute()) {
+					log.debug("Sending Notification");
 					apiMonitorDAO.updateExecution();
 					List<NotificationDetails> notificationDetails = apiMonitorDAO.getNotificationDetails(workSpace);
 					for (NotificationDetails notificationDetail : notificationDetails) {
@@ -257,6 +260,7 @@ public class MonitorScheduler {
 
 				HttpEntity<RequestModel> httpEntity = new HttpEntity<>(requestModel, headers);
 				String monitorUrl = notificationAgentPath + notificationContextPath + NOTIFICATION_AGENT_NOTIFY;
+				log.debug("Making a call to {}", monitorUrl);
 				ResponseEntity<String> result = restTemplate.postForEntity(monitorUrl, httpEntity, String.class);
 				if (!result.getStatusCode().is2xxSuccessful()) {
 					log.error("error returned from monitor agent", result.getBody());

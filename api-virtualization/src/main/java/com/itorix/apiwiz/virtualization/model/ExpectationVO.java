@@ -4,13 +4,14 @@ import com.itorix.apiwiz.virtualization.model.metadata.ExpectationMetadata;
 import com.itorix.hyggee.mockserver.client.serialization.ObjectMapperFactory;
 import com.itorix.hyggee.mockserver.client.serialization.model.Metadata;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+@Slf4j
 @Document(collection = "mock.Expectation")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExpectationVO {
@@ -64,7 +65,7 @@ public class ExpectationVO {
 		try {
 			return objectMapper.readValue(DTO, ExpectationDTO.class);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			return null;
 		}
 	}

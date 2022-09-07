@@ -4,6 +4,7 @@ import com.itorix.apiwiz.consent.management.model.Consent;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClients;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -14,36 +15,38 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
-
+@Slf4j
 public class ConsentManagementDaoTest {
 
-    private static MongoTemplate mongoTemplate = null;
+	private static MongoTemplate mongoTemplate = null;
 
-    @BeforeClass
-    public static void init() {
-        ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017");
-        MongoClientSettings mongoClientSettings = MongoClientSettings.builder().applyConnectionString(connectionString)
-                .build();
-        MongoClients.create(mongoClientSettings);
-        mongoTemplate = new MongoTemplate(MongoClients.create(mongoClientSettings), "acme-team-dev");
-    }
+	@BeforeClass
+	public static void init() {
+		ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017");
+		MongoClientSettings mongoClientSettings = MongoClientSettings.builder().applyConnectionString(connectionString)
+				.build();
+		MongoClients.create(mongoClientSettings);
+		mongoTemplate = new MongoTemplate(MongoClients.create(mongoClientSettings), "acme-team-dev");
+	}
 
-    @Test
-    public void checkConsentKeys() {
-        ProjectionOperation projectionOperation = project().and(ObjectOperators.valueOf("consent").toArray()).as("consent");
+	@Test
+	public void checkConsentKeys() {
+		ProjectionOperation projectionOperation = project().and(ObjectOperators.valueOf("consent").toArray())
+				.as("consent");
 
-        UnwindOperation unwindOperation = unwind("consent");
+		UnwindOperation unwindOperation = unwind("consent");
 
-        GroupOperation groupOperation = group("consent.k");
+		GroupOperation groupOperation = group("consent.k");
 
-        Aggregation aggregation = newAggregation(projectionOperation, unwindOperation, groupOperation);
+		Aggregation aggregation = newAggregation(projectionOperation, unwindOperation, groupOperation);
 
+		AggregationResults<Document> aggregationResult = mongoTemplate.aggregate(aggregation, Consent.class,
+				Document.class);
 
-        AggregationResults<Document> aggregationResult = mongoTemplate.aggregate(aggregation, Consent.class, Document.class);
+		List<String> columnName = aggregationResult.getMappedResults().stream().map(d -> d.getString("_id"))
+				.collect(Collectors.toList());
 
-        List<String> columnName = aggregationResult.getMappedResults().stream().map(d -> d.getString("_id")).collect(Collectors.toList());
+		log.info(String.valueOf(columnName));
 
-        System.out.println(columnName);
-
-    }
+	}
 }

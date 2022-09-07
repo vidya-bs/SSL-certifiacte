@@ -24,14 +24,12 @@ public class ApigeeXConfigurationServiceImpl implements ApigeeXConfigurationServ
 
 	@Autowired
 	private ApigeeXIntegrationDAO apigeeXIntegrationDAO;
-	
+
 	@Override
-	public ResponseEntity<Void> createConfiguration(
-			String interactionid, String jsessionid, 
-			MultipartFile envFile,
+	public ResponseEntity<Void> createConfiguration(String interactionid, String jsessionid, MultipartFile envFile,
 			String org) throws Exception {
 		ApigeeXConfigurationVO apigeeXConfigurationVo = apigeeXIntegrationDAO.getConfiguration(org);
-		if(apigeeXConfigurationVo != null){
+		if (apigeeXConfigurationVo != null) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1007"), "Configuration-1007");
 		}
 		byte[] bytes = envFile.getBytes();
@@ -42,16 +40,14 @@ public class ApigeeXConfigurationServiceImpl implements ApigeeXConfigurationServ
 		apigeeXConfigurationVO = apigeeXIntegrationDAO.poplulateEnvironments(apigeeXConfigurationVO);
 		apigeeXIntegrationDAO.saveJSONKey(apigeeXConfigurationVO);
 		return new ResponseEntity<>(HttpStatus.CREATED);
-		
+
 	}
-	
+
 	@Override
-	public ResponseEntity<Void> updateConfiguration(
-			String interactionid, String jsessionid, 
-			MultipartFile envFile,
+	public ResponseEntity<Void> updateConfiguration(String interactionid, String jsessionid, MultipartFile envFile,
 			String org) throws Exception {
 		ApigeeXConfigurationVO apigeeXConfigurationVo = apigeeXIntegrationDAO.getConfiguration(org);
-		if(apigeeXConfigurationVo == null){
+		if (apigeeXConfigurationVo == null) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1004"), "Configuration-1004");
 		}
 		byte[] bytes = envFile.getBytes();
@@ -62,42 +58,36 @@ public class ApigeeXConfigurationServiceImpl implements ApigeeXConfigurationServ
 		apigeeXConfigurationVO = apigeeXIntegrationDAO.poplulateEnvironments(apigeeXConfigurationVO);
 		apigeeXIntegrationDAO.saveJSONKey(apigeeXConfigurationVO);
 		return new ResponseEntity<>(HttpStatus.CREATED);
-		
+
 	}
-	
 
 	@Override
-	public ResponseEntity<?> getConfigurations(String interactionid, 
-			String jsessionid) throws Exception {
+	public ResponseEntity<?> getConfigurations(String interactionid, String jsessionid) throws Exception {
 		return new ResponseEntity<>(apigeeXIntegrationDAO.getConfigurations(), HttpStatus.OK);
 	}
 
 	@Override
-	public ResponseEntity<?> getConfiguration(String interactionid, 
-			String jsessionid, String org, String refresh) throws Exception {
-		if(refresh != null && refresh.equalsIgnoreCase("true")){
+	public ResponseEntity<?> getConfiguration(String interactionid, String jsessionid, String org, String refresh)
+			throws Exception {
+		if (refresh != null && refresh.equalsIgnoreCase("true")) {
 			return new ResponseEntity<>(apigeeXIntegrationDAO.updateConfiguration(org), HttpStatus.OK);
-		}else{
+		} else {
 			return new ResponseEntity<>(apigeeXIntegrationDAO.getConfiguration(org), HttpStatus.OK);
 		}
 	}
-	
+
 	@Override
-	public ResponseEntity<?> createEnvironmentSchedule(
-			String interactionid,
-			String jsessionid,
-			String org,
-			ApigeeXEnvironment environment)
-			throws Exception{
+	public ResponseEntity<?> createEnvironmentSchedule(String interactionid, String jsessionid, String org,
+			ApigeeXEnvironment environment) throws Exception {
 		return new ResponseEntity<>(apigeeXIntegrationDAO.updateKVM(org, environment), HttpStatus.OK);
 	}
-	
+
 	public ResponseEntity<?> deleteConfiguration(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "jsessionid") String jsessionid,
-			@PathVariable("orgId") String orgId) throws Exception{
+			@RequestHeader(value = "jsessionid") String jsessionid, @PathVariable("orgId") String orgId)
+			throws Exception {
 		apigeeXIntegrationDAO.deleteConfiguration(orgId);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 }

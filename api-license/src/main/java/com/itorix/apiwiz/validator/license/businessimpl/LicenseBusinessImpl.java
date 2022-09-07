@@ -43,8 +43,8 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 	}
 	private License createLicenseObj(LicenseRequest licenseRequest) throws ItorixException {
 		License licenseToSave = new License();
-		licenseToSave.setUserName(licenseRequest.getUserName());
-		licenseToSave.setPassword(licenseRequest.getPassword());
+		//licenseToSave.setUserName(licenseRequest.getUserName());
+		//licenseToSave.setPassword(licenseRequest.getPassword());
 		licenseToSave.setClientName(licenseRequest.getClientName());
 		licenseToSave.setEmailId(licenseRequest.getEmailId());
 		licenseToSave.setLicensePolicy(licenseRequest.getLicensePolicy());
@@ -53,6 +53,7 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 		licenseToSave.setExpiry(licenseRequest.getExpiry());
 		licenseToSave.setEncryptedToken(manager.getEncryptedLicense(licenseRequest));
 		licenseToSave.setStatus(Status.VALID);
+		licenseToSave.setComponents(licenseRequest.getComponents());
 		return licenseToSave;
 	}
 
@@ -78,8 +79,8 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 	}
 
 	private void updateLicenseObj(License license, LicenseRequest licenseRequest) throws ItorixException {
-		license.setUserName(licenseRequest.getUserName());
-		license.setPassword(licenseRequest.getPassword());
+		//license.setUserName(licenseRequest.getUserName());
+		//license.setPassword(licenseRequest.getPassword());
 		license.setClientName(licenseRequest.getClientName());
 		license.setLicensePolicy(licenseRequest.getLicensePolicy());
 		license.setClientIp(licenseRequest.getClientIp());
@@ -87,6 +88,7 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 		license.setExpiry(licenseRequest.getExpiry());
 		license.setEncryptedToken(manager.getEncryptedLicense(licenseRequest));
 		license.setStatus(Status.valueOf(licenseRequest.getStatus()));
+		license.setComponents(licenseRequest.getComponents());
 	}
 
 	@Override

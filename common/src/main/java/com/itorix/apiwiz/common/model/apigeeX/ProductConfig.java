@@ -12,7 +12,7 @@ import com.itorix.apiwiz.common.model.configmanagement.ProductAttributes;
 @Component("productXConfig")
 @Document(collection = "Connectors.ApigeeX.Configure.Products.List")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class ProductConfig extends AbstractObject{
+public class ProductConfig extends AbstractObject {
 	private String name;
 
 	private String org;
@@ -162,5 +162,5 @@ public class ProductConfig extends AbstractObject{
 	public void setActiveFlag(boolean activeFlag) {
 		this.activeFlag = activeFlag;
 	}
-	
+
 }

@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -58,7 +59,7 @@ import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-
+@Slf4j
 @Service
 public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 	private static final Logger logger = LoggerFactory.getLogger(EnvironmentBusinessImpl.class);
@@ -94,7 +95,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 	 */
 	public BackupInfo doEnvironmentBackUp(CommonConfiguration cfg) throws Exception {
 		logger.debug("EnvironmentService.doEnvironmentBackUp : interactionid=" + cfg.getInteractionid()
-		+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization());
+				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization());
 		long start = System.currentTimeMillis();
 		BackupInfo backupInfo = null;
 		logger.debug("Inside the EnvironmentService.doEnvironmentBackUp(" + cfg + ")");
@@ -112,6 +113,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 		org.json.JSONObject obj = null;
 		String downloadURI = "";
 		if (null != cfg.getSelectedEnvironments()) {
+			logger.debug("Performing environment backup");
 			environmentBackUpInfo.setOrganization(cfg.getOrganization());
 			environmentBackUpInfo.setStatus(Constants.STATUS_INPROGRESS);
 			environmentBackUpInfo.setOperationId(cfg.getOperationId());
@@ -128,25 +130,31 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 				JfrogIntegration jfrogIntegration = getJfrogIntegration();
 				S3Integration s3Integration = getS3Integration();
 				if (null != s3Integration) {
-					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-							"restore-backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+					downloadURI = s3Utils
+							.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+									Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+									"restore-backup/" + cfg.getOrganization() + "/" + start + "/"
+											+ cfg.getOrganization() + ".zip",
+									cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
 				} else if (null != jfrogIntegration) {
 					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
 							applicationProperties.getDataRestoreBackup(),
 							jfrogIntegration.getHostURL() + "/artifactory/",
-							"restore-backup/" + cfg.getOrganization()+ "/" + start + "",
+							"restore-backup/" + cfg.getOrganization() + "/" + start + "",
 							jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
 					downloadURI = (String) obj.get("downloadURI");
 				}
-				//				obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-				//						applicationProperties.getDataRestoreBackup(),
-				//						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
-				//								+ "/artifactory/",
-				//						"restore-backup/" + cfg.getOrganization() + "/" + start + "",
-				//						applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+				// obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" +
+				// cfg.getOrganization() + ".zip",
+				// applicationProperties.getDataRestoreBackup(),
+				// applicationProperties.getJfrogHost() + ":" +
+				// applicationProperties.getJfrogPort()
+				// + "/artifactory/",
+				// "restore-backup/" + cfg.getOrganization() + "/" + start + "",
+				// applicationProperties.getJfrogUserName(),
+				// applicationProperties.getJfrogPassword());
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 				throw e;
 			}
 		}
@@ -182,7 +190,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 				RSAEncryption rSAEncryption = new RSAEncryption();
 				decryptedPassword = rSAEncryption.decryptText(jfrogIntegration.getPassword());
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 			jfrogIntegration.setPassword(decryptedPassword);
 		} else {
@@ -204,7 +212,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 			try {
 				decryptedPassword = s3Integration.getDecryptedSecret();
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		} else {
 			String key = applicationProperties.getS3key();
@@ -281,17 +289,18 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 			if (null != s3Integration) {
 				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
 						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-						"restore-backup/" + proxyBackUpInfo.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+						"restore-backup/" + proxyBackUpInfo.getOrganization() + "/" + start + "/"
+								+ cfg.getOrganization() + ".zip",
+						cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
 			} else if (null != jfrogIntegration) {
 				obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-						applicationProperties.getDataRestoreBackup(),
-						jfrogIntegration.getHostURL() + "/artifactory/",
+						applicationProperties.getDataRestoreBackup(), jfrogIntegration.getHostURL() + "/artifactory/",
 						"restore-backup/" + proxyBackUpInfo.getOrganization() + "/" + start + "",
 						jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
 				downloadURI = (String) obj.get("downloadURI");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 			throw e;
 		}
 		FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
@@ -299,7 +308,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 		if (StringUtils.isNotEmpty(downloadURI)) {
 			long end = System.currentTimeMillis();
 			long backupTimeTaken = (end - start) / 1000l;
-			System.out.println("Total Time Taken: (sec): " + backupTimeTaken);
+			log.info("Total Time Taken: (sec): " + backupTimeTaken);
 			proxyBackUpInfo.setJfrogUrl(downloadURI);
 			proxyBackUpInfo.setTimeTaken(backupTimeTaken);
 			proxyBackUpInfo.setProxyInfo(apiProxyInfo);
@@ -316,14 +325,14 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 	 * @param cfg
 	 * 
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public List<String> getEnvironmentDepolyedProxies(CommonConfiguration cfg) throws Exception {
 		logger.debug("EnvironmentService.getEnvironmentDepolyedProxies : interactionid=" + cfg.getInteractionid()
-		+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
-		+ cfg);
+				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
+				+ cfg);
 		List<String> envApiList = new ArrayList<String>();
-		if(cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")){
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
 			String serviceResponse = apigeeXUtil.getProxies(cfg.getOrganization());
 			JSONObject envJsonObject = (JSONObject) JSONSerializer.toJSON(serviceResponse);
 			JSONArray envApis = (JSONArray) envJsonObject.get("proxies");
@@ -332,8 +341,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 				String apiName = (String) apiProxyObject.get("name");
 				envApiList.add(apiName);
 			}
-		}
-		else{
+		} else {
 			if (cfg.getApigeeEmail() == null && cfg.getApigeePassword() == null) {
 				ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(),
 						cfg.getType());
@@ -451,7 +459,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 			file.flush();
 			file.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -467,8 +475,8 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 	 */
 	private JSONObject backupAPIProductsOnEnvironments(CommonConfiguration cfg) throws IOException, ItorixException {
 		logger.debug("EnvironmentService.backupAPIProductsOnEnvironments : interactionid=" + cfg.getInteractionid()
-		+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
-		+ cfg);
+				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
+				+ cfg);
 		List<String> envApiList = cfg.getEnvApiList();
 		List<String> productList = apigeeUtil.listAPIProducts(cfg);
 		JSONObject productsList = new JSONObject();
@@ -506,7 +514,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 				}
 
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		}
 		cfg.setJsonArray(productsData);
@@ -622,11 +630,11 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 								}
 
 							} catch (IOException e) {
-								e.printStackTrace();
+								log.error("Exception occurred", e);
 							}
 						}
 					} catch (IOException e) {
-						e.printStackTrace();
+						log.error("Exception occurred", e);
 					}
 				}
 			}
@@ -680,8 +688,8 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 	public String restoreEnvironmentProxies(CommonConfiguration cfg)
 			throws IOException, InterruptedException, ItorixException {
 		logger.debug("EnvironmentService.restoreEnvironmentProxies : interactionid=" + cfg.getInteractionid()
-		+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
-		+ cfg);
+				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
+				+ cfg);
 		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
 		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
 		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
@@ -723,7 +731,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 					apigeeUtil.deployAPIProxy(cfg);
 
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			}
 		}
@@ -742,8 +750,8 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 	 */
 	private JSONArray backupAppsOnProductBasis(CommonConfiguration cfg) throws ItorixException {
 		logger.debug("EnvironmentService.backupAppsOnProductBasis : interactionid=" + cfg.getInteractionid()
-		+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
-		+ cfg);
+				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
+				+ cfg);
 		List<String> productList = JSONUtil.convertJSONObjectToList(cfg.getJsonArray());
 		List<String> listOfAppIds = apigeeUtil.listAppIDsInAnOrganization(cfg);
 		JSONArray appNames = new JSONArray();
@@ -796,7 +804,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 					}
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 		}
 		return appNames;
@@ -834,7 +842,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 			}
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -869,7 +877,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 				file.flush();
 				file.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error("Exception occurred", e);
 			}
 
 			if (cfg.getIsCleanUpAreBackUp()) {
@@ -914,22 +922,25 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 			if (null != s3Integration) {
 				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
 						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-						"restore-backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+						"restore-backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
+						cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
 			} else if (null != jfrogIntegration) {
 				obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-						applicationProperties.getDataRestoreBackup(),
-						jfrogIntegration.getHostURL() + "/artifactory/",
-						"restore-backup/" + cfg.getOrganization() + "/" + start + "",
-						jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
+						applicationProperties.getDataRestoreBackup(), jfrogIntegration.getHostURL() + "/artifactory/",
+						"restore-backup/" + cfg.getOrganization() + "/" + start + "", jfrogIntegration.getUsername(),
+						jfrogIntegration.getPassword());
 				downloadURI = (String) obj.get("downloadURI");
 			}
-			//			obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-			//					applicationProperties.getDataRestoreBackup(),
-			//					applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort() + "/artifactory/",
-			//					"restore-backup/" + cfg.getOrganization() + "/" + start + "",
-			//					applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+			// obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" +
+			// cfg.getOrganization() + ".zip",
+			// applicationProperties.getDataRestoreBackup(),
+			// applicationProperties.getJfrogHost() + ":" +
+			// applicationProperties.getJfrogPort() + "/artifactory/",
+			// "restore-backup/" + cfg.getOrganization() + "/" + start + "",
+			// applicationProperties.getJfrogUserName(),
+			// applicationProperties.getJfrogPassword());
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception occurred", e);
 		}
 		FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
 		FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
@@ -1027,7 +1038,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 					}
 
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 			}
 			envList.put(environment, resourceData);
@@ -1085,7 +1096,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 					file.flush();
 					file.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 
 				if (cfg.getIsCleanUpAreBackUp()) {
@@ -1151,7 +1162,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 					file.flush();
 					file.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("Exception occurred", e);
 				}
 
 				if (cfg.getIsCleanUpAreBackUp()) {

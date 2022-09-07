@@ -67,7 +67,7 @@ public class PostManService {
 				postManEnvFileInfo = baseRepository.save(postManEnvFileInfo);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 
 		return null;
@@ -81,6 +81,7 @@ public class PostManService {
 
 			PostManFileInfo postManFiledbInfo = findPostManByOrgEnvProxy(org, env, proxy, type, isSaaS);
 			if (postManFiledbInfo != null) {
+				logger.debug("Updating postman file");
 				GridFSFile gridFSFile = gridFsRepository.store(new GridFsData(postmanFile.getInputStream(),
 						org + "-" + env + "-" + proxy + "-" + type + "_postManFile"));
 				String oid = gridFSFile.getId().toString();
@@ -113,7 +114,7 @@ public class PostManService {
 				postManEnvFileInfo = baseRepository.save(postManEnvFileInfo);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 
 		return null;
@@ -185,7 +186,7 @@ public class PostManService {
 				throw new ItorixException(new Throwable().getMessage(), "Connector-1001", new Throwable());
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 
 		return null;
@@ -236,7 +237,7 @@ public class PostManService {
 				postManEnvFileInfo = baseRepository.save(postManEnvFileInfo);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 
 		return null;

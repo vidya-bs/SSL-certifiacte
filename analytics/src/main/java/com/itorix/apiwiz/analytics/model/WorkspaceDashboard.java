@@ -10,14 +10,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document("Workspace.Dashboard.List")
 public class WorkspaceDashboard {
-    private LandingPageMetrics landingPageMetrics;
-    private PortfolioStats portfolioStats;
-    private DesignStudioStats designStudioStats;
-    private ProxyStats proxyStats;
-    private TestStudioStats testStudioStats;
-    private MonitorStats monitorStats;
-    private UserRoleMetrics userRoleMetrics;
-    private long createdTs;
-    private String userId;
+	private LandingPageMetrics landingPageMetrics;
+	private PortfolioStats portfolioStats;
+	private DesignStudioStats designStudioStats;
+	private ProxyStats proxyStats;
+	private TestStudioStats testStudioStats;
+	private MonitorStats monitorStats;
+	private UserRoleMetrics userRoleMetrics;
+	private long createdTs;
+	private String userId;
 
 }

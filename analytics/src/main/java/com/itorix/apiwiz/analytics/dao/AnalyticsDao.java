@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -50,7 +51,7 @@ import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.Apigee;
 import com.itorix.apiwiz.identitymanagement.model.DashBoardOrganisations;
-
+@Slf4j
 @Component
 public class AnalyticsDao {
 
@@ -116,7 +117,7 @@ public class AnalyticsDao {
 					Iterator<JsonNode> metricNodeDetails = metricNode.elements();
 					while (metricNodeDetails.hasNext()) {
 						JsonNode metricElement = metricNodeDetails.next();
-						System.out.println(metricElement.get("name") + "value::"
+						log.info(metricElement.get("name") + "value::"
 								+ metricElement.get("values").elements().next().asText());
 						elementDataWithOutTimeUnit.put(metricElement.get("name").asText(),
 								metricElement.get("values").elements().next().asText());
@@ -168,7 +169,7 @@ public class AnalyticsDao {
 			return performanceTrafficNode;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.info("Exception occurred", e);
 		}
 		return null;
 	}
@@ -234,7 +235,7 @@ public class AnalyticsDao {
 						if (jsonNode.get("name").asText().startsWith("sum")) {
 							// jsonNode.elements().remove();
 							isDelete = false;
-							System.out.println("ArrayNode :::::" + i);
+							log.info("ArrayNode :::::" + i);
 							removableNodes.add(i);
 
 							((ObjectNode) jsonNode).removeAll();
@@ -264,7 +265,7 @@ public class AnalyticsDao {
 					Collections.sort(removableNodes, Collections.reverseOrder());
 
 					for (int postion : removableNodes) {
-						System.out.println("Position####" + postion);
+						log.info("Position####" + postion);
 						((ArrayNode) (metricNode)).remove(postion);
 					}
 				}
@@ -1909,9 +1910,9 @@ public class AnalyticsDao {
 		double totalErrorRatecount = Double.parseDouble(
 				totalErrorRateapigeeResponse.getEnvironments()[0].getMetrics()[0].getValues()[0].replace(".0", ""));
 		Double totalSuccessRateCount = totalTrafficcount - totalErrorRatecount;
-		System.out.println("Sucess Rate totalSuccessRateCount " + totalSuccessRateCount);
+		log.info("Sucess Rate totalSuccessRateCount " + totalSuccessRateCount);
 		delta = (double) (((totalTrafficcount - totalErrorRatecount) * 100) / totalTrafficcount);
-		System.out.println("Sucess Rate " + delta);
+		log.info("Sucess Rate " + delta);
 		Level sucesslevel = new Level();
 		Values[] sucessvalues = new Values[1];
 		Values sucessvalue = new Values();

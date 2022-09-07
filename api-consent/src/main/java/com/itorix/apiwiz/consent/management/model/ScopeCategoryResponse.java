@@ -9,6 +9,6 @@ import java.util.List;
 @Getter
 @Setter
 public class ScopeCategoryResponse {
-    private List<ScopeCategory> scopeCategories;
-    private Pagination pagination;
+	private List<ScopeCategory> scopeCategories;
+	private Pagination pagination;
 }

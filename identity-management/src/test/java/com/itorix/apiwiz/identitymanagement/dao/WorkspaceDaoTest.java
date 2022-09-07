@@ -4,10 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.itorix.apiwiz.identitymanagement.model.Video;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 import java.util.List;
-
+@Slf4j
 public class WorkspaceDaoTest {
 
 	WorkspaceDao workspaceDao = new WorkspaceDao();
@@ -22,6 +23,6 @@ public class WorkspaceDaoTest {
 				+ "     \"url\": \"test\"\n" + " }\n" + " ]";
 		List<Video> someClassList = objectMapper.readValue(test,
 				typeFactory.constructCollectionType(List.class, Video.class));
-		System.out.println(someClassList.get(0).getCategory());
+		log.info(someClassList.get(0).getCategory());
 	}
 }

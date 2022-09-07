@@ -33,13 +33,13 @@ public class SwaggerServiceImplTest {
 	public void setupMock() {
 		MockitoAnnotations.initMocks(this);
 	}
-	
+
 	@Test
 	public void getSwaggerSubscriptionDetails() {
 		String oas = "2.0";
 		String swaggerId = "0af476b3d44447bcbcfb9f0f0459963d";
 		String jsessionId = "1234";
-		
+
 		SwaggerSubscription swaggerSubscription = spy(new SwaggerSubscription());
 		String swaggerName = "Test";
 		swaggerSubscription.setSwaggerName(swaggerName);
@@ -54,12 +54,12 @@ public class SwaggerServiceImplTest {
 		when(baseRepository.findOne("swaggerId", swaggerId, SwaggerSubscription.class)).thenReturn(swaggerSubscription);
 		assertEquals(subscribers, swaggerSubscription.getSubscribers());
 	}
-	 @Test
-	 public void removeSubscriber() {
+	@Test
+	public void removeSubscriber() {
 		String oas = "2.0";
 		String swaggerId = "0af476b3d44447bcbcfb9f0f0459963d";
 		String jsessionId = "1234";
-		
+
 		SwaggerSubscription swaggerSubscription = spy(new SwaggerSubscription());
 		String swaggerName = "Test";
 		swaggerSubscription.setSwaggerName(swaggerName);
@@ -75,14 +75,14 @@ public class SwaggerServiceImplTest {
 		when(baseRepository.findOne("swaggerId", swaggerId, SwaggerSubscription.class)).thenReturn(swaggerSubscription);
 		assertFalse(swaggerSubscription.getSubscribers().contains(subscriber));
 
-	 }
-	 
-	 @Test
-	 public void addSubscribers() {
+	}
+
+	@Test
+	public void addSubscribers() {
 		String oas = "2.0";
 		String swaggerId = "0af476b3d44447bcbcfb9f0f0459963d";
 		String jsessionId = "1234";
-		
+
 		SwaggerSubscription swaggerSubscription = spy(new SwaggerSubscription());
 		String swaggerName = "Test";
 		swaggerSubscription.setSwaggerName(swaggerName);
@@ -96,6 +96,6 @@ public class SwaggerServiceImplTest {
 		subscribers.add(subscriber);
 		when(baseRepository.findOne("swaggerId", swaggerId, SwaggerSubscription.class)).thenReturn(swaggerSubscription);
 		assertTrue(swaggerSubscription.getSubscribers().contains(subscriber));
-	 }
+	}
 
 }

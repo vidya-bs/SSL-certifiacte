@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.data.management.businessimpl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
@@ -18,7 +19,7 @@ import com.itorix.apiwiz.identitymanagement.model.TenantContext;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCursor;
-
+@Slf4j
 @Component
 public class OrganizationBackupScheduler {
 
@@ -31,7 +32,7 @@ public class OrganizationBackupScheduler {
 	private OrganizationBusiness organizationBusiness;
 
 	@Scheduled(fixedRate = 10000)
-	public void executeBackupEvent(){
+	public void executeBackupEvent() {
 
 		try (MongoClient mongoClient = new MongoClient(new MongoClientURI(mongoProperties.getUri()));) {
 			MongoCursor<String> dbsCursor = mongoClient.listDatabaseNames().iterator();
@@ -40,76 +41,82 @@ public class OrganizationBackupScheduler {
 				TenantContext.setCurrentTenant(workSpace);
 				Query query = new Query(Criteria.where("status").is(Constants.STATUS_SCHEDULED));
 				BackupEvent backupEvent = mongoTemplate.findOne(query, BackupEvent.class);
-				if(null != backupEvent){
+				if (null != backupEvent) {
 					backupEvent.setStatus(Constants.STATUS_PROCESSED);
 					mongoTemplate.save(backupEvent);
-					if(backupEvent != null){
-						switch(backupEvent.getEvent().toUpperCase()){  
-							case "BACKUPPROXIES":{
+					if (backupEvent != null) {
+						log.debug("Backing up details of organization business");
+						switch (backupEvent.getEvent().toUpperCase()) {
+							case "BACKUPPROXIES" : {
 								organizationBusiness.backupProxies(backupEvent.getCfg(), backupEvent.getEventId());
 								break;
 							}
-							case "BACKUPSHAREDFLOW":{
+							case "BACKUPSHAREDFLOW" : {
 								organizationBusiness.backupSharedflows(backupEvent.getCfg(), backupEvent.getEventId());
 								break;
 							}
-							case "BACKUPAPPS":{
+							case "BACKUPAPPS" : {
 								organizationBusiness.backUpApps(backupEvent.getCfg(), backupEvent.getEventId());
 								break;
 							}
-							case "BACKUPPRODUCTS":{
+							case "BACKUPPRODUCTS" : {
 								organizationBusiness.backupProducts(backupEvent.getCfg(), backupEvent.getEventId());
 								break;
 							}
-							case "BACKUPDEVELOPERS":{
+							case "BACKUPDEVELOPERS" : {
 								organizationBusiness.backupDevelopers(backupEvent.getCfg(), backupEvent.getEventId());
 								break;
 							}
-							case "BACKUPRESOURCES":{
+							case "BACKUPRESOURCES" : {
 								organizationBusiness.backupResources(backupEvent.getCfg(), backupEvent.getEventId());
 								break;
 							}
-							case "BACKUPORGANIZATION":{
+							case "BACKUPORGANIZATION" : {
 								organizationBusiness.backUpOrganization(backupEvent.getCfg(), backupEvent.getEventId());
 								break;
 							}
-							case "BACKUPCACHES":{
+							case "BACKUPCACHES" : {
 								organizationBusiness.backupCaches(backupEvent.getCfg(), backupEvent.getEventId());
 								break;
 							}
-							case "BACKUPKVM":{
-								organizationBusiness.backupKVM(backupEvent.getDelete(), backupEvent.getCfg(), backupEvent.getEventId());
+							case "BACKUPKVM" : {
+								organizationBusiness.backupKVM(backupEvent.getDelete(), backupEvent.getCfg(),
+										backupEvent.getEventId());
 								break;
 							}
-							case "BACKUPTARGETSERVERS":{
-								organizationBusiness.backupTargetServers(backupEvent.getCfg(), backupEvent.getEventId());
+							case "BACKUPTARGETSERVERS" : {
+								organizationBusiness.backupTargetServers(backupEvent.getCfg(),
+										backupEvent.getEventId());
 								break;
 							}
-							case "RESTOREAPIPROXIES":{
+							case "RESTOREAPIPROXIES" : {
 								organizationBusiness.restoreApiProxies(backupEvent.getCfg(), backupEvent.getEventId());
 								break;
 							}
-							case "RESTORESHAREDFLOWS":{
+							case "RESTORESHAREDFLOWS" : {
 								organizationBusiness.restoreSharedflows(backupEvent.getCfg(), backupEvent.getEventId());
 								break;
 							}
-							case "RESTOREAPPS":{
+							case "RESTOREAPPS" : {
 								organizationBusiness.restoreAPPs(backupEvent.getCfg(), backupEvent.getEventId());
 								break;
 							}
-							case "RESTOREPRODUCTS":{
-								organizationBusiness.restoreAPIProducts1(backupEvent.getCfg(), backupEvent.getEventId());
+							case "RESTOREPRODUCTS" : {
+								organizationBusiness.restoreAPIProducts1(backupEvent.getCfg(),
+										backupEvent.getEventId());
 								break;
 							}
-							case "RESTOREDEVELOPERS":{
-								organizationBusiness.restoreAppDevelopers1(backupEvent.getCfg(), backupEvent.getEventId());
+							case "RESTOREDEVELOPERS" : {
+								organizationBusiness.restoreAppDevelopers1(backupEvent.getCfg(),
+										backupEvent.getEventId());
 								break;
 							}
-							case "RESTOREORGANIZATION":{
-								organizationBusiness.restoreOrganization(backupEvent.getCfg(), backupEvent.getEventId());
+							case "RESTOREORGANIZATION" : {
+								organizationBusiness.restoreOrganization(backupEvent.getCfg(),
+										backupEvent.getEventId());
 								break;
 							}
-							case "RESTORERESOURCES":{
+							case "RESTORERESOURCES" : {
 								organizationBusiness.restoreResources(backupEvent.getCfg(), backupEvent.getEventId());
 								break;
 							}
@@ -117,12 +124,9 @@ public class OrganizationBackupScheduler {
 					}
 				}
 			}
-		}
-		catch(Exception e){
-			e.printStackTrace();
+		} catch (Exception e) {
+			log.error("Exception occurred", e);
 		}
 	}
-
-	
 
 }

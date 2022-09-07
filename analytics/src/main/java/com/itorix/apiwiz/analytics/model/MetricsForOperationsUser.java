@@ -14,6 +14,6 @@ import java.util.Map;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MetricsForOperationsUser {
-    private Map<String, Integer> releasePackageCountByStatus = new HashMap<>();
-    private List<Document> serviceRequestByStatus = new ArrayList<>();
+	private Map<String, Integer> releasePackageCountByStatus = new HashMap<>();
+	private List<Document> serviceRequestByStatus = new ArrayList<>();
 }

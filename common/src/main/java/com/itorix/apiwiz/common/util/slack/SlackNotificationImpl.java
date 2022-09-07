@@ -90,7 +90,7 @@ public class SlackNotificationImpl {
 
 			} catch (IOException | URISyntaxException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Exception occurred", e);
 			} finally {
 
 				if (respone != null) {
@@ -130,9 +130,9 @@ public class SlackNotificationImpl {
 	 * execute.getEntity().getContent(); BufferedReader bufferedReader = new
 	 * BufferedReader(new InputStreamReader(content));
 	 * 
-	 * System.out.println(bufferedReader.readLine());
+	 * log.info(bufferedReader.readLine());
 	 * 
-	 * System.out.println(execute.getEntity().toString()); ; } }
+	 * log.info(execute.getEntity().toString()); ; } }
 	 */
 
 }

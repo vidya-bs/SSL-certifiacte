@@ -1,5 +1,7 @@
 package com.itorix.apiwiz.common.properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
@@ -9,7 +11,7 @@ import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 @Component
 @PropertySource(value = "file:${config.properties}", ignoreResourceNotFound = true)
 public class ApplicationProperties {
-
+	private static final Logger logger = LoggerFactory.getLogger(ApplicationProperties.class);
 	@Value("${itorix.core.apigee.backup.directory}")
 	private String backupDir;
 
@@ -67,10 +69,10 @@ public class ApplicationProperties {
 
 	@Value("${itorix.core.user.management.register.confirm.email.body}")
 	private String registermailBody;
-	
+
 	@Value("${itorix.core.user.management.swagger.subscription.notification.email.subject}")
 	private String swaggerSubscriptionSubject;
-	
+
 	@Value("${itorix.core.user.management.swagger.subscription.notification.email.body}")
 	private String swaggerSubscriptionMailBody;
 
@@ -452,7 +454,7 @@ public class ApplicationProperties {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.cicdAuthPassword);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return decryptedPassword;
 	}
@@ -692,7 +694,7 @@ public class ApplicationProperties {
 	public void setUserActivationRedirectionLink(String userActivationRedirectionLink) {
 		this.userActivationRedirectionLink = userActivationRedirectionLink;
 	}
-	
+
 	public String getSwaggerSubscriptionMailBody() {
 		return swaggerSubscriptionMailBody;
 	}
@@ -767,7 +769,7 @@ public class ApplicationProperties {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.apigeeServicePassword);
 		} catch (Exception e) {
-			// e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return decryptedPassword;
 	}
@@ -914,7 +916,7 @@ public class ApplicationProperties {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.jfrogPassword);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return decryptedPassword;
 	}
@@ -945,7 +947,7 @@ public class ApplicationProperties {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.s3secret);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return decryptedPassword;
 	}
@@ -1020,7 +1022,7 @@ public class ApplicationProperties {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.apigeePassword);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return decryptedPassword;
 	}
@@ -1051,7 +1053,7 @@ public class ApplicationProperties {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.proxyScmPassword);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return decryptedPassword;
 	}
@@ -1070,7 +1072,7 @@ public class ApplicationProperties {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedToken = rSAEncryption.decryptText(this.proxyScmToken);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return decryptedToken;
 	}
@@ -1133,7 +1135,7 @@ public class ApplicationProperties {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.buildScmPassword);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return decryptedPassword;
 	}
@@ -1148,7 +1150,7 @@ public class ApplicationProperties {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedToken = rSAEncryption.decryptText(this.buildScmToken);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Exception occurred", e);
 		}
 		return decryptedToken;
 	}
