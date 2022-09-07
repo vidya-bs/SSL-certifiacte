@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.gson.JsonObject;
 import com.itorix.apiwiz.common.model.SearchItem;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
@@ -1247,6 +1248,10 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				}
 			}
 		}
+		JSONObject swaggerJsonObject = new JSONObject(vo.getSwagger());
+		JSONObject infoObject = swaggerJsonObject.getJSONObject("info");
+		log.info("The swagger Info object is: {}", infoObject.keySet().contains("description")? infoObject.get("description"):"");
+
 		if (null == jsonNode) {
 			ObjectNode rootNode = mapper.createObjectNode();
 			JsonNode swaggerJson = null;
@@ -1256,7 +1261,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("title", vo.getName());
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "2.0");
-			itemNode.put("swaggerDescription", vo.getDescription());
+			itemNode.put("swaggerDescription",
+					infoObject.keySet().contains("description") ? infoObject.get("description") != null
+							? infoObject.get("description").toString() : "" : "");
 			ArrayNode revision = mapper.createArrayNode();
 
 			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "2.0");
@@ -1336,7 +1343,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("title", vo.getName());
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "2.0");
-			itemNode.put("swaggerDescription", vo.getDescription());
+			itemNode.put("swaggerDescription",
+					infoObject.keySet().contains("description") ? infoObject.get("description") != null
+							? infoObject.get("description").toString() : "" : "");
 			ArrayNode revision = mapper.createArrayNode();
 			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "2.0");
 			if (metadata != null) {
@@ -1467,6 +1476,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				}
 			}
 		}
+		JSONObject swaggerJsonObject = new JSONObject(vo.getSwagger());
+		JSONObject infoObject = (JSONObject) swaggerJsonObject.get("info");
+		log.info("The swagger Info object is: {}",
+				infoObject.keySet().contains("description") ? infoObject.get("description") : "");
+
 		if (null == jsonNode) {
 			ObjectNode rootNode = mapper.createObjectNode();
 			JsonNode swaggerJson = null;
@@ -1477,7 +1491,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("id", vo.getId());
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "3.0");
-			itemNode.put("swaggerDescription", vo.getDescription());
+			itemNode.put("swaggerDescription",
+					infoObject.keySet().contains("description") ? infoObject.get("description") != null
+							? infoObject.get("description").toString() : "" : "");
 			ArrayNode revision = mapper.createArrayNode();
 			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "3.0");
 			if (metadata != null) {
@@ -1556,7 +1572,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("id", vo.getId());
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "3.0");
-			itemNode.put("swaggerDescription", vo.getDescription());
+			itemNode.put("swaggerDescription",
+					infoObject.keySet().contains("description") ? infoObject.get("description") != null
+							? infoObject.get("description").toString() : "" : "");
 			ArrayNode revision = mapper.createArrayNode();
 			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "3.0");
 			if (metadata != null) {
