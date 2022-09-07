@@ -1,15 +1,14 @@
 package com.itorix.apiwiz.design.studio.businessimpl;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
+import com.itorix.apiwiz.common.factory.IntegrationHelper;
+import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import com.itorix.apiwiz.common.util.StorageIntegration;
+import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
+import com.itorix.apiwiz.common.util.s3.S3Connection;
+import com.itorix.apiwiz.common.util.s3.S3Utils;
+import com.itorix.apiwiz.design.studio.model.EmptyXlsRows;
+import com.itorix.apiwiz.design.studio.model.RowData;
+import com.itorix.apiwiz.design.studio.model.XmlSchemaVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -23,15 +22,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.amazonaws.regions.Regions;
-import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
-import com.itorix.apiwiz.common.properties.ApplicationProperties;
-import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
-import com.itorix.apiwiz.common.util.s3.S3Connection;
-import com.itorix.apiwiz.common.util.s3.S3Utils;
-import com.itorix.apiwiz.design.studio.model.EmptyXlsRows;
-import com.itorix.apiwiz.design.studio.model.RowData;
-import com.itorix.apiwiz.design.studio.model.XmlSchemaVo;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 @Slf4j
 @Component
 public class XlsUtil {
@@ -49,6 +43,9 @@ public class XlsUtil {
 
 	@Autowired
 	private S3Utils s3Utils;
+
+	@Autowired
+	private IntegrationHelper integrationHelper;
 
 	@Autowired
 	ApplicationProperties applicationProperties;
@@ -143,27 +140,12 @@ public class XlsUtil {
 		fileOut.close();
 		JSONObject obj = null;
 		try {
-			S3Integration s3Integration = s3Connection.getS3Integration();
 			String downloadURI = null;
-			if (null != s3Integration) {
-				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-						"temp/" + timeStamp + "/workbook.xls", xsdFileBackUpLocation + "/workbook.xls");
-				obj = new JSONObject();
-				obj.put("filename", "workbook.xls");
-				obj.put("downloadURI", downloadURI);
-			} else {
-				obj = jfrogUtilImpl.uploadFiles(file.getAbsolutePath(), applicationProperties.getSwaggerXpath(),
-						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
-								+ "/artifactory/",
-						timeStamp + "", // change
-						// the
-						// repo
-						// name
-						// and
-						// path
-						applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
-			}
+			StorageIntegration storageIntegration = integrationHelper.getIntegration();
+			downloadURI = storageIntegration.uploadFile("temp/" + timeStamp + "/workbook.xls", xsdFileBackUpLocation + "/workbook.xls");
+			obj = new JSONObject();
+			obj.put("filename", "workbook.xls");
+			obj.put("downloadURI", downloadURI);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			log.error("Exception occurred", e);

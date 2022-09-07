@@ -1,22 +1,43 @@
 package com.itorix.apiwiz.data.management.businessimpl;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.itorix.apiwiz.common.factory.IntegrationHelper;
+import com.itorix.apiwiz.common.model.Constants;
+import com.itorix.apiwiz.common.model.GridFsData;
+import com.itorix.apiwiz.common.model.apigee.Environment;
+import com.itorix.apiwiz.common.model.apigee.*;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyArtifacts;
+import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import com.itorix.apiwiz.common.service.GridFsRepository;
+import com.itorix.apiwiz.common.util.StorageIntegration;
+import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
+import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
+import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
+import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
+import com.itorix.apiwiz.common.util.s3.S3Utils;
+import com.itorix.apiwiz.data.management.business.OrganizationBusiness;
+import com.itorix.apiwiz.data.management.dao.IntegrationsDataDao;
+import com.itorix.apiwiz.data.management.model.BackupInfo;
+import com.itorix.apiwiz.data.management.model.*;
+import com.itorix.apiwiz.data.management.model.mappers.APIProduct;
+import com.itorix.apiwiz.data.management.model.overview.ApigeeOrganizationalVO;
+import com.itorix.apiwiz.data.management.model.overview.Apps;
+import com.itorix.apiwiz.data.management.model.overview.Products;
+import com.itorix.apiwiz.data.management.model.overview.Proxies;
+import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -36,57 +57,11 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.zeroturnaround.zip.ZipUtil;
 
-import com.amazonaws.regions.Regions;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.itorix.apiwiz.common.model.Constants;
-import com.itorix.apiwiz.common.model.GridFsData;
-import com.itorix.apiwiz.common.model.apigee.APIProxyDeploymentDetailsResponse;
-import com.itorix.apiwiz.common.model.apigee.APIProxyResponse;
-import com.itorix.apiwiz.common.model.apigee.ApigeeServiceUser;
-import com.itorix.apiwiz.common.model.apigee.CommonConfiguration;
-import com.itorix.apiwiz.common.model.apigee.Environment;
-import com.itorix.apiwiz.common.model.apigee.Revision;
-import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
-import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
-import com.itorix.apiwiz.common.model.proxystudio.ProxyArtifacts;
-import com.itorix.apiwiz.common.properties.ApplicationProperties;
-import com.itorix.apiwiz.common.service.GridFsRepository;
-import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
-import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
-import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
-import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
-import com.itorix.apiwiz.common.util.s3.S3Utils;
-import com.itorix.apiwiz.data.management.business.OrganizationBusiness;
-import com.itorix.apiwiz.data.management.dao.IntegrationsDataDao;
-import com.itorix.apiwiz.data.management.model.AppBackUpInfo;
-import com.itorix.apiwiz.data.management.model.BackupEvent;
-import com.itorix.apiwiz.data.management.model.BackupInfo;
-import com.itorix.apiwiz.data.management.model.DeveloperBackUpInfo;
-import com.itorix.apiwiz.data.management.model.EnvironmentBackUpInfo;
-import com.itorix.apiwiz.data.management.model.OrgBackUpInfo;
-import com.itorix.apiwiz.data.management.model.ProductsBackUpInfo;
-import com.itorix.apiwiz.data.management.model.ProxyBackUpInfo;
-import com.itorix.apiwiz.data.management.model.ResourceBackUpInfo;
-import com.itorix.apiwiz.data.management.model.RestoreProxyInfo;
-import com.itorix.apiwiz.data.management.model.SharedflowBackUpInfo;
-import com.itorix.apiwiz.data.management.model.mappers.APIProduct;
-import com.itorix.apiwiz.data.management.model.overview.ApigeeOrganizationalVO;
-import com.itorix.apiwiz.data.management.model.overview.Apps;
-import com.itorix.apiwiz.data.management.model.overview.Products;
-import com.itorix.apiwiz.data.management.model.overview.Proxies;
-import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import net.sf.json.util.JSONUtils;
 @Slf4j
 @Service
 public class OrganizationBusinessImpl implements OrganizationBusiness {
@@ -106,6 +81,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	private S3Utils s3Utils;
 	@Autowired
 	private GridFsRepository gridFsRepository;
+
+	@Autowired
+	private IntegrationHelper integrationHelper;
 
 	@Autowired
 	ApplicationProperties applicationProperties;
@@ -269,21 +247,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
-				JfrogIntegration jfrogIntegration = getJfrogIntegration();
-				S3Integration s3Integration = getS3Integration();
-				if (null != s3Integration) {
-					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-							"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
-							cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
-				} else if (null != jfrogIntegration) {
-					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-							applicationProperties.getDataRestoreBackup(),
-							jfrogIntegration.getHostURL() + "/artifactory/",
-							"Backup/" + cfg.getOrganization() + "/" + start + "", jfrogIntegration.getUsername(),
-							jfrogIntegration.getPassword());
-					downloadURI = (String) obj.get("downloadURI");
-				}
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
 				// obj = jfrogUtilImpl.uploadFiles(cfg.getBackUpLocation() + "/"
 				// + cfg.getOrganization() + ".zip",
 				// applicationProperties.getDataRestoreBackup(),
@@ -383,21 +348,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
-				JfrogIntegration jfrogIntegration = getJfrogIntegration();
-				S3Integration s3Integration = getS3Integration();
-				if (null != s3Integration) {
-					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-							"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
-							cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
-				} else if (null != jfrogIntegration) {
-					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-							applicationProperties.getDataRestoreBackup(),
-							jfrogIntegration.getHostURL() + "/artifactory/",
-							"Backup/" + cfg.getOrganization() + "/" + start + "", jfrogIntegration.getUsername(),
-							jfrogIntegration.getPassword());
-					downloadURI = (String) obj.get("downloadURI");
-				}
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
 			} catch (Exception e) {
 				log.error("Exception occurred", e);
 				throw e;
@@ -486,21 +438,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
-				JfrogIntegration jfrogIntegration = getJfrogIntegration();
-				S3Integration s3Integration = getS3Integration();
-				if (null != s3Integration) {
-					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-							"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
-							cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
-				} else if (null != jfrogIntegration) {
-					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-							applicationProperties.getDataRestoreBackup(),
-							jfrogIntegration.getHostURL() + "/artifactory/",
-							"Backup/" + cfg.getOrganization() + "/" + start + "", jfrogIntegration.getUsername(),
-							jfrogIntegration.getPassword());
-					downloadURI = (String) obj.get("downloadURI");
-				}
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				log.error("Exception occurred", e);
@@ -590,21 +529,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
-				JfrogIntegration jfrogIntegration = getJfrogIntegration();
-				S3Integration s3Integration = getS3Integration();
-				if (null != s3Integration) {
-					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-							"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
-							cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
-				} else if (null != jfrogIntegration) {
-					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-							applicationProperties.getDataRestoreBackup(),
-							jfrogIntegration.getHostURL() + "/artifactory/",
-							"Backup/" + cfg.getOrganization() + "/" + start + "", jfrogIntegration.getUsername(),
-							jfrogIntegration.getPassword());
-					downloadURI = (String) obj.get("downloadURI");
-				}
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				log.error("Exception occurred", e);
@@ -695,21 +621,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
-				JfrogIntegration jfrogIntegration = getJfrogIntegration();
-				S3Integration s3Integration = getS3Integration();
-				if (null != s3Integration) {
-					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-							"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
-							cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
-				} else if (null != jfrogIntegration) {
-					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-							applicationProperties.getDataRestoreBackup(),
-							jfrogIntegration.getHostURL() + "/artifactory/",
-							"Backup/" + cfg.getOrganization() + "/" + start + "", jfrogIntegration.getUsername(),
-							jfrogIntegration.getPassword());
-					downloadURI = (String) obj.get("downloadURI");
-				}
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				log.error("Exception occurred", e);
@@ -800,21 +713,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
-				JfrogIntegration jfrogIntegration = getJfrogIntegration();
-				S3Integration s3Integration = getS3Integration();
-				if (null != s3Integration) {
-					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-							"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
-							cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
-				} else if (null != jfrogIntegration) {
-					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-							applicationProperties.getDataRestoreBackup(),
-							jfrogIntegration.getHostURL() + "/artifactory/",
-							"Backup/" + cfg.getOrganization() + "/" + start + "", jfrogIntegration.getUsername(),
-							jfrogIntegration.getPassword());
-					downloadURI = (String) obj.get("downloadURI");
-				}
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				log.error("Exception occurred", e);
@@ -908,21 +808,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
-				JfrogIntegration jfrogIntegration = getJfrogIntegration();
-				S3Integration s3Integration = getS3Integration();
-				if (null != s3Integration) {
-					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-							"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
-							cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
-				} else if (null != jfrogIntegration) {
-					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-							applicationProperties.getDataRestoreBackup(),
-							jfrogIntegration.getHostURL() + "/artifactory/",
-							"Backup/" + cfg.getOrganization() + "/" + start + "", jfrogIntegration.getUsername(),
-							jfrogIntegration.getPassword());
-					downloadURI = (String) obj.get("downloadURI");
-				}
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
 
 			} catch (Exception e) {
 				logger.error(e.getMessage());
@@ -1021,21 +908,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
-				JfrogIntegration jfrogIntegration = getJfrogIntegration();
-				S3Integration s3Integration = getS3Integration();
-				if (null != s3Integration) {
-					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-							"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
-							cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
-				} else if (null != jfrogIntegration) {
-					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-							applicationProperties.getDataRestoreBackup(),
-							jfrogIntegration.getHostURL() + "/artifactory/",
-							"Backup/" + cfg.getOrganization() + "/" + start + "", jfrogIntegration.getUsername(),
-							jfrogIntegration.getPassword());
-					downloadURI = (String) obj.get("downloadURI");
-				}
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+
 			} catch (Exception e) {
 				log.error("Exception occurred", e);
 				throw e;
@@ -1124,21 +999,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
-				JfrogIntegration jfrogIntegration = getJfrogIntegration();
-				S3Integration s3Integration = getS3Integration();
-				if (null != s3Integration) {
-					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-							"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
-							cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
-				} else if (null != jfrogIntegration) {
-					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-							applicationProperties.getDataRestoreBackup(),
-							jfrogIntegration.getHostURL() + "/artifactory/",
-							"Backup/" + cfg.getOrganization() + "/" + start + "", jfrogIntegration.getUsername(),
-							jfrogIntegration.getPassword());
-					downloadURI = (String) obj.get("downloadURI");
-				}
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
 
 			} catch (Exception e) {
 				log.error("Exception occurred", e);
@@ -1227,21 +1089,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
-				JfrogIntegration jfrogIntegration = getJfrogIntegration();
-				S3Integration s3Integration = getS3Integration();
-				if (null != s3Integration) {
-					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-							"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
-							cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
-				} else if (null != jfrogIntegration) {
-					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-							applicationProperties.getDataRestoreBackup(),
-							jfrogIntegration.getHostURL() + "/artifactory/",
-							"Backup/" + cfg.getOrganization() + "/" + start + "", jfrogIntegration.getUsername(),
-							jfrogIntegration.getPassword());
-					downloadURI = (String) obj.get("downloadURI");
-				}
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+
 			} catch (Exception e) {
 				log.error("Exception occurred", e);
 				throw e;

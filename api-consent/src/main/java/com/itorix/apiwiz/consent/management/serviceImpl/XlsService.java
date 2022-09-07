@@ -1,10 +1,10 @@
 package com.itorix.apiwiz.consent.management.serviceImpl;
 
-import com.amazonaws.regions.Regions;
+import com.itorix.apiwiz.common.factory.IntegrationHelper;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import com.itorix.apiwiz.common.util.StorageIntegration;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
@@ -13,8 +13,10 @@ import com.itorix.apiwiz.consent.management.model.ConsentAuditExportResponse;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
-import org.json.JSONObject;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +42,9 @@ public class XlsService {
 
 	@Autowired
 	ApplicationProperties applicationProperties;
+
+	@Autowired
+	private IntegrationHelper integrationHelper;
 
 	@SneakyThrows
 	public ConsentAuditExportResponse createConsentAuditXsl(String sheetName, List<Consent> data,
@@ -97,27 +102,12 @@ public class XlsService {
 
 		ConsentAuditExportResponse response = new ConsentAuditExportResponse();
 
+		String downloadURI = null;
 		try {
-			S3Integration s3Integration = s3Connection.getS3Integration();
-			String downloadURI = null;
-			if (null != s3Integration) {
-				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-						"temp/" + timeStamp + "/consent-audit.xls", xlsFileBackUpLocation + "/consent-audit.xls");
-				response.setFileName("consent-audit.xls");
-				response.setDownloadURI(downloadURI);
-			} else {
-				JSONObject jsonObject = jfrogUtilImpl.uploadFiles(file.getAbsolutePath(),
-						applicationProperties.getSwaggerXpath(),
-						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
-								+ "/artifactory/",
-						timeStamp + "", applicationProperties.getJfrogUserName(),
-						applicationProperties.getJfrogPassword());
-				response.setFileName(jsonObject.getString("filename"));
-				response.setDownloadURI(jsonObject.getString("downloadURI"));
-				response.setMd5(jsonObject.getString("md5"));
-				response.setSha1(jsonObject.getString("sha1"));
-			}
+			StorageIntegration storageIntegration = integrationHelper.getIntegration();
+			downloadURI = storageIntegration.uploadFile("temp/" + timeStamp + "/consent-audit.xls", xlsFileBackUpLocation + "/consent-audit.xls");
+			response.setFileName("consent-audit.xls");
+			response.setDownloadURI(downloadURI);
 		} catch (Exception e) {
 			log.error("Error while uploading consent data ", e.getMessage());
 			throw new ItorixException(ErrorCodes.errorMessage.get("General-1000"), "General-1000");

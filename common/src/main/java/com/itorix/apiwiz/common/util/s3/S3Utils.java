@@ -1,13 +1,5 @@
 package com.itorix.apiwiz.common.util.s3;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -15,10 +7,21 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
+import com.itorix.apiwiz.common.util.StorageIntegration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-@Component
-public class S3Utils {
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+
+@Component("S3")
+public class S3Utils extends StorageIntegration {
+
+	@Autowired
+	S3Connection s3Connection;
 
 	@Value("${itorix.core.application.url}")
 	private String host;
@@ -34,7 +37,7 @@ public class S3Utils {
 	 * "Document-test/1551935259542.zip", "/Itorix/temp/1551935259542.zip"); }
 	 */
 
-	public String uplaodFile(String key, String secret, Regions region, String bucketName, String path, String filePath)
+	public String uploadFile(String key, String secret, Regions region, String bucketName, String path, String filePath)
 			throws IOException {
 		AWSCredentials credentials = new BasicAWSCredentials(key, secret);
 		AmazonS3 s3client = AmazonS3ClientBuilder.standard()
@@ -44,8 +47,8 @@ public class S3Utils {
 		return getURL(bucketName, region.getName(), path);
 	}
 
-	public String uplaodFile(String key, String secret, Regions region, String bucketName, String path,
-			InputStream input) throws IOException {
+	public String uploadFile(String key, String secret, Regions region, String bucketName, String path,
+							 InputStream input) throws IOException {
 		AWSCredentials credentials = new BasicAWSCredentials(key, secret);
 		AmazonS3 s3client = AmazonS3ClientBuilder.standard()
 				.withCredentials(new AWSStaticCredentialsProvider(credentials)).withRegion(region).build();
@@ -80,4 +83,27 @@ public class S3Utils {
 		s3client.deleteObject(bucketName,key);
 	}
 
+	@Override
+	public String uploadFile(String path, String data) throws Exception {
+		S3Integration s3Integration = s3Connection.getS3Integration();
+		return uploadFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(), Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(), path, data);
+	}
+
+	@Override
+	public String uploadFile(String path, InputStream data) throws Exception {
+		S3Integration s3Integration = s3Connection.getS3Integration();
+		return uploadFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(), Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(), path, data);
+	}
+
+	@Override
+	public InputStream getFile(String path) throws Exception {
+		S3Integration s3Integration = s3Connection.getS3Integration();
+		return getFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(), Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(), path);
+	}
+
+	@Override
+	public void deleteFile(String path) throws Exception {
+		S3Integration s3Integration = s3Connection.getS3Integration();
+		deleteFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(), Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(), path);
+	}
 }
