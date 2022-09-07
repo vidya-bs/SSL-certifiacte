@@ -1159,6 +1159,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		ObjectMapper mapper = new ObjectMapper();
 		ArrayNode arrayNode = mapper.createArrayNode();
 
+
 		if (partners.isEmpty() && products.isEmpty() && teams.isEmpty()) {
 			list.forEach(vo -> {
 				try {
@@ -1255,7 +1256,26 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("title", vo.getName());
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "2.0");
+			itemNode.put("swaggerDescription", vo.getDescription());
 			ArrayNode revision = mapper.createArrayNode();
+
+			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "2.0");
+			if (metadata != null) {
+				if (metadata.getTeams() != null) {
+					ArrayNode teams = mapper.valueToTree(metadata.getTeams());
+					itemNode.putArray("teams").addAll(teams);
+				}
+				if (metadata.getProducts() != null) {
+					ArrayNode products = mapper.valueToTree(metadata.getProducts());
+					itemNode.putArray("products").addAll(products);
+				}
+			}
+
+			if (vo.getPartners() != null) {
+				ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
+				itemNode.putArray("partners").addAll(partners);
+			}
+
 			ObjectNode revisionNode = mapper.createObjectNode();
 			if (vo != null && vo.getSwagger() != null) {
 				swaggerJson = mapper.readTree(vo.getSwagger());
@@ -1316,7 +1336,24 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("title", vo.getName());
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "2.0");
+			itemNode.put("swaggerDescription", vo.getDescription());
 			ArrayNode revision = mapper.createArrayNode();
+			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "2.0");
+			if (metadata != null) {
+				if (metadata.getTeams() != null) {
+					ArrayNode teams = mapper.valueToTree(metadata.getTeams());
+					itemNode.putArray("teams").addAll(teams);
+				}
+				if (metadata.getProducts() != null) {
+					ArrayNode products = mapper.valueToTree(metadata.getProducts());
+					itemNode.putArray("products").addAll(products);
+				}
+			}
+
+			if (vo.getPartners() != null) {
+				ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
+				itemNode.putArray("partners").addAll(partners);
+			}
 			ObjectNode revisionNode = mapper.createObjectNode();
 			if (vo != null && vo.getSwagger() != null) {
 				swaggerJson = mapper.readTree(vo.getSwagger());
@@ -1440,7 +1477,24 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("id", vo.getId());
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "3.0");
+			itemNode.put("swaggerDescription", vo.getDescription());
 			ArrayNode revision = mapper.createArrayNode();
+			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "3.0");
+			if (metadata != null) {
+				if (metadata.getTeams() != null) {
+					ArrayNode teams = mapper.valueToTree(metadata.getTeams());
+					itemNode.putArray("teams").addAll(teams);
+				}
+				if (metadata.getProducts() != null) {
+					ArrayNode products = mapper.valueToTree(metadata.getProducts());
+					itemNode.putArray("products").addAll(products);
+				}
+			}
+
+			if (vo.getPartners() != null) {
+				ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
+				itemNode.putArray("partners").addAll(partners);
+			}
 			ObjectNode revisionNode = mapper.createObjectNode();
 			if (vo != null && vo.getSwagger() != null) {
 				swaggerJson = mapper.readTree(vo.getSwagger());
@@ -1502,7 +1556,24 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("id", vo.getId());
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "3.0");
+			itemNode.put("swaggerDescription", vo.getDescription());
 			ArrayNode revision = mapper.createArrayNode();
+			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "3.0");
+			if (metadata != null) {
+				if (metadata.getTeams() != null) {
+					ArrayNode teams = mapper.valueToTree(metadata.getTeams());
+					itemNode.putArray("teams").addAll(teams);
+				}
+				if (metadata.getProducts() != null) {
+					ArrayNode products = mapper.valueToTree(metadata.getProducts());
+					itemNode.putArray("products").addAll(products);
+				}
+			}
+
+			if (vo.getPartners() != null) {
+				ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
+				itemNode.putArray("partners").addAll(partners);
+			}
 			ObjectNode revisionNode = mapper.createObjectNode();
 			if (vo != null && vo.getSwagger() != null) {
 				swaggerJson = mapper.readTree(vo.getSwagger());

@@ -767,7 +767,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 				filterParams.get("partnerId").split(",")) : Collections.emptyList();
 		List<String> products = filterParams.get("productId") != null ? Arrays.asList(
 				filterParams.get("productId").split(",")) : Collections.emptyList();
-		List<String> teams = filterParams.get("teamId") != null ? Arrays.asList(
+		List<String> teams = filterParams.get("teamId") != null && !filterParams.get("teamId").isEmpty() ? Arrays.asList(
 				filterParams.get("teamId").split(",")) : Collections.emptyList();
 		String json = "";
 		ArrayNode node = swaggerBusiness.getListOfPublishedSwaggerDetails(interactionid, jsessionid,
