@@ -51,6 +51,7 @@ public class ApigeeTargetGeneration {
 
 	public void generateTargetCode(Folder targetFolder, CodeGenHistory cg, String dir)
 			throws IOException, TemplateException {
+		log.debug("Generating target code");
 		List<Target> targets = cg.getTarget();
 		dstRootFolder = dir;
 		createDestinationFolderStructure(dstRootFolder);
@@ -68,6 +69,7 @@ public class ApigeeTargetGeneration {
 
 	private void processTargetEndpointTemplate(Flows flows, Folder target, CodeGenHistory cg)
 			throws IOException, TemplateException {
+		log.debug("Processing target endpoint template");
 		List<Folder> files = target.getFiles();
 		for (Folder tmplFile : files) {
 			if (!tmplFile.isFolder()) {
@@ -76,7 +78,7 @@ public class ApigeeTargetGeneration {
 				Template template = getTemplate("TargetEndpoint.xml.ftl");
 				String tgtfilePrefix = targetName;
 				String dstFileName = dstRootFolder + File.separatorChar + "targets" + File.separatorChar + tgtfilePrefix
-						+ "-Target" + ProxyConfig.ENDPOINT_XML_SUFFIX;
+						+  ProxyConfig.XML_FILE_EXT;
 				Writer file = new FileWriter(dstFileName);
 				Map<String, Object> data = new HashMap<String, Object>();
 
@@ -107,6 +109,7 @@ public class ApigeeTargetGeneration {
 	}
 
 	private void processPolicyTemplates(Flows flows, Folder policies) throws IOException, TemplateException {
+		log.debug("Processing policy templates");
 		String STR_TARGET = "TARGET_";
 		if (policies != null) {
 			List<Folder> fileList = policies.getFiles();
@@ -180,6 +183,7 @@ public class ApigeeTargetGeneration {
 
 	@SuppressWarnings("deprecation")
 	private Template getTemplateFromFile(String file) throws IOException {
+		log.debug("Fetching template from file {}", file);
 		File templateFile = new File(file);
 		String fileName = templateFile.getName();
 		String reader = FileUtils.readFileToString(templateFile);
@@ -193,6 +197,7 @@ public class ApigeeTargetGeneration {
 	}
 
 	private void createDestinationFolderStructure(String apiProxyRootFolder) {
+		log.debug("Creating destination folder for {}", apiProxyRootFolder);
 		dstPolicies = apiProxyRootFolder + File.separatorChar + ProxyConfig.FLDR_POLICIES;
 		// File dir = new File(dstPolicies);
 		// dir.mkdirs();
