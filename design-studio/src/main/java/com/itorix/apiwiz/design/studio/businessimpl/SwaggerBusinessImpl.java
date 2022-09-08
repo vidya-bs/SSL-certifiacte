@@ -1279,12 +1279,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					ArrayNode products = mapper.valueToTree(metadata.getProducts());
 					itemNode.putArray("products").addAll(products);
 				}
+				if (metadata.getPartners() != null) {
+					ArrayNode partners = mapper.valueToTree(getswaggerPartnersName(metadata.getPartners()));
+					itemNode.putArray("partners").addAll(partners);
+				}
 			}
 
-			if (vo.getPartners() != null) {
-				ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
-				itemNode.putArray("partners").addAll(partners);
-			}
 
 			ObjectNode revisionNode = mapper.createObjectNode();
 			if (vo != null && vo.getSwagger() != null) {
@@ -1360,12 +1360,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					ArrayNode products = mapper.valueToTree(metadata.getProducts());
 					itemNode.putArray("products").addAll(products);
 				}
+				if (metadata.getPartners() != null) {
+					ArrayNode partners = mapper.valueToTree(getswaggerPartnersName(metadata.getPartners()));
+					itemNode.putArray("partners").addAll(partners);
+				}
 			}
 
-			if (vo.getPartners() != null) {
-				ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
-				itemNode.putArray("partners").addAll(partners);
-			}
+
 			ObjectNode revisionNode = mapper.createObjectNode();
 			if (vo != null && vo.getSwagger() != null) {
 				swaggerJson = mapper.readTree(vo.getSwagger());
@@ -1508,11 +1509,10 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					ArrayNode products = mapper.valueToTree(metadata.getProducts());
 					itemNode.putArray("products").addAll(products);
 				}
-			}
-
-			if (vo.getPartners() != null) {
-				ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
-				itemNode.putArray("partners").addAll(partners);
+				if (metadata.getPartners() != null) {
+					ArrayNode partners = mapper.valueToTree(getswaggerPartnersName(metadata.getPartners()));
+					itemNode.putArray("partners").addAll(partners);
+				}
 			}
 			ObjectNode revisionNode = mapper.createObjectNode();
 			if (vo != null && vo.getSwagger() != null) {
@@ -1589,11 +1589,10 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					ArrayNode products = mapper.valueToTree(metadata.getProducts());
 					itemNode.putArray("products").addAll(products);
 				}
-			}
-
-			if (vo.getPartners() != null) {
-				ArrayNode partners = mapper.valueToTree(getswaggerPartners(vo.getPartners()));
-				itemNode.putArray("partners").addAll(partners);
+				if (metadata.getPartners()!= null) {
+					ArrayNode partners = mapper.valueToTree(getswaggerPartnersName(metadata.getPartners()));
+					itemNode.putArray("partners").addAll(partners);
+				}
 			}
 			ObjectNode revisionNode = mapper.createObjectNode();
 			if (vo != null && vo.getSwagger() != null) {
@@ -3652,47 +3651,57 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		if (oas.equals("3.0")) {
 			Swagger3VO vo = getSwagger3(swaggerId, null);
 			if (null != vo) {
-				List<Revision> revisions = getListOf3Revisions(vo.getName(), null);
-				if (null != revisions) {
-					Revision revision = revisions.stream().min((x, y) -> x.getRevision() - y.getRevision()).get();
-					try {
-						Swagger3VO swaggerVo = getSwagger3WithVersionNumber(swaggerId, revision.getRevision(), null);
-						swaggerVo.setPartners(partners);
-						mongoTemplate.save(swaggerVo);
-					} catch (ItorixException e) {
-						log.error("Exception occurred", e);
-					}
+				Query query = Query.query(
+						Criteria.where("swaggerName").is(vo.getName()).and("oas").is(oas));
+				SwaggerMetadata metadata = mongoTemplate.findOne(query, SwaggerMetadata.class);
+				if(null== metadata){
+					metadata = new SwaggerMetadata();
+					metadata.setSwaggerId(swaggerId);
+					metadata.setSwaggerName(vo.getName());
+					metadata.setOas("3.0");
 				}
+				if(metadata.getPartners() != null )
+					metadata.getPartners().addAll(partners);
+				else{metadata.setPartners(partners);}
+				mongoTemplate.save(metadata);
 			}
 		} else {
 			SwaggerVO vo = getSwagger(swaggerId, null);
 			if (null != vo) {
-				List<Revision> revisions = getListOfRevisions(vo.getName(), null);
-				if (null != revisions) {
-					Revision revision = revisions.stream().min((x, y) -> x.getRevision() - y.getRevision()).get();
-					try {
-						SwaggerVO swaggerVo = getSwaggerWithVersionNumber(swaggerId, revision.getRevision(), null);
-						swaggerVo.setPartners(partners);
-						mongoTemplate.save(swaggerVo);
-					} catch (ItorixException e) {
-						log.error("Exception occurred", e);
-					}
+				Query query = Query.query(
+						Criteria.where("swaggerName").is(vo.getName()).and("oas").is(oas));
+				SwaggerMetadata metadata = mongoTemplate.findOne(query, SwaggerMetadata.class);
+				if(null== metadata){
+					metadata = new SwaggerMetadata();
+					metadata.setSwaggerId(swaggerId);
+					metadata.setSwaggerName(vo.getName());
+					metadata.setOas("2.0");
 				}
+				if(metadata.getPartners() != null )
+					metadata.getPartners().addAll(partners);
+				else{metadata.setPartners(partners);}
+				mongoTemplate.save(metadata);
 			}
 		}
 	}
 
 	public List<SwaggerPartner> getAssociatedPartners(String swaggerId, String oas) {
 		log.debug("getAssociatedPartners : {}", swaggerId);
-		if (oas.equals("3.0")) {Swagger3VO vo = getSwagger3(swaggerId, null);
+		if (oas.equals("3.0")) {
+			Swagger3VO vo = getSwagger3(swaggerId, null);
 			if (null != vo) {
 				Query query = Query.query(
 						Criteria.where("swaggerName").is(vo.getName()).and("oas").is(oas));
-
 				SwaggerMetadata metadata = mongoTemplate.findOne(query, SwaggerMetadata.class);
-				Query partnerQuery = new Query(Criteria.where("_id").in(metadata.getPartners().stream().collect(
-						Collectors.toList())));
-				return mongoTemplate.find(partnerQuery,SwaggerPartner.class);
+				if(metadata != null ) {
+					Query partnerQuery = new Query(
+							Criteria.where("_id").in(metadata.getPartners()!=null && !metadata.getPartners().isEmpty() ? metadata.getPartners().stream().collect(
+									Collectors.toList()) : Collections.emptyList()));
+					return mongoTemplate.find(partnerQuery, SwaggerPartner.class);
+
+				}
+				else
+					return Collections.emptyList();
 			}
 		} else {
 			SwaggerVO vo = getSwagger(swaggerId, null);
@@ -3700,9 +3709,14 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				Query query = Query.query(
 						Criteria.where("swaggerName").is(vo.getName()).and("oas").is(oas));
 				SwaggerMetadata metadata = mongoTemplate.findOne(query, SwaggerMetadata.class);
-				Query partnerQuery = new Query(Criteria.where("_id").in(metadata.getPartners().stream().collect(
-						Collectors.toList())));
-				return mongoTemplate.find(partnerQuery,SwaggerPartner.class);
+				if(metadata != null ) {
+					Query partnerQuery = new Query(
+							Criteria.where("_id").in(metadata.getPartners()!=null && !metadata.getPartners().isEmpty() ? metadata.getPartners().stream().collect(
+									Collectors.toList()) : Collections.emptyList()));
+					return mongoTemplate.find(partnerQuery, SwaggerPartner.class);
+				}
+				else
+					return Collections.emptyList();
 			}
 		}
 		return new ArrayList<SwaggerPartner>();
@@ -3723,6 +3737,17 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			log.error("Exception occurred", e);
 		}
 		return partners;
+	}
+
+	private List<String> getswaggerPartnersName(Set<String> partnerId) {
+		try {
+			Query query = new Query(Criteria.where("_id").in(partnerId));
+			List<SwaggerPartner> dbPartners = mongoTemplate.find(query,SwaggerPartner.class);
+			return dbPartners.stream().map(swaggerPartner -> swaggerPartner.getPartnerName()).collect(Collectors.toList());
+		} catch (Exception e) {
+			log.error("Exception occurred", e);
+		}
+		return Collections.emptyList();
 	}
 
 	@Override
