@@ -771,12 +771,18 @@ public class SwaggerServiceImpl implements SwaggerService {
 					swaggerPartner -> filterParams.get("partnerNames")
 							.contains(swaggerPartner.getPartnerName())).map(SwaggerPartner::getId).collect(
 					Collectors.toList());
+			if(partners.isEmpty()){
+				return ResponseEntity.ok(Collections.EMPTY_SET);
+			}
 		}
 		if (filterParams.get("productNames") != null && !filterParams.get("productNames").isEmpty()) {
 			products = swaggerBusiness.getProductGroups(interactionid, jsessionid).stream().filter(
 					swaggerProduct -> filterParams.get("productNames")
 							.contains(swaggerProduct.getProductName())).map(SwaggerProduct::getId).collect(
 					Collectors.toList());
+			if(products.isEmpty()){
+				return ResponseEntity.ok(Collections.EMPTY_SET);
+			}
 		}
 //		if(filterParams.get("teamNames") != null && !filterParams.get("teamNames").isEmpty()){
 //			swaggerBusiness.getListOfTeams
