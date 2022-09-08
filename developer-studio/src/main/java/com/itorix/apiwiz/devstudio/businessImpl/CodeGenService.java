@@ -1,5 +1,47 @@
 package com.itorix.apiwiz.devstudio.businessImpl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.mail.MessagingException;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
+import org.zeroturnaround.zip.ZipUtil;
+
+import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -20,6 +62,18 @@ import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.model.projectmanagement.Organization;
 import com.itorix.apiwiz.common.model.projectmanagement.Project;
 import com.itorix.apiwiz.common.model.projectmanagement.ProxyConnection;
+import com.itorix.apiwiz.common.model.proxystudio.Category;
+import com.itorix.apiwiz.common.model.proxystudio.CodeGenHistory;
+import com.itorix.apiwiz.common.model.proxystudio.Env;
+import com.itorix.apiwiz.common.model.proxystudio.Folder;
+import com.itorix.apiwiz.common.model.proxystudio.OrgEnv;
+import com.itorix.apiwiz.common.model.proxystudio.OrgEnvs;
+import com.itorix.apiwiz.common.model.proxystudio.PromoteProxyRequest;
+import com.itorix.apiwiz.common.model.proxystudio.Proxy;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyArtifacts;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyData;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyEndpoint;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyPortfolio;
 import com.itorix.apiwiz.common.model.proxystudio.Scm;
 import com.itorix.apiwiz.common.model.proxystudio.*;
 import com.itorix.apiwiz.common.model.proxystudio.apigeeassociations.Deployments;
@@ -49,6 +103,7 @@ import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryColumnEn
 import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryColumns;
 import com.itorix.apiwiz.servicerequest.dao.ServiceRequestDao;
 import com.mongodb.client.result.DeleteResult;
+
 import freemarker.template.TemplateException;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
@@ -442,7 +497,7 @@ public class CodeGenService {
 				}
 			}
 		} catch (Exception e) {
-
+		log.error("Exception occurred",e);
 		}
 	}
 
@@ -1204,6 +1259,9 @@ public class CodeGenService {
 			}
 			target.setBuildTargetArtifact(operations.getFileName());
 			target.setBuildTargetArtifactType(operations.getType());
+			target.setOas(operations.getOas());
+			if (operations.getVersion() > 0)
+				target.setRevision(Integer.toString(operations.getVersion()));
 			target.setOas(operations.getOas());
 			return target;
 		} catch (Exception ex) {
