@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.model.proxystudio.apigeeassociations.Product;
 import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
@@ -269,13 +268,12 @@ public interface SwaggerBusiness {
 	 * @param jsessionid
 	 * @param status
 	 * @param products
-	 * @param teams
 	 * @return
 	 * @throws IOException
 	 * @throws JsonProcessingException
 	 */
 	public ArrayNode getListOfPublishedSwaggerDetails(String interactionid, String jsessionid, String status,
-			List<String> partners, List<String> products, List<String> teams) throws ItorixException, JsonProcessingException, IOException;
+			List<String> partners, List<String> products) throws ItorixException, JsonProcessingException, IOException;
 
 	/**
 	 * getListOfPublishedSwagger3Details
@@ -285,13 +283,12 @@ public interface SwaggerBusiness {
 	 * @param status
 	 * @param partners
 	 * @param products
-	 * @param teams
 	 * @return
 	 * @throws IOException
 	 * @throws JsonProcessingException
 	 */
 	public ArrayNode getListOfPublishedSwagger3Details(String interactionid, String jsessionid, String status,
-			List<String> partners, List<String> products, List<String> teams) throws ItorixException, JsonProcessingException, IOException;
+			List<String> partners, List<String> products) throws ItorixException, JsonProcessingException, IOException;
 
 	/**
 	 * getSwagger

@@ -763,19 +763,32 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestParam(value = "status", required = false) String status,
 			@RequestParam Map<String, String> filterParams) throws Exception {
 
-		List<String> partners = filterParams.get("partnerId") != null ? Arrays.asList(
-				filterParams.get("partnerId").split(",")) : Collections.emptyList();
-		List<String> products = filterParams.get("productId") != null ? Arrays.asList(
-				filterParams.get("productId").split(",")) : Collections.emptyList();
-		List<String> teams = filterParams.get("teamId") != null && !filterParams.get("teamId").isEmpty() ? Arrays.asList(
-				filterParams.get("teamId").split(",")) : Collections.emptyList();
+		List<String> partners = new ArrayList<>(0);
+		List<String> products = new ArrayList<>(0);
+
+		if (filterParams.get("partnerNames") != null && !filterParams.get("partnerNames").isEmpty()) {
+			partners = swaggerBusiness.getPartners().stream().filter(
+					swaggerPartner -> filterParams.get("partnerNames")
+							.contains(swaggerPartner.getPartnerName())).map(SwaggerPartner::getId).collect(
+					Collectors.toList());
+		}
+		if (filterParams.get("productNames") != null && !filterParams.get("productNames").isEmpty()) {
+			products = swaggerBusiness.getProductGroups(interactionid, jsessionid).stream().filter(
+					swaggerProduct -> filterParams.get("productNames")
+							.contains(swaggerProduct.getProductName())).map(SwaggerProduct::getId).collect(
+					Collectors.toList());
+		}
+//		if(filterParams.get("teamNames") != null && !filterParams.get("teamNames").isEmpty()){
+//			swaggerBusiness.getListOfTeams
+//		}
+
 		String json = "";
 		ArrayNode node = swaggerBusiness.getListOfPublishedSwaggerDetails(interactionid, jsessionid,
 				status,
-				partners, products, teams);
+				partners, products);
 		ArrayNode node3 = swaggerBusiness.getListOfPublishedSwagger3Details(interactionid, jsessionid,
 				status,
-				partners, products, teams);
+				partners, products);
 		if (node3 != null && node3.size() > 0) {
 			for (JsonNode nodeElement : node3) {
 				node.add(nodeElement);
@@ -2307,7 +2320,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			Set<String> responseSet = responseSet = (metadata != null) ? metadata.getProducts() : new HashSet<String>();
 			return new ResponseEntity<Set<String>>(responseSet, HttpStatus.OK);
 		}
-		return new ResponseEntity<Set<String>>(new HashSet<String>(), HttpStatus.OK);
+		return ResponseEntity.ok(Collections.EMPTY_SET);
 	}
 
 	/**

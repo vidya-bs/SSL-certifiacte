@@ -1156,7 +1156,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 	public ArrayNode getListOfPublishedSwaggerDetails(String interactionid, String jsessionid,
 			String status,
-			List<String> partners, List<String> products, List<String> teams)
+			List<String> partners, List<String> products)
 			throws ItorixException, JsonProcessingException, IOException {
 		log("getListOfPublishedSwaggerDetails", interactionid, jsessionid);
 		List<SwaggerVO> list = baseRepository.find(STATUS_VALUE, status, SwaggerVO.class);
@@ -1164,7 +1164,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		ArrayNode arrayNode = mapper.createArrayNode();
 
 
-		if (partners.isEmpty() && products.isEmpty() && teams.isEmpty()) {
+		if (partners.isEmpty() && products.isEmpty()) {
 			list.forEach(vo -> {
 				try {
 					getPublishedSwaggerDetails(vo, arrayNode);
@@ -1173,7 +1173,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				}
 			});
 		} else {
-			List<String> swaggerNames = getAllFilteredSwaggerDetails(partners, products, teams, "2.0");
+			List<String> swaggerNames = getAllFilteredSwaggerDetails(partners, products, "2.0");
 			List<SwaggerVO> swaggerVos = list.stream().filter(swaggerVO -> {
 				if (swaggerNames.contains(swaggerVO.getName())) {
 					return true;
@@ -1194,13 +1194,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
   private List<String> getAllFilteredSwaggerDetails(List<String> partners, List<String> products,
-      List<String> teams, String oas) {
+			String oas) {
     Criteria overviewCriteria = new Criteria();
     List<Criteria> criteriaList = new ArrayList<>();
-    if (!teams.isEmpty()) {
-      Criteria teamCriteria = Criteria.where("teams").in(teams);
-      criteriaList.add(teamCriteria);
-    }
     if (!products.isEmpty()) {
       Criteria productCriteria = Criteria.where("products").in(products);
       criteriaList.add(productCriteria);
@@ -1422,13 +1418,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	public ArrayNode getListOfPublishedSwagger3Details(String interactionid, String jsessionid, String status,
-			List<String> partners, List<String> products, List<String> teams) throws ItorixException, JsonProcessingException, IOException {
+			List<String> partners, List<String> products) throws ItorixException, JsonProcessingException, IOException {
 		log("getListOfPublishedSwaggerDetails", interactionid, jsessionid);
 		List<Swagger3VO> list = baseRepository.find(STATUS_VALUE, status, Swagger3VO.class);
 		ObjectMapper mapper = new ObjectMapper();
 
 		ArrayNode arrayNode = mapper.createArrayNode();
-		if (partners.isEmpty() && products.isEmpty() && teams.isEmpty()) {
+		if (partners.isEmpty() && products.isEmpty()) {
 			list.forEach(vo -> {
 				try {
 					getPublishedSwaggerDetails(vo, arrayNode);
@@ -1437,7 +1433,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				}
 			});
 		} else {
-			List<String> swaggerNames = getAllFilteredSwaggerDetails(partners, products, teams, "3.0");
+			List<String> swaggerNames = getAllFilteredSwaggerDetails(partners, products, "3.0");
 			List<Swagger3VO> swaggerVos = list.stream().filter(swaggerVO -> {
 				if (swaggerNames.contains(swaggerVO.getName())) {
 					return true;
@@ -2969,21 +2965,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		}
 		metadata.setProducts(productSet);
 		mongoTemplate.save(metadata);
-
-		// SwaggerVO vo = baseRepository.findOne("name", swaggerName,
-		// SwaggerVO.class);
-		// if (vo != null) {
-		// if(vo.getProducts()==null){
-		// vo.setProducts(new HashSet<>());
-		// }
-		// vo.setProducts(productSet);
-		// baseRepository.save(vo);
-		// } else {
-		// throw new
-		// ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000"),
-		// swaggerName),
-		// "Swagger-1000");
-		// }
 	}
 
 	public SwaggerMetadata getSwaggerMetadata(String swaggerName, String oas) throws ItorixException {
