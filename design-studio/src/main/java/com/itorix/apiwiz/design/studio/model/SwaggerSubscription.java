@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
@@ -50,6 +51,6 @@ public class SwaggerSubscription extends AbstractObject {
 	}
 
 	public void removeSubscribers(String emailId) {
-		subscribers.removeIf(subscriber -> (subscriber.getEmailId().equals(emailId)));
+		subscribers.removeIf (subscriber -> (StringUtils.equals(subscriber.getEmailId(), emailId)));
 	}
 }
