@@ -3641,9 +3641,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					metadata.setSwaggerName(vo.getName());
 					metadata.setOas("3.0");
 				}
-				if(metadata.getPartners() != null )
-					metadata.getPartners().addAll(partners);
-				else{metadata.setPartners(partners);}
+				metadata.setPartners(partners);
 				mongoTemplate.save(metadata);
 			}
 		} else {
@@ -3658,9 +3656,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					metadata.setSwaggerName(vo.getName());
 					metadata.setOas("2.0");
 				}
-				if(metadata.getPartners() != null )
-					metadata.getPartners().addAll(partners);
-				else{metadata.setPartners(partners);}
+				metadata.setPartners(partners);
 				mongoTemplate.save(metadata);
 			}
 		}
