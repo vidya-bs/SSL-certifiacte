@@ -1272,7 +1272,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					itemNode.putArray("teams").addAll(teams);
 				}
 				if (metadata.getProducts() != null) {
-					ArrayNode products = mapper.valueToTree(metadata.getProducts());
+					ArrayNode products = mapper.valueToTree(getswaggerProductsName(metadata.getProducts()));
 					itemNode.putArray("products").addAll(products);
 				}
 				if (metadata.getPartners() != null) {
@@ -1353,7 +1353,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					itemNode.putArray("teams").addAll(teams);
 				}
 				if (metadata.getProducts() != null) {
-					ArrayNode products = mapper.valueToTree(metadata.getProducts());
+					ArrayNode products = mapper.valueToTree(getswaggerProductsName(metadata.getProducts()));
 					itemNode.putArray("products").addAll(products);
 				}
 				if (metadata.getPartners() != null) {
@@ -1502,7 +1502,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					itemNode.putArray("teams").addAll(teams);
 				}
 				if (metadata.getProducts() != null) {
-					ArrayNode products = mapper.valueToTree(metadata.getProducts());
+					ArrayNode products = mapper.valueToTree(getswaggerProductsName(metadata.getProducts()));
 					itemNode.putArray("products").addAll(products);
 				}
 				if (metadata.getPartners() != null) {
@@ -1582,7 +1582,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					itemNode.putArray("teams").addAll(teams);
 				}
 				if (metadata.getProducts() != null) {
-					ArrayNode products = mapper.valueToTree(metadata.getProducts());
+					ArrayNode products = mapper.valueToTree(getswaggerProductsName(metadata.getProducts()));
 					itemNode.putArray("products").addAll(products);
 				}
 				if (metadata.getPartners()!= null) {
@@ -3716,6 +3716,16 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return partners;
 	}
 
+	private List<String> getswaggerProductsName(Set<String> productId) {
+		try {
+			Query query = new Query(Criteria.where("_id").in(productId));
+			List<SwaggerProduct> dbProducts = mongoTemplate.find(query,SwaggerProduct.class);
+			return dbProducts.stream().map(swaggerProduct -> swaggerProduct.getProductName()).collect(Collectors.toList());
+		} catch (Exception e) {
+			log.error("Exception occurred", e);
+		}
+		return Collections.emptyList();
+	}
 	private List<String> getswaggerPartnersName(Set<String> partnerId) {
 		try {
 			Query query = new Query(Criteria.where("_id").in(partnerId));
