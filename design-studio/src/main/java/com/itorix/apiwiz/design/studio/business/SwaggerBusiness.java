@@ -798,10 +798,10 @@ public interface SwaggerBusiness {
 
 	List<SwaggerProduct> getProductGroups(String interactionid, String jsessionid);
 
-	void manageSwaggerProducts(String swaggerId, Integer swaggerRevision, String oas, AsociateSwaggerProductRequest swaggerProductRequest)
+	void manageSwaggerProducts(String swaggerId, String oas, AsociateSwaggerProductRequest swaggerProductRequest)
 			throws ItorixException;
 
-	List<SwaggerProduct> getSwaggerProducts(String swaggerId, Integer swaggerRevision, String oas,
+	List<SwaggerProduct> getSwaggerProducts(String swaggerId, String oas,
 			String interactionid, String jsessionid, int offset, int pageSize) throws ItorixException;
 
 	List<SwaggerProduct> getProductGroupsByPartnerIds(List<String> partners);

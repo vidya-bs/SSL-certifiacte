@@ -1351,19 +1351,17 @@ public interface SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam Map<String, String> partnerIds) throws ItorixException;
 
-	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggerId}/{swaggerRevision}/associate-product", produces = {
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggerId}/associate-product", produces = {
 			"application/json"})
 	public ResponseEntity<?> manageSwaggerProducts(@PathVariable("swaggerId") String swaggerId,
-			@PathVariable("swaggerRevision") Integer swaggerRevision,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestBody AsociateSwaggerProductRequest swaggerProductRequest) throws ItorixException;
 
-	@GetMapping(value = "/v1/swaggers/{swaggerId}/{swaggerRevision}/associate-products", produces = {
+	@GetMapping(value = "/v1/swaggers/{swaggerId}/associate-products", produces = {
 			"application/json"})
 	public ResponseEntity<?> getSwaggerProducts(@PathVariable("swaggerId") String swaggerId,
-			@PathVariable("swaggerRevision") Integer swaggerRevision,
 			@RequestHeader(value = "interactionid") String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,

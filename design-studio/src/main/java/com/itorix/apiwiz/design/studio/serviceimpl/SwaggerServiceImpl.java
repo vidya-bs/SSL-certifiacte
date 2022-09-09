@@ -2731,20 +2731,20 @@ public class SwaggerServiceImpl implements SwaggerService {
 	}
 
 	@Override
-	public ResponseEntity<?> manageSwaggerProducts(String swaggerId, Integer swaggerRevision,
+	public ResponseEntity<?> manageSwaggerProducts(String swaggerId,
 			String interactionid,
 			String jsessionid, String oas, AsociateSwaggerProductRequest swaggerProductRequest)
 			throws ItorixException {
-		swaggerBusiness.manageSwaggerProducts(swaggerId, swaggerRevision, oas, swaggerProductRequest);
+		swaggerBusiness.manageSwaggerProducts(swaggerId, oas, swaggerProductRequest);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
 	@Override
-	public ResponseEntity<?> getSwaggerProducts(String swaggerId, Integer swaggerRevision,
+	public ResponseEntity<?> getSwaggerProducts(String swaggerId,
 			String interactionid,
 			String jsessionid, int offset, int pageSize, String oas) throws ItorixException {
 		return ResponseEntity.ok(
-				swaggerBusiness.getSwaggerProducts(swaggerId, swaggerRevision, oas, interactionid,
+				swaggerBusiness.getSwaggerProducts(swaggerId, oas, interactionid,
 						jsessionid, offset, pageSize));
 	}
 

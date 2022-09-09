@@ -3886,25 +3886,22 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 	@Override
 	public void manageSwaggerProducts(String swaggerId,
-			Integer swaggerRevision, String oas, AsociateSwaggerProductRequest swaggerProductRequest)
+			String oas, AsociateSwaggerProductRequest swaggerProductRequest)
 			throws ItorixException {
 		log.info("Managing Swagger Products : {}, Swagger :{}, SwaggerRevision :{}, Oas: {}",
-				swaggerProductRequest, swaggerId, swaggerRevision, oas);
+				swaggerProductRequest, swaggerId, oas);
 		Query swaggerQuery = new Query(
-				Criteria.where("swaggerId").is(swaggerId).and("revision").is(swaggerRevision));
+				Criteria.where("swaggerId").is(swaggerId));
 		Query metadataQuery = new Query(Criteria.where("oas").is(oas));
 		if (StringUtils.equalsIgnoreCase("2.0", oas)) {
 			SwaggerVO vo = mongoTemplate.findOne(swaggerQuery, SwaggerVO.class);
 			metadataQuery.addCriteria(Criteria.where("swaggerName").is(vo.getName()));
 			SwaggerMetadata swaggerMetadata = mongoTemplate.findOne(metadataQuery, SwaggerMetadata.class);
 			if (swaggerMetadata.getProducts() != null) {
-				swaggerMetadata.getProducts()
-						.addAll(swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
-				vo.setProducts(swaggerMetadata.getProducts());
+				swaggerMetadata.setProducts(swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
 			} else {
 				swaggerMetadata.setProducts(
 						swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
-				vo.setProducts(swaggerMetadata.getProducts());
 			}
 			mongoTemplate.save(swaggerMetadata);
 		} else if (StringUtils.equalsIgnoreCase("3.0", oas)) {
@@ -3912,13 +3909,10 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			metadataQuery.addCriteria(Criteria.where("swaggerName").is(vo.getName()));
 			SwaggerMetadata swaggerMetadata = mongoTemplate.findOne(metadataQuery, SwaggerMetadata.class);
 			if (swaggerMetadata.getProducts() != null) {
-				swaggerMetadata.getProducts()
-						.addAll(swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
-				vo.setProducts(swaggerMetadata.getProducts());
+				swaggerMetadata.setProducts(swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
 			} else {
 				swaggerMetadata.setProducts(
 						swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
-				vo.setProducts(swaggerMetadata.getProducts());
 			}
 			mongoTemplate.save(swaggerMetadata);
 		} else {
@@ -3930,13 +3924,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	@Override
-	public List<SwaggerProduct> getSwaggerProducts(String swaggerId, Integer swaggerRevision, String oas, String interactionid,
+	public List<SwaggerProduct> getSwaggerProducts(String swaggerId, String oas, String interactionid,
 			String jsessionid, int offset, int pageSize) throws ItorixException {
 		log.info("Get Swagger Products : Swagger :{}, SwaggerRevision :{}, Oas: {}",
-				 swaggerId, swaggerRevision, oas);
+				 swaggerId, oas);
 
-		Query swaggerQuery = new Query(Criteria.where("swaggerId").is(swaggerId)
-				.and("revision").is(swaggerRevision));
+		Query swaggerQuery = new Query(Criteria.where("swaggerId").is(swaggerId));
 
 		Query metadataQuery = new Query(Criteria.where("oas").is(oas));
 
@@ -3957,7 +3950,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					"General-1001");
 		}
 
-		List<String> products = Collections.emptyList();
+		List<String> products = new ArrayList<String>();
 		for(SwaggerMetadata metadata : swaggerMetadata){
 			if(metadata.getProducts() != null)
 			products.addAll(metadata.getProducts().stream().collect(Collectors.toList()));
