@@ -3907,7 +3907,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				swaggerMetadata = new SwaggerMetadata();
 				swaggerMetadata.setSwaggerName(vo.getName());
 				swaggerMetadata.setSwaggerId(vo.getSwaggerId());
-				swaggerMetadata.setOas(oas);
+				swaggerMetadata.setOas("2.0");
 				swaggerMetadata.setProducts(
 						swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
 			}
@@ -3922,7 +3922,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				swaggerMetadata = new SwaggerMetadata();
 				swaggerMetadata.setSwaggerName(vo.getName());
 				swaggerMetadata.setSwaggerId(vo.getSwaggerId());
-				swaggerMetadata.setOas(oas);
+				swaggerMetadata.setOas("3.0");
 				swaggerMetadata.setProducts(
 						swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
 			}
