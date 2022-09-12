@@ -1,9 +1,24 @@
 package com.itorix.apiwiz.marketing.dao;
 
-import com.itorix.apiwiz.common.factory.IntegrationHelper;
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Component;
+
+import com.amazonaws.regions.Regions;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.util.StorageIntegration;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
@@ -12,19 +27,6 @@ import com.itorix.apiwiz.marketing.careers.model.JobPosting;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Component;
-
-import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -41,9 +43,6 @@ public class CareersDao {
 
 	@Autowired
 	private S3Utils s3Utils;
-
-	@Autowired
-	private IntegrationHelper integrationHelper;
 
 	public String createUpdatePosting(JobPosting jobPosting) {
 		Query query = new Query().addCriteria(
@@ -164,9 +163,17 @@ public class CareersDao {
 
 	private String updateToJfrog(String folderPath, byte[] bytes) throws ItorixException {
 		try {
+			S3Integration s3Integration = s3Connection.getS3Integration();
 			String downloadURI = null;
-			StorageIntegration storageIntegration = integrationHelper.getIntegration();
-			downloadURI = storageIntegration.uploadFile("marketing/careers/" + folderPath, new ByteArrayInputStream(bytes));
+			if (null != s3Integration)
+				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+						"marketing/careers/" + folderPath, new ByteArrayInputStream(bytes));
+			else {
+				JSONObject uploadFiles = jfrogUtilImpl.uploadFiles(new ByteArrayInputStream(bytes),
+						"/marketing/careers/" + folderPath);
+				downloadURI = uploadFiles.getString("downloadURI");
+			}
 			return downloadURI;
 
 		} catch (Exception e) {

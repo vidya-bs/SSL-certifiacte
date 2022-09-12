@@ -1,18 +1,18 @@
 package com.itorix.apiwiz.portfolio.dao;
 
+import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.itorix.apiwiz.common.factory.IntegrationHelper;
 import com.itorix.apiwiz.common.model.SearchItem;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.model.projectmanagement.Organization;
 import com.itorix.apiwiz.common.model.projectmanagement.ProjectProxyResponse;
 import com.itorix.apiwiz.common.model.proxystudio.ProxyPortfolio;
 import com.itorix.apiwiz.common.model.proxystudio.Scm;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
-import com.itorix.apiwiz.common.util.StorageIntegration;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
@@ -29,6 +29,7 @@ import com.itorix.apiwiz.portfolio.model.db.proxy.Pipelines;
 import com.itorix.apiwiz.portfolio.model.db.proxy.Proxies;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.json.JSONObject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -49,6 +50,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -86,9 +88,6 @@ public class PortfolioDao {
 
 	@Autowired
 	private S3Utils s3Utils;
-
-	@Autowired
-	private IntegrationHelper integrationHelper;
 
 	public String createPortfolio(PortfolioRequest portfolioRequest) throws ItorixException {
 		Portfolio portfolio = new Portfolio();
@@ -297,7 +296,7 @@ public class PortfolioDao {
 	}
 
 	public String updatePortfolioImage(String portfolioId, byte[] imageBytes, String jsession, String fileName)
-			throws Exception {
+			throws ItorixException {
 		String downloadURI;
 		Portfolio findById = mongoTemplate.findById(portfolioId, Portfolio.class);
 		if (findById == null) {
@@ -306,7 +305,8 @@ public class PortfolioDao {
 
 		String workspace = masterMongoTemplate.findById(jsession, UserSession.class).getWorkspaceId();
 		if (!StringUtils.isEmpty(findById.getPortfolioImage())) {
-			deleteFileJfrogFile(findById.getPortfolioImage().substring(findById.getPortfolioImage().indexOf(workspace)),jsession);
+			deleteFileJfrogFile(
+					findById.getPortfolioImage().substring(findById.getPortfolioImage().indexOf(workspace)),jsession);
 		}
 		downloadURI = updateToJfrog(portfolioId + "/" + fileName, imageBytes, jsession);
 		updatePortfolioPicture(portfolioId, downloadURI, jsession);
@@ -747,7 +747,7 @@ public class PortfolioDao {
 	}
 
 	public String updatePortfolioDocument(String portfolioId, String documentId, byte[] bytes, String jsessionid,
-			String fileName, Integer revision) throws Exception {
+			String fileName, Integer revision) throws ItorixException {
 		String workspace = masterMongoTemplate.findById(jsessionid, UserSession.class).getWorkspaceId();
 		deleteFileJfrogFile("/" + workspace + "/portfolio/" + portfolioId + "/" + documentId,jsessionid);
 		return updateToJfrog(
@@ -755,21 +755,47 @@ public class PortfolioDao {
 				bytes, jsessionid);
 	}
 
-	private String updateToJfrog(String folderPath, byte[] bytes, String jsession) throws Exception {
-
+	private String updateToJfrog(String folderPath, byte[] bytes, String jsession) throws ItorixException {
+		S3Integration s3Integration = s3Connection.getS3Integration();
 		String workspace = masterMongoTemplate.findById(jsession, UserSession.class).getWorkspaceId();
 
-		StorageIntegration storageIntegration = integrationHelper.getIntegration();
-		return storageIntegration.uploadFile(workspace + "/portfolio/" + folderPath, new ByteArrayInputStream(bytes));
+		if (s3Integration != null) {
+			try {
+				return s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+						workspace + "/portfolio/" + folderPath, new ByteArrayInputStream(bytes));
+			} catch (IOException e) {
+				throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1009"), "Portfolio-1009");
+			}
+		} else {
+			try {
+				JSONObject uploadFiles = jfrogUtilImpl.uploadFiles(new ByteArrayInputStream(bytes),
+						"/" + workspace + "/portfolio/" + folderPath);
+				return uploadFiles.getString("downloadURI");
+			} catch (Exception e) {
+				throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1009"), "Portfolio-1009");
+			}
+		}
 	}
 
 	private void deleteFileJfrogFile(String folderPath,String jsession) throws ItorixException {
-		try {
-			String workspace = masterMongoTemplate.findById(jsession, UserSession.class).getWorkspaceId();
-			StorageIntegration storageIntegration = integrationHelper.getIntegration();
-			storageIntegration.deleteFile(workspace + "/portfolio/" + folderPath);
-		} catch (Exception e) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1016"), "Portfolio-1016");
+
+		S3Integration s3Integration = s3Connection.getS3Integration();
+		String workspace = masterMongoTemplate.findById(jsession, UserSession.class).getWorkspaceId();
+		if (s3Integration != null) {
+			try {
+				s3Utils.deleteFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+						workspace + "/portfolio/" + folderPath);
+			} catch (IOException e) {
+				throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1016"), "Portfolio-1016");
+			}
+		} else {
+			try {
+				jfrogUtilImpl.deleteFileIgnore404(folderPath);
+			} catch (Exception e) {
+				throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1016"), "Portfolio-1016");
+			}
 		}
 	}
 
@@ -1141,7 +1167,7 @@ public class PortfolioDao {
 	}
 
 	public String uploadDesignArtifact(String portfolioId, String projectId, byte[] documentBytes, String jsessionid,
-			String originalFilename) throws Exception {
+			String originalFilename) throws ItorixException {
 		return updateToJfrog(
 				portfolioId + "/" + projectId + "/proxy/" + System.currentTimeMillis() + "/" + originalFilename,
 				documentBytes, jsessionid);

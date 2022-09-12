@@ -1,14 +1,8 @@
 package com.itorix.apiwiz.devstudio.dao;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itorix.apiwiz.common.model.MetaData;
-import com.itorix.apiwiz.common.model.integrations.Integration;
-import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
-import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
-import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,8 +16,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.common.model.MetaData;
+import com.itorix.apiwiz.common.model.integrations.Integration;
+import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
+import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
+import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 @Slf4j
 @Component
 public class IntegrationsDao {
@@ -254,31 +255,5 @@ public class IntegrationsDao {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode jsonResponse = mapper.readTree(responseEntity.getBody());
 		return jsonResponse.get("version").asText();
-	}
-
-	public void updateGcsIntegration(Integration integration) {
-		Integration dbIntegration = getGcsIntegration();
-		if (dbIntegration != null) {
-			dbIntegration.setGcsIntegration(integration.getGcsIntegration());
-			baseRepository.save(dbIntegration);
-		} else {
-			baseRepository.save(integration);
-		}
-	}
-
-	public Integration getGcsIntegration() {
-		Query query = new Query();
-		query.addCriteria(Criteria.where("type").is("GCS"));
-		Integration dbIntegration = mongoTemplate.findOne(query, Integration.class);
-		if (dbIntegration != null)
-			return dbIntegration;
-		return null;
-	}
-
-	public void removeGcsIntegration() {
-		Integration integration = getGcsIntegration();
-		if (integration != null) {
-			mongoTemplate.remove(integration);
-		}
 	}
 }

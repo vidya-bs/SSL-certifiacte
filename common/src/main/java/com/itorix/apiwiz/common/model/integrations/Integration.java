@@ -1,15 +1,15 @@
 package com.itorix.apiwiz.common.model.integrations;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.itorix.apiwiz.common.model.AbstractObject;
 import com.itorix.apiwiz.common.model.integrations.apic.ApicIntegration;
-import com.itorix.apiwiz.common.model.integrations.gcs.GcsIntegration;
 import com.itorix.apiwiz.common.model.integrations.git.GitIntegration;
 import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
 import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
 import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegrations;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "Connectors.List")
@@ -22,7 +22,6 @@ public class Integration extends AbstractObject {
 	private WorkspaceIntegrations workspaceIntegration;
 	private ApicIntegration apicIntegration;
 	private S3Integration s3Integration;
-	private GcsIntegration gcsIntegration;
 
 	public String getType() {
 		return type;
@@ -78,13 +77,5 @@ public class Integration extends AbstractObject {
 
 	public void setS3Integration(S3Integration s3Integration) {
 		this.s3Integration = s3Integration;
-	}
-
-	public void setGcsIntegration(GcsIntegration gcsIntegration) {
-		this.gcsIntegration = gcsIntegration;
-	}
-
-	public GcsIntegration getGcsIntegration() {
-		return gcsIntegration;
 	}
 }
