@@ -151,13 +151,16 @@ public class SwaggerSubscriptionDao {
 					String subject = MessageFormat.format(applicationProperties.getSwaggerSubscriptionSubject(),
 							swaggerName);
 					for (Subscriber subscriber : subscribers) {
-						String body = MessageFormat.format(applicationProperties.getSwaggerSubscriptionMailBody(),
+						String body = MessageFormat.format(
+								applicationProperties.getSwaggerSubscriptionMailBody(),
 								subscriber.getName()!=null ? subscriber.getName() : "", swaggerName, summary);
 						EmailTemplate emailTemplate = new EmailTemplate();
 						emailTemplate.setToMailId(Arrays.asList(subscriber.getEmailId()));
 						emailTemplate.setSubject(subject);
 						emailTemplate.setBody(body);
-						mailUtil.sendEmailWtithAttachment(emailTemplate, path.toString(), "changeLog.md");
+						mailUtil.sendEmailWtithAttachment(emailTemplate, path.toString(),
+								swaggerSubscription.getSwaggerName() + swaggerSubscription.getOas()
+										.replace(".", "_") + ".md");
 					}
 					file.delete();
 				}
