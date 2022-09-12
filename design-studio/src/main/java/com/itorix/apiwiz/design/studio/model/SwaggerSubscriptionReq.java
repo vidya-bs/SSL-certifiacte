@@ -29,4 +29,7 @@ public class SwaggerSubscriptionReq {
 	@JsonProperty("emailId")
 	String emailId;
 
+	@JsonProperty("type")
+	String type;
+
 }
