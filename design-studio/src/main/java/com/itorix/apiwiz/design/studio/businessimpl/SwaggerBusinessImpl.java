@@ -1877,9 +1877,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		} else if (status.equals(SwaggerStatus.DEPRECATE.getStatus())) {
 			sendEmails(vo, status, previousStatus);
 			return "Deprecate";
-		} else if (status.equals(SwaggerStatus.RETIRED.getStatus())) {
-			sendEmails(vo, status, previousStatus);
-			return "Retired";
 		}
 		return "Draft";
 	}
@@ -1903,9 +1900,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		} else if (status.equals(SwaggerStatus.DEPRECATE.getStatus())) {
 			sendEmails(vo, status, previousStatus);
 			return "Deprecate";
-		} else if (status.equals(SwaggerStatus.RETIRED.getStatus())) {
-			sendEmails(vo, status, previousStatus);
-			return "Retired";
 		}
 		return "Draft";
 	}
