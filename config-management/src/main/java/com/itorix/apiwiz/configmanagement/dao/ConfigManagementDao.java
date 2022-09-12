@@ -770,6 +770,21 @@ public class ConfigManagementDao {
 
 	public boolean deleteKVM(KVMConfig config) throws ItorixException {
 		try {
+			Query query1 = new Query(Criteria.where("org").is(config.getOrg()).and("env").is(config.getEnv())
+					.and("name").is(config.getName()).and("type").is(config.getType()).and("activeFlag")
+					.is(Boolean.TRUE));
+			List<KVMConfig> kVMConfigs = mongoTemplate.find(query1, KVMConfig.class);
+			if(kVMConfigs != null) {
+				for (KVMConfig kVMConfig : kVMConfigs) {
+					try {
+						deleteApigeeKVM( kVMConfig);
+					}catch(Exception e) {
+						logger.error(e.getMessage(),e);
+						e.printStackTrace();
+					}
+				}
+			}
+			
 			Query query = new Query(Criteria.where("org").is(config.getOrg()).and("env").is(config.getEnv()).and("name")
 					.is(config.getName()).and("type").is(config.getType()));
 			DeleteResult result = mongoTemplate.remove(query, KVMConfig.class);
@@ -787,6 +802,18 @@ public class ConfigManagementDao {
 
 	public boolean deleteKVM(String kvm) throws ItorixException {
 		try {
+			Query query1 = new Query(Criteria.where("name").is(kvm).and("activeFlag").is(Boolean.TRUE));
+			List<KVMConfig> kVMConfigs = mongoTemplate.find(query1, KVMConfig.class);
+			if(kVMConfigs != null) {
+				for (KVMConfig kVMConfig : kVMConfigs) {
+					try {
+						deleteApigeeKVM( kVMConfig);
+					}catch(Exception e) {
+						logger.error(e.getMessage(),e);
+						e.printStackTrace();
+					}
+				}
+			}
 			Query query = new Query(Criteria.where("name").is(kvm));
 			DeleteResult result = mongoTemplate.remove(query, KVMConfig.class);
 			if (result.getDeletedCount() > 0)
@@ -934,6 +961,28 @@ public class ConfigManagementDao {
 				else
 					throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
 			}
+		} catch (ItorixException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
+		}
+	}
+
+	public Object deleteApigeeKVM(KVMConfig config) throws ItorixException {
+		try {
+			String URL = kVMService.getUpdateKVMURL(config);
+			HTTPUtil httpConn = new HTTPUtil( URL,
+					getApigeeCredentials(config.getOrg(), config.getType()));
+			ResponseEntity<String> response = httpConn.doDelete();
+			HttpStatus statusCode = response.getStatusCode();
+			if (statusCode.is2xxSuccessful())
+				return true;
+			else if (statusCode.value() >= 401 && statusCode.value() <= 403)
+				throw new ItorixException("Request validation failed. Exception connecting to apigee connector. "
+						+ statusCode.value(), "Configuration-1006");
+			else
+				throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
+
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {
