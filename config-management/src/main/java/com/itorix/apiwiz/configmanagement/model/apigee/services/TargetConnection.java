@@ -52,9 +52,9 @@ public class TargetConnection {
 			else
 				info.setClientAuthEnabled("false");
 			if (config.isSslEnabled())
-				info.setEnabled("true");
+				info.setEnabled(true);
 			else
-				info.setEnabled("false");
+				info.setEnabled(false);
 			info.setIgnoreValidationErrors(config.isIgnoreValidationErrors());
 			info.setKeyAlias(config.getKeyAlias());
 			info.setKeyStore(config.getKeyStore());

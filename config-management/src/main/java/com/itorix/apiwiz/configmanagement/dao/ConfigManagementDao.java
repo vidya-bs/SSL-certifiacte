@@ -178,6 +178,21 @@ public class ConfigManagementDao {
 
 	public boolean deleteTarget(String targetName) throws ItorixException {
 		try {
+			
+			
+			Query query1 = new Query(Criteria.where("name").is(targetName).and("activeFlag").is(Boolean.TRUE));
+			List<TargetConfig> targets = mongoTemplate.find(query1, TargetConfig.class);
+			if(targets != null) {
+				for (TargetConfig targetConfig : targets) {
+					try {
+						deleteApigeeTarget( targetConfig);
+					}catch(Exception e) {
+						logger.error(e.getMessage(),e);
+						e.printStackTrace();
+					}
+				}
+			}
+			
 			Query query = new Query(Criteria.where("name").is(targetName));
 			DeleteResult result = mongoTemplate.remove(query, TargetConfig.class);
 			if (result.getDeletedCount() > 0)
@@ -194,6 +209,22 @@ public class ConfigManagementDao {
 
 	public boolean deleteTarget(TargetConfig config) throws ItorixException {
 		try {
+			
+			Query query1 = new Query(Criteria.where("org").is(config.getOrg()).and("env").is(config.getEnv())
+					.and("name").is(config.getName()).and("type").is(config.getType()).and("activeFlag")
+					.is(Boolean.TRUE));
+			List<TargetConfig> targets = mongoTemplate.find(query1, TargetConfig.class);
+			if(targets != null) {
+				for (TargetConfig targetConfig : targets) {
+					try {
+						deleteApigeeTarget( targetConfig);
+					}catch(Exception e) {
+						logger.error(e.getMessage(),e);
+						e.printStackTrace();
+					}
+				}
+			}
+			
 			Query query = new Query(Criteria.where("org").is(config.getOrg()).and("env").is(config.getEnv()).and("name")
 					.is(config.getName()).and("type").is(config.getType()));
 			DeleteResult result = mongoTemplate.remove(query, TargetConfig.class);
@@ -276,6 +307,7 @@ public class ConfigManagementDao {
 			TargetConfig targetConfig = data.get(0);
 			ApigeeTarget target = targetConn.getTargetBody(targetConfig);
 			String URL = targetConn.getTargetURL(targetConfig);
+			logger.debug("Target Server Request {} with body {} ", URL, target);
 			if (isResourceAvailable(targetConn.getUpdateTargetURL(targetConfig),
 					getApigeeCredentials(targetConfig.getOrg(), targetConfig.getType()))) {
 				return updateApigeeTarget(config, user);
@@ -291,6 +323,32 @@ public class ConfigManagementDao {
 				else
 					throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
 			}
+		} catch (ItorixException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
+		}
+	}
+	
+	public Object deleteApigeeTarget(TargetConfig config) throws ItorixException {
+		try {
+			@SuppressWarnings("unchecked")
+			List<TargetConfig> data = (ArrayList) getAllActiveTargets(config);
+			TargetConfig targetConfig = data.get(0);
+			//ApigeeTarget target = targetConn.getTargetBody(targetConfig);
+			String URL = targetConn.getUpdateTargetURL(targetConfig);
+			HTTPUtil httpConn = new HTTPUtil( URL,
+					getApigeeCredentials(targetConfig.getOrg(), targetConfig.getType()));
+			ResponseEntity<String> response = httpConn.doDelete();
+			HttpStatus statusCode = response.getStatusCode();
+			if (statusCode.is2xxSuccessful())
+				return true;
+			else if (statusCode.value() >= 401 && statusCode.value() <= 403)
+				throw new ItorixException(
+						"Request validation failed. Exception connecting to apigee connector. " + statusCode.value(),
+						"Configuration-1006");
+			else
+				throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
 		} catch (ItorixException ex) {
 			throw ex;
 		} catch (Exception ex) {

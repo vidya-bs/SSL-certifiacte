@@ -1,8 +1,11 @@
 package com.itorix.apiwiz.configmanagement.model.apigee;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ApigeeTarget {
 	private Integer port;
 
+	@JsonProperty("sSLInfo")
 	private SSLInfo sSLInfo;
 
 	private String host;
@@ -50,4 +53,11 @@ public class ApigeeTarget {
 	public void setIsEnabled(boolean isEnabled) {
 		this.isEnabled = isEnabled;
 	}
+
+	@Override
+	public String toString() {
+		return "ApigeeTarget [port=" + port + ", sSLInfo=" + sSLInfo + ", host=" + host + ", name=" + name
+				+ ", isEnabled=" + isEnabled + "]";
+	}
+	
 }
