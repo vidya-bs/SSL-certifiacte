@@ -3901,9 +3901,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			SwaggerVO vo = mongoTemplate.findOne(swaggerQuery, SwaggerVO.class);
 			metadataQuery.addCriteria(Criteria.where("swaggerName").is(vo.getName()));
 			SwaggerMetadata swaggerMetadata = mongoTemplate.findOne(metadataQuery, SwaggerMetadata.class);
-			if (swaggerMetadata.getProducts() != null) {
+			if (swaggerMetadata!=null && swaggerMetadata.getProducts() != null) {
 				swaggerMetadata.setProducts(swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
 			} else {
+				swaggerMetadata = new SwaggerMetadata();
+				swaggerMetadata.setSwaggerName(vo.getName());
+				swaggerMetadata.setSwaggerId(vo.getSwaggerId());
+				swaggerMetadata.setOas("2.0");
 				swaggerMetadata.setProducts(
 						swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
 			}
@@ -3912,9 +3916,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Swagger3VO vo = mongoTemplate.findOne(swaggerQuery, Swagger3VO.class);
 			metadataQuery.addCriteria(Criteria.where("swaggerName").is(vo.getName()));
 			SwaggerMetadata swaggerMetadata = mongoTemplate.findOne(metadataQuery, SwaggerMetadata.class);
-			if (swaggerMetadata.getProducts() != null) {
+			if (swaggerMetadata!=null && swaggerMetadata.getProducts() != null) {
 				swaggerMetadata.setProducts(swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
 			} else {
+				swaggerMetadata = new SwaggerMetadata();
+				swaggerMetadata.setSwaggerName(vo.getName());
+				swaggerMetadata.setSwaggerId(vo.getSwaggerId());
+				swaggerMetadata.setOas("3.0");
 				swaggerMetadata.setProducts(
 						swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
 			}
