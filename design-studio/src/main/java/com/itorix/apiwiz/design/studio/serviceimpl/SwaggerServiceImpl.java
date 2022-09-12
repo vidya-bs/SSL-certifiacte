@@ -22,6 +22,7 @@ import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
 import com.itorix.apiwiz.design.studio.businessimpl.Swagger3SDK;
 import com.itorix.apiwiz.design.studio.businessimpl.ValidateSchema;
 import com.itorix.apiwiz.design.studio.businessimpl.XlsUtil;
+import com.itorix.apiwiz.design.studio.dao.ApiRatingsDao;
 import com.itorix.apiwiz.design.studio.dao.SupportedCodeGenLangDao;
 import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
@@ -69,25 +70,28 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * The type Swagger service.
+ */
 @CrossOrigin
 @RestController
-/**
- * To use to generate the new swagger and update the existing swagger.
- *
- * @author itorix.inc
- */
 public class SwaggerServiceImpl implements SwaggerService {
 
 	private static final Logger logger = LoggerFactory.getLogger(SwaggerServiceImpl.class);
 
+	/**
+	 * The Clients.
+	 */
 	static List<String> clients = new ArrayList<String>();
+	/**
+	 * The Servers.
+	 */
 	static List<String> servers = new ArrayList<String>();
 
 	static {
 		List<CodegenConfig> extensions = Codegen.getExtensions();
 		for (CodegenConfig config : extensions) {
-			if (config.getTag().equals(CodegenType.CLIENT) || config.getTag()
-					.equals(CodegenType.DOCUMENTATION)) {
+			if (config.getTag().equals(CodegenType.CLIENT) || config.getTag().equals(CodegenType.DOCUMENTATION)) {
 				clients.add(config.getName());
 			} else if (config.getTag().equals(CodegenType.SERVER)) {
 				servers.add(config.getName());
@@ -97,24 +101,42 @@ public class SwaggerServiceImpl implements SwaggerService {
 		Collections.sort(servers, String.CASE_INSENSITIVE_ORDER);
 	}
 
+	/**
+	 * The Swagger business.
+	 */
 	@Autowired
 	SwaggerBusiness swaggerBusiness;
 
+	/**
+	 * The Application properties.
+	 */
 	@Autowired
 	ApplicationProperties applicationProperties;
 
+	/**
+	 * The Rest template.
+	 */
 	@Autowired
 	RestTemplate restTemplate;
 
 	@Value("${compliance.scanner.uri}")
 	private String scannerUri;
 
+	/**
+	 * The Xls util.
+	 */
 	@Autowired
 	XlsUtil xlsUtil;
 
+	/**
+	 * The Jfrog util.
+	 */
 	@Autowired
 	JfrogUtilImpl jfrogUtilImpl;
 
+	/**
+	 * The Swagger subscription dao.
+	 */
 	@Autowired
 	SwaggerSubscriptionDao swaggerSubscriptionDao;
 
@@ -130,9 +152,14 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@Autowired
 	private SupportedCodeGenLangDao codeGenLangDao;
 
+	/**
+	 * The Api ratings dao.
+	 */
+	@Autowired
+	ApiRatingsDao apiRatingsDao;
+
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/puls")
-	public String checkPuls(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
+	public String checkPuls(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, HttpServletRequest request,
 			HttpServletResponse response) {
 		return "I am in Live :)";
@@ -142,8 +169,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 
 	public ResponseEntity<Object> importSwaggers(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas") String oas,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestHeader(value = "oas") String oas,
 			@RequestParam(value = "file", required = false) MultipartFile file,
 			@RequestParam(value = "type", required = true) String type,
 			@RequestParam(value = "gitURI", required = false) String gitURI,
@@ -151,12 +177,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestParam(value = "authType", required = false) String authType,
 			@RequestParam(value = "userName", required = false) String userName,
 			@RequestParam(value = "password", required = false) String password,
-			@RequestParam(value = "personalToken", required = false) String personalToken)
-			throws Exception {
+			@RequestParam(value = "personalToken", required = false) String personalToken) throws Exception {
 
-		List<SwaggerImport> listSwaggers = swaggerBusiness.importSwaggers(file, type, gitURI, branch,
-				authType,
-				userName, password, personalToken,oas);
+		List<SwaggerImport> listSwaggers = swaggerBusiness.importSwaggers(file, type, gitURI, branch, authType,
+				userName, password, personalToken, oas);
 		ScannerDTO scannerDTO = new ScannerDTO();
 		scannerDTO.setSwaggerId(listSwaggers.stream().map(swaggerImport -> {
 			return swaggerImport.getSwaggerId();
@@ -182,16 +206,14 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "Create Swagger", notes = "", response = Void.class)
-	@ApiResponses(value = {
-			@ApiResponse(code = 201, message = "Swagger Created sucessfully", response = Void.class),
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Swagger Created sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}")
 	public ResponseEntity<Void> createSwagger(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername,
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
 			@RequestBody String json) throws Exception {
 
 		if (oas == null || oas.trim().equals("")) {
@@ -273,11 +295,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "API Subscription", notes = "", response = Void.class)
-	@ApiResponses(value = {
-			@ApiResponse(code = 201, message = "Subscribed to API sucessfully", response = Void.class),
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Subscribed to API successfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/subscribe")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/subscribe")
 	public ResponseEntity<Void> swaggerSubscribe(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
@@ -285,6 +306,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		Subscriber subscriber = new Subscriber();
 		subscriber.setName(swaggerSubscriptionReq.getName());
 		subscriber.setEmailId(swaggerSubscriptionReq.getEmailId());
+		subscriber.setType(swaggerSubscriptionReq.getType());
 		swaggerSubscriptionDao.swaggerSubscribe(swaggerSubscriptionReq.getSwaggerId(),
 				swaggerSubscriptionReq.getSwaggerName(), swaggerSubscriptionReq.getOas(), subscriber);
 		return new ResponseEntity<Void>(HttpStatus.OK);
@@ -295,22 +317,22 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 *
 	 * @param interactionid
 	 * @param jsessionid
-	 * @param swaggerSubscriptionReq
+	 * @param swaggerId
+	 * @param emailId
 	 * @return
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "API Unsubscription", notes = "", response = Void.class)
 	@ApiResponses(value = {
-			@ApiResponse(code = 201, message = "Unsubscribed to API sucessfully", response = Void.class),
+			@ApiResponse(code = 201, message = "Unsubscribed to API successfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/unsubscribe")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/unsubscribe/{swaggerid}/{emailid}")
 	public ResponseEntity<Void> swaggerUnsubscribe(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody SwaggerSubscriptionReq swaggerSubscriptionReq) throws Exception {
-		swaggerSubscriptionDao.swaggerUnsubscribe(swaggerSubscriptionReq.getSwaggerId(),
-				swaggerSubscriptionReq.getEmailId());
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swaggerid") String swaggerId,
+			@PathVariable("emailid") String emailId) throws Exception {
+		swaggerSubscriptionDao.swaggerUnsubscribe(swaggerId, emailId);
 		return new ResponseEntity<Void>(HttpStatus.OK);
 	}
 
@@ -319,23 +341,45 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 *
 	 * @param interactionid
 	 * @param jsessionid
-	 * @param swaggerSubscriptionReq
+	 * @param swaggerId
 	 * @return
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "Get API Subscribers", notes = "", response = Void.class)
 	@ApiResponses(value = {
-			@ApiResponse(code = 201, message = "Got the list of subscribers sucessfully", response = Void.class),
+			@ApiResponse(code = 201, message = "Got the list of subscribers successfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/getsubscribers")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/getsubscribers/{swaggerid}")
 	public ResponseEntity<Set<Subscriber>> swaggerSubscribers(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody SwaggerSubscriptionReq swaggerSubscriptionReq) throws Exception {
-		Set<Subscriber> subscribers = swaggerSubscriptionDao.swaggerSubscribers(
-				swaggerSubscriptionReq.getSwaggerId());
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swaggerid") String swaggerId)
+			throws Exception {
+		Set<Subscriber> subscribers = swaggerSubscriptionDao.swaggerSubscribers(swaggerId);
 		return new ResponseEntity<Set<Subscriber>>(subscribers, HttpStatus.OK);
+	}
+	/**
+	 * This method returns if the user is subscriber of particular Swagger
+	 *
+	 * @param interactionid
+	 * @param jsessionid
+	 * @param swaggerId
+	 * @param emailId
+	 * @return
+	 * @throws Exception
+	 */
+	@ApiOperation(value = "Check if user is a subscriber", notes = "", response = Void.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 201, message = "Returned subscriber successfully", response = Void.class),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/checksubscriber/{swaggerid}/{emailid}")
+	public ResponseEntity<IsSubscribedUser> checkSubscriber(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swaggerid") String swaggerId,
+			@PathVariable("emailid") String emailId) throws Exception {
+		return new ResponseEntity<IsSubscribedUser>(swaggerSubscriptionDao.checkSubscriber(swaggerId, emailId),
+				HttpStatus.OK);
 	}
 
 	/**
@@ -351,8 +395,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "Create Swagger With new Revison", notes = "")
-	@ApiResponses(value = {
-			@ApiResponse(code = 201, message = "Swagger Created sucessfully", response = Void.class),
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Swagger Created sucessfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/revisions")
@@ -379,11 +422,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 			// base
 			// path
 			// collection
-			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid,
-					jsessionid,
+			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggerVO.getName(), oas);
-			if (integrations != null && integrations.getScm_authorizationType()
-					.equalsIgnoreCase("basic")) {
+			if (integrations != null && integrations.getScm_authorizationType().equalsIgnoreCase("basic")) {
 				File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
 						swaggerVO.getRevision());
 				scmUtilImpl.pushFilesToSCM(file, integrations.getScm_repository(),
@@ -394,8 +435,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 				File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
 						swaggerVO.getRevision());
 				scmUtilImpl.pushFilesToSCMBase64(file, integrations.getScm_repository(),
-						integrations.getScm_authorizationType(),
-						rsaEncryption.decryptText(integrations.getScm_token()),
+						integrations.getScm_authorizationType(), rsaEncryption.decryptText(integrations.getScm_token()),
 						integrations.getScm_url(), integrations.getScm_type(), integrations.getScm_branch(),
 						COMMIT_MESSAGE);
 			}
@@ -417,11 +457,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 			// base
 			// path
 			// collection
-			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid,
-					jsessionid,
+			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggerVO.getName(), oas);
-			if (integrations != null && integrations.getScm_authorizationType()
-					.equalsIgnoreCase("basic")) {
+			if (integrations != null && integrations.getScm_authorizationType().equalsIgnoreCase("basic")) {
 				File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
 						swaggerVO.getRevision());
 				scmUtilImpl.pushFilesToSCM(file, integrations.getScm_repository(),
@@ -432,8 +470,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 				File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
 						swaggerVO.getRevision());
 				scmUtilImpl.pushFilesToSCMBase64(file, integrations.getScm_repository(),
-						integrations.getScm_authorizationType(),
-						rsaEncryption.decryptText(integrations.getScm_token()),
+						integrations.getScm_authorizationType(), rsaEncryption.decryptText(integrations.getScm_token()),
 						integrations.getScm_url(), integrations.getScm_type(), integrations.getScm_branch(),
 						COMMIT_MESSAGE);
 			}
@@ -463,16 +500,14 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 * @throws Exception
 	 */
 	@ApiOperation(value = "Update Swagger With new Revison", notes = "")
-	@ApiResponses(value = {
-			@ApiResponse(code = 204, message = "Swagger Updated sucessfully", response = Void.class),
+	@ApiResponses(value = {@ApiResponse(code = 204, message = "Swagger Updated sucessfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}")
 	public ResponseEntity<Void> updateSwagger(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername,
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision, @RequestBody String json) throws Exception {
 		RSAEncryption rsaEncryption = new RSAEncryption();
 		if (oas == null || oas.trim().equals("")) {
@@ -486,23 +521,19 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setInteractionid(interactionid);
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			String name = vo.getName();
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(swaggername, revision, interactionid);
 			if (vo == null) {
-				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
 						"Swagger-1001");
 			}
 			vo.setSwagger(json);
 			swaggerVO = swaggerBusiness.updateSwagger(vo);
-			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid,
-					jsessionid,
+			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggername, oas);
-			if (integrations != null && integrations.getScm_authorizationType()
-					.equalsIgnoreCase("basic")) {
+			if (integrations != null && integrations.getScm_authorizationType().equalsIgnoreCase("basic")) {
 				File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
 						swaggerVO.getRevision());
 				scmUtilImpl.pushFilesToSCM(file, integrations.getScm_repository(),
@@ -513,8 +544,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 				File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
 						swaggerVO.getRevision());
 				scmUtilImpl.pushFilesToSCMBase64(file, integrations.getScm_repository(),
-						integrations.getScm_authorizationType(),
-						rsaEncryption.decryptText(integrations.getScm_token()),
+						integrations.getScm_authorizationType(), rsaEncryption.decryptText(integrations.getScm_token()),
 						integrations.getScm_url(), integrations.getScm_type(), integrations.getScm_branch(),
 						COMMIT_MESSAGE);
 			}
@@ -530,23 +560,19 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setInteractionid(interactionid);
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			String name = vo.getName();
 			vo = swaggerBusiness.getSwagger3WithVersionNumber(swaggername, revision, interactionid);
 			if (vo == null) {
-				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
 						"Swagger-1001");
 			}
 			vo.setSwagger(json);
 			swaggerVO = swaggerBusiness.updateSwagger(vo);
-			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid,
-					jsessionid,
+			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggername, oas);
-			if (integrations != null && integrations.getScm_authorizationType()
-					.equalsIgnoreCase("basic")) {
+			if (integrations != null && integrations.getScm_authorizationType().equalsIgnoreCase("basic")) {
 				File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
 						swaggerVO.getRevision());
 				scmUtilImpl.pushFilesToSCM(file, integrations.getScm_repository(),
@@ -557,8 +583,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 				File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
 						swaggerVO.getRevision());
 				scmUtilImpl.pushFilesToSCMBase64(file, integrations.getScm_repository(),
-						integrations.getScm_authorizationType(),
-						rsaEncryption.decryptText(integrations.getScm_token()),
+						integrations.getScm_authorizationType(), rsaEncryption.decryptText(integrations.getScm_token()),
 						integrations.getScm_url(), integrations.getScm_type(), integrations.getScm_branch(),
 						COMMIT_MESSAGE);
 			}
@@ -575,8 +600,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		return new ResponseEntity<Void>(headers, HttpStatus.NO_CONTENT);
 	}
 
-	private File createSwaggerFile(String swaggerName, String swagger, String folder, int revision)
-			throws IOException {
+	private File createSwaggerFile(String swaggerName, String swagger, String folder, int revision) throws IOException {
 		String separatorChar = String.valueOf(File.separatorChar);
 		String revStr = separatorChar + "swagger" + separatorChar + swaggerName + separatorChar
 				+ String.valueOf(revision);
@@ -610,8 +634,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<List<Revision>> getListOfRevisions(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername)
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername)
 			throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
@@ -620,15 +643,13 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			list = swaggerBusiness.getListOfRevisions(vo.getName(), interactionid);
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			list = swaggerBusiness.getListOf3Revisions(vo.getName(), interactionid);
 		}
@@ -649,8 +670,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers", produces = {
-			MediaType.APPLICATION_JSON_VALUE})
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers", produces = {MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Object> getListOfSwaggerNames(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
@@ -694,8 +714,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestParam(value = "status", required = false) String status,
 			@RequestParam(value = "product", required = false) String product,
 			@RequestParam(value = "modifieddate", required = false) String modifiedDate,
-			@RequestParam(value = "sortbymodifieddate", required = false) String sortByModifiedDate)
-			throws Exception {
+			@RequestParam(value = "sortbymodifieddate", required = false) String sortByModifiedDate) throws Exception {
 		// offset = offset == null? 0: offset;
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
@@ -708,12 +727,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerHistoryResponse response;
 			if (null != products) {
-				response = swaggerBusiness.getSwaggerDetailsByproduct(products, interactionid, jsessionid,
-						offset, oas,
+				response = swaggerBusiness.getSwaggerDetailsByproduct(products, interactionid, jsessionid, offset, oas,
 						swagger, pageSize);
 			} else {
-				response = swaggerBusiness.getListOfSwaggerDetails(status, modifiedDate, interactionid,
-						jsessionid,
+				response = swaggerBusiness.getListOfSwaggerDetails(status, modifiedDate, interactionid, jsessionid,
 						offset, oas, swagger, pageSize, sortByModifiedDate);
 			}
 			ObjectMapper mapper = new ObjectMapper();
@@ -722,12 +739,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 		} else if (oas.equals("3.0")) {
 			SwaggerHistoryResponse response;
 			if (null != products) {
-				response = swaggerBusiness.getSwaggerDetailsByproduct(products, interactionid, jsessionid,
-						offset, oas,
+				response = swaggerBusiness.getSwaggerDetailsByproduct(products, interactionid, jsessionid, offset, oas,
 						swagger, pageSize);
 			} else {
-				response = swaggerBusiness.getListOfSwagger3Details(status, modifiedDate, interactionid,
-						jsessionid,
+				response = swaggerBusiness.getListOfSwagger3Details(status, modifiedDate, interactionid, jsessionid,
 						offset, oas, swagger, pageSize, sortByModifiedDate);
 			}
 			ObjectMapper mapper = new ObjectMapper();
@@ -758,14 +773,40 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestParam(value = "status", required = false) String status,
-			@RequestParam(value = "partnerID", required = false) String partnerID) throws Exception {
+			@RequestParam Map<String, String> filterParams) throws Exception {
+
+		List<String> partners = new ArrayList<>(0);
+		List<String> products = new ArrayList<>(0);
+
+		if (filterParams.get("partnerNames") != null && !filterParams.get("partnerNames").isEmpty()) {
+			partners = swaggerBusiness.getPartners().stream().filter(
+					swaggerPartner -> filterParams.get("partnerNames")
+							.contains(swaggerPartner.getPartnerName())).map(SwaggerPartner::getId).collect(
+					Collectors.toList());
+			if(partners.isEmpty()){
+				return ResponseEntity.ok(Collections.EMPTY_SET);
+			}
+		}
+		if (filterParams.get("productNames") != null && !filterParams.get("productNames").isEmpty()) {
+			products = swaggerBusiness.getProductGroups(interactionid, jsessionid).stream().filter(
+					swaggerProduct -> filterParams.get("productNames")
+							.contains(swaggerProduct.getProductName())).map(SwaggerProduct::getId).collect(
+					Collectors.toList());
+			if(products.isEmpty()){
+				return ResponseEntity.ok(Collections.EMPTY_SET);
+			}
+		}
+//		if(filterParams.get("teamNames") != null && !filterParams.get("teamNames").isEmpty()){
+//			swaggerBusiness.getListOfTeams
+//		}
 
 		String json = "";
 		ArrayNode node = swaggerBusiness.getListOfPublishedSwaggerDetails(interactionid, jsessionid,
-				status, partnerID);
+				status,
+				partners, products);
 		ArrayNode node3 = swaggerBusiness.getListOfPublishedSwagger3Details(interactionid, jsessionid,
 				status,
-				partnerID);
+				partners, products);
 		if (node3 != null && node3.size() > 0) {
 			for (JsonNode nodeElement : node3) {
 				node.add(nodeElement);
@@ -778,7 +819,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	}
 
 	/**
-	 * We need to pass the particular swagger name and we will get the respective.
+	 * We need to pass the particular swagger name and we will get the
+	 * respective.
 	 *
 	 * @param interactionid
 	 * @param jsessionid
@@ -797,8 +839,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Object> getSwagger(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername)
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername)
 			throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
@@ -806,8 +847,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 
 			SwaggerVO swaggerVO = swaggerBusiness.getSwagger(swaggername, interactionid);
@@ -820,14 +860,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 				headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
 				return new ResponseEntity<Object>(json, headers, HttpStatus.OK);
 			} else {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 
 			Swagger3VO swaggerVO = swaggerBusiness.getSwagger3(swaggername, interactionid);
@@ -840,8 +878,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 				headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
 				return new ResponseEntity<Object>(json, headers, HttpStatus.OK);
 			} else {
-				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1000"), swaggername),
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000"), swaggername),
 						"Swagger-1000");
 			}
 		}
@@ -849,7 +886,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	}
 
 	/**
-	 * If we pass particular swagger name if it exist in the system it will delete.
+	 * If we pass particular swagger name if it exist in the system it will
+	 * delete.
 	 *
 	 * @param interactionid
 	 * @param jsessionid
@@ -867,8 +905,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Void> deleteSwagger(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername)
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername)
 			throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
@@ -877,25 +914,23 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 
 			swaggerBusiness.deleteSwagger(vo.getName(), interactionid);
 			DeleteResult result = swaggerBusiness.deleteSwagger2BasePath(vo);
-			logger.debug("Result of Deletion of the basePath : "+ result.getDeletedCount());
+			logger.debug("Result of Deletion of the basePath : " + result.getDeletedCount());
 			scannerDTO.setTenantId(getWorkspaceId());
 			scannerDTO.setOperation("Delete");
 			scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerBusiness.deleteSwagger3(vo.getName(), interactionid);
 			DeleteResult result = swaggerBusiness.deleteSwagger3BasePath(vo);
-			logger.debug("Result of Deletion of the basePath : "+ result.getDeletedCount());
+			logger.debug("Result of Deletion of the basePath : " + result.getDeletedCount());
 			scannerDTO.setTenantId(getWorkspaceId());
 			scannerDTO.setOperation("Delete");
 			scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
@@ -921,8 +956,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 * @throws ItorixException
 	 */
 	@ApiOperation(value = "delete Swagger based on Revison", notes = "", code = 204)
-	@ApiResponses(value = {
-			@ApiResponse(code = 204, message = "Swagger deleted sucessfully", response = Void.class),
+	@ApiResponses(value = {@ApiResponse(code = 204, message = "Swagger deleted sucessfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
@@ -930,10 +964,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Void> deleteSwaggerVersion(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername,
-			@PathVariable("revision") Integer revision, HttpServletRequest request,
-			HttpServletResponse response)
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
+			@PathVariable("revision") Integer revision, HttpServletRequest request, HttpServletResponse response)
 			throws ItorixException {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
@@ -942,8 +974,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerBusiness.deleteSwaggerVersion(vo.getName(), revision, interactionid);
 			if (swaggerBusiness.findSwaggersCount(vo.getSwaggerId()) < 1) {
@@ -951,7 +982,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 				scannerDTO.setTenantId(getWorkspaceId());
 				scannerDTO.setOperation("Delete");
 				scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
-			}else {
+			} else {
 				scannerDTO.setTenantId(getWorkspaceId());
 				scannerDTO.setOperation("Update");
 				scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
@@ -959,8 +990,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerBusiness.deleteSwagger3Version(vo.getName(), revision, interactionid);
 			if (swaggerBusiness.findSwaggers3VOCount(vo.getSwaggerId()) < 1) {
@@ -968,11 +998,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 				scannerDTO.setTenantId(getWorkspaceId());
 				scannerDTO.setOperation("Delete");
 				scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
-			}else {
+			} else {
 				scannerDTO.setTenantId(getWorkspaceId());
 				scannerDTO.setOperation("Update");
 				scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
 			}
+
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
@@ -1000,8 +1031,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Object> getSwaggerWithrevision(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername,
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision) throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
@@ -1009,11 +1039,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
-			SwaggerVO swaggerVO = swaggerBusiness.getSwaggerWithVersionNumber(swaggername, revision,
-					interactionid);
+			SwaggerVO swaggerVO = swaggerBusiness.getSwaggerWithVersionNumber(swaggername, revision, interactionid);
 			if (swaggerVO != null) {
 				HttpHeaders headers = new HttpHeaders();
 				headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
@@ -1023,17 +1051,14 @@ public class SwaggerServiceImpl implements SwaggerService {
 				JsonNode actualObj = mapper.readTree(swagger);
 				return new ResponseEntity<Object>(actualObj, headers, HttpStatus.OK);
 			} else {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
-			Swagger3VO swaggerVO = swaggerBusiness.getSwagger3WithVersionNumber(swaggername, revision,
-					interactionid);
+			Swagger3VO swaggerVO = swaggerBusiness.getSwagger3WithVersionNumber(swaggername, revision, interactionid);
 			if (swaggerVO != null) {
 				HttpHeaders headers = new HttpHeaders();
 				headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
@@ -1043,12 +1068,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 				JsonNode actualObj = mapper.readTree(swagger);
 				return new ResponseEntity<Object>(actualObj, headers, HttpStatus.OK);
 			} else {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 		}
-		throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-				"Swagger-1000");
+		throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 	}
 
 	/**
@@ -1064,8 +1087,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 * @return
 	 */
 	@ApiOperation(value = "Update Status", notes = "", code = 204)
-	@ApiResponses(value = {
-			@ApiResponse(code = 204, message = "Swagger Updated sucessfully", response = Void.class),
+	@ApiResponses(value = {@ApiResponse(code = 204, message = "Swagger Updated sucessfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
@@ -1073,22 +1095,19 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Void> updateStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername,
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision, @RequestBody String json) throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
 		}
 		ScannerDTO scannerDTO = new ScannerDTO();
 		if (oas.equals("2.0")) {
-			SwaggerVO vo = swaggerBusiness.updateStatus(swaggername, revision, json, interactionid,
-					jsessionid);
+			SwaggerVO vo = swaggerBusiness.updateStatus(swaggername, revision, json, interactionid, jsessionid);
 			scannerDTO.setTenantId(getWorkspaceId());
 			scannerDTO.setOperation("Update");
 			scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
 		} else if (oas.equals("3.0")) {
-			Swagger3VO vo = swaggerBusiness.updateSwagger3Status(swaggername, revision, json,
-					interactionid,
+			Swagger3VO vo = swaggerBusiness.updateSwagger3Status(swaggername, revision, json, interactionid,
 					jsessionid);
 			scannerDTO.setTenantId(getWorkspaceId());
 			scannerDTO.setOperation("Update");
@@ -1105,8 +1124,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Object> getRoles(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername)
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername)
 			throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
@@ -1114,20 +1132,17 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggername = vo.getName();
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggername = vo.getName();
 		}
-		List<String> roles = swaggerBusiness.getSwaggerRoles(swaggername, oas, interactionid,
-				jsessionid);
+		List<String> roles = swaggerBusiness.getSwaggerRoles(swaggername, oas, interactionid, jsessionid);
 		return new ResponseEntity<Object>(roles, HttpStatus.OK);
 	}
 
@@ -1143,8 +1158,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 * @param response
 	 */
 	@ApiOperation(value = "Update Comment", notes = "", code = 204)
-	@ApiResponses(value = {
-			@ApiResponse(code = 204, message = "Swagger Updated sucessfully", response = Void.class),
+	@ApiResponses(value = {@ApiResponse(code = 204, message = "Swagger Updated sucessfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
 			@ApiResponse(code = 404, message = "Resource not found. Resource not found. No records found for selected swagger name - %s with following revision - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
@@ -1152,10 +1166,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Void> updateComment(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername,
-			@PathVariable("revision") Integer revision, @RequestBody SwaggerComment comment)
-			throws Exception {
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
+			@PathVariable("revision") Integer revision, @RequestBody SwaggerComment comment) throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
 		}
@@ -1198,8 +1210,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Object> getSwaggerComments(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername,
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision) throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
@@ -1207,44 +1218,35 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			String name = vo.getName();
-			SwaggerVO swaggerVO = swaggerBusiness.getSwaggerWithVersionNumber(swaggername, revision,
-					interactionid);
+			SwaggerVO swaggerVO = swaggerBusiness.getSwaggerWithVersionNumber(swaggername, revision, interactionid);
 			if (swaggerVO == null) {
-				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
 						"Swagger-1001");
 			}
-			List<SwaggerComment> comments = swaggerBusiness.getSwaggerComments(swaggername, revision,
-					interactionid);
+			List<SwaggerComment> comments = swaggerBusiness.getSwaggerComments(swaggername, revision, interactionid);
 			HttpHeaders headers = new HttpHeaders();
 			headers.add("X-Swagger-Version", revision + "");
 			return new ResponseEntity<Object>(comments, headers, HttpStatus.OK);
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			String name = vo.getName();
-			Swagger3VO swaggerVO = swaggerBusiness.getSwagger3WithVersionNumber(swaggername, revision,
-					interactionid);
+			Swagger3VO swaggerVO = swaggerBusiness.getSwagger3WithVersionNumber(swaggername, revision, interactionid);
 			if (swaggerVO == null) {
-				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
 						"Swagger-1001");
 			}
-			List<Swagger3Comment> comments = swaggerBusiness.getSwagger3Comments(swaggername, revision,
-					interactionid);
+			List<Swagger3Comment> comments = swaggerBusiness.getSwagger3Comments(swaggername, revision, interactionid);
 			HttpHeaders headers = new HttpHeaders();
 			headers.add("X-Swagger-Version", revision + "");
 			return new ResponseEntity<Object>(comments, headers, HttpStatus.OK);
 		}
-		throw new ItorixException(
-				String.format("invalid Swagger version specified, supported versions 2.0 and 3.0 "),
+		throw new ItorixException(String.format("invalid Swagger version specified, supported versions 2.0 and 3.0 "),
 				"Swagger-1000");
 	}
 
@@ -1270,24 +1272,20 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Void> updateLockStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername,
-			@PathVariable("revision") Integer revision, @RequestBody SwaggerVO swaggerVO)
-			throws Exception {
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
+			@PathVariable("revision") Integer revision, @RequestBody SwaggerVO swaggerVO) throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
 		}
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			String name = vo.getName();
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(vo.getName(), revision, interactionid);
 			if (vo == null) {
-				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
 						"Swagger-1001");
 			}
 			swaggerVO.setRevision(revision);
@@ -1297,14 +1295,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			String name = vo.getName();
 			vo = swaggerBusiness.getSwagger3WithVersionNumber(swaggername, revision, interactionid);
 			if (vo == null) {
-				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
 						"Swagger-1001");
 			}
 			Swagger3VO swagger3VO = new Swagger3VO();
@@ -1339,24 +1335,20 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Object> deprecate(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername,
-			@PathVariable("revision") Integer revision, @RequestBody SwaggerVO swaggerVO)
-			throws Exception {
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
+			@PathVariable("revision") Integer revision, @RequestBody SwaggerVO swaggerVO) throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
 		}
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			String name = vo.getName();
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(swaggername, revision, interactionid);
 			if (vo == null) {
-				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
 						"Swagger-1001");
 			}
 			swaggerVO.setRevision(revision);
@@ -1367,14 +1359,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			String name = vo.getName();
 			vo = swaggerBusiness.getSwagger3WithVersionNumber(swaggername, revision, interactionid);
 			if (vo == null) {
-				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
 						"Swagger-1001");
 			}
 			Swagger3VO swagger3VO = new Swagger3VO();
@@ -1385,8 +1375,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swagger3VO = swaggerBusiness.deprecate(swagger3VO);
 			return new ResponseEntity<Object>(swagger3VO, HttpStatus.OK);
 		}
-		throw new ItorixException(
-				String.format(ErrorCodes.errorMessage.get("Swagger-1001"), swaggername, revision),
+		throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), swaggername, revision),
 				"Swagger-1001");
 	}
 
@@ -1410,19 +1399,16 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggername}/revisions/{revision}/proxies")
 	public ResponseEntity<Void> updateProxies(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@PathVariable("swaggername") String swaggername,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision) throws Exception {
 		SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 		if (vo == null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-					"Swagger-1000");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 		}
 		String name = vo.getName();
 		vo = swaggerBusiness.getSwaggerWithVersionNumber(swaggername, revision, interactionid);
 		if (vo == null) {
-			throw new ItorixException(
-					String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
 					"Swagger-1001");
 		}
 		SwaggerVO swaggerVO = new SwaggerVO();
@@ -1454,8 +1440,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Object> getLockStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername,
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision) throws Exception {
 		SwaggerLockResponse lockResponse = new SwaggerLockResponse();
 		if (oas == null || oas.trim().equals("")) {
@@ -1464,8 +1449,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(swaggername, revision, interactionid);
 			Boolean lockStatus = vo.getLock(); // swaggerBusiness.getLockStatus(vo.getName(),
@@ -1488,18 +1472,15 @@ public class SwaggerServiceImpl implements SwaggerService {
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			String name = vo.getName();
 			vo = swaggerBusiness.getSwagger3WithVersionNumber(swaggername, revision, interactionid);
 			if (vo == null) {
-				throw new ItorixException(
-						String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
 						"Swagger-1001");
 			}
-			Boolean lockStatus = swaggerBusiness.getSwagger3LockStatus(vo.getName(), revision,
-					interactionid);
+			Boolean lockStatus = swaggerBusiness.getSwagger3LockStatus(vo.getName(), revision, interactionid);
 			// Boolean lockStatus =
 			// vo.getLock();//swaggerBusiness.getLockStatus(vo.getName(),
 			// revision,
@@ -1520,8 +1501,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 						"Swagger-1001");
 			}
 		}
-		throw new ItorixException(
-				String.format(ErrorCodes.errorMessage.get("Swagger-1001"), swaggername, revision),
+		throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), swaggername, revision),
 				"Swagger-1001");
 	}
 
@@ -1546,8 +1526,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Object> genarateXpath(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestParam("xsdfile") MultipartFile xsdFile,
-			@RequestParam("elementname") String elementName,
+			@RequestParam("xsdfile") MultipartFile xsdFile, @RequestParam("elementname") String elementName,
 			@RequestParam("type") String type, @RequestHeader(value = "JSESSIONID") String jsessionid)
 			throws Exception {
 		JSONObject jsonObject = new JSONObject();
@@ -1561,19 +1540,16 @@ public class SwaggerServiceImpl implements SwaggerService {
 		ColumnPositionMappingStrategy<XmlSchemaVo> strategy = new ColumnPositionMappingStrategy<>();
 		strategy.setType(XmlSchemaVo.class);
 		CsvToBean<XmlSchemaVo> csvToBean = new CsvToBean<>();
-		String[] columns = new String[]{"include", "xpath", "minOccurs", "maxOccurs", "xsdType",
-				"jsonType",
+		String[] columns = new String[]{"include", "xpath", "minOccurs", "maxOccurs", "xsdType", "jsonType",
 				"jsonFormat", "enums", "minLength", "maxLength", "length", "pattern", "documentation"};
 		strategy.setColumnMapping(columns);
 		CSVReader csvReader = null;
 		try {
 			csvReader = new CSVReader(new FileReader(fileLocation), '|');
 		} catch (Exception ex) {
-			logger.error(
-					"SwaggerController.genarateXpath : CorelationId= " + interactionid + " : jsessionid="
-							+ jsessionid + " : ERROR =" + ex.getMessage());
-			throw new ItorixException(String.format(ErrorCodes.Xpath1001.message(), elementName),
-					"Xpath-1001");
+			logger.error("SwaggerController.genarateXpath : CorelationId= " + interactionid + " : jsessionid="
+					+ jsessionid + " : ERROR =" + ex.getMessage());
+			throw new ItorixException(String.format(ErrorCodes.Xpath1001.message(), elementName), "Xpath-1001");
 		}
 		List<XmlSchemaVo> xmlSchemaVos = csvToBean.parse(strategy, csvReader);
 		if (type.equals("XLS")) {
@@ -1605,8 +1581,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Void> genarateSwaggerDefinations(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestParam("xpathfile") MultipartFile xpathFile,
-			@RequestParam("sheetname") String sheetName,
+			@RequestParam("xpathfile") MultipartFile xpathFile, @RequestParam("sheetname") String sheetName,
 			@PathVariable("swaggername") String swaggername, @RequestParam("revision") Integer revision,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
 		if (xpathFile == null) {
@@ -1618,8 +1593,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		swaggerBusiness.getSwagger(swaggername, interactionid);
 		SwaggerVO swaggerVO = swaggerBusiness.getSwagger(swaggername, interactionid);
 		swaggerVO.setInteractionid(interactionid);
-		SwaggerVO swagger = swaggerBusiness.genarateSwaggerDefinations(swaggerVO, xpathFile, sheetName,
-				revision);
+		SwaggerVO swagger = swaggerBusiness.genarateSwaggerDefinations(swaggerVO, xpathFile, sheetName, revision);
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("X-Swagger-Version", swagger.getRevision() + "");
 		return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
@@ -1645,8 +1619,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/jsondefinitions", produces = {
 			MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Void> genarateSwaggerJsonDefinations(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestBody String json,
+			@RequestHeader(value = "interactionid", required = false) String interactionid, @RequestBody String json,
 			@PathVariable("swaggername") String swaggername, @RequestParam("revision") Integer revision,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas) throws Exception {
@@ -1661,15 +1634,13 @@ public class SwaggerServiceImpl implements SwaggerService {
 			SwaggerVO swaggerVO = new SwaggerVO();
 			swaggerVO.setName(swaggername);
 			swaggerVO.setInteractionid(interactionid);
-			SwaggerVO swagger = swaggerBusiness.genarateSwaggerJsonDefinations(swaggerVO, rowDataList,
-					revision);
+			SwaggerVO swagger = swaggerBusiness.genarateSwaggerJsonDefinations(swaggerVO, rowDataList, revision);
 			swaggerRevision = swagger.getRevision();
 		} else if (oas.equals("3.0")) {
 			Swagger3VO swaggerVO = new Swagger3VO();
 			swaggerVO.setName(swaggername);
 			swaggerVO.setInteractionid(interactionid);
-			Swagger3VO swagger = swaggerBusiness.genarateSwaggerJsonDefinations(swaggerVO, rowDataList,
-					revision);
+			Swagger3VO swagger = swaggerBusiness.genarateSwaggerJsonDefinations(swaggerVO, rowDataList, revision);
 			swaggerRevision = swagger.getRevision();
 		}
 
@@ -1699,10 +1670,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Void> createReview(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername,
-			@PathVariable("revision") Integer revision, @RequestBody SwaggerReview swaggerReview)
-			throws Exception {
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
+			@PathVariable("revision") Integer revision, @RequestBody SwaggerReview swaggerReview) throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
 		}
@@ -1711,8 +1680,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerReview.setJsessionid(jsessionid);
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggername = vo.getName();
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(swaggername, revision, interactionid);
@@ -1756,20 +1724,17 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			swaggerReviewComments.setInteractionid(interactionid);
 			swaggerReviewComments.setJsessionid(jsessionid);
-			SwaggerVO vo = swaggerBusiness.findSwagger(swaggerReviewComments.getSwaggerName(),
-					interactionid);
+			SwaggerVO vo = swaggerBusiness.findSwagger(swaggerReviewComments.getSwaggerName(), interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerReviewComments.setSwaggerName(vo.getName());
 			String name = vo.getName();
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(swaggerReviewComments.getSwaggerName(),
 					swaggerReviewComments.getRevision(), interactionid);
 			if (vo == null) {
-				throw new ItorixException(
-						String.format(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name,
-								swaggerReviewComments.getRevision())), "Swagger-1001");
+				throw new ItorixException(String.format(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name,
+						swaggerReviewComments.getRevision())), "Swagger-1001");
 			}
 			swaggerBusiness.createOrUpdateReviewComment(swaggerReviewComments);
 		} else if (oas.equals("3.0")) {
@@ -1783,11 +1748,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swagger3ReviewComments.setCommentedBy(swaggerReviewComments.getCommentedBy());
 			swagger3ReviewComments.setInteractionid(interactionid);
 			swagger3ReviewComments.setJsessionid(jsessionid);
-			Swagger3VO vo = swaggerBusiness.findSwagger3(swagger3ReviewComments.getSwaggerName(),
-					interactionid);
+			Swagger3VO vo = swaggerBusiness.findSwagger3(swagger3ReviewComments.getSwaggerName(), interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerReviewComments.setSwaggerName(vo.getName());
 			swagger3ReviewComments.setSwaggerName(swaggerReviewComments.getSwaggerName());
@@ -1830,11 +1793,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			swaggerReviewComments.setInteractionid(interactionid);
 			swaggerReviewComments.setJsessionid(jsessionid);
-			SwaggerVO vo = swaggerBusiness.findSwagger(swaggerReviewComments.getSwaggerName(),
-					interactionid);
+			SwaggerVO vo = swaggerBusiness.findSwagger(swaggerReviewComments.getSwaggerName(), interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerReviewComments.setSwaggerName(vo.getName());
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(swaggerReviewComments.getSwaggerName(),
@@ -1859,11 +1820,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swagger3ReviewComments.setCommentedBy(swaggerReviewComments.getCommentedBy());
 			swagger3ReviewComments.setInteractionid(interactionid);
 			swagger3ReviewComments.setJsessionid(jsessionid);
-			Swagger3VO vo = swaggerBusiness.findSwagger3(swagger3ReviewComments.getSwaggerName(),
-					interactionid);
+			Swagger3VO vo = swaggerBusiness.findSwagger3(swagger3ReviewComments.getSwaggerName(), interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerReviewComments.setSwaggerName(vo.getName());
 			swagger3ReviewComments.setSwaggerName(vo.getName());
@@ -1900,8 +1859,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Void> reviewCommentReplay(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("reviewid") String reviewid,
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("reviewid") String reviewid,
 			@RequestBody SwaggerReviewComents swaggerReviewComments) throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
@@ -1909,11 +1867,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (oas.equals("2.0")) {
 			swaggerReviewComments.setInteractionid(interactionid);
 			swaggerReviewComments.setJsessionid(jsessionid);
-			SwaggerVO vo = swaggerBusiness.findSwagger(swaggerReviewComments.getSwaggerName(),
-					interactionid);
+			SwaggerVO vo = swaggerBusiness.findSwagger(swaggerReviewComments.getSwaggerName(), interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerReviewComments.setSwaggerName(vo.getName());
 			vo = swaggerBusiness.getSwaggerWithVersionNumber(swaggerReviewComments.getSwaggerName(),
@@ -1938,11 +1894,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swagger3ReviewComments.setCommentedBy(swaggerReviewComments.getCommentedBy());
 			swagger3ReviewComments.setInteractionid(interactionid);
 			swagger3ReviewComments.setJsessionid(jsessionid);
-			Swagger3VO vo = swaggerBusiness.findSwagger3(swagger3ReviewComments.getSwaggerName(),
-					interactionid);
+			Swagger3VO vo = swaggerBusiness.findSwagger3(swagger3ReviewComments.getSwaggerName(), interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerReviewComments.setSwaggerName(vo.getName());
 			swagger3ReviewComments.setSwaggerName(swaggerReviewComments.getSwaggerName());
@@ -1981,8 +1935,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Object> getReviewComment(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername,
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision) throws Exception {
 		ObjectNode obj = null;
 		if (oas == null || oas.trim().equals("")) {
@@ -2022,8 +1975,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			oas = "2.0";
 		}
 		if (oas.equals("2.0")) {
-			return new ResponseEntity<Object>(swaggerBusiness.getSwaggerStats(timeunit, timerange),
-					HttpStatus.OK);
+			return new ResponseEntity<Object>(swaggerBusiness.getSwaggerStats(timeunit, timerange), HttpStatus.OK);
 		} else if (oas.equals("3.0")) {
 			obj = swaggerBusiness.getSwagger3Stats(timeunit, timerange);
 		}
@@ -2070,8 +2022,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public @ResponseBody ResponseEntity<Object> createLangSupport(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@PathVariable("framework") String framework, @RequestBody SupportedCodeGenLang langData)
-			throws Exception {
+			@PathVariable("framework") String framework, @RequestBody SupportedCodeGenLang langData) throws Exception {
 
 		SupportedCodeGenLang res = codeGenLangDao.addLang(langData);
 		return new ResponseEntity<Object>(res, HttpStatus.OK);
@@ -2082,8 +2033,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public @ResponseBody ResponseEntity<Object> updateLangSupport(
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@PathVariable("framework") String framework, @RequestBody SupportedCodeGenLang langData)
-			throws Exception {
+			@PathVariable("framework") String framework, @RequestBody SupportedCodeGenLang langData) throws Exception {
 
 		SupportedCodeGenLang res = codeGenLangDao.updateLang(framework, langData);
 		return new ResponseEntity<Object>(res, HttpStatus.OK);
@@ -2117,8 +2067,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Object> genrateClient(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("framework") String framework,
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("framework") String framework,
 			@RequestBody GenrateClientRequest genrateClientRequest) throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
@@ -2152,6 +2101,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			generatorInput.setOptions(options);
 			String filename = Generator.generateClient(framework, generatorInput);
 			String downloadURI = null;
+			ResponseCode responseCode = new ResponseCode();
 			try {
 				S3Integration s3Integration = s3Connection.getS3Integration();
 				if (null != s3Integration) {
@@ -2171,9 +2121,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 					new File(filename).delete();
 				}
 			} catch (Exception e) {
-
+				responseCode.setCode("500");
+				return new ResponseEntity<Object>(responseCode, HttpStatus.INTERNAL_SERVER_ERROR);
 			}
-			ResponseCode responseCode = new ResponseCode();
 			responseCode.setLink(downloadURI);
 			return new ResponseEntity<Object>(responseCode, HttpStatus.OK);
 		} else if (oas.equals("3.0")) {
@@ -2188,6 +2138,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			}
 			String filename = generateSwagger3SDK(vo, framework);
 			String downloadURI = null;
+			ResponseCode responseCode = new ResponseCode();
 			try {
 				S3Integration s3Integration = s3Connection.getS3Integration();
 				if (null != s3Integration) {
@@ -2207,9 +2158,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 					new File(filename).delete();
 				}
 			} catch (Exception e) {
-
+				responseCode.setCode("500");
+				return new ResponseEntity<Object>(responseCode, HttpStatus.INTERNAL_SERVER_ERROR);
 			}
-			ResponseCode responseCode = new ResponseCode();
 			responseCode.setLink(downloadURI);
 			return new ResponseEntity<Object>(responseCode, HttpStatus.OK);
 		}
@@ -2221,11 +2172,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 		return userSessionToken.getWorkspaceId();
 	}
 
-	private String generateSwagger3SDK(Swagger3VO swaggerVO, String framework)
-			throws IOException, ApiException {
-		String outputFolder =
-				applicationProperties.getSwageerGenDir() + "clients" + File.separator + framework
-						+ File.separator + swaggerVO.getName().replaceAll(" ", "") + "_client";
+	private String generateSwagger3SDK(Swagger3VO swaggerVO, String framework) throws IOException, ApiException {
+		String outputFolder = applicationProperties.getSwageerGenDir() + "clients" + File.separator + framework
+				+ File.separator + swaggerVO.getName().replaceAll(" ", "") + "_client";
 		String openapiLocation = applicationProperties.getSwageerGenDir() + "swagger" + File.separator
 				+ swaggerVO.getName().replaceAll(" ", "") + ".json";
 		FileUtils.writeStringToFile(new File(openapiLocation), swaggerVO.getSwagger());
@@ -2252,8 +2201,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<ResponseCode> genrateServer(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("framework") String framework,
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("framework") String framework,
 			@RequestBody GenrateClientRequest genrateClientRequest) throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
@@ -2280,13 +2228,13 @@ public class SwaggerServiceImpl implements SwaggerService {
 			GeneratorInput generatorInput = new GeneratorInput();
 			generatorInput.setSpec(json);
 			Map<String, String> options = new HashMap<>();
-			String outputFolder =
-					applicationProperties.getSwageerGenDir() + "servers" + File.separator + framework
-							+ File.separator + genrateClientRequest.getSwaggerName() + "_server";
+			String outputFolder = applicationProperties.getSwageerGenDir() + "servers" + File.separator + framework
+					+ File.separator + genrateClientRequest.getSwaggerName() + "_server";
 			options.put("outputFolder", outputFolder);
 			generatorInput.setOptions(options);
 			String filename = Generator.generateServer(framework, generatorInput);
 			String downloadURI = null;
+			ResponseCode responseCode = new ResponseCode();
 			try {
 				S3Integration s3Integration = s3Connection.getS3Integration();
 				if (null != s3Integration) {
@@ -2304,12 +2252,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 									+ System.currentTimeMillis());
 					downloadURI = obj.getString("downloadURI");
 					new File(filename).delete();
-				}
-			} catch (Exception e) {
-
+				}} catch (Exception e) {
 			}
 			new File(filename).delete();
-			ResponseCode responseCode = new ResponseCode();
 			responseCode.setLink(downloadURI);
 			return new ResponseEntity<ResponseCode>(responseCode, HttpStatus.OK);
 		} else if (oas.equals("3.0")) {
@@ -2365,8 +2310,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Void> assoiateProduct(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername,
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
 			@RequestBody SwaggerVO swaggerVO) throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
@@ -2377,8 +2321,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 				Set<String> products = swaggerVO.getProducts();
 				swaggerBusiness.associateProduct(vo.getName(), products, "2.0");
 			} else {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
@@ -2386,8 +2329,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 				Set<String> products = swaggerVO.getProducts();
 				swaggerBusiness.associateProduct(vo.getName(), products, "3.0");
 			} else {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 		}
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
@@ -2413,8 +2355,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Set<String>> getAssoiatedProducts(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas,
-			@PathVariable("swaggername") String swaggername)
+			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername)
 			throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
@@ -2423,26 +2364,22 @@ public class SwaggerServiceImpl implements SwaggerService {
 			SwaggerVO vo = null;
 			vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			SwaggerMetadata metadata = swaggerBusiness.getSwaggerMetadata(vo.getName(), oas);
-			Set<String> responseSet = responseSet =
-					(metadata != null) ? metadata.getProducts() : new HashSet<String>();
+			Set<String> responseSet = responseSet = (metadata != null) ? metadata.getProducts() : new HashSet<String>();
 			return new ResponseEntity<Set<String>>(responseSet, HttpStatus.OK);
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = null;
 			vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-						"Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			SwaggerMetadata metadata = swaggerBusiness.getSwaggerMetadata(vo.getName(), oas);
-			Set<String> responseSet = responseSet =
-					(metadata != null) ? metadata.getProducts() : new HashSet<String>();
+			Set<String> responseSet = responseSet = (metadata != null) ? metadata.getProducts() : new HashSet<String>();
 			return new ResponseEntity<Set<String>>(responseSet, HttpStatus.OK);
 		}
-		return new ResponseEntity<Set<String>>(new HashSet<String>(), HttpStatus.OK);
+		return ResponseEntity.ok(Collections.EMPTY_SET);
 	}
 
 	/**
@@ -2462,8 +2399,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/teams/{teamname}/associate-projects")
 	public ResponseEntity<Void> assoiateTeamsToProject(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@PathVariable("teamname") String teamname,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("teamname") String teamname,
 			@RequestBody SwaggerTeam swaggerTeam) throws Exception {
 		Set<String> projects = swaggerTeam.getProjects();
 		swaggerBusiness.assoiateTeamsToProject(teamname, projects, interactionid);
@@ -2489,14 +2425,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams/{teamname}/associated-projects")
 	public ResponseEntity<Set<String>> getassoiateTeamsToProjects(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@PathVariable("teamname") String teamname)
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("teamname") String teamname)
 			throws Exception {
 		Set<String> responseSet = new HashSet<>();
 		SwaggerTeam vo = swaggerBusiness.findSwaggerTeam(teamname, interactionid);
 		if (vo == null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Teams-1001"), teamname),
-					"Teams-1001");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Teams-1001"), teamname), "Teams-1001");
 		}
 		responseSet = vo.getProjects();
 		return new ResponseEntity<Set<String>>(responseSet, HttpStatus.OK);
@@ -2520,8 +2454,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggername}/associated-portfolio")
 	public ResponseEntity<Void> assoiatePortfolio(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@PathVariable("swaggername") String swaggername,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swaggername") String swaggername,
 			@RequestBody SwaggerVO swaggerVO) throws Exception {
 		Set<String> portfolioSet = swaggerVO.getPortfolios();
 		swaggerBusiness.associatePortfolio(swaggername, portfolioSet, interactionid);
@@ -2547,22 +2480,19 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/{swaggername}/associated-portfolio")
 	public ResponseEntity<Set<String>> getAssoiatedPortfolios(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@PathVariable("swaggername") String swaggername)
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swaggername") String swaggername)
 			throws Exception {
 		Set<String> responseSet = new HashSet<>();
 		SwaggerVO vo = null;
 		vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 		if (vo == null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
-					"Swagger-1000");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 		}
 		responseSet = vo.getPortfolios();
 		return new ResponseEntity<Set<String>>(responseSet, HttpStatus.OK);
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "v1/swaggers/search", produces = {
-			"application/json"})
+	@RequestMapping(method = RequestMethod.GET, value = "v1/swaggers/search", produces = {"application/json"})
 	public ResponseEntity<Object> swaggerSearch(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam("name") String name,
@@ -2606,11 +2536,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Void> createOrUpdateGitIntegrations(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@PathVariable("swagger-id") String swaggerid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swagger-id") String swaggerid,
 			@Valid @RequestBody SwaggerIntegrations swaggerIntegrations) throws Exception {
-		swaggerBusiness.createOrUpdateGitIntegrations(interactionid, jsessionid, swaggerid, oas,
-				swaggerIntegrations);
+		swaggerBusiness.createOrUpdateGitIntegrations(interactionid, jsessionid, swaggerid, oas, swaggerIntegrations);
 		return new ResponseEntity<Void>(HttpStatus.CREATED);
 	}
 
@@ -2620,8 +2548,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
 			@PathVariable("swagger-id") String swaggerid) throws Exception {
-		SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
-				swaggerid,
+		SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid, swaggerid,
 				oas);
 		return new ResponseEntity<SwaggerIntegrations>(integrations, HttpStatus.OK);
 	}
@@ -2639,34 +2566,28 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@ApiOperation(value = "Get Info of Swagger", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = Object.class),
 			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/info", produces = {
-			"application/json"})
-	public ResponseEntity<Object> getSwaggerInfo(
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/info", produces = {"application/json"})
+	public ResponseEntity<Object> getSwaggerInfo(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestParam("id") String swaggerid) throws Exception {
 		Map swaggerInfo = swaggerBusiness.getSwaggerInfo(jsessionid, swaggerid, oas);
 		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.addAll("Access-Control-Expose-Headers",
-				Arrays.asList("x-created-by", "x-created-user-name"));
+		httpHeaders.addAll("Access-Control-Expose-Headers", Arrays.asList("x-created-by", "x-created-user-name"));
 		httpHeaders.set("x-created-by", String.valueOf(swaggerInfo.remove("createdBy")));
 		httpHeaders.set("x-created-user-name", String.valueOf(swaggerInfo.remove("createdUsername")));
-		ResponseEntity<Object> responseEntity = new ResponseEntity<>(swaggerInfo, httpHeaders,
-				HttpStatus.OK);
+		ResponseEntity<Object> responseEntity = new ResponseEntity<>(swaggerInfo, httpHeaders, HttpStatus.OK);
 		return responseEntity;
 	}
 
 	@ApiOperation(value = "Clone existing Swagger. Creates a new clone based on the request details ", notes = "", code = 201)
-	@ApiResponses(value = {
-			@ApiResponse(code = 201, message = "Swagger Cloned successfully", response = Void.class),
+	@ApiResponses(value = {@ApiResponse(code = 201, message = "Swagger Cloned successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/clone")
 	public ResponseEntity<?> cloneSwagger(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestBody SwaggerCloneDetails swaggerCloneDetails) throws Exception {
 		String swaggerId = swaggerBusiness.cloneSwagger(swaggerCloneDetails, oas);
-		HttpStatus httpStatus =
-				swaggerId != null ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
+		HttpStatus httpStatus = swaggerId != null ? HttpStatus.CREATED : HttpStatus.INTERNAL_SERVER_ERROR;
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Access-Control-Expose-Headers", "X-Swagger-id");
 		headers.add("X-Swagger-id", swaggerId);
@@ -2678,16 +2599,14 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@PathVariable("revision") String revision,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas)
-			throws Exception {
+			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas) throws Exception {
 		return new ResponseEntity<Object>(swaggerBusiness.getProxies(swagger, oas), HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseEntity<?> createPartnerGroup(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody SwaggerPartner swaggerPartner)
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerPartner swaggerPartner)
 			throws Exception {
 		swaggerPartner.setId(new ObjectId().toString());
 		swaggerBusiness.createPartner(swaggerPartner);
@@ -2697,8 +2616,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@Override
 	public ResponseEntity<?> updatePartnerGroup(@PathVariable("partnerId") String partnerId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody SwaggerPartner swaggerPartner)
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerPartner swaggerPartner)
 			throws Exception {
 		swaggerPartner.setId(partnerId);
 		swaggerBusiness.updatePartner(swaggerPartner);
@@ -2726,7 +2644,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestBody AsociateSwaggerPartnerRequest swaggerPartnerRequest) throws Exception {
-		swaggerBusiness.associatePartners(swaggerId, oas, swaggerPartnerRequest.getPartnerId());
+		swaggerBusiness.associatePartners(swaggerId, oas, swaggerPartnerRequest.getPartnerId().stream().collect(
+				Collectors.toSet()));
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}
 
@@ -2734,10 +2653,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<?> getSwaggerPartners(@PathVariable("swaggerId") String swaggerId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas)
-			throws Exception {
-		return new ResponseEntity<Object>(swaggerBusiness.getAssociatedPartners(swaggerId, oas),
-				HttpStatus.OK);
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas) throws Exception {
+		return new ResponseEntity<Object>(swaggerBusiness.getAssociatedPartners(swaggerId, oas), HttpStatus.OK);
 	}
 
 	@Override
@@ -2748,11 +2665,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	}
 
 	@Override
-	public ResponseEntity<?> getSwaggerDictionary(
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
+	public ResponseEntity<?> getSwaggerDictionary(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("swaggerId") String swaggerId, @PathVariable("revision") Integer revision) {
-		return new ResponseEntity<>(swaggerBusiness.getSwaggerDictionary(swaggerId, revision),
-				HttpStatus.OK);
+		return new ResponseEntity<>(swaggerBusiness.getSwaggerDictionary(swaggerId, revision), HttpStatus.OK);
 	}
 
 	@Override
@@ -2768,8 +2683,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	}
 
 	@Override
-	public ResponseEntity<?> getSwaggerAssociatedWithSchemaName(
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
+	public ResponseEntity<?> getSwaggerAssociatedWithSchemaName(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable String dictionaryId, @PathVariable String schemaName) {
 		DictionarySwagger swaggerAssociatedWithDictionary = swaggerBusiness
 				.getSwaggerAssociatedWithDictionary(dictionaryId, schemaName);
@@ -2781,6 +2695,52 @@ public class SwaggerServiceImpl implements SwaggerService {
 	}
 
 	@Override
+	public ResponseEntity<?> postRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas, String swaggerId,
+			ApiRatings apiRatings) {
+		return apiRatingsDao.postRating(swaggerId, apiRatings);
+	}
+
+	@Override
+	public ResponseEntity<?> editRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas, String swaggerId,
+			ApiRatings apiRatings) {
+		return apiRatingsDao.editRating(swaggerId, apiRatings);
+	}
+
+	@Override
+	public ResponseEntity<?> getRatingSummary(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas, String swaggerId,
+			int revison) {
+		return new ResponseEntity<>(apiRatingsDao.getRatingSummary(swaggerId, oas, revison), HttpStatus.OK);
+
+	}
+
+	@Override
+	public ResponseEntity<?> getAllRatings(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "email") String email,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas, String swaggerId,
+			int revision) {
+		return new ResponseEntity<>(apiRatingsDao.getRatings(swaggerId, oas, revision, email), HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> deleteRatingAdmin(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "ratingId") String ratingId,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas, String swaggerId,
+			int revision) {
+		return new ResponseEntity<>(apiRatingsDao.deleteRatingadmin(swaggerId, revision, oas, ratingId),
+				HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	public ResponseEntity<?> deleteRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "email") String email, @RequestHeader(value = "ratingId") String ratingId,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas, String swaggerId,
+			int revision) {
+		return new ResponseEntity<>(apiRatingsDao.deleteRating(swaggerId, revision, oas, email, ratingId), HttpStatus.NO_CONTENT);
+	}
+
 	public ResponseEntity<?> loadSwaggersToScan(String interactionid, String jsessionid) {
 		List<String> swaggersList = swaggerBusiness.loadSwaggersToScan(interactionid, jsessionid);
 		ScannerDTO scannerDTO = new ScannerDTO();
@@ -2788,11 +2748,69 @@ public class SwaggerServiceImpl implements SwaggerService {
 		scannerDTO.setTenantId(getWorkspaceId());
 		scannerDTO.setSwaggerId(swaggersList);
 		callScannerAPI(scannerDTO);
-		return ResponseEntity.ok().body("Syncing "+swaggersList.size()+" Swaggers.");
+		return ResponseEntity.ok().body("Syncing " + swaggersList.size() + " Swaggers.");
 
 	}
 
-	private void callScannerAPI(ScannerDTO scannerDTO){
+	@Override
+	public ResponseEntity<?> createProduct(String jsessionid, String interactionid,
+			SwaggerProduct swaggerProduct) throws ItorixException {
+		return ResponseEntity.ok(swaggerBusiness.createProduct(swaggerProduct));
+	}
+
+	public ResponseEntity<?> updateProduct(String productId, String interactionid,
+			String jsessionid, SwaggerProduct swaggerProduct) throws ItorixException {
+		return ResponseEntity.ok(swaggerBusiness.updateProduct(swaggerProduct, productId));
+	}
+
+	@Override
+	public ResponseEntity<?> deleteProduct(String productId, String interactionid,
+			String jsessionid) throws ItorixException {
+		return ResponseEntity.status(HttpStatus.NO_CONTENT)
+				.body(swaggerBusiness.deleteProduct(productId));
+	}
+
+	@Override
+	public ResponseEntity<?> getProductGroups(String interactionid, String jsessionid)
+			throws ItorixException {
+		return ResponseEntity.ok(swaggerBusiness.getProductGroups(interactionid, jsessionid));
+	}
+
+	/**
+	 * @param interactionid
+	 * @param jsessionid
+	 * @param partnerIds
+	 * @return
+	 * @throws ItorixException
+	 */
+	@Override
+	public ResponseEntity<?> getProductGroupsByPartnerIds(String interactionid, String jsessionid,
+			Map<String, String> partnerIds) throws ItorixException {
+		List<String> partners = partnerIds.get("partnerIds") != null && !partnerIds.get("partnerIds").isEmpty() ? Arrays.asList(
+				partnerIds.get("partnerIds").split(",")) : Collections.emptyList();
+		logger.info("getProductGroupsByPartnerIds");
+		return ResponseEntity.ok().body(swaggerBusiness.getProductGroupsByPartnerIds(partners));
+	}
+
+	@Override
+	public ResponseEntity<?> manageSwaggerProducts(String swaggerId,
+			String interactionid,
+			String jsessionid, String oas, AsociateSwaggerProductRequest swaggerProductRequest)
+			throws ItorixException {
+		swaggerBusiness.manageSwaggerProducts(swaggerId, oas, swaggerProductRequest);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+
+	@Override
+	public ResponseEntity<?> getSwaggerProducts(String swaggerId,
+			String interactionid,
+			String jsessionid, int offset, int pageSize, String oas) throws ItorixException {
+		return ResponseEntity.ok(
+				swaggerBusiness.getSwaggerProducts(swaggerId, oas, interactionid,
+						jsessionid, offset, pageSize));
+	}
+
+	private void callScannerAPI(ScannerDTO scannerDTO) {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<ScannerDTO> entity = new HttpEntity<>(scannerDTO, httpHeaders);

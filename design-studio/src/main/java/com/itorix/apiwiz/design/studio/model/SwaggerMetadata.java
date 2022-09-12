@@ -18,6 +18,8 @@ public class SwaggerMetadata {
 	private Set<String> products;
 	private Set<String> portfolios;
 
+	private Set<String> partners;
+
 	public String getId() {
 		return id;
 	}
@@ -36,6 +38,14 @@ public class SwaggerMetadata {
 
 	public String getOas() {
 		return oas;
+	}
+
+	public Set<String> getPartners() {
+		return partners;
+	}
+
+	public void setPartners(Set<String> partners) {
+		this.partners = partners;
 	}
 
 	public void setOas(String oas) {

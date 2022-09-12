@@ -1,7 +1,7 @@
 package com.itorix.apiwiz.configmanagement.model.apigee;
 
 public class SSLInfo {
-	private String enabled;
+	private boolean enabled;
 
 	private String trustStore;
 
@@ -13,11 +13,11 @@ public class SSLInfo {
 
 	private String keyAlias;
 
-	public String getEnabled() {
+	public boolean getEnabled() {
 		return enabled;
 	}
 
-	public void setEnabled(String enabled) {
+	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
 
@@ -60,4 +60,12 @@ public class SSLInfo {
 	public void setKeyAlias(String keyAlias) {
 		this.keyAlias = keyAlias;
 	}
+
+	@Override
+	public String toString() {
+		return "SSLInfo [enabled=" + enabled + ", trustStore=" + trustStore + ", keyStore=" + keyStore
+				+ ", clientAuthEnabled=" + clientAuthEnabled + ", ignoreValidationErrors=" + ignoreValidationErrors
+				+ ", keyAlias=" + keyAlias + "]";
+	}
+	
 }
