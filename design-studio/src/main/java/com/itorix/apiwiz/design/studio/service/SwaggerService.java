@@ -21,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -1304,12 +1303,23 @@ public interface SwaggerService {
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@PathVariable("swaggerId") String swaggerId, @PathVariable("revision") int revision) throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN') and hasAnyAuthority('BASIC','PRO','TEAM','ENTERPRISE')")
+	@ApiOperation(value = "Deleting Api rating", notes = "", code = 204)
+	@ApiResponses(value = {@ApiResponse(code = 204, message = "Api was deleted successfully", response = Void.class),
+			@ApiResponse(code = 404, message = "Error while deleting api", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggerId}/{revision}/admin/delete")
+	public ResponseEntity<?> deleteRatingAdmin(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "ratingId") String ratingId,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
+			@PathVariable("swaggerId") String swaggerId, @PathVariable("revision") int revision) throws Exception;
+
+
 	@ApiOperation(value = "Deleting Api rating", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "Api was deleted successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Error while deleting api", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/{swaggerId}/{revision}/delete")
 	public ResponseEntity<?> deleteRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "email") String email,
+			@RequestHeader(value = "email") String email, @RequestHeader(value = "ratingId") String ratingId,
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@PathVariable("swaggerId") String swaggerId, @PathVariable("revision") int revision) throws Exception;
 

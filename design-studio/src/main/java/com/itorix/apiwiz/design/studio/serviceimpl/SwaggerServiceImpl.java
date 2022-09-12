@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.design.studio.serviceimpl;
 
+import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -7,12 +8,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.itorix.apiwiz.common.factory.IntegrationHelper;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
-import com.itorix.apiwiz.common.util.StorageIntegration;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.s3.S3Connection;
@@ -113,18 +113,30 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@Autowired
 	ApplicationProperties applicationProperties;
 
+	/**
+	 * The Rest template.
+	 */
 	@Autowired
 	RestTemplate restTemplate;
 
 	@Value("${compliance.scanner.uri}")
 	private String scannerUri;
 
+	/**
+	 * The Xls util.
+	 */
 	@Autowired
 	XlsUtil xlsUtil;
 
+	/**
+	 * The Jfrog util.
+	 */
 	@Autowired
 	JfrogUtilImpl jfrogUtilImpl;
 
+	/**
+	 * The Swagger subscription dao.
+	 */
 	@Autowired
 	SwaggerSubscriptionDao swaggerSubscriptionDao;
 
@@ -140,9 +152,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@Autowired
 	private SupportedCodeGenLangDao codeGenLangDao;
 
-	@Autowired
-	private IntegrationHelper integrationHelper;
-
+	/**
+	 * The Api ratings dao.
+	 */
 	@Autowired
 	ApiRatingsDao apiRatingsDao;
 
@@ -2082,26 +2094,37 @@ public class SwaggerServiceImpl implements SwaggerService {
 			GeneratorInput generatorInput = new GeneratorInput();
 			generatorInput.setSpec(json);
 			Map<String, String> options = new HashMap<>();
-			String outputFolder = applicationProperties.getSwageerGenDir() + "clients" + File.separator + framework
-					+ File.separator + genrateClientRequest.getSwaggerName() + "_client";
+			String outputFolder =
+					applicationProperties.getSwageerGenDir() + "clients" + File.separator + framework
+							+ File.separator + genrateClientRequest.getSwaggerName() + "_client";
 			options.put("outputFolder", outputFolder);
 			generatorInput.setOptions(options);
 			String filename = Generator.generateClient(framework, generatorInput);
 			String downloadURI = null;
 			ResponseCode responseCode = new ResponseCode();
 			try {
-				File file = new File(filename);
-				StorageIntegration storageIntegration = integrationHelper.getIntegration();
-				downloadURI = storageIntegration.uploadFile(
-						"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(),
-						filename);
-				new File(filename).delete();
-				responseCode.setLink(downloadURI);
+				S3Integration s3Integration = s3Connection.getS3Integration();
+				if (null != s3Integration) {
+					File file = new File(filename);
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(),
+							s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/"
+									+ file.getName(),
+							filename);
+				} else {
+					org.json.JSONObject obj = null;
+					obj = jfrogUtilImpl.uploadFiles(filename,
+							"/" + getWorkspaceId() + "/swaggerClients/" + framework + "/"
+									+ System.currentTimeMillis());
+					downloadURI = obj.getString("downloadURI");
+					new File(filename).delete();
+				}
 			} catch (Exception e) {
 				responseCode.setCode("500");
 				return new ResponseEntity<Object>(responseCode, HttpStatus.INTERNAL_SERVER_ERROR);
 			}
-
+			responseCode.setLink(downloadURI);
 			return new ResponseEntity<Object>(responseCode, HttpStatus.OK);
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = null;
@@ -2117,17 +2140,28 @@ public class SwaggerServiceImpl implements SwaggerService {
 			String downloadURI = null;
 			ResponseCode responseCode = new ResponseCode();
 			try {
-				File file = new File(filename);
-				StorageIntegration storageIntegration = integrationHelper.getIntegration();
-				downloadURI = storageIntegration.uploadFile(
-						"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(),
-						filename);
-				new File(filename).delete();
-				responseCode.setLink(downloadURI);
+				S3Integration s3Integration = s3Connection.getS3Integration();
+				if (null != s3Integration) {
+					File file = new File(filename);
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(),
+							s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/"
+									+ file.getName(),
+							filename);
+				} else {
+					org.json.JSONObject obj = null;
+					obj = jfrogUtilImpl.uploadFiles(filename,
+							"/" + getWorkspaceId() + "/swaggerClients/" + framework + "/"
+									+ System.currentTimeMillis());
+					downloadURI = obj.getString("downloadURI");
+					new File(filename).delete();
+				}
 			} catch (Exception e) {
 				responseCode.setCode("500");
 				return new ResponseEntity<Object>(responseCode, HttpStatus.INTERNAL_SERVER_ERROR);
 			}
+			responseCode.setLink(downloadURI);
 			return new ResponseEntity<Object>(responseCode, HttpStatus.OK);
 		}
 		return new ResponseEntity<Object>("", HttpStatus.OK);
@@ -2200,17 +2234,27 @@ public class SwaggerServiceImpl implements SwaggerService {
 			generatorInput.setOptions(options);
 			String filename = Generator.generateServer(framework, generatorInput);
 			String downloadURI = null;
+			ResponseCode responseCode = new ResponseCode();
 			try {
-				File file = new File(filename);
-				StorageIntegration storageIntegration = integrationHelper.getIntegration();
-				downloadURI = storageIntegration.uploadFile(
-						"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(),
-						filename);
-			} catch (Exception e) {
-
+				S3Integration s3Integration = s3Connection.getS3Integration();
+				if (null != s3Integration) {
+					File file = new File(filename);
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(),
+							s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/"
+									+ file.getName(),
+							filename);
+				} else {
+					org.json.JSONObject obj = null;
+					obj = jfrogUtilImpl.uploadFiles(filename,
+							"/" + getWorkspaceId() + "/swaggerClients/" + framework + "/"
+									+ System.currentTimeMillis());
+					downloadURI = obj.getString("downloadURI");
+					new File(filename).delete();
+				}} catch (Exception e) {
 			}
 			new File(filename).delete();
-			ResponseCode responseCode = new ResponseCode();
 			responseCode.setLink(downloadURI);
 			return new ResponseEntity<ResponseCode>(responseCode, HttpStatus.OK);
 		} else if (oas.equals("3.0")) {
@@ -2225,11 +2269,20 @@ public class SwaggerServiceImpl implements SwaggerService {
 			}
 			String filename = generateSwagger3SDK(vo, framework);
 			String downloadURI = null;
-			File file = new File(filename);
-			StorageIntegration storageIntegration = integrationHelper.getIntegration();
-			downloadURI = storageIntegration.uploadFile(
-					"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(), filename);
-
+			S3Integration s3Integration = s3Connection.getS3Integration();
+			if (null != s3Integration) {
+				File file = new File(filename);
+				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+						"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(),
+						filename);
+			} else {
+				org.json.JSONObject obj = null;
+				obj = jfrogUtilImpl.uploadFiles(filename,
+						"/" + getWorkspaceId() + "/" + framework + "/" + System.currentTimeMillis());
+				new File(filename).delete();
+				downloadURI = obj.getString("downloadURI");
+			}
 			ResponseCode responseCode = new ResponseCode();
 			responseCode.setLink(downloadURI);
 			return new ResponseEntity<ResponseCode>(responseCode, HttpStatus.OK);
@@ -2672,11 +2725,20 @@ public class SwaggerServiceImpl implements SwaggerService {
 	}
 
 	@Override
-	public ResponseEntity<?> deleteRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "email") String email,
+	public ResponseEntity<?> deleteRatingAdmin(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "ratingId") String ratingId,
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas, String swaggerId,
 			int revision) {
-		return new ResponseEntity<>(apiRatingsDao.deleteRating(swaggerId, revision, oas, email), HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(apiRatingsDao.deleteRatingadmin(swaggerId, revision, oas, ratingId),
+				HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	public ResponseEntity<?> deleteRating(@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "email") String email, @RequestHeader(value = "ratingId") String ratingId,
+			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas, String swaggerId,
+			int revision) {
+		return new ResponseEntity<>(apiRatingsDao.deleteRating(swaggerId, revision, oas, email, ratingId), HttpStatus.NO_CONTENT);
 	}
 
 	public ResponseEntity<?> loadSwaggersToScan(String interactionid, String jsessionid) {
