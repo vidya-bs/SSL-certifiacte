@@ -1,35 +1,45 @@
 package com.itorix.apiwiz.performance.coverge.businessimpl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itorix.apiwiz.common.factory.IntegrationHelper;
-import com.itorix.apiwiz.common.model.Constants;
-import com.itorix.apiwiz.common.model.apigee.CommonConfiguration;
-import com.itorix.apiwiz.common.model.exception.ErrorCodes;
-import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.model.policyperformance.ExecutedFlowAndPolicies;
-import com.itorix.apiwiz.common.model.policyperformance.proxy.endpoint.Response;
-import com.itorix.apiwiz.common.model.policyperformance.proxy.endpoint.*;
-import com.itorix.apiwiz.common.model.policyperformance.target.endpoint.TargetEndpoint;
-import com.itorix.apiwiz.common.postman.PostmanRunResult;
-import com.itorix.apiwiz.common.properties.ApplicationProperties;
-import com.itorix.apiwiz.common.service.GridFsRepository;
-import com.itorix.apiwiz.common.util.StorageIntegration;
-import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
-import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
-import com.itorix.apiwiz.common.util.s3.S3Connection;
-import com.itorix.apiwiz.common.util.s3.S3Utils;
-import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
-import com.itorix.apiwiz.identitymanagement.model.Apigee;
-import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
-import com.itorix.apiwiz.identitymanagement.model.User;
-import com.itorix.apiwiz.identitymanagement.model.UserSession;
-import com.itorix.apiwiz.performance.coverge.business.CodeCoverageBusiness;
-import com.itorix.apiwiz.performance.coverge.model.*;
-import com.itorix.apiwiz.testsuite.dao.TestSuiteDAO;
-import com.itorix.test.executor.TestExecutor;
-import com.itorix.test.executor.beans.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -49,25 +59,55 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.zeroturnaround.zip.ZipUtil;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.*;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
+import com.amazonaws.regions.Regions;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.common.model.Constants;
+import com.itorix.apiwiz.common.model.apigee.CommonConfiguration;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
+import com.itorix.apiwiz.common.model.policyperformance.ExecutedFlowAndPolicies;
+import com.itorix.apiwiz.common.model.policyperformance.proxy.endpoint.FaultRule;
+import com.itorix.apiwiz.common.model.policyperformance.proxy.endpoint.FaultRules;
+import com.itorix.apiwiz.common.model.policyperformance.proxy.endpoint.Flow;
+import com.itorix.apiwiz.common.model.policyperformance.proxy.endpoint.PostClientFlow;
+import com.itorix.apiwiz.common.model.policyperformance.proxy.endpoint.ProxyEndpoint;
+import com.itorix.apiwiz.common.model.policyperformance.proxy.endpoint.Response;
+import com.itorix.apiwiz.common.model.policyperformance.proxy.endpoint.Step;
+import com.itorix.apiwiz.common.model.policyperformance.target.endpoint.TargetEndpoint;
+import com.itorix.apiwiz.common.postman.PostmanRunResult;
+import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import com.itorix.apiwiz.common.service.GridFsRepository;
+import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
+import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
+import com.itorix.apiwiz.common.util.s3.S3Connection;
+import com.itorix.apiwiz.common.util.s3.S3Utils;
+import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
+import com.itorix.apiwiz.identitymanagement.model.Apigee;
+import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
+import com.itorix.apiwiz.identitymanagement.model.User;
+import com.itorix.apiwiz.identitymanagement.model.UserSession;
+import com.itorix.apiwiz.performance.coverge.business.CodeCoverageBusiness;
+import com.itorix.apiwiz.performance.coverge.model.CodeCoverageBackUpInfo;
+import com.itorix.apiwiz.performance.coverge.model.CodeCoverageVO;
+import com.itorix.apiwiz.performance.coverge.model.CoverageReport;
+import com.itorix.apiwiz.performance.coverge.model.EndpointStat;
+import com.itorix.apiwiz.performance.coverge.model.EndpointStatVO;
+import com.itorix.apiwiz.performance.coverge.model.FlowExecutions;
+import com.itorix.apiwiz.performance.coverge.model.FlowStat;
+import com.itorix.apiwiz.performance.coverge.model.History;
+import com.itorix.apiwiz.performance.coverge.model.PolicyStatus;
+import com.itorix.apiwiz.performance.coverge.model.ProxyStat;
+import com.itorix.apiwiz.performance.coverge.model.Stats;
+import com.itorix.apiwiz.testsuite.dao.TestSuiteDAO;
+import com.itorix.test.executor.TestExecutor;
+import com.itorix.test.executor.beans.Scenario;
+import com.itorix.test.executor.beans.TestCase;
+import com.itorix.test.executor.beans.TestSuite;
+import com.itorix.test.executor.beans.TestSuiteResponse;
+import com.itorix.test.executor.beans.Variables;
 
 @Component
 public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
@@ -94,9 +134,6 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 
 	@Autowired
 	ApigeeUtil apigeeUtil;
-
-	@Autowired
-	private IntegrationHelper integrationHelper;
 
 	@Qualifier("masterMongoTemplate")
 	@Autowired
@@ -214,9 +251,24 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 
 		String downloadURI = null;
 		try {
-			String workspace = userSessionToken.getWorkspaceId();
-			StorageIntegration storageIntegration = integrationHelper.getIntegration();
-			downloadURI = storageIntegration.uploadFile(workspace + "/codecoverage/"+ timeStamp + "/" + cfg.getOrganization() + "-" + cfg.getEnvironment() + "-" + cfg.getApiName() + ".zip",zipFileName);
+			S3Integration s3Integration = s3Connection.getS3Integration();
+			if (null != s3Integration) {
+				String workspace = userSessionToken.getWorkspaceId();
+				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+						workspace + "/codecoverage/" + timeStamp + "/" + cfg.getOrganization() + "-"
+								+ cfg.getEnvironment() + "-" + cfg.getApiName() + ".zip",
+						zipFileName);
+
+			} else {
+				org.json.JSONObject obj = jfrogUtilImpl.uploadFiles(zipFileName,
+						applicationProperties.getPipelineCodecoverage(),
+						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
+								+ "/artifactory/",
+						"codecoverage-pipeline/" + cfg.getApiName() + "/" + timeStamp + "",
+						applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+				downloadURI = obj.getString("downloadURI");
+			}
 		} catch (Exception e) {
 			logger.error("Error Storing file in Artifactory : ",e);
 		}
@@ -1397,9 +1449,24 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 				+ cfg.getEnvironment() + "-" + cfg.getApiName()), new File(zipFileName));
 		String downloadURI = null;
 		try {
-			String workspace = userSessionToken.getWorkspaceId();
-			StorageIntegration storageIntegration = integrationHelper.getIntegration();
-			downloadURI = storageIntegration.uploadFile(workspace + "/codecoverage/" + cfg.getOrganization() + "-" + cfg.getEnvironment() + "-" + cfg.getApiName() + ".zip", zipFileName);
+			S3Integration s3Integration = s3Connection.getS3Integration();
+			if (null != s3Integration) {
+				String workspace = userSessionToken.getWorkspaceId();
+				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+						workspace + "/codecoverage/" + cfg.getOrganization() + "-" + cfg.getEnvironment() + "-"
+								+ cfg.getApiName() + ".zip",
+						zipFileName);
+
+			} else {
+				org.json.JSONObject obj = jfrogUtilImpl.uploadFiles(zipFileName,
+						applicationProperties.getPipelineCodecoverage(),
+						applicationProperties.getJfrogHost() + ":" + applicationProperties.getJfrogPort()
+								+ "/artifactory/",
+						"codecoverage-pipeline/" + codeCoverageVO.getProxy() + "/" + timeStamp + "",
+						applicationProperties.getJfrogUserName(), applicationProperties.getJfrogPassword());
+				downloadURI = obj.getString("downloadURI");
+			}
 		} catch (Exception e) {
 			logger.error("Error Storing file in Artifactory : " ,e);
 		}

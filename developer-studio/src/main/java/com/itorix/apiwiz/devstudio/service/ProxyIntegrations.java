@@ -1,17 +1,24 @@
 package com.itorix.apiwiz.devstudio.service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.itorix.apiwiz.common.model.integrations.apic.ApicIntegration;
 import com.itorix.apiwiz.common.model.integrations.git.GitIntegration;
 import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
 import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
 import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @CrossOrigin
 @RestController
@@ -194,19 +201,4 @@ public interface ProxyIntegrations {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id) throws Exception;
 
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/gcs", produces = {"application/json"})
-	public ResponseEntity<?> getGcsIntegration(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
-
-	@RequestMapping(method = RequestMethod.PUT, value = "/v1/integrations/gcs", produces = {"application/json"})
-	public ResponseEntity<?> createUpdateGcsIntegration(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestHeader(value = "projectId") String projectId, @RequestHeader(value = "bucketName") String bucketName, @RequestBody MultipartFile gcsKey)
-			throws Exception;
-
-	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/integrations/gcs", produces = {"application/json"})
-	public ResponseEntity<?> removeGcsIntegration(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 }

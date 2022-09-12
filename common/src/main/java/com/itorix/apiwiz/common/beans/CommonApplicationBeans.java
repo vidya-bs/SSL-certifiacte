@@ -1,21 +1,23 @@
 package com.itorix.apiwiz.common.beans;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itorix.apiwiz.common.factory.IntegrationHelper;
-import com.itorix.apiwiz.common.properties.ApplicationProperties;
-import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
-import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
-import com.itorix.apiwiz.common.util.http.HTTPUtil;
-import com.itorix.apiwiz.common.util.http.HttpErrorHandler;
-import com.itorix.apiwiz.common.util.mail.MailUtil;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.NoSuchPaddingException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
-import javax.crypto.NoSuchPaddingException;
-import java.security.NoSuchAlgorithmException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
+import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
+import com.itorix.apiwiz.common.util.http.HTTPUtil;
+import com.itorix.apiwiz.common.util.http.HttpErrorHandler;
+import com.itorix.apiwiz.common.util.mail.MailUtil;
+import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 
 @Configuration
 public class CommonApplicationBeans {
@@ -71,10 +73,5 @@ public class CommonApplicationBeans {
 	public ApigeeUtil apigeeUtilBean() {
 		ApigeeUtil apigeeUtil = new ApigeeUtil();
 		return apigeeUtil;
-	}
-
-	@Bean(name = "integrationHelper")
-	public IntegrationHelper integrationHelperBean() {
-		return new IntegrationHelper();
 	}
 }

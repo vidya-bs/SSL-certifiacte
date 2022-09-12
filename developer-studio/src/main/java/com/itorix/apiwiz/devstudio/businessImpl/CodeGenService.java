@@ -49,7 +49,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.itorix.apiwiz.common.factory.IntegrationHelper;
 import com.itorix.apiwiz.common.model.SearchItem;
 import com.itorix.apiwiz.common.model.apigee.VirtualHost;
 import com.itorix.apiwiz.common.model.configmanagement.KVMEntry;
@@ -75,10 +74,11 @@ import com.itorix.apiwiz.common.model.proxystudio.ProxyData;
 import com.itorix.apiwiz.common.model.proxystudio.ProxyEndpoint;
 import com.itorix.apiwiz.common.model.proxystudio.ProxyPortfolio;
 import com.itorix.apiwiz.common.model.proxystudio.Scm;
-import com.itorix.apiwiz.common.model.proxystudio.*;
+import com.itorix.apiwiz.common.model.proxystudio.Swagger3VO;
+import com.itorix.apiwiz.common.model.proxystudio.SwaggerVO;
+import com.itorix.apiwiz.common.model.proxystudio.Target;
 import com.itorix.apiwiz.common.model.proxystudio.apigeeassociations.Deployments;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
-import com.itorix.apiwiz.common.util.StorageIntegration;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
@@ -90,7 +90,11 @@ import com.itorix.apiwiz.devstudio.business.LoadWADL;
 import com.itorix.apiwiz.devstudio.business.LoadWSDL;
 import com.itorix.apiwiz.devstudio.dao.IntegrationsDao;
 import com.itorix.apiwiz.devstudio.dao.MongoConnection;
-import com.itorix.apiwiz.devstudio.model.*;
+import com.itorix.apiwiz.devstudio.model.Artifact;
+import com.itorix.apiwiz.devstudio.model.Operations;
+import com.itorix.apiwiz.devstudio.model.PromoteSCM;
+import com.itorix.apiwiz.devstudio.model.ProxyGenResponse;
+import com.itorix.apiwiz.devstudio.model.ProxyHistoryResponse;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
@@ -108,26 +112,6 @@ import freemarker.template.TemplateException;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.BasicQuery;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.http.*;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
-import org.zeroturnaround.zip.ZipUtil;
-
-import java.io.*;
-import java.time.Instant;
-import java.util.*;
 @Slf4j
 @Component("codeGenService")
 public class CodeGenService {
@@ -174,8 +158,6 @@ public class CodeGenService {
 	private IdentityManagementDao identityManagementDao;
 	@Autowired
 	private ServiceRequestDao serviceRequestDao;
-	@Autowired
-	private IntegrationHelper integrationHelper;
 
 	public String uploadTemplates(MultipartFile file) {
 		String zipLocation = applicationProperties.getTempDir() + "unzip";
@@ -297,9 +279,18 @@ public class CodeGenService {
 				}
 			}
 			try {
-				StorageIntegration storageIntegration = integrationHelper.getIntegration();
-				downloadURI = storageIntegration.uploadFile("proxy-generation/API/" + time + ".zip", operations.getDir() + time + ".zip");
-
+				JfrogIntegration jfrogIntegration = getJfrogIntegration();
+				S3Integration s3Integration = getS3Integration();
+				if (null != s3Integration) {
+					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
+							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
+							"proxy-generation/API/" + time + ".zip", operations.getDir() + time + ".zip");
+				} else if (null != jfrogIntegration) {
+					obj = ufile.uploadFiles(operations.getDir() + time + ".zip",
+							applicationProperties.getProxyGenerate(), jfrogIntegration.getHostURL() + "/artifactory/",
+							"proxy-generation/API", jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
+					downloadURI = (String) obj.get("downloadURI");
+				}
 				if (project != null)
 					data.setProjectName(project.getName());
 				if (null != codeGen.getPortfolio())
