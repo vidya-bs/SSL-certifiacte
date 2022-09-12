@@ -139,25 +139,28 @@ public class SwaggerSubscriptionDao {
 					File file = new File(path.toString());
 					file.createNewFile();
 					FileWriter fw = new FileWriter(file.getAbsoluteFile());
-					BufferedWriter bw = new BufferedWriter(fw);
-
-					// Write in file
-					bw.write(text);
-
-					// Close connection
-					bw.close();
-
+		            BufferedWriter bw = new BufferedWriter(fw);
+		
+		            // Write in file
+		            bw.write(text);
+		
+		            // Close connection
+		            bw.close();
+		            
 					String swaggerName = swaggerSubscription.getSwaggerName();
 					String subject = MessageFormat.format(applicationProperties.getSwaggerSubscriptionSubject(),
 							swaggerName);
 					for (Subscriber subscriber : subscribers) {
-						String body = MessageFormat.format(applicationProperties.getSwaggerSubscriptionMailBody(),
-								subscriber.getName(), swaggerName, summary);
+						String body = MessageFormat.format(
+								applicationProperties.getSwaggerSubscriptionMailBody(),
+								subscriber.getName()!=null ? subscriber.getName() : "", swaggerName, summary);
 						EmailTemplate emailTemplate = new EmailTemplate();
 						emailTemplate.setToMailId(Arrays.asList(subscriber.getEmailId()));
 						emailTemplate.setSubject(subject);
 						emailTemplate.setBody(body);
-						mailUtil.sendEmailWtithAttachment(emailTemplate, path.toString(), "changeLog.md");
+						mailUtil.sendEmailWtithAttachment(emailTemplate, path.toString(),
+								swaggerSubscription.getSwaggerName() + swaggerSubscription.getOas()
+										.replace(".", "_") + ".md");
 					}
 					file.delete();
 				}

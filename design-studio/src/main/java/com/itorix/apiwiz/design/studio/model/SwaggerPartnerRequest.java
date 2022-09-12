@@ -2,6 +2,7 @@ package com.itorix.apiwiz.design.studio.model;
 
 import java.util.List;
 
+@Deprecated
 public class SwaggerPartnerRequest {
 
 	private List<SwaggerPartner> partners;
