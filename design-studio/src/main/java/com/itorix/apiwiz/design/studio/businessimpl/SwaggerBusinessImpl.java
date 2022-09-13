@@ -3736,7 +3736,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		SwaggerDictionary swaggerDictForUpdate = baseRepository.findOne("swaggerId", swaggerDictionary.getSwaggerId(),
 				"revision", swaggerDictionary.getRevision(), "oasVersion", swaggerDictionary.getOasVersion(),
 				SwaggerDictionary.class);
-
+		log.debug("updateSwaggerDictionary : {}",swaggerDictForUpdate);
 		if (swaggerDictForUpdate != null) {
 			swaggerDictForUpdate.setDictionary(swaggerDictionary.getDictionary());
 			baseRepository.save(swaggerDictForUpdate);
@@ -3748,6 +3748,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 	@Override
 	public SwaggerDictionary getSwaggerDictionary(String swaggerId, Integer revision) {
+		log.debug("getSwaggerDictionary:{}",swaggerId);
 		return baseRepository.findOne("swaggerId", swaggerId, "revision", revision, SwaggerDictionary.class);
 	}
 
@@ -3760,6 +3761,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			documents = baseRepository.getSwaggerAssociatedWithSchemaName(dictionaryId, schemaName,
 					SwaggerDictionary.class);
 		}
+		log.debug("getSwaggerAssociatedWithDictionary:{}",documents);
 		DictionarySwagger dictionarySwagger = new DictionarySwagger();
 
 		if (documents.size() > 0) {
@@ -3901,7 +3903,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			SwaggerVO vo = mongoTemplate.findOne(swaggerQuery, SwaggerVO.class);
 			metadataQuery.addCriteria(Criteria.where("swaggerName").is(vo.getName()));
 			SwaggerMetadata swaggerMetadata = mongoTemplate.findOne(metadataQuery, SwaggerMetadata.class);
-			if (swaggerMetadata!=null && swaggerMetadata.getProducts() != null) {
+			if (swaggerMetadata!=null) {
 				swaggerMetadata.setProducts(swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
 			} else {
 				swaggerMetadata = new SwaggerMetadata();
@@ -3916,7 +3918,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Swagger3VO vo = mongoTemplate.findOne(swaggerQuery, Swagger3VO.class);
 			metadataQuery.addCriteria(Criteria.where("swaggerName").is(vo.getName()));
 			SwaggerMetadata swaggerMetadata = mongoTemplate.findOne(metadataQuery, SwaggerMetadata.class);
-			if (swaggerMetadata!=null && swaggerMetadata.getProducts() != null) {
+			if (swaggerMetadata!=null) {
 				swaggerMetadata.setProducts(swaggerProductRequest.getProductId().stream().collect(Collectors.toSet()));
 			} else {
 				swaggerMetadata = new SwaggerMetadata();
