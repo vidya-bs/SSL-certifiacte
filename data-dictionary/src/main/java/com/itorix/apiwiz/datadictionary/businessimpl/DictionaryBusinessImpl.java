@@ -82,12 +82,14 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 
 	public PortfolioHistoryResponse findAllPortfolios(String interactionid, int offset, int paeSize) {
 		log("findPortfolio", interactionid);
-		Query query = new Query().with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * paeSize) : 0)
-				.limit(paeSize);
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts"));
 		PortfolioHistoryResponse historyResponse = new PortfolioHistoryResponse();
-		List<PortfolioVO> portfolios = mongoTemplate.find(query, PortfolioVO.class);
-		if (portfolios != null) {
-			for (PortfolioVO portfolio : portfolios) {
+		List<String> uniqueDictionaryIds = mongoTemplate.findDistinct(query, "dictionaryId", PortfolioVO.class, String.class);
+		List<String> dictionaryIds = trimList(uniqueDictionaryIds, offset, paeSize);
+		List<PortfolioVO> portfolios = new ArrayList<>();
+		if (dictionaryIds != null) {
+			for (String dictionaryId : dictionaryIds) {
+				PortfolioVO portfolio = getPortfolioByRevision(dictionaryId, getMaxRevision(dictionaryId));
 				List<Object> strModels = new ArrayList<Object>();
 				List<PortfolioModel> dataModels = findPortfolioModelsByportfolioID(portfolio);
 				if (dataModels != null)
@@ -100,8 +102,9 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 						}
 					}
 				portfolio.setModels(strModels);
+				portfolios.add(portfolio);
 			}
-			Long counter = mongoTemplate.count(new Query(), PortfolioVO.class);
+			Long counter = Long.valueOf(uniqueDictionaryIds.size());
 			Pagination pagination = new Pagination();
 			pagination.setOffset(offset);
 			pagination.setTotal(counter);
@@ -110,6 +113,16 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 			historyResponse.setData(portfolios);
 		}
 		return historyResponse;
+	}
+
+	private List<String> trimList(List<String> ids, int offset, int pageSize) {
+		List<String> dictionaryIds = new ArrayList<String>();
+		int i = offset > 0 ? ((offset - 1) * pageSize) : 0;
+		int end = i + pageSize;
+		for (; i < ids.size() && i < end; i++) {
+			dictionaryIds.add(ids.get(i));
+		}
+		return dictionaryIds;
 	}
 
 	public List<PortfolioVO> findAllPortfolioSummary(String interactionid) {
