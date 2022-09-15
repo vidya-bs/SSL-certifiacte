@@ -24,13 +24,15 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 public interface TestSuiteService {
 
-	@PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN', 'TEST') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	//	@PreAuthorize("hasAnyRole('DEVELOPER', 'ADMIN', 'TEST') and hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/testsuites/metadata", consumes = {
 			"application/json"}, produces = {"application/json"})
+	@UnSecure(ignoreValidation = true)
 	public ResponseEntity<?> createMetaData(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestBody String metadata, @RequestHeader HttpHeaders headers,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, HttpServletRequest request,
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			HttpServletRequest request,
 			HttpServletResponse response) throws JsonProcessingException, ItorixException;
 
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
