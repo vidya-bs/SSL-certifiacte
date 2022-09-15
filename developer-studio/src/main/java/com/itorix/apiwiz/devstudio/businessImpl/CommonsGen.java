@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +25,7 @@ import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-@Slf4j
+
 @Component
 public class CommonsGen {
 	@Autowired
@@ -97,6 +96,12 @@ public class CommonsGen {
 
 	protected Map<String, Object> createMap(CodeGenHistory cg) {
 		List<Category> policyTemplates = cg.getPolicyTemplates();
+		Map<String, Object> apiDtls = createMap(policyTemplates);
+		return apiDtls;
+	}
+	
+	
+	protected Map<String, Object> createMap(List<Category> policyTemplates) {
 		Map<String, Object> apiDtls = null;
 		if (policyTemplates != null) {
 			apiDtls = new HashMap<String, Object>();
@@ -134,9 +139,9 @@ public class CommonsGen {
 	}
 
 	private Template getTemplate(String file) throws IOException {
-		log.info("fileName : " + file);
+		System.out.println("fileName : " + file);
 		String reader = mongoConnection.getFile(file);
-		log.info(reader);
+		System.out.println(reader);
 		Configuration conf = new Configuration();
 		StringTemplateLoader tloader = new StringTemplateLoader();
 		conf.setTemplateLoader(tloader);
@@ -245,13 +250,13 @@ public class CommonsGen {
 	 * fop.flush(); fop.close(); return true; }
 	 * 
 	 * @SuppressWarnings("deprecation") private Template getTemplate(String
-	 * file) throws IOException{ // log.info("fileName : "+ file); String reader
-	 * = mongoConnection.getFile(file); // log.info(reader); Configuration conf=
-	 * new Configuration(); StringTemplateLoader tloader = new
-	 * StringTemplateLoader(); conf.setTemplateLoader(tloader);
-	 * tloader.putTemplate(file, reader); conf.setObjectWrapper(new
-	 * DefaultObjectWrapper()); Template template = conf.getTemplate(file);
-	 * return template; }
+	 * file) throws IOException{ // System.out.println("fileName : "+ file);
+	 * String reader = mongoConnection.getFile(file); //
+	 * System.out.println(reader); Configuration conf= new Configuration();
+	 * StringTemplateLoader tloader = new StringTemplateLoader();
+	 * conf.setTemplateLoader(tloader); tloader.putTemplate(file, reader);
+	 * conf.setObjectWrapper(new DefaultObjectWrapper()); Template template =
+	 * conf.getTemplate(file); return template; }
 	 * 
 	 * private void createDestinationFolderStructure(String proxyRootFolder) {
 	 * dstApiFragflows = proxyRootFolder + File.separatorChar + "flowfragments";
