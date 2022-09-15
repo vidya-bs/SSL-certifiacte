@@ -15,6 +15,7 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.User;
+import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -382,9 +383,11 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 	}
 
 	@Override
+	@UnSecure(ignoreValidation = true)
 	public ResponseEntity<?> createMetaData(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody String metadata)
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestBody String metadata)
 			throws JsonProcessingException, ItorixException {
 		apiMonitorDAO.createMetaData(metadata);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
