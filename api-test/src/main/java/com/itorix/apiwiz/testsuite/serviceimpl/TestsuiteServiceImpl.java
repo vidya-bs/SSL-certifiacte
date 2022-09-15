@@ -115,10 +115,12 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 	@Autowired
 	HttpServletRequest request;
 
+	@UnSecure(ignoreValidation = true)
 	public ResponseEntity<?> createMetaData(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestBody String metadata, @RequestHeader HttpHeaders headers,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, HttpServletRequest request,
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			HttpServletRequest request,
 			HttpServletResponse response) throws JsonProcessingException, ItorixException {
 		dao.createMetaData(metadata);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
