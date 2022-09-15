@@ -119,7 +119,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@Autowired
 	RestTemplate restTemplate;
 
-	@Value("${compliance.scanner.uri}")
+	@Value("${compliance.scanner.uri:}")
 	private String scannerUri;
 
 	/**
