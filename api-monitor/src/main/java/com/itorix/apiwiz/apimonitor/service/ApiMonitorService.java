@@ -5,6 +5,7 @@ import com.itorix.apiwiz.apimonitor.model.Variables;
 import com.itorix.apiwiz.apimonitor.model.collection.MonitorCollections;
 import com.itorix.apiwiz.apimonitor.model.request.MonitorRequest;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import org.springframework.core.io.Resource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
@@ -240,11 +241,12 @@ public interface ApiMonitorService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/monitor/metadata", consumes = {"application/json"})
+	@UnSecure(ignoreValidation = true)
 	public ResponseEntity<?> createMetaData(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody String metadata)
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid, @RequestBody String metadata)
 			throws JsonProcessingException, ItorixException;
 
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
