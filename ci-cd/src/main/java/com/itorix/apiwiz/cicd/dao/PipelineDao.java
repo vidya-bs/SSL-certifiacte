@@ -210,8 +210,15 @@ public class PipelineDao {
 	}
 
 	public void deletePipelineGroup(String groupName) {
-		mongoTemplate.remove(new Query(Criteria.where("_id").is(groupName)), PipelineGroups.class);
-		// TODO: Delete Pipeline from Pipelines as well
+		List<PipelineGroups> pipelineGroups = mongoTemplate.findAllAndRemove(
+				new Query(Criteria.where("_id").is(groupName)), PipelineGroups.class);
+		List<String> pipelines = new ArrayList<>();
+		pipelineGroups.stream().forEach(pipelineGroups1 -> {
+			pipelineGroups1.getPipelines().stream().forEach(pipeline -> {
+				pipelines.add(pipeline.getName());
+			});
+		});
+		mongoTemplate.findAllAndRemove(new Query(Criteria.where("_id").in(pipelines)), Pipeline.class);
 	}
 
 	public List<PipelineGroups> getAvailablePipelines() {
