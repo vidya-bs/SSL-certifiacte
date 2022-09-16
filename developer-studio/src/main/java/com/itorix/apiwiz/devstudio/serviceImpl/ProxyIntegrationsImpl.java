@@ -1,46 +1,38 @@
 package com.itorix.apiwiz.devstudio.serviceImpl;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.FileCopyUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.amazonaws.regions.Regions;
+import com.itorix.apiwiz.common.factory.IntegrationHelper;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.integrations.Integration;
 import com.itorix.apiwiz.common.model.integrations.apic.ApicIntegration;
+import com.itorix.apiwiz.common.model.integrations.gcs.GcsIntegration;
 import com.itorix.apiwiz.common.model.integrations.git.GitIntegration;
 import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
 import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
 import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
+import com.itorix.apiwiz.common.util.StorageIntegration;
 import com.itorix.apiwiz.common.util.artifatory.JfrogConnection;
 import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
-import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.devstudio.dao.IntegrationsDao;
 import com.itorix.apiwiz.devstudio.service.ProxyIntegrations;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.util.List;
 
 @CrossOrigin
+@Slf4j
 @RestController
 public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
@@ -55,6 +47,9 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Autowired
 	private JfrogConnection jfrogConnection;
+
+	@Autowired
+	private IntegrationHelper integrationHelper;
 
 	@Value("${server.contextPath}")
 	private String context;
@@ -241,22 +236,11 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 			HttpServletRequest httpServletRequest, HttpServletResponse response) throws Exception {
 		String uri = httpServletRequest.getRequestURI();
 		uri = uri.replaceAll(context + "/v1/download/", "");
-		if (type.equalsIgnoreCase("s3")) {
-			S3Integration s3Integration = s3Connection.getS3Integration();
-			if (s3Integration != null) {
-				InputStream inputStream = s3Utils.getFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(), uri);
-				response.setContentType("application/octet-stream");
-				response.setHeader("Content-Disposition", String.format("inline; filename=\"" + uri + "\""));
-				FileCopyUtils.copy(inputStream, response.getOutputStream());
-			}
-		} else {
-			Resource resource = jfrogConnection.getArtifact(jfrogConnection.getJfrogIntegration(), uri);
-			InputStream inputStream = resource.getInputStream();
-			response.setContentType("application/octet-stream");
-			response.setHeader("Content-Disposition", String.format("inline; filename=\"" + uri + "\""));
-			FileCopyUtils.copy(inputStream, response.getOutputStream());
-		}
+		StorageIntegration storageIntegration = integrationHelper.getIntegration(type);
+		InputStream inputStream = storageIntegration.getFile(uri);
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Disposition", String.format("inline; filename=\"" + uri + "\""));
+		FileCopyUtils.copy(inputStream, response.getOutputStream());
 	}
 
 	@Override
@@ -301,6 +285,57 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 			throws Exception {
 		integrationsDao.removeIntegratoin(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	public ResponseEntity<?> getGcsIntegration(String interactionid, String jsessionid) {
+		log.debug("Fetching GCS connector...");
+		Integration integration = integrationsDao.getGcsIntegration();
+		if (integration != null) {
+			log.debug("GCS connector is found");
+			return new ResponseEntity<>(integration, HttpStatus.OK);
+		}
+		log.debug("GCS connector is not found");
+		return ResponseEntity.ok("{}");
+	}
+
+	@Override
+	public ResponseEntity<?> createUpdateGcsIntegration(String interactionid, String jsessionid, String projectId, String bucketName, MultipartFile gcsKey) throws Exception {
+		log.debug("Creating/Updating GCS connector...");
+		log.debug("checking if key is in proper format");
+		if (!getFileExtension(gcsKey.getOriginalFilename()).equals(".json")){
+			log.error("Invalid GCS Key");
+			throw new ItorixException("Invalid GCS Key", "General-1001");
+		}
+		Integration integration = new Integration();
+		integration.setType("GCS");
+		GcsIntegration gcsIntegration = new GcsIntegration();
+		gcsIntegration.setProjectId(projectId);
+		gcsIntegration.setBucketName(bucketName);
+		gcsIntegration.setKey(gcsKey.getBytes());
+		integration.setGcsIntegration(gcsIntegration);
+		integrationsDao.updateGcsIntegration(integration);
+		log.debug("Created/Updated GCS connector");
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	public ResponseEntity<?> removeGcsIntegration(String interactionid, String jsessionid) {
+		log.debug("Removing GCS connector...");
+		integrationsDao.removeGcsIntegration();
+		log.debug("Removed GCS connector");
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	private String getFileExtension(String file) {
+		if (file == null) {
+			return "";
+		}
+		int lastIndexOf = file.lastIndexOf(".");
+		if (lastIndexOf == -1)
+			return "";
+		String ext = file.substring(lastIndexOf);
+		return ext;
 	}
 
 }
