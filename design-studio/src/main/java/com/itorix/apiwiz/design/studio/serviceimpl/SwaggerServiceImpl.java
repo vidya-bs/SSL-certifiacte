@@ -1,6 +1,5 @@
 package com.itorix.apiwiz.design.studio.serviceimpl;
 
-import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -8,11 +7,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.itorix.apiwiz.common.factory.IntegrationHelper;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import com.itorix.apiwiz.common.util.StorageIntegration;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.s3.S3Connection;
@@ -151,6 +151,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 
 	@Autowired
 	private SupportedCodeGenLangDao codeGenLangDao;
+
+	@Autowired
+	private IntegrationHelper integrationHelper;
 
 	/**
 	 * The Api ratings dao.
@@ -2103,28 +2106,14 @@ public class SwaggerServiceImpl implements SwaggerService {
 			String downloadURI = null;
 			ResponseCode responseCode = new ResponseCode();
 			try {
-				S3Integration s3Integration = s3Connection.getS3Integration();
-				if (null != s3Integration) {
-					File file = new File(filename);
-					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(),
-							s3Integration.getDecryptedSecret(),
-							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-							"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/"
-									+ file.getName(),
-							filename);
-				} else {
-					org.json.JSONObject obj = null;
-					obj = jfrogUtilImpl.uploadFiles(filename,
-							"/" + getWorkspaceId() + "/swaggerClients/" + framework + "/"
-									+ System.currentTimeMillis());
-					downloadURI = obj.getString("downloadURI");
-					new File(filename).delete();
-				}
+				File file = new File(filename);
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(), filename);
+				new File(filename).delete();
+				responseCode.setLink(downloadURI);
 			} catch (Exception e) {
-				responseCode.setCode("500");
-				return new ResponseEntity<Object>(responseCode, HttpStatus.INTERNAL_SERVER_ERROR);
+				throw new ItorixException("Invalid storage connector credentials", "General-1000");
 			}
-			responseCode.setLink(downloadURI);
 			return new ResponseEntity<Object>(responseCode, HttpStatus.OK);
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = null;
@@ -2140,28 +2129,14 @@ public class SwaggerServiceImpl implements SwaggerService {
 			String downloadURI = null;
 			ResponseCode responseCode = new ResponseCode();
 			try {
-				S3Integration s3Integration = s3Connection.getS3Integration();
-				if (null != s3Integration) {
-					File file = new File(filename);
-					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(),
-							s3Integration.getDecryptedSecret(),
-							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-							"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/"
-									+ file.getName(),
-							filename);
-				} else {
-					org.json.JSONObject obj = null;
-					obj = jfrogUtilImpl.uploadFiles(filename,
-							"/" + getWorkspaceId() + "/swaggerClients/" + framework + "/"
-									+ System.currentTimeMillis());
-					downloadURI = obj.getString("downloadURI");
-					new File(filename).delete();
-				}
+				File file = new File(filename);
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(), filename);
+				new File(filename).delete();
+				responseCode.setLink(downloadURI);
 			} catch (Exception e) {
-				responseCode.setCode("500");
-				return new ResponseEntity<Object>(responseCode, HttpStatus.INTERNAL_SERVER_ERROR);
+				throw new ItorixException("Invalid storage connector credentials", "General-1000");
 			}
-			responseCode.setLink(downloadURI);
 			return new ResponseEntity<Object>(responseCode, HttpStatus.OK);
 		}
 		return new ResponseEntity<Object>("", HttpStatus.OK);
@@ -2236,23 +2211,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 			String downloadURI = null;
 			ResponseCode responseCode = new ResponseCode();
 			try {
-				S3Integration s3Integration = s3Connection.getS3Integration();
-				if (null != s3Integration) {
-					File file = new File(filename);
-					downloadURI = s3Utils.uplaodFile(s3Integration.getKey(),
-							s3Integration.getDecryptedSecret(),
-							Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-							"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/"
-									+ file.getName(),
-							filename);
-				} else {
-					org.json.JSONObject obj = null;
-					obj = jfrogUtilImpl.uploadFiles(filename,
-							"/" + getWorkspaceId() + "/swaggerClients/" + framework + "/"
-									+ System.currentTimeMillis());
-					downloadURI = obj.getString("downloadURI");
-					new File(filename).delete();
-				}} catch (Exception e) {
+				File file = new File(filename);
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(), filename);
+			}catch (Exception e) {
+				throw new ItorixException("Invalid storage connector credentials", "General-1000");
 			}
 			new File(filename).delete();
 			responseCode.setLink(downloadURI);
@@ -2269,21 +2232,15 @@ public class SwaggerServiceImpl implements SwaggerService {
 			}
 			String filename = generateSwagger3SDK(vo, framework);
 			String downloadURI = null;
-			S3Integration s3Integration = s3Connection.getS3Integration();
-			if (null != s3Integration) {
-				File file = new File(filename);
-				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-						"swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(),
-						filename);
-			} else {
-				org.json.JSONObject obj = null;
-				obj = jfrogUtilImpl.uploadFiles(filename,
-						"/" + getWorkspaceId() + "/" + framework + "/" + System.currentTimeMillis());
-				new File(filename).delete();
-				downloadURI = obj.getString("downloadURI");
-			}
 			ResponseCode responseCode = new ResponseCode();
+			try {
+				File file = new File(filename);
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile("swaggerClients/" + framework + "/" + System.currentTimeMillis() + "/" + file.getName(), filename);
+			}catch (Exception e) {
+				throw new ItorixException("Invalid storage connector credentials", "General-1000");
+			}
+			new File(filename).delete();
 			responseCode.setLink(downloadURI);
 			return new ResponseEntity<ResponseCode>(responseCode, HttpStatus.OK);
 
