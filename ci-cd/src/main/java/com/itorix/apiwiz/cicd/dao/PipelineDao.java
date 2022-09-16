@@ -209,7 +209,7 @@ public class PipelineDao {
 		return mailList;
 	}
 
-	public void deletePipelineGroup(String groupName) {
+	public List<Pipeline> deletePipelineGroup(String groupName) {
 		List<PipelineGroups> pipelineGroups = mongoTemplate.findAllAndRemove(
 				new Query(Criteria.where("_id").is(groupName)), PipelineGroups.class);
 		List<String> pipelines = new ArrayList<>();
@@ -218,7 +218,7 @@ public class PipelineDao {
 				pipelines.add(pipeline.getName());
 			});
 		});
-		mongoTemplate.findAllAndRemove(new Query(Criteria.where("_id").in(pipelines)), Pipeline.class);
+		return mongoTemplate.findAllAndRemove(new Query(Criteria.where("_id").in(pipelines)), Pipeline.class);
 	}
 
 	public List<PipelineGroups> getAvailablePipelines() {
