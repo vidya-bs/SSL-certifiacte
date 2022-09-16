@@ -20,6 +20,7 @@ import javax.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.bson.Document;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
@@ -106,6 +107,8 @@ import com.itorix.apiwiz.performance.coverge.model.History;
 import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryColumnEntry;
 import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryColumns;
 import com.itorix.apiwiz.servicerequest.dao.ServiceRequestDao;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.DeleteResult;
 
 import freemarker.template.TemplateException;
@@ -1422,6 +1425,39 @@ public class CodeGenService {
 			throw new ItorixException(ex.getMessage(), "ProxyGen-1000", ex);
 		}
 	}
+	
+	public List<Category> getCategories(boolean applyToFlow) throws ItorixException {
+		try {
+			List<Category> categories = null;
+			MongoCollection<Document> collection = mongoTemplate.getCollection("Connectors.Apigee.Policy.Templates");
+			List<Document> aggrigationList = new ArrayList<>();
+			List<Object> conditions = new ArrayList<>();
+			conditions.add("$$policies.applyToFlow");
+			conditions.add(applyToFlow);
+			Document matchDoc = new Document("$match", new Document("policies.applyToFlow", applyToFlow));
+			Document projectDoc = new Document("$project",new Document("_id", 0)
+					.append("name", "$name")
+					.append("type", "$type")
+					.append("description", "$description")
+					.append("policies",new Document("$filter",new Document("input","$policies").append("as", "policies").append("cond", new Document("$eq",conditions))))
+					);
+			aggrigationList.add(matchDoc);
+			aggrigationList.add(projectDoc);
+			AggregateIterable<Document> doc = collection.aggregate(aggrigationList);
+			ObjectMapper mapper = new ObjectMapper();
+			for (Document doc1 : doc) {
+				if(categories == null)
+					categories = new ArrayList<>();
+				Category category = mapper.readValue(doc1.toJson(), Category.class);
+				categories.add(category);
+			}
+			return categories;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			throw new ItorixException(ex.getMessage(), "ProxyGen-1000", ex);
+		}
+	}
+	
 
 	public boolean saveCategory(List<Category> categories) throws ItorixException {
 		try {

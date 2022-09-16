@@ -16,6 +16,7 @@ public class Flow {
 	private String targetOperation;
 	private String targetBasepath;
 	private String disablePathSuffix = "false";
+	private List<Category> policyTemplates;
 	@JsonProperty("metadata")
 	private List<ProxyMetadata> metadata;
 
@@ -119,6 +120,14 @@ public class Flow {
 	 */
 	public void setDisablePathSuffix(String disablePathSuffix) {
 		this.disablePathSuffix = disablePathSuffix;
+	}
+
+	public List<Category> getPolicyTemplates() {
+		return policyTemplates;
+	}
+
+	public void setPolicyTemplates(List<Category> policyTemplates) {
+		this.policyTemplates = policyTemplates;
 	}
 
 }

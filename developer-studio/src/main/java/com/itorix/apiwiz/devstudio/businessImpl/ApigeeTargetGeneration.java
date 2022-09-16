@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,7 +28,7 @@ import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-@Slf4j
+
 @Component
 public class ApigeeTargetGeneration {
 	@Autowired
@@ -37,6 +36,9 @@ public class ApigeeTargetGeneration {
 
 	@Autowired
 	MongoConnection mongoConnection;
+	
+	@Autowired
+	private CommonsGen commonsGen;
 
 	private String basePath;
 	private String targetDescription;
@@ -51,7 +53,6 @@ public class ApigeeTargetGeneration {
 
 	public void generateTargetCode(Folder targetFolder, CodeGenHistory cg, String dir)
 			throws IOException, TemplateException {
-		log.debug("Generating target code");
 		List<Target> targets = cg.getTarget();
 		dstRootFolder = dir;
 		createDestinationFolderStructure(dstRootFolder);
@@ -69,7 +70,6 @@ public class ApigeeTargetGeneration {
 
 	private void processTargetEndpointTemplate(Flows flows, Folder target, CodeGenHistory cg)
 			throws IOException, TemplateException {
-		log.debug("Processing target endpoint template");
 		List<Folder> files = target.getFiles();
 		for (Folder tmplFile : files) {
 			if (!tmplFile.isFolder()) {
@@ -78,7 +78,7 @@ public class ApigeeTargetGeneration {
 				Template template = getTemplate("TargetEndpoint.xml.ftl");
 				String tgtfilePrefix = targetName;
 				String dstFileName = dstRootFolder + File.separatorChar + "targets" + File.separatorChar + tgtfilePrefix
-						+  ProxyConfig.XML_FILE_EXT;
+						+ "-Target" + ProxyConfig.ENDPOINT_XML_SUFFIX;
 				Writer file = new FileWriter(dstFileName);
 				Map<String, Object> data = new HashMap<String, Object>();
 
@@ -88,7 +88,12 @@ public class ApigeeTargetGeneration {
 					operations.add(mapApi);
 					mapApi.put("name", flow.getName());
 					mapApi.put("disablePathSuffix", flow.getDisablePathSuffix());
-					// operations.add(flow.getName());
+					if (flow.getPolicyTemplates() != null) {
+						Map flowMap = commonsGen.createMap(flow.getPolicyTemplates());
+						mapApi.put("flowPolicyTemplate", flowMap.get("policyTemplate"));
+						mapApi.put("flowPolicyName", flowMap.get("policyName"));
+					}
+					//operations.add(flow.getName());
 				}
 				data.put("targetOperations", operations);
 				data.put("targetName", targetName);
@@ -109,7 +114,6 @@ public class ApigeeTargetGeneration {
 	}
 
 	private void processPolicyTemplates(Flows flows, Folder policies) throws IOException, TemplateException {
-		log.debug("Processing policy templates");
 		String STR_TARGET = "TARGET_";
 		if (policies != null) {
 			List<Folder> fileList = policies.getFiles();
@@ -170,7 +174,7 @@ public class ApigeeTargetGeneration {
 	}
 
 	public Template getTemplate(String file) throws IOException {
-		log.info(file);
+		System.out.println(file);
 		String reader = mongoConnection.getFile(file);
 		Configuration conf = new Configuration();
 		StringTemplateLoader tloader = new StringTemplateLoader();
@@ -183,7 +187,6 @@ public class ApigeeTargetGeneration {
 
 	@SuppressWarnings("deprecation")
 	private Template getTemplateFromFile(String file) throws IOException {
-		log.debug("Fetching template from file {}", file);
 		File templateFile = new File(file);
 		String fileName = templateFile.getName();
 		String reader = FileUtils.readFileToString(templateFile);
@@ -197,7 +200,6 @@ public class ApigeeTargetGeneration {
 	}
 
 	private void createDestinationFolderStructure(String apiProxyRootFolder) {
-		log.debug("Creating destination folder for {}", apiProxyRootFolder);
 		dstPolicies = apiProxyRootFolder + File.separatorChar + ProxyConfig.FLDR_POLICIES;
 		// File dir = new File(dstPolicies);
 		// dir.mkdirs();
