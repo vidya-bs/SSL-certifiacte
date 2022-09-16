@@ -8,6 +8,7 @@ import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
+import java.util.stream.Collectors;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
@@ -142,7 +143,10 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			return new ResponseEntity<>(new ErrorObj("Invalid pipeline Group", ""), HttpStatus.BAD_REQUEST);
 		}
 		try {
-			pipelineDao.deletePipelineGroup(groupName);
+			List<String> pipelines = pipelineDao.deletePipelineGroup(groupName).stream()
+					.map(pipeline -> pipeline.getName()).collect(
+							Collectors.toList());
+			pipelines.forEach(pipeline -> cicdIntegrationApi.deletePipeline(pipeline));
 		} catch (Exception ex) {
 			log.error("Error while deleting pipeline", ex.getCause());
 			return new ResponseEntity<>(new ErrorObj("Error while deleting pipeline", "CI-CD-DG500"),
