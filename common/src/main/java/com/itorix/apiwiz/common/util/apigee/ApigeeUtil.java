@@ -47,6 +47,10 @@ import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -61,7 +65,9 @@ import com.itorix.apiwiz.common.model.apigee.ApigeeServiceUser;
 import com.itorix.apiwiz.common.model.apigee.CommonConfiguration;
 import com.itorix.apiwiz.common.model.apigee.DeveloperApp;
 import com.itorix.apiwiz.common.model.apigee.DeveloperDetails;
+import com.itorix.apiwiz.common.model.apigee.Environment;
 import com.itorix.apiwiz.common.model.apigee.KeyForADeveloperAppResponse;
+import com.itorix.apiwiz.common.model.apigee.Revision;
 import com.itorix.apiwiz.common.model.apigee.metrics.PerformanceTrafficResponse;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
@@ -69,6 +75,7 @@ import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
@@ -127,7 +134,6 @@ public class ApigeeUtil {
 
 	private String getSecureURL(String suffix, String type, String org) throws ItorixException {
 		if (!(StringUtils.isEmpty(type)) && !(type.equalsIgnoreCase("saas"))) {
-			logger.debug("Getting scheme for ApigeeConfigurationVO");
 			ApigeeConfigurationVO vo = mongoTemplate.findOne(
 					new Query(Criteria.where("type").is(type).and("orgname").is(org)), ApigeeConfigurationVO.class);
 			if (vo == null) {
@@ -285,6 +291,14 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public List<String> getEnvironmentNames(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<List<String>> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/environments", cfg), HttpMethod.GET,
+					getHttpEntityX(cfg), new ParameterizedTypeReference<List<String>>() {
+					}, cfg);
+			return response.getBody();
+
+		}
 		ResponseEntity<List<String>> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments", cfg), HttpMethod.GET,
 				getHttpEntity(cfg), new ParameterizedTypeReference<List<String>>() {
@@ -333,10 +347,43 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public List<String> listAPIProxies(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/apis", cfg), HttpMethod.GET,
+					getHttpEntityX(cfg), new ParameterizedTypeReference<String>() {
+					}, cfg);
+			String serviceResponse = response.getBody();
+			List<String> envApiList = new ArrayList<String>();
+			JSONObject envJsonObject = (JSONObject) JSONSerializer.toJSON(serviceResponse);
+			JSONArray envApis = (JSONArray) envJsonObject.get("proxies");
+			for (int j = 0; j < envApis.size(); j++) {
+				JSONObject apiProxyObject = (JSONObject) envApis.get(j);
+				String apiName = (String) apiProxyObject.get("name");
+				envApiList.add(apiName);
+			}
+			return envApiList;
+		}
 		ResponseEntity<List<String>> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/apis", cfg), HttpMethod.GET,
 				getHttpEntity(cfg), new ParameterizedTypeReference<List<String>>() {
 				}, cfg);
+		return response.getBody();
+	}
+
+	public String getApigeexAPIDeployment(CommonConfiguration cfg) throws ItorixException {
+		String proxy = cfg.getApiName();
+		ResponseEntity<String> response = exchange(
+				getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/apis/" + proxy + "/deployments", cfg),
+				HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
+		return response.getBody();
+	}
+
+	public String getApigeexSharedflowDeployment(CommonConfiguration cfg) throws ItorixException {
+		String proxy = cfg.getApiName();
+		ResponseEntity<String> response = exchange(
+				getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/sharedflows/" + proxy + "/deployments",
+						cfg),
+				HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
 		return response.getBody();
 	}
 
@@ -351,6 +398,22 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public List<String> listSharedflows(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/sharedflows", cfg), HttpMethod.GET,
+					getHttpEntityX(cfg), new ParameterizedTypeReference<String>() {
+					}, cfg);
+			String serviceResponse = response.getBody();
+			List<String> envApiList = new ArrayList<String>();
+			JSONObject envJsonObject = (JSONObject) JSONSerializer.toJSON(serviceResponse);
+			JSONArray envApis = (JSONArray) envJsonObject.get("sharedFlows");
+			for (int j = 0; j < envApis.size(); j++) {
+				JSONObject apiProxyObject = (JSONObject) envApis.get(j);
+				String apiName = (String) apiProxyObject.get("name");
+				envApiList.add(apiName);
+			}
+			return envApiList;
+		}
 		ResponseEntity<List<String>> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/sharedflows", cfg), HttpMethod.GET,
 				getHttpEntity(cfg), new ParameterizedTypeReference<List<String>>() {
@@ -371,11 +434,49 @@ public class ApigeeUtil {
 	 */
 	public APIProxyDeploymentDetailsResponse getAPIProxyDeploymentDetails(CommonConfiguration cfg)
 			throws ItorixException {
+
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(getApigeexURL(
+					"/v1/organizations/" + cfg.getOrganization() + "/apis/" + cfg.getApiName() + "/deployments", cfg),
+					HttpMethod.GET, getHttpEntityX(cfg), new ParameterizedTypeReference<String>() {
+					}, cfg);
+			return mapResponse(response.getBody());
+		}
+
 		ResponseEntity<APIProxyDeploymentDetailsResponse> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/apis/" + cfg.getApiName() + "/deployments",
 						cfg),
 				HttpMethod.GET, getHttpEntity(cfg), APIProxyDeploymentDetailsResponse.class, cfg);
 		return response.getBody();
+	}
+
+	private APIProxyDeploymentDetailsResponse mapResponse(String response) {
+		try {
+			APIProxyDeploymentDetailsResponse apiResponse = new APIProxyDeploymentDetailsResponse();
+			JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(response);
+			JSONArray deployments = (JSONArray) proxyObject.get("deployments");
+			Environment[] envList = new Environment[deployments.size()];
+			int i = 0;
+			for (Object apiObj : deployments) {
+				Environment env = new Environment();
+				JSONObject prodObj = (JSONObject) apiObj;
+				String environmentName = (String) prodObj.get("environment");
+				String revisionStr = (String) prodObj.get("revision");
+				env.setName(environmentName);
+				Revision[] revList = new Revision[1];
+				Revision revision = new Revision();
+				revision.setName(revisionStr);
+				revList[0] = revision;
+				env.setRevision(revList);
+				envList[i] = env;
+				i++;
+			}
+			apiResponse.setEnvironment(envList);
+			return apiResponse;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/**
@@ -390,6 +491,21 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public String getSharedflowsDeploymentDetails(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/sharedflows/"
+							+ cfg.getSharedflowName() + "/deployments", cfg),
+					HttpMethod.GET, getHttpEntityX(cfg), new ParameterizedTypeReference<String>() {
+					}, cfg);
+			ObjectMapper objMapper = new ObjectMapper();
+			String responseStr = null;
+			try {
+				responseStr = objMapper.writeValueAsString(mapResponse(response.getBody()));
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+			return responseStr;
+		}
 		ResponseEntity<String> response = exchange(getSecureURL("v1/organizations/" + cfg.getOrganization()
 				+ "/sharedflows/" + cfg.getSharedflowName() + "/deployments", cfg), HttpMethod.GET, getHttpEntity(cfg),
 				String.class, cfg);
@@ -407,6 +523,14 @@ public class ApigeeUtil {
 	 * @throws RestClientException
 	 */
 	public byte[] getAnAPIProxyRevision(CommonConfiguration cfg) throws RestClientException, ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			String URL = getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/apis/" + cfg.getApiName()
+					+ "/revisions/" + cfg.getRevision() + "?format=bundle", cfg);
+			ResponseEntity<byte[]> response = restTemplate.exchange(URL, HttpMethod.GET,
+					getHttpEntityXToDownloadFile(cfg), byte[].class);
+			return response.getBody();
+		}
+
 		cfg.setApigeeCred(getApigeeAuth(cfg.getOrganization(), cfg.getType()));
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getMessageConverters().add(new ByteArrayHttpMessageConverter());
@@ -440,6 +564,15 @@ public class ApigeeUtil {
 	 */
 	public byte[] getAnSharedflowRevision(CommonConfiguration cfg) throws RestClientException, ItorixException {
 		RestTemplate restTemplate = new RestTemplate();
+
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<byte[]> response = restTemplate.exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/sharedflows/"
+							+ cfg.getSharedflowName() + "/revisions/" + cfg.getRevision() + "?format=bundle", cfg),
+					HttpMethod.GET, getHttpEntityXToDownloadFile(cfg), byte[].class);
+			return response.getBody();
+		}
+
 		restTemplate.getMessageConverters().add(new ByteArrayHttpMessageConverter());
 		ResponseEntity<byte[]> response = restTemplate.exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/sharedflows/" + cfg.getSharedflowName()
@@ -458,6 +591,13 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public APIProxyResponse getAPIProxy(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<APIProxyResponse> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/apis/" + cfg.getApiName(), cfg),
+					HttpMethod.GET, getHttpEntityX(cfg), new ParameterizedTypeReference<APIProxyResponse>() {
+					}, cfg);
+			return response.getBody();
+		}
 		ResponseEntity<APIProxyResponse> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/apis/" + cfg.getApiName(), cfg),
 				HttpMethod.GET, getHttpEntity(cfg), APIProxyResponse.class, cfg);
@@ -474,6 +614,14 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public String getSharedflow(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(getApigeexURL(
+					"/v1/organizations/" + cfg.getOrganization() + "/sharedflows/" + cfg.getSharedflowName(), cfg),
+					HttpMethod.GET, getHttpEntityX(cfg), new ParameterizedTypeReference<String>() {
+					}, cfg);
+			return response.getBody();
+
+		}
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/sharedflows/" + cfg.getSharedflowName(),
 						cfg),
@@ -493,6 +641,16 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public String forceUndeployAPIProxy(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+							+ "/apis/" + cfg.getSharedflowName() + "/revisions/" + cfg.getRevision() + "/deployments",
+							cfg),
+					HttpMethod.DELETE, getHttpEntityXWithOctetStreamContentType(cfg),
+					new ParameterizedTypeReference<String>() {
+					}, cfg);
+			return response.getBody();
+		}
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/apis/" + cfg.getApiName() + "/revisions/"
 						+ cfg.getRevision() + "/deployments?action=undeploy&force=true&env=" + cfg.getEnvironment(),
@@ -515,6 +673,17 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public String forceUndeploySharedflow(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+							+ "/sharedflows/" + cfg.getSharedflowName() + "/revisions/" + cfg.getRevision()
+							+ "/deployments", cfg),
+					HttpMethod.DELETE, getHttpEntityXWithOctetStreamContentType(cfg),
+					new ParameterizedTypeReference<String>() {
+					}, cfg);
+			return response.getBody();
+
+		}
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 						+ "/sharedflows/" + cfg.getSharedflowName() + "/revisions/" + cfg.getRevision()
@@ -536,6 +705,13 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public String deleteAPIProxy(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/apis/" + cfg.getApiName(), cfg),
+					HttpMethod.DELETE, getHttpEntityX(cfg), new ParameterizedTypeReference<String>() {
+					}, cfg);
+			return response.getBody();
+		}
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/apis/" + cfg.getApiName(), cfg),
 				HttpMethod.DELETE, getHttpEntity(cfg), new ParameterizedTypeReference<String>() {
@@ -554,6 +730,13 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public String deleteSharedflow(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(getApigeexURL(
+					"/v1/organizations/" + cfg.getOrganization() + "/sharedflows/" + cfg.getSharedflowName(), cfg),
+					HttpMethod.DELETE, getHttpEntityX(cfg), new ParameterizedTypeReference<String>() {
+					}, cfg);
+			return response.getBody();
+		}
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/sharedflows/" + cfg.getSharedflowName(),
 						cfg),
@@ -703,6 +886,26 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public List<String> listAppIDsInAnOrganization(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/apps/", cfg), HttpMethod.GET,
+					getHttpEntityX(cfg), new ParameterizedTypeReference<String>() {
+					}, cfg);
+			List<String> products = new ArrayList<>();
+			String apiProductString = response.getBody();
+			try {
+				JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
+				JSONArray apiProducts = (JSONArray) proxyObject.get("app");
+				for (Object apiObj : apiProducts) {
+					JSONObject prodObj = (JSONObject) apiObj;
+					final String apiProduct = (String) prodObj.get("appId");
+					products.add(apiProduct);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return products;
+		}
 		ResponseEntity<List<String>> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/apps", cfg), HttpMethod.GET,
 				getHttpEntity(cfg), new ParameterizedTypeReference<List<String>>() {
@@ -720,6 +923,13 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public String getAppInAnOrganizationByAppID(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/apps/" + cfg.getAppID(), cfg),
+					HttpMethod.GET, getHttpEntityX(cfg), new ParameterizedTypeReference<String>() {
+					}, cfg);
+			return response.getBody();
+		}
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/apps/" + cfg.getAppID(), cfg),
 				HttpMethod.GET, getHttpEntity(cfg), String.class, cfg);
@@ -736,6 +946,25 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public List<String> listAPIProducts(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/apiproducts/", cfg), HttpMethod.GET,
+					getHttpEntityX(cfg), String.class, cfg);
+			List<String> products = new ArrayList<>();
+			String apiProductString = response.getBody();
+			try {
+				JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
+				JSONArray apiProducts = (JSONArray) proxyObject.get("apiProduct");
+				for (Object apiObj : apiProducts) {
+					JSONObject prodObj = (JSONObject) apiObj;
+					final String apiProduct = (String) prodObj.get("name");
+					products.add(apiProduct);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return products;
+		}
 		ResponseEntity<List<String>> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/apiproducts", cfg), HttpMethod.GET,
 				getHttpEntity(cfg), new ParameterizedTypeReference<List<String>>() {
@@ -753,11 +982,17 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public String listAPIProductsByQuery(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(getApigeexURL(
+					"/v1/organizations/" + cfg.getOrganization() + "/apiproducts?expand=" + cfg.isExpand(), cfg),
+					HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
+			return response.getBody();
+		}
+
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/apiproducts?expand=" + cfg.isExpand(),
 						cfg),
-				HttpMethod.GET, getHttpEntity(cfg), new ParameterizedTypeReference<String>() {
-				}, cfg);
+				HttpMethod.GET, getHttpEntity(cfg), String.class, cfg);
 		return response.getBody();
 	}
 
@@ -771,10 +1006,15 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public String listAppIDsInAnOrganizationByQuery(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/apps?expand=" + cfg.isExpand(), cfg),
+					HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
+			return response.getBody();
+		}
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/apps?expand=" + cfg.isExpand(), cfg),
-				HttpMethod.GET, getHttpEntity(cfg), new ParameterizedTypeReference<String>() {
-				}, cfg);
+				HttpMethod.GET, getHttpEntity(cfg), String.class, cfg);
 		return response.getBody();
 	}
 
@@ -788,10 +1028,16 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public String listDevelopersByQuery(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/developers?expand=" + cfg.isExpand(),
+							cfg),
+					HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
+			return response.getBody();
+		}
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/developers?expand=" + cfg.isExpand(), cfg),
-				HttpMethod.GET, getHttpEntity(cfg), new ParameterizedTypeReference<String>() {
-				}, cfg);
+				HttpMethod.GET, getHttpEntity(cfg), String.class, cfg);
 		return response.getBody();
 	}
 
@@ -805,6 +1051,12 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public String getAPIProduct(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(getApigeexURL(
+					"/v1/organizations/" + cfg.getOrganization() + "/apiproducts/" + cfg.getApiProductName(), cfg),
+					HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
+			return response.getBody();
+		}
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/apiproducts/" + cfg.getApiProductName(),
 						cfg),
@@ -822,6 +1074,13 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public APIProduct deleteAPIProduct(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<APIProduct> response = exchange(getApigeexURL(
+					"/v1/organizations/" + cfg.getOrganization() + "/apiproducts/" + cfg.getApiProductName(), cfg),
+					HttpMethod.DELETE, getHttpEntityX(cfg), new ParameterizedTypeReference<APIProduct>() {
+					}, cfg);
+			return response.getBody();
+		}
 		ResponseEntity<APIProduct> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/apiproducts/" + cfg.getApiProductName(),
 						cfg),
@@ -901,11 +1160,23 @@ public class ApigeeUtil {
 	}
 
 	public List<Integer> getRevisionsListForProxy(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(getApigeexURL(
+					"/v1/organizations/" + cfg.getOrganization() + "/apis/" + cfg.getApiName() + "/revisions", cfg),
+					HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
+			List<Integer> revisionList = new ArrayList<Integer>();
+			JSONArray revisionsArray = (JSONArray) JSONSerializer.toJSON(response.getBody());
+			for (Object revisionObj : revisionsArray) {
+				String revision = (String) revisionObj;
+				revisionList.add(Integer.parseInt(revision));
+			}
+			return revisionList;
+		}
+
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/apis/" + cfg.getApiName() + "/revisions",
 						cfg),
-				HttpMethod.GET, getHttpEntity(cfg), new ParameterizedTypeReference<String>() {
-				}, cfg);
+				HttpMethod.GET, getHttpEntity(cfg), String.class, cfg);
 		List<Integer> revisionList = new ArrayList<Integer>();
 		// TODO
 		/*
@@ -918,11 +1189,23 @@ public class ApigeeUtil {
 	}
 
 	public List<Integer> getRevisionsListForSharedflow(CommonConfiguration cfg) throws ItorixException {
-		ResponseEntity<String> response = exchange(
-				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/sharedflows/" + cfg.getSharedflowName()
-						+ "/revisions", cfg),
-				HttpMethod.GET, getHttpEntity(cfg), new ParameterizedTypeReference<String>() {
-				}, cfg);
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/sharedflows/"
+							+ cfg.getSharedflowName() + "/revisions", cfg),
+					HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
+			List<Integer> revisionList = new ArrayList<Integer>();
+			JSONArray revisionsArray = (JSONArray) JSONSerializer.toJSON(response.getBody());
+			for (Object revisionObj : revisionsArray) {
+				String revision = (String) revisionObj;
+				revisionList.add(Integer.parseInt(revision));
+			}
+			return revisionList;
+		}
+
+		ResponseEntity<String> response = exchange(getSecureURL(
+				"v1/organizations/" + cfg.getOrganization() + "/sharedflows/" + cfg.getSharedflowName() + "/revisions",
+				cfg), HttpMethod.GET, getHttpEntity(cfg), String.class, cfg);
 		List<Integer> revisionList = new ArrayList<Integer>();
 		// TODO
 		/*
@@ -944,6 +1227,14 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public String getDeveloper(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/developers/" + cfg.getDeveloperId(),
+							cfg),
+					HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
+
+			return response.getBody();
+		}
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/developers/" + cfg.getDeveloperId(), cfg),
 				HttpMethod.GET, getHttpEntity(cfg), String.class, cfg);
@@ -962,6 +1253,17 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public KeyForADeveloperAppResponse deleteKeyForADeveloperApp(CommonConfiguration cfg) throws ItorixException {
+
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<KeyForADeveloperAppResponse> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/developers/"
+							+ cfg.getDeveloperEmail() + "/apps/" + cfg.getAppName() + "/keys/" + cfg.getConsumerKey(),
+							cfg),
+					HttpMethod.DELETE, getHttpEntityX(cfg),
+					new ParameterizedTypeReference<KeyForADeveloperAppResponse>() {
+					}, cfg);
+			return response.getBody();
+		}
 		ResponseEntity<KeyForADeveloperAppResponse> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/developers/" + cfg.getDeveloperEmail()
 						+ "/apps/" + cfg.getAppName() + "/keys/" + cfg.getConsumerKey(), cfg),
@@ -980,6 +1282,14 @@ public class ApigeeUtil {
 	 */
 	public DeveloperApp deleteDeveloperApp(CommonConfiguration cfg, String developerEmail, String appName)
 			throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<DeveloperApp> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/developers/"
+							+ cfg.getDeveloperEmail() + "/apps/" + cfg.getAppName(), cfg),
+					HttpMethod.DELETE, getHttpEntityX(cfg), new ParameterizedTypeReference<DeveloperApp>() {
+					}, cfg);
+			return response.getBody();
+		}
 		ResponseEntity<DeveloperApp> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/developers/" + cfg.getDeveloperEmail()
 						+ "/apps/" + cfg.getAppName(), cfg),
@@ -997,6 +1307,14 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public DeveloperApp deleteDeveloper(CommonConfiguration cfg, String developerEmail) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<DeveloperApp> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/developers/" + cfg.getDeveloperId(),
+							cfg),
+					HttpMethod.DELETE, getHttpEntityX(cfg), new ParameterizedTypeReference<DeveloperApp>() {
+					}, cfg);
+			return response.getBody();
+		}
 		ResponseEntity<DeveloperApp> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/developers/" + cfg.getDeveloperId(), cfg),
 				HttpMethod.DELETE, getHttpEntity(cfg), DeveloperApp.class, cfg);
@@ -1050,6 +1368,16 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public List<String> listTargetServersInAnEnvironment(CommonConfiguration cfg) throws ItorixException {
+
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<List<String>> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+							+ "/targetservers", cfg),
+					HttpMethod.GET, getHttpEntityX(cfg), new ParameterizedTypeReference<List<String>>() {
+					}, cfg);
+			return response.getBody();
+		}
+
 		ResponseEntity<List<String>> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 						+ "/targetservers", cfg),
@@ -1177,6 +1505,14 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public String getTargetServer(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+							+ "/targetservers/" + cfg.getTargetServerName(), cfg),
+					HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
+			return response.getBody();
+		}
+
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 						+ "/targetservers/" + cfg.getTargetServerName(), cfg),
@@ -1194,6 +1530,13 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public String deleteTargetServer(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+							+ "/targetservers/" + cfg.getTargetServerName(), cfg),
+					HttpMethod.DELETE, getHttpEntityX(cfg), String.class, cfg);
+			return response.getBody();
+		}
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 						+ "/targetservers/" + cfg.getTargetServerName(), cfg),
@@ -1213,6 +1556,26 @@ public class ApigeeUtil {
 	 * @throws ItorixException
 	 */
 	public List<String> listDevelopers(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/developers", cfg), HttpMethod.GET,
+					getHttpEntityX(cfg), String.class, cfg);
+
+			List<String> elements = new ArrayList<>();
+			String apiProductString = response.getBody();
+			try {
+				JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
+				JSONArray apiProducts = (JSONArray) proxyObject.get("developer");
+				for (Object apiObj : apiProducts) {
+					JSONObject prodObj = (JSONObject) apiObj;
+					final String apiProduct = (String) prodObj.get("email");
+					elements.add(apiProduct);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return elements;
+		}
 		ResponseEntity<List<String>> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/developers", cfg), HttpMethod.GET,
 				getHttpEntity(cfg), new ParameterizedTypeReference<List<String>>() {
@@ -1221,19 +1584,60 @@ public class ApigeeUtil {
 	}
 
 	public String createApiProduct(CommonConfiguration cfg) throws ItorixException {
+
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			System.out.println("1");
+			cfg.setApiProduct(getApigeeXProductBody(cfg.getApiProduct()));
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/apiproducts", cfg), HttpMethod.POST,
+					getHttpEntityXWithBodyJSON(cfg, cfg.getApiProduct()), String.class, cfg);
+			return response.getBody();
+		}
+
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/apiproducts", cfg), HttpMethod.POST,
-				getHttpEntityWithBodyJSON(cfg, cfg.getApiProduct()), new ParameterizedTypeReference<String>() {
-				}, cfg);
+				getHttpEntityWithBodyJSON(cfg, cfg.getApiProduct()), String.class, cfg);
 		return response.getBody();
 	}
 
+	private String getApigeeXProductBody(String productStr) {
+		System.out.println("2");
+		ObjectMapper objectMapper = new ObjectMapper();
+		try {
+			productStr = productStr.replaceAll(",\"additionalProperties\":\\{}", "");
+			objectMapper.setSerializationInclusion(Include.NON_NULL);
+			APIProduct productObj = objectMapper.readValue(productStr, APIProduct.class);
+			productObj.setLastModifiedBy(null);
+			productObj.setCreatedBy(null);
+			return objectMapper.writeValueAsString(productObj);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return productStr;
+	}
+
+	private String getApigeeXDeveloperBody(String productStr1) {
+		try {
+			String productStr = productStr1;
+			productStr = productStr.replaceAll("\".*\" : \\[ ],", "");
+			productStr = productStr.replaceAll("\"createdBy\".*\",", "");
+			productStr = productStr.replaceAll("\"createdBy\".*\"", "");
+			productStr = productStr.replaceAll(",[\n]\"lastModifiedBy\".*\"", "");
+			productStr = productStr.replaceAll("\"lastModifiedBy\".*\",", "");
+			productStr = productStr.replaceAll("\"lastModifiedBy\".*\"", "");
+			productStr = productStr.replace("\n", "").replace("\r", "");
+			productStr = productStr.replaceAll(",\\s*}", "}");
+			return productStr;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return productStr1;
+	}
+
 	public String getProxyDeployments(CommonConfiguration cfg) throws ItorixException {
-		ResponseEntity<String> response = exchange(
-				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
-						+ "/deployments", cfg),
-				HttpMethod.GET, getHttpEntity(cfg), new ParameterizedTypeReference<String>() {
-				}, cfg);
+		ResponseEntity<String> response = exchange(getSecureURL(
+				"v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment() + "/deployments",
+				cfg), HttpMethod.GET, getHttpEntity(cfg), String.class, cfg);
 		return response.getBody();
 	}
 
@@ -1241,16 +1645,14 @@ public class ApigeeUtil {
 		if (cfg.getGwtype() != null && cfg.getGwtype().equalsIgnoreCase("apigeex")) {
 			ResponseEntity<String> response = exchange(getApigeexURL(
 					"/v1/organizations/" + cfg.getOrganization() + "/apis/" + cfg.getApiName() + "/deployments", cfg),
-					HttpMethod.GET, getHttpEntityX(cfg), new ParameterizedTypeReference<String>() {
-					}, cfg);
+					HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
 
 			return response.getBody();
 		} else {
 			ResponseEntity<String> response = exchange(
 					getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 							+ "/apis/" + cfg.getApiName() + "/deployments", cfg),
-					HttpMethod.GET, getHttpEntity(cfg), new ParameterizedTypeReference<String>() {
-					}, cfg);
+					HttpMethod.GET, getHttpEntity(cfg), String.class, cfg);
 			return response.getBody();
 		}
 	}
@@ -1265,6 +1667,15 @@ public class ApigeeUtil {
 	}
 
 	public String deployAPIProxy1(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			System.out.println("");
+			String URL = getApigeexURL(
+					"/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment() + "/apis/"
+							+ cfg.getApiName() + "/revisions/" + cfg.getRevision() + "/deployments",
+					cfg);
+			ResponseEntity<String> response = exchange(URL, HttpMethod.POST, getHttpEntityX(cfg), String.class, cfg);
+			return response.getBody();
+		}
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 						+ "/apis/" + cfg.getApiName() + "/revisions/" + cfg.getRevision() + "/deployments", cfg),
@@ -1274,22 +1685,38 @@ public class ApigeeUtil {
 	}
 
 	public String deploySharedflow(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+							+ "/sharedflows/" + cfg.getSharedflowName() + "/revisions/" + cfg.getRevision()
+							+ "/deployments?override=true", cfg),
+					HttpMethod.POST, getHttpEntityX(cfg), String.class, cfg);
+			return response.getBody();
+		}
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 						+ "/sharedflows/" + cfg.getSharedflowName() + "/revisions/" + cfg.getRevision()
 						+ "/deployments", cfg),
-				HttpMethod.POST, getHttpEntityWithOctetStreamContentType(cfg),
-				new ParameterizedTypeReference<String>() {
-				}, cfg);
+				HttpMethod.POST, getHttpEntityWithOctetStreamContentType(cfg), String.class, cfg);
 		return response.getBody();
 	}
 
 	public String unDeployAPIProxy(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL(
+							"/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+									+ "/apis/" + cfg.getApiName() + "/revisions/" + cfg.getRevision() + "/deployments",
+							cfg),
+					HttpMethod.DELETE, getHttpEntityX(cfg), new ParameterizedTypeReference<String>() {
+					}, cfg);
+			return response.getBody();
+		}
+
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 						+ "/apis/" + cfg.getApiName() + "/revisions/" + cfg.getRevision() + "/deployments", cfg),
-				HttpMethod.DELETE, getHttpEntity(cfg), new ParameterizedTypeReference<String>() {
-				}, cfg);
+				HttpMethod.DELETE, getHttpEntity(cfg), String.class, cfg);
 		return response.getBody();
 	}
 
@@ -1313,6 +1740,14 @@ public class ApigeeUtil {
 	}
 
 	public String postDeveloperApps(CommonConfiguration cfg, String body) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/developers/"
+							+ cfg.getDeveloperEmail() + "/apps", cfg),
+					HttpMethod.POST, postHttpEntityX(cfg, body), new ParameterizedTypeReference<String>() {
+					}, cfg);
+			return response.getBody();
+		}
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/developers/" + cfg.getDeveloperEmail()
 						+ "/apps", cfg),
@@ -1322,6 +1757,15 @@ public class ApigeeUtil {
 	}
 
 	public String createdeveloperKeysForDeveloperApp(CommonConfiguration cfg, String body) throws ItorixException {
+
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/developers/"
+							+ cfg.getDeveloperEmail() + "/apps/" + cfg.getAppName() + "/keys/create", cfg),
+					HttpMethod.POST, postHttpEntityX(cfg, body), String.class, cfg);
+			return response.getBody();
+		}
+
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/developers/" + cfg.getDeveloperEmail()
 						+ "/apps/" + cfg.getAppName() + "/keys/create", cfg),
@@ -1330,6 +1774,15 @@ public class ApigeeUtil {
 	}
 
 	public String addAPIProductToKey(CommonConfiguration cfg, String body) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<String> response = exchange(
+					getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/developers/"
+							+ cfg.getDeveloperEmail() + "/apps/" + cfg.getAppName() + "/keys/" + cfg.getConsumerKey(),
+							cfg),
+					HttpMethod.POST, postHttpEntityX(cfg, body), String.class, cfg);
+			return response.getBody();
+		}
+
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/developers/" + cfg.getDeveloperEmail()
 						+ "/apps/" + cfg.getAppName() + "/keys/" + cfg.getConsumerKey(), cfg),
@@ -1338,6 +1791,15 @@ public class ApigeeUtil {
 	}
 
 	public String createDeveloper(CommonConfiguration cfg) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			System.out.println("1");
+			cfg.setAppDeveloper(getApigeeXDeveloperBody(cfg.getAppDeveloper()));
+			String URL = getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/developers/", cfg);
+			ResponseEntity<String> response = exchange(URL, HttpMethod.POST,
+					getHttpEntityXWithBodyJSON(cfg, cfg.getAppDeveloper()), String.class, cfg);
+			return response.getBody();
+		}
+
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/developers/", cfg), HttpMethod.POST,
 				getHttpEntityWithBodyJSON(cfg, cfg.getAppDeveloper()), String.class, cfg);
@@ -1345,6 +1807,13 @@ public class ApigeeUtil {
 	}
 
 	public String createResourceInEnvironment(CommonConfiguration cfg, String resourceType) throws ItorixException {
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			String URL = getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/environments/"
+					+ cfg.getEnvironment() + "/" + resourceType, cfg);
+			ResponseEntity<String> response = exchange(URL, HttpMethod.POST,
+					getHttpEntityXWithBodyJSON(cfg, cfg.getResource()), String.class, cfg);
+			return response.getBody();
+		}
 		String URL = getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 				+ "/" + resourceType + "/", cfg);
 		ResponseEntity<String> response = exchange(URL, HttpMethod.POST,
@@ -1379,16 +1848,29 @@ public class ApigeeUtil {
 	 * ParameterizedTypeReference<String>() { }); return response.getBody(); }
 	 */
 
-	public String importApiProxy(CommonConfiguration cfg, File revisionBundle)
-			throws FileNotFoundException, RestClientException, ItorixException {
-		String encodedCredentials = Base64
-				.encodeBase64String((cfg.getApigeeEmail() + ":" + cfg.getApigeePassword()).getBytes());
+	public String importApiProxy(CommonConfiguration cfg, File revisionBundle) throws Exception {
+		final String encodedCredentials;
+		final String contentType;
+		String URL;
+
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			URL = getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/apis?action=import&validate=true&name="
+					+ cfg.getApiName(), cfg);
+			contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE.toString();
+			encodedCredentials = apigeexUtil.getApigeeCredentials(cfg.getOrganization(), cfg.getType());
+		} else {
+			URL = getSecureURL(
+					"v1/organizations/" + cfg.getOrganization() + "/apis?action=import&name=" + cfg.getApiName(), cfg);
+			contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE.toString();
+			encodedCredentials = getApigeeAuth(cfg.getOrganization(), cfg.getType());
+		}
+
 		final InputStream fis = new FileInputStream(revisionBundle);
 		final RequestCallback requestCallback = new RequestCallback() {
 			@Override
 			public void doWithRequest(final ClientHttpRequest request) throws IOException {
-				request.getHeaders().add("Content-type", "application/octet-stream");
-				request.getHeaders().add("Authorization", "Basic " + encodedCredentials);
+				request.getHeaders().add("Content-Type", contentType);
+				request.getHeaders().add("Authorization", encodedCredentials);
 				IOUtils.copy(fis, request.getBody());
 			}
 		};
@@ -1398,24 +1880,33 @@ public class ApigeeUtil {
 		restTemplate.setRequestFactory(requestFactory);
 		final HttpMessageConverterExtractor<String> responseExtractor = new HttpMessageConverterExtractor<String>(
 				String.class, restTemplate.getMessageConverters());
-		String response = restTemplate.execute(getSecureURL(
-				"v1/organizations/" + cfg.getOrganization() + "/apis/?action=import&name=" + cfg.getApiName(), cfg),
-				HttpMethod.POST, requestCallback, responseExtractor);
+		String response = restTemplate.execute(URL, HttpMethod.POST, requestCallback, responseExtractor);
 		requestFactory.setBufferRequestBody(true);
 		restTemplate.setRequestFactory(requestFactory);
 		return response;
 	}
 
-	public String importSharedflows(CommonConfiguration cfg, File revisionBundle)
-			throws FileNotFoundException, RestClientException, ItorixException {
-		String encodedCredentials = Base64
-				.encodeBase64String((cfg.getApigeeEmail() + ":" + cfg.getApigeePassword()).getBytes());
+	public String importSharedflows(CommonConfiguration cfg, File revisionBundle) throws Exception {
+
+		final String encodedCredentials;
+		String URL;
+
+		if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+			URL = getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/sharedflows/?action=import&name="
+					+ cfg.getSharedflowName(), cfg);
+			encodedCredentials = apigeexUtil.getApigeeCredentials(cfg.getOrganization(), cfg.getType());
+		} else {
+			URL = getSecureURL("v1/organizations/" + cfg.getOrganization() + "/sharedflows/?action=import&name="
+					+ cfg.getSharedflowName(), cfg);
+			encodedCredentials = getApigeeAuth(cfg.getOrganization(), cfg.getType());
+		}
+
 		final InputStream fis = new FileInputStream(revisionBundle);
 		final RequestCallback requestCallback = new RequestCallback() {
 			@Override
 			public void doWithRequest(final ClientHttpRequest request) throws IOException {
 				request.getHeaders().add("Content-type", "application/octet-stream");
-				request.getHeaders().add("Authorization", "Basic " + encodedCredentials);
+				request.getHeaders().add("Authorization", encodedCredentials);
 				IOUtils.copy(fis, request.getBody());
 			}
 		};
@@ -1425,9 +1916,7 @@ public class ApigeeUtil {
 		restTemplate.setRequestFactory(requestFactory);
 		final HttpMessageConverterExtractor<String> responseExtractor = new HttpMessageConverterExtractor<String>(
 				String.class, restTemplate.getMessageConverters());
-		String response = restTemplate.execute(getSecureURL("v1/organizations/" + cfg.getOrganization()
-				+ "/sharedflows/?action=import&name=" + cfg.getSharedflowName(), cfg), HttpMethod.POST, requestCallback,
-				responseExtractor);
+		String response = restTemplate.execute(URL, HttpMethod.POST, requestCallback, responseExtractor);
 		requestFactory.setBufferRequestBody(true);
 		restTemplate.setRequestFactory(requestFactory);
 		return response;
@@ -1614,7 +2103,7 @@ public class ApigeeUtil {
 			logger.error("Exception occurred", e);
 		}
 		headers.set("Authorization", authorization);
-		return new HttpEntity<String>("parameters", headers);
+		return new HttpEntity<String>(headers);
 	}
 	private HttpEntity<String> postHttpEntityX(CommonConfiguration cfg, String body) {
 		HttpHeaders headers = new HttpHeaders();
@@ -1662,18 +2151,29 @@ public class ApigeeUtil {
 	public HttpEntity<String> getHttpEntityWithApplicationJSON(CommonConfiguration cfg) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-		String encodedCredentials = Base64
-				.encodeBase64String((cfg.getApigeeEmail() + ":" + cfg.getApigeePassword()).getBytes());
-		headers.set("Authorization", "Basic " + encodedCredentials);
+		String encodedCredentials = getApigeeAuth(cfg.getOrganization(), cfg.getType());
+		headers.set("Authorization", encodedCredentials);
 		return new HttpEntity<String>("parameters", headers);
 	}
 
 	private HttpEntity<String> getHttpEntityWithOctetStreamContentType(CommonConfiguration cfg) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-		String encodedCredentials = Base64
-				.encodeBase64String((cfg.getApigeeEmail() + ":" + cfg.getApigeePassword()).getBytes());
-		headers.set("Authorization", "Basic " + encodedCredentials);
+		String encodedCredentials = getApigeeAuth(cfg.getOrganization(), cfg.getType());
+		headers.set("Authorization", encodedCredentials);
+		return new HttpEntity<String>("parameters", headers);
+	}
+
+	private HttpEntity<String> getHttpEntityXWithOctetStreamContentType(CommonConfiguration cfg) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
+		String authorization = null;
+		try {
+			authorization = apigeexUtil.getApigeeCredentials(cfg.getOrganization(), cfg.getType());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		headers.set("Authorization", authorization);
 		return new HttpEntity<String>("parameters", headers);
 	}
 
@@ -1681,9 +2181,22 @@ public class ApigeeUtil {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		String encodedCredentials = Base64
-				.encodeBase64String((cfg.getApigeeEmail() + ":" + cfg.getApigeePassword()).getBytes());
-		headers.set("Authorization", "Basic " + encodedCredentials);
+		String encodedCredentials = getApigeeAuth(cfg.getOrganization(), cfg.getType());
+		headers.set("Authorization", encodedCredentials);
+		return new HttpEntity<String>(request, headers);
+	}
+
+	private HttpEntity<String> getHttpEntityXWithBodyJSON(CommonConfiguration cfg, String request) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		String encodedCredentials = null;
+		try {
+			encodedCredentials = apigeexUtil.getApigeeCredentials(cfg.getOrganization(), cfg.getType());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		headers.set("Authorization", encodedCredentials);
 		return new HttpEntity<String>(request, headers);
 	}
 
@@ -1693,6 +2206,27 @@ public class ApigeeUtil {
 		String authorization = getApigeeAuth(cfg.getOrganization(), cfg.getType());
 		headers.set("Authorization", authorization);
 		return new HttpEntity<String>("parameters", headers);
+	}
+
+	private HttpEntity<String> getHttpEntityXToDownloadFile(CommonConfiguration cfg) {
+
+		HttpHeaders headers = new HttpHeaders();
+		// headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+		String authorization = null;
+		try {
+			authorization = apigeexUtil.getApigeeCredentials(cfg.getOrganization(), cfg.getType());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		headers.set("Authorization", authorization);
+		return new HttpEntity<String>("parameters", headers);
+
+		// HttpHeaders headers = new HttpHeaders();
+		// headers.set("Authorization", "Basic " + encodedCredentials);
+		// String authorization = getApigeeAuth(cfg.getOrganization(),
+		// cfg.getType());
+		// headers.set("Authorization", authorization);
+		// return new HttpEntity<String>("parameters", headers);
 	}
 
 	private HttpEntity<String> getHttpEntityAndXmlAcceptType(CommonConfiguration cfg) {

@@ -111,7 +111,7 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness 
 			log("executePolicyPerformance", cfg.getInteractionid(), "step 1: getProxyDeployedRevision" + rev);
 			cfg.setRevision(rev);
 		} catch (IOException e1) {
-			logger.error("Excception occurred",e1);
+			logger.error("Exception occurred", e1);
 			e1.printStackTrace();
 			throw e1;
 		}
@@ -194,6 +194,7 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness 
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		// UserSession userSessionToken =
 		// baseRepository.findById(jsessionid,UserSession.class);
+		logger.debug("Find user using {}-userSessionToken", userSessionToken.getUserId());
 		User user = masterMongoTemplate.findById(userSessionToken.getUserId(), User.class);
 		return user;
 	}

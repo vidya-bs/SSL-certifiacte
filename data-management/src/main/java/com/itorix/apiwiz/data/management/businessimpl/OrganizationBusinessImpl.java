@@ -1,5 +1,46 @@
 package com.itorix.apiwiz.data.management.businessimpl;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+import org.zeroturnaround.zip.ZipUtil;
+
+import com.amazonaws.regions.Regions;
+
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -33,8 +74,9 @@ import com.itorix.apiwiz.data.management.model.overview.ApigeeOrganizationalVO;
 import com.itorix.apiwiz.data.management.model.overview.Apps;
 import com.itorix.apiwiz.data.management.model.overview.Products;
 import com.itorix.apiwiz.data.management.model.overview.Proxies;
+import com.itorix.apiwiz.data.management.model.overview.Sharedflow;
+import com.itorix.apiwiz.data.management.model.overview.Targetserver;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
-import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
@@ -62,6 +104,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
+import net.sf.json.util.JSONUtils;
 @Slf4j
 @Service
 public class OrganizationBusinessImpl implements OrganizationBusiness {
@@ -83,10 +126,10 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	private GridFsRepository gridFsRepository;
 
 	@Autowired
-	private IntegrationHelper integrationHelper;
+	ApplicationProperties applicationProperties;
 
 	@Autowired
-	ApplicationProperties applicationProperties;
+	private IntegrationHelper integrationHelper;
 
 	/**
 	 * This method is used to get the list of environments for an organization.
@@ -247,17 +290,12 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
+
 				StorageIntegration storageIntegration = integrationHelper.getIntegration();
-				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
-				// obj = jfrogUtilImpl.uploadFiles(cfg.getBackUpLocation() + "/"
-				// + cfg.getOrganization() + ".zip",
-				// applicationProperties.getDataRestoreBackup(),
-				// applicationProperties.getJfrogHost() + ":" +
-				// applicationProperties.getJfrogPort()
-				// + "/artifactory/",
-				// "Backup/" + cfg.getOrganization() + "/" + start + "",
-				// applicationProperties.getJfrogUserName(),
-				// applicationProperties.getJfrogPassword());
+				downloadURI = storageIntegration.uploadFile(
+						"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
+						cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+
 			} catch (Exception e) {
 				log.error("Exception occurred", e);
 				throw e;
@@ -307,7 +345,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	}
 
 	/**
-	 * This method will do the backup of shared flows.
+	 * This method will do the backup of shared flows. apigeex api to invoke and
+	 * retrive the c
 	 *
 	 * @param cfg
 	 * 
@@ -348,8 +387,12 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
+
 				StorageIntegration storageIntegration = integrationHelper.getIntegration();
-				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				downloadURI = storageIntegration.uploadFile(
+						"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
+						cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+
 			} catch (Exception e) {
 				log.error("Exception occurred", e);
 				throw e;
@@ -438,8 +481,12 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
+
 				StorageIntegration storageIntegration = integrationHelper.getIntegration();
-				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				downloadURI = storageIntegration.uploadFile(
+						"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
+						cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				log.error("Exception occurred", e);
@@ -529,8 +576,12 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
+
 				StorageIntegration storageIntegration = integrationHelper.getIntegration();
-				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				downloadURI = storageIntegration.uploadFile(
+						"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
+						cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				log.error("Exception occurred", e);
@@ -621,10 +672,13 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
+
 				StorageIntegration storageIntegration = integrationHelper.getIntegration();
-				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				downloadURI = storageIntegration.uploadFile(
+						"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
+						cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+
 			} catch (Exception e) {
-				logger.error(e.getMessage());
 				log.error("Exception occurred", e);
 				throw e;
 			}
@@ -713,8 +767,12 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
+
 				StorageIntegration storageIntegration = integrationHelper.getIntegration();
-				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				downloadURI = storageIntegration.uploadFile(
+						"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
+						cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				log.error("Exception occurred", e);
@@ -808,11 +866,13 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
+
 				StorageIntegration storageIntegration = integrationHelper.getIntegration();
-				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				downloadURI = storageIntegration.uploadFile(
+						"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
+						cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
 
 			} catch (Exception e) {
-				logger.error(e.getMessage());
 				log.error("Exception occurred", e);
 				throw e;
 			}
@@ -908,8 +968,11 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
+
 				StorageIntegration storageIntegration = integrationHelper.getIntegration();
-				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				downloadURI = storageIntegration.uploadFile(
+						"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
+						cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
 
 			} catch (Exception e) {
 				log.error("Exception occurred", e);
@@ -999,8 +1062,11 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
+
 				StorageIntegration storageIntegration = integrationHelper.getIntegration();
-				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				downloadURI = storageIntegration.uploadFile(
+						"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
+						cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
 
 			} catch (Exception e) {
 				log.error("Exception occurred", e);
@@ -1089,8 +1155,12 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			org.json.JSONObject obj = null;
 			String downloadURI = "";
 			try {
+
 				StorageIntegration storageIntegration = integrationHelper.getIntegration();
-				downloadURI = storageIntegration.uploadFile("Backup/" + cfg.getOrganization() + "/" + start + "/"+ cfg.getOrganization() + ".zip", cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+				downloadURI = storageIntegration.uploadFile(
+						"Backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
+						cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+
 			} catch (Exception e) {
 				log.error("Exception occurred", e);
 				throw e;
@@ -1188,9 +1258,11 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		logger.debug("OrganizationDataMigrationService.restoreAppDevelopers : interactionid=" + cfg.getInteractionid()
 				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
 				+ cfg);
-		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
-		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
-		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
+		// ApigeeServiceUser apigeeServiceUser =
+		// apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(),
+		// cfg.getType());
+		// cfg.setApigeeEmail(apigeeServiceUser.getUserName());
+		// cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
 		downloadBackup1(cfg);
 		File backupLocation = null;
@@ -1311,7 +1383,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 					String s = IOUtils.toString(new FileInputStream(resource));
 					cfg.setResource(s);
 					try {
-						if ("keyvaluemaps".equals(resourceType.getName())) {
+						if ("keyvaluemaps".equals(resourceType.getName())
+								&& !cfg.getType().equalsIgnoreCase("apigeex")) {
 							String orgInfo = apigeeUtil.getOrganization(cfg);
 							JSONObject orgJson = (JSONObject) JSONSerializer.toJSON(orgInfo);
 							if (orgJson != null) {
@@ -1385,6 +1458,140 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		// FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
 		// FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
 		return "Success";
+	}
+
+	public String restoreResource1(CommonConfiguration cfg) throws IOException, InterruptedException, ItorixException {
+		logger.debug("OrganizationDataMigrationService.restoreResource : interactionid=" + cfg.getInteractionid()
+				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
+				+ cfg);
+		downloadBackup1(cfg);
+		File environmentsDir = null;
+		if (cfg.getOldOrg() != null) {
+			environmentsDir = new File(getBaseRestoreAndMigareDirectory(cfg), "environments");
+		} else {
+			environmentsDir = new File(getBaseRestoreDirectory(cfg), "environments");
+		}
+
+		for (File environmentDir : environmentsDir.listFiles()) {
+			String environment = environmentDir.getName();
+			cfg.setEnvironment(environment);
+			if (environment.startsWith("."))
+				continue;
+
+			for (File resourceType : environmentDir.listFiles()) {
+
+				for (final File resource : resourceType.listFiles()) {
+
+					if (null != cfg.getNewOrg() && cfg.getNewOrg().length() > 0) {
+						environment = cfg.getNewEnv();
+						cfg.setEnvironment(environment);
+					}
+					String s = IOUtils.toString(new FileInputStream(resource));
+					cfg.setResource(s);
+					try {
+						if ("keyvaluemaps".equals(resourceType.getName())
+								&& !cfg.getType().equalsIgnoreCase("apigeex")) {
+							String orgInfo = apigeeUtil.getOrganization(cfg);
+							JSONObject orgJson = (JSONObject) JSONSerializer.toJSON(orgInfo);
+							if (orgJson != null) {
+								JSONObject propertysJson = orgJson.getJSONObject("properties");
+								if (propertysJson != null) {
+									JSONArray propertyArray = propertysJson.getJSONArray("property");
+									if (propertyArray != null && propertyArray.size() > 0) {
+										for (int i = 0; i < propertyArray.size(); i++) {
+											JSONObject propertyJson = propertyArray.getJSONObject(i);
+											if (propertyJson != null
+													&& "features.isCpsEnabled".equals(propertyJson.getString("name"))
+													&& "true".equals(propertyJson.getString("value"))) {
+												JSONObject kvmJson = (JSONObject) JSONSerializer.toJSON(s);
+												String map_name = kvmJson.getString("name");
+
+												boolean KeyValueMaps = apigeeUtil.isKeyValueMap(cfg, map_name);
+
+												JSONArray entryArray = kvmJson.getJSONArray("entry");
+												if (KeyValueMaps) {
+													for (int j = 0; j < entryArray.size(); j++) {
+														List<String> keys = apigeeUtil
+																.listKeysInAnEnvironmentKeyValueMap(cfg, map_name);
+														JSONObject entryJson = entryArray.getJSONObject(j);
+														String entry_name = entryJson.getString("name");
+														cfg.setResource(entryJson.toString());
+														if (keys != null && keys.contains(entry_name)) {
+															apigeeUtil.updateAKeyValueMapEntryInAnEnvironment(cfg,
+																	map_name, entry_name);
+														} else {
+															apigeeUtil.createAnEntryInAnEnvironmentKeyValueMap(cfg,
+																	map_name);
+														}
+													}
+												} else {
+													JSONObject mapObj = new JSONObject();
+													mapObj.put("name", map_name);
+													cfg.setResource(mapObj.toString());
+													apigeeUtil.createKeyValueMapInAnEnvironment(cfg);
+													for (int j = 0; j < entryArray.size(); j++) {
+														JSONObject entryJson = entryArray.getJSONObject(j);
+														cfg.setResource(entryJson.toString());
+														apigeeUtil.createAnEntryInAnEnvironmentKeyValueMap(cfg,
+																map_name);
+													}
+												}
+
+											} else {
+												apigeeUtil.createResourceInEnvironment(cfg, resourceType.getName());
+											}
+										}
+									} else {
+										apigeeUtil.createResourceInEnvironment(cfg, resourceType.getName());
+									}
+								}
+							}
+
+						} else {
+							if (!resourceType.getName().equals("caches"))
+								apigeeUtil.createResourceInEnvironment(cfg, resourceType.getName());
+						}
+					} catch (Exception e) {
+						logger.error(e.getMessage());
+						e.printStackTrace();
+						throw e;
+					}
+				}
+			}
+		}
+		// FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
+		// FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
+		return "Success";
+	}
+
+	private void deployProxies(CommonConfiguration cfg) throws ItorixException {
+		Mappings mapping = cfg.getMappings();
+		if (mapping.getProxies() != null) {
+			String env = cfg.getNewEnv();
+			cfg.setEnvironment(env);
+			for (com.itorix.apiwiz.common.model.apigee.Proxy proxy : mapping.getProxies()) {
+				String proxyName = proxy.getName();
+				cfg.setApiName(proxyName);
+				List<Integer> revsList = apigeeUtil.getRevisionsListForProxy(cfg);
+				Integer rev = Collections.max(revsList);
+				cfg.setRevision(Integer.toString(rev));
+				apigeeUtil.deployAPIProxy1(cfg);
+			}
+		}
+	}
+
+	private void deploySharedflows(CommonConfiguration cfg) throws ItorixException {
+		Mappings mapping = cfg.getMappings();
+		if (mapping.getSharedflows() != null) {
+			for (com.itorix.apiwiz.common.model.apigee.Sharedflow sharedflow : mapping.getSharedflows()) {
+				String sharedflowName = sharedflow.getName();
+				cfg.setSharedflowName(sharedflowName);
+				List<Integer> revsList = apigeeUtil.getRevisionsListForSharedflow(cfg);
+				Integer rev = Collections.max(revsList);
+				cfg.setRevision(Integer.toString(rev));
+				apigeeUtil.deploySharedflow(cfg);
+			}
+		}
 	}
 
 	/*
@@ -1906,9 +2113,13 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		JSONArray envKVM = null;
 		JSONArray envTargetServers = null;
 
-		envCaches = backupCaches(cfg, environments);
+		if (cfg.getType() != null && !cfg.getType().equalsIgnoreCase("apigeex")) {
+			envCaches = backupCaches(cfg, environments);
+		}
 		resourcesList.addAll(envCaches);
-		envKVM = backupKVM(cfg, environments);
+		if (cfg.getType() != null && !cfg.getType().equalsIgnoreCase("apigeex")) {
+			envKVM = backupKVM(cfg, environments);
+		}
 		resourcesList.addAll(envKVM);
 		envTargetServers = backupTargetServers(cfg, environments);
 		resourcesList.addAll(envTargetServers);
@@ -2167,6 +2378,10 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 
 						} catch (IOException e) {
 							log.error("Exception occurred", e);
+
+						} catch (Exception e1) {
+							log.error("Exception occurred", e1);
+
 						}
 					}
 				} catch (IOException e) {
@@ -2182,10 +2397,13 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		logger.debug("OrganizationDataMigrationService.restoreAPIProxies1 : interactionid=" + cfg.getInteractionid()
 				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
 				+ cfg);
-		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
-		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
-		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
-		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
+		// ApigeeServiceUser apigeeServiceUser =
+		// apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(),
+		// cfg.getType());
+		// cfg.setApigeeEmail(apigeeServiceUser.getUserName());
+		// cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
+		// cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(),
+		// cfg.getType()));
 		downloadBackup1(cfg);
 		File apiproxiesDir = null;
 		if (cfg.getOldOrg() != null) {
@@ -2212,7 +2430,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 						String deployedRev = null;
 						try {
 							cfg.setRevision(i);
-							apigeeUtil.importApiProxy(cfg, revision);
+							String response = apigeeUtil.importApiProxy(cfg, revision);
 							List<com.itorix.apiwiz.data.management.model.mappers.Environment> environments = proxyInfo
 									.getEnvironments();
 							for (com.itorix.apiwiz.data.management.model.mappers.Environment e : environments) {
@@ -2244,6 +2462,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 
 						} catch (IOException e) {
 							log.error("Exception occurred", e);
+						} catch (Exception e) {
+							log.error("Exception occurred", e);
 						}
 					}
 					APIProxyDeploymentDetailsResponse deploymentsRes = apigeeUtil.getAPIProxyDeploymentDetails(cfg);
@@ -2265,6 +2485,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 
 				} catch (IOException e) {
 					log.error("Exception occurred", e);
+				} catch (Exception e) {
+					log.error("Exception occurred", e);
 				}
 			}
 
@@ -2276,10 +2498,13 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		logger.debug("OrganizationDataMigrationService.restoreSharedflows1 : interactionid=" + cfg.getInteractionid()
 				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
 				+ cfg);
-		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
-		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
-		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
-		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
+		// ApigeeServiceUser apigeeServiceUser =
+		// apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(),
+		// cfg.getType());
+		// cfg.setApigeeEmail(apigeeServiceUser.getUserName());
+		// cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
+		// cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(),
+		// cfg.getType()));
 		downloadBackup1(cfg);
 		File sharedflowsDir = null;
 		if (cfg.getOldOrg() != null) {
@@ -2306,6 +2531,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 						String deployedRev = null;
 						try {
 							cfg.setRevision(i);
+							System.out.println(i);
 							apigeeUtil.importSharedflows(cfg, revision);
 							List<com.itorix.apiwiz.data.management.model.mappers.Environment> environments = proxyInfo
 									.getEnvironments();
@@ -2361,6 +2587,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 					}
 				} catch (IOException e) {
 					log.error("Exception occurred", e);
+				} catch (Exception e) {
+					log.error("Exception occurred", e);
 				}
 			}
 
@@ -2414,9 +2642,11 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		logger.debug("OrganizationDataMigrationService.restoreAPP : interactionid=" + cfg.getInteractionid()
 				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
 				+ cfg);
-		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
-		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
-		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
+		// ApigeeServiceUser apigeeServiceUser =
+		// apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(),
+		// cfg.getType());
+		// cfg.setApigeeEmail(apigeeServiceUser.getUserName());
+		// cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
 		downloadBackup1(cfg);
 		File backupLocation = null;
@@ -2445,9 +2675,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 					if (appBackup.containsKey("developerId")) {
 						final String developerId = appBackup.getString("developerId");
 						developerEmail = developersMap.get(developerId);
-
 					} else {
-
 						developerEmail = developersMap.get("default");
 					}
 
@@ -2468,10 +2696,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 					cfg.setDeveloperEmail(finalDeveloperEmail);
 
 					String name = appBackup.getString("name").replace(" ", "%20"); // (URLEncoder.encode(appBackup.getString("name"),"ISO-8859-1"").replace("+",
-					cfg.setAppName(name); // "%20"));
+					cfg.setAppName(name);
 
-					// logger.debug("Creating App with:" +
-					// request.toString());
 					String appCreatedString = apigeeUtil.postDeveloperApps(cfg, request.toString());
 					logger.debug("Sleeping for delay due to management Server-- Do Delete new App." + request.toString()
 							+ "AppName" + name);
@@ -2581,9 +2807,11 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		logger.debug("OrganizationDataMigrationService.restoreAPIProducts : interactionid=" + cfg.getInteractionid()
 				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
 				+ cfg);
-		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(), cfg.getType());
-		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
-		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
+		// ApigeeServiceUser apigeeServiceUser =
+		// apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(),
+		// cfg.getType());
+		// cfg.setApigeeEmail(apigeeServiceUser.getUserName());
+		// cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
 		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
 		downloadBackup1(cfg);
 		File backupLocation = null;
@@ -2599,14 +2827,13 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 					continue;
 				String js = "";
 				String str = "";
-
 				BufferedReader br = null;
 				String sCurrentLine;
 				br = new BufferedReader(new FileReader(apiProduct));
 				while ((sCurrentLine = br.readLine()) != null) {
 					str += sCurrentLine;
 				}
-
+				br.close();
 				if (null != cfg.getNewOrg() && cfg.getNewOrg().length() > 0) {
 					String environment = cfg.getNewEnv();
 					try {
@@ -2622,19 +2849,16 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 						apigeeUtil.createApiProduct(cfg);
 
 					} catch (Exception e) {
-						logger.error(e.getMessage());
+						logger.error(e.getMessage(), e);
 						throw e;
 					}
 				} else {
-
 					cfg.setApiProduct(str);
 					apigeeUtil.createApiProduct(cfg);
 					logger.debug("Adding a delay in POST API Calls.--");
 					// Thread.sleep(150000);
-
 				}
 			}
-
 		return "Success";
 	}
 
@@ -2763,6 +2987,40 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		restoreResource(cfg);
 		restoreSharedflows1(cfg);
 		restoreAPIProxies1(cfg);
+		restoreAPIProducts(cfg);
+		restoreAppDevelopers(cfg);
+		restoreAPP(cfg);
+		long end = System.currentTimeMillis();
+		long backupTimeTaken = (end - start) / 1000l;
+		logger.debug("Total Time Taken: (sec): " + backupTimeTaken);
+		consoleInfo.setTimeTaken(backupTimeTaken);
+		consoleInfo.setStatus(Constants.STATUS_COMPLETED);
+		consoleInfo = baseRepository.save(consoleInfo);
+		backupInfo = consoleInfo;
+		return backupInfo;
+	}
+
+	public BackupInfo migrateOrganization(CommonConfiguration cfg, String id) throws Exception {
+		logger.debug("OrganizationDataMigrationService.restoreOrganization : interactionid=" + cfg.getInteractionid()
+				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
+				+ cfg);
+		BackupInfo backupInfo = null;
+		long start = System.currentTimeMillis();
+		OrgBackUpInfo consoleInfo;
+		if (id != null) {
+			consoleInfo = baseRepository.findById(id, OrgBackUpInfo.class);
+		} else
+			consoleInfo = new OrgBackUpInfo();
+
+		consoleInfo.setOrganization(cfg.getOrganization());
+		consoleInfo.setStatus(Constants.STATUS_INPROGRESS);
+		consoleInfo.setOperationId(cfg.getOperationId());
+		consoleInfo = baseRepository.save(consoleInfo);
+		restoreResource1(cfg);
+		restoreSharedflows1(cfg);
+		deploySharedflows(cfg);
+		restoreAPIProxies1(cfg);
+		deployProxies(cfg);
 		restoreAPIProducts(cfg);
 		restoreAppDevelopers(cfg);
 		restoreAPP(cfg);
@@ -2913,6 +3171,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		headers.add("JSESSIONID", cfg.getJsessionId());
 
 		HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
 		ResponseEntity<byte[]> response = restTemplate.exchange(cfg.getArtifatURL(), HttpMethod.GET, requestEntity,
 				byte[].class);
 
@@ -3077,11 +3336,11 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	public CommonConfiguration deleteBackUp(CommonConfiguration cfg, String oid, String sys) throws IOException {
 		switch (sys) {
 			case Constants.APIGEE_BACKUP_ORG :
-				logger.debug("Deleting OrgBackUpInfo");
+				logger.debug("Deleting OrgBackUpInfo of {}", oid);
 				baseRepository.delete(OrgBackUpInfo.LABEL_FILE_OID, oid, OrgBackUpInfo.class);
 				break;
 			case Constants.APIGEE_BACKUP_ORG_APIPROXY :
-				logger.debug("Deleting ProxyBackUpInfo");
+				logger.debug("Deleting ProxyBackUpInfo of {}", oid);
 				baseRepository.delete(ProxyBackUpInfo.LABEL_FILE_OID, oid, ProxyBackUpInfo.class);
 				break;
 			/*
@@ -3090,7 +3349,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			 * oid, ProxyRevisionBackUpInfo.class); break;
 			 */
 			case Constants.APIGEE_BACKUP_ORG_PRODUCT :
-				logger.debug("Deleting ProductsBackUpInfo");
+				logger.debug("Deleting ProductsBackUpInfo of {}", oid);
 				baseRepository.delete(ProductsBackUpInfo.LABEL_FILE_OID, oid, ProductsBackUpInfo.class);
 				break;
 			case Constants.APIGEE_BACKUP_ORG_RESOURCE :
@@ -3102,7 +3361,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 				baseRepository.delete(ResourceBackUpInfo.LABEL_FILE_OID, oid, ResourceBackUpInfo.class);
 				break;
 			case Constants.APIGEE_ENVIRONMENT_BACKUP :
-				logger.debug("Deleting EnvironmentBackUpInfo");
+				logger.debug("Deleting EnvironmentBackUpInfo of {}", oid);
 				baseRepository.delete(EnvironmentBackUpInfo.LABEL_FILE_OID, oid, EnvironmentBackUpInfo.class);
 				break;
 		}
@@ -3110,27 +3369,18 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		return cfg;
 	}
 
-	// /**
 	public ApigeeOrganizationalVO apigeeOrganizationalView(CommonConfiguration cfg, boolean refresh)
 			throws ItorixException, JsonProcessingException, IOException {
 		ApigeeOrganizationalVO vo = new ApigeeOrganizationalVO();
 		if (refresh) {
 			vo.setType(cfg.getType());
 			ObjectMapper mapper = new ObjectMapper();
-			// Apigee apigee =
-			// commonServices.getApigeeCredential(cfg.getJsessionId());
-			// if(apigee == null)
-			// { throw new
-			// ItorixException(ErrorCodes.errorMessage.get("Apigee-1007"),"Apigee-1007");
-			// }
 			long start = System.currentTimeMillis();
 			if (cfg.getBackUpLocation() == null || cfg.getBackUpLocation() == "") {
 				cfg.setBackUpLocation(applicationProperties.getBackupDir() + start);
 			}
 			final File backupLocation = new File(getBaseBackupDirectory(false, cfg), "apiproxies");
 			backupLocation.mkdirs();
-			// cfg.setApigeeEmail(apigee.getUserName());
-			// cfg.setApigeePassword(apigee.getDecryptedPassword());
 			cfg.setExpand(true);
 			vo.setName(cfg.getOrganization());
 			List<com.itorix.apiwiz.data.management.model.overview.Environment> environmentList = new ArrayList<>();
@@ -3146,34 +3396,45 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 						cfg.setEnvironment(environment);
 						String deployedProxies = getAPIsDeployedToEnvironment(cfg.getJsessionId(),
 								cfg.getOrganization(), cfg.getEnvironment(), cfg.getInteractionid(), cfg.getType());
-						log.info(deployedProxies);
+						// System.out.println(deployedProxies);
 						List<String> proxyList = apigeeUtil.listAPIProxies(cfg);
 						JsonNode proxyResponseNode = mapper.readTree(deployedProxies).get("aPIProxy");
 						List<Proxies> proxiesList = new ArrayList<>();
 						for (String proxyName : proxyList) {
 							String revison = "";
-							List<Products> productsList = new ArrayList<>();
-							// String proxyName= proxyNode.get("name").asText();
-							JsonNode revisonsNode = proxyResponseNode.get("revision");
-							// JsonNode revisonsNode =
-							// proxyNode.get("revision");
-							if (revisonsNode != null && revisonsNode.isArray()) {
-								for (final JsonNode revisonNode : revisonsNode) {
-									revison = revisonNode.get("name").asText();
-								}
-							}
-
 							cfg.setApiName(proxyName);
-							APIProxyDeploymentDetailsResponse aPIProxyDeploymentDetailsResponse = apigeeUtil
-									.getAPIProxyDeploymentDetails(cfg);
-							Environment[] environmentArray = aPIProxyDeploymentDetailsResponse.getEnvironment();
-							if (environmentArray != null && environmentArray.length > 0) {
-								for (Environment en : environmentArray) {
-									if (environment.equals(en.getName())) {
-										Revision[] revisionArray = en.getRevision();
-										if (revisionArray != null && revisionArray.length > 0) {
-											for (Revision re : revisionArray) {
-												revison = re.getName();
+							if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+								String deployments = apigeeUtil.getApigeexAPIDeployment(cfg);
+								JSONObject deployedNodes = (JSONObject) JSONSerializer.toJSON(deployments);
+								if (ObjectUtils.isNotEmpty(deployedNodes.get("deployments"))) {
+									JSONArray envApis = (JSONArray) deployedNodes.get("deployments");
+									for (int j = 0; j < envApis.size(); j++) {
+										JSONObject apiProxyObject = (JSONObject) envApis.get(j);
+										String envStr = (String) apiProxyObject.get("environment");
+										if (envStr.equals(environment))
+											revison = (String) apiProxyObject.get("revision");
+									}
+								}
+							} else {
+								// List<Products> productsList = new
+								// ArrayList<>();
+								JsonNode revisonsNode = proxyResponseNode.get("revision");
+								if (revisonsNode != null && revisonsNode.isArray()) {
+									for (final JsonNode revisonNode : revisonsNode) {
+										revison = revisonNode.get("name").asText();
+									}
+								}
+								APIProxyDeploymentDetailsResponse aPIProxyDeploymentDetailsResponse = apigeeUtil
+										.getAPIProxyDeploymentDetails(cfg);
+								Environment[] environmentArray = aPIProxyDeploymentDetailsResponse.getEnvironment();
+								if (environmentArray != null && environmentArray.length > 0) {
+									for (Environment en : environmentArray) {
+										if (environment.equals(en.getName())) {
+											Revision[] revisionArray = en.getRevision();
+											if (revisionArray != null && revisionArray.length > 0) {
+												for (Revision re : revisionArray) {
+													revison = re.getName();
+												}
 											}
 										}
 									}
@@ -3203,7 +3464,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 										app.setDevelopers(developerList);
 										apps.add(app);
 									}
-									p.setApps(apps);
+									if (!CollectionUtils.isEmpty(apps))
+										p.setApps(apps);
 									products.add(p);
 								}
 								pro.setProducts(products);
@@ -3217,14 +3479,18 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 											revisionBundle);
 									ZipUtil.unpack(new File(versionFile.getAbsolutePath() + ".zip"),
 											new File(versionFile.getAbsolutePath()));
-									ProxyArtifacts proxyArtifacts = ProcessProxyArtifacts.processArtifacts(
+									Proxies proxyArtifacts = ProcessProxyArtifacts.processArtifacts(
 											versionFile.getAbsolutePath() + File.separator + "apiproxy");
 									FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
 									FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
 									if (proxyArtifacts != null) {
-										pro.setCache(proxyArtifacts.getCaches());
-										pro.setKvm(proxyArtifacts.getKvms());
-										pro.setTargetservers(proxyArtifacts.getTargetServers());
+										pro.setCache(proxyArtifacts.getCache());
+										pro.setKvm(proxyArtifacts.getKvm());
+										pro.setPaths(proxyArtifacts.getPaths());
+										pro.setTargetservers(getTargetURL(proxyArtifacts.getTargetservers(), cfg));
+										pro.setProxyPolicies(proxyArtifacts.getProxyPolicies());
+										pro.setTargetPolicies(proxyArtifacts.getTargetPolicies());
+										pro.setBasePath(proxyArtifacts.getBasePath());
 									}
 								} catch (Exception e) {
 									logger.error(e.getMessage(), e);
@@ -3232,7 +3498,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 								proxiesList.add(pro);
 							}
 						}
+						List<Sharedflow> sharedFlows = getSharedflowDetails(cfg, environment);
 						env.setProxies(proxiesList);
+						env.setSharedFlows(sharedFlows);
 						environmentList.add(env);
 					}
 				}
@@ -3252,7 +3520,77 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		}
 		return vo;
 	}
-	// **/
+
+	private List<Targetserver> getTargetURL(List<Targetserver> targets, CommonConfiguration cfg) throws ItorixException{
+		for(Targetserver target : targets) {
+			if(target.getName() != null) {
+				cfg.setTargetServerName(target.getName());
+				String targetStr = apigeeUtil.getTargetServer(cfg);
+				JSONObject targetServer = (JSONObject) JSONSerializer.toJSON(targetStr);
+				if (ObjectUtils.isNotEmpty(targetServer.get("host"))) {
+					String host = (String) targetServer.get("host");
+					Integer port = (Integer) targetServer.get("port");
+					String protocol = "http";
+					if (ObjectUtils.isNotEmpty(targetServer.get("sSLInfo"))) 
+						protocol = "https";
+					String url = protocol + "://" + host +":" + port;
+					target.setUrl(url);
+					
+				}
+			}
+		}
+		return targets;
+	}
+
+	private List<Sharedflow> getSharedflowDetails(CommonConfiguration cfg, String environment) throws ItorixException {
+
+		List<String> sharedFlows = apigeeUtil.listSharedflows(cfg);
+		List<Sharedflow> sharedFlowList = new ArrayList<>();
+		for (String sharedflowStr : sharedFlows) {
+			String revison = "";
+			Sharedflow sharedflow = new Sharedflow();
+			cfg.setApiName(sharedflowStr);
+			sharedflow.setName(sharedflowStr);
+			if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+				String deployments = apigeeUtil.getApigeexSharedflowDeployment(cfg);
+				JSONObject deployedNodes = (JSONObject) JSONSerializer.toJSON(deployments);
+				if (ObjectUtils.isNotEmpty(deployedNodes.get("deployments"))) {
+					JSONArray envApis = (JSONArray) deployedNodes.get("deployments");
+					for (int j = 0; j < envApis.size(); j++) {
+						JSONObject apiProxyObject = (JSONObject) envApis.get(j);
+						String envStr = (String) apiProxyObject.get("environment");
+						if (envStr.equals(environment))
+							revison = (String) apiProxyObject.get("revision");
+					}
+				}
+			} else {
+				String deployments = apigeeUtil.getSharedflowDeploymentDetails(cfg);
+				JSONObject deployedNodes = (JSONObject) JSONSerializer.toJSON(deployments);
+				if (ObjectUtils.isNotEmpty(deployedNodes.get("environment"))) {
+					JSONArray envApis = (JSONArray) deployedNodes.get("environment");
+					for (Object apiObj : envApis) {
+						JSONObject envObj = (JSONObject) apiObj;
+						String envName = (String) envObj.get("name");
+						if (envName.equals(environment)) {
+							JSONArray revisions = (JSONArray) envObj.get("revision");
+							for (Object rev : revisions) {
+								JSONObject revisionObj = (JSONObject) rev;
+								revison = (String) revisionObj.get("name");
+								break;
+							}
+						}
+					}
+				}
+			}
+			if (revison.length() > 0) {
+				sharedflow.setRevision(revison);
+
+			}
+			sharedFlowList.add(sharedflow);
+
+		}
+		return sharedFlowList;
+	}
 
 	private List<String> filterMappedProductsForEachProxy(JsonNode apiProductsResponseNode, String proxyName) {
 		List<String> list = new ArrayList<>();
@@ -3312,7 +3650,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 				if (developersArrayNode.isArray()) {
 					for (final JsonNode developerNode : developersArrayNode) {
 						JsonNode appsNode = developerNode.get("apps");
-						if (appsNode.isArray()) {
+						if (appsNode != null && appsNode.isArray()) {
 							for (JsonNode appNode : appsNode) {
 								if (appNode.asText().equals(appName)) {
 									list.add(developerNode.get("email").asText());
@@ -3351,9 +3689,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 					JsonNode targetObject = mapper.createObjectNode();
 					((ObjectNode) targetObject).put("name", "TargetServers");
 					ArrayNode targetArray = mapper.createArrayNode();
-					for (String s : pro.getTargetservers()) {
+					for (Targetserver s : pro.getTargetservers()) {
 						JsonNode eachTargetObject = mapper.createObjectNode();
-						((ObjectNode) eachTargetObject).put("name", s);
+						((ObjectNode) eachTargetObject).put("name", s.getName());
 						targetArray.add(eachTargetObject);
 					}
 					((ObjectNode) targetObject).putArray("children").addAll(targetArray);
