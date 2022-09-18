@@ -42,7 +42,7 @@ public class IntegrationsDataDao {
 	public void updateIntegratoin(Integration integration) {
 		List<Integration> dbIntegrationList = getIntegration(integration.getType());
 		if (dbIntegrationList != null && dbIntegrationList.size() > 0) {
-			log.debug("Updating Integration");
+			log.debug("Updating Integration ");
 			Integration dbIntegration = dbIntegrationList.get(0);
 			if (integration.getType().equalsIgnoreCase("JFROG"))
 				dbIntegration.setJfrogIntegration(integration.getJfrogIntegration());
@@ -147,6 +147,7 @@ public class IntegrationsDataDao {
 
 	public Object getMetaData() {
 		Query query = new Query().addCriteria(Criteria.where("key").is("workspace"));
+		log.debug("Retrieving query to find metadata by ID");
 		MetaData metaData = masterMongoTemplate.findOne(query, MetaData.class);
 		if (metaData != null)
 			return metaData.getMetadata();

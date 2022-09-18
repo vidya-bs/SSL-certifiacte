@@ -1115,10 +1115,14 @@ public class OrganizationServiceImpl implements OrganizationService {
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
 		BackupInfo backupInfo = null;
-		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(organization, type);
-		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
-		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
-		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
+		try {
+			ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(organization, type);
+			cfg.setApigeeEmail(apigeeServiceUser.getUserName());
+			cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
+			cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
+		} catch (Exception e) {
+
+		}
 		backupInfo = organizationBusiness.scheduleBackupOrganization(cfg);
 		return new ResponseEntity<BackupInfo>(backupInfo, HttpStatus.OK);
 	}
