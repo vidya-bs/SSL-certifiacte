@@ -9,6 +9,7 @@ public class Environment {
 	private String name;
 
 	private List<Proxies> proxies;
+	private List<Sharedflow> sharedFlows;
 
 	public String getName() {
 		return name;
@@ -29,5 +30,13 @@ public class Environment {
 	@Override
 	public String toString() {
 		return "ClassPojo [name = " + name + ", proxies = " + proxies + "]";
+	}
+
+	public List<Sharedflow> getSharedFlows() {
+		return sharedFlows;
+	}
+
+	public void setSharedFlows(List<Sharedflow> sharedFlows) {
+		this.sharedFlows = sharedFlows;
 	}
 }

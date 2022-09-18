@@ -6,23 +6,31 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Proxies {
-	private List<String> targetservers;
+	private List<Targetserver> targetservers;
 
 	private String revision;
 
 	private List<String> cache;
 
 	private String name;
+	
+	private String basePath;
+	
+	private List<Resources> paths;
 
 	private List<Products> products;
 
 	private List<String> kvm;
 
-	public List<String> getTargetservers() {
+	private List<Policy> proxyPolicies;
+
+	private List<Policy> targetPolicies;
+
+	public List<Targetserver> getTargetservers() {
 		return targetservers;
 	}
 
-	public void setTargetservers(List<String> targetservers) {
+	public void setTargetservers(List<Targetserver> targetservers) {
 		this.targetservers = targetservers;
 	}
 
@@ -70,5 +78,37 @@ public class Proxies {
 	public String toString() {
 		return "ClassPojo [targetservers = " + targetservers + ", revision = " + revision + ", cache = " + cache
 				+ ", name = " + name + ", products = " + products + ", kvm = " + kvm + "]";
+	}
+
+	public List<Policy> getTargetPolicies() {
+		return targetPolicies;
+	}
+
+	public void setTargetPolicies(List<Policy> targetPolicies) {
+		this.targetPolicies = targetPolicies;
+	}
+
+	public List<Policy> getProxyPolicies() {
+		return proxyPolicies;
+	}
+
+	public void setProxyPolicies(List<Policy> proxyPolicies) {
+		this.proxyPolicies = proxyPolicies;
+	}
+
+	public List<Resources> getPaths() {
+		return paths;
+	}
+
+	public void setPaths(List<Resources> paths) {
+		this.paths = paths;
+	}
+
+	public String getBasePath() {
+		return basePath;
+	}
+
+	public void setBasePath(String basePath) {
+		this.basePath = basePath;
 	}
 }
