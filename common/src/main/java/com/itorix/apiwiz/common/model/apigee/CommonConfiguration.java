@@ -31,8 +31,6 @@ public class CommonConfiguration {
 
 	private String artifactURL;
 
-	private String newOrg;
-
 	private String backUpLocation;
 
 	private Boolean isDepoyedOnly;
@@ -43,6 +41,7 @@ public class CommonConfiguration {
 	private String type;
 	private String oldOrg;
 	private String oldEnv;
+	private String oldOrgType;
 	private String operationId;
 	private String interactionid;
 
@@ -55,9 +54,9 @@ public class CommonConfiguration {
 	// private String apiProxyName;
 
 	private String revision;
-
+	private String newOrg;
 	private String newEnv;
-
+	private String newOrgType;
 	private String dir;
 
 	private String restoreFrom;
@@ -126,6 +125,8 @@ public class CommonConfiguration {
 	Set<String> developersToBackup;
 
 	private boolean expand;
+
+	private Mappings mappings;
 
 	public CommonConfiguration() {
 	}
@@ -741,5 +742,29 @@ public class CommonConfiguration {
 
 	public void setGwtype(String gwtype) {
 		this.gwtype = gwtype;
+	}
+
+	public String getOldOrgType() {
+		return oldOrgType;
+	}
+
+	public void setOldOrgType(String oldOrgType) {
+		this.oldOrgType = oldOrgType;
+	}
+
+	public String getNewOrgType() {
+		return newOrgType;
+	}
+
+	public void setNewOrgType(String newOrgType) {
+		this.newOrgType = newOrgType;
+	}
+
+	public Mappings getMappings() {
+		return mappings;
+	}
+
+	public void setMappings(Mappings mappings) {
+		this.mappings = mappings;
 	}
 }

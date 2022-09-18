@@ -96,7 +96,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 	ApigeeUtil apigeeUtil;
 
 	@Autowired
-	private IntegrationHelper integrationHelper;
+	IntegrationHelper integrationHelper;
 
 	@Qualifier("masterMongoTemplate")
 	@Autowired
@@ -216,9 +216,11 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		try {
 			String workspace = userSessionToken.getWorkspaceId();
 			StorageIntegration storageIntegration = integrationHelper.getIntegration();
-			downloadURI = storageIntegration.uploadFile(workspace + "/codecoverage/"+ timeStamp + "/" + cfg.getOrganization() + "-" + cfg.getEnvironment() + "-" + cfg.getApiName() + ".zip",zipFileName);
+			downloadURI = storageIntegration.uploadFile(workspace + "/codecoverage/" + timeStamp + "/"
+					+ cfg.getOrganization() + "-" + cfg.getEnvironment() + "-" + cfg.getApiName() + ".zip",
+					zipFileName);
 		} catch (Exception e) {
-			logger.error("Error Storing file in Artifactory : ",e);
+			logger.error("Error Storing file in Artifactory : ", e);
 		}
 
 		// try {
@@ -231,7 +233,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		// applicationProperties.getJfrogPassword());
 		// } catch (Exception e) {
 		// logger.error(e.getMessage());
-		// log.error("Exception occurred",e)();
+		// e.printStackTrace();
 		// throw e;
 		// }
 		// TODO We need to delete the hard copy of zipFileName
@@ -1399,9 +1401,32 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		try {
 			String workspace = userSessionToken.getWorkspaceId();
 			StorageIntegration storageIntegration = integrationHelper.getIntegration();
-			downloadURI = storageIntegration.uploadFile(workspace + "/codecoverage/" + cfg.getOrganization() + "-" + cfg.getEnvironment() + "-" + cfg.getApiName() + ".zip", zipFileName);
+			downloadURI = storageIntegration.uploadFile(workspace + "/codecoverage/" + cfg.getOrganization() + "-"
+					+ cfg.getEnvironment() + "-" + cfg.getApiName() + ".zip", zipFileName);
+			/*
+			 * S3Integration s3Integration = s3Connection.getS3Integration(); if
+			 * (null != s3Integration) { String workspace =
+			 * userSessionToken.getWorkspaceId(); downloadURI =
+			 * s3Utils.uplaodFile(s3Integration.getKey(),
+			 * s3Integration.getDecryptedSecret(),
+			 * Regions.fromName(s3Integration.getRegion()),
+			 * s3Integration.getBucketName(), workspace + "/codecoverage/" +
+			 * cfg.getOrganization() + "-" + cfg.getEnvironment() + "-" +
+			 * cfg.getApiName() + ".zip", zipFileName);
+			 * 
+			 * } else { org.json.JSONObject obj =
+			 * jfrogUtilImpl.uploadFiles(zipFileName,
+			 * applicationProperties.getPipelineCodecoverage(),
+			 * applicationProperties.getJfrogHost() + ":" +
+			 * applicationProperties.getJfrogPort() + "/artifactory/",
+			 * "codecoverage-pipeline/" + codeCoverageVO.getProxy() + "/" +
+			 * timeStamp + "", applicationProperties.getJfrogUserName(),
+			 * applicationProperties.getJfrogPassword()); downloadURI =
+			 * obj.getString("downloadURI"); }
+			 * 
+			 */
 		} catch (Exception e) {
-			logger.error("Error Storing file in Artifactory : " ,e);
+			logger.error("Error Storing file in Artifactory : ", e);
 		}
 		// TODO We need to delete the hard copy of zipFileName
 		long end = System.currentTimeMillis();
@@ -1434,6 +1459,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		// UserSession userSessionToken =
 		// baseRepository.findById(jsessionid,UserSession.class);
+		logger.debug("Find user using {}-userSessionToken", userSessionToken.getUserId());
 		User user = masterMongoTemplate.findById(userSessionToken.getUserId(), User.class);
 		return user;
 	}
@@ -1541,7 +1567,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 	 * " step 8: delete session ::" + sessionStatus); // step 9: execute xslt
 	 * try { executeXslts(applicationProperties.getMonitorDir() + timeStamp +
 	 * "/"); } catch (TransformerException e) { logger.error(e.getMessage());
-	 * log.error("Exception occurred",e)(); throw e; }
+	 * e.printStackTrace(); throw e; }
 	 *
 	 * // step 10: copy supporting files File bootStrap = new
 	 * ClassPathResource("bootstrap.min.css").getFile(); String fileName =
