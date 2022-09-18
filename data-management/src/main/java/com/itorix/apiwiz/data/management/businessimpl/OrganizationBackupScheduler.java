@@ -45,7 +45,6 @@ public class OrganizationBackupScheduler {
 					backupEvent.setStatus(Constants.STATUS_PROCESSED);
 					mongoTemplate.save(backupEvent);
 					if (backupEvent != null) {
-						log.debug("Backing up details of organization business");
 						switch (backupEvent.getEvent().toUpperCase()) {
 							case "BACKUPPROXIES" : {
 								organizationBusiness.backupProxies(backupEvent.getCfg(), backupEvent.getEventId());
@@ -120,6 +119,12 @@ public class OrganizationBackupScheduler {
 								organizationBusiness.restoreResources(backupEvent.getCfg(), backupEvent.getEventId());
 								break;
 							}
+							case "MIGRATEORGANIZATION" : {
+								organizationBusiness.migrateOrganization(backupEvent.getCfg(),
+										backupEvent.getEventId());
+								break;
+							}
+
 						}
 					}
 				}
