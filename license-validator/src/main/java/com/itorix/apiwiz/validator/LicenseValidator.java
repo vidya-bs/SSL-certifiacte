@@ -149,6 +149,7 @@ public class LicenseValidator {
     }
   }
 
+
   public boolean ScheduledIsLicenseExpired(String expiryDate) throws ParseException {
     log.info("Checking license expiry date {} ", expiryDate);
     OffsetDateTime expiry = OffsetDateTime.parse(expiryDate, getDateFormatter());
