@@ -27,8 +27,6 @@ import java.lang.Thread;
 
 @Slf4j
 @Component
-@Getter
-@Setter
 //@ConditionalOnProperty(prefix = "license", name = "check", havingValue = "true")
 @EnableAsync
 public class LicenseValidator {
@@ -129,7 +127,7 @@ public class LicenseValidator {
   private void scheduledValidateLicense()
       throws GeneralSecurityException, IOException, ParseException, InterruptedException {
     if (licenseToken == null || licenseToken.isEmpty()) {
-      log.info("License token is empty.Exiting the application {}");
+      log.debug("License token is empty.Exiting the application {}");
       Thread.sleep(2000);
       System.exit(0);
     }
@@ -155,7 +153,7 @@ public class LicenseValidator {
     OffsetDateTime expiry = OffsetDateTime.parse(expiryDate, getDateFormatter());
     ZonedDateTime now = ZonedDateTime.now(Clock.systemUTC());
     if (expiry.toInstant().isBefore(now.toInstant())) {
-      log.info("License is exprired Exiting application {}",expiryDate);
+      log.debug("License is exprired Exiting application {}",expiryDate);
       return true;
     }
     return false;
@@ -167,7 +165,7 @@ public class LicenseValidator {
     if (!appName.isEmpty() && !components.contains(appName)) {
       return true;
     } else if (appName.isEmpty() && !components.contains(applicationName)) {
-      log.info("Components not allowed.Exiting application {}",components);
+      log.debug("Components not allowed.Exiting application {}",components);
       return true;
     }
     return false;
