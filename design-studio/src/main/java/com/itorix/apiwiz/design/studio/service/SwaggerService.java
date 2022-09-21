@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiResponses;
 import io.swagger.generator.model.ResponseCode;
 import io.swagger.models.Swagger;
 import java.util.Map;
+import javax.ws.rs.PathParam;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -1378,5 +1379,20 @@ public interface SwaggerService {
 			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas)
 			throws ItorixException;
+
+	@ApiOperation(value = "Get Swagger Revisions for pages", notes = "")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Ok", response = Revision.class, responseContainer = "List"),
+			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@GetMapping(value = "/v1/swaggers/{swaggerid}/revisions/page", produces = {
+			MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<List<Revision>> getListOfRevisionsPageWise(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathParam(value = "page") String page,
+			@RequestHeader(value = "oas", required = false) String oas,
+			@PathVariable("swaggerid") String swaggerId)
+			throws Exception;
 
 }
