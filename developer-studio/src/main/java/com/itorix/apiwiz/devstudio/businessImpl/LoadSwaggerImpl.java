@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.proxystudio.*;
 import com.itorix.apiwiz.devstudio.business.LoadSwagger;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.MongoCollection;
+
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -14,9 +17,11 @@ import io.swagger.v3.parser.core.models.ParseOptions;
 import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 import java.net.MalformedURLException;
@@ -29,7 +34,7 @@ import java.util.regex.Pattern;
 public class LoadSwaggerImpl implements LoadSwagger {
 	
 	@Autowired
-	private CodeGenService codeGenService;
+	private MongoTemplate mongoTemplate;
 
 
 	@Override
@@ -104,7 +109,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 							}
 							flow.setPath(path);
 							flow.setVerb(methodType.toUpperCase());
-							flow.setPolicyTemplates(codeGenService.getCategories(true));
+							flow.setPolicyTemplates(getCategories(true));
 							String summary = null;
 							try {
 								summary = js.get("summary").toString();
@@ -176,6 +181,38 @@ public class LoadSwaggerImpl implements LoadSwagger {
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper.writeValueAsString(proxy).toString();
 	}
+	
+	public List<Category> getCategories(boolean applyToFlow) throws ItorixException {
+		try {
+			List<Category> categories = null;
+			MongoCollection<Document> collection = mongoTemplate.getCollection("Connectors.Apigee.Policy.Templates");
+			List<Document> aggrigationList = new ArrayList<>();
+			List<Object> conditions = new ArrayList<>();
+			conditions.add("$$policies.applyToFlow");
+			conditions.add(applyToFlow);
+			Document matchDoc = new Document("$match", new Document("policies.applyToFlow", applyToFlow));
+			Document projectDoc = new Document("$project",new Document("_id", 0)
+					.append("name", "$name")
+					.append("type", "$type")
+					.append("description", "$description")
+					.append("policies",new Document("$filter",new Document("input","$policies").append("as", "policies").append("cond", new Document("$eq",conditions))))
+					);
+			aggrigationList.add(matchDoc);
+			aggrigationList.add(projectDoc);
+			AggregateIterable<Document> doc = collection.aggregate(aggrigationList);
+			ObjectMapper mapper = new ObjectMapper();
+			for (Document doc1 : doc) {
+				if(categories == null)
+					categories = new ArrayList<>();
+				Category category = mapper.readValue(doc1.toJson(), Category.class);
+				categories.add(category);
+			}
+			return categories;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			throw new ItorixException(ex.getMessage(), "ProxyGen-1000", ex);
+		}
+	}
 
 
 	private List<Flow> getFlows(PathItem item, String path) throws ItorixException {
@@ -191,7 +228,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 			flow.setName(get.getOperationId());
 			flow.setPath(path);
 			flow.setVerb("GET");
-			flow.setPolicyTemplates(codeGenService.getCategories(true));
+			flow.setPolicyTemplates(getCategories(true));
 			flow.setDescription(get.getSummary());
 			if (!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 				flowList.add(flow);
@@ -202,7 +239,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 			flow.setName(put.getOperationId());
 			flow.setPath(path);
 			flow.setVerb("PUT");
-			flow.setPolicyTemplates(codeGenService.getCategories(true));
+			flow.setPolicyTemplates(getCategories(true));
 			flow.setDescription(put.getSummary());
 			if (!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 				flowList.add(flow);
@@ -213,7 +250,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 			flow.setName(post.getOperationId());
 			flow.setPath(path);
 			flow.setVerb("POST");
-			flow.setPolicyTemplates(codeGenService.getCategories(true));
+			flow.setPolicyTemplates(getCategories(true));
 			flow.setDescription(post.getSummary());
 			if (!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 				flowList.add(flow);
@@ -224,7 +261,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 			flow.setName(delete.getOperationId());
 			flow.setPath(path);
 			flow.setVerb("DELETE");
-			flow.setPolicyTemplates(codeGenService.getCategories(true));
+			flow.setPolicyTemplates(getCategories(true));
 			flow.setDescription(delete.getSummary());
 			if (!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 				flowList.add(flow);
@@ -235,7 +272,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 			flow.setName(patch.getOperationId());
 			flow.setPath(path);
 			flow.setVerb("PATCH");
-			flow.setPolicyTemplates(codeGenService.getCategories(true));
+			flow.setPolicyTemplates(getCategories(true));
 			flow.setDescription(patch.getSummary());
 			if (!flow.getPath().isEmpty() && !flow.getVerb().isEmpty())
 				flowList.add(flow);
@@ -292,7 +329,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 							}
 							flow.setPath(path);
 							flow.setVerb(methodType.toUpperCase());
-							flow.setPolicyTemplates(codeGenService.getCategories(true));
+							flow.setPolicyTemplates(getCategories(true));
 							String summary = null;
 							try {
 								summary = js.get("summary").toString();
@@ -334,6 +371,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 							}
 
 						} catch (Exception e) {
+							e.printStackTrace();
 						}
 
 						if (flow.getPath() != null && flow.getVerb() != null)
@@ -446,7 +484,7 @@ public class LoadSwaggerImpl implements LoadSwagger {
 							}
 							flow.setPath(path);
 							flow.setVerb(methodType.toUpperCase());
-							flow.setPolicyTemplates(codeGenService.getCategories(true));
+							flow.setPolicyTemplates(getCategories(true));
 							String description = null;
 							try {
 								description = js.get("summary").toString();

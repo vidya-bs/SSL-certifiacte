@@ -161,6 +161,9 @@ public class CodeGenService {
 	private IdentityManagementDao identityManagementDao;
 	@Autowired
 	private ServiceRequestDao serviceRequestDao;
+	@Autowired
+	private  LoadSwaggerImpl swagger ;
+	
 
 	public String uploadTemplates(MultipartFile file) {
 		String zipLocation = applicationProperties.getTempDir() + "unzip";
@@ -1169,7 +1172,7 @@ public class CodeGenService {
 			String proxyString = null;
 			if (operations.getType().equalsIgnoreCase("swagger")) {
 				try {
-					LoadSwagger swagger = new LoadSwaggerImpl();
+					//LoadSwagger swagger = new LoadSwaggerImpl();
 					proxyString = swagger.loadProxySwaggerDetails(content, oas);
 				} catch (Exception e) {
 					log.error("Exception occurred", e);
@@ -1228,7 +1231,7 @@ public class CodeGenService {
 			}
 			String proxyString = "";
 			if (operations.getType().equalsIgnoreCase("swagger")) {
-				LoadSwagger swagger = new LoadSwaggerImpl();
+				//LoadSwagger swagger = new LoadSwaggerImpl();
 				proxyString = swagger.loadTargetSwaggerDetails(content, oas);
 			} else if (operations.getType().equalsIgnoreCase("WADL")) {
 				LoadWADL wadl = new LoadWADLImpl();
