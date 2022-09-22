@@ -40,14 +40,14 @@ public class BlogsDao {
       Boolean isCaseStudy,BlogStatus status) {
 
     BlogResponseOverview overview=new BlogResponseOverview();
-    Query query=new Query().with(Sort.by(Sort.Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+    Query query=new Query().with(Sort.by(Sort.Direction.DESC, "cts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
     List<Blog> blogs;
     blogs = masterMongoTemplate.find(query, Blog.class);
     if(blogs.isEmpty()){
       return null;
     }
 
-    Query query2 = new Query().with(Sort.by(Sort.Direction.DESC, "mts"));
+    Query query2 = new Query().with(Sort.by(Sort.Direction.DESC, "cts"));
 
     if (null == isCaseStudy && null == status) {
       Long total = masterMongoTemplate.count(query2, Blog.class);
@@ -60,7 +60,7 @@ public class BlogsDao {
       return overview;
     }
 
-    Query query3=new Query().with(Sort.by(Sort.Direction.DESC, "mts"));
+    Query query3=new Query().with(Sort.by(Sort.Direction.DESC, "cts"));
 
 
     if(status!=null&&isCaseStudy==null){
