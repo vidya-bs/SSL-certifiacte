@@ -217,10 +217,9 @@ public interface SwaggerService {
 	 *
 	 * @param interactionid
 	 * @param jsessionid
+	 * @param page
 	 * @param swaggername
-	 *
 	 * @return
-	 *
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -234,6 +233,7 @@ public interface SwaggerService {
 	public ResponseEntity<List<Revision>> getListOfRevisions(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "page", required = false) String page,
 			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername)
 			throws Exception;
 
