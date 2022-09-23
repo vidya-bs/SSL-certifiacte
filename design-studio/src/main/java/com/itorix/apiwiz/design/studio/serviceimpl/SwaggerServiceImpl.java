@@ -49,6 +49,7 @@ import io.swagger.generator.online.Generator;
 import io.swagger.models.Swagger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -673,7 +674,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<List<Revision>> getListOfRevisions(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername)
+			String page,
+			@RequestHeader(value = "oas", required = false) String oas,
+			@PathVariable("swaggername") String swaggername)
 			throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
@@ -691,6 +694,18 @@ public class SwaggerServiceImpl implements SwaggerService {
 				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			list = swaggerBusiness.getListOf3Revisions(vo.getName(), interactionid);
+		}
+		if (StringUtils.equalsIgnoreCase("Virtualisation", page)||StringUtils.equalsIgnoreCase("TestSuite", page)) {
+			list = list.stream().filter(
+							revision -> (!StringUtils.equalsIgnoreCase("Deprecate", revision.getStatus())
+									&& !StringUtils.equalsIgnoreCase("Retired", revision.getStatus())))
+					.collect(Collectors.toList());
+		}
+		if (StringUtils.equalsIgnoreCase("Proxy", page)||StringUtils.equalsIgnoreCase("Kong", page)) {
+			list = list.stream().filter(
+							revision -> (StringUtils.equalsIgnoreCase("Approved", revision.getStatus())
+									|| StringUtils.equalsIgnoreCase("Publish", revision.getStatus())))
+					.collect(Collectors.toList());
 		}
 		return new ResponseEntity<List<Revision>>(list, HttpStatus.OK);
 	}
