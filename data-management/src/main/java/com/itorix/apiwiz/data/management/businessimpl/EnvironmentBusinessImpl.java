@@ -30,15 +30,16 @@ import org.springframework.stereotype.Service;
 import org.zeroturnaround.zip.ZipUtil;
 
 import com.amazonaws.regions.Regions;
+import com.itorix.apiwiz.common.factory.IntegrationHelper;
 import com.itorix.apiwiz.common.model.Constants;
 import com.itorix.apiwiz.common.model.apigee.ApigeeServiceUser;
 import com.itorix.apiwiz.common.model.apigee.CommonConfiguration;
-import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
 import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.service.GridFsRepository;
+import com.itorix.apiwiz.common.util.StorageIntegration;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
@@ -47,18 +48,31 @@ import com.itorix.apiwiz.common.util.json.JSONUtil;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.data.management.business.EnvironmentBusiness;
 import com.itorix.apiwiz.data.management.dao.IntegrationsDataDao;
-import com.itorix.apiwiz.data.management.model.BackupInfo;
-import com.itorix.apiwiz.data.management.model.EnvironmentBackUpInfo;
-import com.itorix.apiwiz.data.management.model.ProxyBackUpInfo;
-import com.itorix.apiwiz.data.management.model.ResourceBackUpInfo;
-import com.itorix.apiwiz.data.management.model.RestoreProxyInfo;
+import com.itorix.apiwiz.data.management.model.*;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
-import com.itorix.apiwiz.identitymanagement.model.User;
-import com.itorix.apiwiz.identitymanagement.model.UserSession;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Service;
+import org.zeroturnaround.zip.ZipUtil;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class EnvironmentBusinessImpl implements EnvironmentBusiness {
@@ -75,8 +89,15 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 	private IntegrationsDataDao integrationsDao;
 	@Autowired
 	private S3Utils s3Utils;
+
 	@Autowired
 	GridFsRepository gridFsRepository;
+
+	@Autowired
+	StorageIntegration storageIntegration;
+
+	@Autowired
+	IntegrationHelper integrationHelper;
 
 	@Autowired
 	ApplicationProperties applicationProperties;
@@ -113,7 +134,6 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 		org.json.JSONObject obj = null;
 		String downloadURI = "";
 		if (null != cfg.getSelectedEnvironments()) {
-			logger.debug("Performing environment backup");
 			environmentBackUpInfo.setOrganization(cfg.getOrganization());
 			environmentBackUpInfo.setStatus(Constants.STATUS_INPROGRESS);
 			environmentBackUpInfo.setOperationId(cfg.getOperationId());
@@ -127,32 +147,12 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 					new File(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"));
 
 			try {
-				JfrogIntegration jfrogIntegration = getJfrogIntegration();
-				S3Integration s3Integration = getS3Integration();
-				if (null != s3Integration) {
-					downloadURI = s3Utils
-							.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-									Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-									"restore-backup/" + cfg.getOrganization() + "/" + start + "/"
-											+ cfg.getOrganization() + ".zip",
-									cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
-				} else if (null != jfrogIntegration) {
-					obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-							applicationProperties.getDataRestoreBackup(),
-							jfrogIntegration.getHostURL() + "/artifactory/",
-							"restore-backup/" + cfg.getOrganization() + "/" + start + "",
-							jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
-					downloadURI = (String) obj.get("downloadURI");
-				}
-				// obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" +
-				// cfg.getOrganization() + ".zip",
-				// applicationProperties.getDataRestoreBackup(),
-				// applicationProperties.getJfrogHost() + ":" +
-				// applicationProperties.getJfrogPort()
-				// + "/artifactory/",
-				// "restore-backup/" + cfg.getOrganization() + "/" + start + "",
-				// applicationProperties.getJfrogUserName(),
-				// applicationProperties.getJfrogPassword());
+
+				StorageIntegration storageIntegration = integrationHelper.getIntegration();
+				downloadURI = storageIntegration.uploadFile(
+						"restore-backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
+						cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+
 			} catch (Exception e) {
 				log.error("Exception occurred", e);
 				throw e;
@@ -284,21 +284,14 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 		org.json.JSONObject obj = null;
 		String downloadURI = "";
 		try {
-			JfrogIntegration jfrogIntegration = getJfrogIntegration();
-			S3Integration s3Integration = getS3Integration();
-			if (null != s3Integration) {
-				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-						"restore-backup/" + proxyBackUpInfo.getOrganization() + "/" + start + "/"
-								+ cfg.getOrganization() + ".zip",
-						cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
-			} else if (null != jfrogIntegration) {
-				obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-						applicationProperties.getDataRestoreBackup(), jfrogIntegration.getHostURL() + "/artifactory/",
-						"restore-backup/" + proxyBackUpInfo.getOrganization() + "/" + start + "",
-						jfrogIntegration.getUsername(), jfrogIntegration.getPassword());
-				downloadURI = (String) obj.get("downloadURI");
-			}
+
+			StorageIntegration storageIntegration = integrationHelper.getIntegration();
+			downloadURI = storageIntegration
+					.uploadFile(
+							"restore-backup/" + proxyBackUpInfo.getOrganization() + "/" + start + "/"
+									+ cfg.getOrganization() + ".zip",
+							cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+
 		} catch (Exception e) {
 			log.error("Exception occurred", e);
 			throw e;
@@ -308,7 +301,7 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 		if (StringUtils.isNotEmpty(downloadURI)) {
 			long end = System.currentTimeMillis();
 			long backupTimeTaken = (end - start) / 1000l;
-			log.info("Total Time Taken: (sec): " + backupTimeTaken);
+			log.info("Total Time Taken: (sec): {}", backupTimeTaken);
 			proxyBackUpInfo.setJfrogUrl(downloadURI);
 			proxyBackUpInfo.setTimeTaken(backupTimeTaken);
 			proxyBackUpInfo.setProxyInfo(apiProxyInfo);
@@ -631,6 +624,9 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 							} catch (IOException e) {
 								log.error("Exception occurred", e);
+
+							} catch (Exception e1) {
+								log.error("Exception occurred", e1);
 							}
 						}
 					} catch (IOException e) {
@@ -732,6 +728,9 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 
 				} catch (IOException e) {
 					log.error("Exception occurred", e);
+
+				} catch (Exception e1) {
+					log.error("Exception occurred", e1);
 				}
 			}
 		}
@@ -917,28 +916,12 @@ public class EnvironmentBusinessImpl implements EnvironmentBusiness {
 		org.json.JSONObject obj = null;
 		String downloadURI = "";
 		try {
-			JfrogIntegration jfrogIntegration = getJfrogIntegration();
-			S3Integration s3Integration = getS3Integration();
-			if (null != s3Integration) {
-				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-						"restore-backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
-						cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
-			} else if (null != jfrogIntegration) {
-				obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip",
-						applicationProperties.getDataRestoreBackup(), jfrogIntegration.getHostURL() + "/artifactory/",
-						"restore-backup/" + cfg.getOrganization() + "/" + start + "", jfrogIntegration.getUsername(),
-						jfrogIntegration.getPassword());
-				downloadURI = (String) obj.get("downloadURI");
-			}
-			// obj = jfrogUtil.uploadFiles(cfg.getBackUpLocation() + "/" +
-			// cfg.getOrganization() + ".zip",
-			// applicationProperties.getDataRestoreBackup(),
-			// applicationProperties.getJfrogHost() + ":" +
-			// applicationProperties.getJfrogPort() + "/artifactory/",
-			// "restore-backup/" + cfg.getOrganization() + "/" + start + "",
-			// applicationProperties.getJfrogUserName(),
-			// applicationProperties.getJfrogPassword());
+
+			StorageIntegration storageIntegration = integrationHelper.getIntegration();
+			downloadURI = storageIntegration.uploadFile(
+					"restore-backup/" + cfg.getOrganization() + "/" + start + "/" + cfg.getOrganization() + ".zip",
+					cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip");
+
 		} catch (Exception e) {
 			log.error("Exception occurred", e);
 		}

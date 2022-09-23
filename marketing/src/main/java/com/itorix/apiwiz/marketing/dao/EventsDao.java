@@ -1,14 +1,15 @@
 package com.itorix.apiwiz.marketing.dao;
 
-import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
-import lombok.extern.flogger.Flogger;
+import com.itorix.apiwiz.common.factory.IntegrationHelper;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.util.StorageIntegration;
+import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
+import com.itorix.apiwiz.common.util.s3.S3Connection;
+import com.itorix.apiwiz.common.util.s3.S3Utils;
+import com.itorix.apiwiz.marketing.events.model.Event;
+import com.itorix.apiwiz.marketing.events.model.EventRegistration;
 import org.apache.commons.collections.CollectionUtils;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +21,10 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import com.amazonaws.regions.Regions;
-import com.itorix.apiwiz.common.model.exception.ErrorCodes;
-import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
-import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
-import com.itorix.apiwiz.common.util.s3.S3Connection;
-import com.itorix.apiwiz.common.util.s3.S3Utils;
-import com.itorix.apiwiz.marketing.events.model.Event;
-import com.itorix.apiwiz.marketing.events.model.EventRegistration;
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class EventsDao {
@@ -45,6 +41,9 @@ public class EventsDao {
 
 	@Autowired
 	private S3Utils s3Utils;
+
+	@Autowired
+	private IntegrationHelper integrationHelper;
 
 	public String createUpdateEvent(Event event) {
 		Query query = new Query().addCriteria(Criteria.where("name").is(event.getName()));
@@ -122,17 +121,9 @@ public class EventsDao {
 
 	private String updateToJfrog(String folderPath, byte[] bytes) throws ItorixException {
 		try {
-			S3Integration s3Integration = s3Connection.getS3Integration();
 			String downloadURI = null;
-			if (null != s3Integration)
-				downloadURI = s3Utils.uplaodFile(s3Integration.getKey(), s3Integration.getDecryptedSecret(),
-						Regions.fromName(s3Integration.getRegion()), s3Integration.getBucketName(),
-						"marketing/events/" + folderPath, new ByteArrayInputStream(bytes));
-			else {
-				JSONObject uploadFiles = jfrogUtilImpl.uploadFiles(new ByteArrayInputStream(bytes),
-						"/marketing/events/" + folderPath);
-				downloadURI = uploadFiles.getString("downloadURI");
-			}
+			StorageIntegration storageIntegration = integrationHelper.getIntegration();
+			downloadURI = storageIntegration.uploadFile("marketing/events/" + folderPath, new ByteArrayInputStream(bytes));
 			return downloadURI;
 		} catch (Exception e) {
 			logger.error("Exception occurred", e);

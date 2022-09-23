@@ -280,6 +280,8 @@ public interface OrganizationBusiness {
 
 	public BackupInfo restoreOrganization(CommonConfiguration cfg, String id) throws Exception;
 
+	public BackupInfo migrateOrganization(CommonConfiguration cfg, String id) throws Exception;
+
 	public void undeployProxyRevision(CommonConfiguration cfg, String environment, String apiName, String revision)
 			throws IOException, ItorixException;
 
