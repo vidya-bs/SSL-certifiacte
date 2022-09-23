@@ -665,7 +665,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 									&& !StringUtils.equalsIgnoreCase("Retired", revision.getStatus())))
 					.collect(Collectors.toList());
 		}
-		if (StringUtils.equalsIgnoreCase("Proxy", page)) {
+		if (StringUtils.equalsIgnoreCase("Proxy", page)||StringUtils.equalsIgnoreCase("Kong", page)) {
 			list = list.stream().filter(
 							revision -> (StringUtils.equalsIgnoreCase("Approved", revision.getStatus())
 									|| StringUtils.equalsIgnoreCase("Publish", revision.getStatus())))
