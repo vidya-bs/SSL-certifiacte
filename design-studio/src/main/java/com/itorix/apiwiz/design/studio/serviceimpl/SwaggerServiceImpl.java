@@ -638,7 +638,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<List<Revision>> getListOfRevisions(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername)
+			String page,
+			@RequestHeader(value = "oas", required = false) String oas,
+			@PathVariable("swaggername") String swaggername)
 			throws Exception {
 		if (oas == null || oas.trim().equals("")) {
 			oas = "2.0";
@@ -656,6 +658,18 @@ public class SwaggerServiceImpl implements SwaggerService {
 				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			list = swaggerBusiness.getListOf3Revisions(vo.getName(), interactionid);
+		}
+		if (StringUtils.equalsIgnoreCase("Virtualisation", page)||StringUtils.equalsIgnoreCase("TestSuite", page)) {
+			list = list.stream().filter(
+							revision -> (!StringUtils.equalsIgnoreCase("Deprecated", revision.getStatus())
+									&& !StringUtils.equalsIgnoreCase("Retired", revision.getStatus())))
+					.collect(Collectors.toList());
+		}
+		if (StringUtils.equalsIgnoreCase("Proxy", page)) {
+			list = list.stream().filter(
+							revision -> (StringUtils.equalsIgnoreCase("Approved", revision.getStatus())
+									|| StringUtils.equalsIgnoreCase("Publish", revision.getStatus())))
+					.collect(Collectors.toList());
 		}
 		return new ResponseEntity<List<Revision>>(list, HttpStatus.OK);
 	}
@@ -2766,41 +2780,6 @@ public class SwaggerServiceImpl implements SwaggerService {
 		return ResponseEntity.ok(
 				swaggerBusiness.getSwaggerProducts(swaggerId, oas, interactionid,
 						jsessionid, offset, pageSize));
-	}
-
-	@Override
-	public ResponseEntity<List<Revision>> getListOfRevisionsPageWise(String interactionid,
-			String jsessionid, String page, String oas, String swaggerId) throws Exception {
-		if (oas == null || oas.trim().equals("")) {
-			oas = "2.0";
-		}
-		List<Revision> list = null;
-		if (oas.equals("2.0")) {
-			SwaggerVO vo = swaggerBusiness.findSwagger(swaggerId, interactionid);
-			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
-			}
-			list = swaggerBusiness.getListOfRevisions(vo.getName(), interactionid);
-		} else if (oas.equals("3.0")) {
-			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggerId, interactionid);
-			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
-			}
-			list = swaggerBusiness.getListOf3Revisions(vo.getName(), interactionid);
-		}
-		if (StringUtils.equalsIgnoreCase("Virtualisation", page)) {
-			list = list.stream().filter(
-							revision -> (!StringUtils.equalsIgnoreCase("Deprecated", revision.getStatus())
-									&& !StringUtils.equalsIgnoreCase("Retired", revision.getStatus())))
-					.collect(Collectors.toList());
-		}
-		if (StringUtils.equalsIgnoreCase("Proxy", page)) {
-			list = list.stream().filter(
-							revision -> (StringUtils.equalsIgnoreCase("Approved", revision.getStatus())
-									|| StringUtils.equalsIgnoreCase("Publish", revision.getStatus())))
-					.collect(Collectors.toList());
-		}
-		return new ResponseEntity<List<Revision>>(list, HttpStatus.OK);
 	}
 
 	private void callScannerAPI(ScannerDTO scannerDTO) {
