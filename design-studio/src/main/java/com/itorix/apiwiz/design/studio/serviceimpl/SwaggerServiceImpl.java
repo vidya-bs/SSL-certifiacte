@@ -661,7 +661,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		}
 		if (StringUtils.equalsIgnoreCase("Virtualisation", page)||StringUtils.equalsIgnoreCase("TestSuite", page)) {
 			list = list.stream().filter(
-							revision -> (!StringUtils.equalsIgnoreCase("Deprecated", revision.getStatus())
+							revision -> (!StringUtils.equalsIgnoreCase("Deprecate", revision.getStatus())
 									&& !StringUtils.equalsIgnoreCase("Retired", revision.getStatus())))
 					.collect(Collectors.toList());
 		}
