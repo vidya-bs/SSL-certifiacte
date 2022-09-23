@@ -194,6 +194,7 @@ public class CodeGenService {
 	}
 
 	private Folder getFolder(String dirName) {
+		log.debug("Getting folder for {}", dirName);
 		File dir = new File(dirName);
 		Folder folder;
 		if (dir.isDirectory()) {
@@ -212,7 +213,7 @@ public class CodeGenService {
 				mongoConnection.insertFile(fileInputStream, dir.getName());
 				fileInputStream.close();
 			} catch (FileNotFoundException e) {
-				log.error("Exception occurred", e);
+				log.error("FileNotFoundException occurred", e);
 			} catch (IOException e) {
 				log.error("Exception occurred", e);
 			}
@@ -292,7 +293,8 @@ public class CodeGenService {
 			}
 			try {
 				StorageIntegration storageIntegration = integrationHelper.getIntegration();
-				downloadURI = storageIntegration.uploadFile("proxy-generation/API/" + time + ".zip", operations.getDir() + time + ".zip");
+				downloadURI = storageIntegration.uploadFile("proxy-generation/API/" + time + ".zip",
+						operations.getDir() + time + ".zip");
 				if (project != null)
 					data.setProjectName(project.getName());
 				if (null != codeGen.getPortfolio())
@@ -425,7 +427,10 @@ public class CodeGenService {
 	}
 
 	private String getSwagger(String swaggerName, String revision, String oas) {
+		log.debug(" Getting Swagger from {}", swaggerName);
 		if ("2.0".equals(oas)) {
+			log.debug("Getting Swagger for oas {}", oas);
+
 			Query query = new Query();
 			query.addCriteria(Criteria.where("name").is(swaggerName));
 			query.addCriteria(Criteria.where("revision").is(Integer.parseInt(revision)));
@@ -473,6 +478,7 @@ public class CodeGenService {
 			String targeType = mapping.get("x-ibm-target-type");
 			String targetPath = mapping.get("x-ibm-target-path");
 			if (null != targetPath) {
+				log.debug("Creating APIC target for target type {}", targeType);
 				for (OrgEnv orgEnv : org) {
 					for (Env env : orgEnv.getEnvs()) {
 						String environment = getEnvironmet(mapping, orgEnv.getName(), env.getName(), orgEnv.getType());
@@ -490,7 +496,7 @@ public class CodeGenService {
 				}
 			}
 		} catch (Exception e) {
-		log.error("Exception occurred",e);
+			log.error("Exception occurred", e);
 		}
 	}
 
@@ -510,6 +516,7 @@ public class CodeGenService {
 				createKvmServiceConfig(orgEnv, name, endpointsStr);
 			}
 		} catch (Exception e) {
+			log.error("Exception occurred", e);
 
 		}
 	}
@@ -549,6 +556,7 @@ public class CodeGenService {
 			columnMapping.put(name, null);
 		for (String name : mapping.keySet()) {
 			if (name.contains("x-ibm-kvm-column-")) {
+				log.debug("Column mapping for {}", name);
 				String key = name.replaceAll("x-ibm-kvm-column-", "");
 				String value = mapping.get(name);
 				if (registryColumns.contains(key.trim())) {
@@ -591,6 +599,7 @@ public class CodeGenService {
 	}
 
 	private JsonNode parseNode(JsonNode node, String path) {
+		log.debug("Parsing node {}", node);
 		path = path.replace("x-ibm-policy/", "");
 		String[] paths = path.split("/");
 		try {
@@ -618,12 +627,14 @@ public class CodeGenService {
 	}
 
 	private String getFieldName(String name) {
+		log.debug("Getting field name {}", name);
 		String[] tokens = name.split("=");
 		return tokens[1].replaceAll("'", "").replaceAll("#", ".");
 	}
 
 	private void createTargetServiceConfig(Organization organization, String name, String targrtURL)
 			throws ItorixException {
+		log.debug("Creating target service configuration for organization {}", organization);
 		try {
 			com.itorix.apiwiz.servicerequest.model.ServiceRequest config = new com.itorix.apiwiz.servicerequest.model.ServiceRequest();
 			config.setType("TargetServer");
@@ -675,6 +686,7 @@ public class CodeGenService {
 
 	private void createKvmServiceConfig(Organization organization, String proxyName, String endpoints)
 			throws ItorixException {
+		log.debug("Creating kvm service config for organization {}", organization);
 		try {
 			com.itorix.apiwiz.servicerequest.model.ServiceRequest config = new com.itorix.apiwiz.servicerequest.model.ServiceRequest();
 			config.setType("KVM");
@@ -773,6 +785,7 @@ public class CodeGenService {
 	}
 
 	private void saveHistory(ProxyData data) {
+		log.debug("Saving history of data {}", data);
 		ProxyData proxyData = mongoConnection.getProxyHistory(data.getProxyName());
 		if (proxyData != null) {
 			try {
@@ -887,6 +900,7 @@ public class CodeGenService {
 	}
 
 	public ProxyArtifacts getProxyArtifacts(String proxy) throws ItorixException {
+		log.debug("Getting proxy artifacts from {}", proxy);
 		try {
 			ProxyData data = mongoConnection.getProxyHistory(proxy);
 			if (data != null) {
@@ -899,6 +913,8 @@ public class CodeGenService {
 	}
 
 	public List<ProxyConnection> getProxyConnections(String proxy) throws ItorixException {
+		log.debug("Fetching proxy connections from {}", proxy);
+
 		try {
 			ProxyData data = mongoConnection.getProxyHistory(proxy);
 			if (data != null) {
@@ -911,6 +927,8 @@ public class CodeGenService {
 	}
 
 	public String getProjectName(String proxy) throws ItorixException {
+		log.debug("Fetching project name from {}", proxy);
+
 		try {
 			ProxyData data = mongoConnection.getProxyHistory(proxy);
 			if (data != null) {
@@ -935,7 +953,9 @@ public class CodeGenService {
 	}
 
 	public boolean saveAssociatedOrgs(String proxy, OrgEnvs orgenvs) throws ItorixException {
+		log.debug("Saving associated organisations from {}", proxy);
 		if (mongoConnection.updateAssociatedOrgs(proxy, orgenvs)) {
+			log.debug("Saving associated orgs for proxy {}", proxy);
 			try {
 				List<OrgEnv> orgEnvList = orgenvs.getOrgEnvs();
 				for (OrgEnv orgEnv : orgEnvList) {
@@ -957,6 +977,7 @@ public class CodeGenService {
 								}
 							}
 						} catch (Exception e) {
+							log.error("Exception occurred", e);
 						}
 						if (revision != null && revision != "") {
 							organization.setStatus("deployed");
@@ -975,6 +996,7 @@ public class CodeGenService {
 	}
 
 	public void saveAssociatedOrgforProxy(String proxy, OrgEnv orgenv) {
+		log.debug("Saving associated organisations for {}", proxy);
 		try {
 			mongoConnection.saveProxyDetailsByOrgEnv(proxy, orgenv);
 		} catch (Exception e) {
@@ -1129,6 +1151,7 @@ public class CodeGenService {
 	}
 
 	private String getVersion(String content) throws JsonMappingException, JsonProcessingException {
+		log.debug("Fetching version from {}", content);
 		if (content == null) {
 			return null;
 		}
@@ -1296,7 +1319,8 @@ public class CodeGenService {
 	}
 
 	public List<String> getFolders(String path) throws JsonParseException, JsonMappingException, IOException {
-		log.info("path received : " + path);
+		log.debug(" Getting folders from {}", path);
+	  log.info("path received : {}", path);
 		ObjectMapper mapper = new ObjectMapper();
 		String dbFolder = mongoConnection.getFolder();
 		Folder folder = mapper.readValue(dbFolder, Folder.class);
@@ -1317,6 +1341,7 @@ public class CodeGenService {
 	}
 
 	public boolean removeFile(String path, String file) throws JsonParseException, JsonMappingException, IOException {
+		log.debug("Remove file {}", file);
 		ObjectMapper mapper = new ObjectMapper();
 		String dbFolder = mongoConnection.getFolder();
 		Folder folder = mapper.readValue(dbFolder, Folder.class);
@@ -1338,9 +1363,11 @@ public class CodeGenService {
 	}
 
 	private String getDeploymentStatus(OrgEnvs orgEnvs) {
+		log.debug(" Getting deployment status for orgEnvs {}", orgEnvs);
 		List<String> status = new ArrayList<>();
 
 		if (orgEnvs != null) {
+			log.debug("Getting deployment status");
 			try {
 				for (OrgEnv orgEnv : orgEnvs.getOrgEnvs()) {
 					if (orgEnv.getEnvs() != null)
@@ -1381,7 +1408,12 @@ public class CodeGenService {
 					Object catagories = swagger.getVendorExtensions().get("x-policies");
 					if (null != catagories)
 						return catagories;
+					else
+						return getCategories(false);
 				}
+			}
+			if(null != swaggerId){
+				return getCategories(false);
 			}
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "ProxyGen-1000", ex);
@@ -1390,7 +1422,9 @@ public class CodeGenService {
 	}
 
 	private Swagger getSwaggerbyId(String swaggerId, int revision, String oas) {
+		log.debug("Get Swagger by Id: {}", swaggerId);
 		if ("2.0".equals(oas)) {
+			log.debug("Getting Swagger by Id: {}", swaggerId);
 			Query query = new Query();
 			query.addCriteria(Criteria.where("swaggerId").is(swaggerId));
 			query.addCriteria(Criteria.where("revision").is(revision));
@@ -1413,6 +1447,7 @@ public class CodeGenService {
 	}
 
 	public Object getCategories(String name) throws ItorixException {
+		log.debug("Getting categories for {}", name);
 		try {
 			if ((name != null) && (!name.equals(""))) {
 				Query query = new Query(Criteria.where("name").is(name));
@@ -1503,6 +1538,8 @@ public class CodeGenService {
 	}
 
 	public List<ProxyConnection> getProxyConnections(OrgEnv orgEnv, ProxyArtifacts proxyArtifacts) {
+		log.debug(" Getting proxy connections");
+
 		List<ProxyEndpoint> proxyEndpoints = proxyArtifacts.getProxyEndpoints();
 		List<ProxyConnection> proxyConnections = new ArrayList<ProxyConnection>();
 		for (Env env : orgEnv.getEnvs()) {
@@ -1531,6 +1568,7 @@ public class CodeGenService {
 	}
 
 	public List<String> getProxyConnectionURL(String org, String env, String isSaaS, String vHostName) {
+		log.debug("Getting proxy connection URL for org: {}", org);
 		try {
 			String apigeeURL = apigeeUtil.getApigeeHost(isSaaS.equalsIgnoreCase("true") ? "saas" : "onprem", org)
 					+ "v1/organizations/" + org + "/environments/" + env + "/virtualhosts/" + vHostName;

@@ -78,7 +78,7 @@ public class ApigeeTargetGeneration {
 				Template template = getTemplate("TargetEndpoint.xml.ftl");
 				String tgtfilePrefix = targetName;
 				String dstFileName = dstRootFolder + File.separatorChar + "targets" + File.separatorChar + tgtfilePrefix
-						+ "-Target" + ProxyConfig.ENDPOINT_XML_SUFFIX;
+						+ ProxyConfig.XML_FILE_EXT;
 				Writer file = new FileWriter(dstFileName);
 				Map<String, Object> data = new HashMap<String, Object>();
 

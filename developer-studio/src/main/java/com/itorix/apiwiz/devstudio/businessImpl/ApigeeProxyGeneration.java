@@ -142,8 +142,9 @@ public class ApigeeProxyGeneration {
 		// Template template =
 		// getTemplateFromFile("/opt/itorix/temp/ProxyGen/proxies/ProxyEndpoint.xml.ftl");
 		Template template = getTemplate("ProxyEndpoint.xml.ftl");
-		String dstProxiesFileName = dstProxies + File.separatorChar + proxyName + "-Proxy"
-				+ ProxyConfig.ENDPOINT_XML_SUFFIX;
+		String dstProxiesFileName =
+				dstProxies + File.separatorChar + proxyName + ProxyConfig.XML_FILE_EXT;
+
 		Map<String, Object> data = new HashMap<String, Object>();
 		Map<String, Object> proxy = new HashMap<String, Object>();
 		data.put("basePath", basePath);
