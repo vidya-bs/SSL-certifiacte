@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public interface NotificationBusiness {
+public interface NotificationBusines {
 
     public List<NotificationDetails> getNotifications() throws ItorixException;
 

@@ -18,6 +18,7 @@ import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
+import com.itorix.apiwiz.design.studio.business.NotificationBusines;
 import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
 import com.itorix.apiwiz.design.studio.businessimpl.Swagger3SDK;
 import com.itorix.apiwiz.design.studio.businessimpl.ValidateSchema;
@@ -161,6 +162,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@Autowired
 	ApiRatingsDao apiRatingsDao;
 
+	@Autowired
+	NotificationBusines notificationBusines;
+
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/puls")
 	public String checkPuls(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, HttpServletRequest request,
@@ -254,6 +258,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 			headers.add("Access-Control-Expose-Headers", "X-Swagger-Version, X-Swagger-id");
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
 			headers.add("X-Swagger-id", swaggerVO.getSwaggerId());
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification("Swagger has been created " .concat(swaggerVO.getName()));
+			notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusines.createNotification(notificationDetails,jsessionid);
+
 		} else if (oas.equals("3.0")) {
 			if (!swaggerBusiness.oasCheck(json).startsWith("3")) {
 				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1009"), "Swagger-1009");
@@ -449,6 +459,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 			scannerDTO.setSwaggerId(Arrays.asList(swaggerVO.getSwaggerId()));
 			scannerDTO.setOperation("Update");
 
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification("Swagger has been created  with new Revision" .concat(swaggerVO.getName()));
+			notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusines.createNotification(notificationDetails,jsessionid);
+
 		} else if (oas.equals("3.0")) {
 			Swagger3VO swaggerVO = new Swagger3VO();
 			swaggerVO.setName(swaggername);
@@ -482,6 +498,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 			scannerDTO.setOperation("Update");
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
 			headers.add("X-Swagger-id", swaggerVO.getSwaggerId());
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification("Swagger has been created  with new Revision" .concat(swaggerVO.getName()));
+			notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusines.createNotification(notificationDetails,jsessionid);
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
@@ -557,6 +578,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 			scannerDTO.setOperation("Update");
 
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification("Swagger has been Updated" .concat(swaggerVO.getName()));
+			notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusines.createNotification(notificationDetails,jsessionid);
 		} else if (oas.equals("3.0")) {
 			Swagger3VO swaggerVO = new Swagger3VO();
 			swaggerVO.setName(swaggername);
@@ -595,6 +621,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 			scannerDTO.setTenantId(getWorkspaceId());
 			scannerDTO.setSwaggerId(Arrays.asList(swaggerVO.getSwaggerId()));
 			scannerDTO.setOperation("Update");
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification("Swagger has been updated" .concat(swaggerVO.getName()));
+			notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusines.createNotification(notificationDetails,jsessionid);
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
@@ -926,6 +957,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 			scannerDTO.setTenantId(getWorkspaceId());
 			scannerDTO.setOperation("Delete");
 			scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification("Swagger has been Deleted" .concat(vo.getName()));
+			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusines.createNotification(notificationDetails,jsessionid);
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
@@ -937,6 +973,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 			scannerDTO.setTenantId(getWorkspaceId());
 			scannerDTO.setOperation("Delete");
 			scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification("Swagger has been Deleted" .concat(vo.getName()));
+			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusines.createNotification(notificationDetails,jsessionid);
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
@@ -1109,12 +1150,22 @@ public class SwaggerServiceImpl implements SwaggerService {
 			scannerDTO.setTenantId(getWorkspaceId());
 			scannerDTO.setOperation("Update");
 			scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification("Swagger status has been updated" .concat(vo.getName()));
+			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusines.createNotification(notificationDetails,jsessionid);
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.updateSwagger3Status(swaggername, revision, json, interactionid,
 					jsessionid);
 			scannerDTO.setTenantId(getWorkspaceId());
 			scannerDTO.setOperation("Update");
 			scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification("Swagger status has been updated" .concat(vo.getName()));
+			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusines.createNotification(notificationDetails,jsessionid);
 		}
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
 			callScannerAPI(scannerDTO);
@@ -1179,6 +1230,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			comment.setSwaggerName(swaggername);
 			comment.setInteractionid(interactionid);
 			swaggerBusiness.updateComment(comment);
+
 		} else if (oas.equals("3.0")) {
 			Swagger3Comment swagger3Comment = new Swagger3Comment();
 			swagger3Comment.setSwaggerRevision(revision);
@@ -1186,6 +1238,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swagger3Comment.setInteractionid(interactionid);
 			swagger3Comment.setComment(comment.getComment());
 			swaggerBusiness.updateSwagger3Comment(swagger3Comment);
+
 		}
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
@@ -1295,6 +1348,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setName(vo.getName());
 			swaggerVO.setInteractionid(interactionid);
 			swaggerBusiness.updateLockStatus(swaggerVO, jsessionid);
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification("Swagger lock status has been updated" .concat(vo.getName()));
+			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusines.createNotification(notificationDetails,jsessionid);
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
@@ -1312,6 +1370,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swagger3VO.setLock(swaggerVO.getLock());
 			swagger3VO.setInteractionid(interactionid);
 			swaggerBusiness.updateSwagger3LockStatus(swagger3VO, jsessionid);
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification("Swagger lock status has been updated" .concat(vo.getName()));
+			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusines.createNotification(notificationDetails,jsessionid);
 		}
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
@@ -1358,6 +1421,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setName(swaggername);
 			swaggerVO.setInteractionid(interactionid);
 			swaggerVO = swaggerBusiness.deprecate(swaggerVO);
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification("Swagger has been Deprecate" .concat(vo.getName()));
+			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusines.createNotification(notificationDetails,jsessionid);
 			return new ResponseEntity<Object>(swaggerVO, HttpStatus.OK);
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
@@ -1376,6 +1444,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swagger3VO.setInteractionid(interactionid);
 			swagger3VO.setLock(swaggerVO.getLock());
 			swagger3VO = swaggerBusiness.deprecate(swagger3VO);
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification("Swagger has been Deprecated" .concat(vo.getName()));
+			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusines.createNotification(notificationDetails,jsessionid);
 			return new ResponseEntity<Object>(swagger3VO, HttpStatus.OK);
 		}
 		throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), swaggername, revision),

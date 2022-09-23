@@ -1,7 +1,7 @@
 package com.itorix.apiwiz.design.studio.businessimpl;
 
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.design.studio.business.NotificationBusiness;
+import com.itorix.apiwiz.design.studio.business.NotificationBusines;
 import com.itorix.apiwiz.design.studio.model.NotificationDetails;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
@@ -16,7 +16,7 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class NotificationBusinessImpl implements NotificationBusiness {
+public class NotificationBusinessImpl implements NotificationBusines {
     @Autowired
     BaseRepository baseRepository;
 
