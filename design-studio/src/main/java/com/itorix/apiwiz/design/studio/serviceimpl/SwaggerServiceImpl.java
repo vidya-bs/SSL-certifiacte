@@ -1182,7 +1182,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			scannerDTO.setOperation("Update");
 			scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
 			NotificationDetails notificationDetails = new NotificationDetails();
-			notificationDetails.setNotification("Swagger status has been updated" .concat(vo.getName()));
+			notificationDetails.setNotification("Swagger status has been updated" .concat(vo.getName()!=null ? vo.getName() : ""));
 			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusines.createNotification(notificationDetails,jsessionid);
@@ -1193,7 +1193,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			scannerDTO.setOperation("Update");
 			scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
 			NotificationDetails notificationDetails = new NotificationDetails();
-			notificationDetails.setNotification("Swagger status has been updated" .concat(vo.getName()));
+			notificationDetails.setNotification("Swagger status has been updated" .concat(vo.getName()!=null ? vo.getName() : ""));
 			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusines.createNotification(notificationDetails,jsessionid);
@@ -1261,10 +1261,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 			comment.setSwaggerName(swaggername);
 			comment.setInteractionid(interactionid);
 			swaggerBusiness.updateComment(comment);
-			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			NotificationDetails notificationDetails = new NotificationDetails();
-			notificationDetails.setNotification("Swagger comment has been updated" .concat(vo.getName()));
-			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
+			notificationDetails.setNotification("Swagger comment has been updated  ." .concat( comment.getComment()));
+			notificationDetails.setUserId(Arrays.asList(comment.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusines.createNotification(notificationDetails,jsessionid);
 
@@ -1275,10 +1274,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swagger3Comment.setInteractionid(interactionid);
 			swagger3Comment.setComment(comment.getComment());
 			swaggerBusiness.updateSwagger3Comment(swagger3Comment);
-			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
 			NotificationDetails notificationDetails = new NotificationDetails();
-			notificationDetails.setNotification("Swagger comment has been updated" .concat(vo.getName()));
-			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
+			notificationDetails.setNotification("Swagger comment has been updated  .".concat( comment.getComment()));
+			notificationDetails.setUserId(Arrays.asList(comment.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusines.createNotification(notificationDetails,jsessionid);
 		}
@@ -1454,7 +1452,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setInteractionid(interactionid);
 			swaggerVO = swaggerBusiness.deprecate(swaggerVO);
 			NotificationDetails notificationDetails = new NotificationDetails();
-			notificationDetails.setNotification("Swagger has been Deprecate" .concat(vo.getName()));
+			notificationDetails.setNotification("Swagger has been Deprecate" .concat(vo.getName()!=null ? vo.getName() : ""));
 			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusines.createNotification(notificationDetails,jsessionid);
@@ -1477,7 +1475,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swagger3VO.setLock(swaggerVO.getLock());
 			swagger3VO = swaggerBusiness.deprecate(swagger3VO);
 			NotificationDetails notificationDetails = new NotificationDetails();
-			notificationDetails.setNotification("Swagger has been Deprecate" .concat(vo.getName()));
+			notificationDetails.setNotification("Swagger has been Deprecate" .concat(vo.getName()!=null ? vo.getName() : ""));
 			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusines.createNotification(notificationDetails,jsessionid);
