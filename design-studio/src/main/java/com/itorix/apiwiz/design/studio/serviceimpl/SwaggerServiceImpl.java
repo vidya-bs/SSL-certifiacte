@@ -289,6 +289,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 			scannerDTO.setSwaggerId(Arrays.asList(swaggerVO.getSwaggerId()));
 			scannerDTO.setTenantId(getWorkspaceId());
 			scannerDTO.setOperation("Create");
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification("Swagger has been created " .concat(swaggerVO.getName()));
+			notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusines.createNotification(notificationDetails,jsessionid);
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
@@ -1026,6 +1031,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 				scannerDTO.setTenantId(getWorkspaceId());
 				scannerDTO.setOperation("Delete");
 				scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+				NotificationDetails notificationDetails = new NotificationDetails();
+				notificationDetails.setNotification("Swagger revision has been Deleted" .concat(vo.getName()));
+				notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
+				notificationDetails.setType(NotificationType.fromValue("Swagger"));
+				notificationBusines.createNotification(notificationDetails,jsessionid);
+
 			} else {
 				scannerDTO.setTenantId(getWorkspaceId());
 				scannerDTO.setOperation("Update");
@@ -1042,6 +1053,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 				scannerDTO.setTenantId(getWorkspaceId());
 				scannerDTO.setOperation("Delete");
 				scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
+				NotificationDetails notificationDetails = new NotificationDetails();
+				notificationDetails.setNotification("Swagger revision has been Deleted" .concat(vo.getName()));
+				notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
+				notificationDetails.setType(NotificationType.fromValue("Swagger"));
+				notificationBusines.createNotification(notificationDetails,jsessionid);
 			} else {
 				scannerDTO.setTenantId(getWorkspaceId());
 				scannerDTO.setOperation("Update");
@@ -1230,6 +1246,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 			comment.setSwaggerName(swaggername);
 			comment.setInteractionid(interactionid);
 			swaggerBusiness.updateComment(comment);
+			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification("Swagger comment has been updated" .concat(vo.getName()));
+			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusines.createNotification(notificationDetails,jsessionid);
 
 		} else if (oas.equals("3.0")) {
 			Swagger3Comment swagger3Comment = new Swagger3Comment();
@@ -1238,7 +1260,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swagger3Comment.setInteractionid(interactionid);
 			swagger3Comment.setComment(comment.getComment());
 			swaggerBusiness.updateSwagger3Comment(swagger3Comment);
-
+			SwaggerVO vo = swaggerBusiness.findSwagger(swaggername, interactionid);
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification("Swagger comment has been updated" .concat(vo.getName()));
+			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusines.createNotification(notificationDetails,jsessionid);
 		}
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
@@ -1445,7 +1472,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swagger3VO.setLock(swaggerVO.getLock());
 			swagger3VO = swaggerBusiness.deprecate(swagger3VO);
 			NotificationDetails notificationDetails = new NotificationDetails();
-			notificationDetails.setNotification("Swagger has been Deprecated" .concat(vo.getName()));
+			notificationDetails.setNotification("Swagger has been Deprecate" .concat(vo.getName()));
 			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusines.createNotification(notificationDetails,jsessionid);
