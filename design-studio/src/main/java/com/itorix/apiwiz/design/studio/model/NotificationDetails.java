@@ -13,6 +13,6 @@ public class NotificationDetails extends AbstractObject {
     private String notification;
     private NotificationType type;
     private List<String> userId;
-    private Boolean isRead;
+    private Boolean isRead=false;
 
 }
