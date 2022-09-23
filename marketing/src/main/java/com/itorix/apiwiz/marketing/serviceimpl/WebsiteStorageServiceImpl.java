@@ -1,7 +1,6 @@
 package com.itorix.apiwiz.marketing.serviceimpl;
 
-import com.itorix.apiwiz.common.model.integrations.gcs.GcsIntegration;
-import com.itorix.apiwiz.common.util.gcs.GcsUtils;
+import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.marketing.service.WebsiteStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,14 +14,12 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 public class WebsiteStorageServiceImpl implements WebsiteStorageService {
 
-  @Autowired
-  GcsUtils gcsUtils;
+    @Autowired
+    S3Utils s3Utils;
 
-  @Override
-  public ResponseEntity<?> uploadImage(String interactionid, String jsessionid, MultipartFile file) throws Exception {
-    GcsIntegration integration= gcsUtils.getGcsIntegration();
-    integration.setBucketName("apiwiz-nonprod-website");
-    String downloadUri= gcsUtils.uploadFile(integration,file.getName()+System.currentTimeMillis(),file.getInputStream());
-    return new ResponseEntity<>(downloadUri,HttpStatus.OK);
-  }
+    @Override
+    public ResponseEntity<?> uploadImage(String interactionid, String jsessionid, MultipartFile file) throws Exception {
+        String downloadUri= s3Utils.uploadWebsiteResource(file.getName()+System.currentTimeMillis(),file.getInputStream());
+        return new ResponseEntity<>(downloadUri,HttpStatus.OK);
+    }
 }
