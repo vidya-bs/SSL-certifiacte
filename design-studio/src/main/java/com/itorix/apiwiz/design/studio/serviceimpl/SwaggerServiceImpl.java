@@ -1375,11 +1375,6 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setName(vo.getName());
 			swaggerVO.setInteractionid(interactionid);
 			swaggerBusiness.updateLockStatus(swaggerVO, jsessionid);
-			NotificationDetails notificationDetails = new NotificationDetails();
-			notificationDetails.setNotification("Swagger lock status has been updated" .concat(vo.getName()));
-			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
-			notificationDetails.setType(NotificationType.fromValue("Swagger"));
-			notificationBusines.createNotification(notificationDetails,jsessionid);
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.findSwagger3(swaggername, interactionid);
 			if (vo == null) {
@@ -1397,11 +1392,6 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swagger3VO.setLock(swaggerVO.getLock());
 			swagger3VO.setInteractionid(interactionid);
 			swaggerBusiness.updateSwagger3LockStatus(swagger3VO, jsessionid);
-			NotificationDetails notificationDetails = new NotificationDetails();
-			notificationDetails.setNotification("Swagger lock status has been updated" .concat(vo.getName()));
-			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
-			notificationDetails.setType(NotificationType.fromValue("Swagger"));
-			notificationBusines.createNotification(notificationDetails,jsessionid);
 		}
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
@@ -2386,7 +2376,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 				Set<String> products = swaggerVO.getProducts();
 				swaggerBusiness.associateProduct(vo.getName(), products, "3.0");
 			} else {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-10"
+						+ "00")), "Swagger-1000");
 			}
 		}
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
