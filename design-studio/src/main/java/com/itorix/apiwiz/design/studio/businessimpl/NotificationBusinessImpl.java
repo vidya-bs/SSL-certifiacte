@@ -73,7 +73,8 @@ public class NotificationBusinessImpl implements NotificationBusines {
         log.debug("getNotificationForUser : {} {}",jsessionId ,userId);
         List<NotificationDetails> list = baseRepository.find("userId", userId, NotificationDetails.class);
         log.debug("getNotificationForUser: {}", jsessionId );
-        return trimList(list, offset, pageSize);
+        return list;
+//        return trimList(list, offset, pageSize);
 
     }
 

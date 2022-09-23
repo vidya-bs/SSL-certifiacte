@@ -79,12 +79,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public ResponseEntity<List<NotificationDetails>> retrieveNotificationsByNotificationId(
+    public ResponseEntity<Object> retrieveNotificationsByNotificationId(
             String jsessionId, String interactionId, String notificationId, int offset, int pageSize)
             throws Exception {
         log.info("retrieveNotifications :{}", notificationId);
-        notificationBusines.findNotificationsById(notificationId);
-        return null;
+        return ResponseEntity.ok(notificationBusines.findNotificationsById(notificationId));
     }
 }
 
