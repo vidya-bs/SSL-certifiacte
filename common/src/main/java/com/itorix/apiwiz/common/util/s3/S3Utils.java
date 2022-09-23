@@ -5,6 +5,7 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.S3Object;
 import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
@@ -68,11 +69,11 @@ public class S3Utils extends StorageIntegration {
 			InputStream input) throws IOException {
 		logger.debug("Upload file to S3: {}", path);
 		AWSCredentials credentials = new BasicAWSCredentials(key, secret);
-		AmazonS3 s3client = AmazonS3ClientBuilder.standard()
+		AmazonS3Client s3client = (AmazonS3Client) AmazonS3ClientBuilder.standard()
 				.withCredentials(new AWSStaticCredentialsProvider(credentials)).withRegion(region).build();
 
 		s3client.putObject(bucketName, path, input, null);
-		return s3client.getUrl(bucketName,key).toString();
+		return s3client.getResourceUrl(bucketName,path);
 	}
 
 	private String getURL(String bucket, String region, String key) {
