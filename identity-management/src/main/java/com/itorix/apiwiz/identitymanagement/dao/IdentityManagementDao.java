@@ -262,7 +262,7 @@ public class IdentityManagementDao {
             workspaces.add(userWorkspace);
             user.setWorkspaces(workspaces);
         }
-        VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail());
+        VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail(), null);
         token.setWorkspaceId(userInfo.getWorkspaceId().toLowerCase());
         token.setUserType(User.LABEL_MEMBER);
         saveVerificationToken(token);
@@ -503,7 +503,7 @@ public class IdentityManagementDao {
             if (userByEmail == null) {
                 User user = new User();
                 user.setEmail(userInfo.getEmail());
-                VerificationToken token = createVerificationToken("registerUser", user.getEmail());
+                VerificationToken token = createVerificationToken("registerUser", user.getEmail(),null);
                 saveVerificationToken(token);
                 if (sendRegistrationEmail(token, user))
                     user = saveUser(user);
@@ -576,7 +576,7 @@ public class IdentityManagementDao {
     public VerificationToken password(User user) throws ItorixException {
         User userByEmail = findByEmail(user.getEmail());
         if (userByEmail != null) {
-            VerificationToken token = createVerificationToken("resetPassword", user.getEmail());
+            VerificationToken token = createVerificationToken("resetPassword", user.getEmail(),null);
             sendPassWordResetEmail(token, userByEmail);
             saveVerificationToken(token);
             return token;
@@ -940,7 +940,7 @@ public class IdentityManagementDao {
     public boolean sendRegistrationEmail(VerificationToken token, User user) {
         try {
 
-            String link = applicationProperties.getAppURL() + "/register/" + token.getId() + "/verify";
+            String link = applicationProperties.getAppURL() + "/register/" + token.getId() + "/verify" + token.getAppType();
             String bodyText = MessageFormat.format(applicationProperties.getRegistermailBody(), user.getEmail(), link);
             ArrayList<String> toRecipients = new ArrayList<String>();
             toRecipients.add(user.getEmail());
@@ -967,12 +967,12 @@ public class IdentityManagementDao {
         }
     }
 
-    public VerificationToken createVerificationToken(String type, String email) {
+    public VerificationToken createVerificationToken(String type, String email,String appType) {
         int TOKEN_VALID_DAYS = 7;
         String id = UUID.randomUUID().toString();
         Date created = new Date();
         Date validTill = DateUtils.addDays(new Date(), TOKEN_VALID_DAYS);
-        VerificationToken token = new VerificationToken(id, type, created, validTill, email, null);
+        VerificationToken token = new VerificationToken(id, type, created, validTill, email, null,appType);
         return token;
     }
 
@@ -1008,7 +1008,7 @@ public class IdentityManagementDao {
 
     public void resendToken(VerificationToken token) throws ItorixException {
         User user = findByEmail(token.getUserEmail());
-        VerificationToken newToken = createVerificationToken(token.getType(), token.getUserEmail());
+        VerificationToken newToken = createVerificationToken(token.getType(), token.getUserEmail(),null);
         if (token.getType().equals("registerUser")) {
             newToken.setWorkspaceId(token.getWorkspaceId());
             newToken.setUserType(token.getType());
@@ -1039,7 +1039,7 @@ public class IdentityManagementDao {
             password(user);
         } else if (userInfo.getType().equals("register")) {
             User user = findByEmail(userInfo.getEmail());
-            VerificationToken token = createVerificationToken("registerUser", user.getEmail());
+            VerificationToken token = createVerificationToken("registerUser", user.getEmail(),null);
             saveVerificationToken(token);
             sendRegistrationEmail(token, user);
         }
@@ -1053,7 +1053,7 @@ public class IdentityManagementDao {
         if (user.getLoginId() == null) {
             isNewUser = true;
         }
-        VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail());
+        VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail(),null);
         token.setWorkspaceId(workspace.getName());
         token.setUserType(User.LABEL_MEMBER);
         saveVerificationToken(token);

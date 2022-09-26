@@ -45,7 +45,8 @@ public interface IdentityManagmentService {
 	public @ResponseBody ResponseEntity<Object> register(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-apikey") String apikey,
-			@RequestParam(value = "token", required = false) String verificationToken, @RequestBody UserInfo userInfo)
+			@RequestParam(value = "token", required = false) String verificationToken, @RequestParam(value = "type", required = false) String appType,
+			@RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
