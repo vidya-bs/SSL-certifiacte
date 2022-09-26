@@ -368,7 +368,7 @@ deployment:
         cloudProvider: aws
       - env: gcp-dev
         branch: feature
-        deployFlag: disable
+        deployFlag: enable
         approval: disable
         host: 34.70.37.110
         pem: NA
