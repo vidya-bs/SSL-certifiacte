@@ -9,9 +9,12 @@ public class Model {
 
 	private String name;
 	private Status status;
+	private String id;
+	private String modelId;
+	private Integer revision;
 
 	public enum Status {
-		Active, Deprecated
+		Active, Deprecated,Draft
 	}
 
 	private long importTimeStamp;
