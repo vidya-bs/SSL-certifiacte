@@ -58,7 +58,7 @@ public class MaskFieldUtil {
                 final List<String> matches = new ArrayList<>();
                 while (matcher.find()) {
                     matches.add(matcher.group(0));
-                    String matchedValue = payload.substring(matcher.start(), matcher.end());
+                    String matchedValue = payload.substring(matcher.start(), matcher.end()-1);
                     String[] splitKeyValue = matchedValue.split(":");
 
                     if (splitKeyValue[1].startsWith("{")) {
