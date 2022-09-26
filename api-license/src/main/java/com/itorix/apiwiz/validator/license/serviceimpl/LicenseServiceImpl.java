@@ -9,6 +9,7 @@ import com.itorix.apiwiz.validator.license.service.LicenseService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @CrossOrigin
 @RestController
 public class LicenseServiceImpl implements LicenseService {
@@ -34,6 +36,7 @@ public class LicenseServiceImpl implements LicenseService {
 	@Override
 	public ResponseEntity<?> createLicense(LicenseRequest licenseRequest,String encryptionType) {
 		try {
+			log.info("creating license{}",licenseRequest);
 			licenseBusiness.createLicense(licenseRequest,encryptionType);
 		} catch (ItorixException e) {
 			return new ResponseEntity(new ErrorObj(e.getMessage(), e.getErrorCode()), HttpStatus.BAD_REQUEST);

@@ -28,7 +28,6 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 
 	@Override
 	public void createLicense(LicenseRequest licenseRequest,String encryptionType) throws ItorixException {
-
 		License license = licenseRepository.findOne("emailId", licenseRequest.getEmailId(), License.class);
 
 		if(license != null ) {
@@ -42,6 +41,7 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 
 	}
 	private License createLicenseObj(LicenseRequest licenseRequest,String encryptionType) throws ItorixException {
+		log.info("createLicenseObj{}",licenseRequest,encryptionType);
 		License licenseToSave = new License();
 		//licenseToSave.setUserName(licenseRequest.getUserName());
 		//licenseToSave.setPassword(licenseRequest.getPassword());
@@ -80,6 +80,7 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 	}
 
 	private void updateLicenseObj(License license, LicenseRequest licenseRequest,String encryptionType) throws ItorixException {
+		log.info("updatateLicenseObj{}",license,licenseRequest,encryptionType);
 		//license.setUserName(licenseRequest.getUserName());
 		//license.setPassword(licenseRequest.getPassword());
 		license.setClientName(licenseRequest.getClientName());

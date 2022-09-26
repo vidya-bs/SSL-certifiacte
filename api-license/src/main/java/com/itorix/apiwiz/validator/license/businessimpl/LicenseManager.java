@@ -7,6 +7,7 @@ import com.itorix.apiwiz.validator.license.model.ItorixException;
 import com.itorix.apiwiz.validator.license.model.LicenseRequest;
 import com.itorix.apiwiz.validator.license.model.LicenseToken;
 import com.itorix.apiwiz.validator.license.util.RSAEncryption;
+import lombok.extern.slf4j.Slf4j;
 import net.logstash.logback.encoder.org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Component;
 import java.security.GeneralSecurityException;
 //import org.springframework.util.StringUtils;
 
+
+@Slf4j
 @Component
 public class LicenseManager {
 
@@ -27,6 +30,7 @@ public class LicenseManager {
 	public String getEncryptedLicense(LicenseRequest licenseRequest,String encryptionType) throws ItorixException {
 		LicenseToken licenseToken = new LicenseToken();
 		try {
+			log.debug("getEncryptedLicense {}",licenseRequest,encryptionType);
 			if(StringUtils.equalsIgnoreCase("tink",encryptionType)) {
 				licenseToken.setLicensePolicy(licenseRequest.getLicensePolicy());
 				licenseToken.setNodeIds(licenseRequest.getClientIp());
