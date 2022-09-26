@@ -300,4 +300,11 @@ public class BaseRepository {
 	public <T> AggregationResults<T> addAggregation(Aggregation aggregations, String collectionName, Class clazz) {
 		return mongoTemplate.aggregate(aggregations, collectionName, clazz);
 	}
+
+
+	public <T> DeleteResult deleteRevision(String fieldName1, Object fieldValue1, String fieldName2, Object fieldValue2,
+			String fieldName3, Object fieldValue3, Class<T> clazz) {
+		return mongoTemplate.remove(new Query(Criteria.where(fieldName1).is(fieldValue1).and(fieldName2).is(fieldValue2)
+				.and(fieldName3).is(fieldValue3)), clazz);
+	}
 }
