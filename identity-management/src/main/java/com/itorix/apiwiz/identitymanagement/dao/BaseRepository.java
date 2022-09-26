@@ -281,11 +281,11 @@ public class BaseRepository {
 		return aggregate.getMappedResults();
 	}
 
-	public List<Document> getSwaggerAssociatedWithSchemaName(String dictionaryId, String schemaName, Class clazz) {
+	public List<Document> getSwaggerAssociatedWithSchemaName(String dictionaryId, String modelId, Integer revision, Class clazz) {
 		UnwindOperation unwindDictionary = unwind("dictionary");
 		UnwindOperation unwindDictionaryModels = unwind("dictionary.models");
 		MatchOperation matchOperation = match(Criteria.where("dictionary._id").is(new ObjectId(dictionaryId))
-				.and("dictionary.models.name").is(schemaName));
+				.and("dictionary.models.modelId").is(modelId).and("dictionary.models.revision").is(revision));
 
 		AggregationResults<Document> aggregate = mongoTemplate.aggregate(
 				newAggregation(unwindDictionary, unwindDictionaryModels, matchOperation), clazz, Document.class);

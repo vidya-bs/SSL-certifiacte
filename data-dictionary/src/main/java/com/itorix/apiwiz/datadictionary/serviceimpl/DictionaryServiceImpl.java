@@ -3,32 +3,24 @@ package com.itorix.apiwiz.datadictionary.serviceimpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.diff.JsonDiff;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.datadictionary.business.DictionaryBusiness;
 import com.itorix.apiwiz.datadictionary.model.*;
 import com.itorix.apiwiz.datadictionary.service.DictionaryService;
 import lombok.extern.slf4j.Slf4j;
-import java.util.*;
-
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.UUID;
 
 @CrossOrigin
 @Slf4j
@@ -582,5 +574,43 @@ public class DictionaryServiceImpl implements DictionaryService {
 		}
 		dictionaryBusiness.deletePortfolioModelByportfolioIDAndModelIdAndRevision(model1);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/model/{modelId1}/diff/{modelId2}")
+	public ResponseEntity<Object> findDiffBetweenModels(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "portfolioId1", required = true) String portfolioId1,
+			@RequestParam(value = "portfolioId2", required = true) String portfolioId2,
+			@RequestParam(value = "Revision1", required = true) Integer revisionid1,
+			@RequestParam(value = "Revision2", required = true) Integer revisionid2,
+			@PathVariable("modelId1") String modelId1, @PathVariable("modelId2") String modelId2) throws Exception {
+		PortfolioModel portfolioModel = new PortfolioModel();
+		PortfolioModel portfolioModel1 = new PortfolioModel();
+		if (revisionid1 != null) {
+			portfolioModel = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelIdAndRevison(portfolioId1, modelId1, revisionid1);
+			if (portfolioModel == null) {
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1004"), portfolioId1),
+						"Portfolio-1004");
+			}
+		}
+		if (revisionid2 != null) {
+			portfolioModel1 = dictionaryBusiness.findPortfolioModelsWithRevisions(portfolioId2, modelId2, revisionid2);
+			if (portfolioModel1 == null) {
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1004"), portfolioId2),
+						"Portfolio-1004");
+			}
+		}
+		ObjectMapper mapper = new ObjectMapper();
+		DiffResponse diff = new DiffResponse();
+		JsonNode beforeNode = mapper.readTree(portfolioModel.getModel());
+		JsonNode afterNode = mapper.readTree(portfolioModel1.getModel());
+		//JsonNode patch = JsonDiff.asJson(beforeNode, afterNode);
+		diff.setModel1(portfolioModel);
+		diff.setModel2(portfolioModel1);
+		diff.setDiff(JsonDiff.asJson(beforeNode, afterNode));
+		return new ResponseEntity<>(diff, HttpStatus.OK);
+
 	}
 }

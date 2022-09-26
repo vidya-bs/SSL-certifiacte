@@ -10,17 +10,11 @@ import com.itorix.apiwiz.datadictionary.model.Revision;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -337,4 +331,14 @@ public interface DictionaryService {
 			@PathVariable("modelId") String modelId, @PathVariable("revision") Integer revision)
 			throws ItorixException;
 
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/model/{modelId1}/diff/{modelId2}")
+	public ResponseEntity<Object> findDiffBetweenModels(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "portfolioId1", required = true) String portfolioId1,
+			@RequestParam(value = "portfolioId2", required = true) String portfolioId2,
+			@RequestParam(value = "Revision1", required = true) Integer revisionid1,
+			@RequestParam(value = "Revision2", required = true) Integer revisionid2,
+			@PathVariable("modelId1") String modelId1, @PathVariable("modelId2") String modelId2) throws Exception;
 }

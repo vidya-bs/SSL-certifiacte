@@ -47,6 +47,7 @@ import io.swagger.generator.model.GeneratorInput;
 import io.swagger.generator.model.ResponseCode;
 import io.swagger.generator.online.Generator;
 import io.swagger.models.Swagger;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -77,6 +78,7 @@ import java.util.stream.Collectors;
  */
 @CrossOrigin
 @RestController
+@Slf4j
 public class SwaggerServiceImpl implements SwaggerService {
 
 	private static final Logger logger = LoggerFactory.getLogger(SwaggerServiceImpl.class);
@@ -2721,6 +2723,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@Override
 	public ResponseEntity<?> updateSwaggerDictionary(@RequestHeader String jsessionid,
 			@RequestBody SwaggerDictionary swaggerDictionary) {
+		log.info("Update Swagger dictionary");
 		swaggerBusiness.updateSwaggerDictionary(swaggerDictionary);
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
@@ -2728,6 +2731,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@Override
 	public ResponseEntity<?> getSwaggerDictionary(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("swaggerId") String swaggerId, @PathVariable("revision") Integer revision) {
+		log.info("Get Assoiated Swagger dictionary");
 		return new ResponseEntity<>(swaggerBusiness.getSwaggerDictionary(swaggerId, revision), HttpStatus.OK);
 	}
 
@@ -2735,7 +2739,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<?> getSwaggerAssociatedWithDataDictionary(
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable String dictionaryId) {
 		DictionarySwagger swaggerAssociatedWithDictionary = swaggerBusiness
-				.getSwaggerAssociatedWithDictionary(dictionaryId, null);
+				.getSwaggerAssociatedWithDictionary(dictionaryId, null,null);
 		if (swaggerAssociatedWithDictionary != null) {
 			return new ResponseEntity<>(swaggerAssociatedWithDictionary, HttpStatus.OK);
 		} else {
@@ -2745,9 +2749,22 @@ public class SwaggerServiceImpl implements SwaggerService {
 
 	@Override
 	public ResponseEntity<?> getSwaggerAssociatedWithSchemaName(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@PathVariable String dictionaryId, @PathVariable String schemaName) {
+			@PathVariable String dictionaryId, @PathVariable String modelId) {
 		DictionarySwagger swaggerAssociatedWithDictionary = swaggerBusiness
-				.getSwaggerAssociatedWithDictionary(dictionaryId, schemaName);
+				.getSwaggerAssociatedWithDictionary(dictionaryId, modelId,null);
+		if (swaggerAssociatedWithDictionary != null) {
+			return new ResponseEntity<>(swaggerAssociatedWithDictionary, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	@Override
+	public ResponseEntity<?> getSwaggerAssociatedWithModelId(@RequestHeader(value = "JSESSIONID") String jsessionid,
+															 @PathVariable String dictionaryId, @PathVariable String modelId, @PathVariable Integer revision) {
+		log.info("Get Swagger Asoociated with ModelId");
+		DictionarySwagger swaggerAssociatedWithDictionary = swaggerBusiness
+				.getSwaggerAssociatedWithDictionary(dictionaryId, modelId , revision);
 		if (swaggerAssociatedWithDictionary != null) {
 			return new ResponseEntity<>(swaggerAssociatedWithDictionary, HttpStatus.OK);
 		} else {

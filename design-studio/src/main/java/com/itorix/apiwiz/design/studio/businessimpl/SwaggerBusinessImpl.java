@@ -24,6 +24,7 @@ import com.itorix.apiwiz.common.util.zip.ZIPUtil;
 import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
 import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger.Status;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SchemaInfo;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerData;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
@@ -3759,12 +3760,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	@Override
-	public DictionarySwagger getSwaggerAssociatedWithDictionary(String dictionaryId, String schemaName) {
+	public DictionarySwagger getSwaggerAssociatedWithDictionary(String dictionaryId, String modelId, Integer revision) {
 		List<Document> documents = null;
-		if (schemaName == null || "".equals(schemaName)) {
+		if (modelId == null || "".equals(modelId)) {
 			documents = baseRepository.getSwaggerAssociatedWithDictionary(dictionaryId, SwaggerDictionary.class);
 		} else {
-			documents = baseRepository.getSwaggerAssociatedWithSchemaName(dictionaryId, schemaName,
+			documents = baseRepository.getSwaggerAssociatedWithSchemaName(dictionaryId, modelId,revision,
 					SwaggerDictionary.class);
 		}
 		log.debug("getSwaggerAssociatedWithDictionary:{}",documents);
@@ -3774,6 +3775,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Document dictionaryObj = documents.get(0).get("dictionary", Document.class);
 			dictionarySwagger.setId(dictionaryObj.get("_id", ObjectId.class).toString());
 			dictionarySwagger.setName(dictionaryObj.getString("name"));
+			dictionarySwagger.setRevision(dictionaryObj.getInteger("revision"));
+			dictionarySwagger.setStatus(Status.valueOf(dictionaryObj.getString(STATUS_VALUE)));
 		} else {
 			return null;
 		}
@@ -3782,7 +3785,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Document dictionaryObj = doc.get("dictionary", Document.class);
 			Document modelsObj = dictionaryObj.get("models", Document.class);
 			String modelName = modelsObj.getString("name");
-
+			String modelID=modelsObj.getString("modelId");
+			Integer modelRevision=modelsObj.getInteger("revision");
 			if (dictionarySwagger.getSchemas() != null && dictionarySwagger.getSchemas().size() > 0) {
 				Optional<SchemaInfo> schemaInfoOptional = dictionarySwagger.getSchemas().stream()
 						.filter(s -> s.getName().equals(modelName)).findFirst();
@@ -3794,6 +3798,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					SwaggerData swaggerData = getSwaggerData(doc);
 					SchemaInfo schemaInfo = new SchemaInfo();
 					schemaInfo.setName(modelName);
+					schemaInfo.setModelId(modelID);
+					schemaInfo.setRevision(modelRevision);
+					schemaInfo.setStatus(SchemaInfo.Status.valueOf(modelsObj.getString(STATUS_VALUE)));
 					swaggers.add(swaggerData);
 					schemaInfo.setSwaggers(swaggers);
 					dictionarySwagger.getSchemas().add(schemaInfo);
@@ -3803,6 +3810,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				ArrayList<SchemaInfo> schemaInfos = new ArrayList<>();
 				SchemaInfo schemaInfo = new SchemaInfo();
 				schemaInfo.setName(modelName);
+				schemaInfo.setModelId(modelID);
+				schemaInfo.setRevision(modelRevision);
+				schemaInfo.setStatus(SchemaInfo.Status.valueOf(modelsObj.getString(STATUS_VALUE)));
 				ArrayList<SwaggerData> swaggers = new ArrayList<>();
 				SwaggerData swaggerData = getSwaggerData(doc);
 				swaggers.add(swaggerData);
