@@ -36,7 +36,6 @@ public class License {
 	private String modifiedUserName;
 	private Long mts;
 	private Set<String> components;
-	private String encryptionType;
 	@JsonIgnore
 	private int auditCount;
 }
