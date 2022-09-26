@@ -14,4 +14,5 @@ public class LicenseToken {
 	private List<String> nodeIds;
 	private LicensePolicy licensePolicy;
 	private Set<String> components;
+	private String encryptionType;
 }

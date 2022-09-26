@@ -20,5 +20,5 @@ public class LicenseRequest {
 	private String expiry;
 	private LicensePolicy licensePolicy;
 	private Set<String> components;
-
+	private String encryptionType;
 }

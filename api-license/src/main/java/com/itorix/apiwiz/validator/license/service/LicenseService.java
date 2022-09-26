@@ -15,10 +15,13 @@ import java.util.Map;
 public interface LicenseService {
 
 	@PostMapping(value = "/v1/apiwiz/licenses")
-	public ResponseEntity createLicense(@RequestBody LicenseRequest licenseRequest) throws ItorixException;
+	public ResponseEntity createLicense(@RequestBody LicenseRequest licenseRequest,
+			@RequestParam(value = "type")String encryptionType
+			) throws ItorixException;
 
 	@PutMapping(value = "/v1/apiwiz/licenses/{emailId}")
-	public ResponseEntity updateLicense(@PathVariable String emailId, @RequestBody LicenseRequest licenseRequest)
+	public ResponseEntity updateLicense(@PathVariable String emailId, @RequestBody LicenseRequest licenseRequest,
+			@RequestParam(value = "type")String encryptionType)
 	throws ItorixException;
 
 	@DeleteMapping(value = "/v1/apiwiz/licenses/{emailId}")

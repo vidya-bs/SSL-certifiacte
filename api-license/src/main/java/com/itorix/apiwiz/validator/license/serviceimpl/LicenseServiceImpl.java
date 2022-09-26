@@ -32,9 +32,9 @@ public class LicenseServiceImpl implements LicenseService {
 			@ApiResponse(code = 400, message = "Request validation failed. License already exists for the email %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@Override
-	public ResponseEntity<?> createLicense(LicenseRequest licenseRequest) {
+	public ResponseEntity<?> createLicense(LicenseRequest licenseRequest,String encryptionType) {
 		try {
-			licenseBusiness.createLicense(licenseRequest);
+			licenseBusiness.createLicense(licenseRequest,encryptionType);
 		} catch (ItorixException e) {
 			return new ResponseEntity(new ErrorObj(e.getMessage(), e.getErrorCode()), HttpStatus.BAD_REQUEST);
 		}
@@ -46,9 +46,9 @@ public class LicenseServiceImpl implements LicenseService {
 			@ApiResponse(code = 400, message = "Request validation failed. No license exists for the email %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class) })
 	@Override
-	public ResponseEntity updateLicense(String emailId, LicenseRequest licenseRequest) {
+	public ResponseEntity updateLicense(String emailId, LicenseRequest licenseRequest, String encryptionType) {
 		try {
-			licenseBusiness.updateLicense(emailId, licenseRequest);
+			licenseBusiness.updateLicense(emailId, licenseRequest,encryptionType);
 		} catch (ItorixException e) {
 			return new ResponseEntity(new ErrorObj(e.getMessage(), e.getErrorCode()), HttpStatus.BAD_REQUEST);
 		}
