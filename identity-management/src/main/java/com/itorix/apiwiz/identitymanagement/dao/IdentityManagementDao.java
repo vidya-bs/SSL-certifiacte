@@ -576,7 +576,7 @@ public class IdentityManagementDao {
     public VerificationToken password(User user) throws ItorixException {
         User userByEmail = findByEmail(user.getEmail());
         if (userByEmail != null) {
-            VerificationToken token = createVerificationToken("resetPassword", user.getEmail(),"");
+            VerificationToken token = createVerificationToken("resetPassword", user.getEmail(),null);
             sendPassWordResetEmail(token, userByEmail);
             saveVerificationToken(token);
             return token;
@@ -1012,7 +1012,7 @@ public class IdentityManagementDao {
 
     public void resendToken(VerificationToken token) throws ItorixException {
         User user = findByEmail(token.getUserEmail());
-        VerificationToken newToken = createVerificationToken(token.getType(), token.getUserEmail(),"");
+        VerificationToken newToken = createVerificationToken(token.getType(), token.getUserEmail(),null);
         if (token.getType().equals("registerUser")) {
             newToken.setWorkspaceId(token.getWorkspaceId());
             newToken.setUserType(token.getType());
@@ -1043,7 +1043,7 @@ public class IdentityManagementDao {
             password(user);
         } else if (userInfo.getType().equals("register")) {
             User user = findByEmail(userInfo.getEmail());
-            VerificationToken token = createVerificationToken("registerUser", user.getEmail(),"");
+            VerificationToken token = createVerificationToken("registerUser", user.getEmail(),null);
             saveVerificationToken(token);
             sendRegistrationEmail(token, user);
         }
@@ -1057,7 +1057,7 @@ public class IdentityManagementDao {
         if (user.getLoginId() == null) {
             isNewUser = true;
         }
-        VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail(),"");
+        VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail(),null);
         token.setWorkspaceId(workspace.getName());
         token.setUserType(User.LABEL_MEMBER);
         saveVerificationToken(token);
