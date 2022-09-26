@@ -367,7 +367,8 @@ public class DevportalServiceImpl implements DevportalService {
 	private ResponseEntity<String> getStringResponseEntity(String partner,
 			ResponseEntity<String> response) throws JsonProcessingException, ItorixException {
 		Set<String> products = new HashSet<>();
-		List<String> partners = StringUtils.isNotBlank(partner) ? Arrays.asList(partner.split(",")) : Collections.emptyList();
+		List<String> partners = StringUtils.isNotBlank(partner) ? Arrays.asList(partner.split(","))
+				: Collections.emptyList();
 		String apiProductString = response.getBody();
 		try {
 			JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
