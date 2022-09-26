@@ -495,7 +495,7 @@ public class IdentityManagementDao {
         }
     }
 
-    public Object registerWithMail(UserInfo userInfo) throws ItorixException {
+    public Object registerWithMail(UserInfo userInfo, String appType) throws ItorixException {
         String domainId = userInfo.getEmail().split("@")[1];
         boolean domainAllowed = isDomainAllowed(userInfo.getEmail());
         if (domainAllowed) {
@@ -503,7 +503,7 @@ public class IdentityManagementDao {
             if (userByEmail == null) {
                 User user = new User();
                 user.setEmail(userInfo.getEmail());
-                VerificationToken token = createVerificationToken("registerUser", user.getEmail(),null);
+                VerificationToken token = createVerificationToken("registerUser", user.getEmail(),appType);
                 saveVerificationToken(token);
                 if (sendRegistrationEmail(token, user))
                     user = saveUser(user);
@@ -576,7 +576,7 @@ public class IdentityManagementDao {
     public VerificationToken password(User user) throws ItorixException {
         User userByEmail = findByEmail(user.getEmail());
         if (userByEmail != null) {
-            VerificationToken token = createVerificationToken("resetPassword", user.getEmail(),null);
+            VerificationToken token = createVerificationToken("resetPassword", user.getEmail(),"");
             sendPassWordResetEmail(token, userByEmail);
             saveVerificationToken(token);
             return token;
@@ -939,8 +939,12 @@ public class IdentityManagementDao {
 
     public boolean sendRegistrationEmail(VerificationToken token, User user) {
         try {
-
-            String link = applicationProperties.getAppURL() + "/register/" + token.getId() + "/verify" + token.getAppType();
+            String link;
+            if(token.getAppType()!= null){
+                 link = applicationProperties.getAppURL() + "/register/" + token.getId() + "/verify" + "?appType="+ token.getAppType();
+            }else {
+                 link = applicationProperties.getAppURL() + "/register/" + token.getId() + "/verify";
+            }
             String bodyText = MessageFormat.format(applicationProperties.getRegistermailBody(), user.getEmail(), link);
             ArrayList<String> toRecipients = new ArrayList<String>();
             toRecipients.add(user.getEmail());
@@ -1008,7 +1012,7 @@ public class IdentityManagementDao {
 
     public void resendToken(VerificationToken token) throws ItorixException {
         User user = findByEmail(token.getUserEmail());
-        VerificationToken newToken = createVerificationToken(token.getType(), token.getUserEmail(),null);
+        VerificationToken newToken = createVerificationToken(token.getType(), token.getUserEmail(),"");
         if (token.getType().equals("registerUser")) {
             newToken.setWorkspaceId(token.getWorkspaceId());
             newToken.setUserType(token.getType());
@@ -1039,7 +1043,7 @@ public class IdentityManagementDao {
             password(user);
         } else if (userInfo.getType().equals("register")) {
             User user = findByEmail(userInfo.getEmail());
-            VerificationToken token = createVerificationToken("registerUser", user.getEmail(),null);
+            VerificationToken token = createVerificationToken("registerUser", user.getEmail(),"");
             saveVerificationToken(token);
             sendRegistrationEmail(token, user);
         }
@@ -1053,7 +1057,7 @@ public class IdentityManagementDao {
         if (user.getLoginId() == null) {
             isNewUser = true;
         }
-        VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail(),null);
+        VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail(),"");
         token.setWorkspaceId(workspace.getName());
         token.setUserType(User.LABEL_MEMBER);
         saveVerificationToken(token);
