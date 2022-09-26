@@ -209,7 +209,7 @@ deployment:
     environments:
       - env: local
         branch: feature
-        deployFlag: enable
+        deployFlag: disable
         spaceName: NA
         container: disable
         approval: disable
@@ -345,7 +345,7 @@ deployment:
       - env: local
         branch: feature
         container: disable
-        deployFlag: enable
+        deployFlag: disable
         approval: disable
         host: 3.128.86.36
         pem: itorix-dev.pem
@@ -368,7 +368,7 @@ deployment:
         cloudProvider: aws
       - env: gcp-dev
         branch: feature
-        deployFlag: enable
+        deployFlag: disable
         approval: disable
         host: 34.70.37.110
         pem: NA
@@ -411,7 +411,7 @@ deployment:
       - env: local
         branch: feature
         container: disable
-        deployFlag: enable
+        deployFlag: disable
         approval: disable
         host: 3.128.86.36
         pem: itorix-dev.pem
@@ -477,7 +477,7 @@ deployment:
       - env: local
         branch: feature
         container: disable
-        deployFlag: enable
+        deployFlag: disable
         approval: disable
         host: 3.128.86.36
         pem: itorix-dev.pem
