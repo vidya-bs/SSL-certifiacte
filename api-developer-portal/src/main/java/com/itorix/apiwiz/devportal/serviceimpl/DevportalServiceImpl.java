@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -366,7 +367,7 @@ public class DevportalServiceImpl implements DevportalService {
 	private ResponseEntity<String> getStringResponseEntity(String partner,
 			ResponseEntity<String> response) throws JsonProcessingException, ItorixException {
 		Set<String> products = new HashSet<>();
-		List<String> partners = Arrays.asList(partner.split(","));
+		List<String> partners = StringUtils.isNotBlank(partner) ? Arrays.asList(partner.split(",")) : Collections.emptyList();
 		String apiProductString = response.getBody();
 		try {
 			JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
