@@ -1,8 +1,14 @@
 package com.itorix.apiwiz.devportal.serviceimpl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
+import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -332,6 +338,63 @@ public class DevportalServiceImpl implements DevportalService {
 			HTTPUtil httpConn = new HTTPUtil(URL, getEncodedCredentials(org, type));
 			return devportaldao.proxyService(httpConn, "GET");
 		}
+	}
+	@Override
+	public ResponseEntity<String> getProductsForPartner(String jsessionId, String interactionid,
+			String partner, String type, String org) throws Exception {
+		if (type != null && type.equalsIgnoreCase("apigeex")) {
+			String URL;
+			URL =
+					apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/apiproducts?expand=true";
+			HTTPUtil httpConn = new HTTPUtil(URL, apigeexUtil.getApigeeCredentials(org, type));
+			ResponseEntity<String> response = devportaldao.proxyService(httpConn, "GET");
+			ResponseEntity<String> responseEntity = getStringResponseEntity(partner,
+					response);
+			return responseEntity;
+		} else {
+			String URL;
+			URL = apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/" + org
+					+ "/apiproducts?expand=true";
+			HTTPUtil httpConn = new HTTPUtil(URL, getEncodedCredentials(org, type));
+			ResponseEntity<String> response = devportaldao.proxyService(httpConn, "GET");
+			ResponseEntity<String> responseEntity = getStringResponseEntity(partner,
+					response);
+			return responseEntity;
+		}
+	}
+
+	private ResponseEntity<String> getStringResponseEntity(String partner,
+			ResponseEntity<String> response) throws JsonProcessingException, ItorixException {
+		Set<String> products = new HashSet<>();
+		List<String> partners = Arrays.asList(partner.split(","));
+		String apiProductString = response.getBody();
+		try {
+			JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
+			JSONArray apiProducts = (JSONArray) proxyObject.get("apiProduct");
+			for (Object apiObj : apiProducts) {
+				JSONObject prodObj = (JSONObject) apiObj;
+				JSONArray attributes = (JSONArray) prodObj.get("attributes");
+				for (Object objectNode : attributes) {
+					JSONObject node = (JSONObject) objectNode;
+					if (StringUtils.equalsIgnoreCase("partners", (String) node.get("name"))) {
+						partners.forEach(selectedPartner -> {
+							if (((String) node.get("value")).contains(selectedPartner)) {
+								final String apiProduct = (String) prodObj.get("name");
+								products.add(apiProduct);
+							}
+						});
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e);
+		}
+		ObjectMapper objectMapper = new ObjectMapper();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		ResponseEntity<String> responseEntity = new ResponseEntity<String>(
+				objectMapper.writeValueAsString(products), headers, HttpStatus.OK);
+		return responseEntity;
 	}
 
 	private String getEncodedCredentials(String org, String type) {
