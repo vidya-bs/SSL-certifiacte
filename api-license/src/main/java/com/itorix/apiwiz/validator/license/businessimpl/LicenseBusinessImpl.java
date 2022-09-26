@@ -54,6 +54,7 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 		licenseToSave.setEncryptedToken(manager.getEncryptedLicense(licenseRequest,encryptionType));
 		licenseToSave.setStatus(Status.VALID);
 		licenseToSave.setComponents(licenseRequest.getComponents());
+		licenseToSave.setEncryptionType(encryptionType);
 		return licenseToSave;
 	}
 
@@ -89,6 +90,7 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 		license.setEncryptedToken(manager.getEncryptedLicense(licenseRequest,encryptionType));
 		license.setStatus(Status.valueOf(licenseRequest.getStatus()));
 		license.setComponents(licenseRequest.getComponents());
+		license.setEncryptionType(encryptionType);
 	}
 
 	@Override
