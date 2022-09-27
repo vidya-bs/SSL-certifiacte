@@ -428,6 +428,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 			modelWithRevision.setStatus(model.get(i).getStatus());
 			modelWithRevision.setRevision(model.get(i).getRevision());
 			modelWithRevision.setModel(jsonNode);
+			modelWithRevision.setModelId(model.get(i).getModelId());
 			modelWithRevisionList.add(modelWithRevision);
 		}
 		return new ResponseEntity<Object>(modelWithRevisionList, HttpStatus.OK);
