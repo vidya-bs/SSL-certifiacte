@@ -110,4 +110,12 @@ public interface DevportalService {
 			@RequestParam(value = "timeRange", required = false) String timeRange,
 			@RequestParam(value = "timeUnit", required = false) String timeUnit,
 			@RequestParam(value = "filter", required = false) String filter) throws Exception;
+
+	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/organizations/{org}/apiproducts/filter")
+	public ResponseEntity<String> getProductsForPartner(
+			@RequestHeader(value = "JSESSIONID") String jsessionId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "partners", required = false) String partner,
+			@RequestHeader(value = "type") String type, @PathVariable("org") String org) throws Exception;
 }
