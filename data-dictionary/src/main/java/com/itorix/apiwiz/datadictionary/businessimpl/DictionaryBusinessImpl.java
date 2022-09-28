@@ -221,8 +221,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 
 	public void deletePortfolioById(PortfolioVO portfolioVO) {
 		log("deletePortfolio", portfolioVO.getInteractionid());
-		String dictionaryId = portfolioVO.getDictionaryId();
-		List<PortfolioVO> portfolioIds = baseRepository.find("dictionaryId", dictionaryId, PortfolioVO.class);
+		List<PortfolioVO> portfolioIds = baseRepository.find("dictionaryId", portfolioVO.getDictionaryId(), PortfolioVO.class);
 		if (portfolioIds != null && portfolioIds.size() > 0) {
 			for (PortfolioVO portfolio : portfolioIds) {
 				baseRepository.delete("portfolioID", portfolio.getId(), PortfolioModel.class);
