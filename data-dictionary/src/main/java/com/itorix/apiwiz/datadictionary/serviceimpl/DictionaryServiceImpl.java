@@ -495,7 +495,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 				model_name);
 
 		dictionaryBusiness.sendNotificationForModel(jsessionid, models,
-				" model has been deleted ".concat(models.getModelName()));
+				" Model has been deleted ".concat(models.getModelName()));
 		dictionaryBusiness.deletePortfolioModelByModelId(model_name);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}

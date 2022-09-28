@@ -485,7 +485,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 							SwaggerVO.class);
 					String swaggerDetails = swaggerVO.getSwagger();
 					NotificationDetails notificationDetails = new NotificationDetails();
-					notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
+					notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy(), portfolioVO.getCreatedBy()));
 					notificationDetails.setType(NotificationType.fromValue("Data Dictionary"));
 					notificationDetails.setNotification(message);
 					notificationBusiness.createNotification(notificationDetails, jsessionid);
@@ -495,7 +495,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 					Swagger3VO swagger3VO = mongoTemplate.findOne(querySwagger, Swagger3VO.class);
 					String swaggerDetails = swagger3VO.getSwagger();
 					NotificationDetails notificationDetails = new NotificationDetails();
-					notificationDetails.setUserId(Arrays.asList(swagger3VO.getCreatedBy()));
+					notificationDetails.setUserId(Arrays.asList(swagger3VO.getCreatedBy(), portfolioVO.getCreatedBy()));
 					notificationDetails.setType(NotificationType.fromValue("Data Dictionary"));
 					notificationDetails.setNotification(message);
 					notificationBusiness.createNotification(notificationDetails, jsessionid);
@@ -528,7 +528,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 							SwaggerVO.class);
 					String swaggerDetails = swaggerVO.getSwagger();
 					NotificationDetails notificationDetails = new NotificationDetails();
-					notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
+					notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy(), portfolioModel.getCreatedBy()));
 					notificationDetails.setType(NotificationType.fromValue("Model"));
 					notificationDetails.setNotification(message);
 					notificationBusiness.createNotification(notificationDetails, jsessionid);
@@ -538,7 +538,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 					Swagger3VO swagger3VO = mongoTemplate.findOne(querySwagger, Swagger3VO.class);
 					String swaggerDetails = swagger3VO.getSwagger();
 					NotificationDetails notificationDetails = new NotificationDetails();
-					notificationDetails.setUserId(Arrays.asList(swagger3VO.getCreatedBy()));
+					notificationDetails.setUserId(Arrays.asList(swagger3VO.getCreatedBy(), portfolioModel.getCreatedBy()));
 					notificationDetails.setType(NotificationType.fromValue("Model"));
 					notificationDetails.setNotification(message);
 					notificationBusiness.createNotification(notificationDetails, jsessionid);
