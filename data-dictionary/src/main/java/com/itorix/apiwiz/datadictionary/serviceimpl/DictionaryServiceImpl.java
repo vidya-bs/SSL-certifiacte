@@ -201,10 +201,14 @@ public class DictionaryServiceImpl implements DictionaryService {
 		vo.setInteractionid(interactionid);
 		vo.setId(id);
 		PortfolioVO portfolioVO = dictionaryBusiness.findPortfolioById(vo);
+		if ( portfolioVO == null){
+			log.error("PortfolioVO not found: {}", id);
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1003"), id), "Portfolio-1003");
+		}
        dictionaryBusiness.sendNotificationToSwagger(jsessionid, portfolioVO,
 			   " Portfolio has been deleted ".concat(portfolioVO.getName()));
 
-		dictionaryBusiness.deletePortfolioById(vo);
+		dictionaryBusiness.deletePortfolioById(portfolioVO);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -574,7 +578,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 		PortfolioVO portfolioVO = dictionaryBusiness.getPortfolioByRevision(id, revision);
 	dictionaryBusiness.sendNotificationToSwagger(jsessionid, portfolioVO,
 				"Portfolio revision has been deleted  ".concat(portfolioVO.getName()));
-		dictionaryBusiness.deletePortfolioById(vo);
+		dictionaryBusiness.deletePortfolioByIdAndRevision(vo);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 

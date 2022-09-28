@@ -32,7 +32,9 @@ public interface DictionaryBusiness {
 
 	public PortfolioVO findPortfolioById(PortfolioVO portfolioVO);
 
-	public DeleteResult deletePortfolioById(PortfolioVO portfolioVO);
+	public DeleteResult deletePortfolioByIdAndRevision(PortfolioVO portfolioVO);
+
+	public void deletePortfolioById(PortfolioVO portfolioVO);
 
 	public PortfolioModel createPortfolioModel(PortfolioModel model);
 

@@ -213,10 +213,22 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		return baseRepository.findById(portfolioVO.getId(), PortfolioVO.class);
 	}
 
-	public DeleteResult deletePortfolioById(PortfolioVO portfolioVO) {
+	public DeleteResult deletePortfolioByIdAndRevision(PortfolioVO portfolioVO) {
 		log("deletePortfolio", portfolioVO.getInteractionid());
 		baseRepository.delete("portfolioID", portfolioVO.getId(), PortfolioModel.class);
 		return baseRepository.delete(portfolioVO.getId(), PortfolioVO.class);
+	}
+
+	public void deletePortfolioById(PortfolioVO portfolioVO) {
+		log("deletePortfolio", portfolioVO.getInteractionid());
+		String dictionaryId = portfolioVO.getDictionaryId();
+		List<PortfolioVO> portfolioIds = baseRepository.find("dictionaryId", dictionaryId, PortfolioVO.class);
+		if (portfolioIds != null && portfolioIds.size() > 0) {
+			for (PortfolioVO portfolio : portfolioIds) {
+				baseRepository.delete("portfolioID", portfolio.getId(), PortfolioModel.class);
+				baseRepository.delete(portfolio.getId(), PortfolioVO.class);
+			}
+		}
 	}
 
 	public PortfolioModel createPortfolioModel(PortfolioModel model) {
