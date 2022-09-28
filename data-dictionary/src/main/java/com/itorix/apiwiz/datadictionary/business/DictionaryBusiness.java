@@ -76,4 +76,11 @@ public interface DictionaryBusiness {
 
 	PortfolioModel findPortfolioModelsByportfolioIDAndModelName(PortfolioModel model);
 
+	public void sendNotificationForModel(String jsessionid, PortfolioModel portfolioModel,
+										 String message);
+	public void sendNotificationToSwagger(String jsessionid, PortfolioVO portfolioVO,
+										  String message);
+
+
+
 }

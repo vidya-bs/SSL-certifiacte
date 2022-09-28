@@ -9,6 +9,9 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.datadictionary.business.DictionaryBusiness;
 import com.itorix.apiwiz.datadictionary.model.*;
 import com.itorix.apiwiz.datadictionary.service.DictionaryService;
+import com.itorix.apiwiz.design.studio.business.NotificationBusiness;
+import com.itorix.apiwiz.design.studio.model.NotificationDetails;
+import com.itorix.apiwiz.design.studio.model.NotificationType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,6 +38,9 @@ public class DictionaryServiceImpl implements DictionaryService {
 
 	@Autowired
 	DictionaryBusiness dictionaryBusiness;
+
+	@Autowired
+	NotificationBusiness notificationBusiness;
 
 	/**
 	 * Using this method we can create the Portfolio.
@@ -65,6 +72,13 @@ public class DictionaryServiceImpl implements DictionaryService {
 			headers.add("Access-Control-Expose-Headers", "X-datadictionary-id");
 			headers.add("X-datadictionary-id", portfolioVO.getId());
 		}
+		NotificationDetails notificationDetails = new NotificationDetails();
+		notificationDetails.setNotification(
+				"Portfolio has been created ".concat(portfolioVO.getName()));
+		notificationDetails.setUserId(Arrays.asList(portfolioVO.getCreatedBy()));
+		notificationDetails.setType(NotificationType.fromValue("Data Dictionary"));
+		notificationBusiness.createNotification(notificationDetails, jsessionid);
+
 		return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
 	}
 
@@ -94,6 +108,9 @@ public class DictionaryServiceImpl implements DictionaryService {
 						"Portfolio-1001");
 			}
 			portfolioVO = dictionaryBusiness.createPortfolio(portfolioVO);
+			dictionaryBusiness.sendNotificationToSwagger(jsessionid, portfolioVO,
+					" Portfolio has been updated ".concat(portfolioVO.getName()));
+
 			// dictionaryBusiness.sendNotificationForDD(portfolioVO);
 		}
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
@@ -183,6 +200,10 @@ public class DictionaryServiceImpl implements DictionaryService {
 		PortfolioVO vo = new PortfolioVO();
 		vo.setInteractionid(interactionid);
 		vo.setId(id);
+		PortfolioVO portfolioVO = dictionaryBusiness.findPortfolioById(vo);
+       dictionaryBusiness.sendNotificationToSwagger(jsessionid, portfolioVO,
+			   " Portfolio has been deleted ".concat(portfolioVO.getName()));
+
 		dictionaryBusiness.deletePortfolioById(vo);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
@@ -236,6 +257,11 @@ public class DictionaryServiceImpl implements DictionaryService {
 				model.setId(null);
 				model.setModelId(UUID.randomUUID().toString().replaceAll("-", ""));
 				dictionaryBusiness.createnewPortfolioModel(model);
+				NotificationDetails notificationDetails = new NotificationDetails();
+				notificationDetails.setUserId(Arrays.asList(model.getCreatedBy()));
+				notificationDetails.setType(NotificationType.fromValue("Model"));
+				notificationDetails.setNotification("Model has been created ".concat(model.getModelName()));
+				notificationBusiness.createNotification(notificationDetails, jsessionid);
 			} else {
 				Integer revisions = dictionaryBusiness.getDDRevisions(modelId, id);
 				Integer newRevision;
@@ -253,6 +279,11 @@ public class DictionaryServiceImpl implements DictionaryService {
 				model.setId(null);
 				model.setModelId(modelId);
 				model = dictionaryBusiness.createnewPortfolioModel(model);
+				model = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelIdAndRevison(id, modelId,
+						revisions);
+				dictionaryBusiness.sendNotificationForModel(jsessionid, model,
+						" Model has been updated ".concat(model.getModelName()));
+
 				// dictionaryBusiness.sendNotificationForDDModel(model);
 			}
 
@@ -290,8 +321,12 @@ public class DictionaryServiceImpl implements DictionaryService {
 			model.setModelId(modelId);
 			model.setModel(body);
 			dictionaryBusiness.updateModelRevision(model);
-			PortfolioModel modelWithRevision = dictionaryBusiness
+			//PortfolioModel modelWithRevision = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelIdAndRevison(id, modelId, revision);
+			PortfolioModel models = dictionaryBusiness
 					.findPortfolioModelByportfolioIDAndModelIdAndRevison(id, modelId, revision);
+			dictionaryBusiness.updateModelRevision(model);
+		dictionaryBusiness.sendNotificationForModel(jsessionid, models,
+					" Model has been updated with Revision ".concat(models.getModelName()));
 			// dictionaryBusiness.sendNotificationForDDModel(modelWithRevision);
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		}
@@ -456,6 +491,11 @@ public class DictionaryServiceImpl implements DictionaryService {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1003"), id),
 					"Portfolio-1003");
 		}
+		PortfolioModel models = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelId(id,
+				model_name);
+
+		dictionaryBusiness.sendNotificationForModel(jsessionid, models,
+				" model has been deleted ".concat(models.getModelName()));
 		dictionaryBusiness.deletePortfolioModelByModelId(model_name);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
@@ -474,6 +514,10 @@ public class DictionaryServiceImpl implements DictionaryService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
 			@PathVariable("modelId") String modelId, @PathVariable("modelStatus") ModelStatus modelStatus) {
 		dictionaryBusiness.updatePortfolioModelStatus(id, modelId, modelStatus);
+		PortfolioModel model = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelId(id,
+				modelId);
+		dictionaryBusiness.sendNotificationForModel(jsessionid, model,
+				" Model status has been updated ".concat(model.getModelName()));
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 
@@ -496,6 +540,14 @@ public class DictionaryServiceImpl implements DictionaryService {
 		vo.setDictionaryId(portfolioVO.getDictionaryId());
 		vo.setStatus(portfolioVO.getStatus());
 		portfolioVO = dictionaryBusiness.createPortfolioRevision(vo, portfolioVO.getId());
+		PortfolioVO portfolioVOs = dictionaryBusiness.getPortfolioByRevision(id, revision);
+		NotificationDetails notificationDetails = new NotificationDetails();
+		notificationDetails.setNotification(
+				"Portfolio  revision has been created ".concat(portfolioVO.getName()));
+		notificationDetails.setUserId(Arrays.asList(portfolioVO.getCreatedBy()));
+		notificationDetails.setType(NotificationType.fromValue("Data Dictionary"));
+		notificationBusiness.createNotification(notificationDetails, jsessionid);
+
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
@@ -519,6 +571,9 @@ public class DictionaryServiceImpl implements DictionaryService {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
 					"Portfolio-1002");
 		}
+		PortfolioVO portfolioVO = dictionaryBusiness.getPortfolioByRevision(id, revision);
+	dictionaryBusiness.sendNotificationToSwagger(jsessionid, portfolioVO,
+				"Portfolio revision has been deleted  ".concat(portfolioVO.getName()));
 		dictionaryBusiness.deletePortfolioById(vo);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
@@ -535,6 +590,9 @@ public class DictionaryServiceImpl implements DictionaryService {
 		if (EnumUtils.isValidEnum(DictionaryStatus.class, enumStatus)) {
 			vo.setStatus(status.getStatus());
 			dictionaryBusiness.createPortfolio(vo);
+			PortfolioVO portfolioVO = dictionaryBusiness.getPortfolioByRevision(id, revision);
+			dictionaryBusiness.sendNotificationToSwagger(jsessionid, portfolioVO,
+					" Portfolio Status has been updated ".concat(portfolioVO.getName()));
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		} else {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1017"), id),
@@ -550,6 +608,11 @@ public class DictionaryServiceImpl implements DictionaryService {
 			@PathVariable("revision") Integer revision) {
 		log.info("Change Status of a particular model revision");
 		dictionaryBusiness.updatePortfolioModelStatusWithRevision(id, modelId, modelStatus, revision);
+		PortfolioModel model = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelIdAndRevison(
+				id, modelId, revision);
+		dictionaryBusiness.sendNotificationForModel(jsessionid, model,
+				"Model Status has been updated with revision ".concat(model.getModelName()));
+
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 
@@ -573,6 +636,9 @@ public class DictionaryServiceImpl implements DictionaryService {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1003"), id),
 					"Portfolio-1003");
 		}
+		dictionaryBusiness.sendNotificationForModel(jsessionid, model1,
+				"Model has been deleted with Revision ".concat(model1.getModelName()));
+
 		dictionaryBusiness.deletePortfolioModelByportfolioIDAndModelIdAndRevision(model1);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}

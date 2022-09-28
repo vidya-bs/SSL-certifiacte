@@ -10,6 +10,12 @@ import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.mail.MailUtil;
 import com.itorix.apiwiz.datadictionary.business.DictionaryBusiness;
 import com.itorix.apiwiz.datadictionary.model.*;
+import com.itorix.apiwiz.design.studio.business.NotificationBusiness;
+import com.itorix.apiwiz.design.studio.model.NotificationDetails;
+import com.itorix.apiwiz.design.studio.model.NotificationType;
+import com.itorix.apiwiz.design.studio.model.Swagger3VO;
+import com.itorix.apiwiz.design.studio.model.SwaggerVO;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.mongodb.client.result.DeleteResult;
@@ -27,10 +33,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+
 @Slf4j
 @Service
 public class DictionaryBusinessImpl implements DictionaryBusiness {
@@ -46,6 +50,9 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 
 	@Autowired
 	private ApplicationProperties applicationProperties;
+
+	@Autowired
+	private NotificationBusiness notificationBusiness;
 
 	/**
 	 * log
@@ -456,6 +463,91 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 			return new PortfolioModel();
 		} else {
 			return portfolioModel;
+		}
+	}
+
+	public void sendNotificationToSwagger(String jsessionid, PortfolioVO portfolioVO,
+										  String message) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("dictionary.id").is(portfolioVO.getId()));
+		List<SwaggerDictionary> swaggerDictionaries = mongoTemplate.find(query,
+				SwaggerDictionary.class);
+		try {
+			for (int i = 0; i < swaggerDictionaries.size(); i++) {
+				SwaggerDictionary swagger = swaggerDictionaries.get(i);
+				String name = swagger.getName();
+				Integer revision = swagger.getRevision();
+				String oasVersion = swagger.getOasVersion();
+				Query querySwagger = new Query();
+				if (oasVersion.equalsIgnoreCase("2.0")) {
+					querySwagger.addCriteria(Criteria.where("name").is(name).and("revision").is(revision));
+					SwaggerVO swaggerVO = baseRepository.findOne("name", name, "revision", revision,
+							SwaggerVO.class);
+					String swaggerDetails = swaggerVO.getSwagger();
+					NotificationDetails notificationDetails = new NotificationDetails();
+					notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
+					notificationDetails.setType(NotificationType.fromValue("Data Dictionary"));
+					notificationDetails.setNotification(message);
+					notificationBusiness.createNotification(notificationDetails, jsessionid);
+
+				} else if (oasVersion.equalsIgnoreCase("3.0")) {
+					querySwagger.addCriteria(Criteria.where("name").is(name).and("revision").is(revision));
+					Swagger3VO swagger3VO = mongoTemplate.findOne(querySwagger, Swagger3VO.class);
+					String swaggerDetails = swagger3VO.getSwagger();
+					NotificationDetails notificationDetails = new NotificationDetails();
+					notificationDetails.setUserId(Arrays.asList(swagger3VO.getCreatedBy()));
+					notificationDetails.setType(NotificationType.fromValue("Data Dictionary"));
+					notificationDetails.setNotification(message);
+					notificationBusiness.createNotification(notificationDetails, jsessionid);
+
+				}
+			}
+		} catch (Exception e) {
+			log.error("exception while creating notification", e.getMessage());
+		}
+	}
+	public void sendNotificationForModel(String jsessionid, PortfolioModel portfolioModel,
+										 String message) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("dictionary.id").is(portfolioModel.getPortfolioID())
+				.and("dictionary.models.id")
+				.is(portfolioModel.getId()));
+		List<SwaggerDictionary> swaggerDictionaries = mongoTemplate.find(query,
+				SwaggerDictionary.class);
+		try {
+			for (int i = 0; i < swaggerDictionaries.size(); i++) {
+				SwaggerDictionary swagger = swaggerDictionaries.get(i);
+				String name = swagger.getName();
+				Integer revision = swagger.getRevision();
+				String oasVersion = swagger.getOasVersion();
+				Query querySwagger = new Query();
+
+				if (oasVersion.equalsIgnoreCase("2.0")) {
+					querySwagger.addCriteria(Criteria.where("name").is(name).and("revision").is(revision));
+					SwaggerVO swaggerVO = baseRepository.findOne("name", name, "revision", revision,
+							SwaggerVO.class);
+					String swaggerDetails = swaggerVO.getSwagger();
+					NotificationDetails notificationDetails = new NotificationDetails();
+					notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
+					notificationDetails.setType(NotificationType.fromValue("Model"));
+					notificationDetails.setNotification(message);
+					notificationBusiness.createNotification(notificationDetails, jsessionid);
+
+				} else if (oasVersion.equalsIgnoreCase("3.0")) {
+					querySwagger.addCriteria(Criteria.where("name").is(name).and("revision").is(revision));
+					Swagger3VO swagger3VO = mongoTemplate.findOne(querySwagger, Swagger3VO.class);
+					String swaggerDetails = swagger3VO.getSwagger();
+					NotificationDetails notificationDetails = new NotificationDetails();
+					notificationDetails.setUserId(Arrays.asList(swagger3VO.getCreatedBy()));
+					notificationDetails.setType(NotificationType.fromValue("Model"));
+					notificationDetails.setNotification(message);
+					notificationBusiness.createNotification(notificationDetails, jsessionid);
+
+				}
+			}
+
+		} catch (Exception e) {
+			log.error("exception while creating notification", e.getMessage());
 		}
 	}
 

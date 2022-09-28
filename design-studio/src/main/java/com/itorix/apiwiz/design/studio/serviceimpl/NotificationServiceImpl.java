@@ -2,7 +2,7 @@ package com.itorix.apiwiz.design.studio.serviceimpl;
 
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.design.studio.business.NotificationBusines;
+import com.itorix.apiwiz.design.studio.business.NotificationBusiness;
 import com.itorix.apiwiz.design.studio.model.NotificationDetails;
 import com.itorix.apiwiz.design.studio.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
@@ -20,13 +20,13 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
 
     @Autowired
-    private NotificationBusines notificationBusines;
+    NotificationBusiness notificationBusiness;
 
 
     @Override
     public ResponseEntity<List<NotificationDetails>> retrieveNotifications(String jsessionId, String interactionId, String userId, int offset, int pageSize) throws Exception {
         log.info("retrieveNotifications :{}", userId);
-        List<NotificationDetails> response = notificationBusines.getNotificationsForUser(jsessionId, userId, offset, pageSize);
+        List<NotificationDetails> response = notificationBusiness.getNotificationsForUser(jsessionId, userId, offset, pageSize);
         return new ResponseEntity<List<NotificationDetails>>(response, HttpStatus.OK);
 
     }
@@ -41,13 +41,13 @@ public class NotificationServiceImpl implements NotificationService {
             throw new ItorixException(ErrorCodes.errorMessage.get("General-1000"), "General-1000");
         } else {
             notificationDetails.setInteractionid(interactionid);
-            NotificationDetails no = notificationBusines.findNotifications(notificationDetails);
+            NotificationDetails no = notificationBusiness.findNotifications(notificationDetails);
             if (no != null) {
                 throw new ItorixException(
                         String.format(ErrorCodes.errorMessage.get("General-1001"), notificationDetails.getType()),
                         "General-1001");
             }
-            notificationBusines.createNotification(notificationDetails, jsessionid);
+            notificationBusiness.createNotification(notificationDetails, jsessionid);
             return new ResponseEntity<>(HttpStatus.CREATED);
         }
 
@@ -56,7 +56,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public ResponseEntity<?> removeNotification(String jsessionId, String interactionId, String id) throws Exception {
         log.info("removeNotification :{}", id);
-        notificationBusines.deleteNotification(id);
+        notificationBusiness.deleteNotification(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -67,13 +67,13 @@ public class NotificationServiceImpl implements NotificationService {
             throw new ItorixException(ErrorCodes.errorMessage.get("General-1000"), "General-1000");
         } else {
             notificationDetails.setInteractionid(interactionId);
-            NotificationDetails no = notificationBusines.findNotifications(notificationDetails);
+            NotificationDetails no = notificationBusiness.findNotifications(notificationDetails);
             if (no != null) {
                 throw new ItorixException(
                         String.format(ErrorCodes.errorMessage.get("General-1001"), notificationDetails.getType()),
                         "General-1001");
             }
-            notificationBusines.updateNotification(notificationDetails, id);
+            notificationBusiness.updateNotification(notificationDetails, id);
             return new ResponseEntity<NotificationDetails>(HttpStatus.OK);
         }
     }
@@ -83,7 +83,7 @@ public class NotificationServiceImpl implements NotificationService {
             String jsessionId, String interactionId, String notificationId, int offset, int pageSize)
             throws Exception {
         log.info("retrieveNotifications :{}", notificationId);
-        return ResponseEntity.ok(notificationBusines.findNotificationsById(notificationId));
+        return ResponseEntity.ok(notificationBusiness.findNotificationsById(notificationId));
     }
 }
 
