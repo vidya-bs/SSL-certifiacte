@@ -1,11 +1,8 @@
 package com.itorix.apiwiz.datadictionary.model;
 
+import lombok.Data;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
+@Data
 public class Revision {
 
 	private Integer revision = 1;
