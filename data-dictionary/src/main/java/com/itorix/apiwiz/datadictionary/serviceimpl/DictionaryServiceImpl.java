@@ -542,7 +542,8 @@ public class DictionaryServiceImpl implements DictionaryService {
 		Integer rev = dictionaryBusiness.getMaxRevision(id);
 		vo.setRevision(rev + 1);
 		vo.setDictionaryId(portfolioVO.getDictionaryId());
-		vo.setStatus(portfolioVO.getStatus());
+		vo.setStatus(DictionaryStatus.Draft.toString());
+
 		portfolioVO = dictionaryBusiness.createPortfolioRevision(vo, portfolioVO.getId());
 		PortfolioVO portfolioVOs = dictionaryBusiness.getPortfolioByRevision(id, revision);
 		NotificationDetails notificationDetails = new NotificationDetails();
