@@ -386,6 +386,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 				Revision revision = new Revision();
 				revision.setRevision(portfolio.getRevision());
 				revision.setStatus(portfolio.getStatus());
+				revision.setPortfolioId(portfolio.getId());
 				revisions.add(revision);
 			}
 			return revisions;
