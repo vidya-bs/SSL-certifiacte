@@ -68,11 +68,12 @@ public class MailUtil {
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
 				}
-				return "Mail initiated";
+				return "Mail initiated..";
 			}
 		});
 
 	}
+
 
 	public void sendEmailWtithAttachment(EmailTemplate emailTemplate, String path, String attachment)
 			throws MessagingException {
@@ -116,7 +117,7 @@ public class MailUtil {
 
 					logger.error(e.getMessage(), e);
 				}
-				return "Mail initiated";
+				return "Mail initiated..";
 			}
 		});
 
