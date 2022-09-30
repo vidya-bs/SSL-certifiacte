@@ -32,15 +32,22 @@ public interface DictionaryBusiness {
 
 	public PortfolioVO findPortfolioById(PortfolioVO portfolioVO);
 
-	public DeleteResult deletePortfolioById(PortfolioVO portfolioVO);
+	public DeleteResult deletePortfolioByIdAndRevision(PortfolioVO portfolioVO);
+
+	public void deletePortfolioById(PortfolioVO portfolioVO);
 
 	public PortfolioModel createPortfolioModel(PortfolioModel model);
 
-	public List<PortfolioModel> findPortfolioModelsByportfolioID(PortfolioModel model);
 
-	public PortfolioModel findPortfolioModelsByportfolioIDAndModelName(PortfolioModel model);
+	public PortfolioModel createnewPortfolioModel(PortfolioModel model);
 
-	public DeleteResult deletePortfolioModelByportfolioIDAndModelName(PortfolioModel model);
+	public PortfolioModel updateModelRevision(PortfolioModel model);
+
+	public List<PortfolioModel> findPortfolioModelsByportfolioID(PortfolioModel model);	
+
+	public PortfolioModel findPortfolioModelsByportfolioIDAndModelId(PortfolioModel model);
+
+	public DeleteResult deletePortfolioModelByModelId(String modelId);
 
 	public Object portfolioSearch(String interactionid, String name, int limit) throws ItorixException;
 
@@ -53,5 +60,29 @@ public interface DictionaryBusiness {
 	public List<Revision> getRevisions(String id);
 
 	public Integer getMaxRevision(String id);
+
+	PortfolioModel findPortfolioModelByportfolioIDAndModelId(String id, String modelId);
+
+	public Integer getDDRevisions(String name, String id);
+
+	public List<PortfolioModel> findPortfolioModelsWithAllRevisions(String id, String modelId);
+
+	public PortfolioModel findPortfolioModelsWithRevisions(String id, String modelId, Integer revision);
+
+	public void updatePortfolioModelStatusWithRevision(String id, String modelId, ModelStatus modelStatus,
+			Integer revision);
+
+	public DeleteResult deletePortfolioModelByportfolioIDAndModelIdAndRevision(PortfolioModel model);
+
+	PortfolioModel findPortfolioModelByportfolioIDAndModelIdAndRevison(String id, String modelId, Integer revision);
+
+	PortfolioModel findPortfolioModelsByportfolioIDAndModelName(PortfolioModel model);
+
+	public void sendNotificationForModel(String jsessionid, PortfolioModel portfolioModel,
+										 String message);
+	public void sendNotificationToSwagger(String jsessionid, PortfolioVO portfolioVO,
+										  String message);
+
+
 
 }

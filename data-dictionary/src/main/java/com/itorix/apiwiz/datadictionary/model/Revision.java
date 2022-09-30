@@ -1,20 +1,12 @@
 package com.itorix.apiwiz.datadictionary.model;
 
+import lombok.Data;
+
+@Data
 public class Revision {
 
 	private Integer revision = 1;
 	private String status;
+	private String portfolioId;
 
-	public Integer getRevision() {
-		return revision;
-	}
-	public void setRevision(Integer revision) {
-		this.revision = revision;
-	}
-	public String getStatus() {
-		return status;
-	}
-	public void setStatus(String status) {
-		this.status = status;
-	}
 }
