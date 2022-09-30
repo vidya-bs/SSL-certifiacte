@@ -253,6 +253,7 @@ public enum ErrorCodes {
 			put("Consent-003", "Resource not found. No consent API key found");
 			put("Consent-004", "Request validation failed. Report can be generated only for 30 day duration");
 			put("Consent-005", "Resource not found. No records found for the selected date range");
+			put("SCM-001", "SCM Connection Failure");
 		}
 	};
 
@@ -435,6 +436,7 @@ public enum ErrorCodes {
 			put("Consent-003", 400);
 			put("Consent-004", 400);
 			put("Consent-005", 400);
+			put("SCM-001", 500);
 		}
 	};
 	private String message;
