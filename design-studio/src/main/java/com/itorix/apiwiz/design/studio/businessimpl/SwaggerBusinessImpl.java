@@ -352,46 +352,89 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					isVersion2 = true;
 				}
 				if (isVersion2) {
+					String reason = null;
+					SwaggerImport swagger = new SwaggerImport();
+					try {
+						String basepath = swaggerObject.path("basePath").asText();
+						List<Swagger2BasePath> mappings = getSwagger2BasePaths();
+						for (int i = 0; i < mappings.size(); i++) {
+							if (mappings.get(i).getBasePath().equals(basepath)) {
+								throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"),
+										"Swagger-1000");
+							}
+						}
 					JsonNode info = swaggerObject.path("info");
 					if (info != null) {
 						String swaggerName = info.get("title").asText();
-						String reason = null;
 						SwaggerVO swaggerVO = new SwaggerVO();
 						swaggerVO.setName(swaggerName);
 						swaggerVO.setSwagger(filecontent);
-						SwaggerImport swagger = new SwaggerImport();
-						swagger.setLoaded(false);
-						swagger.setName(swaggerName);
-						try {
-							saveSwagger(swaggerVO);
-							swagger.setSwaggerId(swaggerVO.getSwaggerId());
-							swagger.setLoaded(true);
-							reason = "swagger loadeds";
-						} catch (ItorixException e) {
-							if (e.errorCode.equals("Swagger-1002")) {
-								reason = "swagger with same name exists";
-								createSwaggerWithNewRevision(swaggerVO, null);
-							}
-							swagger.setReason(reason);
-						}
-						listSwaggers.add(swagger);
-					} else {
-						new ItorixException("invalid JSON file");
-					}
-				} else {
-					JsonNode info = swaggerObject.path("info");
-					if (info != null) {
-						String swaggerName = info.get("title").asText();
-						String reason = null;
-						Swagger3VO swaggerVO = new Swagger3VO();
-						swaggerVO.setName(swaggerName);
-						swaggerVO.setSwagger(filecontent);
-						SwaggerImport swagger = new SwaggerImport();
 						swagger.setLoaded(false);
 						swagger.setName(swaggerName);
 						swagger.setPath(file.getAbsolutePath());
 						try {
 							saveSwagger(swaggerVO);
+							updateSwaggerBasePath(swaggerName, swaggerVO);
+							swagger.setSwaggerId(swaggerVO.getSwaggerId());
+							swagger.setLoaded(true);
+							reason = "swagger loaded";
+						} catch (ItorixException e) {
+							if (e.errorCode.equals("Swagger-1002")) {
+								reason = "swagger with same name exists";
+								createSwaggerWithNewRevision(swaggerVO, null);
+							}
+							swagger.setReason(reason);
+						}
+						listSwaggers.add(swagger);
+					} else {
+						new ItorixException("invalid JSON file");
+					}
+					} catch (Exception e) {
+						reason = "swagger with same basePath exists";
+						swagger.setName(file.getName());
+						swagger.setLoaded(false);
+						swagger.setReason(reason);
+						listSwaggers.add(swagger);
+					}
+
+				} else {
+					String reason = null;
+					SwaggerImport swagger = new SwaggerImport();
+					try {
+						SwaggerParseResult swaggerParseResult = new OpenAPIParser().readContents(swaggerObject.toString(), null, null);
+						List<Server> servers = swaggerParseResult.getOpenAPI().getServers();
+						Set<String> basePaths = new HashSet();
+						for (Server server : servers) {
+							String urlStr = getReplacedURLStr(server);
+							try {
+								URL url = new URL(urlStr);
+								basePaths.add(url.getPath());
+							} catch (MalformedURLException e) {
+								logger.error("Error while getting basePath for Swagger: {} URL {} ", e.getMessage());
+							}
+						}
+						//String basepath = swaggerObject.path("basePath").asText();
+						List<Swagger3BasePath> mappings = getSwagger3BasePaths() ;
+						for (int i = 0; i < mappings.size(); i++) {
+							for(int j=0;j<mappings.get(i).getBasePath().size();j++) {
+								if(basePaths.contains(mappings.get(i).getBasePath().get(j))) {
+									throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"),
+											"Swagger-1000");
+								}
+							}
+						}
+					JsonNode info = swaggerObject.path("info");
+					if (info != null) {
+						String swaggerName = info.get("title").asText();
+						Swagger3VO swaggerVO = new Swagger3VO();
+						swaggerVO.setName(swaggerName);
+						swaggerVO.setSwagger(filecontent);
+						swagger.setLoaded(false);
+						swagger.setName(swaggerName);
+						swagger.setPath(file.getAbsolutePath());
+						try {
+							updateSwagger3BasePath(swaggerName,swaggerVO);
+							saveSwagger(swaggerVO);
 							swagger.setSwaggerId(swaggerVO.getSwaggerId());
 							swagger.setLoaded(true);
 						} catch (ItorixException e) {
@@ -405,6 +448,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					} else {
 						new ItorixException("invalid JSON file");
 					}
+				} catch (Exception e) {
+					reason = "swagger with same basePath exists";
+					swagger.setName(file.getName());
+					swagger.setLoaded(false);
+					swagger.setReason(reason);
+					listSwaggers.add(swagger);
+				}
 				}
 			} catch (Exception e) {
 				SwaggerImport swagger = new SwaggerImport();
