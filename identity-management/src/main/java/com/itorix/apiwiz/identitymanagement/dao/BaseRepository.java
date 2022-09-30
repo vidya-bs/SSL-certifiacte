@@ -281,11 +281,11 @@ public class BaseRepository {
 		return aggregate.getMappedResults();
 	}
 
-	public List<Document> getSwaggerAssociatedWithSchemaName(String dictionaryId, String schemaName, Class clazz) {
+	public List<Document> getSwaggerAssociatedWithSchemaName(String dictionaryId, String modelId, Integer revision, Class clazz) {
 		UnwindOperation unwindDictionary = unwind("dictionary");
 		UnwindOperation unwindDictionaryModels = unwind("dictionary.models");
 		MatchOperation matchOperation = match(Criteria.where("dictionary._id").is(new ObjectId(dictionaryId))
-				.and("dictionary.models.name").is(schemaName));
+				.and("dictionary.models.modelId").is(modelId).and("dictionary.models.revision").is(revision));
 
 		AggregationResults<Document> aggregate = mongoTemplate.aggregate(
 				newAggregation(unwindDictionary, unwindDictionaryModels, matchOperation), clazz, Document.class);
@@ -299,5 +299,12 @@ public class BaseRepository {
 
 	public <T> AggregationResults<T> addAggregation(Aggregation aggregations, String collectionName, Class clazz) {
 		return mongoTemplate.aggregate(aggregations, collectionName, clazz);
+	}
+
+
+	public <T> DeleteResult deleteRevision(String fieldName1, Object fieldValue1, String fieldName2, Object fieldValue2,
+			String fieldName3, Object fieldValue3, Class<T> clazz) {
+		return mongoTemplate.remove(new Query(Criteria.where(fieldName1).is(fieldValue1).and(fieldName2).is(fieldValue2)
+				.and(fieldName3).is(fieldValue3)), clazz);
 	}
 }

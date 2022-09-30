@@ -3,10 +3,10 @@ package com.itorix.apiwiz.datadictionary.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.datadictionary.model.ModelStatus;
 import com.itorix.apiwiz.datadictionary.model.PortfolioHistoryResponse;
 import com.itorix.apiwiz.datadictionary.model.PortfolioVO;
 import com.itorix.apiwiz.datadictionary.model.Revision;
-import com.itorix.apiwiz.datadictionary.model.ModelStatus;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -31,9 +31,7 @@ public interface DictionaryService {
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param portfolioVO
-	 * 
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -54,9 +52,7 @@ public interface DictionaryService {
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param portfolioVO
-	 * 
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -76,9 +72,7 @@ public interface DictionaryService {
 	 *
 	 * @param interactionid
 	 * @param jsessionid
-	 * 
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -111,9 +105,7 @@ public interface DictionaryService {
 	 *
 	 * @param interactionid
 	 * @param jsessionid
-	 * 
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -139,9 +131,7 @@ public interface DictionaryService {
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param portfolioVO
-	 * 
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -158,12 +148,12 @@ public interface DictionaryService {
 	/**
 	 * This method it will update the Portfolio models.
 	 *
+	 * @param portfolioVO
 	 * @param interactionid
 	 * @param jsessionid
-	 * @param portfolioVO
-	 * 
+	 * @param modelName
+	 * @param revision
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -172,21 +162,33 @@ public interface DictionaryService {
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.PUT, value = "/v1/data-dictionary/{id}/schemas")
+	@RequestMapping(method = RequestMethod.PUT, value = {"/v1/data-dictionary/{id}/schemas",
+			"/v1/data-dictionary/{id}/schemas/{modelId}/revision"})
 	public ResponseEntity<Void> updatePortfolioModels(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
-			@RequestBody String body) throws Exception;
+			@PathVariable(value = "modelId", required = false) String modelId, @RequestBody String body)
+			throws Exception;
 
+	@ApiOperation(value = "Update Portfolio Models", notes = "", code = 201, response = Void.class)
+	@ApiResponses(value = {@ApiResponse(code = 204, message = "Portfolio updated sucessfully", response = Void.class),
+			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/data-dictionary/{id}/schemas/{modelId}/revision/{revision}")
+	public ResponseEntity<Void> updatePortfolioModelsWithRevision(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
+			@PathVariable(value = "modelId", required = false) String modelId,
+			@PathVariable(value = "revision", required = false) Integer revision, @RequestBody String body)
+			throws Exception;
 	/**
 	 * Using this method we can create the Portfolio.
 	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param portfolioVO
-	 * 
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -206,16 +208,13 @@ public interface DictionaryService {
 	 *
 	 * @param interactionid
 	 * @param jsessionid
-	 * @param portfolioVO
-	 * 
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
-	@ApiOperation(value = "Update Portfolio", notes = "", code = 201, response = Void.class)
-	@ApiResponses(value = {@ApiResponse(code = 204, message = "Portfolio updated sucessfully", response = Void.class),
-			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
+	@ApiOperation(value = "Get Portfolio Model", notes = "", code = 200, response = Void.class)
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Portfolio retrieved sucessfully", response = Void.class),
+			@ApiResponse(code = 400, message = "Sorry! Not able to retrive the model", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/{id}/schemas/{model_name}")
@@ -225,21 +224,44 @@ public interface DictionaryService {
 			@PathVariable("model_name") String model_name,
 			@RequestParam(name = "filterby", required = false) String filterby) throws Exception;
 
+	@ApiOperation(value = "Get Portfolio Model with revision", notes = "", code = 200, response = Void.class)
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Model is retrieved successfully", response = Void.class),
+			@ApiResponse(code = 400, message = "Sorry! Not able to retrieve the model", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = {
+			"/v1/data-dictionary/{id}/schemas/{modelId}/revision/{revision}",
+			"/v1/data-dictionary/{id}/schemas/{modelId}/revision"})
+	public ResponseEntity<Object> getPortfolioModelWithRevision(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
+			@PathVariable("modelId") String modelId,
+			@PathVariable(name = "revision", required = false) Integer revision) throws Exception;
+
+	@ApiOperation(value = "Update Portfolio", notes = "", code = 201, response = Void.class)
+	@ApiResponses(value = {@ApiResponse(code = 204, message = "Portfolio updated sucessfully", response = Void.class),
+			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = {"/v1/data-dictionary/{id}/schemas/{modelId}/revisions"})
+	public ResponseEntity<Object> getAllPortfolioModels(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
+			@PathVariable("modelId") String modelId,
+			@PathVariable(name = "revision", required = false) Integer revision) throws Exception;
+
 	/**
 	 * Using this method we can create the Portfolio.
 	 *
 	 * @param interactionid
 	 * @param jsessionid
-	 * @param portfolioVO
-	 * 
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
-	@ApiOperation(value = "Update Portfolio", notes = "", code = 201, response = Void.class)
-	@ApiResponses(value = {@ApiResponse(code = 204, message = "Portfolio updated sucessfully", response = Void.class),
-			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
+	@ApiOperation(value = "Delete Portfolio model", notes = "", code = 200, response = Void.class)
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Portfolio deleted sucessfully", response = Void.class),
+			@ApiResponse(code = 400, message = "Sorry! Not able to find the portfolio model.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/data-dictionary/{id}/schemas/{model_name}")
@@ -254,13 +276,12 @@ public interface DictionaryService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam("name") String name,
 			@RequestParam("limit") int limit) throws ItorixException, JsonProcessingException;
-
 	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.PUT, value = "/v1/data-dictionary/{id}/schemas/{model_name}/{modelStatus}")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/data-dictionary/{id}/schemas/{modelId}/{modelStatus}")
 	public ResponseEntity<?> updatePortfolioModelStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
-			@PathVariable("model_name") String model_name, @PathVariable("modelStatus") ModelStatus modelStatus);
+			@PathVariable("modelId") String modelId, @PathVariable("modelStatus") ModelStatus modelStatus);
 
 	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/data-dictionary/{id}/revision/{revision}")
@@ -290,4 +311,34 @@ public interface DictionaryService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
 			@PathVariable("revision") Integer revision, @RequestBody Revision status) throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/data-dictionary/{id}/schemas/{modelId}/revision/{revision}/{modelStatus}")
+	public ResponseEntity<?> updatePortfolioModelStatusWithRevision(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
+			@PathVariable("modelId") String modelId, @PathVariable("modelStatus") ModelStatus modelStatus,
+			@PathVariable("revision") Integer revision) throws Exception;
+
+	@ApiOperation(value = "Delete Portfolio Model with revision", notes = "", code = 200, response = Void.class)
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Portfolio  Model deleted sucessfully", response = Void.class),
+			@ApiResponse(code = 400, message = "Sorry! Not able to find the model", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/data-dictionary/{id}/schemas/{modelId}/revision/{revision}")
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	ResponseEntity<Void> deletePortfolioModelByIdWithRevision(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
+			@PathVariable("modelId") String modelId, @PathVariable("revision") Integer revision)
+			throws ItorixException;
+
+	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/model/{modelId1}/diff/{modelId2}")
+	public ResponseEntity<Object> findDiffBetweenModels(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "portfolioId1", required = true) String portfolioId1,
+			@RequestParam(value = "portfolioId2", required = true) String portfolioId2,
+			@RequestParam(value = "Revision1", required = true) Integer revisionid1,
+			@RequestParam(value = "Revision2", required = true) Integer revisionid2,
+			@PathVariable("modelId1") String modelId1, @PathVariable("modelId2") String modelId2) throws Exception;
 }

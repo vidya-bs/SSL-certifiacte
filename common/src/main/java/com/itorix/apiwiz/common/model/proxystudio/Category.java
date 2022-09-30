@@ -15,6 +15,7 @@ public class Category {
 	private String type;
 	private String name;
 	private String description;
+	
 	private List<Policy> policies;
 
 	public String getType() {

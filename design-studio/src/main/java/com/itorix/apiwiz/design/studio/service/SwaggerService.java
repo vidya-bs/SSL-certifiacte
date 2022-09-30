@@ -12,7 +12,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.generator.model.ResponseCode;
 import io.swagger.models.Swagger;
-import java.util.Map;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @CrossOrigin
@@ -1264,9 +1264,20 @@ public interface SwaggerService {
 			@ApiResponse(code = 200, message = "Get swaggers associated with a schema name", response = DictionarySwagger.class),
 			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
 	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@Deprecated
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/associate-data-dictionary/{dictionaryId}/schemas/{schemaName}")
 	public ResponseEntity<?> getSwaggerAssociatedWithSchemaName(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@PathVariable("dictionaryId") String dictionaryId, @PathVariable("schemaName") String schemaName);
+			@PathVariable("dictionaryId") String dictionaryId, @PathVariable("modelId") String modelId);
+
+	@ApiOperation(value = "Get swaggers associated with a model Id", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Get swaggers associated with a model Id", response = DictionarySwagger.class),
+			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
+	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/associate-data-dictionary/{dictionaryId}/schemas/{modelId}/revision/{revision}")
+	public ResponseEntity<?> getSwaggerAssociatedWithModelId(@RequestHeader(value = "JSESSIONID") String jsessionid,
+															 @PathVariable("dictionaryId") String dictionaryId, @PathVariable("modelId") String modelId,
+															 @PathVariable("revision") Integer revision);
 
 	@ApiOperation(value = "Creating Api rating .Rating api's based on user  rating's ", notes = "", code = 201)
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Api was rated successfully", response = Void.class),

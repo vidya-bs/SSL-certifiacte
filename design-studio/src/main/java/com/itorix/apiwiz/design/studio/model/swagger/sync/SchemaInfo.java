@@ -10,7 +10,12 @@ import java.util.List;
 @Setter
 public class SchemaInfo {
 	private String name;
-
+	private String modelId;
+	private Integer revision;
+	private Status status;
+	public enum Status{
+		Active , Deprecated,Draft
+	}
 	@JsonProperty("swaggers")
 	private List<SwaggerData> swaggers;
 
