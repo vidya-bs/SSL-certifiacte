@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,7 +35,6 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 @Component
-@Slf4j
 @SuppressWarnings("rawtypes")
 public class ApigeeProxyGeneration {
 
@@ -59,7 +57,6 @@ public class ApigeeProxyGeneration {
 	private String dstRootFolder = "";
 
 	public void generateCommonCode(Folder commonsFolder) throws IOException, TemplateException {
-		log.debug("Generating common code for {}", commonsFolder);
 		Folder templates = commonsFolder.getFile("policies");
 		for (Folder tmplFile : templates.getFiles()) {
 			String content = mongoConnection.getFile(tmplFile.getName());
@@ -69,7 +66,6 @@ public class ApigeeProxyGeneration {
 	}
 
 	private void processResources(Folder templates) throws IOException, TemplateException {
-		log.debug("Processing resources of folder {}", templates);
 		try {
 			for (Folder tmplFile : templates.getFiles()) {
 				if (tmplFile.isFolder()) {
@@ -90,13 +86,12 @@ public class ApigeeProxyGeneration {
 				}
 			}
 		} catch (Exception e) {
-			log.error("Exception occurred", e);
+
 		}
 	}
 
 	public void generateProxyCode(Folder proxyFolder, Folder commonFolder, CodeGenHistory cg, String dir)
 			throws IOException, TemplateException {
-		log.debug("Generating proxy code");
 		Proxy proxy = cg.getProxy();
 		proxyName = proxy.getName().split("_")[0];
 		dstRootFolder = dir; // + "API" + File.separatorChar + "Proxies" +
@@ -125,7 +120,6 @@ public class ApigeeProxyGeneration {
 	}
 
 	private void processProxyTemplate(String destRootFolder, String fileName) throws IOException, TemplateException {
-		log.debug("Processing proxy template");
 		Template template = getTemplate(fileName);
 		String dstFileName = destRootFolder + File.separatorChar + proxyName + "Proxy.xml";
 		Writer file = new FileWriter(dstFileName);
@@ -145,17 +139,18 @@ public class ApigeeProxyGeneration {
 
 	private void processProxyEndpointTemplate(CodeGenHistory cg, String fileName)
 			throws IOException, TemplateException {
-		log.debug("Processing proxy endpoint template");
 		// Template template =
 		// getTemplateFromFile("/opt/itorix/temp/ProxyGen/proxies/ProxyEndpoint.xml.ftl");
 		Template template = getTemplate("ProxyEndpoint.xml.ftl");
-		String dstProxiesFileName = dstProxies + File.separatorChar + proxyName + ProxyConfig.XML_FILE_EXT;
+		String dstProxiesFileName =
+				dstProxies + File.separatorChar + proxyName + ProxyConfig.XML_FILE_EXT;
+
 		Map<String, Object> data = new HashMap<String, Object>();
 		Map<String, Object> proxy = new HashMap<String, Object>();
 		data.put("basePath", basePath);
 		List<String> virtualHostList = new ArrayList<String>();
-		// virtualHostList.add("secure");
-		// virtualHostList.add("default");
+		//virtualHostList.add("secure");
+		//virtualHostList.add("default");
 		data.put("proxy", proxy);
 		proxy.put("virtualHostList", virtualHostList);
 		proxy.put("name", proxyName);
@@ -172,9 +167,15 @@ public class ApigeeProxyGeneration {
 				mapApi.put("verb", flow.getVerb().toUpperCase());
 				mapApi.put("name", flow.getName());
 				mapApi.put("description", flow.getDescription());
-				if (null != flow.getMetadata()) {
+				if (flow.getPolicyTemplates() != null) {
+					Map flowMap = commonsGen.createMap(flow.getPolicyTemplates());
+					mapApi.put("flowPolicyTemplate", flowMap.get("policyTemplate"));
+					mapApi.put("flowPolicyName", flowMap.get("policyName"));
+				}
+				
+				if(null != flow.getMetadata()){
 					Map<String, String> metadata = new HashMap<String, String>();
-					for (com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata : flow.getMetadata()) {
+					for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata : flow.getMetadata()){
 						metadata.put(proxyMetadata.getName().replaceAll("-", "_"), proxyMetadata.getValue());
 					}
 					mapApi.put("metadata", metadata);
@@ -194,7 +195,6 @@ public class ApigeeProxyGeneration {
 
 	private void processPolicyTemplates(Flows apiList, Folder templates, CodeGenHistory cg)
 			throws TemplateException, IOException {
-		log.debug("Processing policy templates");
 		List<Folder> tmplfiles = templates.getFiles();
 		for (Folder tmplFile : tmplfiles) {
 
@@ -203,7 +203,7 @@ public class ApigeeProxyGeneration {
 				String apiName = flow.getName();
 				String fileName = removeFileExtension(tmplFile.getName(), true);
 				String dstPoliciesFile = dstPolicies + File.separatorChar
-						+ tmplFile.getName().replaceAll(fileName, fileName + "-" + apiName);
+						+ tmplFile.getName().replaceAll(fileName, fileName + "-" + apiName  );
 
 				final Map<String, Object> apiDtls = new HashMap<String, Object>();
 				Map<String, Object> apiMap = new HashMap<String, Object>();
@@ -221,44 +221,47 @@ public class ApigeeProxyGeneration {
 					apiDtls.put("policyTemplate", commonMap.get("policyTemplate"));
 					apiDtls.put("policyName", commonMap.get("policyName"));
 				}
-				if (null != flow.getMetadata()) {
+				if (flow.getPolicyTemplates() != null) {
+					Map flowMap = commonsGen.createMap(flow.getPolicyTemplates());
+					apiDtls.put("flowPolicyTemplate", flowMap.get("policyTemplate"));
+					apiDtls.put("flowPolicyName", flowMap.get("policyName"));
+				}
+				if(null != flow.getMetadata()){
 					Map<String, String> metadata = new HashMap<String, String>();
-					for (com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata : flow.getMetadata()) {
+					for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata : flow.getMetadata()){
 						metadata.put(proxyMetadata.getName().replaceAll("-", "_"), proxyMetadata.getValue());
 					}
 					apiDtls.put("metadata", metadata);
 				}
 				boolean canProcess = true;
-				if (fileName.contains("x-gw-cache-resource")) {
+				if(fileName.contains("x-gw-cache-resource")){
 					canProcess = false;
-					if (null != flow.getMetadata()) {
-						for (com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata : flow
-								.getMetadata()) {
-							if (proxyMetadata.getName().equals("x-gw-cache-resource")) {
-								if (StringUtils.isNotEmpty(proxyMetadata.getValue())) {
+					if(null != flow.getMetadata()){
+						for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata : flow.getMetadata()){
+							if(proxyMetadata.getName().equals("x-gw-cache-resource")){
+								if(StringUtils.isNotEmpty(proxyMetadata.getValue())){
 									canProcess = true;
 									break;
 								}
 							}
-							if (proxyMetadata.getName().equals("x_gw_cache_key")) {
+							if(proxyMetadata.getName().equals("x_gw_cache_key")){
 								String string = proxyMetadata.getValue();
 								List<String> cacheKeys = new ArrayList<String>(Arrays.asList(string.split(" , ")));
 								apiDtls.put("cacheKeys", cacheKeys);
 							}
-							if (proxyMetadata.getName().equals("x-gw-cache-timeout-unit")) {
-								if (proxyMetadata.getValue().equals("days")) {
-									for (com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata1 : flow
-											.getMetadata()) {
-										if (proxyMetadata1.getName().equals("x_gw_cache_timeout")) {
+							if(proxyMetadata.getName().equals("x-gw-cache-timeout-unit")){
+								if(proxyMetadata.getValue().equals("days")) {
+									for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata1 : flow.getMetadata()){
+										if(proxyMetadata1.getName().equals("x_gw_cache_timeout")) {
 											String count = proxyMetadata1.getValue();
 											long timeunit = Integer.valueOf(count) * 86400;
 											apiDtls.put("cacheTimeout", timeunit);
 										}
 									}
-								} else {
-									for (com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata1 : flow
-											.getMetadata()) {
-										if (proxyMetadata1.getName().equals("x_gw_cache_timeout")) {
+								}
+								else {
+									for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata1 : flow.getMetadata()){
+										if(proxyMetadata1.getName().equals("x_gw_cache_timeout")) {
 											String count = proxyMetadata1.getValue();
 											apiDtls.put("cacheTimeout", count);
 										}
@@ -270,13 +273,13 @@ public class ApigeeProxyGeneration {
 							}
 						}
 					}
-					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "")
-							.replace("-x-gw-cache-resource", "").replace(ProxyConfig.STR_ALL, "");
-				} else {
-					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "")
-							.replace(ProxyConfig.STR_GET, "").replace(ProxyConfig.STR_ALL, "");
+					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "").replace("-x-gw-cache-resource", "")
+							.replace(ProxyConfig.STR_ALL, "");
+				}else{
+					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "").replace(ProxyConfig.STR_GET, "")
+							.replace(ProxyConfig.STR_ALL, "");
 				}
-				if (canProcess) {
+				if(canProcess){
 					Writer reqFile = new FileWriter(dstPoliciesFile);
 					template.process(apiDtls, reqFile);
 					reqFile.flush();
@@ -287,7 +290,6 @@ public class ApigeeProxyGeneration {
 	}
 
 	public static String removeFileExtension(String filename, boolean removeAllExtensions) {
-		log.debug("Removing file extension for {}", filename);
 		if (filename == null || filename.isEmpty()) {
 			return filename;
 		}
@@ -297,7 +299,6 @@ public class ApigeeProxyGeneration {
 	}
 
 	private List<String> processRouteRuleTemplate(List<Target> targets) throws IOException, TemplateException {
-		log.debug("Processing Route rule template");
 		// Map<String,Object> proxyCfgDtls = new HashMap<String,Object>();
 		// Map<String,Object> proxy = new HashMap<String,Object>();
 		List<String> targetEndPointList = new ArrayList<String>();
@@ -321,7 +322,6 @@ public class ApigeeProxyGeneration {
 
 	@SuppressWarnings("deprecation")
 	public Template getTemplate(String file) throws IOException {
-		log.debug("Fetching template from {}", file);
 		String reader = mongoConnection.getFile(file);
 		Configuration conf = new Configuration();
 		StringTemplateLoader tloader = new StringTemplateLoader();
@@ -334,7 +334,6 @@ public class ApigeeProxyGeneration {
 
 	@SuppressWarnings("deprecation")
 	public Template getTemplateFromFile(String file) throws IOException {
-		log.debug("Fetching template from file {}", file);
 		File templateFile = new File(file);
 		String fileName = templateFile.getName();
 		String reader = FileUtils.readFileToString(templateFile);
@@ -348,7 +347,6 @@ public class ApigeeProxyGeneration {
 	}
 
 	private List<String> getFileList(String rootFolder, String ext, boolean removeFileExt) {
-		log.debug("Fetching file list from root folder {}", rootFolder);
 		List<String> fileList = new ArrayList<String>();
 		File file = new File(rootFolder);
 		String fileNames[] = file.list();
@@ -364,7 +362,7 @@ public class ApigeeProxyGeneration {
 	}
 
 	private void createDestinationFolderStructure(String proxyRootFolder) {
-		log.debug("Creating destination folder for {}", proxyRootFolder);
+
 		dstPolicies = proxyRootFolder + File.separatorChar + ProxyConfig.FLDR_POLICIES;
 		File dir = new File(dstPolicies);
 		dir.mkdirs();

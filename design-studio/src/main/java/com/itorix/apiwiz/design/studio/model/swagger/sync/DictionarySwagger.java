@@ -14,7 +14,11 @@ import java.util.List;
 public class DictionarySwagger {
 	private String name;
 	private String id;
-
+	private Integer revision;
+	private Status status;
+	public enum Status{
+		Publish, Deprecated,Draft
+	}
 	@JsonProperty("schemas")
 	private List<SchemaInfo> schemas;
 }

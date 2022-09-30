@@ -13,4 +13,8 @@ public class PortfolioModelResponse {
 
 	private Long mts;
 
+	private String modelId;
+
+	private Integer revision;
+
 }

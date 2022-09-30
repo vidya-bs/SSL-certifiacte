@@ -14,9 +14,7 @@ public class Target {
 	private String oas;
 	private String buildTargetArtifact;
 	private String buildTargetArtifactType;
-	
 	private String version;
-
 	private String revision;
 
 	public String getDescription() {
