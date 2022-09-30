@@ -3,16 +3,18 @@ package com.itorix.apiwiz.datadictionary.serviceimpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.diff.JsonDiff;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.datadictionary.business.DictionaryBusiness;
-import com.itorix.apiwiz.datadictionary.model.ModelStatus;
-import com.itorix.apiwiz.datadictionary.model.PortfolioHistoryResponse;
-import com.itorix.apiwiz.datadictionary.model.PortfolioModel;
-import com.itorix.apiwiz.datadictionary.model.PortfolioVO;
-import com.itorix.apiwiz.datadictionary.model.Revision;
+import com.itorix.apiwiz.datadictionary.model.*;
 import com.itorix.apiwiz.datadictionary.service.DictionaryService;
+import com.itorix.apiwiz.design.studio.business.NotificationBusiness;
+import com.itorix.apiwiz.design.studio.model.NotificationDetails;
+import com.itorix.apiwiz.design.studio.model.NotificationType;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,9 +22,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-@Slf4j
+import java.util.UUID;
+
 @CrossOrigin
+@Slf4j
 @RestController
 /**
  * PortfolioController .
@@ -34,15 +39,16 @@ public class DictionaryServiceImpl implements DictionaryService {
 	@Autowired
 	DictionaryBusiness dictionaryBusiness;
 
+	@Autowired
+	NotificationBusiness notificationBusiness;
+
 	/**
 	 * Using this method we can create the Portfolio.
 	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param portfolioVO
-	 * 
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -66,6 +72,13 @@ public class DictionaryServiceImpl implements DictionaryService {
 			headers.add("Access-Control-Expose-Headers", "X-datadictionary-id");
 			headers.add("X-datadictionary-id", portfolioVO.getId());
 		}
+		NotificationDetails notificationDetails = new NotificationDetails();
+		notificationDetails.setNotification(
+				"Portfolio has been created ".concat(portfolioVO.getName()));
+		notificationDetails.setUserId(Arrays.asList(portfolioVO.getCreatedBy()));
+		notificationDetails.setType(NotificationType.fromValue("Data Dictionary"));
+		notificationBusiness.createNotification(notificationDetails, jsessionid);
+
 		return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
 	}
 
@@ -75,9 +88,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param portfolioVO
-	 * 
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -97,6 +108,10 @@ public class DictionaryServiceImpl implements DictionaryService {
 						"Portfolio-1001");
 			}
 			portfolioVO = dictionaryBusiness.createPortfolio(portfolioVO);
+			dictionaryBusiness.sendNotificationToSwagger(jsessionid, portfolioVO,
+					" Portfolio has been updated ".concat(portfolioVO.getName()));
+
+			// dictionaryBusiness.sendNotificationForDD(portfolioVO);
 		}
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
@@ -106,9 +121,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 	 *
 	 * @param interactionid
 	 * @param jsessionid
-	 * 
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -126,9 +139,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 	 *
 	 * @param interactionid
 	 * @param jsessionid
-	 * 
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -144,9 +155,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 	 *
 	 * @param interactionid
 	 * @param jsessionid
-	 * 
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -181,9 +190,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param portfolioVO
-	 * 
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -193,26 +200,35 @@ public class DictionaryServiceImpl implements DictionaryService {
 		PortfolioVO vo = new PortfolioVO();
 		vo.setInteractionid(interactionid);
 		vo.setId(id);
-		dictionaryBusiness.deletePortfolioById(vo);
+		PortfolioVO portfolioVO = dictionaryBusiness.findPortfolioById(vo);
+		if ( portfolioVO == null){
+			log.error("PortfolioVO not found: {}", id);
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1003"), id), "Portfolio-1003");
+		}
+       dictionaryBusiness.sendNotificationToSwagger(jsessionid, portfolioVO,
+			   " Portfolio has been deleted ".concat(portfolioVO.getName()));
+
+		dictionaryBusiness.deletePortfolioById(portfolioVO);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
 	/**
 	 * This method it will update the Portfolio models.
 	 *
+	 * @param portfolioVO
 	 * @param interactionid
 	 * @param jsessionid
-	 * @param portfolioVO
-	 * 
+	 * @param modelName
+	 * @param revision
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
 	public ResponseEntity<Void> updatePortfolioModels(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id, String modelId,
 			@RequestBody String body) throws Exception {
+		log.info("Create or Update Portfolio Models ");
 		PortfolioVO vo = new PortfolioVO();
 		vo.setInteractionid(interactionid);
 		vo.setId(id);
@@ -221,6 +237,82 @@ public class DictionaryServiceImpl implements DictionaryService {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
 					"Portfolio-1002");
 		} else {
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(body);
+			String name = (String) jsonNode.get("name").asText();
+			PortfolioModel model = new PortfolioModel();
+
+//			if (modelId == null) {
+//				model = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelId(id, modelId);
+//			}
+			if (modelId != null) {
+				Integer revisions = dictionaryBusiness.getDDRevisions(modelId, id);
+				model = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelIdAndRevison(id, modelId,
+						revisions);
+			}
+			//String modelId = model.getId();
+			if (StringUtils.isEmpty(model.getModelName())) {
+				model.setInteractionid(interactionid);
+				model.setPortfolioID(id);
+				model.setMts(System.currentTimeMillis());
+				model.setModelName(name);
+				model.setModel(body);
+				model.setRevision(1);
+				model.setId(null);
+				model.setModelId(UUID.randomUUID().toString().replaceAll("-", ""));
+				dictionaryBusiness.createnewPortfolioModel(model);
+				NotificationDetails notificationDetails = new NotificationDetails();
+				notificationDetails.setUserId(Arrays.asList(model.getCreatedBy()));
+				notificationDetails.setType(NotificationType.fromValue("Model"));
+				notificationDetails.setNotification("Model has been created ".concat(model.getModelName()));
+				notificationBusiness.createNotification(notificationDetails, jsessionid);
+			} else {
+				Integer revisions = dictionaryBusiness.getDDRevisions(modelId, id);
+				Integer newRevision;
+				if (revisions != null) {
+					newRevision = revisions + 1;
+				} else {
+					newRevision = 1;
+				}
+				model.setInteractionid(interactionid);
+				model.setPortfolioID(id);
+				model.setMts(System.currentTimeMillis());
+				model.setModelName(name);
+				model.setModel(body);
+				model.setRevision(newRevision);
+				model.setId(null);
+				model.setModelId(modelId);
+				model = dictionaryBusiness.createnewPortfolioModel(model);
+				model = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelIdAndRevison(id, modelId,
+						revisions);
+				dictionaryBusiness.sendNotificationForModel(jsessionid, model,
+						" Model has been updated ".concat(model.getModelName()));
+
+				// dictionaryBusiness.sendNotificationForDDModel(model);
+			}
+
+		}
+
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+	}
+
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/data-dictionary/{id}/schemas/{modelId}/revision/{revision}")
+	public ResponseEntity<Void> updatePortfolioModelsWithRevision(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("id") String id,
+			@PathVariable("modelId") String modelId,
+			@PathVariable("revision") Integer revision,
+			@RequestBody String body) throws Exception {
+		log.info("Update Portfolio Models with Revision");
+		PortfolioVO vo = new PortfolioVO();
+		vo.setInteractionid(interactionid);
+		vo.setId(id);
+		PortfolioVO portfolioVO = dictionaryBusiness.findPortfolioById(vo);
+		if (portfolioVO == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1003"), id),
+					"Portfolio-1003");
+		} else {
 			PortfolioModel model = new PortfolioModel();
 			model.setInteractionid(interactionid);
 			model.setPortfolioID(id);
@@ -228,11 +320,21 @@ public class DictionaryServiceImpl implements DictionaryService {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(body);
 			String name = (String) jsonNode.get("name").asText();
+			model.setRevision(revision);
 			model.setModelName(name);
+			model.setModelId(modelId);
 			model.setModel(body);
-			dictionaryBusiness.createPortfolioModel(model);
+			dictionaryBusiness.updateModelRevision(model);
+			//PortfolioModel modelWithRevision = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelIdAndRevison(id, modelId, revision);
+			PortfolioModel models = dictionaryBusiness
+					.findPortfolioModelByportfolioIDAndModelIdAndRevison(id, modelId, revision);
+			dictionaryBusiness.updateModelRevision(model);
+		dictionaryBusiness.sendNotificationForModel(jsessionid, models,
+					" Model has been updated with Revision ".concat(models.getModelName()));
+			// dictionaryBusiness.sendNotificationForDDModel(modelWithRevision);
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		}
+
 	}
 
 	public ResponseEntity<Void> getPortfolioModels(
@@ -247,9 +349,9 @@ public class DictionaryServiceImpl implements DictionaryService {
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param portfolioVO
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -289,6 +391,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 		PortfolioModel model = new PortfolioModel();
 		model.setPortfolioID(id);
 		model.setModelName(model_name);
+//		model = dictionaryBusiness.findPortfolioModelsByportfolioIDAndModelId(model);
 		model = dictionaryBusiness.findPortfolioModelsByportfolioIDAndModelName(model);
 		if (model == null) {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
@@ -299,15 +402,84 @@ public class DictionaryServiceImpl implements DictionaryService {
 		return new ResponseEntity<Object>(jsonNode, HttpStatus.OK);
 	}
 
+	@Override
+	public ResponseEntity<Object> getPortfolioModelWithRevision(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
+			@PathVariable("modelId") String modelId,
+			@PathVariable(name = "revision", required = false) Integer revision) throws Exception {
+		log.info("Fetching PortfolioModel with Revision");
+		// List<PortfolioModel> model = new ArrayList<>();
+		if (revision != null) {
+			// Integer revisions = revision.get("revision");
+			PortfolioModel portfolioModel = new PortfolioModel();
+			portfolioModel = dictionaryBusiness.findPortfolioModelsWithRevisions(id, modelId, revision);
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(portfolioModel.getModel());
+			ModelWithRevision modelWithRevision = new ModelWithRevision();
+			modelWithRevision.setStatus(portfolioModel.getStatus());
+			if (portfolioModel.getRevision() != null) {
+				modelWithRevision.setRevision(portfolioModel.getRevision());
+			} else {
+				modelWithRevision.setRevision(1);
+			}
+			modelWithRevision.setModel(jsonNode);
+			return new ResponseEntity<Object>(modelWithRevision, HttpStatus.OK);
+		}
+		else {
+			PortfolioModel model = new PortfolioModel();
+			model.setPortfolioID(id);
+			//model.setModelName(model_name);
+			model.setModelId(modelId);
+			model = dictionaryBusiness.findPortfolioModelsByportfolioIDAndModelId(model);
+			if (model == null) {
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1003"), id),
+						"Portfolio-1003");
+			}
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(model.getModel());
+			ModelWithRevision modelWithRevision = new ModelWithRevision();
+			modelWithRevision.setStatus(model.getStatus());
+			if (model.getRevision() != null) {
+				modelWithRevision.setRevision(model.getRevision());
+			} else {
+				modelWithRevision.setRevision(1);
+			}
+			modelWithRevision.setModel(jsonNode);
+			return new ResponseEntity<Object>(modelWithRevision, HttpStatus.OK);
+
+		}
+	}
+
+	@Override
+	public ResponseEntity<Object> getAllPortfolioModels(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
+			@PathVariable("modelId") String modelId,
+			@PathVariable(name = "revision", required = false) Integer revision) throws Exception {
+		List<PortfolioModel> model = new ArrayList<>();
+		model = dictionaryBusiness.findPortfolioModelsWithAllRevisions(id, modelId);
+		List<ModelWithRevision> modelWithRevisionList = new ArrayList<>();
+		for (int i = 0; i < model.size(); i++) {
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(model.get(i).getModel());
+			ModelWithRevision modelWithRevision = new ModelWithRevision();
+			modelWithRevision.setStatus(model.get(i).getStatus());
+			modelWithRevision.setRevision(model.get(i).getRevision());
+			modelWithRevision.setModel(jsonNode);
+			modelWithRevision.setModelId(model.get(i).getModelId());
+			modelWithRevisionList.add(modelWithRevision);
+		}
+		return new ResponseEntity<Object>(modelWithRevisionList, HttpStatus.OK);
+	}
+
 	/**
 	 * Using this method we can create the Portfolio.
 	 *
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param portfolioVO
-	 * 
 	 * @return
-	 * 
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
@@ -315,17 +487,21 @@ public class DictionaryServiceImpl implements DictionaryService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
 			@PathVariable("model_name") String model_name) throws Exception {
+		log.info("Delete All Model Revisions");
 		PortfolioModel model = new PortfolioModel();
-		model.setInteractionid(interactionid);
-		model.setPortfolioID(id);
-		model.setModelName(model_name);
-		model = dictionaryBusiness.findPortfolioModelsByportfolioIDAndModelName(model);
-		if (model == null) {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
-					"Portfolio-1002");
+		List<PortfolioModel> model1 = new ArrayList<>();
+		model1 = dictionaryBusiness.findPortfolioModelsWithAllRevisions(id, model_name);
+		if(model1.isEmpty()){
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1003"), id),
+					"Portfolio-1003");
 		}
-		dictionaryBusiness.deletePortfolioModelByportfolioIDAndModelName(model);
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		PortfolioModel models = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelId(id,
+				model_name);
+
+		dictionaryBusiness.sendNotificationForModel(jsessionid, models,
+				" Model has been deleted ".concat(models.getModelName()));
+		dictionaryBusiness.deletePortfolioModelByModelId(model_name);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
 	public ResponseEntity<Object> swaggerSearch(
@@ -340,8 +516,12 @@ public class DictionaryServiceImpl implements DictionaryService {
 	public ResponseEntity<?> updatePortfolioModelStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
-			@PathVariable("model_name") String model_name, @PathVariable("modelStatus") ModelStatus modelStatus) {
-		dictionaryBusiness.updatePortfolioModelStatus(id, model_name, modelStatus);
+			@PathVariable("modelId") String modelId, @PathVariable("modelStatus") ModelStatus modelStatus) {
+		dictionaryBusiness.updatePortfolioModelStatus(id, modelId, modelStatus);
+		PortfolioModel model = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelId(id,
+				modelId);
+		dictionaryBusiness.sendNotificationForModel(jsessionid, model,
+				" Model status has been updated ".concat(model.getModelName()));
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 
@@ -362,7 +542,17 @@ public class DictionaryServiceImpl implements DictionaryService {
 		Integer rev = dictionaryBusiness.getMaxRevision(id);
 		vo.setRevision(rev + 1);
 		vo.setDictionaryId(portfolioVO.getDictionaryId());
+		vo.setStatus(DictionaryStatus.Draft.toString());
+
 		portfolioVO = dictionaryBusiness.createPortfolioRevision(vo, portfolioVO.getId());
+		PortfolioVO portfolioVOs = dictionaryBusiness.getPortfolioByRevision(id, revision);
+		NotificationDetails notificationDetails = new NotificationDetails();
+		notificationDetails.setNotification(
+				"Portfolio  revision has been created ".concat(portfolioVO.getName()));
+		notificationDetails.setUserId(Arrays.asList(portfolioVO.getCreatedBy()));
+		notificationDetails.setType(NotificationType.fromValue("Data Dictionary"));
+		notificationBusiness.createNotification(notificationDetails, jsessionid);
+
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
@@ -386,7 +576,10 @@ public class DictionaryServiceImpl implements DictionaryService {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
 					"Portfolio-1002");
 		}
-		dictionaryBusiness.deletePortfolioById(vo);
+		PortfolioVO portfolioVO = dictionaryBusiness.getPortfolioByRevision(id, revision);
+	dictionaryBusiness.sendNotificationToSwagger(jsessionid, portfolioVO,
+				"Portfolio revision has been deleted  ".concat(portfolioVO.getName()));
+		dictionaryBusiness.deletePortfolioByIdAndRevision(vo);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -398,10 +591,98 @@ public class DictionaryServiceImpl implements DictionaryService {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
 					"Portfolio-1002");
 		}
-		vo.setStatus(status.getStatus());
-		dictionaryBusiness.createPortfolio(vo);
-		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-
+		String enumStatus = status.getStatus();
+		if (EnumUtils.isValidEnum(DictionaryStatus.class, enumStatus)) {
+			vo.setStatus(status.getStatus());
+			dictionaryBusiness.createPortfolio(vo);
+			PortfolioVO portfolioVO = dictionaryBusiness.getPortfolioByRevision(id, revision);
+			dictionaryBusiness.sendNotificationToSwagger(jsessionid, portfolioVO,
+					" Portfolio Status has been updated ".concat(portfolioVO.getName()));
+			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		} else {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1017"), id),
+					"Portfolio-1017");
+		}
 	}
 
+	@Override
+	public ResponseEntity<?> updatePortfolioModelStatusWithRevision(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
+			@PathVariable("modelId") String modelId, @PathVariable("modelStatus") ModelStatus modelStatus,
+			@PathVariable("revision") Integer revision) {
+		log.info("Change Status of a particular model revision");
+		dictionaryBusiness.updatePortfolioModelStatusWithRevision(id, modelId, modelStatus, revision);
+		PortfolioModel model = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelIdAndRevison(
+				id, modelId, revision);
+		dictionaryBusiness.sendNotificationForModel(jsessionid, model,
+				"Model Status has been updated with revision ".concat(model.getModelName()));
+
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
+	}
+
+	@Override
+	public ResponseEntity<Void> deletePortfolioModelByIdWithRevision(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
+			@PathVariable("modelId") String modelId, @PathVariable("revision") Integer revision)
+			throws ItorixException {
+		log.info("Delete a particular Model Revision");
+		PortfolioModel model = new PortfolioModel();
+		model.setInteractionid(interactionid);
+		model.setPortfolioID(id);
+		model.setModelId(modelId);
+		//model.setModelName(model_name);
+		model.setRevision(revision);
+		PortfolioModel model1 = new PortfolioModel();
+		model1 = dictionaryBusiness.findPortfolioModelsWithRevisions(model.getPortfolioID(), model.getModelId(),
+				model.getRevision());
+		if(null == model1){
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1003"), id),
+					"Portfolio-1003");
+		}
+		dictionaryBusiness.sendNotificationForModel(jsessionid, model1,
+				"Model has been deleted with Revision ".concat(model1.getModelName()));
+
+		dictionaryBusiness.deletePortfolioModelByportfolioIDAndModelIdAndRevision(model1);
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/model/{modelId1}/diff/{modelId2}")
+	public ResponseEntity<Object> findDiffBetweenModels(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "portfolioId1", required = true) String portfolioId1,
+			@RequestParam(value = "portfolioId2", required = true) String portfolioId2,
+			@RequestParam(value = "Revision1", required = true) Integer revisionid1,
+			@RequestParam(value = "Revision2", required = true) Integer revisionid2,
+			@PathVariable("modelId1") String modelId1, @PathVariable("modelId2") String modelId2) throws Exception {
+		PortfolioModel portfolioModel = new PortfolioModel();
+		PortfolioModel portfolioModel1 = new PortfolioModel();
+		if (revisionid1 != null) {
+			portfolioModel = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelIdAndRevison(portfolioId1, modelId1, revisionid1);
+			if (portfolioModel == null) {
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1004"), portfolioId1),
+						"Portfolio-1004");
+			}
+		}
+		if (revisionid2 != null) {
+			portfolioModel1 = dictionaryBusiness.findPortfolioModelsWithRevisions(portfolioId2, modelId2, revisionid2);
+			if (portfolioModel1 == null) {
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1004"), portfolioId2),
+						"Portfolio-1004");
+			}
+		}
+		ObjectMapper mapper = new ObjectMapper();
+		DiffResponse diff = new DiffResponse();
+		JsonNode beforeNode = mapper.readTree(portfolioModel.getModel());
+		JsonNode afterNode = mapper.readTree(portfolioModel1.getModel());
+		//JsonNode patch = JsonDiff.asJson(beforeNode, afterNode);
+		diff.setModel1(portfolioModel);
+		diff.setModel2(portfolioModel1);
+		diff.setDiff(JsonDiff.asJson(beforeNode, afterNode));
+		return new ResponseEntity<>(diff, HttpStatus.OK);
+
+	}
 }

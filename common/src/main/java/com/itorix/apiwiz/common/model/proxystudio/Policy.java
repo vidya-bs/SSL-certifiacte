@@ -8,6 +8,7 @@ public class Policy {
 	private String displayName;
 	private String description;
 	private boolean enabled;
+	private boolean applyToFlow = false;
 
 	public String getName() {
 		return name;
@@ -39,5 +40,13 @@ public class Policy {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public boolean getApplyToFlow() {
+		return applyToFlow;
+	}
+
+	public void setApplyToFlow(boolean applyToFlow) {
+		this.applyToFlow = applyToFlow;
 	}
 }
