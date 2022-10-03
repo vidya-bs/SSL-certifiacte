@@ -18,6 +18,8 @@ import com.itorix.apiwiz.design.studio.model.SwaggerVO;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
+import com.mongodb.client.DistinctIterable;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -326,14 +328,21 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		log("portfolioSearch", interactionid, "");
 		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
 		query.limit(limit > 0 ? limit : 10);
-		List<PortfolioVO> allPortfolios = mongoTemplate.find(query, PortfolioVO.class);
+		List<String> allPortfolios = getList(mongoTemplate.getCollection("Design.Dictionary.List").distinct("name",
+				query.getQueryObject(), String.class));
 		ObjectNode portfolioList = new ObjectMapper().createObjectNode();
 		ArrayNode responseFields = new ObjectMapper().createArrayNode();
-		for (PortfolioVO vo : allPortfolios) {
+		for (String portfolioName : allPortfolios) {
 			SearchItem item = new SearchItem();
-			item.setId(vo.getId());
-			item.setName(vo.getName());
-			responseFields.addPOJO(item);
+			List<PortfolioVO> portfolioVOList = mongoTemplate.find(new Query(Criteria.where("name").is(portfolioName)),PortfolioVO.class);
+			Optional<PortfolioVO> portfolioVO = portfolioVOList.stream().reduce(
+					(portfolioVO1, portfolioVO2) -> portfolioVO1.getRevision() > portfolioVO2.getRevision()
+							? portfolioVO1 : portfolioVO2);
+			if(portfolioVO.isPresent()){
+				item.setId(portfolioVO.get().getId());
+				item.setName(portfolioName);
+				responseFields.addPOJO(item);
+			}
 		}
 		portfolioList.put("dataDictionaries", responseFields);
 		return portfolioList;
@@ -570,4 +579,12 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 				PortfolioModel.class);
 	}
 
+	private List<String> getList(DistinctIterable<String> iterable) {
+		MongoCursor<String> cursor = iterable.iterator();
+		List<String> list = new ArrayList<>();
+		while (cursor.hasNext()) {
+			list.add(cursor.next());
+		}
+		return list;
+	}
 }
