@@ -21,8 +21,6 @@ public class VerificationToken {
 	private String description;
 	private Date created;
 	private Date validTill;
-
-	private  String appType;
 	private String userEmail;
 	private String workspaceId;
 	private List<Roles> roles;
@@ -34,7 +32,7 @@ public class VerificationToken {
 	}
 
 	public VerificationToken(String id, String type, Date created, Date validTill, String userEmail,
-			List<Roles> roles,String appType) {
+			List<Roles> roles) {
 		super();
 		this.id = id;
 		this.type = type;
@@ -42,7 +40,6 @@ public class VerificationToken {
 		this.validTill = validTill;
 		this.userEmail = userEmail;
 		this.roles = roles;
-		this.appType = appType;
 	}
 
 	public String getId() {
@@ -51,14 +48,6 @@ public class VerificationToken {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public String getAppType() {
-		return appType;
-	}
-
-	public void setAppType(String appType) {
-		this.appType = appType;
 	}
 
 	public String getType() {
