@@ -7,9 +7,9 @@ import com.itorix.apiwiz.validator.license.model.db.License;
 
 public interface LicenseBusiness {
 
-	public void createLicense(LicenseRequest licenseRequest) throws ItorixException;
+	public void createLicense(LicenseRequest licenseRequest,String encryptionType) throws ItorixException;
 
-	public void updateLicense(String emailId, LicenseRequest licenseRequest) throws ItorixException;
+	public void updateLicense(String emailId, LicenseRequest licenseRequest,String encryptionType) throws ItorixException;
 
 	public void deleteLicense(String emailId) throws ItorixException;
 

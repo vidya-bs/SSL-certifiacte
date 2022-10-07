@@ -331,14 +331,4 @@ public interface DictionaryService {
 			@PathVariable("modelId") String modelId, @PathVariable("revision") Integer revision)
 			throws ItorixException;
 
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER','ANALYST') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/model/{modelId1}/diff/{modelId2}")
-	public ResponseEntity<Object> findDiffBetweenModels(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestParam(value = "portfolioId1", required = true) String portfolioId1,
-			@RequestParam(value = "portfolioId2", required = true) String portfolioId2,
-			@RequestParam(value = "Revision1", required = true) Integer revisionid1,
-			@RequestParam(value = "Revision2", required = true) Integer revisionid2,
-			@PathVariable("modelId1") String modelId1, @PathVariable("modelId2") String modelId2) throws Exception;
 }

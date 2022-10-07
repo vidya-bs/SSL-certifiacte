@@ -27,8 +27,7 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 	private LicenseRepository licenseRepository;
 
 	@Override
-	public void createLicense(LicenseRequest licenseRequest) throws ItorixException {
-
+	public void createLicense(LicenseRequest licenseRequest,String encryptionType) throws ItorixException {
 		License license = licenseRepository.findOne("emailId", licenseRequest.getEmailId(), License.class);
 
 		if(license != null ) {
@@ -36,12 +35,13 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 		}
 
 		licenseRequest.setStatus(String.valueOf(Status.VALID));
-		License licenseToSave = createLicenseObj(licenseRequest);
+		License licenseToSave = createLicenseObj(licenseRequest,encryptionType);
 
 		licenseRepository.save(licenseToSave);
 
 	}
-	private License createLicenseObj(LicenseRequest licenseRequest) throws ItorixException {
+	private License createLicenseObj(LicenseRequest licenseRequest,String encryptionType) throws ItorixException {
+		log.info("createLicenseObj{}",licenseRequest,encryptionType);
 		License licenseToSave = new License();
 		//licenseToSave.setUserName(licenseRequest.getUserName());
 		//licenseToSave.setPassword(licenseRequest.getPassword());
@@ -51,20 +51,21 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 		licenseToSave.setClientIp(licenseRequest.getClientIp());
 		licenseToSave.setWorkspaceName(licenseRequest.getWorkspaceName());
 		licenseToSave.setExpiry(licenseRequest.getExpiry());
-		licenseToSave.setEncryptedToken(manager.getEncryptedLicense(licenseRequest));
+		licenseToSave.setEncryptedToken(manager.getEncryptedLicense(licenseRequest,encryptionType));
 		licenseToSave.setStatus(Status.VALID);
 		licenseToSave.setComponents(licenseRequest.getComponents());
+		licenseToSave.setEncryptionType(encryptionType);
 		return licenseToSave;
 	}
 
 	@Override
-	public void updateLicense(String emailId, LicenseRequest licenseRequest) throws ItorixException {
+	public void updateLicense(String emailId, LicenseRequest licenseRequest,String encryptionType) throws ItorixException {
 		License license = licenseRepository.findOne("emailId", emailId, License.class);
 		if(license == null ) {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("License-1002"), emailId), "License-1002");
 		}
 
-		updateLicenseObj(license, licenseRequest);
+		updateLicenseObj(license, licenseRequest,encryptionType);
 		licenseRepository.save(license);
 	}
 
@@ -78,7 +79,8 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 		licenseRepository.save(license);
 	}
 
-	private void updateLicenseObj(License license, LicenseRequest licenseRequest) throws ItorixException {
+	private void updateLicenseObj(License license, LicenseRequest licenseRequest,String encryptionType) throws ItorixException {
+		log.info("updatateLicenseObj{}",license,licenseRequest,encryptionType);
 		//license.setUserName(licenseRequest.getUserName());
 		//license.setPassword(licenseRequest.getPassword());
 		license.setClientName(licenseRequest.getClientName());
@@ -86,9 +88,10 @@ public class LicenseBusinessImpl implements LicenseBusiness {
 		license.setClientIp(licenseRequest.getClientIp());
 		license.setWorkspaceName(licenseRequest.getWorkspaceName());
 		license.setExpiry(licenseRequest.getExpiry());
-		license.setEncryptedToken(manager.getEncryptedLicense(licenseRequest));
+		license.setEncryptedToken(manager.getEncryptedLicense(licenseRequest,encryptionType));
 		license.setStatus(Status.valueOf(licenseRequest.getStatus()));
 		license.setComponents(licenseRequest.getComponents());
+		license.setEncryptionType(encryptionType);
 	}
 
 	@Override
