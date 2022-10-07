@@ -648,41 +648,4 @@ public class DictionaryServiceImpl implements DictionaryService {
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
-	@Override
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/model/{modelId1}/diff/{modelId2}")
-	public ResponseEntity<Object> findDiffBetweenModels(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestParam(value = "portfolioId1", required = true) String portfolioId1,
-			@RequestParam(value = "portfolioId2", required = true) String portfolioId2,
-			@RequestParam(value = "Revision1", required = true) Integer revisionid1,
-			@RequestParam(value = "Revision2", required = true) Integer revisionid2,
-			@PathVariable("modelId1") String modelId1, @PathVariable("modelId2") String modelId2) throws Exception {
-		PortfolioModel portfolioModel = new PortfolioModel();
-		PortfolioModel portfolioModel1 = new PortfolioModel();
-		if (revisionid1 != null) {
-			portfolioModel = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelIdAndRevison(portfolioId1, modelId1, revisionid1);
-			if (portfolioModel == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1004"), portfolioId1),
-						"Portfolio-1004");
-			}
-		}
-		if (revisionid2 != null) {
-			portfolioModel1 = dictionaryBusiness.findPortfolioModelsWithRevisions(portfolioId2, modelId2, revisionid2);
-			if (portfolioModel1 == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1004"), portfolioId2),
-						"Portfolio-1004");
-			}
-		}
-		ObjectMapper mapper = new ObjectMapper();
-		DiffResponse diff = new DiffResponse();
-		JsonNode beforeNode = mapper.readTree(portfolioModel.getModel());
-		JsonNode afterNode = mapper.readTree(portfolioModel1.getModel());
-		//JsonNode patch = JsonDiff.asJson(beforeNode, afterNode);
-		diff.setModel1(portfolioModel);
-		diff.setModel2(portfolioModel1);
-		diff.setDiff(JsonDiff.asJson(beforeNode, afterNode));
-		return new ResponseEntity<>(diff, HttpStatus.OK);
-
-	}
 }
