@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.validator.license.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import java.util.Set;
 
 @Getter
 @Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class LicenseRequest {
 
 	//private String userName;
@@ -20,5 +22,5 @@ public class LicenseRequest {
 	private String expiry;
 	private LicensePolicy licensePolicy;
 	private Set<String> components;
-
+	private String encryptionType;
 }

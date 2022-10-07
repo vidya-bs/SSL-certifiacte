@@ -792,7 +792,10 @@ public class IdentityManagementDao {
         Subscription subscription = workspaceDao.getSubscription(workspace.getPlanId());
         List<SubscriptionPrice> prices = subscription.getSubscriptionPrices();
         String subscriptionPrice = subscription.getPricing().replaceAll("\\$", "");
-        if (!subscriptionPrice.equalsIgnoreCase("0")) {
+        String subscriptionPrice1=subscriptionPrice.trim();
+        boolean subscriptionValue=subscriptionPrice.equalsIgnoreCase("0");
+        boolean subscriptionVal=subscriptionPrice1.equalsIgnoreCase("Custom");
+        if (!subscriptionValue && !subscriptionVal){
             if (workspace.getPaymentSchedule().equalsIgnoreCase("month")
                     || workspace.getPaymentSchedule().equalsIgnoreCase("monthly")) {
                 SubscriptionPrice price = prices.stream().filter(o -> o.getPeriod().equalsIgnoreCase("MONTHLY"))
