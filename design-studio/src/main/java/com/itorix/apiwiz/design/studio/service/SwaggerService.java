@@ -1198,11 +1198,11 @@ public interface SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerPartner swaggerPartner)
 			throws Exception;
 
-	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/partner-groups/{partnerId}", produces = {
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/partner-groups", produces = {
 			"application/json"})
-	public ResponseEntity<?> updatePartnerGroup(@PathVariable("partnerId") String partnerId,
+	public ResponseEntity<?> updatePartnerGroup(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerPartner swaggerPartner)
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody List<SwaggerPartner> swaggerPartners)
 			throws Exception;
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/partner-groups/{partnerId}", produces = {

@@ -2686,12 +2686,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 	}
 
 	@Override
-	public ResponseEntity<?> updatePartnerGroup(@PathVariable("partnerId") String partnerId,
+	public ResponseEntity<?> updatePartnerGroup(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerPartner swaggerPartner)
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody List<SwaggerPartner> swaggerPartners)
 			throws Exception {
-		swaggerPartner.setId(partnerId);
-		swaggerBusiness.updatePartner(swaggerPartner);
+		swaggerBusiness.updatePartners(swaggerPartners);
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}
 

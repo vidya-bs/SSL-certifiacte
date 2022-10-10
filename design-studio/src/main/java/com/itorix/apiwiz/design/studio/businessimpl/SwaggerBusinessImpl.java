@@ -3651,10 +3651,25 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	public void updatePartner(SwaggerPartner partner) {
-		SwaggerPartner swaggerPartner = getPartnerbyName(partner);
+		SwaggerPartner swaggerPartner = getPartnerById(partner);
 		if (null == swaggerPartner) {
 			mongoTemplate.save(partner);
+		}else{
+			if(partner.getIsDefault() != null){
+				swaggerPartner.setIsDefault(partner.getIsDefault());
+			}
+			if(StringUtils.isNotBlank(partner.getPartnerDescription())){
+				swaggerPartner.setPartnerDescription(partner.getPartnerDescription());
+			}
+			if(StringUtils.isNotBlank(partner.getPartnerDisplayName())){
+				swaggerPartner.setPartnerDisplayName(partner.getPartnerDisplayName());
+			}
+			mongoTemplate.save(swaggerPartner);
 		}
+	}
+
+	private SwaggerPartner getPartnerById(SwaggerPartner partner) {
+		return mongoTemplate.findById(partner.getId(), SwaggerPartner.class);
 	}
 
 	public void deletePartner(String partnerId) {
@@ -4066,6 +4081,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				Criteria.where("_id").in(productId.stream().collect(Collectors.toList())));
 		log.debug("productQuery : {}", productQuery);
 		return mongoTemplate.find(productQuery, SwaggerProduct.class);
+	}
+
+	@Override
+	public void updatePartners(List<SwaggerPartner> swaggerPartners) {
+		swaggerPartners.stream().forEach(partner -> {
+			updatePartner(partner);
+		});
 	}
 
 	private DeleteResult removeBasePath(Query query, Class clazz) {
