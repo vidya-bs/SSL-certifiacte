@@ -2675,18 +2675,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 		return new ResponseEntity<Object>(swaggerBusiness.getProxies(swagger, oas), HttpStatus.OK);
 	}
 
-	@Override
-	public ResponseEntity<?> createPartnerGroup(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerPartner swaggerPartner)
-			throws Exception {
-		swaggerPartner.setId(new ObjectId().toString());
-		swaggerBusiness.createPartner(swaggerPartner);
-		return new ResponseEntity<Object>(HttpStatus.CREATED);
-	}
 
 	@Override
-	public ResponseEntity<?> updatePartnerGroup(
+	public ResponseEntity<?> createOrUpdatePartnerGroup(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody List<SwaggerPartner> swaggerPartners)
 			throws Exception {

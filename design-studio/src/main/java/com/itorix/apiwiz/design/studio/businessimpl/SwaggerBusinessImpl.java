@@ -3653,7 +3653,10 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	public void updatePartner(SwaggerPartner partner) {
 		SwaggerPartner swaggerPartner = getPartnerById(partner);
 		if (null == swaggerPartner) {
-			mongoTemplate.save(partner);
+			if (null == getPartnerbyName(partner)) {
+				partner.setId(new ObjectId().toString());
+				mongoTemplate.save(partner);
+			}
 		}else{
 			if(partner.getIsDefault() != null){
 				swaggerPartner.setIsDefault(partner.getIsDefault());
@@ -3669,7 +3672,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	private SwaggerPartner getPartnerById(SwaggerPartner partner) {
-		return mongoTemplate.findById(partner.getId(), SwaggerPartner.class);
+		if (StringUtils.isNotEmpty(partner.getId())) {
+			return mongoTemplate.findById(partner.getId(), SwaggerPartner.class);
+		} else {
+			return null;
+		}
 	}
 
 	public void deletePartner(String partnerId) {

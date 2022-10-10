@@ -1192,15 +1192,15 @@ public interface SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas) throws Exception;
 
-	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/partner-groups", produces = {"application/json"})
-	public ResponseEntity<?> createPartnerGroup(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerPartner swaggerPartner)
-			throws Exception;
+//	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/partner-groups", produces = {"application/json"})
+//	public ResponseEntity<?> createPartnerGroup(
+//			@RequestHeader(value = "interactionid", required = false) String interactionid,
+//			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerPartner swaggerPartner)
+//			throws Exception;
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/partner-groups", produces = {
 			"application/json"})
-	public ResponseEntity<?> updatePartnerGroup(
+	public ResponseEntity<?> createOrUpdatePartnerGroup(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody List<SwaggerPartner> swaggerPartners)
 			throws Exception;
