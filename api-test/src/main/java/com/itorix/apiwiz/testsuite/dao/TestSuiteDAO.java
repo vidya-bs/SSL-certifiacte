@@ -191,7 +191,7 @@ public class TestSuiteDAO {
 	}
 
 	public TestSuiteOverviewResponse getVariables(int offset, int pageSize) {
-		Query query = new Query().with(Sort.by(Direction.DESC, "mts")).limit(pageSize);
+		Query query = new Query().with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 		List<Variables> variables = mongoTemplate.find(query, Variables.class);
 		if (variables.size() > 0) {
 			for (Variables variable : variables)
