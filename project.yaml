@@ -186,7 +186,7 @@ deployment:
         container: enable
         spaceName: stage
         awsCredProfile: NA
-        approval: enable
+        approval: disable
         host: 34.70.37.110
         gcpCredProfile: nonprod
         pem: NA
