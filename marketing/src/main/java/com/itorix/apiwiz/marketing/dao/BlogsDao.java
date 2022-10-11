@@ -156,6 +156,7 @@ public class BlogsDao {
     log.debug("editBlog {}", query);
     Blog existingBlog = masterMongoTemplate.findOne(query, Blog.class);
     if (existingBlog != null) {
+      String currentSlog = existingBlog.getMeta().getSlug();
       if (null != blog.getContent()) {
         existingBlog.setContent(blog.getContent());
       }
@@ -167,13 +168,13 @@ public class BlogsDao {
           existingBlog.getMeta().setTags(blog.getMeta().getTags());
         }
         if (null != blog.getMeta().getTitle()) {
-          String newSlug=blog.getMeta().getTitle().toLowerCase().replace(" ","-").replace(":","-");
+          //String newSlug=blog.getMeta().getTitle().toLowerCase().replace(" ","-").replace(":","-");
           existingBlog.getMeta().setTitle(blog.getMeta().getTitle());
-          existingBlog.getMeta().setSlug(newSlug);
+          //existingBlog.getMeta().setSlug(newSlug);
         }
-        if (null != blog.getMeta().getSlug()) {
-          existingBlog.getMeta().setSlug(existingBlog.getMeta().getSlug());
-        }
+//        if (null != blog.getMeta().getSlug()) {
+//          existingBlog.getMeta().setSlug(currentSlog);
+//        }
         if (null != blog.getMeta().getAuthor()) {
           existingBlog.getMeta().setAuthor(blog.getMeta().getAuthor());
         }
