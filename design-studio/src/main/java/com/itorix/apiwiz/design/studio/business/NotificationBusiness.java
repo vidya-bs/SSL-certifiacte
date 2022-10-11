@@ -25,4 +25,5 @@ public interface NotificationBusiness {
     public NotificationDetails findNotificationsById(String notificationId);
 
 
+    Object updateUserNotifications(String userId);
 }

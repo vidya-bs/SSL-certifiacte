@@ -85,5 +85,11 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("retrieveNotifications :{}", notificationId);
         return ResponseEntity.ok(notificationBusiness.findNotificationsById(notificationId));
     }
+
+    @Override
+    public ResponseEntity<?> updateUserNotifications(String jsessionId,
+        String interactionId, String userId) throws Exception {
+        return ResponseEntity.ok(notificationBusiness.updateUserNotifications(userId));
+    }
 }
 
