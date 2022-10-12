@@ -302,6 +302,8 @@ public enum ErrorCodes {
 			put("Configuration-1030", 400);
 			put("Configuration-1031", 400);
 			put("Configuration-1032", 400);
+			put("Config-1004", 500);
+
 			put("Identity-1000", 400);
 			put("Identity-1001", 400);
 			put("Identity-1002", 400);
