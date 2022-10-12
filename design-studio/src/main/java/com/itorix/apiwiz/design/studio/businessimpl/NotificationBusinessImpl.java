@@ -107,9 +107,7 @@ public class NotificationBusinessImpl implements NotificationBusiness {
         Query query = Query.query(Criteria.where("userId").in(userId));
         Update update = new Update();
         update.set("isRead", true);
-        List<NotificationDetails> notifiers = mongoTemplate.find(query, NotificationDetails.class);
         return mongoTemplate.updateMulti(query,update,NotificationDetails.class);
-//        return mongoTemplate.findAndModify(query,update,NotificationDetails.class);
     }
 
     private List<NotificationDetails> trimList(List<NotificationDetails> list, int offset, int pageSize) {
