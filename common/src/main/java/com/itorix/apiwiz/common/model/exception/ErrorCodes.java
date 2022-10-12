@@ -345,7 +345,7 @@ public enum ErrorCodes {
 			put("Identity-1040", 500);
 			put("Identity-1041", 500);
 			put("Identity-1042", 403);
-			put("Identity-1043", 400);
+			put("Identity-1043", 401);
 			put("Identity-1044", 400);
 			put("Identity-1045", 400);
 			put("USER_005", 400);

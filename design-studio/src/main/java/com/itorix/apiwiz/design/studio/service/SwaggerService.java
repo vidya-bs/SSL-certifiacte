@@ -291,11 +291,10 @@ public interface SwaggerService {
 	/**
 	 * We will get when the swagger state is published.
 	 *
-	 * @param interactionid
-	 * @param jsessionid
-	 * @param status
 	 * @param request
 	 * @param response
+	 * @param interactionid
+	 * @param jsessionid
 	 * @return @throws IOException @throws ItorixException @throws
 	 */
 	@ApiOperation(value = "Get List Of Published Swagger Details", notes = "", code = 200)
@@ -308,7 +307,6 @@ public interface SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
-			@RequestParam(value = "status", required = false) String status,
 			@RequestParam(value = "filterParams", required = false) Map<String, String> filterParams) throws Exception;
 
 	/**
@@ -318,8 +316,6 @@ public interface SwaggerService {
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param swaggername
-	 * @param request
-	 * @param response
 	 *
 	 * @return
 	 *

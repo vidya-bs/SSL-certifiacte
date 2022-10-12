@@ -3773,12 +3773,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	private List<SwaggerPartner> getswaggerPartners(Set<String> partnerId) {
-		List<SwaggerPartner> partners = new ArrayList<SwaggerPartner>();
+		List<SwaggerPartner> partners = new ArrayList<>();
 		try {
 			List<SwaggerPartner> dbPartners = mongoTemplate.findAll(SwaggerPartner.class);
 			for (String partner : partnerId) {
 				try {
-					partners.add(dbPartners.stream().filter(p -> p.getId().equals(partner)).findFirst().get());
+					partners.add(
+							dbPartners.stream().filter(p -> p.getId().equals(partner)).findFirst().get());
 				} catch (Exception e) {
 					log.error("Exception occurred", e);
 				}
@@ -3792,18 +3793,21 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	private List<String> getswaggerProductsName(Set<String> productId) {
 		try {
 			Query query = new Query(Criteria.where("_id").in(productId));
-			List<SwaggerProduct> dbProducts = mongoTemplate.find(query,SwaggerProduct.class);
-			return dbProducts.stream().map(swaggerProduct -> swaggerProduct.getProductName()).collect(Collectors.toList());
+			List<SwaggerProduct> dbProducts = mongoTemplate.find(query, SwaggerProduct.class);
+			return dbProducts.stream().map(swaggerProduct -> swaggerProduct.getProductName())
+					.collect(Collectors.toList());
 		} catch (Exception e) {
 			log.error("Exception occurred", e);
 		}
 		return Collections.emptyList();
 	}
+
 	private List<String> getswaggerPartnersName(Set<String> partnerId) {
 		try {
 			Query query = new Query(Criteria.where("_id").in(partnerId));
-			List<SwaggerPartner> dbPartners = mongoTemplate.find(query,SwaggerPartner.class);
-			return dbPartners.stream().map(swaggerPartner -> swaggerPartner.getPartnerName()).collect(Collectors.toList());
+			List<SwaggerPartner> dbPartners = mongoTemplate.find(query, SwaggerPartner.class);
+			return dbPartners.stream().map(swaggerPartner -> swaggerPartner.getPartnerDisplayName())
+					.collect(Collectors.toList());
 		} catch (Exception e) {
 			log.error("Exception occurred", e);
 		}
@@ -3832,15 +3836,17 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	@Override
-	public DictionarySwagger getSwaggerAssociatedWithDictionary(String dictionaryId, String modelId, Integer revision) {
+	public DictionarySwagger getSwaggerAssociatedWithDictionary(String dictionaryId, String modelId,
+			Integer revision) {
 		List<Document> documents = null;
 		if (modelId == null || "".equals(modelId)) {
-			documents = baseRepository.getSwaggerAssociatedWithDictionary(dictionaryId, SwaggerDictionary.class);
+			documents = baseRepository.getSwaggerAssociatedWithDictionary(dictionaryId,
+					SwaggerDictionary.class);
 		} else {
-			documents = baseRepository.getSwaggerAssociatedWithSchemaName(dictionaryId, modelId,revision,
+			documents = baseRepository.getSwaggerAssociatedWithSchemaName(dictionaryId, modelId, revision,
 					SwaggerDictionary.class);
 		}
-		log.debug("getSwaggerAssociatedWithDictionary:{}",documents);
+		log.debug("getSwaggerAssociatedWithDictionary:{}", documents);
 		DictionarySwagger dictionarySwagger = new DictionarySwagger();
 
 		if (documents.size() > 0) {
@@ -3857,8 +3863,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Document dictionaryObj = doc.get("dictionary", Document.class);
 			Document modelsObj = dictionaryObj.get("models", Document.class);
 			String modelName = modelsObj.getString("name");
-			String modelID=modelsObj.getString("modelId");
-			Integer modelRevision=modelsObj.getInteger("revision");
+			String modelID = modelsObj.getString("modelId");
+			Integer modelRevision = modelsObj.getInteger("revision");
 			if (dictionarySwagger.getSchemas() != null && dictionarySwagger.getSchemas().size() > 0) {
 				Optional<SchemaInfo> schemaInfoOptional = dictionarySwagger.getSchemas().stream()
 						.filter(s -> s.getName().equals(modelName)).findFirst();
