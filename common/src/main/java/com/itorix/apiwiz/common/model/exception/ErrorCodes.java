@@ -300,7 +300,7 @@ public enum ErrorCodes {
 			put("Configuration-1028", 400);
 			put("Configuration-1029", 400);
 			put("Configuration-1030", 400);
-			put("Configuration-1031", 400);
+			put("Configuration-1031", 401);
 			put("Configuration-1032", 400);
 			put("Config-1004", 500);
 
