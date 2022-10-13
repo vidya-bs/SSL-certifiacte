@@ -846,17 +846,21 @@ public class SwaggerServiceImpl implements SwaggerService {
 			status = filterParams.get("status");
 		}
 
-		if (filterParams != null && filterParams.get("partnerNames") != null && !filterParams.get(
+		if (filterParams.get("partnerNames") != null && !filterParams.get(
 				"partnerNames").isEmpty()) {
 			partners = swaggerBusiness.getPartners().stream().filter(
 					swaggerPartner -> filterParams.get("partnerNames")
 							.contains(swaggerPartner.getId())).map(SwaggerPartner::getId).collect(
 					Collectors.toList());
-		}
-		if (partners.isEmpty()) {
+			if (partners.isEmpty()) {
+				return ResponseEntity.ok(Collections.EMPTY_SET);
+			}
+		}else if(filterParams.get("partnerNames") != null && filterParams.get(
+				"partnerNames").isEmpty()){
 			return ResponseEntity.ok(Collections.EMPTY_SET);
 		}
-		if (filterParams != null && filterParams.get("productNames") != null && !filterParams.get(
+
+		if (filterParams.get("productNames") != null && !filterParams.get(
 				"productNames").isEmpty()) {
 			products = swaggerBusiness.getProductGroups(interactionid, jsessionid).stream().filter(
 					swaggerProduct -> filterParams.get("productNames")
