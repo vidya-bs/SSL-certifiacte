@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.testsuite.model;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -15,6 +16,12 @@ public class TestCase {
 
 	@JsonProperty("name")
 	private String name;
+
+	@JsonProperty("testCaseSequence")
+	private List<String> testCaseSequence;
+
+	@JsonProperty("scenarioSequence")
+	private List<String> scenarioSequence;
 
 	@JsonProperty("description")
 	private String description;
@@ -129,6 +136,23 @@ public class TestCase {
 	@JsonProperty("verb")
 	public void setVerb(String verb) {
 		this.verb = verb;
+	}
+
+
+	public List<String> getTestCaseSequence() {
+		return testCaseSequence;
+	}
+
+	public void setTestCaseSequence(List<String> testCaseSequence) {
+		this.testCaseSequence = testCaseSequence;
+	}
+
+	public List<String> getScenarioSequence() {
+		return scenarioSequence;
+	}
+
+	public void setScenarioSequence(List<String> scenarioSequence) {
+		this.scenarioSequence = scenarioSequence;
 	}
 
 	@JsonProperty("request")

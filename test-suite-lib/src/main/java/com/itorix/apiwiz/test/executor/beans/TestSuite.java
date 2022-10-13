@@ -19,6 +19,9 @@ public class TestSuite {
     @JsonProperty("name")
     private String name;
 
+    @JsonProperty("scenarioSequence")
+    private List<String> scenarioSequence;
+
     @JsonProperty("description")
     private String description;
 
@@ -73,6 +76,14 @@ public class TestSuite {
     @JsonProperty("description")
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<String> getScenarioSequence() {
+        return scenarioSequence;
+    }
+
+    public void setScenarioSequence(List<String> scenarioSequence) {
+        this.scenarioSequence = scenarioSequence;
     }
 
     @JsonProperty("scenarios")
