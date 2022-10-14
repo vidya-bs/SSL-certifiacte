@@ -51,7 +51,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.types.ObjectId;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -820,11 +819,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 	/**
 	 * We will get when the swagger state is published.
 	 *
-	 * @param interactionid
-	 * @param jsessionid
-	 * @param status
 	 * @param request
 	 * @param response
+	 * @param interactionid
+	 * @param jsessionid
 	 * @return @throws IOException @throws ItorixException @throws
 	 */
 	@ApiOperation(value = "Get List Of Published Swagger Details", notes = "", code = 200)
@@ -837,33 +835,41 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
-			@RequestParam(value = "status", required = false) String status,
 			@RequestParam Map<String, String> filterParams) throws Exception {
+
 
 		List<String> partners = new ArrayList<>(0);
 		List<String> products = new ArrayList<>(0);
+		String status = "";
+		if (filterParams != null && filterParams.get("status") != null && !filterParams.get("status")
+				.isEmpty()) {
+			status = filterParams.get("status");
+		}
 
-		if (filterParams.get("partnerNames") != null && !filterParams.get("partnerNames").isEmpty()) {
+		if (filterParams.get("partnerNames") != null && !filterParams.get(
+				"partnerNames").isEmpty()) {
 			partners = swaggerBusiness.getPartners().stream().filter(
 					swaggerPartner -> filterParams.get("partnerNames")
-							.contains(swaggerPartner.getPartnerName())).map(SwaggerPartner::getId).collect(
+							.contains(swaggerPartner.getId())).map(SwaggerPartner::getId).collect(
 					Collectors.toList());
-			if(partners.isEmpty()){
+			if (partners.isEmpty()) {
 				return ResponseEntity.ok(Collections.EMPTY_SET);
 			}
+		}else if(filterParams.get("partnerNames") != null && filterParams.get(
+				"partnerNames").isEmpty()){
+			return ResponseEntity.ok(Collections.EMPTY_SET);
 		}
-		if (filterParams.get("productNames") != null && !filterParams.get("productNames").isEmpty()) {
+
+		if (filterParams.get("productNames") != null && !filterParams.get(
+				"productNames").isEmpty()) {
 			products = swaggerBusiness.getProductGroups(interactionid, jsessionid).stream().filter(
 					swaggerProduct -> filterParams.get("productNames")
 							.contains(swaggerProduct.getProductName())).map(SwaggerProduct::getId).collect(
 					Collectors.toList());
-			if(products.isEmpty()){
+			if (products.isEmpty()) {
 				return ResponseEntity.ok(Collections.EMPTY_SET);
 			}
 		}
-//		if(filterParams.get("teamNames") != null && !filterParams.get("teamNames").isEmpty()){
-//			swaggerBusiness.getListOfTeams
-//		}
 
 		String json = "";
 		ArrayNode node = swaggerBusiness.getListOfPublishedSwaggerDetails(interactionid, jsessionid,
@@ -890,8 +896,6 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 * @param interactionid
 	 * @param jsessionid
 	 * @param swaggername
-	 * @param request
-	 * @param response
 	 * @return
 	 * @throws ItorixException,Exception
 	 */
@@ -2675,23 +2679,13 @@ public class SwaggerServiceImpl implements SwaggerService {
 		return new ResponseEntity<Object>(swaggerBusiness.getProxies(swagger, oas), HttpStatus.OK);
 	}
 
-	@Override
-	public ResponseEntity<?> createPartnerGroup(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerPartner swaggerPartner)
-			throws Exception {
-		swaggerPartner.setId(new ObjectId().toString());
-		swaggerBusiness.createPartner(swaggerPartner);
-		return new ResponseEntity<Object>(HttpStatus.CREATED);
-	}
 
 	@Override
-	public ResponseEntity<?> updatePartnerGroup(@PathVariable("partnerId") String partnerId,
+	public ResponseEntity<?> createOrUpdatePartnerGroup(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerPartner swaggerPartner)
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody List<SwaggerPartner> swaggerPartners)
 			throws Exception {
-		swaggerPartner.setId(partnerId);
-		swaggerBusiness.updatePartner(swaggerPartner);
+		swaggerBusiness.updatePartners(swaggerPartners);
 		return new ResponseEntity<Object>(HttpStatus.NO_CONTENT);
 	}
 

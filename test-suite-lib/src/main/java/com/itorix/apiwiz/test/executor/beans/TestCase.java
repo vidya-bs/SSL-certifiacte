@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TestCase {
@@ -132,6 +134,12 @@ public class TestCase {
         return request;
     }
 
+    @JsonProperty("testCaseSequence")
+    private List<String> testCaseSequence;
+
+    @JsonProperty("scenarioSequence")
+    private List<String> scenarioSequence;
+
     @JsonProperty("request")
     public void setRequest(Request request) {
         this.request = request;
@@ -171,6 +179,22 @@ public class TestCase {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public List<String> getTestCaseSequence() {
+        return testCaseSequence;
+    }
+
+    public void setTestCaseSequence(List<String> testCaseSequence) {
+        this.testCaseSequence = testCaseSequence;
+    }
+
+    public List<String> getScenarioSequence() {
+        return scenarioSequence;
+    }
+
+    public void setScenarioSequence(List<String> scenarioSequence) {
+        this.scenarioSequence = scenarioSequence;
     }
 
     public boolean isMonitored() {

@@ -5,9 +5,15 @@ import com.itorix.apiwiz.design.studio.business.NotificationBusiness;
 import com.itorix.apiwiz.design.studio.model.NotificationDetails;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.eclipse.jgit.transport.CredentialItem;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,6 +25,9 @@ import java.util.List;
 public class NotificationBusinessImpl implements NotificationBusiness {
     @Autowired
     BaseRepository baseRepository;
+
+    @Autowired
+    MongoTemplate mongoTemplate;
 
     @Autowired
     IdentityManagementDao identityManagementDao;
@@ -70,9 +79,12 @@ public class NotificationBusinessImpl implements NotificationBusiness {
     @Override
     public List<NotificationDetails> getNotificationsForUser(String jsessionId, String userId, int offset, int pageSize) {
 
-        log.debug("getNotificationForUser : {} {}",jsessionId ,userId);
-        List<NotificationDetails> list = baseRepository.find("userId", userId, NotificationDetails.class);
-        log.debug("getNotificationForUser: {}", jsessionId );
+        log.debug("getNotificationForUser : {} {}", jsessionId, userId);
+        List<NotificationDetails> list = baseRepository.find("userId", userId,
+            NotificationDetails.class);
+        list = list.stream().filter(notification -> !notification.getIsRead())
+            .collect(Collectors.toList());
+        log.debug("getNotificationForUser: {}", jsessionId);
         return list;
 //        return trimList(list, offset, pageSize);
 
@@ -90,6 +102,13 @@ public class NotificationBusinessImpl implements NotificationBusiness {
         return baseRepository.findOne("id", notificationId, NotificationDetails.class);
     }
 
+    @Override
+    public Object updateUserNotifications(String userId) {
+        Query query = Query.query(Criteria.where("userId").in(userId));
+        Update update = new Update();
+        update.set("isRead", true);
+        return mongoTemplate.updateMulti(query,update,NotificationDetails.class);
+    }
 
     private List<NotificationDetails> trimList(List<NotificationDetails> list, int offset, int pageSize) {
         List<NotificationDetails> notificationDetailsList = new ArrayList<>();
