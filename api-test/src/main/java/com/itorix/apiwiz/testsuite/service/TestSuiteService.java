@@ -446,4 +446,42 @@ public interface TestSuiteService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(name = "name") String name)
 			throws ItorixException;
+
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/testsuites/{testsuiteid}/sequence", produces = {
+			"application/json"})
+	public ResponseEntity<Object> getScenarioSequence(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,	@PathVariable("testsuiteid") String testsuiteid) throws ItorixException;
+
+
+
+
+	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/testsuites/{testsuiteid}/sequence")
+	public ResponseEntity<Object> updateScenarioSequence(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,@PathVariable("testsuiteid") String testsuiteid,
+			@RequestBody TestSuite testSuite) throws ItorixException;
+
+
+	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION', 'DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/testsuites/{testsuiteid}/scenarios/{scenarioid}/sequence")
+	public ResponseEntity<Object> updateTestCaseSequence(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("testsuiteid") String testsuiteid, @PathVariable("scenarioid") String scenarioid,
+			@RequestBody Scenario scenario) throws ItorixException;
+
+
+	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/testsuites/{testsuiteid}/Testcasesequences", produces = {
+			"application/json"})
+	public ResponseEntity<Object> getScenarioandTestCaseSequence(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("testsuiteid") String testsuiteid) throws ItorixException;
+
+
+
 }

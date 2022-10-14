@@ -48,6 +48,8 @@ dist/
 nbdist/
 nbactions.xml
 nb-configuration.xml
+/opt
+/logs
 
 # OS
 .DS_Store
