@@ -21,6 +21,9 @@ public class Scenario {
 	@JsonProperty("description")
 	private String description;
 
+	@JsonProperty("testCaseSequence")
+	private List<String> testCaseSequence;
+
 	@JsonProperty("status")
 	private String status;
 
@@ -111,6 +114,15 @@ public class Scenario {
 	public void setId(String id) {
 		this.id = id;
 	}
+
+	public List<String> getTestCaseSequence() {
+		return testCaseSequence;
+	}
+
+	public void setTestCaseSequence(List<String> testCaseSequence) {
+		this.testCaseSequence = testCaseSequence;
+	}
+
 
 	public Long getDuration() {
 		duration = 0L;

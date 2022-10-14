@@ -13,6 +13,8 @@ public class Scenario {
     @JsonProperty("name")
     private String name;
 
+    @JsonProperty("testCaseSequence")
+    private List<String> testCaseSequence;
     @JsonProperty("description")
     private String description;
 
@@ -98,6 +100,14 @@ public class Scenario {
 
     public void setDuration(Long duration) {
         this.duration = duration;
+    }
+
+    public List<String> getTestCaseSequence() {
+        return testCaseSequence;
+    }
+
+    public void setTestCaseSequence(List<String> testCaseSequence) {
+        this.testCaseSequence = testCaseSequence;
     }
 
     public boolean isContinueOnError() {

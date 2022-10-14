@@ -762,4 +762,46 @@ public class TestsuiteServiceImpl implements TestSuiteService {
 
 		return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(resource);
 	}
+
+	@Override
+	public ResponseEntity<Object> getScenarioSequence(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("testsuiteid") String testsuiteid) throws ItorixException {
+		log.info("Getting Scenario Sequence");
+		List<String> testSuite=dao.getScenarioSequence(testsuiteid);
+		return new ResponseEntity<>(testSuite, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<Object> updateScenarioSequence(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("testsuiteid") String testsuiteid,
+			@RequestBody TestSuite testSuite) throws ItorixException {
+		log.info("Updating Scenario Sequence");
+		dao.updateScenarioSequence(testsuiteid, testSuite.getScenarioSequence());
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	public ResponseEntity<Object> updateTestCaseSequence(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("testsuiteid") String testsuiteid, @PathVariable("scenarioid") String scenarioid,
+			@RequestBody Scenario scenario) throws ItorixException {
+		log.info("Updating TestCase Sequence");
+		dao.UpdateTestCaseSequence(scenarioid,testsuiteid, scenario.getTestCaseSequence());
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	public ResponseEntity<Object> getScenarioandTestCaseSequence(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("testsuiteid") String testsuiteid) throws ItorixException {
+		log.info("Fetching Sequence");
+		List<Sequences> testSuite=dao.getSequence(testsuiteid);
+		return new ResponseEntity<>(testSuite, HttpStatus.OK);
+	}
+
 }

@@ -18,6 +18,7 @@ public class Request {
 	private List<Header> headers = null;
 
 	@JsonProperty("body")
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Body body;
 
 	@JsonProperty("formParams")
