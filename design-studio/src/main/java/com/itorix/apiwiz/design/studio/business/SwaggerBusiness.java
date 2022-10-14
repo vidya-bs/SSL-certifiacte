@@ -805,4 +805,6 @@ public interface SwaggerBusiness {
 			String interactionid, String jsessionid, int offset, int pageSize) throws ItorixException;
 
 	List<SwaggerProduct> getProductGroupsByPartnerIds(List<String> partners);
+
+	void updatePartners(List<SwaggerPartner> swaggerPartners);
 }

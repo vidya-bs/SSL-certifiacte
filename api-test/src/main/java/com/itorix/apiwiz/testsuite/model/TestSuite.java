@@ -21,6 +21,9 @@ public class TestSuite extends AbstractObject {
 	@JsonProperty("description")
 	private String description;
 
+	@JsonProperty("scenarioSequence")
+	private List<String> scenarioSequence;
+
 	@JsonProperty("date")
 	private String date;
 
@@ -191,6 +194,14 @@ public class TestSuite extends AbstractObject {
 			}
 		}
 		return duration;
+	}
+
+	public List<String> getScenarioSequence() {
+		return scenarioSequence;
+	}
+
+	public void setScenarioSequence(List<String> scenarioSequence) {
+		this.scenarioSequence = scenarioSequence;
 	}
 
 	public void setDuration(Long duration) {

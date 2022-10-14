@@ -1308,4 +1308,73 @@ public class TestSuiteDAO {
 		return response;
 	}
 
+	public List<String> getScenarioSequence(String testsuiteid) throws ItorixException {
+		log.debug("Fetching testcase sequence for Testsuite {}" , testsuiteid);
+		Query query = new Query().addCriteria(Criteria.where("id").is(testsuiteid));
+		TestSuite testSuite = mongoTemplate.findOne(query, TestSuite.class);
+		if (testSuite == null) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1008"), "Testsuite-1008");
+		}
+		return testSuite.getScenarioSequence();
+	}
+
+
+	public void updateScenarioSequence(String testsuiteid, List<String> scenarioSequence) throws ItorixException {
+		log.debug("Updating testcase sequence for Testsuite {}" , testsuiteid);
+		Query query = new Query().addCriteria(Criteria.where("id").is(testsuiteid));
+		Update update = new Update();
+		update.set("scenarioSequence", scenarioSequence);
+		if (mongoTemplate.updateFirst(query, update, TestSuite.class).getModifiedCount() == 0) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monitor-1000"), "Monitor-1000");
+		}
+	}
+
+	public List<String> getTestCaseSequence(String scenarioid, String testsuiteid) throws ItorixException {
+		log.debug("Fetching testcase sequence for scenario {}" , scenarioid);
+		TestSuite testSuite = mongoTemplate.findById(testsuiteid, TestSuite.class);
+		if (testSuite == null) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1008"), "Testsuite-1008");
+		}
+		for (Scenario scenario : testSuite.getScenarios()) {
+			if (scenario.getId().equals(scenarioid)) {
+				return scenario.getTestCaseSequence();
+			}
+		}
+		return null;
+	}
+
+	public void UpdateTestCaseSequence(String scenarioid, String testsuiteid, List<String> testCaseSequence) throws ItorixException {
+		log.debug("Updating testcase sequence for scenario {}", scenarioid);
+		Query query = new Query(Criteria.where("_id").is(testsuiteid));
+		TestSuite testSuite = mongoTemplate.findOne(query, TestSuite.class);
+		if (testSuite != null && testSuite.getScenarios() != null) {
+			for (int i = 0; i < testSuite.getScenarios().size(); i++) {
+				if (testSuite.getScenarios().get(i).getId().equals(scenarioid)) {
+					testSuite.getScenarios().get(i).setTestCaseSequence(testCaseSequence);
+					break;
+				}
+			}
+			mongoTemplate.save(testSuite);
+		}
+	}
+
+	public List<Sequences> getSequence(String testsuiteid) throws ItorixException {
+		log.debug("Fetching  sequence Order");
+		Query query = new Query().addCriteria(Criteria.where("id").is(testsuiteid));
+		TestSuite testSuite = mongoTemplate.findOne(query, TestSuite.class);
+		if (testSuite == null) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Testsuite-1008"), "Testsuite-1008");
+		}
+		List<Scenario> scenarios = testSuite.getScenarios();
+		List<Sequences> sequences = new ArrayList<>();
+		for (Scenario scenario : scenarios) {
+			if (scenario.getTestCaseSequence() != null) {
+				Sequences sequence = new Sequences();
+				sequence.setScenarioId(scenario.getId());
+				sequence.setTestCaseSequences(scenario.getTestCaseSequence());
+				sequences.add(sequence);
+			}
+		}
+		return  sequences;
+	}
 }
