@@ -1,27 +1,25 @@
 package com.itorix.apiwiz.design.studio.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import java.io.Serializable;
+import javax.ws.rs.DefaultValue;
+import lombok.AccessLevel;
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "Design.Swagger.Partner")
-public class SwaggerPartner {
+@Data
+@JsonInclude(Include.NON_NULL)
+public class SwaggerPartner implements Serializable {
 
-	@Id
-	private String id;
-	private String partnerName;
+  @Id
+  private String id;
+  private String partnerName;
+  private String partnerDisplayName;
+  private String partnerDescription;
+  private Boolean isDefault = false;
 
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
 
-	public String getPartnerName() {
-		return partnerName;
-	}
-
-	public void setPartnerName(String partnerName) {
-		this.partnerName = partnerName;
-	}
 }
