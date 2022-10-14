@@ -42,5 +42,10 @@ public interface NotificationService {
 			@PathVariable("notificationId") String notificationId,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) throws Exception;
+	@PostMapping(value="/read/{userId}", produces = {"application/json"})
+	public ResponseEntity<?> updateUserNotifications(
+			@RequestHeader(value = "JSESSIONID") String jsessionId,
+			@RequestHeader(value = "interactionId", required = false) String interactionId,
+			@PathVariable("userId") String userId) throws Exception;
 
 }
