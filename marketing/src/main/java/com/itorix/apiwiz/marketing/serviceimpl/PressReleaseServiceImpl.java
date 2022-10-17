@@ -23,7 +23,7 @@ public class PressReleaseServiceImpl implements PressReleaseService {
     PressReleaseDao pressReleaseDao;
 
     @Override
-    public ResponseEntity<?> createPressRelease(String interactionid, String jsessionid, PressRelease pressRelease) throws Exception {
+    public ResponseEntity<?> createPressRelease(PressRelease pressRelease) throws Exception {
         log.info("creating press release : {}",pressRelease);
         PressRelease returnedData = pressReleaseDao.createRelease(pressRelease);
         if (returnedData != null)
@@ -34,13 +34,13 @@ public class PressReleaseServiceImpl implements PressReleaseService {
     }
 
     @Override
-    public ResponseEntity<?> editPressRelease(String interactionid, String jsessionid, String releaseId, PressRelease pressRelease) throws Exception {
+    public ResponseEntity<?> editPressRelease(String releaseId, PressRelease pressRelease) throws Exception {
         log.info("updating press release : {}",pressRelease);
         return pressReleaseDao.updateRelease(pressRelease,releaseId);
     }
 
     @Override
-    public ResponseEntity<?> changeStatus(String interactionid, String jsessionid, String releaseId, PressReleaseStatus status) throws Exception {
+    public ResponseEntity<?> changeStatus( String releaseId, PressReleaseStatus status) throws Exception {
         if (status.name().equals("DRAFT")) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
@@ -48,7 +48,7 @@ public class PressReleaseServiceImpl implements PressReleaseService {
     }
 
     @Override
-    public ResponseEntity<?> getPressReleaseData(String interactionid, String jsessionid, String apikey,int offset,int pageSize) throws Exception {
+    public ResponseEntity<?> getPressReleaseData(int offset,int pageSize) throws Exception {
         PaginatedResponse response = new PaginatedResponse();
         response.setPagination(pressReleaseDao.getPagination(offset,pageSize));
         response.setData(pressReleaseDao.getPressReleases());
@@ -56,7 +56,7 @@ public class PressReleaseServiceImpl implements PressReleaseService {
     }
 
     @Override
-    public ResponseEntity<?> getDataByFilter(String interactionid, String jsessionid, String apikey, int offset, int pageSize, String filter,String filterValue) throws Exception {
+    public ResponseEntity<?> getDataByFilter(int offset, int pageSize, String filter,String filterValue) throws Exception {
         List<PressRelease>filteredData = pressReleaseDao.getDataByFilter(filter,filterValue);
         PaginatedResponse response = new PaginatedResponse();
         response.setPagination(pressReleaseDao.getPaginationForFilter(offset,pageSize,filteredData.size()));
@@ -65,7 +65,7 @@ public class PressReleaseServiceImpl implements PressReleaseService {
     }
 
     @Override
-    public ResponseEntity<?> deletePressRelease(String interactionid, String jsessionid, String releaseId) throws Exception {
+    public ResponseEntity<?> deletePressRelease(String releaseId) throws Exception {
         if (pressReleaseDao.deletePressRelease(releaseId) != null)
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 

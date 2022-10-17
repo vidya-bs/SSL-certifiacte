@@ -11,45 +11,24 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1/marketing")
 public interface NewsService {
     @PostMapping(value = "/news")
-    public ResponseEntity<?> createNews(
-            @RequestHeader(value = "interactionid") String interactionid,
-            @RequestHeader(value = "JSESSIONID") String jsessionid,
-            @RequestBody News news
-    ) throws Exception;
+    public ResponseEntity<?> createNews(@RequestBody News news) throws Exception;
 
     @PatchMapping(value = "/news/{newsId}")
-    public ResponseEntity<?> updateNews(
-            @RequestHeader(value = "interactionid") String interactionid,
-            @RequestHeader(value = "JSESSIONID") String jsessionid,
-            @RequestBody News news,
-            @PathVariable(value = "newsId")String newsId
-    ) throws Exception;
+    public ResponseEntity<?> updateNews(@RequestBody News news, @PathVariable(value = "newsId")String newsId) throws Exception;
 
     @PatchMapping(value = "/news/{id}/status/{status}")
-    public ResponseEntity<?> changeStatus(
-            @RequestHeader(value = "interactionid") String interactionid,
-            @RequestHeader(value = "JSESSIONID") String jsessionid,
-            @PathVariable("id") String newsId,
-            @PathVariable("status") NewsStatus status
-    ) throws Exception;
+    public ResponseEntity<?> changeStatus(@PathVariable("id") String newsId, @PathVariable("status") NewsStatus status) throws Exception;
 
 
     @UnSecure(ignoreValidation = true)
     @RequestMapping(value = "/news")
-    public ResponseEntity<?> fetchAllNews(
-            @RequestHeader(value = "interactionid", required = false) String interactionid,
-            @RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
-            @RequestHeader(value = "x-apikey",required = false) String apikey,
-            @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+    public ResponseEntity<?> fetchAllNews(@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
             @RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize
     ) throws Exception;
 
     @UnSecure(ignoreValidation = true)
     @RequestMapping(value = "/news/{filterValue}")
     public ResponseEntity<?> getDataByFilter(
-            @RequestHeader(value = "interactionid", required = false) String interactionid,
-            @RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
-            @RequestHeader(value = "x-apikey",required = false) String apikey,
             @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
             @RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
             @RequestParam(value = "filter") String filter,
@@ -58,8 +37,6 @@ public interface NewsService {
 
     @DeleteMapping(value = "/news/{id}")
     public ResponseEntity<?> deleteNews(
-            @RequestHeader(value = "interactionid") String interactionid,
-            @RequestHeader(value = "JSESSIONID") String jsessionid,
             @PathVariable("id") String newsId
     ) throws Exception;
 

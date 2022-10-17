@@ -24,7 +24,7 @@ public class NewsServiceImpl implements NewsService {
     NewsDao newsDao;
 
     @Override
-    public ResponseEntity<?> createNews(String interactionid, String jsessionid, News news) throws Exception {
+    public ResponseEntity<?> createNews(News news) throws Exception {
         News obj = newsDao.createNews(news);
         if(obj!=null){
             return new ResponseEntity<>(obj, HttpStatus.CREATED);
@@ -33,12 +33,12 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public ResponseEntity<?> updateNews(String interactionid, String jsessionid, News news, String newsId) throws Exception {
+    public ResponseEntity<?> updateNews(News news, String newsId) throws Exception {
         return newsDao.updateNews(news,newsId);
     }
 
     @Override
-    public ResponseEntity<?> changeStatus(String interactionid, String jsessionid, String newsId, NewsStatus status) throws Exception {
+    public ResponseEntity<?> changeStatus(String newsId, NewsStatus status) throws Exception {
             if (status.name().equals("DRAFT")) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -46,7 +46,7 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public ResponseEntity<?> fetchAllNews(String interactionid, String jsessionid, String apikey, int offset, int pageSize) throws Exception {
+    public ResponseEntity<?> fetchAllNews(int offset, int pageSize) throws Exception {
         PaginatedResponse paginatedResponse = new PaginatedResponse();
         paginatedResponse.setPagination(newsDao.getPagination(offset,pageSize));
         paginatedResponse.setData(newsDao.getAllNews());
@@ -54,7 +54,7 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public ResponseEntity<?> getDataByFilter(String interactionid, String jsessionid, String apikey, int offset, int pageSize, String filter, String filterValue) throws Exception {
+    public ResponseEntity<?> getDataByFilter(int offset, int pageSize, String filter, String filterValue) throws Exception {
         List<News> paginatedData = newsDao.getDataByFilter(filter,filterValue);
         PaginatedResponse response = new PaginatedResponse();
         response.setPagination(newsDao.getPaginationForFilter(offset,pageSize,paginatedData.size()));
@@ -63,7 +63,7 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public ResponseEntity<?> deleteNews(String interactionid, String jsessionid, String newsId) throws Exception {
+    public ResponseEntity<?> deleteNews(String newsId) throws Exception {
         if (newsDao.deleteNews(newsId) != null)
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
