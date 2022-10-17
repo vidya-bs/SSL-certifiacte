@@ -7,8 +7,11 @@ import com.itorix.apiwiz.common.util.StorageIntegration;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
+import com.itorix.apiwiz.marketing.common.Pagination;
 import com.itorix.apiwiz.marketing.events.model.Event;
+import com.itorix.apiwiz.marketing.events.model.EventMeta;
 import com.itorix.apiwiz.marketing.events.model.EventRegistration;
+import com.itorix.apiwiz.marketing.news.model.News;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +25,10 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @Component
@@ -46,13 +51,12 @@ public class EventsDao {
 	private IntegrationHelper integrationHelper;
 
 	public String createUpdateEvent(Event event) {
-		Query query = new Query().addCriteria(Criteria.where("name").is(event.getName()));
+		Query query = new Query().addCriteria(Criteria.where("_id").is(event.getId()));
 		Event dbEvent = masterMongoTemplate.findOne(query, Event.class);
 		if (dbEvent != null) {
 			event.setId(dbEvent.getId());
-		} else {
-			masterMongoTemplate.save(event);
 		}
+		masterMongoTemplate.save(event);
 		return event.getId();
 	}
 
@@ -60,30 +64,52 @@ public class EventsDao {
 		return masterMongoTemplate.findAll(Event.class);
 	}
 
-	public List<Event> getAllEvents(String status, List<String> categoryList) {
+	public List<Event> getAllEvents(String status) {
 		if (status == null) {
-			Query query = new Query();
-			if (categoryList != null)
-				query.addCriteria(Criteria.where("category").in(categoryList));
-			return masterMongoTemplate.find(query, Event.class);
+			return masterMongoTemplate.findAll(Event.class);
 		} else {
 			if (status.equalsIgnoreCase("active")) {
 				Query query = new Query();
-				if (categoryList != null)
-					query.addCriteria(Criteria.where("category").in(categoryList));
 				query.with(Sort.by(Direction.DESC, "eventDate"));
 				List<Event> events = masterMongoTemplate.find(query, Event.class);
-				CollectionUtils.filter(events, o -> ((Event) o).getStatus().equalsIgnoreCase("active"));
-				Collections.sort(events);
+				CollectionUtils.filter(events, o -> {
+					try {
+						return ((Event) o).getMeta().getStatus().equalsIgnoreCase("active");
+					} catch (ParseException e) {
+						throw new RuntimeException(e);
+					}
+				});
+
+				events.sort(Comparator.comparing(o -> {
+					try {
+						return o.getMeta().getEventDateOn();
+					} catch (ParseException e) {
+						throw new RuntimeException(e);
+					}
+				}));
 				Collections.reverse(events);
 				return events;
-			} else if (status.equalsIgnoreCase("expired")) {
+			}
+			else if (status.equalsIgnoreCase("expired")) {
 				List<Event> events = masterMongoTemplate.findAll(Event.class);
-				CollectionUtils.filter(events, o -> ((Event) o).getStatus().equalsIgnoreCase("expired"));
-				Collections.sort(events);
+				CollectionUtils.filter(events, o -> {
+					try {
+						return ((Event) o).getMeta().getStatus().equalsIgnoreCase("expired");
+					} catch (ParseException e) {
+						throw new RuntimeException(e);
+					}
+				});
+				events.sort(Comparator.comparing(o -> {
+					try {
+						return o.getMeta().getEventDateOn();
+					} catch (ParseException e) {
+						throw new RuntimeException(e);
+					}
+				}));
 				Collections.reverse(events);
 				return events;
-			} else
+			}
+			else
 				return masterMongoTemplate.findAll(Event.class);
 		}
 	}
@@ -137,5 +163,13 @@ public class EventsDao {
 		} catch (Exception e) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Marketing-1000"), "Marketing-1000");
 		}
+	}
+
+	public Pagination getPagination(int offset, int pagesize,int count) {
+		Pagination pagination = new Pagination();
+		pagination.setOffset(offset);
+		pagination.setPageSize(pagesize);
+		pagination.setTotal((long)count);
+		return pagination;
 	}
 }
