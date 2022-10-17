@@ -1,6 +1,5 @@
 package com.itorix.apiwiz.marketing.serviceimpl;
 
-import java.util.Arrays;
 import java.util.List;
 
 import com.itorix.apiwiz.marketing.common.PaginatedResponse;
@@ -26,7 +25,7 @@ public class EventsServiceImpl implements EventsService {
 	@Override
 	@UnSecure(ignoreValidation = true)
 	public ResponseEntity<?> createEvent(String apikey,Event event) throws Exception {
-		eventsDao.createUpdateEvent(event);
+		eventsDao.createEvent(event);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
@@ -34,7 +33,7 @@ public class EventsServiceImpl implements EventsService {
 	@UnSecure(ignoreValidation = true)
 	public ResponseEntity<?> updateEvent(String apikey,Event event, String eventId) throws Exception {
 		event.setId(eventId);
-		eventsDao.createUpdateEvent(event);
+		eventsDao.updateEvent(event);
 		return ResponseEntity.ok().build();
 	}
 

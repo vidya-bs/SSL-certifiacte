@@ -25,7 +25,7 @@ public class EventMeta implements Comparable<EventMeta>{
     private String thumbnailImage;
     private String title;
     private String eventTime;
-    private String editorContent;
+    private String slug;
     private List<Tag>tags;
     private String videoUrl;
     private String registrationUrl;

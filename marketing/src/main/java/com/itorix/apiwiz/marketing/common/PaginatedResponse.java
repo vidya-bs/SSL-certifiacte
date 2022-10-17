@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.marketing.common;
 
+import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import lombok.Data;
 
 @Data

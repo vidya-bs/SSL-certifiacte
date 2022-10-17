@@ -38,11 +38,11 @@ public class PressReleaseMeta {
     @JsonProperty("bannerImage")
     private String bannerImage;
 
-    @JsonProperty("editorData")
-    private String editorData;
-
     @JsonProperty("status")
     private PressReleaseStatus status;
+
+    @JsonProperty("isNews")
+    private boolean isNews;
 
     private int year;
 

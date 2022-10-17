@@ -1,11 +1,12 @@
 package com.itorix.apiwiz.marketing.dao;
 
-import com.itorix.apiwiz.marketing.common.Pagination;
+import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.marketing.pressrelease.model.PressRelease;
 import com.itorix.apiwiz.marketing.pressrelease.model.PressReleaseStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -24,15 +25,19 @@ public class PressReleaseDao {
     @Autowired
     MongoTemplate masterMongoTemplate;
 
-    public List<PressRelease> getPressReleases() {
-        return masterMongoTemplate.findAll(PressRelease.class);
+    public List<PressRelease> getPressReleases(int offset, int pageSize) {
+        Query query = new Query().with(Sort.by(Sort.Direction.ASC, "cts"))
+                .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+        return masterMongoTemplate.find(query,PressRelease.class);
     }
 
     public Pagination getPagination(int offset, int pageSize){
         Pagination pagination = new Pagination();
+        Query query = new Query().with(Sort.by(Sort.Direction.ASC, "cts"))
+                .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
         pagination.setOffset(offset);
         pagination.setPageSize(pageSize);
-        pagination.setTotal(masterMongoTemplate.count(new Query(),PressRelease.class));
+        pagination.setTotal(masterMongoTemplate.count(query,PressRelease.class));
         return pagination;
     }
 
@@ -52,21 +57,25 @@ public class PressReleaseDao {
         }
         long currentTime = System.currentTimeMillis();
         pressRelease.setCts(currentTime);
-        pressRelease.setMts(currentTime);
         String year = pressRelease.getMeta().getPublishingDate().split("-")[2];
         pressRelease.getMeta().setYear(Integer.parseInt(year));
         pressRelease.getMeta().setSlug(slug);
         return masterMongoTemplate.save(pressRelease);
     }
 
-    public List<PressRelease> getDataByYear(int year) {
+    public List<PressRelease> getPressReleases(){
+        return masterMongoTemplate.findAll(PressRelease.class);
+    }
+    public List<PressRelease> getDataByYear(int offset, int pageSize, int year) {
         Query query = new Query().addCriteria(Criteria.where("meta.year").is(year));
+        query.with(Sort.by(Sort.Direction.ASC, "cts"))
+                .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
         return masterMongoTemplate.find(query,PressRelease.class);
     }
 
-    public List<PressRelease> getDataByTagOrSlug(String filter, String filterValue) {
+    public List<PressRelease> getDataByTagOrSlug(int offset, int pageSize, String filter, String filterValue) {
         List<PressRelease> returningList = new ArrayList<>();
-        List<PressRelease> releaseList = getPressReleases();
+        List<PressRelease> releaseList = getPressReleases(offset, pageSize);
         releaseList.forEach(rl->{
             if(filter.equals("tag")){
                 if(rl.getMeta().getTags().stream().anyMatch(tl->tl.getTagName().equalsIgnoreCase(filterValue))) {
@@ -82,13 +91,13 @@ public class PressReleaseDao {
         return returningList;
     }
 
-    public List<PressRelease> getDataByFilter(String filter, String filterValue) {
+    public List<PressRelease> getDataByFilter(int offset, int pageSize, String filter, String filterValue) {
         switch (filter){
             case "tag":
             case "slug":
-                return getDataByTagOrSlug(filter,filterValue);
+                return getDataByTagOrSlug(offset,pageSize,filter,filterValue);
             case "year":
-                return getDataByYear(Integer.parseInt(filterValue));
+                return getDataByYear(offset,pageSize,Integer.parseInt(filterValue));
         }
         return new ArrayList<>();
     }
@@ -99,7 +108,6 @@ public class PressReleaseDao {
         PressRelease existing = masterMongoTemplate.findOne(query, PressRelease.class);
         if (existing != null){
             long currentTime = System.currentTimeMillis();
-            pressRelease.setCts(currentTime);
             pressRelease.setMts(currentTime);
             String year = pressRelease.getMeta().getPublishingDate().split("-")[2];
             pressRelease.getMeta().setYear(Integer.parseInt(year));

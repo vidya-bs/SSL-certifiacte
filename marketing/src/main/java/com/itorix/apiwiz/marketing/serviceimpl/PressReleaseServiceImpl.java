@@ -53,13 +53,13 @@ public class PressReleaseServiceImpl implements PressReleaseService {
     public ResponseEntity<?> getPressReleaseData(String apikey,int offset,int pageSize) throws Exception {
         PaginatedResponse response = new PaginatedResponse();
         response.setPagination(pressReleaseDao.getPagination(offset,pageSize));
-        response.setData(pressReleaseDao.getPressReleases());
+        response.setData(pressReleaseDao.getPressReleases(offset,pageSize));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @UnSecure(ignoreValidation = true)
     @Override
     public ResponseEntity<?> getDataByFilter(String apikey,int offset, int pageSize, String filter,String filterValue) throws Exception {
-        List<PressRelease>filteredData = pressReleaseDao.getDataByFilter(filter,filterValue);
+        List<PressRelease>filteredData = pressReleaseDao.getDataByFilter(offset,pageSize,filter,filterValue);
         PaginatedResponse response = new PaginatedResponse();
         response.setPagination(pressReleaseDao.getPaginationForFilter(offset,pageSize,filteredData.size()));
         response.setData(filteredData);

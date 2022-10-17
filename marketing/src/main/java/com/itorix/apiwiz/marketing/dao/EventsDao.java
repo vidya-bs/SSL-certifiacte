@@ -7,11 +7,9 @@ import com.itorix.apiwiz.common.util.StorageIntegration;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
-import com.itorix.apiwiz.marketing.common.Pagination;
+import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.marketing.events.model.Event;
-import com.itorix.apiwiz.marketing.events.model.EventMeta;
 import com.itorix.apiwiz.marketing.events.model.EventRegistration;
-import com.itorix.apiwiz.marketing.news.model.News;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,12 +48,14 @@ public class EventsDao {
 	@Autowired
 	private IntegrationHelper integrationHelper;
 
-	public String createUpdateEvent(Event event) {
-		Query query = new Query().addCriteria(Criteria.where("_id").is(event.getId()));
-		Event dbEvent = masterMongoTemplate.findOne(query, Event.class);
-		if (dbEvent != null) {
-			event.setId(dbEvent.getId());
+	public String createEvent(Event event) {
+		List<Event> allEvents = getAllEvents();
+		String title = event.getMeta().getTitle();
+		String slug = title.toLowerCase().replace(" ", "-").replace(":","-");
+		if(allEvents.stream().anyMatch(r->r.getMeta().getSlug().equals(slug))){
+			return null;
 		}
+		event.setCts(System.currentTimeMillis());
 		masterMongoTemplate.save(event);
 		return event.getId();
 	}
@@ -165,11 +165,22 @@ public class EventsDao {
 		}
 	}
 
-	public Pagination getPagination(int offset, int pagesize,int count) {
+	public Pagination getPagination(int offset, int pagesize, int count) {
 		Pagination pagination = new Pagination();
 		pagination.setOffset(offset);
 		pagination.setPageSize(pagesize);
 		pagination.setTotal((long)count);
 		return pagination;
+	}
+
+	public String updateEvent(Event event) {
+		Query query = new Query().addCriteria(Criteria.where("_id").is(event.getId()));
+		Event dbEvent = masterMongoTemplate.findOne(query, Event.class);
+		if (dbEvent != null) {
+			event.setMts(System.currentTimeMillis());
+			event.getMeta().setSlug(dbEvent.getMeta().getSlug());
+		}
+		masterMongoTemplate.save(event);
+		return event.getId();
 	}
 }

@@ -1,11 +1,12 @@
 package com.itorix.apiwiz.marketing.dao;
 
-import com.itorix.apiwiz.marketing.common.Pagination;
+import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.marketing.news.model.News;
 import com.itorix.apiwiz.marketing.news.model.NewsStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -34,15 +35,19 @@ public class NewsDao {
         }
         long currentTime = System.currentTimeMillis();
         news.setCts(currentTime);
-        news.setMts(currentTime);
         String year = news.getMeta().getPublishingDate().split("-")[2];
         news.getMeta().setSlug(slug);
         news.getMeta().setYear(Integer.parseInt(year));
         return masterMongoTemplate.save(news);
     }
 
-    public List<News> getAllNews() {
+    public List<News> getAllNews(){
         return masterMongoTemplate.findAll(News.class);
+    }
+    public List<News> getAllNews(int offset, int pageSize) {
+        Query query = new Query().with(Sort.by(Sort.Direction.ASC, "cts"))
+                .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+        return masterMongoTemplate.find(query,News.class);
     }
 
     public ResponseEntity<Object> updateNews(News news, String newsId) {
@@ -52,7 +57,6 @@ public class NewsDao {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         long currentTime = System.currentTimeMillis();
-        news.setCts(currentTime);
         news.setMts(currentTime);
         String year = news.getMeta().getPublishingDate().split("-")[2];
         news.getMeta().setYear(Integer.parseInt(year));
@@ -80,22 +84,19 @@ public class NewsDao {
         }
     }
 
-    public Pagination getPagination(int offset, int pageSize) {
-        Pagination pagination = new Pagination();
-        pagination.setOffset(offset);
-        pagination.setPageSize(pageSize);
-        pagination.setTotal(masterMongoTemplate.count(new Query(),News.class));
-        return pagination;
-    }
 
-    public List<News> getDataByYear(int year) {
+
+    public List<News> getDataByYear(int offset, int pageSize, int year) {
         Query query = new Query().addCriteria(Criteria.where("meta.year").is(year));
+        query.with(Sort.by(Sort.Direction.ASC, "cts"))
+                .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
         return masterMongoTemplate.find(query,News.class);
     }
 
-    public List<News> getDataByCategoryOrTagOrSlug(String type, String value) {
+    public List<News> getDataByCategoryOrTagOrSlug(int offset, int pageSize, String type, String value) {
+
         List<News> returningList = new ArrayList<>();
-        List<News> releaseList = getAllNews();
+        List<News> releaseList = getAllNews(offset,pageSize);
         releaseList.forEach(rl->{
             if(type.equalsIgnoreCase("slug")){
                 if(rl.getMeta().getSlug().equalsIgnoreCase(value)) {
@@ -110,13 +111,13 @@ public class NewsDao {
         });
         return returningList;
     }
-    public List<News> getDataByFilter(String filter, String filterValue) {
+    public List<News> getDataByFilter(int offset, int pageSize, String filter, String filterValue) {
         switch (filter){
             case "year":
-                return getDataByYear(Integer.parseInt(filterValue));
+                return getDataByYear(offset,pageSize,Integer.parseInt(filterValue));
             case "tag":
             case "slug":
-                return getDataByCategoryOrTagOrSlug(filter,filterValue);
+                return getDataByCategoryOrTagOrSlug(offset,pageSize,filter,filterValue);
         }
         return new ArrayList<>();
     }
@@ -131,6 +132,16 @@ public class NewsDao {
         pagination.setOffset(offset);
         pagination.setPageSize(pageSize);
         pagination.setTotal((long)size);
+        return pagination;
+    }
+
+    public Pagination getPagination(int offset, int pageSize) {
+        Pagination pagination = new Pagination();
+        Query query = new Query().with(Sort.by(Sort.Direction.ASC, "cts"))
+                .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+        pagination.setOffset(offset);
+        pagination.setPageSize(pageSize);
+        pagination.setTotal(masterMongoTemplate.count(query,News.class));
         return pagination;
     }
 }
