@@ -11,17 +11,20 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1/marketing")
 public interface PressReleaseService {
 
+    @UnSecure(ignoreValidation = true)
     @PostMapping(value = "/pressrelease")
     public ResponseEntity<?> createPressRelease(
             @RequestBody PressRelease pressRelease
     ) throws Exception;
 
+    @UnSecure(ignoreValidation = true)
     @PatchMapping(value = "/pressrelease/{id}")
     public ResponseEntity<?> editPressRelease(
                                       @PathVariable("id") String releaseId,
                                       @RequestBody PressRelease pressRelease
     ) throws Exception;
 
+    @UnSecure(ignoreValidation = true)
     @PatchMapping(value = "/pressrelease/{id}/status/{status}")
     public ResponseEntity<?> changeStatus(
             @PathVariable("id") String releaseId,
@@ -45,6 +48,7 @@ public interface PressReleaseService {
             @PathVariable(value = "filterValue") String filterValue
     ) throws Exception;
 
+    @UnSecure(ignoreValidation = true)
     @DeleteMapping(value = "/pressrelease/{id}")
     public ResponseEntity<?> deletePressRelease(
             @PathVariable("id") String releaseId

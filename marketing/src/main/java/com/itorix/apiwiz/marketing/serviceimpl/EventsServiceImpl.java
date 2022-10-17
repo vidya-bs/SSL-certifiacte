@@ -35,7 +35,7 @@ public class EventsServiceImpl implements EventsService {
 	public ResponseEntity<?> updateEvent(Event event, String eventId) throws Exception {
 		event.setId(eventId);
 		eventsDao.createUpdateEvent(event);
-		return new ResponseEntity<>(HttpStatus.OK);
+		return ResponseEntity.ok().build();
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class EventsServiceImpl implements EventsService {
 	public ResponseEntity<?> deleteEvent(String eventId)
 			throws Exception {
 		eventsDao.deleteEvent(eventId);
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return ResponseEntity.noContent().build();
 	}
 
 	@Override

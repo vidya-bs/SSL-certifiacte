@@ -10,12 +10,15 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/v1/marketing")
 public interface NewsService {
+    @UnSecure(ignoreValidation = true)
     @PostMapping(value = "/news")
     public ResponseEntity<?> createNews(@RequestBody News news) throws Exception;
 
+    @UnSecure(ignoreValidation = true)
     @PatchMapping(value = "/news/{newsId}")
     public ResponseEntity<?> updateNews(@RequestBody News news, @PathVariable(value = "newsId")String newsId) throws Exception;
 
+    @UnSecure(ignoreValidation = true)
     @PatchMapping(value = "/news/{id}/status/{status}")
     public ResponseEntity<?> changeStatus(@PathVariable("id") String newsId, @PathVariable("status") NewsStatus status) throws Exception;
 
@@ -35,6 +38,7 @@ public interface NewsService {
             @PathVariable(value = "filterValue") String filterValue
     ) throws Exception;
 
+    @UnSecure(ignoreValidation = true)
     @DeleteMapping(value = "/news/{id}")
     public ResponseEntity<?> deleteNews(
             @PathVariable("id") String newsId

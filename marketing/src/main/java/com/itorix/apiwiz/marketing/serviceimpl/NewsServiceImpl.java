@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.marketing.serviceimpl;
 
+import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.itorix.apiwiz.marketing.common.PaginatedResponse;
 import com.itorix.apiwiz.marketing.dao.NewsDao;
 import com.itorix.apiwiz.marketing.news.model.News;
@@ -23,6 +24,7 @@ public class NewsServiceImpl implements NewsService {
     @Autowired
     NewsDao newsDao;
 
+    @UnSecure(ignoreValidation = true)
     @Override
     public ResponseEntity<?> createNews(News news) throws Exception {
         News obj = newsDao.createNews(news);
@@ -32,11 +34,13 @@ public class NewsServiceImpl implements NewsService {
         return new ResponseEntity<>(HttpStatus.CONFLICT);
     }
 
+    @UnSecure(ignoreValidation = true)
     @Override
     public ResponseEntity<?> updateNews(News news, String newsId) throws Exception {
         return newsDao.updateNews(news,newsId);
     }
 
+    @UnSecure(ignoreValidation = true)
     @Override
     public ResponseEntity<?> changeStatus(String newsId, NewsStatus status) throws Exception {
             if (status.name().equals("DRAFT")) {
@@ -45,6 +49,7 @@ public class NewsServiceImpl implements NewsService {
             return newsDao.changeStatus(newsId, status);
     }
 
+    @UnSecure(ignoreValidation = true)
     @Override
     public ResponseEntity<?> fetchAllNews(int offset, int pageSize) throws Exception {
         PaginatedResponse paginatedResponse = new PaginatedResponse();
@@ -53,6 +58,7 @@ public class NewsServiceImpl implements NewsService {
         return new ResponseEntity<>(paginatedResponse,HttpStatus.OK);
     }
 
+    @UnSecure(ignoreValidation = true)
     @Override
     public ResponseEntity<?> getDataByFilter(int offset, int pageSize, String filter, String filterValue) throws Exception {
         List<News> paginatedData = newsDao.getDataByFilter(filter,filterValue);
@@ -62,11 +68,11 @@ public class NewsServiceImpl implements NewsService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @UnSecure(ignoreValidation = true)
     @Override
     public ResponseEntity<?> deleteNews(String newsId) throws Exception {
         if (newsDao.deleteNews(newsId) != null)
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.noContent().build();
+        return ResponseEntity.notFound().build();
     }
 }

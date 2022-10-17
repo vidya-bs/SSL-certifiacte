@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.marketing.serviceimpl;
 
+import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.itorix.apiwiz.marketing.common.PaginatedResponse;
 import com.itorix.apiwiz.marketing.dao.PressReleaseDao;
 import com.itorix.apiwiz.marketing.pressrelease.model.PressRelease;
@@ -22,6 +23,7 @@ public class PressReleaseServiceImpl implements PressReleaseService {
     @Autowired
     PressReleaseDao pressReleaseDao;
 
+    @UnSecure(ignoreValidation = true)
     @Override
     public ResponseEntity<?> createPressRelease(PressRelease pressRelease) throws Exception {
         log.info("creating press release : {}",pressRelease);
@@ -32,21 +34,21 @@ public class PressReleaseServiceImpl implements PressReleaseService {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
     }
-
+    @UnSecure(ignoreValidation = true)
     @Override
     public ResponseEntity<?> editPressRelease(String releaseId, PressRelease pressRelease) throws Exception {
         log.info("updating press release : {}",pressRelease);
         return pressReleaseDao.updateRelease(pressRelease,releaseId);
     }
-
+    @UnSecure(ignoreValidation = true)
     @Override
     public ResponseEntity<?> changeStatus( String releaseId, PressReleaseStatus status) throws Exception {
         if (status.name().equals("DRAFT")) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.noContent().build();
         }
         return pressReleaseDao.changeStatus(releaseId, status);
     }
-
+    @UnSecure(ignoreValidation = true)
     @Override
     public ResponseEntity<?> getPressReleaseData(int offset,int pageSize) throws Exception {
         PaginatedResponse response = new PaginatedResponse();
@@ -54,7 +56,7 @@ public class PressReleaseServiceImpl implements PressReleaseService {
         response.setData(pressReleaseDao.getPressReleases());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
+    @UnSecure(ignoreValidation = true)
     @Override
     public ResponseEntity<?> getDataByFilter(int offset, int pageSize, String filter,String filterValue) throws Exception {
         List<PressRelease>filteredData = pressReleaseDao.getDataByFilter(filter,filterValue);
@@ -63,12 +65,12 @@ public class PressReleaseServiceImpl implements PressReleaseService {
         response.setData(filteredData);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
+    @UnSecure(ignoreValidation = true)
     @Override
     public ResponseEntity<?> deletePressRelease(String releaseId) throws Exception {
         if (pressReleaseDao.deletePressRelease(releaseId) != null)
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.noContent().build();
 
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return ResponseEntity.notFound().build();
     }
 }
