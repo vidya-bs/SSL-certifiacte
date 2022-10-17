@@ -26,7 +26,7 @@ public class NewsServiceImpl implements NewsService {
 
     @UnSecure(ignoreValidation = true)
     @Override
-    public ResponseEntity<?> createNews(News news) throws Exception {
+    public ResponseEntity<?> createNews(String apikey,News news) throws Exception {
         News obj = newsDao.createNews(news);
         if(obj!=null){
             return new ResponseEntity<>(obj, HttpStatus.CREATED);
@@ -36,13 +36,13 @@ public class NewsServiceImpl implements NewsService {
 
     @UnSecure(ignoreValidation = true)
     @Override
-    public ResponseEntity<?> updateNews(News news, String newsId) throws Exception {
+    public ResponseEntity<?> updateNews(String apikey,News news, String newsId) throws Exception {
         return newsDao.updateNews(news,newsId);
     }
 
     @UnSecure(ignoreValidation = true)
     @Override
-    public ResponseEntity<?> changeStatus(String newsId, NewsStatus status) throws Exception {
+    public ResponseEntity<?> changeStatus(String apikey,String newsId, NewsStatus status) throws Exception {
             if (status.name().equals("DRAFT")) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -51,7 +51,7 @@ public class NewsServiceImpl implements NewsService {
 
     @UnSecure(ignoreValidation = true)
     @Override
-    public ResponseEntity<?> fetchAllNews(int offset, int pageSize) throws Exception {
+    public ResponseEntity<?> fetchAllNews(String apikey,int offset, int pageSize) throws Exception {
         PaginatedResponse paginatedResponse = new PaginatedResponse();
         paginatedResponse.setPagination(newsDao.getPagination(offset,pageSize));
         paginatedResponse.setData(newsDao.getAllNews());
@@ -60,7 +60,7 @@ public class NewsServiceImpl implements NewsService {
 
     @UnSecure(ignoreValidation = true)
     @Override
-    public ResponseEntity<?> getDataByFilter(int offset, int pageSize, String filter, String filterValue) throws Exception {
+    public ResponseEntity<?> getDataByFilter(String apikey,int offset, int pageSize, String filter, String filterValue) throws Exception {
         List<News> paginatedData = newsDao.getDataByFilter(filter,filterValue);
         PaginatedResponse response = new PaginatedResponse();
         response.setPagination(newsDao.getPaginationForFilter(offset,pageSize,paginatedData.size()));
@@ -70,7 +70,7 @@ public class NewsServiceImpl implements NewsService {
 
     @UnSecure(ignoreValidation = true)
     @Override
-    public ResponseEntity<?> deleteNews(String newsId) throws Exception {
+    public ResponseEntity<?> deleteNews(String apikey,String newsId) throws Exception {
         if (newsDao.deleteNews(newsId) != null)
             return ResponseEntity.noContent().build();
         return ResponseEntity.notFound().build();

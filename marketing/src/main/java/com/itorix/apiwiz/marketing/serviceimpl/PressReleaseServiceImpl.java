@@ -25,7 +25,7 @@ public class PressReleaseServiceImpl implements PressReleaseService {
 
     @UnSecure(ignoreValidation = true)
     @Override
-    public ResponseEntity<?> createPressRelease(PressRelease pressRelease) throws Exception {
+    public ResponseEntity<?> createPressRelease(String apikey,PressRelease pressRelease) throws Exception {
         log.info("creating press release : {}",pressRelease);
         PressRelease returnedData = pressReleaseDao.createRelease(pressRelease);
         if (returnedData != null)
@@ -36,13 +36,13 @@ public class PressReleaseServiceImpl implements PressReleaseService {
     }
     @UnSecure(ignoreValidation = true)
     @Override
-    public ResponseEntity<?> editPressRelease(String releaseId, PressRelease pressRelease) throws Exception {
+    public ResponseEntity<?> editPressRelease(String apikey,String releaseId, PressRelease pressRelease) throws Exception {
         log.info("updating press release : {}",pressRelease);
         return pressReleaseDao.updateRelease(pressRelease,releaseId);
     }
     @UnSecure(ignoreValidation = true)
     @Override
-    public ResponseEntity<?> changeStatus( String releaseId, PressReleaseStatus status) throws Exception {
+    public ResponseEntity<?> changeStatus(String apikey, String releaseId, PressReleaseStatus status) throws Exception {
         if (status.name().equals("DRAFT")) {
             return ResponseEntity.noContent().build();
         }
@@ -50,7 +50,7 @@ public class PressReleaseServiceImpl implements PressReleaseService {
     }
     @UnSecure(ignoreValidation = true)
     @Override
-    public ResponseEntity<?> getPressReleaseData(int offset,int pageSize) throws Exception {
+    public ResponseEntity<?> getPressReleaseData(String apikey,int offset,int pageSize) throws Exception {
         PaginatedResponse response = new PaginatedResponse();
         response.setPagination(pressReleaseDao.getPagination(offset,pageSize));
         response.setData(pressReleaseDao.getPressReleases());
@@ -58,7 +58,7 @@ public class PressReleaseServiceImpl implements PressReleaseService {
     }
     @UnSecure(ignoreValidation = true)
     @Override
-    public ResponseEntity<?> getDataByFilter(int offset, int pageSize, String filter,String filterValue) throws Exception {
+    public ResponseEntity<?> getDataByFilter(String apikey,int offset, int pageSize, String filter,String filterValue) throws Exception {
         List<PressRelease>filteredData = pressReleaseDao.getDataByFilter(filter,filterValue);
         PaginatedResponse response = new PaginatedResponse();
         response.setPagination(pressReleaseDao.getPaginationForFilter(offset,pageSize,filteredData.size()));
@@ -67,7 +67,7 @@ public class PressReleaseServiceImpl implements PressReleaseService {
     }
     @UnSecure(ignoreValidation = true)
     @Override
-    public ResponseEntity<?> deletePressRelease(String releaseId) throws Exception {
+    public ResponseEntity<?> deletePressRelease(String apikey,String releaseId) throws Exception {
         if (pressReleaseDao.deletePressRelease(releaseId) != null)
             return ResponseEntity.noContent().build();
 

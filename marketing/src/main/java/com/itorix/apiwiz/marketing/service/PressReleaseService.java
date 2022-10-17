@@ -13,20 +13,20 @@ public interface PressReleaseService {
 
     @UnSecure(ignoreValidation = true)
     @PostMapping(value = "/pressrelease")
-    public ResponseEntity<?> createPressRelease(
+    public ResponseEntity<?> createPressRelease(@RequestHeader(value = "x-apikey") String apikey,
             @RequestBody PressRelease pressRelease
     ) throws Exception;
 
     @UnSecure(ignoreValidation = true)
     @PatchMapping(value = "/pressrelease/{id}")
-    public ResponseEntity<?> editPressRelease(
+    public ResponseEntity<?> editPressRelease(@RequestHeader(value = "x-apikey") String apikey,
                                       @PathVariable("id") String releaseId,
                                       @RequestBody PressRelease pressRelease
     ) throws Exception;
 
     @UnSecure(ignoreValidation = true)
     @PatchMapping(value = "/pressrelease/{id}/status/{status}")
-    public ResponseEntity<?> changeStatus(
+    public ResponseEntity<?> changeStatus(@RequestHeader(value = "x-apikey") String apikey,
             @PathVariable("id") String releaseId,
             @PathVariable("status") PressReleaseStatus status
     ) throws Exception;
@@ -34,14 +34,14 @@ public interface PressReleaseService {
 
     @UnSecure(ignoreValidation = true)
     @RequestMapping(method = RequestMethod.GET, value = "/pressrelease")
-    public ResponseEntity<?> getPressReleaseData(
+    public ResponseEntity<?> getPressReleaseData(@RequestHeader(value = "x-apikey") String apikey,
             @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
             @RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize
     ) throws Exception;
 
     @UnSecure(ignoreValidation = true)
     @RequestMapping(method = RequestMethod.GET, value = "/pressrelease/{filterValue}")
-    public ResponseEntity<?> getDataByFilter(
+    public ResponseEntity<?> getDataByFilter(@RequestHeader(value = "x-apikey") String apikey,
             @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
             @RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
             @RequestParam(value = "filter") String filter,
@@ -50,7 +50,7 @@ public interface PressReleaseService {
 
     @UnSecure(ignoreValidation = true)
     @DeleteMapping(value = "/pressrelease/{id}")
-    public ResponseEntity<?> deletePressRelease(
+    public ResponseEntity<?> deletePressRelease(@RequestHeader(value = "x-apikey") String apikey,
             @PathVariable("id") String releaseId
     ) throws Exception;
 

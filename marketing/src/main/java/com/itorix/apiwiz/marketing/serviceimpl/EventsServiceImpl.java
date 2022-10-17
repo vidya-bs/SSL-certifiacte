@@ -25,14 +25,14 @@ public class EventsServiceImpl implements EventsService {
 
 	@Override
 	@UnSecure(ignoreValidation = true)
-	public ResponseEntity<?> createEvent(Event event) throws Exception {
+	public ResponseEntity<?> createEvent(String apikey,Event event) throws Exception {
 		eventsDao.createUpdateEvent(event);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
 	@Override
 	@UnSecure(ignoreValidation = true)
-	public ResponseEntity<?> updateEvent(Event event, String eventId) throws Exception {
+	public ResponseEntity<?> updateEvent(String apikey,Event event, String eventId) throws Exception {
 		event.setId(eventId);
 		eventsDao.createUpdateEvent(event);
 		return ResponseEntity.ok().build();
@@ -40,7 +40,7 @@ public class EventsServiceImpl implements EventsService {
 
 	@Override
 	@UnSecure(ignoreValidation = true)
-	public ResponseEntity<?> getAllEvents(String status,int offset,int pagesize) throws Exception {
+	public ResponseEntity<?> getAllEvents(String apikey,String status,int offset,int pagesize) throws Exception {
 		List<Event>allEvents = eventsDao.getAllEvents(status);
 		PaginatedResponse paginatedResponse = new PaginatedResponse();
 		paginatedResponse.setPagination(eventsDao.getPagination(offset,pagesize,allEvents.size()));
@@ -50,14 +50,14 @@ public class EventsServiceImpl implements EventsService {
 
 	@Override
 	@UnSecure(ignoreValidation = true)
-	public ResponseEntity<?> getEvent(String eventId)
+	public ResponseEntity<?> getEvent(String apikey,String eventId)
 			throws Exception {
 		return new ResponseEntity<>(eventsDao.getEvent(eventId), HttpStatus.OK);
 	}
 
 	@Override
 	@UnSecure(ignoreValidation = true)
-	public ResponseEntity<?> deleteEvent(String eventId)
+	public ResponseEntity<?> deleteEvent(String apikey,String eventId)
 			throws Exception {
 		eventsDao.deleteEvent(eventId);
 		return ResponseEntity.noContent().build();
@@ -65,7 +65,7 @@ public class EventsServiceImpl implements EventsService {
 
 	@Override
 	@UnSecure(ignoreValidation = true)
-	public ResponseEntity<?> registerEvent(String eventId,
+	public ResponseEntity<?> registerEvent(String apikey,String eventId,
 			EventRegistration eventRegistration) throws Exception {
 		eventRegistration.setEventId(eventId);
 		eventsDao.createRegistration(eventRegistration);
@@ -74,7 +74,7 @@ public class EventsServiceImpl implements EventsService {
 
 	@Override
 	@UnSecure(ignoreValidation = true)
-	public ResponseEntity<?> getEventRegistrations(
+	public ResponseEntity<?> getEventRegistrations(String apikey,
 			String eventId) throws Exception {
 		return new ResponseEntity<>(eventsDao.getEventRegistrations(eventId), HttpStatus.OK);
 	}

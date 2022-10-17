@@ -12,26 +12,30 @@ import org.springframework.web.bind.annotation.*;
 public interface NewsService {
     @UnSecure(ignoreValidation = true)
     @PostMapping(value = "/news")
-    public ResponseEntity<?> createNews(@RequestBody News news) throws Exception;
+    public ResponseEntity<?> createNews(@RequestHeader(value = "x-apikey") String apikey,
+                                        @RequestBody News news) throws Exception;
 
     @UnSecure(ignoreValidation = true)
     @PatchMapping(value = "/news/{newsId}")
-    public ResponseEntity<?> updateNews(@RequestBody News news, @PathVariable(value = "newsId")String newsId) throws Exception;
+    public ResponseEntity<?> updateNews(@RequestHeader(value = "x-apikey") String apikey,
+                                        @RequestBody News news, @PathVariable(value = "newsId")String newsId) throws Exception;
 
     @UnSecure(ignoreValidation = true)
     @PatchMapping(value = "/news/{id}/status/{status}")
-    public ResponseEntity<?> changeStatus(@PathVariable("id") String newsId, @PathVariable("status") NewsStatus status) throws Exception;
+    public ResponseEntity<?> changeStatus(@RequestHeader(value = "x-apikey") String apikey,
+                                          @PathVariable("id") String newsId, @PathVariable("status") NewsStatus status) throws Exception;
 
 
     @UnSecure(ignoreValidation = true)
     @RequestMapping(value = "/news")
-    public ResponseEntity<?> fetchAllNews(@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+    public ResponseEntity<?> fetchAllNews(@RequestHeader(value = "x-apikey") String apikey,
+                                          @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
             @RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize
     ) throws Exception;
 
     @UnSecure(ignoreValidation = true)
     @RequestMapping(value = "/news/{filterValue}")
-    public ResponseEntity<?> getDataByFilter(
+    public ResponseEntity<?> getDataByFilter(@RequestHeader(value = "x-apikey") String apikey,
             @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
             @RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
             @RequestParam(value = "filter") String filter,
@@ -40,7 +44,7 @@ public interface NewsService {
 
     @UnSecure(ignoreValidation = true)
     @DeleteMapping(value = "/news/{id}")
-    public ResponseEntity<?> deleteNews(
+    public ResponseEntity<?> deleteNews(@RequestHeader(value = "x-apikey") String apikey,
             @PathVariable("id") String newsId
     ) throws Exception;
 
