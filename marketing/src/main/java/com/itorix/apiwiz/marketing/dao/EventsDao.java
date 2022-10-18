@@ -55,6 +55,7 @@ public class EventsDao {
 		if(allEvents.stream().anyMatch(r->r.getMeta().getSlug().equals(slug))){
 			return null;
 		}
+		event.getMeta().setSlug(slug);
 		event.setCts(System.currentTimeMillis());
 		masterMongoTemplate.save(event);
 		return event.getId();
@@ -64,13 +65,16 @@ public class EventsDao {
 		return masterMongoTemplate.findAll(Event.class);
 	}
 
-	public List<Event> getAllEvents(String status) {
+	public List<Event> getAllEvents(int offset,int pagesize,String status) {
 		if (status == null) {
-			return masterMongoTemplate.findAll(Event.class);
+			Query query = new Query().with(Sort.by(Sort.Direction.ASC, "meta.eventDate"))
+					.skip(offset > 0 ? ((offset - 1) * pagesize) : 0).limit(pagesize);
+			return masterMongoTemplate.find(query,Event.class);
 		} else {
 			if (status.equalsIgnoreCase("active")) {
 				Query query = new Query();
-				query.with(Sort.by(Direction.DESC, "eventDate"));
+				query.with(Sort.by(Direction.DESC, "meta.eventDate"))
+						.skip(offset > 0 ? ((offset - 1) * pagesize) : 0).limit(pagesize);
 				List<Event> events = masterMongoTemplate.find(query, Event.class);
 				CollectionUtils.filter(events, o -> {
 					try {
@@ -91,7 +95,9 @@ public class EventsDao {
 				return events;
 			}
 			else if (status.equalsIgnoreCase("expired")) {
-				List<Event> events = masterMongoTemplate.findAll(Event.class);
+				Query query = new Query().with(Sort.by(Sort.Direction.ASC, "cts"))
+						.skip(offset > 0 ? ((offset - 1) * pagesize) : 0).limit(pagesize);
+				List<Event> events = masterMongoTemplate.find(query,Event.class);
 				CollectionUtils.filter(events, o -> {
 					try {
 						return ((Event) o).getMeta().getStatus().equalsIgnoreCase("expired");
@@ -109,8 +115,12 @@ public class EventsDao {
 				Collections.reverse(events);
 				return events;
 			}
-			else
-				return masterMongoTemplate.findAll(Event.class);
+			else{
+				Query query = new Query().with(Sort.by(Sort.Direction.ASC, "meta.eventDate"))
+						.skip(offset > 0 ? ((offset - 1) * pagesize) : 0).limit(pagesize);
+				return masterMongoTemplate.find(query,Event.class);
+			}
+
 		}
 	}
 

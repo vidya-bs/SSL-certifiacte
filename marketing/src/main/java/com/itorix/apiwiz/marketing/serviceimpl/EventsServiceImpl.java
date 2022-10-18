@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.marketing.serviceimpl;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.itorix.apiwiz.marketing.common.PaginatedResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +40,8 @@ public class EventsServiceImpl implements EventsService {
 
 	@Override
 	@UnSecure(ignoreValidation = true)
-	public ResponseEntity<?> getAllEvents(String apikey,String status,int offset,int pagesize) throws Exception {
-		List<Event>allEvents = eventsDao.getAllEvents(status);
+	public ResponseEntity<?> getAllEvents(String apikey, String status, int offset, int pagesize) throws Exception {
+		List<Event>allEvents = eventsDao.getAllEvents(offset,pagesize,status);
 		PaginatedResponse paginatedResponse = new PaginatedResponse();
 		paginatedResponse.setPagination(eventsDao.getPagination(offset,pagesize,allEvents.size()));
 		paginatedResponse.setData(allEvents);
