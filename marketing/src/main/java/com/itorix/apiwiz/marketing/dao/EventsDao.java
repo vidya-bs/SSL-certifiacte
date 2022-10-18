@@ -129,9 +129,14 @@ public class EventsDao {
 		}
 	}
 
-	public Event getEvent(String eventId) {
-		Query query = new Query().addCriteria(Criteria.where("id").is(eventId));
-		return masterMongoTemplate.findOne(query, Event.class);
+	public List<Event> getEventsBySlug(String slug) {
+		List<Event> returningList = new ArrayList<>();
+		List<Event> releaseList = getAllEvents();
+		releaseList.forEach(rl->{
+				if(rl.getMeta().getSlug().equalsIgnoreCase(slug)) {
+					returningList.add(rl);
+				}});
+		return returningList;
 	}
 
 	public void deleteEvent(String eventId) {

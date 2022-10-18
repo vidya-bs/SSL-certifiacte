@@ -9,5 +9,6 @@ public class EventSpeaker {
     private String name;
     private String summary;
     private String designation;
+    private String image;
     private List<SpeakerProfileLink>profileLinks;
 }

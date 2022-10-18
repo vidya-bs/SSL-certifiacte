@@ -32,9 +32,9 @@ public interface EventsService {
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pagesize)throws Exception;
 
 	@UnSecure(ignoreValidation = true)
-	@RequestMapping(method = RequestMethod.GET, value = "/events/{eventId}")
-	public ResponseEntity<?> getEvent(@RequestHeader(value = "x-apikey") String apikey,
-			@PathVariable("eventId") String eventId) throws Exception;
+	@RequestMapping(method = RequestMethod.GET, value = "/events/{slug}")
+	public ResponseEntity<?> getEventBySlug(@RequestHeader(value = "x-apikey") String apikey,
+			@PathVariable("slug") String slug) throws Exception;
 
 	@UnSecure(useUpdateKey = true)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/events/{eventId}")

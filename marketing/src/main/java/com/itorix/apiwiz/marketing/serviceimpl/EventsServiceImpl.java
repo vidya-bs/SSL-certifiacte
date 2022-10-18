@@ -1,7 +1,6 @@
 package com.itorix.apiwiz.marketing.serviceimpl;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.itorix.apiwiz.marketing.common.PaginatedResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +49,9 @@ public class EventsServiceImpl implements EventsService {
 
 	@Override
 	@UnSecure(ignoreValidation = true)
-	public ResponseEntity<?> getEvent(String apikey,String eventId)
+	public ResponseEntity<?> getEventBySlug(String apikey,String slug)
 			throws Exception {
-		return new ResponseEntity<>(eventsDao.getEvent(eventId), HttpStatus.OK);
+		return new ResponseEntity<>(eventsDao.getEventsBySlug(slug), HttpStatus.OK);
 	}
 
 	@Override
