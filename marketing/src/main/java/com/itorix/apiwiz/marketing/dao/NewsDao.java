@@ -26,6 +26,7 @@ public class NewsDao {
     MongoTemplate masterMongoTemplate;
 
     public News createNews(News news) {
+        log.info("News {}",news);
         List<News> allNews = getAllNews();
         String title = news.getMeta().getTitle();
         String slug = title.toLowerCase().replace(" ", "-").replace(":","-");
@@ -51,6 +52,7 @@ public class NewsDao {
     }
 
     public ResponseEntity<Object> updateNews(News news, String newsId) {
+        log.info("Request body news {}",news);
         Query query = new Query().addCriteria(Criteria.where("_id").is(newsId));
         News existingNews = masterMongoTemplate.findOne(query,News.class);
         if(existingNews==null)

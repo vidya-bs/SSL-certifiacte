@@ -10,6 +10,7 @@ import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.marketing.events.model.Event;
 import com.itorix.apiwiz.marketing.events.model.EventRegistration;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @Component
+@Slf4j
 public class EventsDao {
 	private static final Logger logger = LoggerFactory.getLogger(EventsDao.class);
 	@Qualifier("masterMongoTemplate")
@@ -49,6 +51,7 @@ public class EventsDao {
 	private IntegrationHelper integrationHelper;
 
 	public String createEvent(Event event) {
+		log.info("Events {}",event);
 		List<Event> allEvents = getAllEvents();
 		String title = event.getMeta().getTitle();
 		String slug = title.toLowerCase().replace(" ", "-").replace(":","-");
@@ -76,6 +79,7 @@ public class EventsDao {
 				query.with(Sort.by(Direction.DESC, "meta.eventDate"))
 						.skip(offset > 0 ? ((offset - 1) * pagesize) : 0).limit(pagesize);
 				List<Event> events = masterMongoTemplate.find(query, Event.class);
+				log.debug("Active Events {}",events);
 				CollectionUtils.filter(events, o -> {
 					try {
 						return ((Event) o).getMeta().getStatus().equalsIgnoreCase("active");
@@ -98,6 +102,7 @@ public class EventsDao {
 				Query query = new Query().with(Sort.by(Sort.Direction.ASC, "cts"))
 						.skip(offset > 0 ? ((offset - 1) * pagesize) : 0).limit(pagesize);
 				List<Event> events = masterMongoTemplate.find(query,Event.class);
+				log.debug("Expired events {}",events);
 				CollectionUtils.filter(events, o -> {
 					try {
 						return ((Event) o).getMeta().getStatus().equalsIgnoreCase("expired");
@@ -184,8 +189,10 @@ public class EventsDao {
 	}
 
 	public String updateEvent(Event event) {
+		log.info("Event {}",event);
 		Query query = new Query().addCriteria(Criteria.where("_id").is(event.getId()));
 		Event dbEvent = masterMongoTemplate.findOne(query, Event.class);
+		log.debug("Existing Event {}",event);
 		if (dbEvent != null) {
 			event.setMts(System.currentTimeMillis());
 			event.getMeta().setSlug(dbEvent.getMeta().getSlug());
