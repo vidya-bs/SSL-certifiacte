@@ -37,7 +37,7 @@ deployment:
         branch: feature
         deployFlag: enable
         approval: disable
-        host: 34.70.37.110
+        host: 34.102.79.102
         pem: NA
         configBranch: dev-gcp
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
@@ -50,7 +50,7 @@ deployment:
         branch: develop
         deployFlag: enable
         approval: disable
-        host: 34.70.37.110
+        host: 34.102.79.102
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
@@ -104,7 +104,7 @@ deployment:
         branch: feature
         deployFlag: enable
         approval: disable
-        host: 34.70.37.110
+        host: 34.102.79.102
         pem: NA
         configBranch: dev-gcp
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
@@ -120,7 +120,7 @@ deployment:
         spaceName: stage
         awsCredProfile: NA
         approval: disable
-        host: 34.70.37.110
+        host: 34.102.79.102
         pem: NA
         configBranch: stage
         gcpCredProfile: nonprod
@@ -171,7 +171,7 @@ deployment:
         branch: feature
         deployFlag: enable
         approval: disable
-        host: 34.70.37.110
+        host: 34.102.79.102
         pem: NA
         configBranch: dev-gcp
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
@@ -187,7 +187,7 @@ deployment:
         spaceName: stage
         awsCredProfile: NA
         approval: disable
-        host: 34.70.37.110
+        host: 34.102.79.102
         gcpCredProfile: nonprod
         pem: NA
         configBranch: stage
@@ -239,7 +239,7 @@ deployment:
         branch: feature
         deployFlag: enable
         approval: disable
-        host: 34.70.37.110
+        host: 34.102.79.102
         pem: NA
         configBranch: dev-gcp
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
@@ -255,7 +255,7 @@ deployment:
         spaceName: stage
         awsCredProfile: NA
         approval: disable
-        host: 34.70.37.110
+        host: 34.102.79.102
         pem: NA
         configBranch: stage
         gcpCredProfile: nonprod
@@ -296,7 +296,7 @@ deployment:
         branch: feature
         deployFlag: enable
         approval: disable
-        host: 34.70.37.110
+        host: 34.102.79.102
         pem: NA
         configBranch: dev-gcp
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
@@ -324,7 +324,7 @@ deployment:
         spaceName: stage
         awsCredProfile: NA
         approval: disable
-        host: 34.70.37.110
+        host: 34.102.79.102
         gcpCredProfile: nonprod
         pem: NA
         configBranch: stage
@@ -375,7 +375,7 @@ deployment:
         branch: feature
         deployFlag: enable
         approval: disable
-        host: 34.70.37.110
+        host: 34.102.79.102
         pem: NA
         configBranch: dev-gcp
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
@@ -391,7 +391,7 @@ deployment:
         spaceName: stage
         awsCredProfile: NA
         approval: disable
-        host: 34.70.37.110
+        host: 34.102.79.102
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
@@ -442,7 +442,7 @@ deployment:
         branch: feature
         deployFlag: enable
         approval: disable
-        host: 34.70.37.110
+        host: 34.102.79.102
         pem: NA
         configBranch: dev-gcp
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
@@ -457,7 +457,7 @@ deployment:
         container: enable
         spaceName: stage
         awsCredProfile: NA
-        host: 34.70.37.110
+        host: 34.102.79.102
         approval: disable
         pem: NA
         configBranch: stage
@@ -509,7 +509,7 @@ deployment:
         branch: feature
         deployFlag: enable
         approval: disable
-        host: 34.70.37.110
+        host: 34.102.79.102
         pem: NA
         configBranch: dev-gcp
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
@@ -526,7 +526,7 @@ deployment:
         awsCredProfile: NA
         gcpCredProfile: nonprod
         approval: disable
-        host: 34.70.37.110
+        host: 34.102.79.102
         pem: NA
         configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'

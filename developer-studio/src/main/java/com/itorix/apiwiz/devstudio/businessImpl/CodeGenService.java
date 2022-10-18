@@ -28,6 +28,7 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -1464,7 +1465,7 @@ public class CodeGenService {
 		try {
 			List<Category> categories = null;
 			MongoCollection<Document> collection = mongoTemplate.getCollection("Connectors.Apigee.Policy.Templates");
-			List<Document> aggrigationList = new ArrayList<>();
+			List<Document> aggregateQuery = new ArrayList<>();
 			List<Object> conditions = new ArrayList<>();
 			conditions.add("$$policies.applyToFlow");
 			conditions.add(applyToFlow);
@@ -1475,15 +1476,20 @@ public class CodeGenService {
 					.append("description", "$description")
 					.append("policies",new Document("$filter",new Document("input","$policies").append("as", "policies").append("cond", new Document("$eq",conditions))))
 					);
-			aggrigationList.add(matchDoc);
-			aggrigationList.add(projectDoc);
-			AggregateIterable<Document> doc = collection.aggregate(aggrigationList);
-			ObjectMapper mapper = new ObjectMapper();
-			for (Document doc1 : doc) {
-				if(categories == null)
-					categories = new ArrayList<>();
-				Category category = mapper.readValue(doc1.toJson(), Category.class);
-				categories.add(category);
+			aggregateQuery.add(matchDoc);
+			aggregateQuery.add(projectDoc);
+
+			AggregateIterable<Document> doc = collection.aggregate(aggregateQuery);
+			if(doc != null && doc.cursor().hasNext()) {
+				ObjectMapper mapper = new ObjectMapper();
+				for (Document doc1 : doc) {
+					if(categories == null)
+						categories = new ArrayList<>();
+					Category category = mapper.readValue(doc1.toJson(), Category.class);
+					categories.add(category);
+				}
+			} else {
+				categories = mongoTemplate.findAll(Category.class);
 			}
 			return categories;
 		} catch (Exception ex) {
