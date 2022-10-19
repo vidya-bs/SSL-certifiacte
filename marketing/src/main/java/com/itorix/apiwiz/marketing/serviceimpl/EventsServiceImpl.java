@@ -42,7 +42,7 @@ public class EventsServiceImpl implements EventsService {
 	public ResponseEntity<?> getAllEvents(String apikey, String status, int offset, int pagesize) throws Exception {
 		List<Event>allEvents = eventsDao.getAllEvents(offset,pagesize,status);
 		PaginatedResponse paginatedResponse = new PaginatedResponse();
-		paginatedResponse.setPagination(eventsDao.getPagination(offset,pagesize,allEvents.size()));
+		paginatedResponse.setPagination(eventsDao.getPagination(offset,pagesize));
 		paginatedResponse.setData(allEvents);
 		return new ResponseEntity<>(paginatedResponse,HttpStatus.OK);
 	}

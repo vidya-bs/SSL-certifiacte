@@ -139,11 +139,9 @@ public class NewsDao {
 
     public Pagination getPagination(int offset, int pageSize) {
         Pagination pagination = new Pagination();
-        Query query = new Query().with(Sort.by(Sort.Direction.ASC, "cts"))
-                .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
         pagination.setOffset(offset);
         pagination.setPageSize(pageSize);
-        pagination.setTotal(masterMongoTemplate.count(query,News.class));
+        pagination.setTotal(masterMongoTemplate.count(new Query(),News.class));
         return pagination;
     }
 }

@@ -185,11 +185,11 @@ public class EventsDao {
 		}
 	}
 
-	public Pagination getPagination(int offset, int pagesize, int count) {
+	public Pagination getPagination(int offset, int pagesize) {
 		Pagination pagination = new Pagination();
 		pagination.setOffset(offset);
 		pagination.setPageSize(pagesize);
-		pagination.setTotal((long)count);
+		pagination.setTotal(masterMongoTemplate.count(new Query(),Event.class));
 		return pagination;
 	}
 
