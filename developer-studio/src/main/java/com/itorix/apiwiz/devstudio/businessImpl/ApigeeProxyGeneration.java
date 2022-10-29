@@ -203,7 +203,7 @@ public class ApigeeProxyGeneration {
 				String apiName = flow.getName();
 				String fileName = removeFileExtension(tmplFile.getName(), true);
 				String dstPoliciesFile = dstPolicies + File.separatorChar
-						+ tmplFile.getName().replaceAll(fileName, fileName + "-" + apiName  );
+						+ tmplFile.getName().replaceAll(fileName, fileName + "-" + apiName );
 
 				final Map<String, Object> apiDtls = new HashMap<String, Object>();
 				Map<String, Object> apiMap = new HashMap<String, Object>();
@@ -244,7 +244,7 @@ public class ApigeeProxyGeneration {
 									break;
 								}
 							}
-							if(proxyMetadata.getName().equals("x_gw_cache_key")){
+							if(proxyMetadata.getName().equals("x-gw-cache-key")){
 								String string = proxyMetadata.getValue();
 								List<String> cacheKeys = new ArrayList<String>(Arrays.asList(string.split(" , ")));
 								apiDtls.put("cacheKeys", cacheKeys);
@@ -252,7 +252,7 @@ public class ApigeeProxyGeneration {
 							if(proxyMetadata.getName().equals("x-gw-cache-timeout-unit")){
 								if(proxyMetadata.getValue().equals("days")) {
 									for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata1 : flow.getMetadata()){
-										if(proxyMetadata1.getName().equals("x_gw_cache_timeout")) {
+										if(proxyMetadata1.getName().equals("x-gw-cache-timeout")) {
 											String count = proxyMetadata1.getValue();
 											long timeunit = Integer.valueOf(count) * 86400;
 											apiDtls.put("cacheTimeout", timeunit);
@@ -261,15 +261,12 @@ public class ApigeeProxyGeneration {
 								}
 								else {
 									for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata1 : flow.getMetadata()){
-										if(proxyMetadata1.getName().equals("x_gw_cache_timeout")) {
+										if(proxyMetadata1.getName().equals("x-gw-cache-timeout")) {
 											String count = proxyMetadata1.getValue();
 											apiDtls.put("cacheTimeout", count);
 										}
 									}
 								}
-								String string = proxyMetadata.getValue();
-								List<String> cacheKeys = new ArrayList<String>(Arrays.asList(string.split(" , ")));
-								apiDtls.put("cacheKeys", cacheKeys);
 							}
 						}
 					}
