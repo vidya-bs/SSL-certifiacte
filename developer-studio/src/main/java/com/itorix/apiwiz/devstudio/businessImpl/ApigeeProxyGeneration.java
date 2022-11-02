@@ -47,7 +47,7 @@ public class ApigeeProxyGeneration {
 	private String proxyName;
 	private String basePath;
 	private String proxyDescription;
-	private List<String> targetNames = new ArrayList<String>();
+	private List<String> targetNames;
 	private String dstPolicies = "";
 	private String dstProxies = "";
 	private String dstResourcesXSL = "";
@@ -92,6 +92,7 @@ public class ApigeeProxyGeneration {
 
 	public void generateProxyCode(Folder proxyFolder, Folder commonFolder, CodeGenHistory cg, String dir)
 			throws IOException, TemplateException {
+		targetNames = new ArrayList<>();
 		Proxy proxy = cg.getProxy();
 		proxyName = proxy.getName().split("_")[0];
 		dstRootFolder = dir; // + "API" + File.separatorChar + "Proxies" +
