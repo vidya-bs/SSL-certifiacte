@@ -3488,7 +3488,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		if (oas.equals("3.0")) {
 			Swagger3VO vo = getSwagger3(swaggerid, null);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")), "Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), swaggerid, "-"), "Swagger-1001");
 			}
 			Map<String, Object> json = parseSwaggerInfoNodes(vo.getSwagger(), oas);
 			json.put("swaggerId", vo.getSwaggerId());
@@ -3499,7 +3499,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		} else {
 			SwaggerVO vo = getSwagger(swaggerid, null);
 			if (vo == null) {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001")), "Swagger-1001");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), swaggerid, "-"), "Swagger-1001");
 			}
 			Map<String, Object> json = parseSwaggerInfoNodes(vo.getSwagger(), oas);
 			json.put("swaggerId", vo.getSwaggerId());
