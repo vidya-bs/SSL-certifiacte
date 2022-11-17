@@ -338,4 +338,14 @@ public class WorkspaceDao {
 	public void deleteSMTPConnector() {
 		baseRepository.remove(new Query(), MailProperty.class);
 	}
+
+	public List<SubscriptionV2> getSubscriptionsV2() {
+		return masterMongoTemplate.findAll(SubscriptionV2.class);
+	}
+
+	public void createSubscriptionPlansV2(List<SubscriptionV2> subscriptions) {
+		for (SubscriptionV2 subscriptionV2 : subscriptions) {
+			masterMongoTemplate.save(subscriptionV2);
+		}
+	}
 }

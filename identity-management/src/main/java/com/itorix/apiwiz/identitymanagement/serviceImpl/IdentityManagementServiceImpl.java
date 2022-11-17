@@ -810,5 +810,68 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	public ResponseEntity<Object> getIdpMetadata(String workspaceId) throws Exception {
 		return new ResponseEntity<>(workspaceDao.getIdpMetadata(workspaceId), HttpStatus.OK);
 	}
+	@UnSecure
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/users/subscriptionplans", produces = {"application/json"})
+	public ResponseEntity<Object> getSubscriptionPlansV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey) throws Exception {
+		return new ResponseEntity<Object>(workspaceDao.getSubscriptionsV2(), HttpStatus.OK);
+	}
 
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v2/users/subscriptionplans", consumes = {
+			"application/json"}, produces = {"application/json"})
+	public ResponseEntity<Void> createSubscriptionPlansV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey, @RequestBody List<SubscriptionV2> subscriptions)
+			throws Exception {
+		workspaceDao.createSubscriptionPlansV2(subscriptions);
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/users/permissions", produces = {"application/json"})
+	public ResponseEntity<Object> getPlanPermissionsV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "planId", required = false) String planId,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
+		return new ResponseEntity<Object>(identityManagementDao.getPlanPermissionsV2(planId), HttpStatus.OK);
+	}
+
+	@UnSecure(useUpdateKey = true)
+	@Override
+	@RequestMapping(method = RequestMethod.PUT, value = "/v2/users/permissions", consumes = {
+			"application/json"}, produces = {"application/json"})
+	public ResponseEntity<Void> createPlanPermissionsV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey, @RequestHeader(value = "x-planid") String planid,
+			@RequestBody String permissions) throws Exception {
+		PlanV2 plan = new PlanV2();
+		plan.setPlanId(planid);
+		plan.setUiPermissions(permissions);
+		identityManagementDao.createPlanPermissionsV2(plan);
+		return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+	}
+
+	@UnSecure
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/app/menu", produces = {"application/json"})
+	public ResponseEntity<Object> getMenu(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey) throws Exception {
+		return new ResponseEntity<Object>(identityManagementDao.getMenu(), HttpStatus.OK);
+	}
+
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/app/menu", consumes = {
+			"application/json"}, produces = {"application/json"})
+	public ResponseEntity<Void> createMenu(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey, @RequestBody String menu )
+			throws Exception {
+		Menu newMenu = new Menu();
+		newMenu.setMenus(menu);
+		identityManagementDao.createMenu(newMenu);
+		return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+	}
 }
+

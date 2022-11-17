@@ -259,8 +259,8 @@ public interface IdentityManagmentService {
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/users/sessions")
 	public @ResponseBody ResponseEntity<Void> removeUserSessions(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-apikey") String apikey);
+																 @RequestHeader(value = "interactionid", required = false) String interactionid,
+																 @RequestHeader(value = "x-apikey") String apikey);
 
 	@UnSecure
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/{emailId:.+}/reset-password", produces = {
@@ -400,8 +400,8 @@ public interface IdentityManagmentService {
 	@PreAuthorize("hasAnyRole('SITE-ADMIN')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/workspace/update-plan")
 	public @ResponseBody ResponseEntity<Void> updateSubscription(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestBody UserInfo userInfo) throws Exception;
+																 @RequestHeader(value = "interactionid", required = false) String interactionid,
+																 @RequestBody UserInfo userInfo) throws Exception;
 
 	@PreAuthorize("hasAnyRole('SITE-ADMIN')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/workspace/upgrade-seats")
@@ -420,8 +420,8 @@ public interface IdentityManagmentService {
 	@PreAuthorize("hasAnyRole('SITE-ADMIN')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/accounts-cancellation")
 	public @ResponseBody ResponseEntity<Void> cancelSubscription(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestBody CancelSubscriptions subscription) throws Exception;
+																 @RequestHeader(value = "interactionid", required = false) String interactionid,
+																 @RequestBody CancelSubscriptions subscription) throws Exception;
 
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/workspace")
 	public @ResponseBody ResponseEntity<Void> updateWorkspaceStatus(
@@ -431,14 +431,14 @@ public interface IdentityManagmentService {
 
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/account")
 	public @ResponseBody ResponseEntity<Void> updateUserAccount(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestBody CancelSubscriptions subscription) throws Exception;
+																@RequestHeader(value = "interactionid", required = false) String interactionid,
+																@RequestBody CancelSubscriptions subscription) throws Exception;
 
 	@PreAuthorize("hasAnyRole('SITE-ADMIN')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/accounts-delete")
 	public @ResponseBody ResponseEntity<Void> cancelUserAccount(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestBody CancelSubscriptions subscription) throws Exception;
+																@RequestHeader(value = "interactionid", required = false) String interactionid,
+																@RequestBody CancelSubscriptions subscription) throws Exception;
 
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/jwks")
@@ -461,22 +461,22 @@ public interface IdentityManagmentService {
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/accounts/webhooks")
 	public @ResponseBody ResponseEntity<Void> accountWebhook(@RequestHeader(value = "signature") String signature,
-			@RequestBody SubscriptionEvent subscriptionEvent) throws Exception;
+															 @RequestBody SubscriptionEvent subscriptionEvent) throws Exception;
 
 	@UnSecure
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/static-content/{source}")
 	public @ResponseBody ResponseEntity<Void> createLandingData(@RequestHeader(value = "x-apikey") String apikey,
-			@PathVariable(value = "source") String source, @RequestBody String data) throws Exception;
+																@PathVariable(value = "source") String source, @RequestBody String data) throws Exception;
 
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/static-content/{source}")
 	public @ResponseBody ResponseEntity<Object> getLandingData(@RequestHeader(value = "x-apikey") String apikey,
-			@PathVariable(value = "source") String source) throws Exception;
+															   @PathVariable(value = "source") String source) throws Exception;
 
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/config-property", consumes = "application/json")
 	public ResponseEntity<Void> createOrUpdateDBProperties(@RequestHeader(value = "x-apikey") String apikey,
-			@RequestBody DBConfig dbConfig) throws Exception;
+														   @RequestBody DBConfig dbConfig) throws Exception;
 
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/config-property")
@@ -509,4 +509,45 @@ public interface IdentityManagmentService {
 	public @ResponseBody ResponseEntity<Object> getIdpMetadata(@PathVariable(required = true) String workspaceId)
 			throws Exception;
 
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v2/users/permissions", consumes = {
+			"application/json"}, produces = {"application/json"})
+	public ResponseEntity<Void> createPlanPermissionsV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey, @RequestHeader(value = "x-planid") String planid,
+			@RequestBody String permissions) throws Exception;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/users/permissions", produces = {"application/json"})
+	public ResponseEntity<Object> getPlanPermissionsV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "planId", required = false) String planId,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v2/users/subscriptionplans", consumes = {
+			"application/json"}, produces = {"application/json"})
+	public ResponseEntity<Void> createSubscriptionPlansV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey, @RequestBody List<SubscriptionV2> subscriptions)
+			throws Exception;
+
+	@UnSecure
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/users/subscriptionplans", produces = {"application/json"})
+	public ResponseEntity<Object> getSubscriptionPlansV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey) throws Exception;
+
+	@UnSecure
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/app/menu", produces = {"application/json"})
+	public ResponseEntity<Object> getMenu(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey) throws Exception;
+
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v2/users/menu", consumes = {
+			"application/json"}, produces = {"application/json"})
+	public ResponseEntity<Void> createMenu(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey, @RequestBody String menu)
+			throws Exception;
 }

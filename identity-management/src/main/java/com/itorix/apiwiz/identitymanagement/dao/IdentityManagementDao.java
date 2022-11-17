@@ -1,5 +1,7 @@
 package com.itorix.apiwiz.identitymanagement.dao;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -1910,5 +1912,50 @@ public class IdentityManagementDao {
         applicationProperties.setProxyScmUserType(map.get("itorix.core.gocd.proxy.scm.userType"));
         applicationProperties.setProxyScmToken(map.get("itorix.core.gocd.proxy.scm.token"));
         return applicationProperties;
+    }
+
+    public void createPlanPermissionsV2(PlanV2 plan) throws ItorixException {
+        if (validatePermission(plan.getUiPermissions())) {
+            Query query = new Query(Criteria.where("planId").is(plan.getPlanId()));
+            PlanV2 planV2 = masterMongoTemplate.findOne(query, PlanV2.class);
+            if (planV2 == null)
+                masterMongoTemplate.save(plan);
+            else {
+                planV2.setUiPermissions(plan.getUiPermissions());
+                masterMongoTemplate.save(planV2);
+            }
+        } else {
+            String message = "Invalid request data! Invalid permissions ";
+            throw new ItorixException(message, "Identity-1007");
+        }
+    }
+
+    public String getPlanPermissionsV2(String planId) throws ItorixException {
+        UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+        Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
+        if (planId == null) {
+            planId = workspace.getPlanId();
+        }
+        Query query = new Query(Criteria.where("planId").is(planId));
+        PlanV2 plan = masterMongoTemplate.findOne(query, PlanV2.class);
+        if (plan == null || plan.getUiPermissions() == null) {
+            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1041"), "Identity-1041");
+        }
+        return plan.getUiPermissions();
+    }
+
+    public void createMenu(Menu menu) throws ItorixException {
+        masterMongoTemplate.save(menu);
+    }
+
+    public JsonNode getMenu() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
+        Menu menu = masterMongoTemplate.findById("menu", Menu.class);
+        if(menu != null){
+            return objectMapper.readTree(menu.getMenus());
+        }
+        return null;
     }
 }
