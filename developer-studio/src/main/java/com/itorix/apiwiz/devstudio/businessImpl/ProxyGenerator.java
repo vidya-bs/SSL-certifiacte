@@ -202,19 +202,19 @@ public class ProxyGenerator {
 		}
 	}
 
-	private void copyWSDLFiles(String projectName, Proxies proxies) {
-		for (ProjectFile file : proxies.getWsdlFiles()) {
-			mongoConnection.getResourceFile(projectName, proxyName, "WSDL", file.getFileName(),
-					dstResourcesWsdl + File.separatorChar);
-		}
-	}
+//	private void copyWSDLFiles(String projectName, Proxies proxies) {
+//		for (ProjectFile file : proxies.getWsdlFiles()) {
+//			mongoConnection.getResourceFile(projectName, proxyName, "WSDL", file.getFileName(),
+//					dstResourcesWsdl + File.separatorChar);
+//		}
+//	}
 
-	private void copyXSDFiles(String projectName, Proxies proxies) {
-		for (ProjectFile file : proxies.getXsdFiles()) {
-			mongoConnection.getResourceFile(projectName, proxyName, "XSD", file.getFileName(),
-					dstResourcesXsd + File.separatorChar);
-		}
-	}
+//	private void copyXSDFiles(String projectName, Proxies proxies) {
+//		for (ProjectFile file : proxies.getXsdFiles()) {
+//			mongoConnection.getResourceFile(projectName, proxyName, "XSD", file.getFileName(),
+//					dstResourcesXsd + File.separatorChar);
+//		}
+//	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private Map<String, Object> populateProxyData(CodeGenHistory cg, Proxies proxies) {

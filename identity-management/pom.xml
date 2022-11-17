@@ -13,7 +13,7 @@
 	</parent>
 
 	<properties>
-		<java.version>1.8</java.version>
+		<java.version>11</java.version>
 	</properties>
 
 	<dependencies>
@@ -22,33 +22,11 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 		
-		<!-- Spring security dependencies -->
-		
-		<!-- <dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-acl</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-config</artifactId>
-		</dependency> -->
-<!-- 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-		</dependency> -->
-		
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-xml</artifactId>
 		</dependency>
-		<!-- <dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-sleuth</artifactId>
-		</dependency> -->
-		<!-- <dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-mongodb</artifactId>
-		</dependency> -->
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
@@ -73,17 +51,7 @@
             <scope>test</scope>
         </dependency>
 	</dependencies>
-	<!-- <dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>Finchley.M8</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement> -->
+
 	<build>
 		<plugins>
 			<plugin>
@@ -104,10 +72,7 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-			<!-- <plugin> <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-maven-plugin</artifactId> 
-				<configuration> <fork>true</fork> <mainClass>com.itorix.hyggee.identitymanagement.IdentityManagementApplication</mainClass> 
-				</configuration> <executions> <execution> <goals> <goal>repackage</goal> 
-				</goals> </execution> </executions> </plugin> -->
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>

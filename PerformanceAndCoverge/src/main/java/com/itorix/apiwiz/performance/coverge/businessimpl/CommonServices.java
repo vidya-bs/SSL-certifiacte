@@ -82,6 +82,7 @@ public class CommonServices {
 
 	@Autowired
 	PerformanceAndCoveragePostmanCollectionRunner postmanCollectionRunner;
+
 	@Autowired
 	private TestSuiteDAO testsuitDAO;
 

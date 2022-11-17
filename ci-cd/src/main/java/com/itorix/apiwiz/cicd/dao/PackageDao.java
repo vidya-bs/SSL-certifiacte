@@ -202,7 +202,7 @@ public class PackageDao {
 				// Update update = Update.fromDBObject(dbDoc, "_id");
 				// WriteResult result = mongoTemplate.updateFirst(query, update,
 				// Package.class);
-				if (result.isModifiedCountAvailable())
+				if (result.getModifiedCount() > 0)
 					return true;
 			}
 			return false;
@@ -228,7 +228,7 @@ public class PackageDao {
 				// Update update = Update.fromDBObject(dbDoc, "_id");
 				// WriteResult result = mongoTemplate.updateFirst(query, update,
 				// Package.class);
-				if (result.isModifiedCountAvailable())
+				if (result.getModifiedCount() > 0)
 					return true;
 			}
 			return false;
@@ -256,7 +256,7 @@ public class PackageDao {
 				// Update update = Update.fromDBObject(dbDoc, "_id");
 				// WriteResult result = mongoTemplate.updateFirst(query, update,
 				// Package.class);
-				if (result.isModifiedCountAvailable())
+				if (result.getModifiedCount() > 0)
 					return true;
 			}
 			return false;

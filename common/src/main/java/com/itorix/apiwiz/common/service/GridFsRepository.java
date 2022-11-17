@@ -5,7 +5,6 @@ import com.itorix.apiwiz.common.model.GridFsData;
 import com.mongodb.DBObject;
 import com.mongodb.client.gridfs.GridFSFindIterable;
 import com.mongodb.client.gridfs.model.GridFSFile;
-import com.mongodb.gridfs.GridFSDBFile;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,6 +14,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import com.mongodb.gridfs.GridFSDBFile;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

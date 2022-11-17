@@ -637,7 +637,7 @@ public class ServiceRequestDao {
 				mongoTemplate.getConverter().write(serviceRequest, dbDoc);
 				Update update = Update.fromDocument(dbDoc, "_id");
 				UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
-				return result.isModifiedCountAvailable();
+				return result.wasAcknowledged();
 			} else {
 				if ("TargetServer".equalsIgnoreCase(serviceRequest.getType())) {
 					if (config.getGwType() != null && config.getGwType().equalsIgnoreCase("apigeex")) {
@@ -765,7 +765,7 @@ public class ServiceRequestDao {
 				mongoTemplate.getConverter().write(serviceRequest, dbDoc);
 				Update update = Update.fromDocument(dbDoc, "_id");
 				UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
-				return result.isModifiedCountAvailable();
+				return result.wasAcknowledged();
 			}
 
 		} else if (config.getStatus().equalsIgnoreCase("Change Required")) {
@@ -790,7 +790,7 @@ public class ServiceRequestDao {
 			mongoTemplate.getConverter().write(serviceRequest, dbDoc);
 			Update update = Update.fromDocument(dbDoc, "_id");
 			UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
-			return result.isModifiedCountAvailable();
+			return result.wasAcknowledged();
 		} else if (config.getStatus().equalsIgnoreCase("Rejected")) {
 			if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
 				query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("name").is(config.getName())
@@ -809,7 +809,7 @@ public class ServiceRequestDao {
 			mongoTemplate.getConverter().write(serviceRequest, dbDoc);
 			Update update = Update.fromDocument(dbDoc, "_id");
 			UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
-			return result.isModifiedCountAvailable();
+			return result.wasAcknowledged();
 		}else if (config.getStatus().equalsIgnoreCase("Review")) {
 			if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
 				query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("name").is(config.getName())
@@ -828,7 +828,7 @@ public class ServiceRequestDao {
 			mongoTemplate.getConverter().write(serviceRequest, dbDoc);
 			Update update = Update.fromDocument(dbDoc, "_id");
 			UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
-			return result.isModifiedCountAvailable();
+			return result.wasAcknowledged();
 		}  else {
 			if ((!config.getStatus().equalsIgnoreCase("Change Required")
 					&& (!config.getStatus().equalsIgnoreCase("Approved")))
