@@ -3,6 +3,7 @@ package com.itorix.apiwiz.datamanagement.service;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,6 +40,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Environment Depolyed Proxies", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
@@ -74,6 +76,7 @@ public interface EnvironmentService {
 	 * 
 	 * @throws Exception
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Back Up Environment", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -106,6 +109,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Clean Up Environment", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -137,6 +141,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Restore Environment", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -166,6 +171,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Environment Backup History", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = EnvironmentBackUpInfo.class, responseContainer = "List"),
@@ -197,6 +203,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Back Up Environment Api Proxy", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -229,6 +236,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Clean Up Environment Api Proxy", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -261,6 +269,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Restore Environment Api Proxy", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -290,6 +299,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Environment Api Proxies Backup History", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = ProxyBackUpInfo.class, responseContainer = "List"),
@@ -316,6 +326,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "back Up Caches", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -347,6 +358,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Clean Up Caches", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -378,6 +390,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Restore Caches", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -407,6 +420,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Caches Backup History", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = ResourceBackUpInfo.class, responseContainer = "List"),
@@ -433,6 +447,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Back Up Target Servers", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -464,6 +479,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Clean Up Target Servers", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -496,6 +512,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Restore Target Servers", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -527,6 +544,7 @@ public interface EnvironmentService {
 	 * 
 	 * @throws Exception
 	 */
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Target Servers Backup History", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = ResourceBackUpInfo.class, responseContainer = "List"),
@@ -553,6 +571,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Back Up KVM", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -584,6 +603,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Clean Up KVM", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -615,6 +635,7 @@ public interface EnvironmentService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Restore KVM", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -646,6 +667,7 @@ public interface EnvironmentService {
 	 * 
 	 * @throws Exception
 	 */
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get KVM Backup History", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = ResourceBackUpInfo.class, responseContainer = "List"),
