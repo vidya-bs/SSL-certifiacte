@@ -58,6 +58,16 @@ public class Swagger3VO extends AbstractObject {
 
 	private Set<String> partners;
 
+	private List<String> ruleSetIds;
+
+	public List<String> getRuleSetIds() {
+		return ruleSetIds;
+	}
+
+	public void setRuleSetIds(List<String> ruleSetIds) {
+		this.ruleSetIds = ruleSetIds;
+	}
+
 	public Integer getRevision() {
 		return revision;
 	}

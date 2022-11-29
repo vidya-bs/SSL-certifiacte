@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.datadictionary.model;
 
+import java.util.List;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -23,4 +24,5 @@ public class PortfolioModel extends AbstractObject {
 
 	private String modelId;
 
+	private List<String> ruleSetIds;
 }
