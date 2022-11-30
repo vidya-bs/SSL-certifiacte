@@ -72,7 +72,13 @@ import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
@@ -125,12 +131,21 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	@Autowired
 	private ApicUtil apicUtil;
 
+	@Autowired
+	private RestTemplate restTemplate;
+
 	private static final String STATUS_VALUE = "status";
 
-	public SwaggerVO createSwagger(SwaggerVO swaggerVO) {
+	public SwaggerVO createSwagger(SwaggerVO swaggerVO,boolean publish) {
 		log("createSwagger", swaggerVO.getInteractionid(), swaggerVO);
 		swaggerVO.setRevision(1);
-		swaggerVO.setStatus("Draft");
+		if(publish)
+		{
+			swaggerVO.setStatus(("Publish"));
+		}
+		else {
+			swaggerVO.setStatus("Draft");
+		}
 		swaggerVO.setLock(false);
 		swaggerVO.setId(null);
 		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
@@ -151,11 +166,16 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return details;
 	}
 
-	public Swagger3VO createSwagger(Swagger3VO swaggerVO) {
+	public Swagger3VO createSwagger(Swagger3VO swaggerVO,boolean publish) {
 		log("createSwagger", swaggerVO.getInteractionid(), swaggerVO);
 		swaggerVO.setRevision(1);
-		swaggerVO.setStatus("Draft");
-		swaggerVO.setLock(false);
+		if(publish)
+		{
+			swaggerVO.setStatus(("Publish"));
+		}
+		else {
+			swaggerVO.setStatus("Draft");
+		}		swaggerVO.setLock(false);
 		swaggerVO.setId(null);
 		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
 		Swagger3VO details = baseRepository.save(swaggerVO);
@@ -382,7 +402,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 						} catch (ItorixException e) {
 							if (e.errorCode.equals("Swagger-1002")) {
 								reason = "swagger with same name exists";
-								createSwaggerWithNewRevision(swaggerVO, null);
+								createSwaggerWithNewRevision(swaggerVO, null,false);
 							}
 							swagger.setReason(reason);
 						}
@@ -441,7 +461,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 						} catch (ItorixException e) {
 							if (e.errorCode.equals("Swagger-1002")) {
 								reason = "swagger with same name exists";
-								createSwaggerWithNewRevision(swaggerVO, null);
+								createSwaggerWithNewRevision(swaggerVO, null,false);
 							}
 							swagger.setReason(reason);
 						}
@@ -533,7 +553,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return vo;
 	}
 
-	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid) throws ItorixException {
+	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid,boolean publish) throws ItorixException {
 		log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), swaggerVO);
 		SwaggerVO vo = findSwagger(swaggerVO.getName(), swaggerVO.getInteractionid());
 		if (vo != null) {
@@ -544,7 +564,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Revision revision = Collections.max(revisions);
 			Integer newRevision = revision.getRevision() + 1;
 			swaggerVO.setRevision(newRevision);
-			swaggerVO.setStatus("Draft");
+			if(publish)
+			{
+				swaggerVO.setStatus(("Publish"));
+			}
+			else {
+				swaggerVO.setStatus("Draft");
+			}
 			swaggerVO.setLock(false);
 			swaggerVO.setId(null);
 			swaggerVO.setSwaggerId(vo.getSwaggerId());
@@ -555,7 +581,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return null;
 	}
 
-	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid) throws ItorixException {
+	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid,boolean publish) throws ItorixException {
 		log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), swaggerVO);
 		Swagger3VO vo = findSwagger3(swaggerVO.getName(), swaggerVO.getInteractionid());
 		if (vo != null) {
@@ -566,7 +592,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Revision revision = Collections.max(revisions);
 			Integer newRevision = revision.getRevision() + 1;
 			swaggerVO.setRevision(newRevision);
-			swaggerVO.setStatus("Draft");
+			if(publish)
+			{
+				swaggerVO.setStatus(("Publish"));
+			}
+			else {
+				swaggerVO.setStatus("Draft");
+			}
 			swaggerVO.setLock(false);
 			swaggerVO.setId(null);
 			swaggerVO.setSwaggerId(vo.getSwaggerId());
@@ -699,13 +731,32 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return names;
 	}
 
-	public List<SwaggerVO> getSwaggerNames() throws ItorixException {
-		List<String> names = baseRepository.findDistinctValuesByColumnName(SwaggerVO.class, "name");
+	public List<SwaggerVO> getSwaggerNames(String page) throws ItorixException {
 		List<SwaggerVO> swaggerNames = new ArrayList<SwaggerVO>();
+
+		List<String> names = new ArrayList<>();
+
+		if (StringUtils.equalsIgnoreCase("Proxy", page) || StringUtils.equalsIgnoreCase("Kong", page)) {
+			Query postReleaseQuery = new Query(
+					Criteria.where("status").in(Arrays.asList("Approved", "Publish")));
+			names = mongoTemplate.findDistinct(postReleaseQuery,"name", SwaggerVO.class, String.class);
+			return retrieveSwaggerNames(swaggerNames, names);
+		}
+		if (StringUtils.equalsIgnoreCase("Virtualisation", page) || StringUtils.equalsIgnoreCase(
+				"TestSuite", page)) {
+			Query preReleaseQuery = new Query(
+					Criteria.where("status").not().in(Arrays.asList("Deprecate", "Retired")));
+			names = mongoTemplate.findDistinct(preReleaseQuery,"name", SwaggerVO.class, String.class);
+			return retrieveSwaggerNames(swaggerNames, names);
+		} else {
+			names = baseRepository.findDistinctValuesByColumnName(SwaggerVO.class, "name");
+			return retrieveSwaggerNames(swaggerNames, names);
+		}
+
+	}
+
+	private List<SwaggerVO> retrieveSwaggerNames(List<SwaggerVO> swaggerNames, List<String> names) {
 		for (String name : names) {
-			// mongoTemplate.getCollection(mongoTemplate.getCollectionName(SwaggerVO.class)).distinct("name",
-			// new
-			// Query(new Criteria(STATUS_VALUE).is(status)).getQueryObject())
 			SwaggerVO swaggerVO = baseRepository.findOne("name", name, SwaggerVO.class);
 			SwaggerVO swagger = new SwaggerVO();
 			swagger.setId(swaggerVO.getSwaggerId());
@@ -716,9 +767,29 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return swaggerNames;
 	}
 
-	public List<Swagger3VO> getSwagger3Names() throws ItorixException {
-		List<String> names = baseRepository.findDistinctValuesByColumnName(Swagger3VO.class, "name");
+	public List<Swagger3VO> getSwagger3Names(String page) throws ItorixException {
 		List<Swagger3VO> swaggerNames = new ArrayList<Swagger3VO>();
+		List<String> names = new ArrayList<>();
+
+		if (StringUtils.equalsIgnoreCase("Proxy", page) || StringUtils.equalsIgnoreCase("Kong", page)) {
+			Query postReleaseQuery = new Query(
+					Criteria.where("status").in(Arrays.asList("Approved", "Publish")));
+			names = mongoTemplate.findDistinct(postReleaseQuery,"name", Swagger3VO.class, String.class);
+			return retrieveSwagger3Names(swaggerNames, names);
+		}
+		if (StringUtils.equalsIgnoreCase("Virtualisation", page) || StringUtils.equalsIgnoreCase(
+				"TestSuite", page)) {
+			Query preReleaseQuery = new Query(
+					Criteria.where("status").not().in(Arrays.asList("Deprecate", "Retired")));
+			names = mongoTemplate.findDistinct(preReleaseQuery,"name", Swagger3VO.class, String.class);
+			return retrieveSwagger3Names(swaggerNames, names);
+		} else {
+			names = baseRepository.findDistinctValuesByColumnName(Swagger3VO.class, "name");
+			return retrieveSwagger3Names(swaggerNames, names);
+		}
+	}
+
+	private List<Swagger3VO> retrieveSwagger3Names(List<Swagger3VO> swaggerNames, List<String> names) {
 		for (String name : names) {
 			Swagger3VO swaggerVO = baseRepository.findOne("name", name, Swagger3VO.class);
 			Swagger3VO swagger = new Swagger3VO();
@@ -1299,8 +1370,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			}
 		}
 		JSONObject swaggerJsonObject = new JSONObject(vo.getSwagger());
-		JSONObject infoObject = swaggerJsonObject.getJSONObject("info");
-		log.info("The swagger Info object is: {}", infoObject.keySet().contains("description")? infoObject.get("description"):"");
+
+    JSONObject infoObject =
+        swaggerJsonObject.has("info") && swaggerJsonObject.get("info") != null && !swaggerJsonObject.get("info").toString().isEmpty()
+            ? (JSONObject) swaggerJsonObject.get("info") : null;
+//    log.info("The swagger Info object is: {}",
+//        infoObject.keySet().contains("description") ? infoObject.get("description") : "");
 
 		if (null == jsonNode) {
 			ObjectNode rootNode = mapper.createObjectNode();
@@ -1312,7 +1387,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "2.0");
 			itemNode.put("swaggerDescription",
-					infoObject.keySet().contains("description") ? infoObject.get("description") != null
+					infoObject!=null&&infoObject.keySet().contains("description") ? infoObject.get("description") != null
 							? infoObject.get("description").toString() : "" : "");
 			ArrayNode revision = mapper.createArrayNode();
 
@@ -1394,7 +1469,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "2.0");
 			itemNode.put("swaggerDescription",
-					infoObject.keySet().contains("description") ? infoObject.get("description") != null
+					infoObject!=null&&infoObject.keySet().contains("description") ? infoObject.get("description") != null
 							? infoObject.get("description").toString() : "" : "");
 			ArrayNode revision = mapper.createArrayNode();
 			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "2.0");
@@ -1528,9 +1603,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			}
 		}
 		JSONObject swaggerJsonObject = new JSONObject(vo.getSwagger());
-		JSONObject infoObject = (JSONObject) swaggerJsonObject.get("info");
-		log.info("The swagger Info object is: {}",
-				infoObject.keySet().contains("description") ? infoObject.get("description") : "");
+    JSONObject infoObject =
+        swaggerJsonObject.has("info") && swaggerJsonObject.get("info") != null && !swaggerJsonObject.get("info").toString().isEmpty()
+            ? (JSONObject) swaggerJsonObject.get("info") : null;
+//		log.info("The swagger Info object is: {}",
+//				infoObject.keySet().contains("description") ? infoObject.get("description") : "");
 
 		if (null == jsonNode) {
 			ObjectNode rootNode = mapper.createObjectNode();
@@ -1543,7 +1620,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "3.0");
 			itemNode.put("swaggerDescription",
-					infoObject.keySet().contains("description") ? infoObject.get("description") != null
+					infoObject!=null &&infoObject.keySet().contains("description") ? infoObject.get("description") != null
 							? infoObject.get("description").toString() : "" : "");
 			ArrayNode revision = mapper.createArrayNode();
 			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "3.0");
@@ -1623,7 +1700,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "3.0");
 			itemNode.put("swaggerDescription",
-					infoObject.keySet().contains("description") ? infoObject.get("description") != null
+					infoObject!=null && infoObject.keySet().contains("description") ? infoObject.get("description") != null
 							? infoObject.get("description").toString() : "" : "");
 			ArrayNode revision = mapper.createArrayNode();
 			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "3.0");
@@ -4101,6 +4178,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		swaggerPartners.stream().forEach(partner -> {
 			updatePartner(partner);
 		});
+	}
+
+	@Override
+	public String getGolbalRule(String oas) {
+		Query query = Query.query(Criteria.where("ruleSetType").is("swagger").and("oasVersion").is(oas).and("isGlobalRuleSet").is(true));
+		return mongoTemplate.findOne(query,Document.class,"Astrum.RuleSet").get("_id").toString();
 	}
 
 	private DeleteResult removeBasePath(Query query, Class clazz) {
