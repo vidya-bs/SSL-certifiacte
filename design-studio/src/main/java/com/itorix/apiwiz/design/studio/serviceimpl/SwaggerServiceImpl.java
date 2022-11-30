@@ -201,7 +201,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		scannerDTO.setOperation(CREATE);
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
-			callScannerAPI(scannerDTO);
+			callScannerAPI(scannerDTO, jsessionid);
 		}
 		return new ResponseEntity<Object>(listSwaggers, HttpStatus.OK);
 	}
@@ -302,7 +302,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
-			callScannerAPI(scannerDTO);
+			callScannerAPI(scannerDTO, jsessionid);
 		}
 
 		return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
@@ -492,7 +492,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
-			callScannerAPI(scannerDTO);
+			callScannerAPI(scannerDTO, jsessionid);
 		}
 		return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
 	}
@@ -645,7 +645,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
-			callScannerAPI(scannerDTO);
+			callScannerAPI(scannerDTO, jsessionid);
 		}
 		return new ResponseEntity<Void>(headers, HttpStatus.NO_CONTENT);
 	}
@@ -1016,7 +1016,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
-			callScannerAPI(scannerDTO);
+			callScannerAPI(scannerDTO, jsessionid);
 		}
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
@@ -1097,7 +1097,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
-			callScannerAPI(scannerDTO);
+			callScannerAPI(scannerDTO, jsessionid);
 		}
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
@@ -1214,7 +1214,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			notificationBusiness.createNotification(notificationDetails,jsessionid);
 		}
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
-			callScannerAPI(scannerDTO);
+			callScannerAPI(scannerDTO, jsessionid);
 
 		}
 
@@ -2828,7 +2828,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		scannerDTO.setOperation(CREATE);
 		scannerDTO.setTenantId(getWorkspaceId());
 		scannerDTO.setSwaggerId(swaggersList);
-		callScannerAPI(scannerDTO);
+		callScannerAPI(scannerDTO, jsessionid);
 		return ResponseEntity.ok().body("Syncing " + swaggersList.size() + " Swaggers.");
 
 	}
@@ -2891,9 +2891,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 						jsessionid, offset, pageSize));
 	}
 
-	private void callScannerAPI(ScannerDTO scannerDTO) {
+	private void callScannerAPI(ScannerDTO scannerDTO, String jsessionId) {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+		httpHeaders.set("JSESSIONID", jsessionId);
 		HttpEntity<ScannerDTO> entity = new HttpEntity<>(scannerDTO, httpHeaders);
 
 		try {

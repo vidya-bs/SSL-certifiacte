@@ -19,9 +19,9 @@
 		<module>data-dictionary</module>
 		<module>collaboration</module>
 		<module>third-party-integrations</module>
-		<module>api-test</module>
+<!--		<module>api-test</module>-->
 <!--		<module>test-suite-lib</module>-->
-		<module>api-virtualization</module>
+<!--		<module>api-virtualization</module>-->
 		<module>config-management</module>
 		<module>api-developer-portal</module>
 		<module>data-management</module>
@@ -35,11 +35,11 @@
 		<module>app</module>
 		<module>sso</module>
 		<module>api-portfolio</module>
-		<module>api-monitor</module>
-		<module>api-monitor-agent</module>
+<!--		<module>api-monitor</module>-->
+<!--		<module>api-monitor-agent</module>-->
 		<module>marketing</module>
-		<module>notification-agent</module>
-		<module>api-mock-server</module>
+<!--		<module>notification-agent</module>-->
+<!--		<module>api-mock-server</module>-->
 		<module>api-license</module>
 		<module>license-validator</module>
         <module>api-consent</module>
