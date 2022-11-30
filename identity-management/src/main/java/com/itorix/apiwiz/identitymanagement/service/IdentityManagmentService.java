@@ -509,4 +509,46 @@ public interface IdentityManagmentService {
 	public @ResponseBody ResponseEntity<Object> getIdpMetadata(@PathVariable(required = true) String workspaceId)
 			throws Exception;
 
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v2/users/permissions", consumes = {
+			"application/json"}, produces = {"application/json"})
+	public ResponseEntity<Void> createPlanPermissionsV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey, @RequestHeader(value = "x-planid") String planid,
+			@RequestBody String permissions) throws Exception;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/users/permissions", produces = {"application/json"})
+	public ResponseEntity<Object> getPlanPermissionsV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "planId", required = false) String planId,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
+
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v2/users/subscriptionplans", consumes = {
+			"application/json"}, produces = {"application/json"})
+	public ResponseEntity<Void> createSubscriptionPlansV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey, @RequestBody List<SubscriptionV2> subscriptions)
+			throws Exception;
+
+	@UnSecure
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/users/subscriptionplans", produces = {"application/json"})
+	public ResponseEntity<Object> getSubscriptionPlansV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey) throws Exception;
+
+	@UnSecure
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/app/menu", produces = {"application/json"})
+	public ResponseEntity<Object> getMenu(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey) throws Exception;
+
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/app/menu", consumes = {
+			"application/json"}, produces = {"application/json"})
+	public ResponseEntity<Void> createMenu(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey, @RequestBody String menu)
+			throws Exception;
+
 }

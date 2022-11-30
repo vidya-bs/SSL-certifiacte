@@ -2941,6 +2941,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 		httpHeaders.set("JSESSIONID", jsessionid);
+
 		HttpEntity<ScannerDTO> entity = new HttpEntity<>(scannerDTO, httpHeaders);
 
 		try {
