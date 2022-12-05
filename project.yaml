@@ -205,76 +205,76 @@ deployment:
 #        configBranch: main
 #        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
 #        cloudProvider: aws
-  - appName: sso
-    buildImage: enable
-    jarName: sso-0.0.1-SNAPSHOT.jar
-    jarLocation: /sso/target
-    environments:
-      - env: local
-        branch: feature
-        deployFlag: disable
-        spaceName: NA
-        container: disable
-        approval: disable
-        host: 3.128.86.36
-        pem: itorix-dev.pem
-        configBranch: local
-        awsCredProfile: NA
-        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
-        cloudProvider: NA
-      - env: development
-        deployFlag: disable
-        branch: feature
-        container: enable
-        spaceName: dev
-        awsCredProfile: nonprod
-        approval: disable
-        host: 54.203.2.220
-        pem: NA
-        configBranch: dev
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        ssoHelmValueFileName: 'sso-values.yaml'
-        cloudProvider: aws
-      - env: gcp-dev
-        branch: feature
-        deployFlag: enable
-        approval: disable
-        host: 34.102.79.102
-        pem: NA
-        configBranch: dev-gcp
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        container: enable
-        spaceName: apiwiz-system
-        awsCredProfile: NA
-        gcpCredProfile: nonprod
-        cloudProvider: google
-      - env: stage
-        branch: develop
-        deployFlag: enable
-        container: enable
-        spaceName: stage
-        awsCredProfile: NA
-        approval: disable
-        host: 34.102.79.102
-        pem: NA
-        configBranch: stage
-        gcpCredProfile: nonprod
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        ssoHelmValueFileName: 'sso-values.yaml'
-        cloudProvider: google
-      - env: production
-        branch: main
-        deployFlag: enable
-        container: enable
-        spaceName: apiwiz-system
-        awsCredProfile: default
-        approval: enable
-        host: NA
-        pem: NA
-        configBranch: tonikbank
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
-        cloudProvider: aws
-        ssoHelmValueFileName: 'sso-tonikbank-values.yaml'
+#  - appName: sso
+#    buildImage: enable
+#    jarName: sso-0.0.1-SNAPSHOT.jar
+#    jarLocation: /sso/target
+#    environments:
+#      - env: local
+#        branch: feature
+#        deployFlag: disable
+#        spaceName: NA
+#        container: disable
+#        approval: disable
+#        host: 3.128.86.36
+#        pem: itorix-dev.pem
+#        configBranch: local
+#        awsCredProfile: NA
+#        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
+#        cloudProvider: NA
+#      - env: development
+#        deployFlag: disable
+#        branch: feature
+#        container: enable
+#        spaceName: dev
+#        awsCredProfile: nonprod
+#        approval: disable
+#        host: 54.203.2.220
+#        pem: NA
+#        configBranch: dev
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        ssoHelmValueFileName: 'sso-values.yaml'
+#        cloudProvider: aws
+#      - env: gcp-dev
+#        branch: feature
+#        deployFlag: enable
+#        approval: disable
+#        host: 34.102.79.102
+#        pem: NA
+#        configBranch: dev-gcp
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        container: enable
+#        spaceName: apiwiz-system
+#        awsCredProfile: NA
+#        gcpCredProfile: nonprod
+#        cloudProvider: google
+#      - env: stage
+#        branch: develop
+#        deployFlag: enable
+#        container: enable
+#        spaceName: stage
+#        awsCredProfile: NA
+#        approval: disable
+#        host: 34.102.79.102
+#        pem: NA
+#        configBranch: stage
+#        gcpCredProfile: nonprod
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        ssoHelmValueFileName: 'sso-values.yaml'
+#        cloudProvider: google
+#      - env: production
+#        branch: main
+#        deployFlag: enable
+#        container: enable
+#        spaceName: apiwiz-system
+#        awsCredProfile: default
+#        approval: enable
+#        host: NA
+#        pem: NA
+#        configBranch: tonikbank
+#        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+#        cloudProvider: aws
+#        ssoHelmValueFileName: 'sso-tonikbank-values.yaml'
 #  - appName: apimonitor
 #    buildImage: enable
 #    jarName: api-monitor-agent-0.0.1.jar
