@@ -33,7 +33,7 @@
 		<module>ci-cd</module>
 		<module>analytics</module>
 		<module>app</module>
-		<module>sso</module>
+<!--		<module>sso</module>-->
 		<module>api-portfolio</module>
 <!--		<module>api-monitor</module>-->
 <!--		<module>api-monitor-agent</module>-->
