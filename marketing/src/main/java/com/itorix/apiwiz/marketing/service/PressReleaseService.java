@@ -33,19 +33,20 @@ public interface PressReleaseService {
 
 
     @UnSecure(ignoreValidation = true)
-    @RequestMapping(method = RequestMethod.GET, value = "/pressrelease")
+    @GetMapping(value = "/pressrelease")
     public ResponseEntity<?> getPressReleaseData(@RequestHeader(value = "x-apikey") String apikey,
-            @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-            @RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize
+                                                 @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+                                                 @RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
+                                                 @RequestParam(value = "status",required = false)String  status
     ) throws Exception;
 
     @UnSecure(ignoreValidation = true)
-    @RequestMapping(method = RequestMethod.GET, value = "/pressrelease/{filterValue}")
+    @GetMapping(value = "/pressrelease/{filterValue}")
     public ResponseEntity<?> getDataByFilter(@RequestHeader(value = "x-apikey") String apikey,
-            @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-            @RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
-            @RequestParam(value = "filter") String filter,
-            @PathVariable(value = "filterValue") String filterValue
+                                             @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+                                             @RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
+                                             @RequestParam(value = "filter") String filter,
+                                             @PathVariable(value = "filterValue") String filterValue
     ) throws Exception;
 
     @UnSecure(ignoreValidation = true)

@@ -51,10 +51,10 @@ public class NewsServiceImpl implements NewsService {
 
     @UnSecure(ignoreValidation = true)
     @Override
-    public ResponseEntity<?> fetchAllNews(String apikey,int offset, int pageSize) throws Exception {
+    public ResponseEntity<?> fetchAllNews(String apikey,int offset, int pageSize,String status) throws Exception {
         PaginatedResponse paginatedResponse = new PaginatedResponse();
         paginatedResponse.setPagination(newsDao.getPagination(offset,pageSize));
-        paginatedResponse.setData(newsDao.getAllNews(offset,pageSize));
+        paginatedResponse.setData(newsDao.fetchAllNews(offset,pageSize,status));
         return new ResponseEntity<>(paginatedResponse,HttpStatus.OK);
     }
 

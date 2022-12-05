@@ -4,6 +4,7 @@ import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.marketing.news.model.News;
 import com.itorix.apiwiz.marketing.news.model.NewsStatus;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
@@ -46,10 +47,29 @@ public class NewsDao {
         return masterMongoTemplate.findAll(News.class);
     }
     public List<News> getAllNews(int offset, int pageSize) {
-        Query query = new Query().with(Sort.by(Sort.Direction.ASC, "cts"))
+        Query query = new Query().with(Sort.by(Sort.Direction.DESC, "cts"))
                 .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
         return masterMongoTemplate.find(query,News.class);
     }
+
+    public List<News> fetchAllNews(int offset, int pageSize,String status){
+        List<News> newsList = null;
+        if(status==null){
+            List<News>existing=getAllNews(offset,pageSize);
+            if(existing.isEmpty())return new ArrayList<>();
+            return existing;
+        }
+        else{
+            Query query=new Query();
+            query.addCriteria(Criteria.where("meta.status").is(status)).with(Sort.by(Sort.Direction.DESC, "cts"))
+                    .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+            newsList=masterMongoTemplate.find(query, News.class);
+        }
+        if(newsList.isEmpty())return new ArrayList<>();
+        return newsList;
+    }
+
+
 
     public ResponseEntity<Object> updateNews(News news, String newsId) {
         log.info("Request body news {}",news);
@@ -90,7 +110,7 @@ public class NewsDao {
 
     public List<News> getDataByYear(int offset, int pageSize, int year) {
         Query query = new Query().addCriteria(Criteria.where("meta.year").is(year));
-        query.with(Sort.by(Sort.Direction.ASC, "cts"))
+        query.with(Sort.by(Sort.Direction.DESC, "cts"))
                 .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
         return masterMongoTemplate.find(query,News.class);
     }

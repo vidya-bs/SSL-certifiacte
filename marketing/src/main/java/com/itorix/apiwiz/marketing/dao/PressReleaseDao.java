@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.marketing.dao;
 
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
+import com.itorix.apiwiz.marketing.news.model.News;
 import com.itorix.apiwiz.marketing.pressrelease.model.PressRelease;
 import com.itorix.apiwiz.marketing.pressrelease.model.PressReleaseStatus;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +27,26 @@ public class PressReleaseDao {
     MongoTemplate masterMongoTemplate;
 
     public List<PressRelease> getPressReleases(int offset, int pageSize) {
-        Query query = new Query().with(Sort.by(Sort.Direction.ASC, "cts"))
+        Query query = new Query().with(Sort.by(Sort.Direction.DESC, "cts"))
                 .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
         return masterMongoTemplate.find(query,PressRelease.class);
+    }
+
+    public List<PressRelease> getAllPressReleases(int offset, int pageSize,String status) {
+        List<PressRelease> pressReleaseList = null;
+        if(status==null){
+            List<PressRelease>existing=getPressReleases(offset,pageSize);
+            if(existing.isEmpty())return new ArrayList<>();
+            return existing;
+        }
+        else{
+            Query query=new Query();
+            query.addCriteria(Criteria.where("meta.status").is(status)).with(Sort.by(Sort.Direction.DESC, "cts"))
+                    .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+            pressReleaseList=masterMongoTemplate.find(query, PressRelease.class);
+        }
+        if(pressReleaseList.isEmpty())return new ArrayList<>();
+        return pressReleaseList;
     }
 
     public Pagination getPagination(int offset, int pageSize){
@@ -64,9 +82,10 @@ public class PressReleaseDao {
     public List<PressRelease> getPressReleases(){
         return masterMongoTemplate.findAll(PressRelease.class);
     }
+
     public List<PressRelease> getDataByYear(int offset, int pageSize, int year) {
         Query query = new Query().addCriteria(Criteria.where("meta.year").is(year));
-        query.with(Sort.by(Sort.Direction.ASC, "cts"))
+        query.with(Sort.by(Sort.Direction.DESC, "cts"))
                 .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
         return masterMongoTemplate.find(query,PressRelease.class);
     }

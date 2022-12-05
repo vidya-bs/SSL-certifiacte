@@ -50,10 +50,10 @@ public class PressReleaseServiceImpl implements PressReleaseService {
     }
     @UnSecure(ignoreValidation = true)
     @Override
-    public ResponseEntity<?> getPressReleaseData(String apikey,int offset,int pageSize) throws Exception {
+    public ResponseEntity<?> getPressReleaseData(String apikey,int offset,int pageSize,String status) throws Exception {
         PaginatedResponse response = new PaginatedResponse();
         response.setPagination(pressReleaseDao.getPagination(offset,pageSize));
-        response.setData(pressReleaseDao.getPressReleases(offset,pageSize));
+        response.setData(pressReleaseDao.getAllPressReleases(offset,pageSize,status));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @UnSecure(ignoreValidation = true)
