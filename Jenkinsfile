@@ -5,7 +5,7 @@ def commonFunctions
 
 node {
   git branch: gitBranch, credentialsId: gitCred, poll: false, url: gitCloneURL
-  commonFunctions = load 'appjenkinsfile/Jenkinsfile.groovy'
+  commonFunctions = load 'appjenkinsfile/JenkinsfileV2.groovy'
 }
 
 commonFunctions.runjenkinsfile()
