@@ -101,23 +101,12 @@
 	</build>
 	<profiles>
 		<profile>
-			<id>execute</id>
+			<id>build-cloud-jars</id>
 			<build>
 				<plugins>
 					<plugin>
 						<groupId>org.springframework.boot</groupId>
 						<artifactId>spring-boot-maven-plugin</artifactId>
-						<configuration>
-							<fork>true</fork>
-							<mainClass>com.itorix.hyggee.identitymanagement.IdentityManagementApplication</mainClass>
-						</configuration>
-						<executions>
-							<execution>
-								<goals>
-									<goal>repackage</goal>
-								</goals>
-							</execution>
-						</executions>
 					</plugin>
 				</plugins>
 			</build>
