@@ -26,10 +26,14 @@ import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 import com.itorix.apiwiz.identitymanagement.model.User;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.performance.coverge.business.CodeCoverageBusiness;
+import com.itorix.apiwiz.performance.coverge.dao.TestSuiteDAO;
 import com.itorix.apiwiz.performance.coverge.model.*;
-import com.itorix.apiwiz.testsuite.dao.TestSuiteDAO;
+
 import com.itorix.test.executor.TestExecutor;
 import com.itorix.test.executor.beans.*;
+
+import com.itorix.test.executor.beans.TestSuite;
+import com.itorix.test.executor.beans.TestSuiteResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -97,6 +101,9 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 
 	@Autowired
 	IntegrationHelper integrationHelper;
+
+	@Autowired
+	MongoTemplate mongoTemplate;
 
 	@Qualifier("masterMongoTemplate")
 	@Autowired
@@ -1253,8 +1260,8 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		try {
 			testSuiteResponseString = mapper.writeValueAsString(testSuiteResponse);
 			logger.info(testSuiteResponseString);
-			com.itorix.apiwiz.testsuite.model.TestSuiteResponse testSuiteExecutionResponse = mapper
-					.readValue(testSuiteResponseString, com.itorix.apiwiz.testsuite.model.TestSuiteResponse.class);
+			com.itorix.apiwiz.performance.coverge.model.TestSuiteResponse testSuiteExecutionResponse = mapper
+					.readValue(testSuiteResponseString, com.itorix.apiwiz.performance.coverge.model.TestSuiteResponse.class);
 			testSuiteExecutionResponse.setCounter(String.valueOf(System.currentTimeMillis()));
 			testSuiteExecutionResponse.setStatus("Completed");
 			testSuiteExecutionResponse.setManual(true);
