@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>cloud</artifactId>
-        <groupId>com.itorix.hyggee.cloud</groupId>
+        <groupId>com.itorix.apiwiz</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
@@ -23,19 +23,19 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.itorix.hyggee.cloud</groupId>
+            <groupId>com.itorix.apiwiz</groupId>
             <artifactId>cloud-identity-management</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.itorix.hyggee.cloud</groupId>
+            <groupId>com.itorix.apiwiz</groupId>
             <artifactId>developer-studio</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.itorix.hyggee.cloud</groupId>
+            <groupId>com.itorix.apiwiz</groupId>
             <artifactId>ci-cd</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.itorix.hyggee.cloud</groupId>
+            <groupId>com.itorix.apiwiz</groupId>
             <artifactId>service-registry</artifactId>
         </dependency>
 
