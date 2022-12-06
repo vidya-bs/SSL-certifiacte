@@ -3,14 +3,14 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.itorix.hyggee.cloud</groupId>
+	<groupId>com.itorix.apiwiz</groupId>
 	<artifactId>cloud-app</artifactId>
 	<packaging>jar</packaging>
 	<name>cloud-app</name>
 	<description>cloud-app</description>
 
 	<parent>
-		<groupId>com.itorix.hyggee.cloud</groupId>
+		<groupId>com.itorix.apiwiz</groupId>
 		<artifactId>cloud</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
@@ -22,92 +22,92 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>com.itorix.hyggee.cloud</groupId>
+			<groupId>com.itorix.apiwiz</groupId>
 			<artifactId>cloud-hyggee-common</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.hyggee.cloud</groupId>
+			<groupId>com.itorix.apiwiz</groupId>
 			<artifactId>cloud-identity-management</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.hyggee.cloud</groupId>
+			<groupId>com.itorix.apiwiz</groupId>
 			<artifactId>cloud-design-studio</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.hyggee.cloud</groupId>
+			<groupId>com.itorix.apiwiz</groupId>
 			<artifactId>cloud-data-dictionary</artifactId>
 		</dependency>
 		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>cloud-collaboration</artifactId>
 		</dependency>
 <!--		<dependency>-->
-<!--				<groupId>com.itorix.hyggee.cloud</groupId>-->
+<!--				<groupId>com.itorix.apiwiz</groupId>-->
 <!--				<artifactId>api-virtualization</artifactId>-->
 <!--		</dependency>-->
 		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>third-party-integrations</artifactId>
 		</dependency>
 <!--		<dependency>-->
-<!--				<groupId>com.itorix.hyggee.cloud</groupId>-->
+<!--				<groupId>com.itorix.apiwiz</groupId>-->
 <!--				<artifactId>api-test</artifactId>-->
 <!--		</dependency>-->
 		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>cloud-config-management</artifactId>
 		</dependency>
 		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>api-developer-portal</artifactId>
 		</dependency>
 		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>data-management</artifactId>
 		</dependency>
 		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>PerformanceAndCoverge</artifactId>
 		</dependency>
 		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>developer-studio</artifactId>
 		</dependency>
 		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>service-request</artifactId>
 		</dependency>
 		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>project-management</artifactId>
 		</dependency>
 		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>service-registry</artifactId>
 		</dependency>
 		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>ci-cd</artifactId>
 		</dependency>
 		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>analytics</artifactId>
 		</dependency>
 		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>api-portfolio</artifactId>
 		</dependency>
 <!--		<dependency>-->
-<!--				<groupId>com.itorix.hyggee.cloud</groupId>-->
+<!--				<groupId>com.itorix.apiwiz</groupId>-->
 <!--				<artifactId>api-monitor</artifactId>-->
 <!--		</dependency>-->
 		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>marketing</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>com.itorix.hyggee.cloud</groupId>
+			<groupId>com.itorix.apiwiz</groupId>
 			<artifactId>api-consent</artifactId>
 		</dependency>
 

@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.itorix.hyggee.cloud</groupId>
+	<groupId>com.itorix.apiwiz</groupId>
 	<artifactId>cloud</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
@@ -162,112 +162,112 @@
 				<version>2.6.3</version>
 			</dependency>
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>cloud-hyggee-common</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>cloud-identity-management</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>cloud-design-studio</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>cloud-data-dictionary</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>cloud-collaboration</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 <!--			<dependency>-->
-<!--				<groupId>com.itorix.hyggee.cloud</groupId>-->
+<!--				<groupId>com.itorix.apiwiz</groupId>-->
 <!--				<artifactId>api-virtualization</artifactId>-->
 <!--				<version>${project.version}</version>-->
 <!--			</dependency>-->
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>third-party-integrations</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 <!--			<dependency>-->
-<!--				<groupId>com.itorix.hyggee.cloud</groupId>-->
+<!--				<groupId>com.itorix.apiwiz</groupId>-->
 <!--				<artifactId>api-test</artifactId>-->
 <!--				<version>${project.version}</version>-->
 <!--			</dependency>-->
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>cloud-config-management</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>api-developer-portal</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>data-management</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>PerformanceAndCoverge</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>developer-studio</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>service-request</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>service-registry</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>project-management</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>ci-cd</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>analytics</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>api-portfolio</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 <!--			<dependency>-->
-<!--				<groupId>com.itorix.hyggee.cloud</groupId>-->
+<!--				<groupId>com.itorix.apiwiz</groupId>-->
 <!--				<artifactId>api-monitor</artifactId>-->
 <!--				<version>${project.version}</version>-->
 <!--			</dependency>-->
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>marketing</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
+				<groupId>com.itorix.apiwiz</groupId>
 				<artifactId>api-consent</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -275,75 +275,75 @@
 	</dependencyManagement>
 
 
-	<build>
-		<pluginManagement>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.1.2</version>
-				<executions>
-					<execution>
-						<id>validate</id>
-						<phase>validate</phase>
-						<configuration>
-							<configLocation>google_checks.xml</configLocation>
-							<suppressionsLocation>check_style_suppression.xml</suppressionsLocation>
-							<encoding>UTF-8</encoding>
-							<failsOnError>false</failsOnError>
-						</configuration>
-						<goals>
-							<goal>checkstyle-aggregate</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+<!--	<build>-->
+<!--		<pluginManagement>-->
+<!--		<plugins>-->
+<!--			<plugin>-->
+<!--				<groupId>org.apache.maven.plugins</groupId>-->
+<!--				<artifactId>maven-checkstyle-plugin</artifactId>-->
+<!--				<version>3.1.2</version>-->
+<!--				<executions>-->
+<!--					<execution>-->
+<!--						<id>validate</id>-->
+<!--						<phase>validate</phase>-->
+<!--						<configuration>-->
+<!--							<configLocation>google_checks.xml</configLocation>-->
+<!--							<suppressionsLocation>check_style_suppression.xml</suppressionsLocation>-->
+<!--							<encoding>UTF-8</encoding>-->
+<!--							<failsOnError>false</failsOnError>-->
+<!--						</configuration>-->
+<!--						<goals>-->
+<!--							<goal>checkstyle-aggregate</goal>-->
+<!--						</goals>-->
+<!--					</execution>-->
+<!--				</executions>-->
+<!--			</plugin>-->
 
-		</plugins>
-		</pluginManagement>
+<!--		</plugins>-->
+<!--		</pluginManagement>-->
 
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>11</source>
-					<target>11</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.1</version>
-				<configuration>
-					<additionalparam>${javadoc.doclint.none}</additionalparam>
-				</configuration>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>3.3</version>
-				<configuration>
-					<source>11</source>
-					<target>11</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.1.2</version>
-			</plugin>
+<!--		<plugins>-->
+<!--			<plugin>-->
+<!--				<groupId>org.apache.maven.plugins</groupId>-->
+<!--				<artifactId>maven-compiler-plugin</artifactId>-->
+<!--				<configuration>-->
+<!--					<source>11</source>-->
+<!--					<target>11</target>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
+<!--			<plugin>-->
+<!--				<groupId>org.apache.maven.plugins</groupId>-->
+<!--				<artifactId>maven-javadoc-plugin</artifactId>-->
+<!--				<version>2.10.1</version>-->
+<!--				<configuration>-->
+<!--					<additionalparam>${javadoc.doclint.none}</additionalparam>-->
+<!--				</configuration>-->
+<!--				<executions>-->
+<!--					<execution>-->
+<!--						<id>attach-javadocs</id>-->
+<!--						<goals>-->
+<!--							<goal>jar</goal>-->
+<!--						</goals>-->
+<!--					</execution>-->
+<!--				</executions>-->
+<!--			</plugin>-->
+<!--			<plugin>-->
+<!--				<groupId>org.apache.maven.plugins</groupId>-->
+<!--				<artifactId>maven-release-plugin</artifactId>-->
+<!--				<version>3.3</version>-->
+<!--				<configuration>-->
+<!--					<source>11</source>-->
+<!--					<target>11</target>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
+<!--			<plugin>-->
+<!--				<groupId>org.apache.maven.plugins</groupId>-->
+<!--				<artifactId>maven-checkstyle-plugin</artifactId>-->
+<!--				<version>3.1.2</version>-->
+<!--			</plugin>-->
 
-		</plugins>
-	</build>
+<!--		</plugins>-->
+<!--	</build>-->
 	<reporting>
 		<plugins>
 			<plugin>
@@ -365,17 +365,27 @@
 <!--		</profile>-->
 <!--	</profiles>-->
 	<profiles>
-		<profile>
-			<id>build-cloud-jars</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.springframework.boot</groupId>
-						<artifactId>spring-boot-maven-plugin</artifactId>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
+	<profile>
+		<id>build-cloud-jars</id>
+		<build>
+			<plugins>
+				<plugin>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-maven-plugin</artifactId>
+					<configuration>
+						<fork>true</fork>
+						<mainClass>com.itorix.hygee.servicerequest.ServiceRequestApplication</mainClass>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>repackage</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</build>
+	</profile>
 	</profiles>
 </project>

@@ -7,7 +7,7 @@
 	<name>portfolio</name>
 
 	<parent>
-		<groupId>com.itorix.hyggee.cloud</groupId>
+		<groupId>com.itorix.apiwiz</groupId>
 		<artifactId>cloud</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
@@ -19,23 +19,23 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>com.itorix.hyggee.cloud</groupId>
+			<groupId>com.itorix.apiwiz</groupId>
 			<artifactId>cloud-identity-management</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.hyggee.cloud</groupId>
+			<groupId>com.itorix.apiwiz</groupId>
 			<artifactId>developer-studio</artifactId>
 		</dependency>
 		<!-- <dependency>
-			<groupId>com.itorix.hyggee.cloud</groupId>
+			<groupId>com.itorix.apiwiz</groupId>
 			<artifactId>ci-cd</artifactId>
 		</dependency> -->
 		<dependency>
-			<groupId>com.itorix.hyggee.cloud</groupId>
+			<groupId>com.itorix.apiwiz</groupId>
 			<artifactId>project-management</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.hyggee.cloud</groupId>
+			<groupId>com.itorix.apiwiz</groupId>
 			<artifactId>service-registry</artifactId>
 		</dependency>
 		
