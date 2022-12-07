@@ -1,6 +1,6 @@
 build:
-  name: apiwiz-core-platform-api
-  gitURL: 'git@github.com:itorix/apiwiz-core-platform-api.git'
+  name: apiwiz-core-platform-api-v2
+  gitURL: 'git@github.com:itorix/apiwiz-core-platform-api-v2.git'
   customerType: internal
   customerName: apiwiz
 deployment:
