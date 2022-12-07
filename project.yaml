@@ -4,7 +4,7 @@ build:
   customerType: internal
   customerName: apiwiz
 deployment:
-  - appName: coreapi
+  - appName: core-api
     buildImage: enable
     jarName: cloud-app-0.0.1-SNAPSHOT.jar
     jarLocation: /app/target
@@ -409,7 +409,7 @@ deployment:
 #        configBranch: main
 #        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
 #        cloudProvider: aws
-  - appName: api-license
+  - appName: license-api
     buildImage: enable
     jarName: api-license-0.0.1-SNAPSHOT.jar
     jarLocation: /api-license/target
