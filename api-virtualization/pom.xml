@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.itorix.apiwiz</groupId>
+	<groupId>com.itorix.hyggee.cloud</groupId>
 	<artifactId>api-virtualization</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
@@ -13,7 +13,7 @@
 	<description></description>
 
 	<parent>
-		<groupId>com.itorix.apiwiz</groupId>
+		<groupId>com.itorix.hyggee.cloud</groupId>
 		<artifactId>cloud</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
@@ -33,15 +33,15 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.itorix.apiwiz</groupId>
+			<groupId>com.itorix.hyggee.cloud</groupId>
 			<artifactId>cloud-hyggee-common</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.apiwiz</groupId>
+			<groupId>com.itorix.hyggee.cloud</groupId>
 			<artifactId>cloud-identity-management</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.apiwiz</groupId>
+			<groupId>com.itorix.hyggee.cloud</groupId>
 			<artifactId>mockserver-core</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>

@@ -2,13 +2,13 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.itorix.apiwiz</groupId>
+	<groupId>com.itorix.hyggee.cloud</groupId>
 	<artifactId>project-management</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>project-management</name>
 	<parent>
-		<groupId>com.itorix.apiwiz</groupId>
+		<groupId>com.itorix.hyggee.cloud</groupId>
 		<artifactId>cloud</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
@@ -27,23 +27,23 @@
 			<artifactId>jackson-dataformat-xml</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.apiwiz</groupId>
+			<groupId>com.itorix.hyggee.cloud</groupId>
 			<artifactId>cloud-hyggee-common</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.apiwiz</groupId>
+			<groupId>com.itorix.hyggee.cloud</groupId>
 			<artifactId>cloud-identity-management</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.apiwiz</groupId>
+			<groupId>com.itorix.hyggee.cloud</groupId>
 			<artifactId>developer-studio</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.apiwiz</groupId>
+			<groupId>com.itorix.hyggee.cloud</groupId>
 			<artifactId>service-request</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.apiwiz</groupId>
+			<groupId>com.itorix.hyggee.cloud</groupId>
 			<artifactId>data-management</artifactId>
 		</dependency>
 		<!-- Apache POI Start -->

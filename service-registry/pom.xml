@@ -2,14 +2,14 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.itorix.apiwiz</groupId>
+	<groupId>com.itorix.hyggee.cloud</groupId>
 	<artifactId>service-registry</artifactId>
 	<packaging>jar</packaging>
 
 	<name>service-registry</name>
 
 	<parent>
-		<groupId>com.itorix.apiwiz</groupId>
+		<groupId>com.itorix.hyggee.cloud</groupId>
 		<artifactId>cloud</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
@@ -40,7 +40,7 @@
 			<artifactId>spring-boot-starter-jersey</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.apiwiz</groupId>
+			<groupId>com.itorix.hyggee.cloud</groupId>
 			<artifactId>cloud-hyggee-common</artifactId>
 			<exclusions>
 				<exclusion>
@@ -50,7 +50,7 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.apiwiz</groupId>
+			<groupId>com.itorix.hyggee.cloud</groupId>
 			<artifactId>cloud-identity-management</artifactId>
 		</dependency>
 		<dependency>
@@ -105,6 +105,14 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<configuration>
+					<downloadSources>true</downloadSources>
+					<downloadJavadocs>false</downloadJavadocs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.10.1</version>
 				<configuration>
@@ -122,7 +130,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>com.itorix.apiwiz.serviceregistry.Application</mainClass>
+							<mainClass>com.itorix.hyggee.serviceregistry.Application</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -146,17 +154,6 @@
 					<plugin>
 						<groupId>org.springframework.boot</groupId>
 						<artifactId>spring-boot-maven-plugin</artifactId>
-						<configuration>
-							<fork>true</fork>
-							<mainClass>com.itorix.apiwiz.serviceregistry.Application</mainClass>
-						</configuration>
-						<executions>
-							<execution>
-								<goals>
-									<goal>repackage</goal>
-								</goals>
-							</execution>
-						</executions>
 					</plugin>
 				</plugins>
 			</build>

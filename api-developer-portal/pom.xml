@@ -6,7 +6,7 @@
 	<packaging>jar</packaging>
 	<name>api-developer-portal</name>
 	<parent>
-		<groupId>com.itorix.apiwiz</groupId>
+		<groupId>com.itorix.hyggee.cloud</groupId>
 		<artifactId>cloud</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
@@ -38,7 +38,7 @@
 			<artifactId>jackson-annotations</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.apiwiz</groupId>
+			<groupId>com.itorix.hyggee.cloud</groupId>
 			<artifactId>cloud-hyggee-common</artifactId>
 			<exclusions>
 				<exclusion>
@@ -48,11 +48,11 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.apiwiz</groupId>
+			<groupId>com.itorix.hyggee.cloud</groupId>
 			<artifactId>cloud-identity-management</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.itorix.apiwiz</groupId>
+			<groupId>com.itorix.hyggee.cloud</groupId>
 			<artifactId>cloud-design-studio</artifactId>
 			<exclusions>
 				<exclusion>
