@@ -42,8 +42,8 @@
 <!--		<module>api-mock-server</module>-->
 		<module>api-license</module>
 		<module>license-validator</module>
-        <module>api-consent</module>
-		<module>api-consent-server</module>
+<!--        <module>api-consent</module>-->
+<!--		<module>api-consent-server</module>-->
 	</modules>
 	<name>Itorix Hyggee Core Project</name>
 	<!-- <parent> -->
@@ -266,11 +266,11 @@
 				<artifactId>marketing</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
-				<artifactId>api-consent</artifactId>
-				<version>${project.version}</version>
-			</dependency>
+<!--			<dependency>-->
+<!--				<groupId>com.itorix.hyggee.cloud</groupId>-->
+<!--				<artifactId>api-consent</artifactId>-->
+<!--				<version>${project.version}</version>-->
+<!--			</dependency>-->
 		</dependencies>
 	</dependencyManagement>
 
