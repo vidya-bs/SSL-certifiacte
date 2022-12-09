@@ -28,12 +28,12 @@ public class TestSuiteDAO {
 
   public TestSuite getTestSuite(String testsuiteid) {
     Query query = new Query(Criteria.where("_id").is(testsuiteid));
-    return mongoTemplate.findOne(query, TestSuite.class);
+    return mongoTemplate.findOne(query, TestSuite.class, "Test.Collections.List");
   }
 
   public Variables getVariablesById(String id) {
     Query query = new Query(Criteria.where("id").is(id));
-    return mongoTemplate.findOne(query, Variables.class);
+    return mongoTemplate.findOne(query, Variables.class, "Test.Environments.List");
   }
 
   public TestSuiteResponse getTestSuiteResponseById(String testsuiteResponseid) {
