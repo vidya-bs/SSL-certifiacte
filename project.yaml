@@ -71,6 +71,18 @@ deployment:
         spaceName: apiwiz-system
         awsCredProfile: default
         cloudProvider: aws
+      - env: aws-preprod
+        branch: aws-preprod
+        deployFlag: disable
+        container: disable
+        spaceName: stage
+        awsCredProfile: nonprod
+        approval: disable
+        host: 52.26.178.178
+        pem: NA
+        configBranch: aws-preprod
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        cloudProvider: aws
 #  - appName: apimock
 #    buildImage: enable
 #    jarLocation: /api-mock-server/target
