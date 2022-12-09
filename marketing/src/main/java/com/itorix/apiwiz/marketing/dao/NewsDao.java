@@ -4,7 +4,6 @@ import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.marketing.news.model.News;
 import com.itorix.apiwiz.marketing.news.model.NewsStatus;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
@@ -16,6 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,12 +28,22 @@ public class NewsDao {
     @Autowired
     MongoTemplate masterMongoTemplate;
 
+
+    private static String encodeValue(String value) {
+        try {
+            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex.getCause());
+        }
+    }
+
+
+
     public News createNews(News news) {
         log.info("News {}",news);
         List<News> allNews = getAllNews();
         String title = news.getMeta().getTitle();
-        String slug = title.toLowerCase().replace(" ", "-").replace(":","-");
-
+        String slug=encodeValue(title);
         if(allNews.stream().anyMatch(n->n.getMeta().getSlug().equals(slug))){
             return null;
         }
@@ -46,6 +58,8 @@ public class NewsDao {
     public List<News> getAllNews(){
         return masterMongoTemplate.findAll(News.class);
     }
+
+
     public List<News> getAllNews(int offset, int pageSize) {
         Query query = new Query().with(Sort.by(Sort.Direction.DESC, "cts"))
                 .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
@@ -61,7 +75,7 @@ public class NewsDao {
         }
         else{
             Query query=new Query();
-            query.addCriteria(Criteria.where("meta.status").is(status)).with(Sort.by(Sort.Direction.DESC, "cts"))
+            query.addCriteria(Criteria.where("meta.status").is(status)).with(Sort.by(Sort.Direction.DESC, "meta.publishingDate"))
                     .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
             newsList=masterMongoTemplate.find(query, News.class);
         }
@@ -110,7 +124,7 @@ public class NewsDao {
 
     public List<News> getDataByYear(int offset, int pageSize, int year) {
         Query query = new Query().addCriteria(Criteria.where("meta.year").is(year));
-        query.with(Sort.by(Sort.Direction.DESC, "cts"))
+        query.with(Sort.by(Sort.Direction.DESC, "meta.publishingDate"))
                 .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
         return masterMongoTemplate.find(query,News.class);
     }
@@ -121,7 +135,7 @@ public class NewsDao {
         List<News> releaseList = getAllNews(offset,pageSize);
         releaseList.forEach(rl->{
             if(type.equalsIgnoreCase("slug")){
-                if(rl.getMeta().getSlug().equalsIgnoreCase(value)) {
+                if(rl.getMeta().getSlug().equalsIgnoreCase(encodeValue(value))) {
                     returningList.add(rl);
                 }
             }

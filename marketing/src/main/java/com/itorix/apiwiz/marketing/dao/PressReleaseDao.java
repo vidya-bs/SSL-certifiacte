@@ -1,7 +1,6 @@
 package com.itorix.apiwiz.marketing.dao;
 
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
-import com.itorix.apiwiz.marketing.news.model.News;
 import com.itorix.apiwiz.marketing.pressrelease.model.PressRelease;
 import com.itorix.apiwiz.marketing.pressrelease.model.PressReleaseStatus;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +43,7 @@ public class PressReleaseDao {
         }
         else{
             Query query=new Query();
-            query.addCriteria(Criteria.where("meta.status").is(status)).with(Sort.by(Sort.Direction.DESC, "cts"))
+            query.addCriteria(Criteria.where("meta.status").is(status)).with(Sort.by(Sort.Direction.DESC, "meta.publishingDate"))
                     .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
             pressReleaseList=masterMongoTemplate.find(query, PressRelease.class);
         }
@@ -64,10 +66,20 @@ public class PressReleaseDao {
         pagination.setTotal((long)size);
         return pagination;
     }
+
+    private static String encodeValue(String value) {
+        try {
+            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex.getCause());
+        }
+    }
+
+
     public PressRelease createRelease(PressRelease pressRelease) {
         List<PressRelease> allReleases = getPressReleases();
         String title = pressRelease.getMeta().getTitle();
-        String slug = title.toLowerCase().replace(" ", "-").replace(":","-");
+        String slug=encodeValue(title);
         if(allReleases.stream().anyMatch(r->r.getMeta().getSlug().equals(slug))){
             return null;
         }
@@ -90,6 +102,8 @@ public class PressReleaseDao {
         return masterMongoTemplate.find(query,PressRelease.class);
     }
 
+
+
     public List<PressRelease> getDataByTagOrSlug(int offset, int pageSize, String filter, String filterValue) {
         List<PressRelease> returningList = new ArrayList<>();
         List<PressRelease> releaseList = getPressReleases(offset, pageSize);
@@ -100,7 +114,7 @@ public class PressReleaseDao {
                 }
             }
             else {
-                if(rl.getMeta().getSlug().equalsIgnoreCase(filterValue)) {
+                if(rl.getMeta().getSlug().equalsIgnoreCase(encodeValue(filterValue))) {
                     returningList.add(rl);
                 }
             }
