@@ -26,14 +26,14 @@ public class TestSuiteDAO {
   private static final Logger log = LoggerFactory.getLogger(TestSuiteDAO.class);
 
 
-  public TestSuite getTestSuite(String testsuiteid) {
+  public Object getTestSuite(String testsuiteid) {
     Query query = new Query(Criteria.where("_id").is(testsuiteid));
-    return mongoTemplate.findOne(query, TestSuite.class, "Test.Collections.List");
+    return mongoTemplate.findOne(query, Object.class, "Test.Collections.List");
   }
 
-  public Variables getVariablesById(String id) {
+  public Object getVariablesById(String id) {
     Query query = new Query(Criteria.where("id").is(id));
-    return mongoTemplate.findOne(query, Variables.class, "Test.Environments.List");
+    return mongoTemplate.findOne(query, Object.class, "Test.Environments.List");
   }
 
   public TestSuiteResponse getTestSuiteResponseById(String testsuiteResponseid) {
