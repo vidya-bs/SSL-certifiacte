@@ -1937,6 +1937,7 @@ public class IdentityManagementDao {
             planId = workspace.getPlanId();
         }
         Query query = new Query(Criteria.where("planId").is(planId));
+
         PlanV2 planV2 = masterMongoTemplate.findOne(query, PlanV2.class);
         if (planV2 == null || planV2.getUiPermissions() == null) {
             throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1041"), "Identity-1041");
@@ -1951,12 +1952,10 @@ public class IdentityManagementDao {
     public JsonNode getMenu() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
         Menu menu = masterMongoTemplate.findById("menu",Menu.class);
         if(menu != null){
             return objectMapper.readTree(menu.getMenus());
         }
         return null;
     }
-
 }

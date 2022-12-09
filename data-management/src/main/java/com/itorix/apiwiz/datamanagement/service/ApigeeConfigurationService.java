@@ -3,6 +3,7 @@ package com.itorix.apiwiz.datamanagement.service;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,6 +43,7 @@ public interface ApigeeConfigurationService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Configuration", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = ApigeeConfigurationVO.class, responseContainer = "List"),
@@ -66,6 +68,7 @@ public interface ApigeeConfigurationService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "GetList Of Org And Env", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = ApigeeConfigurationVO.class, responseContainer = "List"),
@@ -94,6 +97,7 @@ public interface ApigeeConfigurationService {
 	 * 
 	 * @throws Exception
 	 */
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Apigee Host", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = String.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
@@ -104,6 +108,7 @@ public interface ApigeeConfigurationService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam("type") String type,
 			@RequestParam("org") String org) throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/apigee/authorization")
 	public ResponseEntity<Object> getApigeeAuthorization(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -127,6 +132,7 @@ public interface ApigeeConfigurationService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Create Configuration", notes = "", code = 201)
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Created", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
@@ -152,6 +158,7 @@ public interface ApigeeConfigurationService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Update Configuration", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
@@ -177,6 +184,7 @@ public interface ApigeeConfigurationService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Delete Configuration", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
@@ -186,39 +194,46 @@ public interface ApigeeConfigurationService {
 			@RequestHeader(value = "jsessionid") String jsessionid,
 			@RequestBody ApigeeConfigurationVO apigeeConfigurationVO) throws Exception;
 
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/apigee/service-accounts")
 	public ResponseEntity<Void> updateServiceAccount(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "jsessionid") String jsessionid,
 			@RequestBody List<ApigeeServiceUser> apigeeServiceUsers) throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/apigee/service-accounts")
 	public ResponseEntity<Object> getServiceAccount(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/connectors/apigee")
 	public ResponseEntity<Void> createApigeeIntegration(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "jsessionid") String jsessionid,
 			@RequestBody ApigeeIntegrationVO apigeeIntegrationVO) throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/connectors/apigee")
 	public ResponseEntity<?> listApigeeIntegrations(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "jsessionid") String jsessionid) throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/connectors/apigee/{orgId}")
 	public ResponseEntity<?> getApigeeIntegration(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "jsessionid") String jsessionid, @PathVariable String orgId) throws Exception;
 
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/connectors/apigee/{orgId}")
 	public ResponseEntity<Void> updateApigeeIntegration(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "jsessionid") String jsessionid, @PathVariable String orgId,
 			@RequestBody ApigeeIntegrationVO apigeeIntegrationVO) throws Exception;
 
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/connectors/apigee/{orgId}")
 	public ResponseEntity<?> deleteApigeeIntegration(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,

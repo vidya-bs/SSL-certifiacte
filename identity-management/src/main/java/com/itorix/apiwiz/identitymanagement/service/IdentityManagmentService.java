@@ -35,11 +35,13 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String apikey, @RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/login", produces = {"application/json"})
 	public @ResponseBody ResponseEntity<UserSession> getSession(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid) throws ItorixException, Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/register", consumes = {"application/json"})
 	public @ResponseBody ResponseEntity<Object> register(
@@ -49,41 +51,42 @@ public interface IdentityManagmentService {
 			@RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/add", consumes = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> addUser(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
-	// @PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users", consumes = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> updateUser(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
-	// @PreAuthorize("hasAnyRole('ADMIN') and
-	// hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/meta-data", consumes = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> updateUserMetaData(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody Map<String, String> metadata)
 			throws ItorixException, Exception;
 
-	// @PreAuthorize("hasAnyRole('ADMIN') and
-	// hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/meta-data")
 	public @ResponseBody ResponseEntity<Object> getUserMetaData(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException, Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/subscriptions", consumes = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> updateUserSubscriptions(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/newsletter/subscription", consumes = {
 			"application/json"})
@@ -93,6 +96,7 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid, @RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/{emailId:.+}/newsletter")
 	public @ResponseBody ResponseEntity<Object> getNewsSubscription(
@@ -101,13 +105,14 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
 			@PathVariable(value = "emailId") String emailId) throws ItorixException, Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/{userId}")
 	public @ResponseBody ResponseEntity<Object> getUser(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(value = "userId") String userId)
 			throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/workspace/seats-counts/{count}", produces = {
 			"application/json"})
 	public @ResponseBody ResponseEntity<Object> validateWorkspaceSeats(
@@ -115,12 +120,14 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(value = "count") long count)
 			throws ItorixException, Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/resend-invitation")
 	public @ResponseBody ResponseEntity<Void> resendInvite(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/tokens/{token}")
 	public @ResponseBody ResponseEntity<Object> verifytoken(
@@ -129,6 +136,7 @@ public interface IdentityManagmentService {
 			@PathVariable(value = "token") String token, @RequestParam(value = "type", required = false) String type)
 			throws ItorixException, Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/tokens")
 	public @ResponseBody ResponseEntity<Object> processToken(
@@ -137,6 +145,7 @@ public interface IdentityManagmentService {
 			@RequestParam(value = "type", required = false) String type, @RequestBody VerificationToken token)
 			throws ItorixException, Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/resend-token")
 	public @ResponseBody ResponseEntity<Void> resendToken(
@@ -144,6 +153,7 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String apikey, @RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/{email:.+}/recover-workspace")
 	public @ResponseBody ResponseEntity<Void> recoverWorkspace(
@@ -151,6 +161,7 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String apikey, @PathVariable(value = "email") String email)
 			throws ItorixException, Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/workspace/{workspaceId}", produces = {
 			"application/json"})
@@ -159,6 +170,7 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String apikey, @PathVariable(value = "workspaceId") String workspaceId)
 			throws ItorixException, Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/users/validate/{userId}", produces = {
 			"application/json"})
@@ -167,59 +179,61 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String apikey, @PathVariable(value = "userId") String userId)
 			throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE', 'TEAM')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/workspace/enable-sso")
 	public @ResponseBody ResponseEntity<Void> enableSso(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody Workspace workspace)
 			throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/workspace/disable-sso/{workspaceName}")
 	public @ResponseBody ResponseEntity<Void> disableSso(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable String workspaceName)
 			throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/connector/smtp")
 	public @ResponseBody ResponseEntity<?> enableSMTPConnector(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody MailProperty mailProperty)
 			throws ItorixException;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/connector/smtp")
 	public @ResponseBody ResponseEntity<?> deleteSMTPConnector(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/connector/smtp")
 	public @ResponseBody ResponseEntity<?> getSMTPConnector(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/{userId}/remove-workspace")
 	public @ResponseBody ResponseEntity<Void> removeWorkspaceUser(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("userId") String userId)
 			throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/{userId}/set-type")
 	public @ResponseBody ResponseEntity<Void> addSiteAdmin(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("userId") String userId)
 			throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/{userId}/roles")
 	public @ResponseBody ResponseEntity<Void> updateWorkspaceUserRoles(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("userId") String userId,
 			@RequestBody UserInfo userInfo) throws ItorixException, Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/activate", produces = {"application/json"})
 	public ResponseEntity<String> verifyRegisteredEmailHash(
@@ -227,6 +241,7 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String apikey, @RequestParam("token") String verificationToken,
 			@RequestParam(value = "email", required = false) String email) throws ItorixException, Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/domains", consumes = {
 			"application/json"}, produces = {"application/json"})
@@ -235,6 +250,7 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String apikey, @RequestBody UserDomains userDomains)
 			throws ItorixException, Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/domains", consumes = {
 			"application/json"}, produces = {"application/json"})
@@ -242,12 +258,14 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-apikey") String apikey, @RequestBody UserDomains userDomains) throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/domains", produces = {"application/json"})
 	public @ResponseBody ResponseEntity<Object> getUserDomains(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-apikey") String apikey) throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/user/resend-token", consumes = {
 			"application/json"}, produces = {"application/json"})
@@ -256,12 +274,13 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String apikey, @RequestBody ResetUserToken userToken)
 			throws ItorixException;
 
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/users/sessions")
 	public @ResponseBody ResponseEntity<Void> removeUserSessions(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-apikey") String apikey);
+																 @RequestHeader(value = "interactionid", required = false) String interactionid,
+																 @RequestHeader(value = "x-apikey") String apikey);
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/{emailId:.+}/reset-password", produces = {
 			"application/json"})
@@ -270,6 +289,7 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String apikey, @PathVariable("emailId") String emailId,
 			@RequestParam(value = "reset", required = false) String reset) throws ItorixException;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/reset-password", consumes = {
 			"application/json"}, produces = {"application/json"})
@@ -277,24 +297,27 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-apikey") String apikey, @RequestBody User user) throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users", produces = {"application/json"})
 	public @ResponseBody ResponseEntity<Object> usersList(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "filterbynames", required = false) String filterbynames) throws Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/invited", produces = {"application/json"})
 	public @ResponseBody ResponseEntity<Object> invitedUsersList(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/users/logout", produces = {"application/json"})
 	public @ResponseBody ResponseEntity<Object> logOut(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid)
 			throws ItorixException;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/activitylog", produces = {"application/json"})
 	public @ResponseBody ResponseEntity<Object> getActivityLogDetails(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -303,34 +326,35 @@ public interface IdentityManagmentService {
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
 			@RequestParam(value = "userId", required = false) String userId) throws ItorixException, ParseException;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/change-password", consumes = {
 			"application/json"}, produces = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> changePassword(
 			@RequestHeader(value = "interactionid", required = false) String interactionid, @RequestBody User user,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/{userid}/teams", produces = {"application/json"})
 	public @ResponseBody ResponseEntity<Object> getUserTeams(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(value = "userid") String userId)
 			throws Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/{userid}/lock", produces = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> lockUser(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(value = "userid") String userId)
 			throws Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN') and hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/{userid}/unlock", produces = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> unlockUser(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(value = "userid") String userId)
 			throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('PRO','TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/{userid}/teams", consumes = {
 			"application/json"}, produces = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> getUserTeams(
@@ -350,6 +374,7 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam(value = "q") String q)
 			throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure(useUpdateKey = true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/permissions", consumes = {
 			"application/json"}, produces = {"application/json"})
@@ -358,11 +383,13 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String apikey, @RequestHeader(value = "x-planid") String planid,
 			@RequestBody String permissions) throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/permissions", produces = {"application/json"})
 	public ResponseEntity<Object> getPlanPermissions(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure(useUpdateKey = true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/subscriptionplans", consumes = {
 			"application/json"}, produces = {"application/json"})
@@ -371,18 +398,21 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String apikey, @RequestBody List<Subscription> subscriptions)
 			throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/subscriptionplans", produces = {"application/json"})
 	public ResponseEntity<Object> getSubscriptionPlans(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-apikey") String apikey) throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/details", produces = {"application/json"})
 	public ResponseEntity<Object> getSessionDetails(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-sourcetype", required = false) String appId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/sessions/validate")
 	public @ResponseBody ResponseEntity<Object> validateUserSession(
@@ -390,6 +420,7 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-apikey") String apikey) throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/roles")
 	public @ResponseBody ResponseEntity<Object> getRoles(
@@ -397,49 +428,52 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-apikey") String apikey) throws Exception;
 
-	@PreAuthorize("hasAnyRole('SITE-ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/workspace/update-plan")
 	public @ResponseBody ResponseEntity<Void> updateSubscription(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestBody UserInfo userInfo) throws Exception;
+																 @RequestHeader(value = "interactionid", required = false) String interactionid,
+																 @RequestBody UserInfo userInfo) throws Exception;
 
-	@PreAuthorize("hasAnyRole('SITE-ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/workspace/upgrade-seats")
 	public @ResponseBody ResponseEntity<Void> updateSubscriptionSeats(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestBody Workspace workspace) throws Exception;
 
-	@PreAuthorize("hasAnyRole('SITE-ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/workspace/downgrade-seats")
 	public @ResponseBody ResponseEntity<Void> downgradeSubscriptionSeats(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestBody Workspace workspace) throws Exception;
 
-	@PreAuthorize("hasAnyRole('SITE-ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/accounts-cancellation")
 	public @ResponseBody ResponseEntity<Void> cancelSubscription(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestBody CancelSubscriptions subscription) throws Exception;
+																 @RequestHeader(value = "interactionid", required = false) String interactionid,
+																 @RequestBody CancelSubscriptions subscription) throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/workspace")
 	public @ResponseBody ResponseEntity<Void> updateWorkspaceStatus(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestBody UserInfo userInfo) throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/account")
 	public @ResponseBody ResponseEntity<Void> updateUserAccount(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestBody CancelSubscriptions subscription) throws Exception;
+																@RequestHeader(value = "interactionid", required = false) String interactionid,
+																@RequestBody CancelSubscriptions subscription) throws Exception;
 
-	@PreAuthorize("hasAnyRole('SITE-ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PATCH, value = "/v1/users/accounts-delete")
 	public @ResponseBody ResponseEntity<Void> cancelUserAccount(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestBody CancelSubscriptions subscription) throws Exception;
+																@RequestHeader(value = "interactionid", required = false) String interactionid,
+																@RequestBody CancelSubscriptions subscription) throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/jwks")
 	public @ResponseBody ResponseEntity<Object> getPublicKey(
@@ -449,6 +483,7 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-source") String source, @RequestHeader(value = "x-tenant") String tenant)
 			throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/jwks")
 	public @ResponseBody ResponseEntity<Object> updatePublicKey(
@@ -461,22 +496,24 @@ public interface IdentityManagmentService {
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/accounts/webhooks")
 	public @ResponseBody ResponseEntity<Void> accountWebhook(@RequestHeader(value = "signature") String signature,
-			@RequestBody SubscriptionEvent subscriptionEvent) throws Exception;
+															 @RequestBody SubscriptionEvent subscriptionEvent) throws Exception;
 
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/static-content/{source}")
 	public @ResponseBody ResponseEntity<Void> createLandingData(@RequestHeader(value = "x-apikey") String apikey,
-			@PathVariable(value = "source") String source, @RequestBody String data) throws Exception;
+																@PathVariable(value = "source") String source, @RequestBody String data) throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/static-content/{source}")
 	public @ResponseBody ResponseEntity<Object> getLandingData(@RequestHeader(value = "x-apikey") String apikey,
-			@PathVariable(value = "source") String source) throws Exception;
+															   @PathVariable(value = "source") String source) throws Exception;
 
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/config-property", consumes = "application/json")
 	public ResponseEntity<Void> createOrUpdateDBProperties(@RequestHeader(value = "x-apikey") String apikey,
-			@RequestBody DBConfig dbConfig) throws Exception;
+														   @RequestBody DBConfig dbConfig) throws Exception;
 
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/config-property")
@@ -550,5 +587,4 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-apikey") String apikey, @RequestBody String menu)
 			throws Exception;
-
 }

@@ -365,7 +365,7 @@ public interface PortfolioService {
 			@PathVariable(value = "projectId") String projectId, @RequestHeader(value = "JSESSIONID") String jsessionid)
 			throws Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN', 'PROJECT-ADMIN', 'ANALYST') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = {RequestMethod.POST}, value = "/v1/portfolios/import", consumes = {"multipart/form-data"})
 	public ResponseEntity<Object> importDataFromExcel(@RequestPart(value = "file", required = true) MultipartFile file,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -378,7 +378,7 @@ public interface PortfolioService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = {
 			RequestMethod.POST}, value = "/v1/portfolios/{portfolioId}/projects/{projectId}/proxies/{proxyId}/generateProxy", produces = {
 					"application/json"})
@@ -386,7 +386,7 @@ public interface PortfolioService {
 			@PathVariable(value = "projectId") String projectId, @PathVariable(value = "proxyId") String proxyId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = {
 			RequestMethod.POST}, value = "/v1/portfolios/{portfolioId}/projects/{projectId}/proxies/{proxyId}/release", produces = {
 					"application/json"})
@@ -395,7 +395,7 @@ public interface PortfolioService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestBody ReleaseProxyRequest releaseProxyRequest) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = {RequestMethod.POST}, value = "/v1/portfolios/proxies/promote", produces = {
 			"application/json"})
 	public ResponseEntity<Object> promoteProxy(@RequestHeader(value = "JSESSIONID") String jsessionid,

@@ -810,6 +810,13 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	public ResponseEntity<Object> getIdpMetadata(String workspaceId) throws Exception {
 		return new ResponseEntity<>(workspaceDao.getIdpMetadata(workspaceId), HttpStatus.OK);
 	}
+	@UnSecure
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/users/subscriptionplans", produces = {"application/json"})
+	public ResponseEntity<Object> getSubscriptionPlansV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey) throws Exception {
+		return new ResponseEntity<Object>(workspaceDao.getSubscriptionsV2(), HttpStatus.OK);
+	}
 
 	@UnSecure
 	@RequestMapping(method = RequestMethod.GET, value = "/v2/users/subscriptionplans", produces = {"application/json"})
@@ -874,5 +881,5 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		identityManagementDao.createMenu(newMenu);
 		return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
 	}
-
 }
+

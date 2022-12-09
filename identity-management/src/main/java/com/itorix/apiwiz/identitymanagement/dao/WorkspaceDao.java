@@ -348,5 +348,4 @@ public class WorkspaceDao {
 			masterMongoTemplate.save(subscriptionV2);
 		}
 	}
-
 }
