@@ -32,7 +32,7 @@ public class TestSuiteDAO {
   }
 
   public Object getVariablesById(String id) {
-    Query query = new Query(Criteria.where("id").is(id));
+    Query query = new Query(Criteria.where("_id").is(id));
     return mongoTemplate.findOne(query, Object.class, "Test.Environments.List");
   }
 
