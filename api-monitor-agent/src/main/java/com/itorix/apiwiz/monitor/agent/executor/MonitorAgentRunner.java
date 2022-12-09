@@ -1,6 +1,8 @@
 package com.itorix.apiwiz.monitor.agent.executor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.common.model.slack.*;
+import com.itorix.apiwiz.common.util.slack.SlackUtil;
 import com.itorix.apiwiz.monitor.agent.dao.MonitorAgentExecutorDao;
 import com.itorix.apiwiz.monitor.agent.dao.MonitorAgentExecutorSQLDao;
 import com.itorix.apiwiz.monitor.agent.db.MonitorAgentExecutorEntity;
@@ -33,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -45,10 +48,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.itorix.apiwiz.monitor.agent.util.MonitorAgentConstants.*;
 
@@ -57,6 +57,13 @@ import static com.itorix.apiwiz.monitor.agent.util.MonitorAgentConstants.*;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MonitorAgentRunner {
+
+    @Autowired
+    MongoTemplate mongoTemplate;
+
+    @Autowired
+    SlackUtil slackUtil;
+
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorAgentRunner.class);
 
@@ -301,7 +308,7 @@ public class MonitorAgentRunner {
     }
 
     private void invokeNotificationAgent(NotificationDetails notificationDetail, String notificationType,
-            Map<String, String> notificationData) {
+                                         Map<String, String> notificationData) {
 
         if (!StringUtils.hasText(notificationAgentPath)) {
             log.error("Maintain notificationAgentPath in property file");
@@ -329,19 +336,50 @@ public class MonitorAgentRunner {
                     emailTemplate.setSubject(mailSubject);
                     requestModel.setEmailContent(emailTemplate);
                     requestModel.setType(RequestModel.Type.email);
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.set(TENANT_ID, TenantContext.getCurrentTenant());
+                    headers.set(API_KEY_NAME, rsaEncryption.decryptText(apiKey));
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+
+                    HttpEntity<RequestModel> httpEntity = new HttpEntity<>(requestModel, headers);
+                    String monitorUrl = notificationAgentPath + notificationContextPath + NOTIFICATION_AGENT_NOTIFY;
+                    log.debug("Making a call to {}",monitorUrl);
+                    ResponseEntity<String> result = restTemplate.postForEntity(monitorUrl, httpEntity, String.class);
+                    if (!result.getStatusCode().is2xxSuccessful()) {
+                        log.error("error returned from notification agent", result.getBody());
+                    }
                 }
 
-                HttpHeaders headers = new HttpHeaders();
-                headers.set(TENANT_ID, TenantContext.getCurrentTenant());
-                headers.set(API_KEY_NAME, rsaEncryption.decryptText(apiKey));
-                headers.setContentType(MediaType.APPLICATION_JSON);
+                else {
+                    log.info("Sending Slack Notification");
+                    List<SlackWorkspace> slackWorkspaces = mongoTemplate.findAll(SlackWorkspace.class);
+                    SlackWorkspace slackWorkspace=slackWorkspaces.get(0);
+                    if(slackWorkspace!=null){
+                        String token=slackWorkspace.getToken();
+                        List<SlackChannel> channels=slackWorkspace.getChannelList();
+                        for(SlackChannel i:channels){
+                            if(i.getScopeSet().contains(notificationScope.NotificationScope.MONITORING)){
 
-                HttpEntity<RequestModel> httpEntity = new HttpEntity<>(requestModel, headers);
-                String monitorUrl = notificationAgentPath + notificationContextPath + NOTIFICATION_AGENT_NOTIFY;
-                log.debug("Making a call to {}",monitorUrl);
-                ResponseEntity<String> result = restTemplate.postForEntity(monitorUrl, httpEntity, String.class);
-                if (!result.getStatusCode().is2xxSuccessful()) {
-                    log.error("error returned from notification agent", result.getBody());
+                                PostMessage postMessage=new PostMessage();
+                                ArrayList<Attachment> attachmentsToSend=new ArrayList<>();
+                                Attachment attachment=new Attachment();
+                                attachment.setMrkdwn_in("text");
+                                attachment.setTitle_link("https://www.apiwiz.io/");
+                                attachment.setColor("#820309");
+                                attachment.setPretext("ALERT");
+                                attachment.setTitle(notificationDetail.getCollectionname().toUpperCase());
+                                String s=notificationData.get(STATUS);
+                                attachment.setText("STATUS: "+"`Failed`"+
+                                        "\n    Latency: "+notificationDetail.getAvgLatency()+"\n    Uptime: "+notificationDetail.getAvgUptime()+
+                                        "\n    Average Latency: "+notificationDetail.getAvgLatency()+"\n    Average Uptime: "+notificationDetail.getAvgUptime()
+                                );
+
+                                attachmentsToSend.add(attachment);
+                                postMessage.setAttachments(attachmentsToSend);
+                                slackUtil.sendMessage(postMessage,i.getChannelName(),token);
+                            }
+                        }
+                    }
                 }
             } catch (Exception e) {
                 log.error("error returned from notification agent", e);

@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 import javax.mail.MessagingException;
 
+import com.itorix.apiwiz.common.model.slack.*;
+import com.itorix.apiwiz.common.util.slack.SlackUtil;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +80,9 @@ public class PackageDao {
 	private MailUtil mailUtil;
 
 	@Autowired
+	SlackUtil slackUtil;
+
+	@Autowired
 	private IdentityManagementDao commonServices;
 
 	@Autowired
@@ -123,7 +128,7 @@ public class PackageDao {
 		}
 	}
 
-	private void sendNotificationEmail(Package packageRequest) throws MessagingException {
+	private void sendNotificationEmail(Package packageRequest) throws MessagingException, IOException {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date = new Date();
 		String formatedDate = dateFormat.format(date);
@@ -141,6 +146,33 @@ public class PackageDao {
 		emailTemplate.setBody(body);
 		emailTemplate.setSubject(EMAIL_SUBJECT);
 		mailUtil.sendEmail(emailTemplate);
+
+		logger.info("Sending slack message");
+		List<SlackWorkspace> slackWorkspaces = mongoTemplate.findAll(SlackWorkspace.class);
+		SlackWorkspace slackWorkspace=slackWorkspaces.get(0);
+		if(slackWorkspace!=null) {
+			String token = slackWorkspace.getToken();
+			List<SlackChannel> channels = slackWorkspace.getChannelList();
+			for (SlackChannel i : channels) {
+				if (i.getScopeSet().contains(notificationScope.NotificationScope.BUILD)) {
+					PostMessage postMessage = new PostMessage();
+					ArrayList<Attachment> attachmentsToSend = new ArrayList<>();
+					Attachment attachment = new Attachment();
+					attachment.setMrkdwn_in("text");
+					attachment.setTitle_link("https://www.apiwiz.io/");
+					attachment.setColor("#820309");
+					attachment.setPretext("BUILD");
+//					attachment.setTitle(packageRequest.getPackageName());
+//					String s=notificationData.get(STATUS);
+					attachment.setText("Package Request: " + packageRequest.getPackageName() + "\n    Date: " + formatedDate +
+							"\n    State: " + packageRequest.getState() + "\n    Metadata: " + packageRequest.getMetadata().getCreatedBy());
+
+					attachmentsToSend.add(attachment);
+					postMessage.setAttachments(attachmentsToSend);
+					slackUtil.sendMessage(postMessage, i.getChannelName(), token);
+				}
+			}
+		}
 	}
 
 	public boolean editPackage(Package packageRequest, User user) throws ItorixException {
@@ -519,7 +551,7 @@ public class PackageDao {
 		return null;
 	}
 
-	private void sendEmailTo(Package packageRequest) throws MessagingException {
+	private void sendEmailTo(Package packageRequest) throws MessagingException, IOException {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date = new Date();
 		String formatedDate = dateFormat.format(date);
@@ -541,6 +573,32 @@ public class PackageDao {
 			emailTemplate.setBody(body);
 			// emailTemplate.setSubject(MessageFormat.format(applicationProperties.getPackageRequestSubject(),packageRequest.getDescription()));
 			mailUtil.sendEmail(emailTemplate);
+
+			logger.info("Sending slack message");
+			List<SlackWorkspace> slackWorkspaces = mongoTemplate.findAll(SlackWorkspace.class);
+			SlackWorkspace slackWorkspace=slackWorkspaces.get(0);
+			if(slackWorkspace!=null) {
+				String token = slackWorkspace.getToken();
+				List<SlackChannel> channels = slackWorkspace.getChannelList();
+				for (SlackChannel i : channels) {
+					if (i.getScopeSet().contains(notificationScope.NotificationScope.BUILD)) {
+						PostMessage postMessage = new PostMessage();
+						ArrayList<Attachment> attachmentsToSend = new ArrayList<>();
+						Attachment attachment = new Attachment();
+						attachment.setMrkdwn_in("text");
+						attachment.setTitle_link("https://www.apiwiz.io/");
+						attachment.setColor("#0000FF");
+						attachment.setPretext("BUILD");
+//					attachment.setTitle(packageRequest.getPackageName());
+//					String s=notificationData.get(STATUS);
+						attachment.setText ("Package Name: "+packageRequest.getPackageName()+"\n"+"Status: "+"Review"+"\n"+"Description: "+packageRequest.getDescription()+"\n"+ "Date: "+formatedDate+"\n"+ "Metadata: "+packageRequest.getMetadata().getCreatedBy()+"\n"+ "Comments: "+packageRequest.getComments());
+
+						attachmentsToSend.add(attachment);
+						postMessage.setAttachments(attachmentsToSend);
+						slackUtil.sendMessage(postMessage, i.getChannelName(), token);
+					}
+				}
+			}
 		}
 	}
 
