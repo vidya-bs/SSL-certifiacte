@@ -22,6 +22,7 @@ import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -586,5 +587,54 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 			list.add(cursor.next());
 		}
 		return list;
+	}
+
+	@Override
+	public String getGlobalRule() {
+		Query query = Query.query(Criteria.where("ruleSetType").is("schema").and("isGlobalRuleSet").is(true));
+		return mongoTemplate.findOne(query, Document.class,"Astrum.RuleSet").get("_id").toString();
+	}
+
+	@Override
+	public List<DDSchema> getModels(String id){
+		Query query = Query.query(Criteria.where("portfolioID").is(id));
+		List<PortfolioModel> models=mongoTemplate.find(query, PortfolioModel.class);
+		List<DDSchema> modelList=new ArrayList<>();
+		for(PortfolioModel model : models){
+			DDSchema ddSchema=new DDSchema();
+			ddSchema.setModelId(model.getModelId());
+			ddSchema.setRevision(model.getRevision());
+			modelList.add(ddSchema);
+		}
+		return modelList;
+	}
+
+	@Override
+	public PortfolioReport getModelswithRulesets(String id){
+		PortfolioReport report =new PortfolioReport();
+		report.setPortfolioId(id);
+		List<PortfolioModel> models=new ArrayList<>();
+		Query query = Query.query(Criteria.where("portfolioID").is(id));
+		List<PortfolioModel> allModels=mongoTemplate.find(query, PortfolioModel.class);
+		List<PortfolioModels> modelList=new ArrayList<>();
+		for(PortfolioModel model : allModels){
+			PortfolioModels portfolioModels=new PortfolioModels();
+			portfolioModels.setModelId(model.getModelId());
+			portfolioModels.setRevision(model.getRevision());
+			String globalId= getGlobalRule();
+			List<String> rulesets=model.getRuleSetIds();
+			if(model.getRuleSetIds()!=null&&!model.getRuleSetIds().contains(globalId)&&globalId!=null){
+				rulesets.add(globalId);
+			}
+			else if(rulesets==null)
+			{
+				rulesets=new ArrayList<String>();
+				rulesets.add(globalId);
+			}
+			portfolioModels.setRuleSetIds(rulesets);
+			modelList.add(portfolioModels);
+		}
+		report.setModels(modelList);
+		return report;
 	}
 }

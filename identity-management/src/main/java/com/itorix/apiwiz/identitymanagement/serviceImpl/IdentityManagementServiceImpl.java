@@ -818,6 +818,14 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		return new ResponseEntity<Object>(workspaceDao.getSubscriptionsV2(), HttpStatus.OK);
 	}
 
+	@UnSecure
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/users/subscriptionplans", produces = {"application/json"})
+	public ResponseEntity<Object> getSubscriptionPlansV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey) throws Exception {
+		return new ResponseEntity<Object>(workspaceDao.getSubscriptionsV2(), HttpStatus.OK);
+	}
+
 	@UnSecure(useUpdateKey = true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v2/users/subscriptionplans", consumes = {
 			"application/json"}, produces = {"application/json"})

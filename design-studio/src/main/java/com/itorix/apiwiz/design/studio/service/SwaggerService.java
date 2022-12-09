@@ -77,6 +77,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swaggername") String swaggername,
+			@RequestHeader(value="x-public" ,required = false) boolean publish,
 			@RequestBody String json) throws Exception;
 
 	/**
@@ -264,6 +265,7 @@ public interface SwaggerService {
 	public ResponseEntity<Object> getListOfSwaggerNames(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false) String oas,
+			@RequestParam(value = "page", required = false) String page,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
 	/**

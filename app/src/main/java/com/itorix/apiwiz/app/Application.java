@@ -19,6 +19,7 @@ public class Application {
 
 	public static void main(String[] args) {
 		try {
+			log.info("Starting Core Api V2");
 			SpringApplication.run(Application.class, args);
 		} catch (Exception e) {
 			log.info(e.getMessage());

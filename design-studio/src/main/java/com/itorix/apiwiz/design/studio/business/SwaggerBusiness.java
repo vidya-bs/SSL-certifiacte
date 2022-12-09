@@ -10,6 +10,7 @@ import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import com.mongodb.client.result.DeleteResult;
 import org.json.JSONException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,7 +34,7 @@ public interface SwaggerBusiness {
 	 * 
 	 * @return SwaggerVO
 	 */
-	public SwaggerVO createSwagger(SwaggerVO swaggerVO);
+	public SwaggerVO createSwagger(SwaggerVO swaggerVO,boolean publish);
 
 	/**
 	 * createSwagger
@@ -42,7 +43,7 @@ public interface SwaggerBusiness {
 	 * 
 	 * @return SwaggerVO
 	 */
-	public Swagger3VO createSwagger(Swagger3VO swaggerVO);
+	public Swagger3VO createSwagger(Swagger3VO swaggerVO,boolean publish);
 
 	/**
 	 * findSwagger
@@ -93,7 +94,7 @@ public interface SwaggerBusiness {
 	 * 
 	 * @return
 	 */
-	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid) throws ItorixException;
+	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid,boolean publish) throws ItorixException;
 
 	/**
 	 * createSwaggerWithNewRevision
@@ -103,7 +104,7 @@ public interface SwaggerBusiness {
 	 * 
 	 * @return
 	 */
-	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid) throws ItorixException;
+	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid,boolean publish) throws ItorixException;
 
 	/**
 	 * updateSwagger
@@ -194,9 +195,9 @@ public interface SwaggerBusiness {
 	 */
 	public List<String> getListOfSwagger3Names(String interactionid) throws ItorixException;
 
-	public List<Swagger3VO> getSwagger3Names() throws ItorixException;
+	public List<Swagger3VO> getSwagger3Names(String page) throws ItorixException;
 
-	public List<SwaggerVO> getSwaggerNames() throws ItorixException;
+	public List<SwaggerVO> getSwaggerNames(String page) throws ItorixException;
 
 	/**
 	 * getListOfSwaggerDetails
@@ -807,4 +808,6 @@ public interface SwaggerBusiness {
 	List<SwaggerProduct> getProductGroupsByPartnerIds(List<String> partners);
 
 	void updatePartners(List<SwaggerPartner> swaggerPartners);
+
+	String getGolbalRule(String oas);
 }
