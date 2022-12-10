@@ -63,6 +63,7 @@ public class NewsServiceImpl implements NewsService {
   @Override
   public ResponseEntity<?> getDataByFilter(String apikey, int offset, int pageSize, String filter,
       NewsFilterRequest newsFilterRequest) throws Exception {
+    log.info("getDataByFilter");
     List<News> paginatedData = newsDao.getDataByFilter(offset, pageSize, filter,
         newsFilterRequest != null ? newsFilterRequest.getFilterValue() : "");
     PaginatedResponse response = new PaginatedResponse();
