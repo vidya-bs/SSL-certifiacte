@@ -6,10 +6,12 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.mail.MailProperty;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
+import com.itorix.apiwiz.identitymanagement.dao.RateLimitingDao;
 import com.itorix.apiwiz.identitymanagement.dao.WorkspaceDao;
 import com.itorix.apiwiz.identitymanagement.model.*;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.itorix.apiwiz.identitymanagement.service.IdentityManagmentService;
+import com.itorix.apiwiz.ratelimit.model.RateLimitQuota;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -37,6 +39,9 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	private ApplicationProperties applicationProperties;
 	@Autowired
 	WorkspaceDao workspaceDao;
+
+	@Autowired
+	private RateLimitingDao rateLimitingDao;
 
 	@Override
 	@UnSecure
@@ -873,6 +878,36 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		newMenu.setMenus(menu);
 		identityManagementDao.createMenu(newMenu);
 		return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+	}
+
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/rate-limit/quotas/tenant", consumes = {
+			"application/json"}, produces = {"application/json"})
+	public ResponseEntity<?> addTenantQuotas(
+			@RequestHeader(value = "x-apikey", required = true) String apikey,
+			@RequestHeader(value = "x-tenant", required = true) String tenantId,
+			@RequestBody RateLimitQuota quota) throws ItorixException{
+
+		rateLimitingDao.addTenantQuotas(tenantId, quota);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
+	}
+
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/rate-limit/quotas/master", consumes = {
+			"application/json"}, produces = {"application/json"})
+	public ResponseEntity<?> addMasterQuotas(
+			@RequestHeader(value = "x-apikey", required = true) String apikey,
+			@RequestBody List<RateLimitQuota> quotas) throws ItorixException {
+
+		rateLimitingDao.addMasterQuotas(quotas);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/rate-limit/usage", produces = {"application/json"})
+	public ResponseEntity<?> getApplicationUsage(
+			@RequestHeader(value = "JSESSIONID", required = true) String jsessionid
+	) {
+		return new ResponseEntity<>(rateLimitingDao.getApplicationUsage(), HttpStatus.OK);
 	}
 
 }

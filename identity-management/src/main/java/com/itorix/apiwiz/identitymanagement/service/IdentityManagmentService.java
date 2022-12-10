@@ -6,6 +6,7 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.util.mail.MailProperty;
 import com.itorix.apiwiz.identitymanagement.model.*;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
+import com.itorix.apiwiz.ratelimit.model.RateLimitQuota;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -550,5 +551,26 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-apikey") String apikey, @RequestBody String menu)
 			throws Exception;
+
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/rate-limit/quotas/tenant", consumes = {
+			"application/json"}, produces = {"application/json"})
+	@UnSecure(useUpdateKey = true)
+	public ResponseEntity<?> addTenantQuotas(
+			@RequestHeader(value = "x-apikey", required = true) String apikey,
+			@RequestHeader(value = "workspaceId", required = true) String workspaceId,
+			@RequestBody RateLimitQuota quota) throws ItorixException;
+
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/rate-limit/quotas/master", consumes = {
+			"application/json"}, produces = {"application/json"})
+	@UnSecure(useUpdateKey = true)
+	public ResponseEntity<?> addMasterQuotas(
+			@RequestHeader(value = "x-apikey", required = true) String apikey,
+			@RequestBody List<RateLimitQuota> quotas) throws ItorixException;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/rate-limit/usage", produces = {"application/json"})
+	public ResponseEntity<?> getApplicationUsage(
+			@RequestHeader(value = "JSESSIONID", required = true) String jsessionid
+	);
+
 
 }
