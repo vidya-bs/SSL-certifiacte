@@ -4,8 +4,8 @@ import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.itorix.apiwiz.marketing.common.PaginatedResponse;
 import com.itorix.apiwiz.marketing.dao.NewsDao;
 import com.itorix.apiwiz.marketing.news.model.News;
+import com.itorix.apiwiz.marketing.news.model.NewsFilterRequest;
 import com.itorix.apiwiz.marketing.news.model.NewsStatus;
-import com.itorix.apiwiz.marketing.pressrelease.model.PressReleaseStatus;
 import com.itorix.apiwiz.marketing.service.NewsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +60,9 @@ public class NewsServiceImpl implements NewsService {
 
     @UnSecure(ignoreValidation = true)
     @Override
-    public ResponseEntity<?> getDataByFilter(String apikey,int offset, int pageSize, String filter, String filterValue) throws Exception {
-        List<News> paginatedData = newsDao.getDataByFilter(offset,pageSize,filter,filterValue);
+    public ResponseEntity<?> getDataByFilter(String apikey,int offset, int pageSize, String filter,
+        NewsFilterRequest newsFilterRequest) throws Exception {
+        List<News> paginatedData = newsDao.getDataByFilter(offset,pageSize,filter,newsFilterRequest.getFilterValue());
         PaginatedResponse response = new PaginatedResponse();
         response.setPagination(newsDao.getPagination(offset,pageSize));
         response.setData(paginatedData);

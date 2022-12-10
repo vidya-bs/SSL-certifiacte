@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
@@ -52,7 +51,8 @@ public class NewsDao {
     log.info("News {}", news);
     List<News> allNews = getAllNews();
     String title = news.getMeta().getTitle();
-    String slug = encodeValue(title);
+//    String slug = encodeValue(title);
+    String slug = title;
     if (allNews.stream().anyMatch(n -> n.getMeta().getSlug().equals(slug))) {
       return null;
     }
@@ -79,9 +79,9 @@ public class NewsDao {
     List<News> newsList = null;
     if (status == null) {
       List<News> existing = getAllNews(offset, pageSize);
-        if (existing.isEmpty()) {
-            return new ArrayList<>();
-        }
+      if (existing.isEmpty()) {
+        return new ArrayList<>();
+      }
       return existing;
     } else {
       Query query = new Query();
@@ -90,9 +90,9 @@ public class NewsDao {
           .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
       newsList = masterMongoTemplate.find(query, News.class);
     }
-      if (newsList.isEmpty()) {
-          return new ArrayList<>();
-      }
+    if (newsList.isEmpty()) {
+      return new ArrayList<>();
+    }
     return newsList;
   }
 
@@ -101,9 +101,9 @@ public class NewsDao {
     log.info("Request body news {}", news);
     Query query = new Query().addCriteria(Criteria.where("_id").is(newsId));
     News existingNews = masterMongoTemplate.findOne(query, News.class);
-      if (existingNews == null) {
-          return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-      }
+    if (existingNews == null) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
     long currentTime = System.currentTimeMillis();
     news.setMts(currentTime);
@@ -143,21 +143,17 @@ public class NewsDao {
 
   public List<News> getDataByCategoryOrTagOrSlug(int offset, int pageSize, String type,
       String value) {
-
+    log.info("Get news by category or tag or slug : {}", value);
     List<News> returningList = new ArrayList<>();
-    List<News> releaseList = getAllNews(offset, pageSize);
-    releaseList.forEach(rl -> {
-      if (type.equalsIgnoreCase("slug")) {
-        if (StringUtils.equalsIgnoreCase(decodeValue(value), decodeValue(rl.getMeta().getSlug()))) {
-          returningList.add(rl);
-        }
-      } else {
-        if (rl.getMeta().getTags().stream()
-            .anyMatch(tl -> tl.getTagName().equalsIgnoreCase(value))) {
-          returningList.add(rl);
-        }
-      }
-    });
+    Query query = new Query();
+    if (type.equalsIgnoreCase("slug")) {
+      query.addCriteria(Criteria.where("meta.slug").is(value));
+      returningList.addAll(masterMongoTemplate.find(query, News.class));
+    } else {
+      query.addCriteria(
+          Criteria.where("meta.tags").elemMatch(Criteria.where("tagName").regex(value, "i")));
+      returningList.addAll(masterMongoTemplate.find(query, News.class));
+    }
     return returningList;
   }
 
