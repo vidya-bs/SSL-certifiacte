@@ -48,7 +48,7 @@ public interface NewsService {
   ) throws Exception;
 
   @UnSecure(ignoreValidation = true)
-  @PostMapping(value = "/news-type")
+  @PostMapping("/news-type")
   public ResponseEntity<?> getDataByFilter(@RequestHeader(value = "x-apikey") String apikey,
       @RequestParam(value = "offset", required = false, defaultValue = "0") int offset,
       @RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
