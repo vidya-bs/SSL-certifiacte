@@ -70,7 +70,7 @@ public class NewsDao {
 
 
   public List<News> getAllNews(int offset, int pageSize) {
-    Query query = new Query().with(Sort.by(Sort.Direction.DESC, "cts"))
+    Query query = new Query().with(Sort.by(Sort.Direction.DESC, "meta.publishingDate"))
         .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
     return masterMongoTemplate.find(query, News.class);
   }
@@ -82,6 +82,7 @@ public class NewsDao {
       if (existing.isEmpty()) {
         return new ArrayList<>();
       }
+
       return existing;
     } else {
       Query query = new Query();
@@ -148,10 +149,14 @@ public class NewsDao {
     Query query = new Query();
     if (type.equalsIgnoreCase("slug")) {
       query.addCriteria(Criteria.where("meta.slug").is(value));
+      query.with(Sort.by(Sort.Direction.DESC, "meta.publishingDate"))
+              .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
       returningList.addAll(masterMongoTemplate.find(query, News.class));
     } else {
       query.addCriteria(
           Criteria.where("meta.tags").elemMatch(Criteria.where("tagName").regex(value, "i")));
+      query.with(Sort.by(Sort.Direction.DESC, "meta.publishingDate"))
+              .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
       returningList.addAll(masterMongoTemplate.find(query, News.class));
     }
     return returningList;
