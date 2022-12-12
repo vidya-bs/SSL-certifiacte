@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.marketing.dao;
 
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
+import com.itorix.apiwiz.marketing.news.model.News;
 import com.itorix.apiwiz.marketing.pressrelease.model.PressRelease;
 import com.itorix.apiwiz.marketing.pressrelease.model.PressReleaseStatus;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ public class PressReleaseDao {
     MongoTemplate masterMongoTemplate;
 
     public List<PressRelease> getPressReleases(int offset, int pageSize) {
-        Query query = new Query().with(Sort.by(Sort.Direction.DESC, "cts"))
+        Query query = new Query().with(Sort.by(Sort.Direction.DESC, "meta.publishingDate"))
                 .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
         return masterMongoTemplate.find(query,PressRelease.class);
     }
@@ -75,6 +76,18 @@ public class PressReleaseDao {
         }
     }
 
+    public static String validateJavaDate(PressRelease pressRelease) {
+        if(pressRelease.getMeta().getPublishingDate()==null)return pressRelease.getMeta().getPublishingDate();
+        String validDate=null;
+        String day=pressRelease.getMeta().getPublishingDate().split("-")[0];
+        if(Integer.parseInt(day)<10&&day.length()==1)day='0'+day;
+        String month=pressRelease.getMeta().getPublishingDate().split("-")[1];
+        if(Integer.parseInt(month)<10&&month.length()==1)month='0'+month;
+        String year=pressRelease.getMeta().getPublishingDate().split("-")[2];
+        validDate=day+"-"+month+"-"+year;
+        return  validDate;
+    }
+
 
     public PressRelease createRelease(PressRelease pressRelease) {
         List<PressRelease> allReleases = getPressReleases();
@@ -83,6 +96,8 @@ public class PressReleaseDao {
         if(allReleases.stream().anyMatch(r->r.getMeta().getSlug().equals(slug))){
             return null;
         }
+        String validDate=validateJavaDate(pressRelease);
+        pressRelease.getMeta().setPublishingDate(validDate);
         long currentTime = System.currentTimeMillis();
         pressRelease.setCts(currentTime);
         String year = pressRelease.getMeta().getPublishingDate().split("-")[2];
@@ -107,16 +122,19 @@ public class PressReleaseDao {
     public List<PressRelease> getDataByTagOrSlug(int offset, int pageSize, String filter, String filterValue) {
         List<PressRelease> returningList = new ArrayList<>();
         List<PressRelease> releaseList = getPressReleases(offset, pageSize);
+        Query query = new Query();
         releaseList.forEach(rl->{
             if(filter.equals("tag")){
-                if(rl.getMeta().getTags().stream().anyMatch(tl->tl.getTagName().equalsIgnoreCase(filterValue))) {
-                    returningList.add(rl);
-                }
+                query.addCriteria(Criteria.where("meta.tags").is(filterValue));
+                query.with(Sort.by(Sort.Direction.DESC, "meta.publishingDate"))
+                        .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+                returningList.addAll(masterMongoTemplate.find(query, PressRelease.class));
             }
             else {
-                if(rl.getMeta().getSlug().equalsIgnoreCase(encodeValue(filterValue))) {
-                    returningList.add(rl);
-                }
+                query.addCriteria(Criteria.where("meta.slug").is(filterValue));
+                query.with(Sort.by(Sort.Direction.DESC, "meta.publishingDate"))
+                        .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+                returningList.addAll(masterMongoTemplate.find(query, PressRelease.class));
             }
         });
         return returningList;
