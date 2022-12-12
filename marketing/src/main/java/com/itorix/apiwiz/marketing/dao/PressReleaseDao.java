@@ -76,6 +76,18 @@ public class PressReleaseDao {
         }
     }
 
+    public static String validateJavaDate(PressRelease pressRelease) {
+        if(pressRelease.getMeta().getPublishingDate()==null)return pressRelease.getMeta().getPublishingDate();
+        String validDate=null;
+        String day=pressRelease.getMeta().getPublishingDate().split("-")[0];
+        if(Integer.parseInt(day)<10&&day.length()==1)day='0'+day;
+        String month=pressRelease.getMeta().getPublishingDate().split("-")[1];
+        if(Integer.parseInt(month)<10&&month.length()==1)month='0'+month;
+        String year=pressRelease.getMeta().getPublishingDate().split("-")[2];
+        validDate=day+"-"+month+"-"+year;
+        return  validDate;
+    }
+
 
     public PressRelease createRelease(PressRelease pressRelease) {
         List<PressRelease> allReleases = getPressReleases();
@@ -84,6 +96,8 @@ public class PressReleaseDao {
         if(allReleases.stream().anyMatch(r->r.getMeta().getSlug().equals(slug))){
             return null;
         }
+        String validDate=validateJavaDate(pressRelease);
+        pressRelease.getMeta().setPublishingDate(validDate);
         long currentTime = System.currentTimeMillis();
         pressRelease.setCts(currentTime);
         String year = pressRelease.getMeta().getPublishingDate().split("-")[2];

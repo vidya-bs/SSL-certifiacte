@@ -3,12 +3,6 @@ package com.itorix.apiwiz.marketing.dao;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.marketing.news.model.News;
 import com.itorix.apiwiz.marketing.news.model.NewsStatus;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,6 +14,14 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -45,9 +47,19 @@ public class NewsDao {
       throw new RuntimeException(ex.getCause());
     }
   }
+  public static String validateJavaDate(News news) {
+    if(news.getMeta().getPublishingDate()==null)return news.getMeta().getPublishingDate();
+    String validDate=null;
+    String day=news.getMeta().getPublishingDate().split("-")[0];
+    if(Integer.parseInt(day)<10&&day.length()==1)day='0'+day;
+    String month=news.getMeta().getPublishingDate().split("-")[1];
+    if(Integer.parseInt(month)<10&&month.length()==1)month='0'+month;
+    String year=news.getMeta().getPublishingDate().split("-")[2];
+    validDate=day+"-"+month+"-"+year;
+    return  validDate;
+  }
 
-
-  public News createNews(News news) {
+  public News createNews(News news) throws ParseException {
     log.info("News {}", news);
     List<News> allNews = getAllNews();
     String title = news.getMeta().getTitle();
@@ -56,6 +68,9 @@ public class NewsDao {
     if (allNews.stream().anyMatch(n -> n.getMeta().getSlug().equals(slug))) {
       return null;
     }
+
+    String validDate=validateJavaDate(news);
+    news.getMeta().setPublishingDate(validDate);
     long currentTime = System.currentTimeMillis();
     news.setCts(currentTime);
     String year = news.getMeta().getPublishingDate().split("-")[2];
