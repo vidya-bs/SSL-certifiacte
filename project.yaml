@@ -73,8 +73,8 @@ deployment:
         cloudProvider: aws
       - env: aws-preprod
         branch: aws-preprod
-        deployFlag: disable
-        container: disable
+        deployFlag: enable
+        container: enable
         spaceName: stage
         awsCredProfile: nonprod
         approval: disable
@@ -476,6 +476,18 @@ deployment:
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         cloudProvider: google
         gcpCredProfile: nonprod
+      - env: aws-preprod
+        branch: aws-preprod
+        deployFlag: enable
+        container: enable
+        spaceName: stage
+        awsCredProfile: nonprod
+        approval: disable
+        host: 52.26.178.178
+        pem: NA
+        configBranch: aws-preprod
+        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+        cloudProvider: aws
       - env: production
         deployFlag: enable
         branch: main
