@@ -818,7 +818,6 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		return new ResponseEntity<Object>(workspaceDao.getSubscriptionsV2(), HttpStatus.OK);
 	}
 
-
 	@UnSecure(useUpdateKey = true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v2/users/subscriptionplans", consumes = {
 			"application/json"}, produces = {"application/json"})

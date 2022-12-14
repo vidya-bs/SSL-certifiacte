@@ -119,7 +119,7 @@ public interface ConfigManagement {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/config/caches")
 	public ResponseEntity<Object> getCache(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,

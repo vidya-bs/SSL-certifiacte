@@ -1,7 +1,6 @@
 package com.itorix.apiwiz.design.studio.service;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,14 +16,14 @@ import com.itorix.apiwiz.design.studio.swaggerdiff.model.DiffVO;
 @RestController
 public interface SwaggerReleaseService {
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/change-log")
 	public ResponseEntity<Object> getDifference(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas, @RequestBody DiffVO diff)
 			throws Exception;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/{swaggerid}/change-log")
 	public ResponseEntity<Object> saveDifference(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -35,7 +34,7 @@ public interface SwaggerReleaseService {
 			@RequestParam(value = "summary", required = false) String summary,
 			@PathVariable(value = "swaggerid") String swaggerid) throws Exception;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = {"/v1/swaggers/{swaggerid}/change-log/{id}"})
 	public ResponseEntity<Object> updateDifference(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -45,7 +44,7 @@ public interface SwaggerReleaseService {
 			@RequestParam(value = "text", required = false) String text,
 			@RequestParam(value = "summary", required = false) String summary) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = {"/v1/documentation/release-notes/{year}",
 			"/v1/documentation/release-notes"})
 	public ResponseEntity<Object> getReleasenotesbyyear(@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -53,13 +52,13 @@ public interface SwaggerReleaseService {
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
 			@PathVariable(value = "year", required = false) String year) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = {"/v1/documentation/release-notes/years"})
 	public ResponseEntity<Object> getYearsr(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = {"/v1/swaggers/{swaggerid}/change-log/{id}",
 			"/v1/swaggers/{swaggerid}/change-log"})
 	public ResponseEntity<Object> getSwaggerChangelog(@RequestHeader(value = "JSESSIONID") String jsessionId,

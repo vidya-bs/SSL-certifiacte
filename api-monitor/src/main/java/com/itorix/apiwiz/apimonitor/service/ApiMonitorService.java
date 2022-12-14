@@ -241,7 +241,7 @@ public interface ApiMonitorService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION' ) and hasAnyAuthority('GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION' ) and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/monitor/metadata", consumes = {"application/json"})
 	@UnSecure(ignoreValidation = true)
 	public ResponseEntity<?> createMetaData(
