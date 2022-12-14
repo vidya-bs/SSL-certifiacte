@@ -35,13 +35,13 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String apikey, @RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/login", produces = {"application/json"})
 	public @ResponseBody ResponseEntity<UserSession> getSession(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid) throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/register", consumes = {"application/json"})
 	public @ResponseBody ResponseEntity<Object> register(
@@ -58,14 +58,14 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users", consumes = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> updateUser(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/meta-data", consumes = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> updateUserMetaData(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -73,7 +73,7 @@ public interface IdentityManagmentService {
 			throws ItorixException, Exception;
 
 
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/meta-data")
 	public @ResponseBody ResponseEntity<Object> getUserMetaData(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
