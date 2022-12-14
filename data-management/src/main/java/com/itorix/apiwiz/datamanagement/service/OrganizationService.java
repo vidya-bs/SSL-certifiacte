@@ -6,6 +6,7 @@ import java.util.Map;
 import org.json.JSONException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -53,7 +54,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Env List For Organizations", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
@@ -86,7 +87,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "List API Proxies", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
@@ -121,7 +122,7 @@ public interface OrganizationService {
 	 * 
 	 * @throws JSONException
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "List Of Deployed API Proxies", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
@@ -153,7 +154,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Back Up Proxies", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -188,7 +189,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Clean Up Proxies", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -222,7 +223,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Restore Proxies", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -254,7 +255,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Back Up Shareflow", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -289,7 +290,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Clean Up Shareflow", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -323,7 +324,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Restore Shareflow", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -354,7 +355,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Api Proxies Backup History", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = ProxyBackUpInfo.class, responseContainer = "List"),
@@ -383,7 +384,7 @@ public interface OrganizationService {
 	 * 
 	 * @throws Exception
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Back Up Apps", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -413,7 +414,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Clean Up Apps", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -442,7 +443,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Restore Apps", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -473,7 +474,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Apps Backup History", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = AppBackUpInfo.class, responseContainer = "List"),
@@ -500,7 +501,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Back Up Products", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -531,7 +532,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Clean Up Products", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -563,7 +564,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Restore Products", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -594,7 +595,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Products Backup History", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = ProductsBackUpInfo.class, responseContainer = "List"),
@@ -621,7 +622,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Back Up Developers", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -652,7 +653,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Clean Up Developers", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -684,7 +685,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Restore App Developers", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -715,7 +716,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Developers Backup History", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = DeveloperBackUpInfo.class, responseContainer = "List"),
@@ -742,7 +743,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Back Up Resources", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -773,7 +774,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Clean Up Resources", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -805,7 +806,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Restore Resources", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -836,7 +837,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Resources Backup History", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = ResourceBackUpInfo.class, responseContainer = "List"),
@@ -864,7 +865,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Back Up Organization", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -896,7 +897,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Clean Up Organization", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -928,7 +929,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Restore Organization", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -959,7 +960,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Restore Organization", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -991,7 +992,7 @@ public interface OrganizationService {
 	 * 
 	 * @throws Exception
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Organization Backup History", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = ResourceBackUpInfo.class, responseContainer = "List"),
@@ -1018,7 +1019,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Back Up Caches", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -1049,7 +1050,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Clean Up Caches", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -1081,7 +1082,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Restore Caches", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -1114,7 +1115,7 @@ public interface OrganizationService {
 	 * 
 	 * @throws Exception
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Caches Backup History", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = ResourceBackUpInfo.class, responseContainer = "List"),
@@ -1141,7 +1142,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Back Up KVM", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -1172,7 +1173,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Clean Up KVM", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -1204,7 +1205,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Restore KVM", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -1237,7 +1238,7 @@ public interface OrganizationService {
 	 * 
 	 * @throws Exception
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get KVM Backup History", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = ResourceBackUpInfo.class, responseContainer = "List"),
@@ -1264,7 +1265,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Back Up Target Servers", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -1295,7 +1296,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Clean Up Target Servers", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = BackupInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -1327,7 +1328,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Restore Target Servers", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -1360,7 +1361,7 @@ public interface OrganizationService {
 	 * 
 	 * @throws Exception
 	 */
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Target Servers Backup History", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = ResourceBackUpInfo.class, responseContainer = "List"),
@@ -1388,7 +1389,7 @@ public interface OrganizationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Swagger Revison's", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = Object.class, responseContainer = "List"),
@@ -1400,7 +1401,7 @@ public interface OrganizationService {
 			@RequestHeader(value = "jsessionid") String jsessionid, @RequestParam(value = "sys") String sys,
 			@RequestParam(value = "backuplevel") String backuplevel) throws Exception;
 
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get apigee Organizational View", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = ApigeeOrganizationalVO.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
@@ -1410,7 +1411,7 @@ public interface OrganizationService {
 			@RequestHeader(value = "jsessionid") String jsessionid, @PathVariable("org_name") String org_name,
 			@RequestParam(value = "type", required = false) String type) throws Exception;
 
-//	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get apigee Organizational View", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = ApigeeOrganizationalVO.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
