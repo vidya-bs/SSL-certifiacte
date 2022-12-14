@@ -50,6 +50,22 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+		<dependency>
+			<groupId>com.itorix.apiwiz</groupId>
+			<artifactId>rate-limiting-11</artifactId>
+			<version>1.0-RELEASE</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.hazelcast</groupId>
+					<artifactId>hazelcast</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast</artifactId>
+			<version>5.2.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -254,6 +254,12 @@ public enum ErrorCodes {
 			put("Consent-004", "Request validation failed. Report can be generated only for 30 day duration");
 			put("Consent-005", "Resource not found. No records found for the selected date range");
 			put("SCM-001", "SCM Connection Failure");
+
+			put("rate-limiting-1000", "Hazelcast connection is down. Please try after sometime.");
+			put("rate-limiting-1001", "Invalid Quota. Quota is empty.");
+			put("rate-limiting-1002", "Plan mismatch in quota and workspace.");
+			put("rate-limiting-1003", "Failed to update quotas. Please try again.");
+			put("rate-limiting-1004", "Quotas list is empty.");
 		}
 	};
 
@@ -439,6 +445,12 @@ public enum ErrorCodes {
 			put("Consent-004", 400);
 			put("Consent-005", 400);
 			put("SCM-001", 500);
+
+			put("rate-limiting-1000", 500);
+			put("rate-limiting-1001", 400);
+			put("rate-limiting-1002", 400);
+			put("rate-limiting-1003", 500);
+			put("rate-limiting-1004", 400);
 		}
 	};
 	private String message;
