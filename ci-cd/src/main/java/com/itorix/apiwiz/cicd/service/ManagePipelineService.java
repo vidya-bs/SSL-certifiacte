@@ -152,7 +152,6 @@ public interface ManagePipelineService {
 	@ApiOperation(value = "Get Artifacts", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "ok", response = String.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/pipelines/{pipelineName}/{pipelineCounter}/{stageName}/{stageCounter}/BuildAndDeploy/cruise-output/console.log")
 	@UnSecure
 	public ResponseEntity<String> getConsoleLogs(@PathVariable("pipelineName") String pipelineName,
@@ -164,7 +163,6 @@ public interface ManagePipelineService {
 	@ApiOperation(value = "Get Console Log", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "ok", response = String.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/pipelines/{pipelineName}/{pipelineCounter}/{stageName}/{stageCounter}/BuildAndDeploy/{artifactName:.+}")
 	@UnSecure(ignoreValidation = true)
 	public ResponseEntity<Resource> getArtifacts(@PathVariable("pipelineName") String pipelineName,
