@@ -110,6 +110,7 @@ public interface SwaggerService {
 	 * @return
 	 * @throws Exception
 	 */
+
 //	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "API Unsubscription", notes = "", response = Void.class)
 	@ApiResponses(value = {
