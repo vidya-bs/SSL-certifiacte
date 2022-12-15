@@ -89,7 +89,7 @@ public interface SwaggerService {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "API Subscription", notes = "", response = Void.class)
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Subscribed to API successfully", response = Void.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
@@ -110,7 +110,8 @@ public interface SwaggerService {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "API Unsubscription", notes = "", response = Void.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = "Unsubscribed to API successfully", response = Void.class),
@@ -131,7 +132,7 @@ public interface SwaggerService {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get API Subscribers", notes = "", response = Void.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = "Got the list of subscribers successfully", response = Void.class),
@@ -153,7 +154,7 @@ public interface SwaggerService {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Check if user is a subscriber", notes = "", response = Void.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Returned subscriber successfully", response = Void.class),
@@ -206,7 +207,7 @@ public interface SwaggerService {
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Update Swagger With new Revison", notes = "")
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "Swagger Updated sucessfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class),
@@ -229,7 +230,7 @@ public interface SwaggerService {
 	 * @throws ItorixException
 	 * @throws Exception
 	 */
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Swagger Revison's", notes = "")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = Revision.class, responseContainer = "List"),
@@ -256,7 +257,7 @@ public interface SwaggerService {
 	 *
 	 * @throws ItorixException
 	 */
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get List Of Swagger Names", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
@@ -307,7 +308,7 @@ public interface SwaggerService {
 	 * @param jsessionid
 	 * @return @throws IOException @throws ItorixException @throws
 	 */
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get List Of Published Swagger Details", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerDocumentationVO.class, responseContainer = "List"),
@@ -332,7 +333,7 @@ public interface SwaggerService {
 	 *
 	 * @throws ItorixException,Exception
 	 */
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Swagger", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = Swagger.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
@@ -359,7 +360,7 @@ public interface SwaggerService {
 	 *
 	 * @throws ItorixException,Exception
 	 */
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Delete Swagger", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "Ok", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
@@ -385,7 +386,7 @@ public interface SwaggerService {
 	 *
 	 * @throws ItorixException
 	 */
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "delete Swagger based on Revison", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "Swagger deleted sucessfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
@@ -409,7 +410,7 @@ public interface SwaggerService {
 	 *
 	 * @return
 	 */
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Swagger With revision", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
@@ -482,7 +483,7 @@ public interface SwaggerService {
 	 * @param request
 	 * @param response
 	 */
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Update Comment", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "Swagger Updated sucessfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
@@ -507,7 +508,7 @@ public interface SwaggerService {
 	 *
 	 * @return
 	 */
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Swagger Comments", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Swagger Updated sucessfully", response = SwaggerComment.class, responseContainer = "list"),
@@ -535,7 +536,7 @@ public interface SwaggerService {
 	 *
 	 * @return
 	 */
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Update Lock Status", notes = "", code = 204)
 	@ApiResponses(value = {
 			@ApiResponse(code = 204, message = "Swagger Lock Updated sucessfully", response = Void.class),
@@ -613,7 +614,7 @@ public interface SwaggerService {
 	 *
 	 * @return
 	 */
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get LockStatus", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = Boolean.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
@@ -831,7 +832,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
 			@PathVariable("revision") Integer revision) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Swagger Revison's", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
@@ -856,7 +857,7 @@ public interface SwaggerService {
 			@RequestParam(value = "timeunit", required = false) String timeunit,
 			@RequestParam(value = "timerange", required = false) String timerange) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swagger-gen/clients/servers")
 	public @ResponseBody ResponseEntity<Object> getClientsServers(
@@ -864,7 +865,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false) String oas) throws Exception;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swagger-gen/clients/servers/{framework}")
 	public @ResponseBody ResponseEntity<Object> createLangSupport(
@@ -872,7 +873,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("framework") String framework, @RequestBody SupportedCodeGenLang langData) throws Exception;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swagger-gen/clients/servers/{framework}")
 	public @ResponseBody ResponseEntity<Object> updateLangSupport(
@@ -880,7 +881,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@PathVariable("framework") String framework, @RequestBody SupportedCodeGenLang langData) throws Exception;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swagger-gen/clients/servers/{framework}")
 	public @ResponseBody ResponseEntity<Void> removeLangSupport(
@@ -898,7 +899,7 @@ public interface SwaggerService {
 	 *
 	 * @return
 	 */
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Genrate client", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
@@ -921,7 +922,7 @@ public interface SwaggerService {
 	 *
 	 * @return
 	 */
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Genrate client", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
@@ -946,7 +947,7 @@ public interface SwaggerService {
 	 *
 	 * @throws ItorixException,Exception
 	 */
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Assoiate Product", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content"),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
@@ -1078,7 +1079,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swaggername") String swaggername)
 			throws Exception;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/validate")
 	public ResponseEntity<?> validateSwagger(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1096,7 +1097,7 @@ public interface SwaggerService {
 	 *
 	 * @throws ItorixException
 	 */
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "v1/swaggers/search", produces = {"application/json"})
 	public ResponseEntity<Object> swaggerSearch(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -1116,7 +1117,7 @@ public interface SwaggerService {
 	 *
 	 * @throws ItorixException,Exception
 	 */
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Assoiated Portfolios", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
@@ -1191,7 +1192,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
 			@PathVariable("swagger-id") String swaggerid) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Info of Swagger", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = Object.class),
 			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
@@ -1200,7 +1201,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestParam("id") String swaggerid) throws Exception;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Clone existing Swagger. Creates a new clone based on the request details ", notes = "", code = 201)
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Swagger Cloned successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found", response = ErrorObj.class)})
@@ -1209,7 +1210,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestBody SwaggerCloneDetails swaggerCloneDetails) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get proxies associated to swagger", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
@@ -1227,7 +1228,7 @@ public interface SwaggerService {
 //			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerPartner swaggerPartner)
 //			throws Exception;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/partner-groups", produces = {
 			"application/json"})
 	public ResponseEntity<?> createOrUpdatePartnerGroup(
@@ -1235,20 +1236,20 @@ public interface SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody List<SwaggerPartner> swaggerPartners)
 			throws Exception;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/swaggers/partner-groups/{partnerId}", produces = {
 			"application/json"})
 	public ResponseEntity<?> deletePartnerGroup(@PathVariable("partnerId") String partnerId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/partner-groups", produces = {"application/json"})
 	public ResponseEntity<?> getPartnerGroups(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggerId}/associate-partner", produces = {
 			"application/json"})
 	public ResponseEntity<?> manageSwaggerPartners(@PathVariable("swaggerId") String swaggerId,
@@ -1313,7 +1314,7 @@ public interface SwaggerService {
 															 @PathVariable("dictionaryId") String dictionaryId, @PathVariable("modelId") String modelId,
 															 @PathVariable("revision") Integer revision);
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Creating Api rating .Rating api's based on user  rating's ", notes = "", code = 201)
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Api was rated successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Error while rating api", response = ErrorObj.class)})
@@ -1322,7 +1323,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@PathVariable("swaggerId") String swaggerId, @RequestBody ApiRatings apiRatings) throws Exception;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Editing Api rating .Rating api's based on user rating's ", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Api was edited successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Error while editing api", response = ErrorObj.class)})
@@ -1331,7 +1332,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@PathVariable("swaggerId") String swaggerId, @RequestBody ApiRatings apiRatings) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Getting Api rating .Getting api rating summary for particular swagger  ", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Api rating retrieved successfully", response = Void.class),
@@ -1341,7 +1342,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@PathVariable("swaggerId") String swaggerId, @PathVariable("revision") int revision) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Getting Api rating .Getting all api ratings for particular swagger  ", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Api rating retrieved successfully", response = Void.class),
@@ -1363,7 +1364,7 @@ public interface SwaggerService {
 			@PathVariable("swaggerId") String swaggerId, @PathVariable("revision") int revision) throws Exception;
 
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Deleting Api rating", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "Api was deleted successfully", response = Void.class),
 			@ApiResponse(code = 404, message = "Error while deleting api", response = ErrorObj.class)})
@@ -1381,7 +1382,7 @@ public interface SwaggerService {
 
 
 	//CPA-486
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
  	@PostMapping(value = "/v1/swaggers/product-groups", produces={"application/json"})
 	public ResponseEntity<?> createProduct(
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
@@ -1389,7 +1390,7 @@ public interface SwaggerService {
 			@RequestBody SwaggerProduct swaggerProduct) throws ItorixException;
 
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@PutMapping(value = "/v1/swaggers/product-groups/{productId}", produces = {
 			"application/json"})
 	public ResponseEntity<?> updateProduct(@PathVariable("productId") String productId,
@@ -1397,26 +1398,26 @@ public interface SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody SwaggerProduct swaggerProduct)
 			throws ItorixException;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@DeleteMapping( value = "/v1/swaggers/product-groups/{productId}", produces = {
 			"application/json"})
 	public ResponseEntity<?> deleteProduct(@PathVariable("productId") String productId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException;
 
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@GetMapping(value = "/v1/swaggers/product-groups", produces = {"application/json"})
 	public ResponseEntity<?> getProductGroups(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException;
 
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@GetMapping(value = "/v1/swaggers/product-groups/partnerIds", produces = {"application/json"})
 	public ResponseEntity<?> getProductGroupsByPartnerIds(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam Map<String, String> partnerIds) throws ItorixException;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/swaggers/{swaggerId}/associate-product", produces = {
 			"application/json"})
 	public ResponseEntity<?> manageSwaggerProducts(@PathVariable("swaggerId") String swaggerId,
@@ -1425,7 +1426,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas,
 			@RequestBody AsociateSwaggerProductRequest swaggerProductRequest) throws ItorixException;
 
-	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@GetMapping(value = "/v1/swaggers/{swaggerId}/associate-products", produces = {
 			"application/json"})
 	public ResponseEntity<?> getSwaggerProducts(@PathVariable("swaggerId") String swaggerId,

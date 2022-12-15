@@ -286,7 +286,6 @@ public interface ProxyStudio {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam("name") String name,
 			@RequestParam("limit") int limit) throws ItorixException, JsonProcessingException;
 
-	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(value = "/v1/api/template/**", method = RequestMethod.GET)
 	public ResponseEntity<?> locateResouce(@RequestHeader(value = "JSESSIONID") String jsessionid,
 			HttpServletRequest httpServletRequest) throws Exception;

@@ -40,7 +40,7 @@ public interface EnvironmentSchedulerService {
 	 * 
 	 * @return
 	 */
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Create Environment Schedule", notes = "", code = 201)
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Created", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
@@ -66,7 +66,7 @@ public interface EnvironmentSchedulerService {
 	 * 
 	 * @return
 	 */
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Update Environment Schedule", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
@@ -92,7 +92,7 @@ public interface EnvironmentSchedulerService {
 	 * 
 	 * @return
 	 */
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Delete Environment Schedule", notes = "", code = 201)
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Deletion Success", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
