@@ -28,21 +28,21 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "CI-CD", tags = "CI-CD")
 public interface ManagePackageService {
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/packages", consumes = {"application/json"}, produces = {
 			"application/json"})
 	public ResponseEntity<?> createPackage(@RequestParam(value = "action", required = false) String action,
 			@RequestBody Package packageRequest, @RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request);
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/packages", consumes = {"application/json"}, produces = {
 			"application/json"})
 	public ResponseEntity<?> updatePackage(@RequestBody Package packageRequest,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request);
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = {RequestMethod.DELETE,
 			RequestMethod.PATCH}, value = "/v1/packages/{reqestId}", consumes = {
 					"application/json"}, produces = {"application/json"})
@@ -50,7 +50,7 @@ public interface ManagePackageService {
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request);
 
-	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/packages")
 	public ResponseEntity<?> getPackage(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -79,7 +79,7 @@ public interface ManagePackageService {
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request);
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/packages/{packageId}/{approveAction}", consumes = {
 			"application/json"}, produces = {"application/json"})
 	public ResponseEntity<?> approvePackage(@PathVariable("packageId") String packageId,
@@ -87,7 +87,7 @@ public interface ManagePackageService {
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request);
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Create Review Comment", notes = "", code = 201)
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Created", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected swagger name - %s", response = ErrorObj.class),
@@ -101,7 +101,7 @@ public interface ManagePackageService {
 	@ApiOperation(value = "Update Review Comment", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/packages/{packageId}/reviews/{commentId}")
 	public ResponseEntity<Void> updateReviewComment(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -113,7 +113,7 @@ public interface ManagePackageService {
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Created", response = Void.class),
 			@ApiResponse(code = 404, message = "No records found for selected review id - %s.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/packages/{packageId}/reviews/{commentId}")
 	public ResponseEntity<Void> reviewCommentReplay(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,

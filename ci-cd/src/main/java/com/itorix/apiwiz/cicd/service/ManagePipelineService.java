@@ -38,7 +38,7 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "CI-CD", tags = "CI-CD")
 public interface ManagePipelineService {
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/pipelines/validate", produces = {"application/json"})
 	public ResponseEntity<?> validatePipelineName(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -54,7 +54,7 @@ public interface ManagePipelineService {
 	@ApiOperation(value = "Create Pipeline", notes = "", code = 201)
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Created", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/pipelines", consumes = {"application/json"}, produces = {
 			"application/json"})
 	public ResponseEntity<?> createPipeline(@RequestBody PipelineGroups pipelineGroups,
@@ -65,7 +65,7 @@ public interface ManagePipelineService {
 	@ApiOperation(value = "Update Pipeline", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/pipelines", consumes = {"application/json"}, produces = {
 			"application/json"})
 	public ResponseEntity<?> updatePipeline(@RequestBody PipelineGroups pipelineGroups,
@@ -76,7 +76,7 @@ public interface ManagePipelineService {
 	@ApiOperation(value = "Delete Pipeline Group", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/pipelines/{pipelineGroupName}", produces = {
 			"application/json"})
 	public ResponseEntity<?> deletePipelineGroup(@PathVariable("pipelineGroupName") String groupName,
@@ -86,7 +86,7 @@ public interface ManagePipelineService {
 	@ApiOperation(value = "Delete Pipeline", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/pipelines/{pipelineGroupName}/{pipelineName}", produces = {
 			"application/json"})
 	public ResponseEntity<?> deletePipeline(@PathVariable("pipelineGroupName") String groupName,
@@ -175,7 +175,7 @@ public interface ManagePipelineService {
 	@ApiOperation(value = "Trigger Pipeline", notes = "", code = 202)
 	@ApiResponses(value = {@ApiResponse(code = 202, message = "Accepted", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/pipelines/{pipelineGroupName}/{pipelineName}/run", produces = {
 			"application/json"})
 	public ResponseEntity<?> triggerPipeline(@PathVariable("pipelineGroupName") String groupName,
@@ -185,7 +185,7 @@ public interface ManagePipelineService {
 	@ApiOperation(value = "Cancel Pipeline", notes = "", code = 202)
 	@ApiResponses(value = {@ApiResponse(code = 202, message = "Accepted", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/pipelines/{pipelineGroupName}/{pipelineName}/{stageName}/cancel", produces = {
 			"application/json"})
 	public ResponseEntity<?> cancelPipeline(@PathVariable("pipelineGroupName") String groupName,
@@ -196,7 +196,7 @@ public interface ManagePipelineService {
 	@ApiOperation(value = "Trigger Stage", notes = "", code = 202)
 	@ApiResponses(value = {@ApiResponse(code = 202, message = "Accepted", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/pipelines/{pipelineGroupName}/{pipelineName}/{counter}/{stageName}/run", produces = {
 			"application/json"})
 	public ResponseEntity<?> triggerStage(@PathVariable("pipelineGroupName") String groupName,
@@ -207,7 +207,7 @@ public interface ManagePipelineService {
 	@ApiOperation(value = "Send Notifications", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Accepted", response = String.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/pipelines/notifications")
 	public ResponseEntity<?> sendNotifications(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -248,7 +248,7 @@ public interface ManagePipelineService {
 	@ApiOperation(value = "Pause Pipeline", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/pipelines/{pipelineGroupName}/{pipelineName}/pause", produces = {
 			"application/json"})
 	public ResponseEntity<?> pausePipeline(@PathVariable("pipelineGroupName") String groupName,
@@ -258,7 +258,7 @@ public interface ManagePipelineService {
 	@ApiOperation(value = "Un Pause Pipeline", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/pipelines/{pipelineGroupName}/{pipelineName}/unpause", produces = {
 			"application/json"})
 	public ResponseEntity<?> unpausePipeline(@PathVariable("pipelineGroupName") String groupName,
@@ -296,14 +296,14 @@ public interface ManagePipelineService {
 			@RequestParam(value = "timeunit", required = false) String timeunit,
 			@RequestParam(value = "timerange", required = false) String timerange) throws Exception;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/cicd/backup")
 	public ResponseEntity<?> createcicdBackUp(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody BackUpRequest backUpRequest)
 			throws Exception;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/cicd/backup")
 	public ResponseEntity<?> updatecicdBackUp(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,

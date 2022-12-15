@@ -16,7 +16,7 @@ import com.itorix.apiwiz.data.management.model.PolicyMappings;
 @RestController
 public interface PolicyMappingService {
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/policy-mapping")
 	public ResponseEntity<Void> updateEnvironmentSchedule(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,

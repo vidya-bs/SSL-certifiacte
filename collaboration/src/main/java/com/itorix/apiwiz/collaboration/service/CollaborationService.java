@@ -41,7 +41,7 @@ public interface CollaborationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Create Team", notes = "", code = 201)
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Created", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
@@ -63,7 +63,7 @@ public interface CollaborationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Update Team", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected team name - %s.", response = ErrorObj.class),
@@ -74,7 +74,7 @@ public interface CollaborationService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("teamname") String teamname,
 			@RequestBody SwaggerTeam swaggerTeam) throws Exception;
 
-//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "get Team", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Team", response = SwaggerTeam.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected team name - %s.", response = ErrorObj.class),
@@ -96,7 +96,7 @@ public interface CollaborationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Delete Team", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found. No records found for selected team name - %s.", response = ErrorObj.class),
@@ -117,7 +117,7 @@ public interface CollaborationService {
 	 * @param request
 	 * @param response
 	 */
-//	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN','PROJECT-ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Assoiate Team", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
@@ -141,7 +141,7 @@ public interface CollaborationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Assoiated Teams", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
@@ -164,7 +164,7 @@ public interface CollaborationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Team Permissions", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerTeamPermissionVO.class, responseContainer = "List"),
@@ -184,7 +184,7 @@ public interface CollaborationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Teams", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerTeam.class, responseContainer = "List"),
@@ -207,7 +207,7 @@ public interface CollaborationService {
 	 * 
 	 * @return
 	 */
-//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Team Names", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
@@ -227,7 +227,7 @@ public interface CollaborationService {
 	 * 
 	 * @throws ItorixException
 	 */
-//	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams/search", produces = {"application/json"})
 	public ResponseEntity<Object> teamSearch(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
