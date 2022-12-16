@@ -1163,7 +1163,7 @@ public class IdentityManagementDao {
         String workspaceId = userSessionToken.getWorkspaceId();
         User loginUser = findUserById(userSessionToken.getUserId());
         if (!loginUser.isWorkspaceAdmin(workspaceId)) {
-            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
+            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1006"), "Identity-1006");
         }
         Users allUsers = new Users();
         List<String> userName = new ArrayList<String>();
