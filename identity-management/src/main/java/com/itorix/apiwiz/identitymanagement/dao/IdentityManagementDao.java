@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.common.model.MetaData;
 import com.itorix.apiwiz.common.model.SwaggerContacts;
 import com.itorix.apiwiz.common.model.SwaggerTeam;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
@@ -29,6 +30,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -1957,5 +1959,40 @@ public class IdentityManagementDao {
             return objectMapper.readTree(menu.getMenus());
         }
         return null;
+    }
+
+    public void createRolesMetaData(String metadataStr) {
+        Query query = new Query().addCriteria(Criteria.where("key").is("roles"));
+        MetaData metaData = masterMongoTemplate.findOne(query, MetaData.class);
+        if (metaData != null) {
+            logger.debug("Updating masterMongoTemplate");
+            Update update = new Update();
+            update.set("metadata", metadataStr);
+            masterMongoTemplate.updateFirst(query, update, MetaData.class);
+        } else
+            masterMongoTemplate.save(new MetaData("roles", metadataStr));
+    }
+
+    public List<String> getRoles() {
+        List<String> roles = new ArrayList<String>();
+        Query query = new Query().addCriteria(Criteria.where("key").is("roles"));
+        MetaData metaData = masterMongoTemplate.findOne(query, MetaData.class);
+        if (metaData != null) {
+            JSONObject jsonObject = JSONObject.fromObject(metaData.getMetadata());
+            JSONArray jsonArray = jsonObject.getJSONArray("roles");
+            for(Object role : jsonArray){
+                roles.add(role.toString());
+            }
+        }else {
+            roles.add("Developer");
+            roles.add("Admin");
+            roles.add("Portal");
+            roles.add("Analyst");
+            roles.add("Project-Admin");
+            roles.add("Site-Admin");
+            roles.add("Operation");
+            roles.add("Test");
+        }
+        return roles;
     }
 }

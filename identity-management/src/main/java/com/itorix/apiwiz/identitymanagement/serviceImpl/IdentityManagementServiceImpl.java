@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.identitymanagement.serviceImpl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itorix.apiwiz.common.model.SwaggerTeam;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
@@ -632,15 +633,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
 			@RequestHeader(value = "x-apikey") String apikey,
 			@RequestHeader(value = "interactionid", required = false) String interactionid) throws Exception {
-		List<String> rolls = new ArrayList<String>();
-		rolls.add("Developer");
-		rolls.add("Admin");
-		rolls.add("Portal");
-		rolls.add("Analyst");
-		rolls.add("Project-Admin");
-		rolls.add("Operation");
-		rolls.add("Test");
-		return new ResponseEntity<Object>(rolls, HttpStatus.OK);
+		return new ResponseEntity<Object>(identityManagementDao.getRoles(), HttpStatus.OK);
 	}
 
 	@Override
@@ -908,6 +901,14 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID", required = true) String jsessionid
 	) {
 		return new ResponseEntity<>(rateLimitingDao.getApplicationUsage(), HttpStatus.OK);
+	}
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<?> createRolesMetaData(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid, @RequestBody String metadata)
+			throws JsonProcessingException, ItorixException {
+		identityManagementDao.createRolesMetaData(metadata);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 }
