@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.identitymanagement.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itorix.apiwiz.common.model.SwaggerTeam;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
@@ -595,6 +596,12 @@ public interface IdentityManagmentService {
 	public ResponseEntity<?> getApplicationUsage(
 			@RequestHeader(value = "JSESSIONID", required = true) String jsessionid
 	);
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/roles/metadata", consumes = {"application/json"})
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<?> createRolesMetaData(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid, @RequestBody String metadata)
+			throws JsonProcessingException, ItorixException;
 
 
 }
