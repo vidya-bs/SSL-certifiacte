@@ -1164,9 +1164,6 @@ public class IdentityManagementDao {
         UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
         String workspaceId = userSessionToken.getWorkspaceId();
         User loginUser = findUserById(userSessionToken.getUserId());
-        if (!loginUser.isWorkspaceAdmin(workspaceId)) {
-            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1006"), "Identity-1006");
-        }
         Users allUsers = new Users();
         List<String> userName = new ArrayList<String>();
         List<UserDetails> userDetails = new ArrayList<UserDetails>();
@@ -1240,9 +1237,6 @@ public class IdentityManagementDao {
         String workspaceId = userSessionToken.getWorkspaceId();
         logger.debug("workspace : {}", workspaceId);
         User loginUser = findUserById(userSessionToken.getUserId());
-        if (!loginUser.isWorkspaceAdmin(workspaceId)) {
-            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
-        }
         Users allUsers = new Users();
         List<UserDetails> userDetails = new ArrayList<UserDetails>();
         List<User> dbUsers = findUsersByWorkspace(workspaceId);
