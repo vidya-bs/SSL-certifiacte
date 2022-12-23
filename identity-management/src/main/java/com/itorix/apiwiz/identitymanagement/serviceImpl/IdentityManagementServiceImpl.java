@@ -884,7 +884,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			rateLimitingDao.addTenantQuotas(tenantId, quota);
 			return new ResponseEntity<>(HttpStatus.ACCEPTED);
 		} else {
-			return new ResponseEntity<>("Rate limit is disabled", HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>("Rate limit is disabled", HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -898,7 +898,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			rateLimitingDao.addMasterQuotas(quotas);
 			return new ResponseEntity<>(HttpStatus.ACCEPTED);
 		} else {
-			return new ResponseEntity<>("Rate limit is disabled", HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>("Rate limit is disabled", HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -909,7 +909,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		if (rateLimitingDao != null) {
 			return new ResponseEntity<>(rateLimitingDao.getApplicationUsage(), HttpStatus.OK);
 		} else {
-			return new ResponseEntity<>("Rate limit is disabled", HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>("Rate limit is disabled", HttpStatus.FORBIDDEN);
 		}
 	}
 	@UnSecure(ignoreValidation = true)
