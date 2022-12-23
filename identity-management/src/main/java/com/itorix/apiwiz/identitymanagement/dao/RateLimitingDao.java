@@ -16,6 +16,7 @@ import io.github.bucket4j.grid.hazelcast.HazelcastProxyManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -29,6 +30,7 @@ import java.util.Optional;
 @Component
 @Slf4j
 @EnableScheduling
+@ConditionalOnProperty(prefix = "ratelimit",name = "enabled",havingValue = "true", matchIfMissing = true)
 public class RateLimitingDao {
 
     @Autowired
