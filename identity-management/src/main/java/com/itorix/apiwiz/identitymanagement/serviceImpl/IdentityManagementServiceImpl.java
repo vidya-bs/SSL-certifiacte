@@ -41,7 +41,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	@Autowired
 	WorkspaceDao workspaceDao;
 
-	@Autowired
+	@Autowired(required = false)
 	private RateLimitingDao rateLimitingDao;
 
 	@Override
@@ -880,9 +880,12 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			@RequestHeader(value = "x-apikey", required = true) String apikey,
 			@RequestHeader(value = "x-tenant", required = true) String tenantId,
 			@RequestBody RateLimitQuota quota) throws ItorixException{
-
-		rateLimitingDao.addTenantQuotas(tenantId, quota);
-		return new ResponseEntity<>(HttpStatus.ACCEPTED);
+		if (rateLimitingDao != null) {
+			rateLimitingDao.addTenantQuotas(tenantId, quota);
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
+		} else {
+			return new ResponseEntity<>("Rate limit is disabled", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	@UnSecure(useUpdateKey = true)
@@ -891,16 +894,23 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	public ResponseEntity<?> addMasterQuotas(
 			@RequestHeader(value = "x-apikey", required = true) String apikey,
 			@RequestBody List<RateLimitQuota> quotas) throws ItorixException {
-
-		rateLimitingDao.addMasterQuotas(quotas);
-		return new ResponseEntity<>(HttpStatus.ACCEPTED);
+		if (rateLimitingDao != null) {
+			rateLimitingDao.addMasterQuotas(quotas);
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
+		} else {
+			return new ResponseEntity<>("Rate limit is disabled", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/rate-limit/usage", produces = {"application/json"})
 	public ResponseEntity<?> getApplicationUsage(
 			@RequestHeader(value = "JSESSIONID", required = true) String jsessionid
 	) {
-		return new ResponseEntity<>(rateLimitingDao.getApplicationUsage(), HttpStatus.OK);
+		if (rateLimitingDao != null) {
+			return new ResponseEntity<>(rateLimitingDao.getApplicationUsage(), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>("Rate limit is disabled", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	@UnSecure(ignoreValidation = true)
 	public ResponseEntity<?> createRolesMetaData(
