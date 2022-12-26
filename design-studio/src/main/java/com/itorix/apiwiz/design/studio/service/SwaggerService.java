@@ -1437,4 +1437,34 @@ public interface SwaggerService {
 			@RequestHeader(value = "oas", required = true, defaultValue = "2.0") String oas)
 			throws ItorixException;
 
+	@ApiOperation(value = "Get Swagger Revison's", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/swaggers/stats")
+	public ResponseEntity<Object> getSwaggerStatsV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = false) String oas,
+			@RequestParam(value = "timeunit", required = false) String timeunit,
+			@RequestParam(value = "timerange", required = false) String timerange) throws Exception;
+
+	@ApiOperation(value = "Get List Of Swagger Details", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@PreAuthorize("hasAnyAuthority('BASIC','PRO','TEAM','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/swaggers/history", produces = {
+			MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<Object> getListOfSwaggerDetailsV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "oas", required = false) String oas,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
+			@RequestParam(value = "swagger", required = false) String swagger,
+			@RequestParam(value = "status", required = false) String status,
+			@RequestParam(value = "modifieddate", required = false) String modifiedDate,
+			@RequestParam(value = "sortbymodifieddate", required = false) String sortByModifiedDate,
+			@RequestParam(value = "product", required = false) String product) throws Exception;
 }
