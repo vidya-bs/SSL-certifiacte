@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
+import org.springframework.data.mongodb.core.aggregation.ConditionalOperators.Cond;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static com.itorix.apiwiz.identitymanagement.model.Constants.CREATED_BY;
+import static com.itorix.apiwiz.identitymanagement.model.Constants.MAX_REVISION;
+import static com.itorix.apiwiz.identitymanagement.model.Constants.MTS_TO_DATE;
+import static com.itorix.apiwiz.identitymanagement.model.Constants.ORIGINAL_DOC;
+import static com.itorix.apiwiz.identitymanagement.model.Constants.REVISION;
+import static com.itorix.apiwiz.identitymanagement.model.Constants.STATUS;
+import static com.itorix.apiwiz.identitymanagement.model.Constants.SWAGGER_ID;
 import static com.itorix.apiwiz.identitymanagement.model.Constants.SWAGGER_PROJECTION_FIELDS;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 import static org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter.filter;
@@ -169,7 +177,7 @@ public class BaseRepository {
 	public <T> List<String> findDistinctValuesByColumnNameWherecreatedBy(Class<T> clazz, String columName,
 			String createdBy) {
 		return getList(mongoTemplate.getCollection(mongoTemplate.getCollectionName(clazz)).distinct(columName,
-				new Query(Criteria.where("createdBy").is(createdBy)).getQueryObject(), String.class));
+				new Query(Criteria.where(CREATED_BY).is(createdBy)).getQueryObject(), String.class));
 	}
 
 	public <T> List<T> find(Query query, Class<T> clazz) {
@@ -206,18 +214,18 @@ public class BaseRepository {
 		AggregationResults<Document> results = null;
 
 		ProjectionOperation projectRequiredFields = project(SWAGGER_PROJECTION_FIELDS).andExpression("toDate(mts)")
-				.as("mtsToDate");
+				.as(MTS_TO_DATE);
 
-		ProjectionOperation dateToString = Aggregation.project(SWAGGER_PROJECTION_FIELDS).and("mtsToDate")
+		ProjectionOperation dateToString = Aggregation.project(SWAGGER_PROJECTION_FIELDS).and(MTS_TO_DATE)
 				.dateAsFormattedString("%m%d%Y").as("modified_date");
 
-		GroupOperation groupByMaxRevision = group("name").max("revision").as("maxRevision").push("$$ROOT")
-				.as("originalDoc");
+		GroupOperation groupByMaxRevision = group("name").max(REVISION).as(MAX_REVISION).push("$$ROOT")
+				.as(ORIGINAL_DOC);
 		ProjectionOperation filterMaxRevision = project()
-				.and(filter("originalDoc").as("doc").by(valueOf("maxRevision").equalToValue("$$doc.revision")))
-				.as("originalDoc");
+				.and(filter(ORIGINAL_DOC).as("doc").by(valueOf(MAX_REVISION).equalToValue("$$doc.revision")))
+				.as(ORIGINAL_DOC);
 
-		UnwindOperation unwindOperation = unwind("originalDoc");
+		UnwindOperation unwindOperation = unwind(ORIGINAL_DOC);
 
 		ProjectionOperation projectionOperation = project("originalDoc.name").andInclude("originalDoc.status",
 				"originalDoc.modified_date", "originalDoc.mts", "originalDoc.createdBy");
@@ -306,5 +314,152 @@ public class BaseRepository {
 			String fieldName3, Object fieldValue3, Class<T> clazz) {
 		return mongoTemplate.remove(new Query(Criteria.where(fieldName1).is(fieldValue1).and(fieldName2).is(fieldValue2)
 				.and(fieldName3).is(fieldValue3)), clazz);
+	}
+
+
+	public AggregationResults<Document> filterAndGroupBySwaggerNameV2( Class<?> clazz,Map<String, Object> filterFieldsAndValues) {
+		AggregationResults<Document> results = null;
+		String[] SWAGGER_PROJECTION_FIELDS = new String[]{SWAGGER_ID, STATUS,
+				REVISION,CREATED_BY ,"name"};
+		ProjectionOperation projectRequiredFields = project(SWAGGER_PROJECTION_FIELDS);
+		GroupOperation groupByMaxRevision = group(SWAGGER_ID).max(REVISION).as(MAX_REVISION).push("$$ROOT")
+				.as(ORIGINAL_DOC);
+		ProjectionOperation filterMaxRevision = project()
+				.and(filter(ORIGINAL_DOC).as("doc").by(valueOf(MAX_REVISION).equalToValue("$$doc.revision")))
+				.as(ORIGINAL_DOC);
+
+		UnwindOperation unwindOperation = unwind(ORIGINAL_DOC);
+
+		ProjectionOperation projectionOperation = project("originalDoc.status","originalDoc.createdBy","originalDoc.swaggerId");
+
+		Cond condition = ConditionalOperators.when(Criteria.where(STATUS)).then(1).otherwise(0);
+		groupByName = group(STATUS).sum(condition).as("count");
+		ProjectionOperation projectionOperation1 = project().andExclude("_id").andInclude("count").and("_id").as(STATUS);
+		MatchOperation matchBySwaggerId = getMatchOperationV2(filterFieldsAndValues);
+		if(matchBySwaggerId != null) {
+			results = mongoTemplate.aggregate(
+					newAggregation(projectRequiredFields,groupByMaxRevision,filterMaxRevision,
+							unwindOperation, projectionOperation,matchBySwaggerId,groupByName,projectionOperation1),
+					clazz, Document.class);
+		}
+		else {
+			results = mongoTemplate.aggregate(
+					newAggregation(projectRequiredFields, groupByMaxRevision, filterMaxRevision,
+							unwindOperation, projectionOperation, groupByName, projectionOperation1),
+					clazz, Document.class);
+		}
+		return results;
+	}
+
+	private MatchOperation getMatchOperationV2(Map<String, Object> filterFieldsAndValues) {
+		List<Criteria> criteriaList = new ArrayList<>();
+		filterFieldsAndValues.forEach((k, v) -> {
+			if (null != v) {
+				if(v instanceof List) {
+					criteriaList.add(Criteria.where(k).in(((List) v).toArray()));
+				}
+				else {
+					criteriaList.add(Criteria.where(k).in(v));
+				}
+			}
+		});
+		Criteria criteria = new Criteria().orOperator(
+				criteriaList.toArray(new Criteria[criteriaList.size()]));
+		return !criteriaList.isEmpty() ? match(criteria) : null;
+	}
+
+	private MatchOperation getMatchOperationV2History(Map<String, Object> filterFieldsAndValues) {
+		List<Criteria> criteriaList = new ArrayList<>();
+		List<Criteria> criteriaList1 = new ArrayList<>();
+		filterFieldsAndValues.forEach((k, v) -> {
+			if (null != v) {
+				if(v instanceof List) {
+					criteriaList1.add(Criteria.where(k).in(((List) v).toArray()));
+				}
+				else {
+					criteriaList.add(Criteria.where(k).in(v));
+				}
+			}
+		});
+		if(filterFieldsAndValues.containsKey(SWAGGER_ID)||filterFieldsAndValues.containsKey(CREATED_BY)){
+			Criteria criteria = new Criteria().orOperator(criteriaList1.toArray(new Criteria[criteriaList1.size()]));
+			return !criteriaList1.isEmpty() ? match(criteria) : null;
+		}
+		else {
+			Criteria criteria = new Criteria().andOperator(
+					criteriaList.toArray(new Criteria[criteriaList.size()]));
+			return !criteriaList.isEmpty() ? match(criteria) : null;
+		}
+	}
+
+
+	public List<String> filterAndGroupBySwaggerNameHistory(Map<String, Object> filterFieldsAndValues,Map<String, Object> filterFieldsAndValuesForSwaggerId, Class<?> clazz,
+			String sortByModifiedTS) {
+		List<String> names = new LinkedList();
+		AggregationResults<Document> results = null;
+
+		ProjectionOperation projectRequiredFields = project(SWAGGER_PROJECTION_FIELDS).andExpression("toDate(mts)")
+				.as(MTS_TO_DATE);
+
+		MatchOperation matchBySwaggerId = getMatchOperationV2History(filterFieldsAndValuesForSwaggerId);
+
+
+		ProjectionOperation dateToString = Aggregation.project(SWAGGER_PROJECTION_FIELDS).and(MTS_TO_DATE)
+				.dateAsFormattedString("%m%d%Y").as("modified_date");
+
+		GroupOperation groupByMaxRevision = group(SWAGGER_ID).max(REVISION).as(MAX_REVISION).push("$$ROOT")
+				.as(ORIGINAL_DOC);
+		ProjectionOperation filterMaxRevision = project()
+				.and(filter(ORIGINAL_DOC).as("doc").by(valueOf(MAX_REVISION).equalToValue("$$doc.revision")))
+				.as(ORIGINAL_DOC);
+
+		UnwindOperation unwindOperation = unwind(ORIGINAL_DOC);
+
+		ProjectionOperation projectionOperation = project("originalDoc.name").andInclude("originalDoc.status",
+				"originalDoc.modified_date", "originalDoc.mts", "originalDoc.createdBy","originalDoc.swaggerId");
+
+		MatchOperation matchByStatusAndModifiedTime = getMatchOperationV2History(filterFieldsAndValues);
+		groupByName = group(SWAGGER_ID).max("mts").as("mts").max("name").as("name").max(STATUS).as(STATUS);
+		SortOperation sortOperation = getSortOperationV2(sortByModifiedTS);
+
+		if (matchBySwaggerId != null&&matchByStatusAndModifiedTime!=null) {
+			results = mongoTemplate.aggregate(
+					newAggregation(projectRequiredFields,dateToString, groupByMaxRevision, filterMaxRevision,
+							unwindOperation, projectionOperation,matchBySwaggerId, groupByName, sortOperation,matchByStatusAndModifiedTime),
+					clazz, Document.class);
+		}
+		else if (matchBySwaggerId!=null) {
+			results = mongoTemplate.aggregate(
+					newAggregation(projectRequiredFields,dateToString,groupByMaxRevision, filterMaxRevision,
+							unwindOperation, projectionOperation,matchBySwaggerId, groupByName, sortOperation),
+					clazz, Document.class);
+		}
+		else if (matchByStatusAndModifiedTime!=null) {
+			results = mongoTemplate.aggregate(
+					newAggregation(projectRequiredFields,dateToString, groupByMaxRevision, filterMaxRevision,
+							unwindOperation, projectionOperation, groupByName, sortOperation,matchByStatusAndModifiedTime),
+					clazz, Document.class);
+		}else {
+			results = mongoTemplate
+					.aggregate(
+							newAggregation(projectRequiredFields,dateToString, groupByMaxRevision, filterMaxRevision,
+									unwindOperation, projectionOperation, groupByName, sortOperation),
+							clazz, Document.class);
+		}
+		results.getMappedResults().forEach(d -> names.add(d.getString("_id")));
+		return names;
+	}
+
+	private SortOperation getSortOperationV2(String sortByModifiedTS) {
+		SortOperation sortOperation = null;
+		if (sortByModifiedTS != null && sortByModifiedTS.equalsIgnoreCase("ASC")) {
+			sortOperation = sort(Sort.Direction.ASC, "mts");
+		} else if (sortByModifiedTS != null && sortByModifiedTS.equalsIgnoreCase("DESC")) {
+			sortOperation = sort(Sort.Direction.DESC, "mts");
+		} else {
+			sortOperation = sort(Sort.Direction.ASC, "name");
+		}
+
+		return sortOperation;
 	}
 }

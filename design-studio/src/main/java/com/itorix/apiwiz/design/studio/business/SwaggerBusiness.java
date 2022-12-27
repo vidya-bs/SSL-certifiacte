@@ -214,6 +214,12 @@ public interface SwaggerBusiness {
 			String jsessionid, int offset, String oas, String swagger, int pageSize, String sortByModfiedDate)
 			throws ItorixException, JsonProcessingException, IOException;
 
+
+
+
+	public SwaggerHistoryResponse getListOfSwaggerDetailsV2(String status, String modifiedDate, String interactionid,
+			String jsessionid, int offset, String oas, String swagger, int pageSize, String sortByModfiedDate)
+			throws ItorixException, JsonProcessingException, IOException;
 	/**
 	 * getSwaggerDetailsByproduct
 	 *
@@ -262,6 +268,9 @@ public interface SwaggerBusiness {
 			String jsessionid, int offset, String oas, String swagger, int pageSize, String sortByModifiedDate)
 			throws ItorixException, JsonProcessingException, IOException;
 
+	public SwaggerHistoryResponse getListOfSwagger3DetailsV2(String status, String modifiedDate, String interactionid,
+			String jsessionid, int offset, String oas, String swagger, int pageSize, String sortByModifiedDate)
+			throws ItorixException, JsonProcessingException, IOException;
 	/**
 	 * getListOfPublishedSwaggerDetails
 	 *
@@ -616,6 +625,8 @@ public interface SwaggerBusiness {
 	public SwaggerObjectResponse getSwaggerStats(String timeunit, String timerange)
 			throws ParseException, ItorixException;
 
+	public SwaggerObjectResponse getSwaggerStatsV2(String timeunit, String timerange,String jsessionid)
+			throws ParseException, ItorixException, JsonProcessingException;
 	/**
 	 * getSwagger3Stats
 	 *
@@ -628,6 +639,8 @@ public interface SwaggerBusiness {
 	 */
 	public ObjectNode getSwagger3Stats(String timeunit, String timerange) throws ParseException, ItorixException;
 
+
+	public SwaggerObjectResponse getSwagger3Statsv2(String timeunit, String timerange,String jsessionid) throws ParseException, ItorixException;
 	/**
 	 * getTeamStats
 	 *

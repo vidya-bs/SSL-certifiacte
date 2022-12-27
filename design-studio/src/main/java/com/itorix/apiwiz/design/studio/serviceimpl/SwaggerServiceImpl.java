@@ -2965,4 +2965,80 @@ public class SwaggerServiceImpl implements SwaggerService {
 		}
 
 	}
+
+	@ApiOperation(value = "Get Swagger Revison's", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/swaggers/stats")
+	public ResponseEntity<Object> getSwaggerStatsV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = false) String oas,
+			@RequestParam(value = "timeunit", required = false) String timeunit,
+			@RequestParam(value = "timerange", required = false) String timerange) throws Exception {
+		SwaggerObjectResponse obj = null;
+		if (oas == null || oas.trim().equals("")) {
+			oas = "2.0";
+		}
+		if (oas.equals("2.0")) {
+			return new ResponseEntity<Object>(swaggerBusiness.getSwaggerStatsV2(timeunit, timerange,jsessionid), HttpStatus.OK);
+		} else if (oas.equals("3.0")) {
+			obj = swaggerBusiness.getSwagger3Statsv2(timeunit, timerange,jsessionid);
+		}
+		return new ResponseEntity<Object>(obj, HttpStatus.OK);
+	}
+
+	@ApiOperation(value = "Get List Of Swagger Details", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/swaggers/history", produces = {
+			MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<Object> getListOfSwaggerDetailsV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = false) String oas,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
+			@RequestParam(value = "swagger", required = false) String swagger,
+			@RequestParam(value = "status", required = false) String status,
+			@RequestParam(value = "product", required = false) String product,
+			@RequestParam(value = "modifieddate", required = false) String modifiedDate,
+			@RequestParam(value = "sortbymodifieddate", required = false) String sortByModifiedDate) throws Exception {
+		if (oas == null || oas.trim().equals("")) {
+			oas = "2.0";
+		}
+		String json = "";
+		List<String> products = null;
+		if (null != product) {
+			products = Arrays.asList(product.split(","));
+		}
+		if (oas.equals("2.0")) {
+			SwaggerHistoryResponse response;
+			if (null != products) {
+				response = swaggerBusiness.getSwaggerDetailsByproduct(products, interactionid, jsessionid, offset, oas,
+						swagger, pageSize);
+			} else {
+				response = swaggerBusiness.getListOfSwaggerDetailsV2(status, modifiedDate, interactionid, jsessionid,
+						offset, oas, swagger, pageSize, sortByModifiedDate);
+			}
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.setSerializationInclusion(Include.NON_NULL);
+			json = mapper.writeValueAsString(response);
+		} else if (oas.equals("3.0")) {
+			SwaggerHistoryResponse response;
+			if (null != products) {
+				response = swaggerBusiness.getSwaggerDetailsByproduct(products, interactionid, jsessionid, offset, oas,
+						swagger, pageSize);
+			} else {
+				response = swaggerBusiness.getListOfSwagger3DetailsV2(status, modifiedDate, interactionid, jsessionid,
+						offset, oas, swagger, pageSize, sortByModifiedDate);
+			}
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.setSerializationInclusion(Include.NON_NULL);
+			json = mapper.writeValueAsString(response);
+		}
+		return new ResponseEntity<Object>(json, HttpStatus.OK);
+	}
 }
