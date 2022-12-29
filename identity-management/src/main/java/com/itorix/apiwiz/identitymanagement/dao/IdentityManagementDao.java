@@ -760,6 +760,8 @@ public class IdentityManagementDao {
                     e.printStackTrace();
                 }
             }
+            workspace.setCts(System.currentTimeMillis());
+            workspace.setMts(System.currentTimeMillis());
             masterMongoTemplate.save(workspace);
             return workspace;
         } else {
@@ -1096,6 +1098,7 @@ public class IdentityManagementDao {
         saveUser(user);
         Workspace workspace = getWorkspace(token.getWorkspaceId());
         workspace.setStatus("active");
+        workspace.setMts(System.currentTimeMillis());
         masterMongoTemplate.save(workspace);
         token.setUsed(true);
         saveVerificationToken(token);
@@ -1154,6 +1157,7 @@ public class IdentityManagementDao {
             masterMongoTemplate.save(subscription);
             Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
             workspace.setStatus("cancel");
+            workspace.setMts(System.currentTimeMillis());
             masterMongoTemplate.save(workspace);
         } else {
             throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1042"), "Identity-1042");
