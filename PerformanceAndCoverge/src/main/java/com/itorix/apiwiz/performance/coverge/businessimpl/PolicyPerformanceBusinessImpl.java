@@ -38,7 +38,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -86,6 +88,11 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness 
 	CommonServices commonServices;
 	@Autowired
 	ApigeeUtil apigeeUtil;
+
+	@Autowired
+	private MongoTemplate mongoTemplate;
+
+	private long policyPerformanceCount = 0;
 
 	@Qualifier("masterMongoTemplate")
 	@Autowired
@@ -306,15 +313,18 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness 
 	}
 
 	public List<History> getPolicyPerformanceList(String interactionid, boolean filter, String proxy, String org,
-			String env, String daterange) throws Exception {
+												  String env, String daterange, boolean expand, Integer offset, Integer pageSize) throws Exception {
 		log("getPolicyPerformanceList", interactionid, "");
 		List<PolicyPerformanceBackUpInfo> policyPerformanceInfo = new ArrayList<>();
 		List<History> history = new ArrayList<History>();
 		Criteria criteria = new Criteria();
+		Query query = new Query();
+		if (!expand) {
+			query.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+		}
 		if (filter) {
 			logger.debug("Getting policy performance list");
 			SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-			Query query = new Query();
 			if (proxy != null) {
 				criteria.and("proxy").is(proxy);
 			} else {
@@ -339,8 +349,13 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness 
 			query.addCriteria(criteria);
 			policyPerformanceInfo = baseRepository.find(query, PolicyPerformanceBackUpInfo.class);
 		} else {
-			policyPerformanceInfo = baseRepository.findAll(PolicyPerformanceBackUpInfo.LABEL_CREATED_TIME, "-",
-					PolicyPerformanceBackUpInfo.class);
+			query.with(Sort.by(Sort.Direction.DESC, PolicyPerformanceBackUpInfo.LABEL_CREATED_TIME));
+			policyPerformanceInfo = mongoTemplate.find(query, PolicyPerformanceBackUpInfo.class);
+		}
+		if(!expand) {
+			query.limit(0);
+			query.skip(0);
+			this.policyPerformanceCount = policyPerformanceResponseCount(query);
 		}
 		for (PolicyPerformanceBackUpInfo info : policyPerformanceInfo) {
 			History h = new History();
@@ -409,6 +424,39 @@ public class PolicyPerformanceBusinessImpl implements PolicyPerformanceBusiness 
 		LocalDateTime localDateTime = dateToLocalDateTime(date);
 		LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
 		return localDateTimeToDate(startOfDay);
+	}
+
+	public Object search(String proxy, int limit) throws ItorixException {
+		log("searchPolicyPerformanceList", "");
+		BasicQuery query = new BasicQuery("{\"proxy\": {$regex : '" + proxy + "', $options: 'i'}}");
+		query.limit(limit > 0 ? limit : 10);
+//		List<GroupVO> groups = mongoTemplate.find(query, GroupVO.class);
+		List<PolicyPerformanceBackUpInfo> policyPerformanceInfo = baseRepository.find(query, PolicyPerformanceBackUpInfo.class);
+		List<History> history = new ArrayList<History>();
+		for (PolicyPerformanceBackUpInfo info : policyPerformanceInfo) {
+			History h = new History();
+			h.setId(info.getId());
+			h.setName(info.getProxy());
+			h.setModified(info.getMts() + "");
+			h.setUser(info.getUser());
+			h.setOrganization(info.getOrganization());
+			h.setEnvironment(info.getEnvironment());
+			history.add(h);
+		}
+		log("searchPolicyPerformanceList", proxy, history);
+		return history;
+	}
+
+	public long policyPerformanceResponseCount(Query query) {
+		if (query != null) {
+			return mongoTemplate.count(query, PolicyPerformanceBackUpInfo.class);
+		} else {
+			return mongoTemplate.count(new Query(), PolicyPerformanceBackUpInfo.class);
+		}
+	}
+
+	public long getPolicyPerformanceResponseCount(){
+		return this.policyPerformanceCount;
 	}
 
 	private static Date localDateTimeToDate(LocalDateTime startOfDay) {

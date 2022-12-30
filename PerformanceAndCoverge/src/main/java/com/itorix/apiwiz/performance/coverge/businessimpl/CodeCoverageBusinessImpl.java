@@ -45,7 +45,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -118,6 +120,8 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 
 	@Autowired
 	TestSuiteDAO testsuitDAO;
+
+	private long codeCoverageCount = 0;
 
 	/**
 	 * executeCodeCoverage
@@ -1092,20 +1096,23 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 	 * getCodeCoverageList
 	 *
 	 * @param interactionid
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public List<History> getCodeCoverageList(String interactionid, boolean filter, String proxy, String org, String env,
-			String daterange) throws Exception {
+											 String daterange, boolean expand, Integer offset, Integer pageSize) throws Exception {
 		log("getCodeCoverageList", interactionid, "");
 		List<CodeCoverageBackUpInfo> codeCoverageInfo = new ArrayList<>();
 		List<History> history = new ArrayList<History>();
 		Criteria criteria = new Criteria();
+		Query query = new Query();
+		if (!expand) {
+			query.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
+		}
 		if (filter) {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-			Query query = new Query();
 			if (proxy != null) {
 				criteria.and("proxy").is(proxy);
 			} else {
@@ -1130,9 +1137,13 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 			codeCoverageInfo = baseRepository.find(query, CodeCoverageBackUpInfo.class);
 
 		} else {
-
-			codeCoverageInfo = baseRepository.findAll(CodeCoverageBackUpInfo.LABEL_CREATED_TIME, "-",
-					CodeCoverageBackUpInfo.class);
+			query.with(Sort.by(Sort.Direction.DESC, PolicyPerformanceBackUpInfo.LABEL_CREATED_TIME));
+			codeCoverageInfo = mongoTemplate.find(query, CodeCoverageBackUpInfo.class);
+		}
+		if(!expand) {
+			query.limit(0);
+			query.skip(0);
+			this.codeCoverageCount = codeCoverageResponseCount(query);
 		}
 		for (CodeCoverageBackUpInfo info : codeCoverageInfo) {
 			History h = new History();
@@ -1677,6 +1688,40 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		LocalDateTime localDateTime = dateToLocalDateTime(date);
 		LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
 		return localDateTimeToDate(startOfDay);
+	}
+
+	public Long getCodeCoverageResponseCount() {
+		return this.codeCoverageCount;
+	}
+
+	public Long codeCoverageResponseCount(Query query) {
+		if (query != null) {
+			return mongoTemplate.count(query, CodeCoverageBackUpInfo.class);
+		} else {
+			return mongoTemplate.count(new Query(), CodeCoverageBackUpInfo.class);
+		}
+	}
+
+	public Object search(String proxy, int limit) throws ItorixException {
+		log("searchCodeCoverageList", "");
+		BasicQuery query = new BasicQuery("{\"proxy\": {$regex : '" + proxy + "', $options: 'i'}}");
+		query.limit(limit > 0 ? limit : 10);
+//		List<GroupVO> groups = mongoTemplate.find(query, GroupVO.class);
+		List<CodeCoverageBackUpInfo> codeCoverageBackUpInfo = baseRepository.find(query, CodeCoverageBackUpInfo.class);
+		List<History> history = new ArrayList<History>();
+		for (CodeCoverageBackUpInfo info : codeCoverageBackUpInfo) {
+			History h = new History();
+			h.setId(info.getId());
+			h.setName(info.getProxy());
+			h.setModified(info.getMts() + "");
+			h.setUser(info.getApigeeUser());
+			h.setOrganization(info.getOrganization());
+			h.setEnvironment(info.getEnvironment());
+			h.setPercentage(info.getProxyStat() != null ? info.getProxyStat().getCoverage() : "0");
+			history.add(h);
+		}
+		log("searchCodeCoverageList", proxy, history);
+		return history;
 	}
 
 	private static Date localDateTimeToDate(LocalDateTime startOfDay) {

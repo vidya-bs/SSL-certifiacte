@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
+import com.itorix.apiwiz.identitymanagement.model.Pagination;
+import com.itorix.apiwiz.performance.coverge.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +42,6 @@ import com.itorix.apiwiz.identitymanagement.model.User;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.itorix.apiwiz.performance.coverge.businessimpl.CodeCoverageBusinessImpl;
 import com.itorix.apiwiz.performance.coverge.businessimpl.PostManService;
-import com.itorix.apiwiz.performance.coverge.model.CodeCoverageBackUpInfo;
-import com.itorix.apiwiz.performance.coverge.model.CodeCoverageVO;
-import com.itorix.apiwiz.performance.coverge.model.History;
-import com.itorix.apiwiz.performance.coverge.model.MonitorResponse;
-import com.itorix.apiwiz.performance.coverge.model.PostManEnvFileInfo;
 import com.itorix.apiwiz.performance.coverge.service.CodeCoverageService;
 
 import io.swagger.annotations.ApiOperation;
@@ -249,17 +246,33 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = MonitorResponse.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/codecoverage")
-	public ResponseEntity<List<History>> getMonitoringStats(
+	public ResponseEntity<?> getMonitoringStats(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(name = "filter", required = false) boolean filter,
 			@RequestParam(name = "proxy", required = false) String proxy,
 			@RequestParam(name = "org", required = false) String org,
 			@RequestParam(name = "env", required = false) String env,
-			@RequestParam(name = "daterange", required = false) String daterange) throws Exception {
+			@RequestParam(name = "daterange", required = false) String daterange,
+			@RequestParam(name = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(name = "pagesize", required = false, defaultValue = "10") int pageSize,
+			@RequestParam(name = "expand", required = false, defaultValue = "true") String expand) throws Exception {
+
+		boolean expandFlag = Boolean.parseBoolean(expand);
 		List<History> history = new ArrayList<History>();
-		history = codeCoverageService.getCodeCoverageList(interactionid, filter, proxy, org, env, daterange);
-		return new ResponseEntity<List<History>>(history, HttpStatus.OK);
+		history = codeCoverageService.getCodeCoverageList(interactionid, filter, proxy, org, env, daterange, expandFlag, offset, pageSize);
+		if (expandFlag) {
+			return new ResponseEntity<List<History>>(history, HttpStatus.OK);
+		} else {
+			Pagination pagination = new Pagination();
+			pagination.setTotal(codeCoverageService.getCodeCoverageResponseCount());
+			pagination.setOffset(offset);
+			pagination.setPageSize(pageSize);
+			PaginationResponse response = new PaginationResponse();
+			response.setPagination(pagination);
+			response.setData(history);
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		}
 	}
 
 	/**
@@ -367,5 +380,17 @@ public class CodeCoverageServiceImpl implements CodeCoverageService {
 		} catch (Exception e) {
 			throw e;
 		}
+	}
+
+	@ApiOperation(value = "search Code Coverage", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Ok", response = History.class, responseContainer = "List"),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/codecoverage/search", produces = "application/json")
+	public ResponseEntity<?> searchCodeCoverage(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception {
+		return new ResponseEntity<>(codeCoverageService.search(name, limit), HttpStatus.OK);
 	}
 }
