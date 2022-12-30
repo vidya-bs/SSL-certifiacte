@@ -830,7 +830,7 @@ public class CodeGenService {
 			List<History> history = null;
 			try {
 				history = codeCoverageService.getCodeCoverageList(null, true, proxyData.getProxyName(), null, null,
-						null);
+						null, true, null, null);
 				if (history != null && history.size() > 0) {
 					int index = history.size() - 1;
 					mapData.put("codeCoverageId", history.get(index).getId());
@@ -844,7 +844,7 @@ public class CodeGenService {
 			history = null;
 			try {
 				history = policyPerformanceService.getPolicyPerformanceList(null, true, proxyData.getProxyName(), null,
-						null, null);
+						null, null, true, null, null);
 				if (history != null && history.size() > 0) {
 					int index = history.size() - 1;
 					mapData.put("policyCoverageId", history.get(index).getId());

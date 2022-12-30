@@ -129,19 +129,21 @@ public interface PolicyPerformanceService {
 			@PathVariable("id") String id, @RequestHeader HttpHeaders headers,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
-	@ApiOperation(value = "Get Policy Performance List", notes = "", code = 200)
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Ok", response = History.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/policyperformance", produces = {
-			MediaType.APPLICATION_JSON_VALUE})
-	public ResponseEntity<List<History>> getPolicyPerformanceList(
+	public ResponseEntity<?> getPolicyPerformanceList(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(name = "filter", required = false) boolean filter,
 			@RequestParam(name = "proxy", required = false) String proxy,
 			@RequestParam(name = "org", required = false) String org,
 			@RequestParam(name = "env", required = false) String env,
-			@RequestParam(name = "daterange", required = false) String daterange) throws Exception;
+			@RequestParam(name = "daterange", required = false) String daterange,
+			@RequestParam(name = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(name = "pagesize", required = false, defaultValue = "10") int pageSize,
+			@RequestParam(name = "expand", required = false, defaultValue = "true") String expand) throws Exception;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/policyperformance/search", produces = "application/json")
+	public org.springframework.http.ResponseEntity<?> searchPolicyPerformance(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception;
 }
