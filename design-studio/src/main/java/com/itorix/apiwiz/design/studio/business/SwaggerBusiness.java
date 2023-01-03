@@ -195,9 +195,9 @@ public interface SwaggerBusiness {
 	 */
 	public List<String> getListOfSwagger3Names(String interactionid) throws ItorixException;
 
-	public List<Swagger3VO> getSwagger3Names(String page) throws ItorixException;
+	public List<Swagger3VO> getSwagger3Names(String page,String jsessionId) throws ItorixException;
 
-	public List<SwaggerVO> getSwaggerNames(String page) throws ItorixException;
+	public List<SwaggerVO> getSwaggerNames(String page,String jsessionId) throws ItorixException;
 
 	/**
 	 * getListOfSwaggerDetails
