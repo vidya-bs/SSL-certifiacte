@@ -76,6 +76,7 @@ public interface ServiceRequestService {
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "status", required = false) String status,
 			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value="timerange",required =false)String timerange,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) throws Exception;
 
