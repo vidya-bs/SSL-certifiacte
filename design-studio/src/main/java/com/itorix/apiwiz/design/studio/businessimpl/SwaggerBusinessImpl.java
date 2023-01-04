@@ -766,7 +766,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return names;
 	}
 
-	public List<SwaggerVO> getSwaggerNames(String page) throws ItorixException {
+	public List<SwaggerVO> getSwaggerNames(String page,String jsessionId) throws ItorixException {
 		List<SwaggerVO> swaggerNames = new ArrayList<SwaggerVO>();
 
 		List<String> names = new ArrayList<>();
@@ -775,19 +775,47 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Query postReleaseQuery = new Query(
 					Criteria.where("status").in(Arrays.asList("Approved", "Publish")));
 			names = mongoTemplate.findDistinct(postReleaseQuery,"name", SwaggerVO.class, String.class);
-			return retrieveSwaggerNames(swaggerNames, names);
+			 retrieveSwaggerNames(swaggerNames, names);
 		}
 		if (StringUtils.equalsIgnoreCase("Virtualisation", page) || StringUtils.equalsIgnoreCase(
 				"TestSuite", page)) {
 			Query preReleaseQuery = new Query(
 					Criteria.where("status").not().in(Arrays.asList("Deprecate", "Retired")));
 			names = mongoTemplate.findDistinct(preReleaseQuery,"name", SwaggerVO.class, String.class);
-			return retrieveSwaggerNames(swaggerNames, names);
+			 retrieveSwaggerNames(swaggerNames, names);
 		} else {
 			names = baseRepository.findDistinctValuesByColumnName(SwaggerVO.class, "name");
-			return retrieveSwaggerNames(swaggerNames, names);
+			 retrieveSwaggerNames(swaggerNames, names);
 		}
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		User user = getUserDetailsFromSessionID(jsessionId);
+		boolean isAdmin = false;
+		if (user != null && userSessionToken != null){
+			isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
+		}
+		if (isAdmin){
+			return swaggerNames;
+		}
+		List<SwaggerVO> responseList = new ArrayList<SwaggerVO>();
+		Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("2.0", user);
+		Set<String> allSwaggers = new HashSet<>();
+		allSwaggers.addAll(swaggerRoles.keySet());
+		Map<String, Object> filterFieldsAndValues = new HashMap<>();
+		filterFieldsAndValues.put("createdBy", user.getId());
+		List<String> trimList = baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues,
+				SwaggerVO.class, null);
+		allSwaggers.addAll(trimList);
 
+		for(String i:allSwaggers){
+			SwaggerVO found = baseRepository.findOne("name", i, SwaggerVO.class);
+			if(found!=null){
+				SwaggerVO swaggerVO = new SwaggerVO();
+				swaggerVO.setName(found.getName());
+				swaggerVO.setId(found.getId());
+				responseList.add(swaggerVO);
+			}
+		}
+		return responseList;
 	}
 
 	private List<SwaggerVO> retrieveSwaggerNames(List<SwaggerVO> swaggerNames, List<String> names) {
@@ -802,7 +830,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return swaggerNames;
 	}
 
-	public List<Swagger3VO> getSwagger3Names(String page) throws ItorixException {
+	public List<Swagger3VO> getSwagger3Names(String page,String jsessionId) throws ItorixException {
 		List<Swagger3VO> swaggerNames = new ArrayList<Swagger3VO>();
 		List<String> names = new ArrayList<>();
 
@@ -810,18 +838,48 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Query postReleaseQuery = new Query(
 					Criteria.where("status").in(Arrays.asList("Approved", "Publish")));
 			names = mongoTemplate.findDistinct(postReleaseQuery,"name", Swagger3VO.class, String.class);
-			return retrieveSwagger3Names(swaggerNames, names);
+			 retrieveSwagger3Names(swaggerNames, names);
 		}
 		if (StringUtils.equalsIgnoreCase("Virtualisation", page) || StringUtils.equalsIgnoreCase(
 				"TestSuite", page)) {
 			Query preReleaseQuery = new Query(
 					Criteria.where("status").not().in(Arrays.asList("Deprecate", "Retired")));
 			names = mongoTemplate.findDistinct(preReleaseQuery,"name", Swagger3VO.class, String.class);
-			return retrieveSwagger3Names(swaggerNames, names);
+			 retrieveSwagger3Names(swaggerNames, names);
 		} else {
 			names = baseRepository.findDistinctValuesByColumnName(Swagger3VO.class, "name");
-			return retrieveSwagger3Names(swaggerNames, names);
+			 retrieveSwagger3Names(swaggerNames, names);
 		}
+
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		User user = getUserDetailsFromSessionID(jsessionId);
+		boolean isAdmin = false;
+		if (user != null && userSessionToken != null){
+			isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
+		}
+		if (isAdmin){
+			return swaggerNames;
+		}
+		List<Swagger3VO> responseList = new ArrayList<Swagger3VO>();
+		Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("3.0", user);
+		Set<String> allSwaggers = new HashSet<>();
+		allSwaggers.addAll(swaggerRoles.keySet());
+		Map<String, Object> filterFieldsAndValues = new HashMap<>();
+		filterFieldsAndValues.put("createdBy", user.getId());
+		List<String> trimList = baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues,
+				Swagger3VO.class, null);
+		allSwaggers.addAll(trimList);
+
+		for(String i:allSwaggers){
+			Swagger3VO found = baseRepository.findOne("name", i, Swagger3VO.class);
+			if(found!=null){
+				Swagger3VO swagger3VO = new Swagger3VO();
+				swagger3VO.setName(found.getName());
+				swagger3VO.setId(found.getId());
+				responseList.add(swagger3VO);
+			}
+		}
+		return responseList;
 	}
 
 	private List<Swagger3VO> retrieveSwagger3Names(List<Swagger3VO> swaggerNames, List<String> names) {

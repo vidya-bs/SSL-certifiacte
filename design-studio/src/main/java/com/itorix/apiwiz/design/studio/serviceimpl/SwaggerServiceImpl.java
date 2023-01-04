@@ -772,10 +772,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 			}
 			JSONObject jsonObject = new JSONObject();
 			if (oas.equals("2.0")) {
-				List<SwaggerVO> swaggers = swaggerBusiness.getSwaggerNames(page);
+				List<SwaggerVO> swaggers = swaggerBusiness.getSwaggerNames(page,jsessionid);
 				jsonObject.accumulate("swaggers", swaggers);
 			} else if (oas.equals("3.0")) {
-				List<Swagger3VO> swagger3s = swaggerBusiness.getSwagger3Names(page);
+				List<Swagger3VO> swagger3s = swaggerBusiness.getSwagger3Names(page,jsessionid);
 				jsonObject.accumulate("swaggers", swagger3s);
 			}
 			return new ResponseEntity<Object>(jsonObject.toString(), HttpStatus.OK);
