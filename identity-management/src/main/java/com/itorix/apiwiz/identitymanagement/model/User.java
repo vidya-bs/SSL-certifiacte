@@ -233,6 +233,16 @@ public class User extends AbstractObject {
 	}
 
 	@JsonIgnore
+	public void setLastLoginTime(String workspace) {
+		for (UserWorkspace userWorkspace : this.workspaces){
+			if (userWorkspace.getName().equals(workspace)){
+				userWorkspace.setLastLoginTs(System.currentTimeMillis());
+			}
+		}
+	}
+
+
+	@JsonIgnore
 	public boolean containsWorkspace(String workspaceId) {
 		try {
 			for (UserWorkspace workspace : workspaces)
