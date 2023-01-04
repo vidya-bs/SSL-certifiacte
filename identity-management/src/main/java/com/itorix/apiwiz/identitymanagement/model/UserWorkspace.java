@@ -19,6 +19,8 @@ public class UserWorkspace {
 	private boolean active = false;
 	private String createdUserName;
 	private Long cts;
+
+	private Long lastLoginTs;
 	@Transient
 	private List<SwaggerTeam> teams;
 
@@ -134,4 +136,13 @@ public class UserWorkspace {
 	public void setCts(Long cts) {
 		this.cts = cts;
 	}
+
+	public Long getLastLoginTs() {
+		return lastLoginTs;
+	}
+
+	public void setLastLoginTs(Long lastLoginTs) {
+		this.lastLoginTs = lastLoginTs;
+	}
+
 }

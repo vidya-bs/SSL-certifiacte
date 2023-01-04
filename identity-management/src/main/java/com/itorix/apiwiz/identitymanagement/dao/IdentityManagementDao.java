@@ -188,6 +188,7 @@ public class IdentityManagementDao {
                         : "active";
                 userSession.setStatus(status);
                 user.setUserCount(0);
+                user.setLastLoginTime(workspace.getName());
                 saveUser(user);
                 userSession.setPlanId(workspace.getPlanId());
                 userSession.setPaymentSchedule(workspace.getPaymentSchedule());
