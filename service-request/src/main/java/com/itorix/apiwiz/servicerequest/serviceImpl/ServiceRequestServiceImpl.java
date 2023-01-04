@@ -171,13 +171,14 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "status", required = false) String status,
 			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value="timerange",required =false)String timerange,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) throws Exception {
 		ServiceRequest serviceRequest = new ServiceRequest();
 		serviceRequest.setType(type);
 		serviceRequest.setStatus(status);
 		serviceRequest.setName(name);
-		return new ResponseEntity<Object>(serviceRequestDao.getServiceRequests(serviceRequest, offset, pageSize),
+		return new ResponseEntity<Object>(serviceRequestDao.getServiceRequests(serviceRequest, offset, pageSize,timerange),
 				HttpStatus.OK);
 	}
 

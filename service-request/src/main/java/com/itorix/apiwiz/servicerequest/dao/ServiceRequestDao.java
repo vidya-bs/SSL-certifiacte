@@ -205,11 +205,20 @@ public class ServiceRequestDao {
 		}
 	}
 
-	public Object getServiceRequests(ServiceRequest config, int offset, int pageSize) throws ItorixException {
+	public Object getServiceRequests(ServiceRequest config, int offset, int pageSize,String timerange) throws ItorixException {
 		try {
+			Query query=new Query();
+			if(timerange!=null){
+				SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+				String[] timeRanges = timerange.split("~");
+				Date startDate=new Date(format.parse(timeRanges[0]).getTime());
+				Date endDate=DateUtil.getEndOfDay(new Date(format.parse(timeRanges[1]).getTime()));
+				query.addCriteria(Criteria.where("modifiedDate").gte(startDate).lte(endDate));
+			}
+
 			ServiceRequestHistoryResponse response = new ServiceRequestHistoryResponse();
 			Query countquery = new Query(Criteria.where("activeFlag").is(Boolean.TRUE));
-			Query query = new Query(Criteria.where("activeFlag").is(Boolean.TRUE))
+			query.addCriteria(Criteria.where("activeFlag").is(Boolean.TRUE))
 					.with(Sort.by(Direction.DESC, "modifiedDate")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
 					.limit(pageSize);
 
