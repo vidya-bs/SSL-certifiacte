@@ -77,7 +77,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swaggername") String swaggername,
-			@RequestHeader(value="x-public" ,required = false) boolean publish,
+			@RequestHeader(value="x-publish",required = false) boolean publish,
 			@RequestBody String json) throws Exception;
 
 	/**

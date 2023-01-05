@@ -232,7 +232,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
-			@RequestHeader(value="x-public" ,required = false) boolean publish,
+			@RequestHeader(value="x-publish" ,required = false) boolean publish,
 			@RequestBody String json) throws Exception {
 
 		if (oas == null || oas.trim().equals("")) {
