@@ -1044,13 +1044,40 @@ public class IdentityManagementDao {
         }
     }
 
-    public void resendToken(UserInfo userInfo) throws ItorixException {
+    public VerificationToken password(User user,String workspaceId,String appType) throws ItorixException {
+        User userByEmail = findByEmail(user.getEmail());
+        if (userByEmail != null) {
+            VerificationToken token = createVerificationToken("resetPassword", user.getEmail(),appType);
+            sendPassWordResetEmail(token, userByEmail,workspaceId);
+            saveVerificationToken(token);
+            return token;
+        } else {
+            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1000"), "Identity-1000");
+        }
+    }
+
+    public void sendPassWordResetEmail(VerificationToken token, User user,String workspaceId) {
+        try {
+            String link = applicationProperties.getAppURL() + "/reset-password/" +token.getId()+"?appType="+token.getAppType()+"&workspaceId="+workspaceId;
+            String bodyText = MessageFormat.format(applicationProperties.getResetMailBody(),
+                    user.getFirstName() + " " + user.getLastName(), link);
+            ArrayList<String> toRecipients = new ArrayList<String>();
+            toRecipients.add(user.getEmail());
+            String subject = applicationProperties.getResetSubject();
+            sendMail(subject, bodyText, toRecipients);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            e.printStackTrace();
+        }
+    }
+
+    public void resendToken(UserInfo userInfo,String appType) throws ItorixException {
         if (userInfo.allowCreateToken() != true)
             throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1038"), "Identity-1038");
         if (userInfo.getType().equals("password-reset")) {
             User user = new User();
             user.setEmail(userInfo.getEmail());
-            password(user);
+            password(user,userInfo.getWorkspaceId(),appType);
         } else if (userInfo.getType().equals("register")) {
             User user = findByEmail(userInfo.getEmail());
             VerificationToken token = createVerificationToken("registerUser", user.getEmail(),null);
@@ -1058,6 +1085,7 @@ public class IdentityManagementDao {
             sendRegistrationEmail(token, user);
         }
     }
+
 
     public void resendInvite(UserInfo userInfo) throws ItorixException {
         UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();

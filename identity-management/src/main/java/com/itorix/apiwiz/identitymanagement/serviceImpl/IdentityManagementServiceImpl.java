@@ -227,9 +227,11 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/resend-token")
 	public @ResponseBody ResponseEntity<Void> resendToken(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-apikey") String apikey, @RequestBody UserInfo userInfo)
+			@RequestHeader(value = "x-apikey") String apikey,
+			@RequestParam(value = "appType",required = false) String appType,
+			@RequestBody UserInfo userInfo)
 			throws ItorixException, Exception {
-		identityManagementDao.resendToken(userInfo);
+		identityManagementDao.resendToken(userInfo,appType);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
