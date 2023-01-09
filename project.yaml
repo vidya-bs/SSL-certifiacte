@@ -423,7 +423,7 @@ deployment:
 #        cloudProvider: aws
   - appName: license-api
     buildImage: enable
-    jarName: api-license-0.0.1-RELEASE.jar
+    jarName: api-license-0.0.1-SNAPSHOT.jar
     jarLocation: /api-license/target
     environments:
       - env: local
