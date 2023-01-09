@@ -1208,7 +1208,7 @@ public class TestSuiteDAO {
 	public MaskFields getMaskingFields() {
 		Query query = new Query().with(Sort.by(Direction.DESC, "mts"));
 		List<MaskFields> maskingFields = mongoTemplate.find(query, MaskFields.class);
-		return maskingFields.isEmpty() ? null : maskingFields.get(0);
+		return maskingFields.isEmpty() ? new MaskFields() : maskingFields.get(0);
 	}
 
 	public List<Certificates> getCertificates(boolean names) {

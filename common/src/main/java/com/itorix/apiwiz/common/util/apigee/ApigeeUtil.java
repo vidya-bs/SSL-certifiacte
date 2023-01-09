@@ -82,6 +82,7 @@ import net.sf.json.JSONSerializer;
 @Component
 public class ApigeeUtil {
 	private static final Logger logger = LoggerFactory.getLogger(ApigeeUtil.class);
+
 	@Autowired
 	RestTemplate restTemplate;
 
@@ -90,10 +91,6 @@ public class ApigeeUtil {
 
 	@Autowired
 	private ApigeeXUtill apigeexUtil;
-	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
 
 	// @Autowired
 	// ApplicationProperties applicationProperties;

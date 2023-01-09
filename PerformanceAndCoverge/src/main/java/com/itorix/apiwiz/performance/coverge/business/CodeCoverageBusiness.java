@@ -94,7 +94,7 @@ public interface CodeCoverageBusiness {
 	 * @throws Exception
 	 */
 	public List<History> getCodeCoverageList(String interactionid, boolean filter, String proxy, String org, String env,
-			String daterange) throws Exception;
+			String daterange, boolean expand, Integer offset, Integer pageSize) throws Exception;
 
 	/**
 	 * getCodeCoverageOnId

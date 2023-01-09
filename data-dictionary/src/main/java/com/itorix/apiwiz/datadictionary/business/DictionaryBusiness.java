@@ -1,9 +1,11 @@
 package com.itorix.apiwiz.datadictionary.business;
 
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.datadictionary.model.DDSchema;
 import com.itorix.apiwiz.datadictionary.model.ModelStatus;
 import com.itorix.apiwiz.datadictionary.model.PortfolioHistoryResponse;
 import com.itorix.apiwiz.datadictionary.model.PortfolioModel;
+import com.itorix.apiwiz.datadictionary.model.PortfolioReport;
 import com.itorix.apiwiz.datadictionary.model.PortfolioVO;
 import com.itorix.apiwiz.datadictionary.model.Revision;
 import com.mongodb.client.result.DeleteResult;
@@ -83,6 +85,10 @@ public interface DictionaryBusiness {
 	public void sendNotificationToSwagger(String jsessionid, PortfolioVO portfolioVO,
 										  String message);
 
+	String getGlobalRule();
 
+	List<DDSchema> getModels(String id);
+
+	PortfolioReport getModelswithRulesets(String id);
 
 }

@@ -4,7 +4,6 @@ import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.marketing.blogs.model.Blog;
 import com.itorix.apiwiz.marketing.blogs.model.BlogResponseOverview;
 import com.itorix.apiwiz.marketing.blogs.model.BlogStatus;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

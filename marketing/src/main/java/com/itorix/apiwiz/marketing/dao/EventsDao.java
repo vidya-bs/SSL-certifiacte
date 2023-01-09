@@ -7,8 +7,10 @@ import com.itorix.apiwiz.common.util.StorageIntegration;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
+import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import com.itorix.apiwiz.marketing.events.model.Event;
 import com.itorix.apiwiz.marketing.events.model.EventRegistration;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +24,14 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @Component
+@Slf4j
 public class EventsDao {
 	private static final Logger logger = LoggerFactory.getLogger(EventsDao.class);
 	@Qualifier("masterMongoTemplate")
@@ -45,14 +50,17 @@ public class EventsDao {
 	@Autowired
 	private IntegrationHelper integrationHelper;
 
-	public String createUpdateEvent(Event event) {
-		Query query = new Query().addCriteria(Criteria.where("name").is(event.getName()));
-		Event dbEvent = masterMongoTemplate.findOne(query, Event.class);
-		if (dbEvent != null) {
-			event.setId(dbEvent.getId());
-		} else {
-			masterMongoTemplate.save(event);
+	public String createEvent(Event event) {
+		log.info("Events {}",event);
+		List<Event> allEvents = getAllEvents();
+		String title = event.getMeta().getTitle();
+		String slug = title.toLowerCase().replace(" ", "-").replace(":","-");
+		if(allEvents.stream().anyMatch(r->r.getMeta().getSlug().equals(slug))){
+			return null;
 		}
+		event.getMeta().setSlug(slug);
+		event.setCts(System.currentTimeMillis());
+		masterMongoTemplate.save(event);
 		return event.getId();
 	}
 
@@ -60,37 +68,75 @@ public class EventsDao {
 		return masterMongoTemplate.findAll(Event.class);
 	}
 
-	public List<Event> getAllEvents(String status, List<String> categoryList) {
+	public List<Event> getAllEvents(int offset,int pagesize,String status) {
 		if (status == null) {
-			Query query = new Query();
-			if (categoryList != null)
-				query.addCriteria(Criteria.where("category").in(categoryList));
-			return masterMongoTemplate.find(query, Event.class);
+			Query query = new Query().with(Sort.by(Sort.Direction.ASC, "meta.eventDate"))
+					.skip(offset > 0 ? ((offset - 1) * pagesize) : 0).limit(pagesize);
+			return masterMongoTemplate.find(query,Event.class);
 		} else {
 			if (status.equalsIgnoreCase("active")) {
 				Query query = new Query();
-				if (categoryList != null)
-					query.addCriteria(Criteria.where("category").in(categoryList));
-				query.with(Sort.by(Direction.DESC, "eventDate"));
+				query.with(Sort.by(Direction.DESC, "meta.eventDate"))
+						.skip(offset > 0 ? ((offset - 1) * pagesize) : 0).limit(pagesize);
 				List<Event> events = masterMongoTemplate.find(query, Event.class);
-				CollectionUtils.filter(events, o -> ((Event) o).getStatus().equalsIgnoreCase("active"));
-				Collections.sort(events);
+				log.debug("Active Events {}",events);
+				CollectionUtils.filter(events, o -> {
+					try {
+						return ((Event) o).getMeta().getStatus().equalsIgnoreCase("active");
+					} catch (ParseException e) {
+						throw new RuntimeException(e);
+					}
+				});
+
+				events.sort(Comparator.comparing(o -> {
+					try {
+						return o.getMeta().getEventDateOn();
+					} catch (ParseException e) {
+						throw new RuntimeException(e);
+					}
+				}));
 				Collections.reverse(events);
 				return events;
-			} else if (status.equalsIgnoreCase("expired")) {
-				List<Event> events = masterMongoTemplate.findAll(Event.class);
-				CollectionUtils.filter(events, o -> ((Event) o).getStatus().equalsIgnoreCase("expired"));
-				Collections.sort(events);
+			}
+			else if (status.equalsIgnoreCase("expired")) {
+				Query query = new Query().with(Sort.by(Sort.Direction.ASC, "cts"))
+						.skip(offset > 0 ? ((offset - 1) * pagesize) : 0).limit(pagesize);
+				List<Event> events = masterMongoTemplate.find(query,Event.class);
+				log.debug("Expired events {}",events);
+				CollectionUtils.filter(events, o -> {
+					try {
+						return ((Event) o).getMeta().getStatus().equalsIgnoreCase("expired");
+					} catch (ParseException e) {
+						throw new RuntimeException(e);
+					}
+				});
+				events.sort(Comparator.comparing(o -> {
+					try {
+						return o.getMeta().getEventDateOn();
+					} catch (ParseException e) {
+						throw new RuntimeException(e);
+					}
+				}));
 				Collections.reverse(events);
 				return events;
-			} else
-				return masterMongoTemplate.findAll(Event.class);
+			}
+			else{
+				Query query = new Query().with(Sort.by(Sort.Direction.ASC, "meta.eventDate"))
+						.skip(offset > 0 ? ((offset - 1) * pagesize) : 0).limit(pagesize);
+				return masterMongoTemplate.find(query,Event.class);
+			}
+
 		}
 	}
 
-	public Event getEvent(String eventId) {
-		Query query = new Query().addCriteria(Criteria.where("id").is(eventId));
-		return masterMongoTemplate.findOne(query, Event.class);
+	public List<Event> getEventsBySlug(String slug) {
+		List<Event> returningList = new ArrayList<>();
+		List<Event> releaseList = getAllEvents();
+		releaseList.forEach(rl->{
+				if(rl.getMeta().getSlug().equalsIgnoreCase(slug)) {
+					returningList.add(rl);
+				}});
+		return returningList;
 	}
 
 	public void deleteEvent(String eventId) {
@@ -137,5 +183,26 @@ public class EventsDao {
 		} catch (Exception e) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Marketing-1000"), "Marketing-1000");
 		}
+	}
+
+	public Pagination getPagination(int offset, int pagesize) {
+		Pagination pagination = new Pagination();
+		pagination.setOffset(offset);
+		pagination.setPageSize(pagesize);
+		pagination.setTotal(masterMongoTemplate.count(new Query(),Event.class));
+		return pagination;
+	}
+
+	public String updateEvent(Event event) {
+		log.info("Event {}",event);
+		Query query = new Query().addCriteria(Criteria.where("_id").is(event.getId()));
+		Event dbEvent = masterMongoTemplate.findOne(query, Event.class);
+		log.debug("Existing Event {}",event);
+		if (dbEvent != null) {
+			event.setMts(System.currentTimeMillis());
+			event.getMeta().setSlug(dbEvent.getMeta().getSlug());
+		}
+		masterMongoTemplate.save(event);
+		return event.getId();
 	}
 }

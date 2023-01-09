@@ -15,9 +15,15 @@ import com.itorix.apiwiz.design.studio.model.NotificationType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.web.client.RestTemplate;
 
 @CrossOrigin
 @Slf4j
@@ -41,6 +48,20 @@ public class DictionaryServiceImpl implements DictionaryService {
 
 	@Autowired
 	NotificationBusiness notificationBusiness;
+
+	@Autowired
+	RestTemplate restTemplate;
+
+	private static final Logger logger = LoggerFactory.getLogger(DictionaryServiceImpl.class);
+
+	@Value("${linting.api.url:null}")
+	private String lintingUrl;
+
+	@Value("${linting.api.lintDD:null}")
+	private String lintDD;
+
+	@Value("${linting.api.lintPortfolio:null}")
+	private String lintPortfolio;
 
 	/**
 	 * Using this method we can create the Portfolio.
@@ -113,6 +134,8 @@ public class DictionaryServiceImpl implements DictionaryService {
 
 			// dictionaryBusiness.sendNotificationForDD(portfolioVO);
 		}
+		PortfolioReport report=dictionaryBusiness.getModelswithRulesets(portfolioVO.getId());
+		initiateLintingforPortfolio(jsessionid,report);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -287,7 +310,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 						revisions);
 				dictionaryBusiness.sendNotificationForModel(jsessionid, model,
 						" Model has been updated ".concat(model.getModelName()));
-
+				initiateLinting(jsessionid, model.getPortfolioID(),model.getModelId(),newRevision,model.getRuleSetIds());
 				// dictionaryBusiness.sendNotificationForDDModel(model);
 			}
 
@@ -332,6 +355,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 		dictionaryBusiness.sendNotificationForModel(jsessionid, models,
 					" Model has been updated with Revision ".concat(models.getModelName()));
 			// dictionaryBusiness.sendNotificationForDDModel(modelWithRevision);
+			initiateLinting(jsessionid, model.getPortfolioID(),model.getModelId(),model.getRevision(),model.getRuleSetIds());
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		}
 
@@ -522,6 +546,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 				modelId);
 		dictionaryBusiness.sendNotificationForModel(jsessionid, model,
 				" Model status has been updated ".concat(model.getModelName()));
+		initiateLinting(jsessionid, model.getPortfolioID(),model.getModelId(),model.getRevision(),model.getRuleSetIds());
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 
@@ -552,7 +577,8 @@ public class DictionaryServiceImpl implements DictionaryService {
 		notificationDetails.setUserId(Arrays.asList(portfolioVO.getCreatedBy()));
 		notificationDetails.setType(NotificationType.fromValue("Data Dictionary"));
 		notificationBusiness.createNotification(notificationDetails, jsessionid);
-
+		PortfolioReport report=dictionaryBusiness.getModelswithRulesets(portfolioVO.getId());
+		initiateLintingforPortfolio(jsessionid,report);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
@@ -598,6 +624,8 @@ public class DictionaryServiceImpl implements DictionaryService {
 			PortfolioVO portfolioVO = dictionaryBusiness.getPortfolioByRevision(id, revision);
 			dictionaryBusiness.sendNotificationToSwagger(jsessionid, portfolioVO,
 					" Portfolio Status has been updated ".concat(portfolioVO.getName()));
+			PortfolioReport report=dictionaryBusiness.getModelswithRulesets(portfolioVO.getId());
+			initiateLintingforPortfolio(jsessionid,report);
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		} else {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1017"), id),
@@ -617,7 +645,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 				id, modelId, revision);
 		dictionaryBusiness.sendNotificationForModel(jsessionid, model,
 				"Model Status has been updated with revision ".concat(model.getModelName()));
-
+		initiateLinting(jsessionid, model.getPortfolioID(),model.getModelId(),model.getRevision(),model.getRuleSetIds());
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 
@@ -648,4 +676,71 @@ public class DictionaryServiceImpl implements DictionaryService {
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
+
+	private void initiateLinting(String jsessionid,
+			String dictionaryId,String modelId,Integer revision,List<String> ruleSetIds) {
+		try {
+			String globalRule=dictionaryBusiness.getGlobalRule();
+			if(globalRule!=null&&ruleSetIds!=null&&!ruleSetIds.contains(globalRule))
+			{
+				ruleSetIds.add(globalRule);
+			}
+			else if(globalRule!=null&&ruleSetIds==null){
+				ruleSetIds=new ArrayList<String>();
+				ruleSetIds.add(globalRule);
+			}
+			List<DDSchema> models = new ArrayList<>();
+			if(modelId!=null){
+				DDSchema model=new DDSchema();
+				model.setModelId(modelId);
+				model.setRevision(revision);
+				models.add(model);
+			}
+			else {
+				models = dictionaryBusiness.getModels(dictionaryId);
+			}
+			DataDictionaryReport dataDictionaryReport = new DataDictionaryReport();
+			dataDictionaryReport.setDictionaryId(dictionaryId);
+			dataDictionaryReport.setModels(models);
+			dataDictionaryReport.setRuleSetId(ruleSetIds);
+			callLintingAPI(dataDictionaryReport, jsessionid);
+		} catch (Exception ex) {
+			logger.error("Error while calling linting API {} ", ex.getMessage());
+		}
+	}
+
+
+	private void initiateLintingforPortfolio(String jsessionid,PortfolioReport report) {
+		try {
+			callLintingAPIForPortfolio(report, jsessionid);
+		} catch (Exception ex) {
+			logger.error("Error while calling linting API {} ", ex.getMessage());
+		}
+	}
+
+	private void callLintingAPI(DataDictionaryReport dataDictionaryReport, String jsessionid) {
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+		httpHeaders.set("jsessionid", jsessionid);
+		HttpEntity<DataDictionaryReport> entity = new HttpEntity<>(dataDictionaryReport, httpHeaders);
+
+		try {
+			restTemplate.exchange(lintingUrl + lintDD, HttpMethod.POST, entity, String.class).getBody();
+		} catch (Exception e) {
+			logger.error("Error while calling linting API {} ", e.getMessage());
+		}
+	}
+
+	private void callLintingAPIForPortfolio(PortfolioReport portfolio, String jsessionid) {
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+		httpHeaders.set("jsessionid", jsessionid);
+		HttpEntity<PortfolioReport> entity = new HttpEntity<>(portfolio, httpHeaders);
+
+		try {
+			restTemplate.exchange(lintingUrl + lintPortfolio, HttpMethod.POST, entity, String.class).getBody();
+		} catch (Exception e) {
+			logger.error("Error while calling linting API {} ", e.getMessage());
+		}
+	}
 }

@@ -1,15 +1,18 @@
 package com.itorix.apiwiz.identitymanagement.serviceImpl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itorix.apiwiz.common.model.SwaggerTeam;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.mail.MailProperty;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
+import com.itorix.apiwiz.identitymanagement.dao.RateLimitingDao;
 import com.itorix.apiwiz.identitymanagement.dao.WorkspaceDao;
 import com.itorix.apiwiz.identitymanagement.model.*;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.itorix.apiwiz.identitymanagement.service.IdentityManagmentService;
+import com.itorix.apiwiz.ratelimit.model.RateLimitQuota;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -37,6 +40,9 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	private ApplicationProperties applicationProperties;
 	@Autowired
 	WorkspaceDao workspaceDao;
+
+	@Autowired(required = false)
+	private RateLimitingDao rateLimitingDao;
 
 	@Override
 	@UnSecure
@@ -221,9 +227,11 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/resend-token")
 	public @ResponseBody ResponseEntity<Void> resendToken(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-apikey") String apikey, @RequestBody UserInfo userInfo)
+			@RequestHeader(value = "x-apikey") String apikey,
+			@RequestParam(value = "appType",required = false) String appType,
+			@RequestBody UserInfo userInfo)
 			throws ItorixException, Exception {
-		identityManagementDao.resendToken(userInfo);
+		identityManagementDao.resendToken(userInfo,appType);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -627,15 +635,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
 			@RequestHeader(value = "x-apikey") String apikey,
 			@RequestHeader(value = "interactionid", required = false) String interactionid) throws Exception {
-		List<String> rolls = new ArrayList<String>();
-		rolls.add("Developer");
-		rolls.add("Admin");
-		rolls.add("Portal");
-		rolls.add("Analyst");
-		rolls.add("Project-Admin");
-		rolls.add("Operation");
-		rolls.add("Test");
-		return new ResponseEntity<Object>(rolls, HttpStatus.OK);
+		return new ResponseEntity<Object>(identityManagementDao.getRoles(), HttpStatus.OK);
 	}
 
 	@Override
@@ -811,4 +811,117 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		return new ResponseEntity<>(workspaceDao.getIdpMetadata(workspaceId), HttpStatus.OK);
 	}
 
+	@UnSecure
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/users/subscriptionplans", produces = {"application/json"})
+	public ResponseEntity<Object> getSubscriptionPlansV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey) throws Exception {
+		return new ResponseEntity<Object>(workspaceDao.getSubscriptionsV2(), HttpStatus.OK);
+	}
+
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v2/users/subscriptionplans", consumes = {
+			"application/json"}, produces = {"application/json"})
+	public ResponseEntity<Void> createSubscriptionPlansV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey, @RequestBody List<SubscriptionV2> subscriptions)
+			throws Exception {
+		workspaceDao.createSubscriptionPlansV2(subscriptions);
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/users/permissions", produces = {"application/json"})
+	public ResponseEntity<Object> getPlanPermissionsV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "planId", required = false) String planId,
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
+		return new ResponseEntity<Object>(identityManagementDao.getPlanPermissionsV2(planId), HttpStatus.OK);
+	}
+
+	@UnSecure(useUpdateKey = true)
+	@Override
+	@RequestMapping(method = RequestMethod.PUT, value = "/v2/users/permissions", consumes = {
+			"application/json"}, produces = {"application/json"})
+	public ResponseEntity<Void> createPlanPermissionsV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey, @RequestHeader(value = "x-planid") String planid,
+			@RequestBody String permissions) throws Exception {
+		PlanV2 plan = new PlanV2();
+		plan.setPlanId(planid);
+		plan.setUiPermissions(permissions);
+		identityManagementDao.createPlanPermissionsV2(plan);
+		return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+	}
+
+	@UnSecure
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/app/menu", produces = {"application/json"})
+	public ResponseEntity<Object> getMenu(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey) throws Exception {
+		return new ResponseEntity<Object>(identityManagementDao.getMenu(), HttpStatus.OK);
+	}
+
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/app/menu", consumes = {
+			"application/json"}, produces = {"application/json"})
+	public ResponseEntity<Void> createMenu(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey, @RequestBody String menu )
+			throws Exception {
+		Menu newMenu = new Menu();
+		newMenu.setMenus(menu);
+		identityManagementDao.createMenu(newMenu);
+		return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+	}
+
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/rate-limit/quotas/tenant", consumes = {
+			"application/json"}, produces = {"application/json"})
+	public ResponseEntity<?> addTenantQuotas(
+			@RequestHeader(value = "x-apikey", required = true) String apikey,
+			@RequestHeader(value = "x-tenant", required = true) String tenantId,
+			@RequestBody RateLimitQuota quota) throws ItorixException{
+		if (rateLimitingDao != null) {
+			rateLimitingDao.addTenantQuotas(tenantId, quota);
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
+		} else {
+			return new ResponseEntity<>("Rate limit is disabled", HttpStatus.FORBIDDEN);
+		}
+	}
+
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/rate-limit/quotas/master", consumes = {
+			"application/json"}, produces = {"application/json"})
+	public ResponseEntity<?> addMasterQuotas(
+			@RequestHeader(value = "x-apikey", required = true) String apikey,
+			@RequestBody List<RateLimitQuota> quotas) throws ItorixException {
+		if (rateLimitingDao != null) {
+			rateLimitingDao.addMasterQuotas(quotas);
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
+		} else {
+			return new ResponseEntity<>("Rate limit is disabled", HttpStatus.FORBIDDEN);
+		}
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/rate-limit/usage", produces = {"application/json"})
+	public ResponseEntity<?> getApplicationUsage(
+			@RequestHeader(value = "JSESSIONID", required = true) String jsessionid
+	) {
+		if (rateLimitingDao != null) {
+			return new ResponseEntity<>(rateLimitingDao.getApplicationUsage(), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>("Rate limit is disabled", HttpStatus.FORBIDDEN);
+		}
+	}
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<?> createRolesMetaData(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid, @RequestBody String metadata)
+			throws JsonProcessingException, ItorixException {
+		identityManagementDao.createRolesMetaData(metadata);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
 }
+

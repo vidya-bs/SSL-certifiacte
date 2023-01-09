@@ -68,11 +68,18 @@ import org.springframework.data.mongodb.core.FindAndReplaceOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
@@ -90,6 +97,7 @@ import java.time.temporal.TemporalAdjuster;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.itorix.apiwiz.identitymanagement.model.AbstractObject.LABEL_CREATED_TIME;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 /**
@@ -125,12 +133,21 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	@Autowired
 	private ApicUtil apicUtil;
 
+	@Autowired
+	private RestTemplate restTemplate;
+
 	private static final String STATUS_VALUE = "status";
 
-	public SwaggerVO createSwagger(SwaggerVO swaggerVO) {
+	public SwaggerVO createSwagger(SwaggerVO swaggerVO,boolean publish) {
 		log("createSwagger", swaggerVO.getInteractionid(), swaggerVO);
 		swaggerVO.setRevision(1);
-		swaggerVO.setStatus("Draft");
+		if(publish)
+		{
+			swaggerVO.setStatus(("Publish"));
+		}
+		else {
+			swaggerVO.setStatus("Draft");
+		}
 		swaggerVO.setLock(false);
 		swaggerVO.setId(null);
 		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
@@ -151,11 +168,16 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return details;
 	}
 
-	public Swagger3VO createSwagger(Swagger3VO swaggerVO) {
+	public Swagger3VO createSwagger(Swagger3VO swaggerVO,boolean publish) {
 		log("createSwagger", swaggerVO.getInteractionid(), swaggerVO);
 		swaggerVO.setRevision(1);
-		swaggerVO.setStatus("Draft");
-		swaggerVO.setLock(false);
+		if(publish)
+		{
+			swaggerVO.setStatus(("Publish"));
+		}
+		else {
+			swaggerVO.setStatus("Draft");
+		}		swaggerVO.setLock(false);
 		swaggerVO.setId(null);
 		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
 		Swagger3VO details = baseRepository.save(swaggerVO);
@@ -382,7 +404,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 						} catch (ItorixException e) {
 							if (e.errorCode.equals("Swagger-1002")) {
 								reason = "swagger with same name exists";
-								createSwaggerWithNewRevision(swaggerVO, null);
+								createSwaggerWithNewRevision(swaggerVO, null,false);
 							}
 							swagger.setReason(reason);
 						}
@@ -441,7 +463,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 						} catch (ItorixException e) {
 							if (e.errorCode.equals("Swagger-1002")) {
 								reason = "swagger with same name exists";
-								createSwaggerWithNewRevision(swaggerVO, null);
+								createSwaggerWithNewRevision(swaggerVO, null,false);
 							}
 							swagger.setReason(reason);
 						}
@@ -533,7 +555,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return vo;
 	}
 
-	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid) throws ItorixException {
+	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid,boolean publish) throws ItorixException {
 		log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), swaggerVO);
 		SwaggerVO vo = findSwagger(swaggerVO.getName(), swaggerVO.getInteractionid());
 		if (vo != null) {
@@ -544,7 +566,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Revision revision = Collections.max(revisions);
 			Integer newRevision = revision.getRevision() + 1;
 			swaggerVO.setRevision(newRevision);
-			swaggerVO.setStatus("Draft");
+			if(publish)
+			{
+				swaggerVO.setStatus(("Publish"));
+			}
+			else {
+				swaggerVO.setStatus("Draft");
+			}
 			swaggerVO.setLock(false);
 			swaggerVO.setId(null);
 			swaggerVO.setSwaggerId(vo.getSwaggerId());
@@ -555,7 +583,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return null;
 	}
 
-	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid) throws ItorixException {
+	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid,boolean publish) throws ItorixException {
 		log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), swaggerVO);
 		Swagger3VO vo = findSwagger3(swaggerVO.getName(), swaggerVO.getInteractionid());
 		if (vo != null) {
@@ -566,7 +594,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Revision revision = Collections.max(revisions);
 			Integer newRevision = revision.getRevision() + 1;
 			swaggerVO.setRevision(newRevision);
-			swaggerVO.setStatus("Draft");
+			if(publish)
+			{
+				swaggerVO.setStatus(("Publish"));
+			}
+			else {
+				swaggerVO.setStatus("Draft");
+			}
 			swaggerVO.setLock(false);
 			swaggerVO.setId(null);
 			swaggerVO.setSwaggerId(vo.getSwaggerId());
@@ -616,6 +650,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			name = swaggers.get(0).getName();
 		}
 		swaggers = baseRepository.find("name", name, SwaggerVO.class);
+		if(swaggers.isEmpty()) {
+			swaggers = baseRepository.find("swaggerId", name, SwaggerVO.class);
+		}
 		List<Revision> versions = new ArrayList<Revision>();
 		for (SwaggerVO swagger : swaggers) {
 			Revision version = new Revision();
@@ -636,6 +673,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			name = swaggers.get(0).getName();
 		}
 		swaggers = baseRepository.find("name", name, Swagger3VO.class);
+		if(swaggers.isEmpty()) {
+			swaggers = baseRepository.find("swaggerId", name, Swagger3VO.class);
+		}
 		List<Revision> versions = new ArrayList<Revision>();
 		for (Swagger3VO swagger : swaggers) {
 			Revision version = new Revision();
@@ -660,6 +700,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		// log("getListOfRevisions", interactionid, name);
 		List<SwaggerVO> swaggers = mongoTemplate
 				.find(new Query(Criteria.where("name").is(name).and(STATUS_VALUE).is(status)), SwaggerVO.class);
+		if(swaggers.isEmpty()){
+			swaggers = mongoTemplate.find(new Query(Criteria.where("swaggerId").is(name).and(STATUS_VALUE).is(status)), SwaggerVO.class);
+		}
 		// baseRepository.find("name", name, SwaggerVO.class);
 		List<Revision> versions = new ArrayList<Revision>();
 		if (swaggers != null && swaggers.size() > 0) {
@@ -677,6 +720,30 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return versions;
 	}
 
+
+	public List<Revision> getListOf3Revisions(String name, String status, String interactionid) {
+		// log("getListOfRevisions", interactionid, name);
+		List<Swagger3VO> swaggers = mongoTemplate
+				.find(new Query(Criteria.where("name").is(name).and(STATUS_VALUE).is(status)), Swagger3VO.class);
+		if(swaggers.isEmpty()){
+			swaggers = mongoTemplate.find(new Query(Criteria.where("swaggerId").is(name).and(STATUS_VALUE).is(status)), Swagger3VO.class);
+		}
+		// baseRepository.find("name", name, SwaggerVO.class);
+		List<Revision> versions = new ArrayList<Revision>();
+		if (swaggers != null && swaggers.size() > 0) {
+			for (Swagger3VO swagger : swaggers) {
+				Revision version = new Revision();
+				version.setRevision(swagger.getRevision());
+				version.setStatus(swagger.getStatus());
+				version.setId(swagger.getId());
+				versions.add(version);
+				// versions.add(new Revision(swagger.getRevision(),
+				// swagger.getStatus()));
+			}
+		}
+		log("getListOfRevisions", interactionid, versions);
+		return versions;
+	}
 	public List<Revision> getListOfSwagger3Revisions(String name, String interactionid) {
 		log("getListOfRevisions", interactionid, name);
 		List<Swagger3VO> swaggers = baseRepository.find("name", name, Swagger3VO.class);
@@ -699,13 +766,60 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return names;
 	}
 
-	public List<SwaggerVO> getSwaggerNames() throws ItorixException {
-		List<String> names = baseRepository.findDistinctValuesByColumnName(SwaggerVO.class, "name");
+	public List<SwaggerVO> getSwaggerNames(String page,String jsessionId) throws ItorixException {
 		List<SwaggerVO> swaggerNames = new ArrayList<SwaggerVO>();
+
+		List<String> names = new ArrayList<>();
+
+		if (StringUtils.equalsIgnoreCase("Proxy", page) || StringUtils.equalsIgnoreCase("Kong", page)) {
+			Query postReleaseQuery = new Query(
+					Criteria.where("status").in(Arrays.asList("Approved", "Publish")));
+			names = mongoTemplate.findDistinct(postReleaseQuery,"name", SwaggerVO.class, String.class);
+			 retrieveSwaggerNames(swaggerNames, names);
+		}
+		if (StringUtils.equalsIgnoreCase("Virtualisation", page) || StringUtils.equalsIgnoreCase(
+				"TestSuite", page)) {
+			Query preReleaseQuery = new Query(
+					Criteria.where("status").not().in(Arrays.asList("Deprecate", "Retired")));
+			names = mongoTemplate.findDistinct(preReleaseQuery,"name", SwaggerVO.class, String.class);
+			 retrieveSwaggerNames(swaggerNames, names);
+		} else {
+			names = baseRepository.findDistinctValuesByColumnName(SwaggerVO.class, "name");
+			 retrieveSwaggerNames(swaggerNames, names);
+		}
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		User user = getUserDetailsFromSessionID(jsessionId);
+		boolean isAdmin = false;
+		if (user != null && userSessionToken != null){
+			isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
+		}
+		if (isAdmin){
+			return swaggerNames;
+		}
+		List<SwaggerVO> responseList = new ArrayList<SwaggerVO>();
+		Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("2.0", user);
+		Set<String> allSwaggers = new HashSet<>();
+		allSwaggers.addAll(swaggerRoles.keySet());
+		Map<String, Object> filterFieldsAndValues = new HashMap<>();
+		filterFieldsAndValues.put("createdBy", user.getId());
+		List<String> trimList = baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues,
+				SwaggerVO.class, null);
+		allSwaggers.addAll(trimList);
+
+		for(String i:allSwaggers){
+			SwaggerVO found = baseRepository.findOne("name", i, SwaggerVO.class);
+			if(found!=null){
+				SwaggerVO swaggerVO = new SwaggerVO();
+				swaggerVO.setName(found.getName());
+				swaggerVO.setId(found.getId());
+				responseList.add(swaggerVO);
+			}
+		}
+		return responseList;
+	}
+
+	private List<SwaggerVO> retrieveSwaggerNames(List<SwaggerVO> swaggerNames, List<String> names) {
 		for (String name : names) {
-			// mongoTemplate.getCollection(mongoTemplate.getCollectionName(SwaggerVO.class)).distinct("name",
-			// new
-			// Query(new Criteria(STATUS_VALUE).is(status)).getQueryObject())
 			SwaggerVO swaggerVO = baseRepository.findOne("name", name, SwaggerVO.class);
 			SwaggerVO swagger = new SwaggerVO();
 			swagger.setId(swaggerVO.getSwaggerId());
@@ -716,9 +830,59 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return swaggerNames;
 	}
 
-	public List<Swagger3VO> getSwagger3Names() throws ItorixException {
-		List<String> names = baseRepository.findDistinctValuesByColumnName(Swagger3VO.class, "name");
+	public List<Swagger3VO> getSwagger3Names(String page,String jsessionId) throws ItorixException {
 		List<Swagger3VO> swaggerNames = new ArrayList<Swagger3VO>();
+		List<String> names = new ArrayList<>();
+
+		if (StringUtils.equalsIgnoreCase("Proxy", page) || StringUtils.equalsIgnoreCase("Kong", page)) {
+			Query postReleaseQuery = new Query(
+					Criteria.where("status").in(Arrays.asList("Approved", "Publish")));
+			names = mongoTemplate.findDistinct(postReleaseQuery,"name", Swagger3VO.class, String.class);
+			 retrieveSwagger3Names(swaggerNames, names);
+		}
+		if (StringUtils.equalsIgnoreCase("Virtualisation", page) || StringUtils.equalsIgnoreCase(
+				"TestSuite", page)) {
+			Query preReleaseQuery = new Query(
+					Criteria.where("status").not().in(Arrays.asList("Deprecate", "Retired")));
+			names = mongoTemplate.findDistinct(preReleaseQuery,"name", Swagger3VO.class, String.class);
+			 retrieveSwagger3Names(swaggerNames, names);
+		} else {
+			names = baseRepository.findDistinctValuesByColumnName(Swagger3VO.class, "name");
+			 retrieveSwagger3Names(swaggerNames, names);
+		}
+
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		User user = getUserDetailsFromSessionID(jsessionId);
+		boolean isAdmin = false;
+		if (user != null && userSessionToken != null){
+			isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
+		}
+		if (isAdmin){
+			return swaggerNames;
+		}
+		List<Swagger3VO> responseList = new ArrayList<Swagger3VO>();
+		Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("3.0", user);
+		Set<String> allSwaggers = new HashSet<>();
+		allSwaggers.addAll(swaggerRoles.keySet());
+		Map<String, Object> filterFieldsAndValues = new HashMap<>();
+		filterFieldsAndValues.put("createdBy", user.getId());
+		List<String> trimList = baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues,
+				Swagger3VO.class, null);
+		allSwaggers.addAll(trimList);
+
+		for(String i:allSwaggers){
+			Swagger3VO found = baseRepository.findOne("name", i, Swagger3VO.class);
+			if(found!=null){
+				Swagger3VO swagger3VO = new Swagger3VO();
+				swagger3VO.setName(found.getName());
+				swagger3VO.setId(found.getId());
+				responseList.add(swagger3VO);
+			}
+		}
+		return responseList;
+	}
+
+	private List<Swagger3VO> retrieveSwagger3Names(List<Swagger3VO> swaggerNames, List<String> names) {
 		for (String name : names) {
 			Swagger3VO swaggerVO = baseRepository.findOne("name", name, Swagger3VO.class);
 			Swagger3VO swagger = new Swagger3VO();
@@ -1299,8 +1463,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			}
 		}
 		JSONObject swaggerJsonObject = new JSONObject(vo.getSwagger());
-		JSONObject infoObject = swaggerJsonObject.getJSONObject("info");
-		log.info("The swagger Info object is: {}", infoObject.keySet().contains("description")? infoObject.get("description"):"");
+
+    JSONObject infoObject =
+        swaggerJsonObject.has("info") && swaggerJsonObject.get("info") != null && !swaggerJsonObject.get("info").toString().isEmpty()
+            ? (JSONObject) swaggerJsonObject.get("info") : null;
+//    log.info("The swagger Info object is: {}",
+//        infoObject.keySet().contains("description") ? infoObject.get("description") : "");
 
 		if (null == jsonNode) {
 			ObjectNode rootNode = mapper.createObjectNode();
@@ -1312,7 +1480,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "2.0");
 			itemNode.put("swaggerDescription",
-					infoObject.keySet().contains("description") ? infoObject.get("description") != null
+					infoObject!=null&&infoObject.keySet().contains("description") ? infoObject.get("description") != null
 							? infoObject.get("description").toString() : "" : "");
 			ArrayNode revision = mapper.createArrayNode();
 
@@ -1394,7 +1562,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "2.0");
 			itemNode.put("swaggerDescription",
-					infoObject.keySet().contains("description") ? infoObject.get("description") != null
+					infoObject!=null&&infoObject.keySet().contains("description") ? infoObject.get("description") != null
 							? infoObject.get("description").toString() : "" : "");
 			ArrayNode revision = mapper.createArrayNode();
 			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "2.0");
@@ -1528,9 +1696,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			}
 		}
 		JSONObject swaggerJsonObject = new JSONObject(vo.getSwagger());
-		JSONObject infoObject = (JSONObject) swaggerJsonObject.get("info");
-		log.info("The swagger Info object is: {}",
-				infoObject.keySet().contains("description") ? infoObject.get("description") : "");
+    JSONObject infoObject =
+        swaggerJsonObject.has("info") && swaggerJsonObject.get("info") != null && !swaggerJsonObject.get("info").toString().isEmpty()
+            ? (JSONObject) swaggerJsonObject.get("info") : null;
+//		log.info("The swagger Info object is: {}",
+//				infoObject.keySet().contains("description") ? infoObject.get("description") : "");
 
 		if (null == jsonNode) {
 			ObjectNode rootNode = mapper.createObjectNode();
@@ -1543,7 +1713,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "3.0");
 			itemNode.put("swaggerDescription",
-					infoObject.keySet().contains("description") ? infoObject.get("description") != null
+					infoObject!=null &&infoObject.keySet().contains("description") ? infoObject.get("description") != null
 							? infoObject.get("description").toString() : "" : "");
 			ArrayNode revision = mapper.createArrayNode();
 			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "3.0");
@@ -1623,7 +1793,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			itemNode.put("swaggerId", vo.getSwaggerId());
 			itemNode.put("swaggerVersion", "3.0");
 			itemNode.put("swaggerDescription",
-					infoObject.keySet().contains("description") ? infoObject.get("description") != null
+					infoObject!=null && infoObject.keySet().contains("description") ? infoObject.get("description") != null
 							? infoObject.get("description").toString() : "" : "");
 			ArrayNode revision = mapper.createArrayNode();
 			SwaggerMetadata metadata = getSwaggerMetadata(vo.getName(), "3.0");
@@ -2826,7 +2996,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			HashMap<String, Object> valuesNode = new HashMap<>();
 			while (startDate.compareTo(endDate) <= 0) {
 				Query query = new Query();
-				query.addCriteria(Criteria.where(SwaggerVO.LABEL_CREATED_TIME)
+				query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
 						.gte(new Long(getStartOfDay(startDate).getTime() + ""))
 						.lt(new Long(getEndOfDay(startDate).getTime() + "")));
 				List<SwaggerVO> list = baseRepository.find(query, SwaggerVO.class);
@@ -2899,7 +3069,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			ArrayNode valuesNode = mapper.createArrayNode();
 			while (startDate.compareTo(endDate) <= 0) {
 				Query query = new Query();
-				query.addCriteria(Criteria.where(SwaggerVO.LABEL_CREATED_TIME)
+				query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
 						.gte(new Long(getStartOfDay(startDate).getTime() + ""))
 						.lt(new Long(getEndOfDay(startDate).getTime() + "")));
 				List<Swagger3VO> list = baseRepository.find(query, Swagger3VO.class);
@@ -2965,7 +3135,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		ArrayNode valuesNode = mapper.createArrayNode();
 		while (startDate.compareTo(endDate) <= 0) {
 			Query query = new Query();
-			query.addCriteria(Criteria.where(SwaggerTeam.LABEL_CREATED_TIME)
+			query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
 					.gte(new Long(getStartOfDay(startDate).getTime() + ""))
 					.lt(new Long(getEndOfDay(startDate).getTime() + "")));
 			List<SwaggerTeam> list = baseRepository.find(query, SwaggerTeam.class);
@@ -3362,13 +3532,33 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		}
 	}
 
-	public Object swaggerSearch(String interactionid, String name, int limit)
+	public Object swaggerSearch(String interactionid, String name, int limit,String jsessionid)
 			throws ItorixException, JsonProcessingException {
 		log("searchSwagger", interactionid, "");
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		User user = getUserDetailsFromSessionID(jsessionid);
+		boolean isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
 		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
 		query.limit(limit > 0 ? limit : 10);
-		List<String> allSwaggers = getList(mongoTemplate.getCollection("Design.Swagger.List").distinct("name",
-				query.getQueryObject(), String.class));
+		List<String> allSwaggers = new ArrayList<>();
+		if(isAdmin) {
+			allSwaggers = getList(mongoTemplate.getCollection("Design.Swagger.List").distinct("name",
+					query.getQueryObject(), String.class));
+		}
+		else{
+			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("2.0", user);
+			Set<String> SwaggerNames = new HashSet<>();
+			SwaggerNames.addAll(swaggerRoles.keySet());
+			Map<String, Object> filterFieldsAndValues = new HashMap<>();
+			filterFieldsAndValues.put("createdBy", user.getId());
+			List<String> trimList = baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues,
+					SwaggerVO.class, null);
+			SwaggerNames.addAll(trimList);
+			allSwaggers = SwaggerNames.stream()
+					.filter(names -> names.contains(name))
+					.collect(Collectors.toList());
+			allSwaggers = trimList(allSwaggers,0,limit);
+		}
 		Collections.sort(allSwaggers);
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode response = mapper.createObjectNode();
@@ -3376,21 +3566,43 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		for (String swaggerName : allSwaggers) {
 			SearchItem item = new SearchItem();
 			SwaggerVO swaggerVo = baseRepository.findOne("name", swaggerName, SwaggerVO.class);
-			item.setId(swaggerVo.getSwaggerId());
-			item.setName(swaggerName);
-			responseFields.addPOJO(item);
+			if(swaggerVo!=null) {
+				item.setId(swaggerVo.getSwaggerId());
+				item.setName(swaggerName);
+				responseFields.addPOJO(item);
+			}
 		}
 		response.set("swaggers", responseFields);
 		return response;
 	}
 
-	public Object swagger3Search(String interactionid, String name, int limit)
+	public Object swagger3Search(String interactionid, String name, int limit,String jsessionid)
 			throws ItorixException, JsonProcessingException {
 		log("searchSwagger", interactionid, "");
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		User user = getUserDetailsFromSessionID(jsessionid);
+		boolean isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
 		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
 		query.limit(limit > 0 ? limit : 10);
-		List<String> allSwaggers = getList(mongoTemplate.getCollection("Design.Swagger3.List").distinct("name",
-				query.getQueryObject(), String.class));
+		List<String> allSwaggers = new ArrayList<>();
+		if(isAdmin) {
+			allSwaggers = getList(mongoTemplate.getCollection("Design.Swagger3.List").distinct("name",
+					query.getQueryObject(), String.class));
+		}
+		else{
+			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("3.0", user);
+			Set<String> SwaggerNames = new HashSet<>();
+			SwaggerNames.addAll(swaggerRoles.keySet());
+			Map<String, Object> filterFieldsAndValues = new HashMap<>();
+			filterFieldsAndValues.put("createdBy", user.getId());
+			List<String> trimList = baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues,
+					Swagger3VO.class, null);
+			SwaggerNames.addAll(trimList);
+			allSwaggers = SwaggerNames.stream()
+					.filter(names -> names.contains(name))
+					.collect(Collectors.toList());
+			allSwaggers = trimList(allSwaggers,0,limit);
+		}
 		Collections.sort(allSwaggers);
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode response = mapper.createObjectNode();
@@ -3398,9 +3610,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		for (String swaggerName : allSwaggers) {
 			SearchItem item = new SearchItem();
 			Swagger3VO swaggerVo = baseRepository.findOne("name", swaggerName, Swagger3VO.class);
-			item.setId(swaggerVo.getSwaggerId());
-			item.setName(swaggerName);
-			responseFields.addPOJO(item);
+			if(swaggerVo!=null) {
+				item.setId(swaggerVo.getSwaggerId());
+				item.setName(swaggerName);
+				responseFields.addPOJO(item);
+			}
 		}
 		response.set("swaggers", responseFields);
 		return response;
@@ -4103,6 +4317,45 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		});
 	}
 
+	@Override
+	public String getGolbalRule(String oas) {
+		Query query = Query.query(Criteria.where("ruleSetType").is("swagger").and("oasVersion").is(oas).and("isGlobalRuleSet").is(true));
+		return mongoTemplate.findOne(query,Document.class,"Astrum.RuleSet").get("_id").toString();
+	}
+
+	public void checkSwaggerTeams(String jsessionid, String swaggerName, String oasVersion) throws ItorixException {
+		log.debug("Checking for swagger teams ...");
+		if (swaggerName == null) {
+			log.error("Swagger name cannot be empty");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"), "Swagger-1000");
+		}
+		User user = getUserDetailsFromSessionID(jsessionid);
+		List<SwaggerTeam> userTeams = getUserTeams(user);
+		boolean teamFound = false;
+		Set<String> swaggerTeams = new HashSet<>();
+		Query query = new Query(Criteria.where("swaggerName").is(swaggerName).and("oas").is(oasVersion));
+		SwaggerMetadata metadata = mongoTemplate.findOne(query, SwaggerMetadata.class);
+		if (metadata != null) {
+			swaggerTeams = metadata.getTeams();
+		}
+		if (!swaggerTeams.isEmpty()) {
+			if (!userTeams.isEmpty()) {
+				for (SwaggerTeam team : userTeams) {
+					if (swaggerTeams.contains(team.getName())) {
+						teamFound = true;
+						break;
+					}
+				}
+			}
+		} else {
+			teamFound = true;
+		}
+		if (!teamFound) {
+			log.error("Swagger with the same name is already present in the workspace with different team.");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1011"), "Swagger-1011");
+		}
+	}
+
 	private DeleteResult removeBasePath(Query query, Class clazz) {
 		log.debug("removeBasePath : {}", query);
 		return mongoTemplate.remove(query, clazz);
@@ -4117,4 +4370,563 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return swaggerData;
 	}
 
+
+	public SwaggerObjectResponse getSwaggerStatsV2(String timeunit, String timerange,String jsessionid)
+			throws ParseException {
+		log("getSwaggerStatsV2", timeunit, timerange);
+		// TODO: Verify and remove blocks of code
+		// ObjectMapper mapper = new ObjectMapper();
+		SwaggerObjectResponse swaggerObjectResponse = new SwaggerObjectResponse();
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		User user = getUserDetailsFromSessionID(jsessionid);
+		Map<String, Object> filterFieldsAndValues = new HashMap<>();
+		boolean isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
+		List<Stat> statsList = new ArrayList<>();
+		boolean populateSwaggers = false;
+		if (timeunit != null && timerange != null) {
+			populateSwaggers = true;
+			SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+			String[] dates = timerange.split("~");
+			Date startDate = null;
+			Date endDate = null;
+			if (dates != null && dates.length > 0) {
+				startDate = dateFormat.parse(dates[0]);
+				endDate = dateFormat.parse(dates[1]);
+			}
+			Metrics metricsNode = new Metrics();
+			metricsNode.setType(timeunit);
+			HashMap<String, Object> valuesNode = new HashMap<>();
+			while (startDate.compareTo(endDate) <= 0) {
+				Query query = new Query();
+				query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
+						.gte(new Long(getStartOfDay(startDate).getTime() + ""))
+						.lt(new Long(getEndOfDay(startDate).getTime() + "")));
+				List<SwaggerVO> list = baseRepository.find(query, SwaggerVO.class);
+				if (list != null && list.size() > 0) {
+					valuesNode.put("timestamp", getStartOfDay(startDate).getTime() + "");
+					valuesNode.put("value", list.size());
+
+				}
+				startDate = DateUtil.addDays(startDate, 1);
+			}
+			metricsNode.setValues(valuesNode);
+			swaggerObjectResponse.setMetrics(metricsNode);
+		}
+		if(!isAdmin){
+			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("2.0", user);
+			Set<String> SwaggerNames = new HashSet<>();
+			SwaggerNames.addAll(swaggerRoles.keySet());
+			filterFieldsAndValues.put("createdBy", user.getId());
+			List<String> trimList = baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues,
+					SwaggerVO.class, null);
+			SwaggerNames.addAll(trimList);
+			List<String> swaggerIds=new ArrayList<>();
+			for (String name : SwaggerNames) {
+				List<Revision> versions;
+				versions = getListOfRevisions(name, jsessionid);
+				SwaggerVO vo = null;
+				if (versions != null && versions.size() > 0) {
+					Revision revision = Collections.max(versions);
+					vo = baseRepository.findOne("name", name, "revision", revision.getRevision(), SwaggerVO.class);
+					swaggerIds.add(vo.getSwaggerId());
+				}
+			}
+			filterFieldsAndValues.put("swaggerId",swaggerIds);
+			filterFieldsAndValues.remove("createdBy");
+			AggregationResults<Document> documents = baseRepository.filterAndGroupBySwaggerNameV2(
+					SwaggerVO.class, filterFieldsAndValues);
+			ArrayList<Document> documentlist = (ArrayList) documents.getRawResults().get("results");
+			documentlist.forEach(document -> {
+				Stat stats = new Stat();
+				stats.setName(document.get("status").toString());
+				stats.setCount(document.get("count").toString());
+				statsList.add(stats);
+			});
+		}
+		else {
+			AggregationResults<Document> documents = baseRepository.filterAndGroupBySwaggerNameV2(
+					SwaggerVO.class, filterFieldsAndValues);
+			ArrayList<Document> documentlist = (ArrayList) documents.getRawResults().get("results");
+			documentlist.forEach(document -> {
+				Stat stats = new Stat();
+				stats.setName(document.get("status").toString());
+				stats.setCount(document.get("count").toString());
+				statsList.add(stats);
+			});
+		}
+		swaggerObjectResponse.setStats(statsList);
+		log.debug("swaggerObjectResponseV2 : {}", swaggerObjectResponse);
+		return swaggerObjectResponse;
+	}
+
+	public SwaggerObjectResponse getSwagger3Statsv2(String timeunit, String timerange,String jsessionid) throws ParseException, ItorixException {
+		log("getSwagger3StatsV2", timeunit, timerange);
+		SwaggerObjectResponse swaggerObjectResponse = new SwaggerObjectResponse();
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		User user = getUserDetailsFromSessionID(jsessionid);
+		Map<String, Object> filterFieldsAndValues = new HashMap<>();
+		boolean isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
+		List<Stat> statsList = new ArrayList<>();
+		boolean populateSwaggers = false;
+		if (timeunit != null && timerange != null) {
+			populateSwaggers = true;
+			SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+			String[] dates = timerange.split("~");
+
+			Date startDate = null;
+			Date endDate = null;
+			if (dates != null && dates.length > 0) {
+				startDate = dateFormat.parse(dates[0]);
+				endDate = dateFormat.parse(dates[1]);
+			}
+			Metrics metricsNode = new Metrics();
+			metricsNode.setType(timeunit);
+			HashMap<String, Object> valuesNode = new HashMap<>();
+			while (startDate.compareTo(endDate) <= 0) {
+				Query query = new Query();
+				query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
+						.gte(new Long(getStartOfDay(startDate).getTime() + ""))
+						.lt(new Long(getEndOfDay(startDate).getTime() + "")));
+				List<Swagger3VO> list = baseRepository.find(query, Swagger3VO.class);
+				if (list != null && list.size() > 0) {
+					valuesNode.put("timestamp", getStartOfDay(startDate).getTime() + "");
+					valuesNode.put("value", list.size());
+				}
+				startDate = DateUtil.addDays(startDate, 1);
+			}
+			metricsNode.setValues(valuesNode);
+			swaggerObjectResponse.setMetrics(metricsNode);
+		}
+		if(!isAdmin){
+			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("3.0", user);
+			Set<String> SwaggerNames = new HashSet<>();
+			SwaggerNames.addAll(swaggerRoles.keySet());
+			filterFieldsAndValues.put("createdBy", user.getId());
+			List<String> trimList = baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues,
+					Swagger3VO.class, null);
+			SwaggerNames.addAll(trimList);
+			List<String> swaggerIds=new ArrayList<>();
+			for (String name : SwaggerNames) {
+				List<Revision> versions;
+				versions = getListOf3Revisions(name, jsessionid);
+				Swagger3VO vo = null;
+				if (versions != null && versions.size() > 0) {
+					Revision revision = Collections.max(versions);
+					vo = baseRepository.findOne("name", name, "revision", revision.getRevision(), Swagger3VO.class);
+					swaggerIds.add(vo.getSwaggerId());
+				}
+			}
+			filterFieldsAndValues.put("swaggerId",swaggerIds);
+			filterFieldsAndValues.remove("createdBy");
+			AggregationResults<Document> documents = baseRepository.filterAndGroupBySwaggerNameV2(
+					Swagger3VO.class, filterFieldsAndValues);
+			ArrayList<Document> documentlist = (ArrayList) documents.getRawResults().get("results");
+			documentlist.forEach(document -> {
+				Stat stats = new Stat();
+				stats.setName(document.get("status").toString());
+				stats.setCount(document.get("count").toString());
+				statsList.add(stats);
+			});
+		}
+		else {
+			AggregationResults<Document> documents = baseRepository.filterAndGroupBySwaggerNameV2(
+					Swagger3VO.class, filterFieldsAndValues);
+			ArrayList<Document> documentlist = (ArrayList) documents.getRawResults().get("results");
+			documentlist.forEach(document -> {
+				Stat stats = new Stat();
+				stats.setName(document.get("status").toString());
+				stats.setCount(document.get("count").toString());
+				statsList.add(stats);
+			});
+		}
+		swaggerObjectResponse.setStats(statsList);
+		log.debug("swaggerObjectResponseV2 : {}", swaggerObjectResponse);
+		return swaggerObjectResponse;
+	}
+
+
+	public MatchOperation findFilter(String timerange,String ruleSetId,String status)
+			throws ParseException{
+		MatchOperation matchOperation ;
+		if(ruleSetId==null && timerange==null){
+			matchOperation = getCriteria(null,null,status);
+		}
+		else if(ruleSetId!=null && timerange==null){
+			matchOperation = Aggregation.match(Criteria.where("ruleSetId").is(ruleSetId));
+		}
+		else if(ruleSetId == null){
+			matchOperation = getCriteria(timerange,null,status);
+		}
+		else{
+			matchOperation = getCriteria(timerange,ruleSetId,status);
+		}
+		return matchOperation;
+	}
+
+	public MatchOperation getCriteria(String timerange ,String ruleSetId,String status) throws ParseException{
+		List<Criteria> criteriaList = new ArrayList<>();
+		if(ruleSetId !=null)
+			criteriaList.add(Criteria.where("ruleSetId").is(ruleSetId));
+		if(status!=null)
+			criteriaList.add(Criteria.where("status").is(status));
+
+		Criteria criteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()]));
+		return !criteriaList.isEmpty() ? match(criteria) : Aggregation.match(new Criteria());
+	}
+
+	public SwaggerHistoryResponse getListOfSwagger3DetailsV2(String status, String modifiedDate, String interactionid,
+			String jsessionid, int offset, String oas, String swagger, int pageSize, String sortByModifiedDate)
+			throws ItorixException, JsonProcessingException, IOException {
+		log("getListOfSwagger3DetailsV2", interactionid, jsessionid);
+		// getSwaggers();
+		Map<String, Object> filterFieldsAndValues = new HashMap<>();
+		filterFieldsAndValues.put(STATUS_VALUE, status);
+		filterFieldsAndValues.put("modified_date", modifiedDate);
+		Map<String, Object> filterFieldsAndValuesForSwaggerId = new HashMap<>();
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		User user = getUserDetailsFromSessionID(jsessionid);
+		boolean isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
+		List<String> roles = user.getUserWorkspace(userSessionToken.getWorkspaceId()).getRoles();
+
+		List<Swagger3VO> list = new ArrayList<Swagger3VO>();
+		SwaggerHistoryResponse response = new SwaggerHistoryResponse();
+		List<String> names = new ArrayList<String>();
+		int total = 1;
+		if (swagger == null) {
+			names = baseRepository.filterAndGroupBySwaggerNameHistory(filterFieldsAndValues,filterFieldsAndValuesForSwaggerId, Swagger3VO.class,
+					sortByModifiedDate);
+			total = names.size();
+			names = trimList(names, offset, pageSize);
+		} else {
+			try {
+				Swagger3VO swaggervo = getSwagger3(swagger, interactionid);
+				if (swaggervo != null) {
+					swagger = swaggervo.getName();
+					names.add(swaggervo.getName());
+				} else {
+					throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"), "Swagger-1000");
+				}
+			} catch (Exception e) {
+				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"), "Swagger-1000");
+			}
+		}
+		if (isAdmin) {
+			for (String name : names) {
+				List<Revision> versions;
+				if (status != null && (!status.equals(""))) {
+					versions = getListOf3Revisions(name, status, interactionid);
+				} else {
+					versions = getListOf3Revisions(name, interactionid);
+				}
+				Swagger3VO vo = null;
+				if (versions != null && versions.size() > 0) {
+					Revision revision = Collections.max(versions);
+					vo = baseRepository.findOne("name", name, "revision", revision.getRevision(), Swagger3VO.class);
+					if(vo == null) {
+						vo = baseRepository.findOne("swaggerId", name, "revision", revision.getRevision(),
+								Swagger3VO.class);
+					}
+					SwaggerMetadata swaggerMetadata = getSwaggerMetadata(vo.getName(), oas);
+					if (swaggerMetadata != null) {
+						vo.setTeams(swaggerMetadata.getTeams());
+					}
+				}
+				if (vo != null) {
+					ObjectMapper mapper = new ObjectMapper();
+					JsonNode swaggerJson = mapper.readTree(vo.getSwagger());
+					if (swaggerJson != null) {
+						JsonNode infoNode = swaggerJson.get("info");
+						if (infoNode != null) {
+							try {
+								vo.setDescription(infoNode.get("description").asText());
+							} catch (Exception e) {
+								vo.setDescription("N/A");
+							}
+						}
+					}
+					vo.setSwagger(null);
+					roles = Arrays.asList("Admin", "Write", "Read");
+					vo.setRoles(roles);
+					list.add(vo);
+				}
+			}
+			Pagination pagination = new Pagination();
+			pagination.setOffset(offset);
+			pagination.setTotal((long) total);
+			pagination.setPageSize(pageSize);
+			response.setPagination(pagination);
+			response.setData(list);
+		} else {
+			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("3.0", user);
+			Set<String> SwaggerNames = new HashSet<>();
+			SwaggerNames.addAll(swaggerRoles.keySet());
+			filterFieldsAndValues.put("createdBy", user.getId());
+			List<String> trimList = baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues,
+					Swagger3VO.class, sortByModifiedDate);
+			SwaggerNames.addAll(trimList);
+			if (swagger != null) {
+				if (SwaggerNames.contains(swagger)) {
+					SwaggerNames = new HashSet<>();
+					SwaggerNames.add(swagger);
+				} else {
+					SwaggerNames = new HashSet<>();
+				}
+			}
+			if (SwaggerNames != null) {
+				names = new ArrayList<>(SwaggerNames);
+				List<String> swaggerIds = new ArrayList<>();
+				for (String name : names) {
+					List<Revision> versions;
+					if (status != null && (!status.equals(""))) {
+						versions = getListOf3Revisions(name, status, interactionid);
+					} else {
+						versions = getListOf3Revisions(name, interactionid);
+					}
+					Swagger3VO vo = null;
+					if (versions != null && versions.size() > 0) {
+						Revision revision = Collections.max(versions);
+						vo = baseRepository.findOne("name", name, "revision", revision.getRevision(),
+								Swagger3VO.class);
+						swaggerIds.add(vo.getSwaggerId());
+					}
+				}
+				filterFieldsAndValuesForSwaggerId.put("swaggerId",swaggerIds);
+				filterFieldsAndValues.remove("createdBy");
+				names = baseRepository.filterAndGroupBySwaggerNameHistory(filterFieldsAndValues,filterFieldsAndValuesForSwaggerId, Swagger3VO.class,
+						sortByModifiedDate);
+				Long size = Long.valueOf(names.size());
+				names=trimList(names,offset,pageSize);
+				for(String name : names) {
+					List<Revision> versions;
+					if (status != null && (!status.equals(""))) {
+						versions = getListOf3Revisions(name, status, interactionid);
+					} else {
+						versions = getListOf3Revisions(name, interactionid);
+					}
+					Swagger3VO vo = null;
+					if (versions != null && versions.size() > 0) {
+						Revision revision = Collections.max(versions);
+						vo = baseRepository.findOne("name", name, "revision", revision.getRevision(),
+								Swagger3VO.class);
+						if (vo == null) {
+							vo = baseRepository.findOne("swaggerId", name, "revision", revision.getRevision(),
+									Swagger3VO.class);
+						}
+					}
+					if (vo != null) {
+						SwaggerMetadata swaggerMetadata = getSwaggerMetadata(vo.getName(), oas);
+						if (swaggerMetadata != null) {
+							vo.setTeams(swaggerMetadata.getTeams());
+						}
+						// if (vo.getTeams() == null || isMailidExist(vo,
+						// user.getEmail())) {
+						ObjectMapper mapper = new ObjectMapper();
+						JsonNode swaggerJson = mapper.readTree(vo.getSwagger());
+						if (swaggerJson != null) {
+							JsonNode infoNode = swaggerJson.get("info");
+							if (infoNode != null) {
+								vo.setDescription(infoNode.get("description") == null
+										? "N/A"
+										: infoNode.get("description").asText());
+							}
+						}
+						vo.setSwagger(null);
+						vo.setRoles(new ArrayList<>(swaggerRoles.get(vo.getName()) == null
+								? Arrays.asList("Admin", "Write", "Read")
+								: swaggerRoles.get(vo.getName()))); // TODO
+						// not
+						// null
+						list.add(vo);
+					}
+				}
+				Pagination pagination = new Pagination();
+//				int totalByUser = SwaggerNames.size();
+				pagination.setOffset(offset);
+				pagination.setTotal(size);
+				pagination.setPageSize(pageSize);
+				response.setPagination(pagination);
+				response.setData(list);
+			}
+		}
+		log("getListOfSwagger3Details", interactionid, list);
+		return response;
+	}
+
+
+
+	public SwaggerHistoryResponse getListOfSwaggerDetailsV2(String status, String modifiedDate, String interactionid,
+			String jsessionid, int offset, String oas, String swagger, int pageSize, String sortByModifiedDate)
+			throws ItorixException, IOException {
+		log("getListOfSwaggerDetailsV2", interactionid, jsessionid);
+		Map<String, Object> filterFieldsAndValues = new HashMap<>();
+		filterFieldsAndValues.put(STATUS_VALUE, status);
+		filterFieldsAndValues.put("modified_date", modifiedDate);
+		Map<String, Object> filterFieldsAndValuesForSwaggerId = new HashMap<>();
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		User user = getUserDetailsFromSessionID(jsessionid);
+		boolean isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
+		List<String> roles = user.getUserWorkspace(userSessionToken.getWorkspaceId()).getRoles();
+
+		List<SwaggerVO> list = new ArrayList<SwaggerVO>();
+		SwaggerHistoryResponse response = new SwaggerHistoryResponse();
+		List<String> names = new ArrayList<String>();
+		int total = 1;
+		if (swagger == null) {
+			names = baseRepository.filterAndGroupBySwaggerNameHistory(filterFieldsAndValues,filterFieldsAndValuesForSwaggerId, SwaggerVO.class,
+					sortByModifiedDate);
+			total = names.size();
+			names = trimList(names, offset, pageSize);
+		} else {
+			try {
+				SwaggerVO swaggervo = getSwagger(swagger, interactionid);
+				if (swaggervo != null) {
+					swagger = swaggervo.getName();
+					names.add(swaggervo.getName());
+				} else {
+					throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"), "Swagger-1000");
+				}
+			} catch (Exception e) {
+				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"), "Swagger-1000");
+			}
+		}
+		if (isAdmin) {
+			for (String name : names) {
+				List<Revision> versions;
+				if (status != null && (!status.equals(""))) {
+					versions = getListOfRevisions(name, status, interactionid);
+				} else {
+					versions = getListOfRevisions(name, interactionid);
+				}
+				SwaggerVO vo = null;
+				if (versions != null && versions.size() > 0) {
+					Revision revision = Collections.max(versions);
+					vo = baseRepository.findOne("name", name, "revision", revision.getRevision(), SwaggerVO.class);
+					if(vo == null) {
+						vo = baseRepository.findOne("swaggerId", name, "revision", revision.getRevision(),
+								SwaggerVO.class);
+					}
+					SwaggerMetadata swaggerMetadata = getSwaggerMetadata(vo.getName(), oas);
+					if (swaggerMetadata != null) {
+						vo.setTeams(swaggerMetadata.getTeams());
+					}
+				}
+				if (vo != null) {
+					ObjectMapper mapper = new ObjectMapper();
+					JsonNode swaggerJson = mapper.readTree(vo.getSwagger());
+					if (swaggerJson != null) {
+						JsonNode infoNode = swaggerJson.get("info");
+						if (infoNode != null) {
+							try {
+								vo.setDescription(infoNode.get("description").asText());
+							} catch (Exception e) {
+								vo.setDescription("N/A");
+							}
+						}
+					}
+					vo.setSwagger(null);
+					roles = Arrays.asList("Admin", "Write", "Read");
+					vo.setRoles(roles);
+					list.add(vo);
+				}
+			}
+			Pagination pagination = new Pagination();
+			pagination.setOffset(offset);
+			pagination.setTotal((long) total);
+			pagination.setPageSize(pageSize);
+			response.setPagination(pagination);
+			response.setData(list);
+		} else {
+			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("2.0", user);
+			Set<String> SwaggerNames = new HashSet<>();
+			SwaggerNames.addAll(swaggerRoles.keySet());
+			filterFieldsAndValues.put("createdBy", user.getId());
+			List<String> trimList = baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues,
+					SwaggerVO.class, sortByModifiedDate);
+			SwaggerNames.addAll(trimList);
+			if (swagger != null) {
+				if (SwaggerNames.contains(swagger)) {
+					SwaggerNames = new HashSet<>();
+					SwaggerNames.add(swagger);
+				} else {
+					SwaggerNames = new HashSet<>();
+				}
+			}
+			if (SwaggerNames != null) {
+				names = new ArrayList<>(SwaggerNames);
+				List<String> swaggerIds = new ArrayList<>();
+				for (String name : names) {
+					List<Revision> versions;
+					if (status != null && (!status.equals(""))) {
+						versions = getListOfRevisions(name, status, interactionid);
+					} else {
+						versions = getListOfRevisions(name, interactionid);
+					}
+					SwaggerVO vo = null;
+					if (versions != null && versions.size() > 0) {
+						Revision revision = Collections.max(versions);
+						vo = baseRepository.findOne("name", name, "revision", revision.getRevision(),
+								SwaggerVO.class);
+						swaggerIds.add(vo.getSwaggerId());
+					}
+				}
+				filterFieldsAndValuesForSwaggerId.put("swaggerId",swaggerIds);
+				filterFieldsAndValues.remove("createdBy");
+				names = baseRepository.filterAndGroupBySwaggerNameHistory(filterFieldsAndValues,filterFieldsAndValuesForSwaggerId, SwaggerVO.class,
+						sortByModifiedDate);
+				Long size = Long.valueOf(names.size());
+				names=trimList(names,offset,pageSize);
+				for(String name : names) {
+					List<Revision> versions;
+					if (status != null && (!status.equals(""))) {
+						versions = getListOfRevisions(name, status, interactionid);
+					} else {
+						versions = getListOfRevisions(name, interactionid);
+					}
+					SwaggerVO vo = null;
+					if (versions != null && versions.size() > 0) {
+						Revision revision = Collections.max(versions);
+						vo = baseRepository.findOne("name", name, "revision", revision.getRevision(),
+								SwaggerVO.class);
+						if (vo == null) {
+							vo = baseRepository.findOne("swaggerId", name, "revision", revision.getRevision(),
+									SwaggerVO.class);
+						}
+					}
+					if (vo != null) {
+						SwaggerMetadata swaggerMetadata = getSwaggerMetadata(vo.getName(), oas);
+						if (swaggerMetadata != null) {
+							vo.setTeams(swaggerMetadata.getTeams());
+						}
+						// if (vo.getTeams() == null || isMailidExist(vo,
+						// user.getEmail())) {
+						ObjectMapper mapper = new ObjectMapper();
+						JsonNode swaggerJson = mapper.readTree(vo.getSwagger());
+						if (swaggerJson != null) {
+							JsonNode infoNode = swaggerJson.get("info");
+							if (infoNode != null) {
+								vo.setDescription(infoNode.get("description") == null
+										? "N/A"
+										: infoNode.get("description").asText());
+							}
+						}
+						vo.setSwagger(null);
+						vo.setRoles(new ArrayList<>(swaggerRoles.get(vo.getName()) == null
+								? Arrays.asList("Admin", "Write", "Read")
+								: swaggerRoles.get(vo.getName()))); // TODO
+						// not
+						// null
+						list.add(vo);
+					}
+				}
+				Pagination pagination = new Pagination();
+				pagination.setOffset(offset);
+				pagination.setTotal(size);
+				pagination.setPageSize(pageSize);
+				response.setPagination(pagination);
+				response.setData(list);
+			}
+		}
+		log("getListOfSwaggerDetailsV2", interactionid, list);
+		return response;
+	}
 }

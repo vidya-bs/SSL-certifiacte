@@ -7,12 +7,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSBuckets;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.bson.types.ObjectId;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -58,9 +63,9 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
-import com.mongodb.gridfs.GridFSInputFile;
-import com.mongodb.operation.OrderBy;
 import com.mongodb.MongoClient;
+
+import javax.print.Doc;
 
 @Component("mongoConnection")
 public class MongoConnection {
@@ -85,10 +90,8 @@ public class MongoConnection {
 	private GridFsOperations gfsOperations;
 
 
-	private DB getDB() {
-		MongoDatabase mongoDatabase = mongoTemplate.getDb();
-		return mongoTemplate.getMongoDbFactory().getLegacyDb();
-		// return mongoTemplate.getDb();
+	private MongoDatabase getDB() {
+		return mongoTemplate.getDb();
 	}
 
 	public String getFile(String fileName) {
@@ -123,18 +126,18 @@ public class MongoConnection {
 	public String updateDocument(String content, String updateContent) {
 		String reader = null;
 		try {
-			DB db = getDB();
-			DBCollection collection = db.getCollection("Connectors.Apigee.Build.Templates.Folder");
-			BasicDBObject document = new BasicDBObject();
+			MongoDatabase db = getDB();
+			MongoCollection<Document> collection = db.getCollection("Connectors.Apigee.Build.Templates.Folder");
+			Document document = new Document();
 			document.put("content", content);
-			BasicDBObject updateDocument = new BasicDBObject();
+			Document updateDocument = new Document();
 			updateDocument.put("content", updateContent);
-			DBCursor cursor = collection.find();
-			while (cursor.hasNext()) {
-				DBObject tmp = cursor.next();
-				collection.remove(tmp);
+			FindIterable<Document> findIterable = collection.find();
+			while (findIterable.cursor().hasNext()) {
+				Document tmp = findIterable.cursor().next();
+				collection.deleteOne(tmp);
 			}
-			collection.insert(updateDocument);
+			collection.insertOne(updateDocument);
 			
 			
 			BuildTemplate buildTemplate = new BuildTemplate();
@@ -183,10 +186,10 @@ public class MongoConnection {
 			if(buildTemplates != null) {
 				reader = buildTemplates.get(0).getContent();
 			}else {
-				DB db = getDB();
-				DBCollection collection = db.getCollection("Connectors.Apigee.Build.Templates.Folder");
-				DBCursor cursor = collection.find();
-				DBObject content = cursor.next();
+				MongoDatabase db = getDB();
+				MongoCollection<Document> collection = db.getCollection("Connectors.Apigee.Build.Templates.Folder");
+				FindIterable<Document> findIterable = collection.find();
+				Document content = findIterable.cursor().next();
 				reader = (String) content.get("content");
 			}
 		} catch (Exception e) {
@@ -328,11 +331,11 @@ public class MongoConnection {
 	public List<String> getProxyHistory() {
 		List<String> history = new ArrayList<String>();
 		try {
-			DB db = getDB();
-			DBCollection collection = db.getCollection("Build.Proxy");
-			DBCursor cursor = collection.find();
-			while (cursor.hasNext()) {
-				DBObject content = cursor.next();
+			MongoDatabase db = getDB();
+			MongoCollection<Document> collection = db.getCollection("Build.Proxy");
+			FindIterable<Document> findIterable = collection.find();
+			while (findIterable.cursor().hasNext()) {
+				Document content = findIterable.cursor().next();
 				history.add((String) content.get("ProxyData"));
 			}
 		} catch (MongoException e) {
@@ -529,13 +532,13 @@ public class MongoConnection {
 	public List<String> getActiveSchedules() {
 		List<String> history = new ArrayList<String>();
 		try {
-			DB db = getDB();
-			DBCollection collection = db.getCollection("Build.Schedule");
-			BasicDBObject whereQuery = new BasicDBObject();
+			MongoDatabase db = getDB();
+			MongoCollection<Document> collection = db.getCollection("Build.Schedule");
+			Document whereQuery = new Document();
 			whereQuery.put("status", "scheduled");
-			DBCursor cursor = collection.find(whereQuery);
-			while (cursor.hasNext()) {
-				DBObject content = cursor.next();
+			FindIterable<Document> findIterable = collection.find(whereQuery);
+			while (findIterable.cursor().hasNext()) {
+				Document content = findIterable.cursor().next();
 				history.add((String) content.get("schedulerData"));
 			}
 		} catch (MongoException e) {
@@ -549,40 +552,40 @@ public class MongoConnection {
 		return history;
 	}
 
-	public String deleteScheduler(String id) throws ItorixException {
-		try {
-			DB db = getDB();
-			DBCollection collection = db.getCollection("Build.Schedule");
-
-			if (getScheduler(id) == null) {
-				throw new ItorixException("No scheduler found with ID " + id, "ProxyGen-1002");
-			} else {
-				BasicDBObject searchQuery = new BasicDBObject().append("id", id);
-				collection.remove(searchQuery);
-				return "true";
-			}
-		} catch (MongoException e) {
-			e.printStackTrace();
-			logger.error("MongoConnection::deleteScheduler " + e.getMessage());
-			throw e;
-		} finally {
-			if (mongo != null)
-				mongo.close();
-		}
-	}
+//	public String deleteScheduler(String id) throws ItorixException {
+//		try {
+//			DB db = getDB();
+//			DBCollection collection = db.getCollection("Build.Schedule");
+//
+//			if (getScheduler(id) == null) {
+//				throw new ItorixException("No scheduler found with ID " + id, "ProxyGen-1002");
+//			} else {
+//				BasicDBObject searchQuery = new BasicDBObject().append("id", id);
+//				collection.remove(searchQuery);
+//				return "true";
+//			}
+//		} catch (MongoException e) {
+//			e.printStackTrace();
+//			logger.error("MongoConnection::deleteScheduler " + e.getMessage());
+//			throw e;
+//		} finally {
+//			if (mongo != null)
+//				mongo.close();
+//		}
+//	}
 
 	public String getScheduler(String id) {
 		if (id == null)
 			return null;
 		String data = null;
 		try {
-			DB db = getDB();
-			DBCollection collection = db.getCollection("Build.Schedule");
+			MongoDatabase db = getDB();
+			MongoCollection<Document> collection = db.getCollection("Build.Schedule");
 			BasicDBObject whereQuery = new BasicDBObject();
 			whereQuery.put("id", id);
-			DBCursor cursor = collection.find(whereQuery);
-			while (cursor.hasNext()) {
-				DBObject content = cursor.next();
+			FindIterable<Document> findIterable = collection.find(whereQuery);
+			while (findIterable.cursor().hasNext()) {
+				Document content = findIterable.cursor().next();
 				data = (String) content.get("schedulerData");
 			}
 		} catch (MongoException e) {
@@ -596,26 +599,26 @@ public class MongoConnection {
 		return data;
 	}
 
-	public List<String> getSchedulers() {
-		List<String> schedulers = new ArrayList<String>();
-		try {
-			DB db = getDB();
-			DBCollection collection = db.getCollection("Build.Schedule");
-			DBCursor cursor = collection.find();
-			while (cursor.hasNext()) {
-				DBObject content = cursor.next();
-				schedulers.add((String) content.get("schedulerData"));
-			}
-		} catch (MongoException e) {
-			e.printStackTrace();
-			logger.error("MongoConnection::getSchedulers " + e.getMessage());
-			throw e;
-		} finally {
-			if (mongo != null)
-				mongo.close();
-		}
-		return schedulers;
-	}
+//	public List<String> getSchedulers() {
+//		List<String> schedulers = new ArrayList<String>();
+//		try {
+//			MongoDatabase db = getDB();
+//			MongoCollection<Document> collection = db.getCollection("Build.Schedule");
+//			FindIterable<Document> findIterable = collection.find();
+//			while (findIterable.cursor().hasNext()) {
+//				Document content = findIterable.cursor().next();
+//				schedulers.add((String) content.get("schedulerData"));
+//			}
+//		} catch (MongoException e) {
+//			e.printStackTrace();
+//			logger.error("MongoConnection::getSchedulers " + e.getMessage());
+//			throw e;
+//		} finally {
+//			if (mongo != null)
+//				mongo.close();
+//		}
+//		return schedulers;
+//	}
 
 	private String getUniqueId() {
 		String string = Instant.now().toString();
@@ -624,59 +627,63 @@ public class MongoConnection {
 		return encodedString;
 	}
 
-	public String getResourceFile(String projectName, String proxyName, String type, String fileName,
-			String destinationLocation) {
-		String projectFileName = findProjectFile(projectName, proxyName, type, fileName);
-		System.out.println("file name : " + projectFileName);
-		String reader = null;
-		DB db = getDB();
-		try {
-			GridFS gfs = new GridFS(db, "Project.Files");
-			GridFSDBFile file = gfs.findOne(projectFileName);
-			BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
-			StringBuilder stringBuilder = new StringBuilder();
-			String ls = System.getProperty("line.separator");
-			String line = null;
-			while ((line = br.readLine()) != null) {
-				stringBuilder.append(line);
-				stringBuilder.append(ls);
-			}
-			br.close();
-			reader = stringBuilder.toString();
-		} catch (MongoException e) {
-			e.printStackTrace();
-			logger.error("MongoConnection::getFile " + projectFileName + " : " + e.getMessage());
-		} catch (IOException e) {
-			e.printStackTrace();
-			logger.error("MongoConnection::getFile " + projectFileName + " : " + e.getMessage());
-		} finally {
-			if (mongo != null)
-				mongo.close();
-		}
-		try {
-			reader = reader.replaceAll("schemaLocation=\"", "schemaLocation=\"xsd://").replaceAll("\" location=\"",
-					"\" location=\"wsdl://");
-			FileUtils.writeStringToFile(new File(destinationLocation + fileName), reader);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return reader;
-	}
+//	public String getResourceFile(String projectName, String proxyName, String type, String fileName,
+//			String destinationLocation) {
+//		String projectFileName = findProjectFile(projectName, proxyName, type, fileName);
+//		System.out.println("file name : " + projectFileName);
+//		String reader = null;
+//		MongoDatabase db = getDB();
+//		try {
+////			GridFS gfs = new GridFS(db, "Project.Files");
+////			GridFSDBFile file = gfs.findOne(projectFileName);
+//
+//			GridFSBucket gridFSBucket = GridFSBuckets.create(db, "Project.Files");
+//			gridFSBucket.find(projectFileName);
+//
+//			BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
+//			StringBuilder stringBuilder = new StringBuilder();
+//			String ls = System.getProperty("line.separator");
+//			String line = null;
+//			while ((line = br.readLine()) != null) {
+//				stringBuilder.append(line);
+//				stringBuilder.append(ls);
+//			}
+//			br.close();
+//			reader = stringBuilder.toString();
+//		} catch (MongoException e) {
+//			e.printStackTrace();
+//			logger.error("MongoConnection::getFile " + projectFileName + " : " + e.getMessage());
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			logger.error("MongoConnection::getFile " + projectFileName + " : " + e.getMessage());
+//		} finally {
+//			if (mongo != null)
+//				mongo.close();
+//		}
+//		try {
+//			reader = reader.replaceAll("schemaLocation=\"", "schemaLocation=\"xsd://").replaceAll("\" location=\"",
+//					"\" location=\"wsdl://");
+//			FileUtils.writeStringToFile(new File(destinationLocation + fileName), reader);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return reader;
+//	}
 
 	public String findProjectFile(String projectName, String proxyName, String type, String fileName) {
 		String location = null;
 		try {
-			DB db = getDB();
-			DBCollection collection = db.getCollection("Plan.ProjectFiles");
-			BasicDBObject whereQuery = new BasicDBObject();
+			MongoDatabase db = getDB();
+			MongoCollection<Document> collection = db.getCollection("Plan.ProjectFiles");
+			Document whereQuery = new Document();
 			whereQuery.put("projectName", projectName);
 			whereQuery.put("proxyName", proxyName);
 			whereQuery.put("type", type);
 			whereQuery.put("fileName", fileName);
-			DBCursor cursor = collection.find(whereQuery);
-			while (cursor.hasNext()) {
-				DBObject content = cursor.next();
+			FindIterable<Document> findIterable = collection.find(whereQuery);
+			while (findIterable.cursor().hasNext()) {
+				Document content = findIterable.cursor().next();
 				location = (String) content.get("location");
 			}
 		} catch (MongoException e) {

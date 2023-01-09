@@ -62,7 +62,7 @@ public interface CodeCoverageService {
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = CodeCoverageBackUpInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','TEST','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/buildconfig/codecoverage", produces = {
 			MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Object> prepareCodeCoverage(
@@ -96,7 +96,7 @@ public interface CodeCoverageService {
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = CodeCoverageBackUpInfo.class),
 			@ApiResponse(code = 404, message = "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/codecoverage/{id}", produces = {
 			MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<Object> getCodeCoverageOverviewForId(
@@ -122,7 +122,7 @@ public interface CodeCoverageService {
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','TEST','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/buildconfig/codecoverage/{id}")
 	public ResponseEntity<Void> deleteCodeCoverageOverviewForId(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -134,14 +134,17 @@ public interface CodeCoverageService {
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/codecoverage")
-	public ResponseEntity<List<History>> getMonitoringStats(
+	public ResponseEntity<?> getMonitoringStats(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(name = "filter", required = false) boolean filter,
 			@RequestParam(name = "proxy", required = false) String proxy,
 			@RequestParam(name = "org", required = false) String org,
 			@RequestParam(name = "env", required = false) String env,
-			@RequestParam(name = "daterange", required = false) String daterange) throws Exception;
+			@RequestParam(name = "daterange", required = false) String daterange,
+			@RequestParam(name = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(name = "pagesize", required = false, defaultValue = "10") int pageSize,
+			@RequestParam(name = "expand", required = false, defaultValue = "true") String expand) throws Exception;
 
 	/**
 	 *
@@ -161,7 +164,7 @@ public interface CodeCoverageService {
 	 * 
 	 * @throws Exception
 	 */
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/cicd/unittest")
 	public Object getUnitTests(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid,
@@ -188,10 +191,16 @@ public interface CodeCoverageService {
 	 * 
 	 * @throws Exception
 	 */
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','TEST','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/cicd/codecoverage")
 	public Object executeCodeCoverage(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestBody CodeCoverageVO codeCoverageVO, @RequestParam(value = "type", required = false) String type,
 			@RequestParam("isSaaS") boolean isSaaS) throws Exception;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/codecoverage/search", produces = "application/json")
+	public org.springframework.http.ResponseEntity<?> searchCodeCoverage(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception;
 }

@@ -128,6 +128,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@Value("${compliance.scanner.uri:}")
 	private String scannerUri;
 
+	@Value("${linting.api.url:}")
+	private String lintingUrl;
+
+	@Value("${linting.api.lintSwagger:null}")
+	private String lintSwagger;
+
 	/**
 	 * The Xls util.
 	 */
@@ -201,7 +207,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		scannerDTO.setOperation(CREATE);
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
-			callScannerAPI(scannerDTO);
+			callScannerAPI(scannerDTO, jsessionid);
 		}
 		return new ResponseEntity<Object>(listSwaggers, HttpStatus.OK);
 	}
@@ -226,6 +232,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
+			@RequestHeader(value="x-publish" ,required = false) boolean publish,
 			@RequestBody String json) throws Exception {
 
 		if (oas == null || oas.trim().equals("")) {
@@ -243,11 +250,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setInteractionid(interactionid);
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggerVO);
 			if (vo != null) {
+				swaggerBusiness.checkSwaggerTeams(jsessionid, swaggerVO.getName(), "2.0");
 				swaggerVO.setSwagger(json);
-				swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid);
+				swaggerVO=swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid,publish);
 			} else {
 				swaggerVO.setSwagger(json);
-				swaggerVO = swaggerBusiness.createSwagger(swaggerVO);
+				swaggerVO = swaggerBusiness.createSwagger(swaggerVO,publish);
 			}
 
 			swaggerBusiness.updateSwaggerBasePath(swaggerVO.getName(), swaggerVO); // update
@@ -268,7 +276,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 			notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusiness.createNotification(notificationDetails,jsessionid);
-
+			if(publish) {
+				initiateLinting(jsessionid, swaggerVO.getSwaggerId(), swaggerVO.getRevision(), "2.0",
+						swaggerVO.getRuleSetIds());
+			}
 		} else if (oas.equals("3.0")) {
 			if (!swaggerBusiness.oasCheck(json).startsWith("3")) {
 				throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1009"), "Swagger-1009");
@@ -279,11 +290,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setInteractionid(interactionid);
 			Swagger3VO vo = swaggerBusiness.findSwagger(swaggerVO);
 			if (vo != null) {
+				swaggerBusiness.checkSwaggerTeams(jsessionid, swaggerVO.getName(), "3.0");
 				swaggerVO.setSwagger(json);
-				swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid);
+				swaggerVO=swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid,publish);
 			} else {
 				swaggerVO.setSwagger(json);
-				swaggerVO = swaggerBusiness.createSwagger(swaggerVO);
+				swaggerVO = swaggerBusiness.createSwagger(swaggerVO,publish);
 			}
 
 			swaggerBusiness.updateSwagger3BasePath(swaggerVO.getName(), swaggerVO);
@@ -299,10 +311,14 @@ public class SwaggerServiceImpl implements SwaggerService {
 			notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusiness.createNotification(notificationDetails,jsessionid);
+			if(publish) {
+				initiateLinting(jsessionid, swaggerVO.getSwaggerId(), swaggerVO.getRevision(), "3.0",
+						swaggerVO.getRuleSetIds());
+			}
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
-			callScannerAPI(scannerDTO);
+			callScannerAPI(scannerDTO, jsessionid);
 		}
 
 		return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
@@ -439,7 +455,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setName(swaggername);
 			swaggerVO.setInteractionid(interactionid);
 			swaggerVO.setSwagger(json);
-			swaggerVO = swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid);
+			swaggerVO = swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid,false);
 			swaggerBusiness.updateSwaggerBasePath(swaggerVO.getName(), swaggerVO); // update
 			// the
 			// base
@@ -462,13 +478,14 @@ public class SwaggerServiceImpl implements SwaggerService {
 			notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusiness.createNotification(notificationDetails,jsessionid);
-
+			initiateLinting(jsessionid, swaggerVO.getSwaggerId(), swaggerVO.getRevision(), "2.0",
+					swaggerVO.getRuleSetIds());
 		} else if (oas.equals("3.0")) {
 			Swagger3VO swaggerVO = new Swagger3VO();
 			swaggerVO.setName(swaggername);
 			swaggerVO.setInteractionid(interactionid);
 			swaggerVO.setSwagger(json);
-			swaggerVO = swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid);
+			swaggerVO = swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid,false);
 			swaggerBusiness.updateSwagger3BasePath(swaggerVO.getName(), swaggerVO); // update
 			// the
 			// base
@@ -489,14 +506,38 @@ public class SwaggerServiceImpl implements SwaggerService {
 			notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusiness.createNotification(notificationDetails,jsessionid);
+			initiateLinting(jsessionid, swaggerVO.getSwaggerId(), swaggerVO.getRevision(), "3.0",
+					swaggerVO.getRuleSetIds());
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
-			callScannerAPI(scannerDTO);
+			callScannerAPI(scannerDTO, jsessionid);
 		}
 		return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
 	}
 
+	private void initiateLinting(String jsessionid,
+			String swaggerId, Integer revision, String oas, List<String> ruleSetIds) {
+		try {
+			String globalRule=swaggerBusiness.getGolbalRule(oas);
+			if(globalRule!=null&&ruleSetIds!=null&&!ruleSetIds.contains(globalRule))
+			{
+				ruleSetIds.add(globalRule);
+			}
+			else if(globalRule!=null&&ruleSetIds==null){
+				ruleSetIds=new ArrayList<String>();
+				ruleSetIds.add(globalRule);
+			}
+			SwaggerLintingInfo swaggerLintingInfo = new SwaggerLintingInfo();
+			swaggerLintingInfo.setSwaggerId(swaggerId);
+			swaggerLintingInfo.setRevision(revision);
+			swaggerLintingInfo.setOasVersion(oas);
+			swaggerLintingInfo.setRuleSetIds(ruleSetIds);
+			callLintingAPI(swaggerLintingInfo, jsessionid);
+		} catch (Exception ex) {
+			logger.error("Error while calling linting API {} ", ex.getMessage());
+		}
+	}
 	private void uploadFilesToGit(SwaggerIntegrations integrations, Object swaggerVO, String oas,
 			String json,
 			RSAEncryption rsaEncryption) throws Exception {
@@ -599,6 +640,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 			notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusiness.createNotification(notificationDetails,jsessionid);
+			initiateLinting(jsessionid, vo.getSwaggerId(), vo.getRevision(), "2.0",
+					vo.getRuleSetIds());
 		} else if (oas.equals("3.0")) {
 			Swagger3VO swaggerVO = new Swagger3VO();
 			swaggerVO.setName(swaggername);
@@ -642,10 +685,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 			notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusiness.createNotification(notificationDetails,jsessionid);
+			initiateLinting(jsessionid, vo.getSwaggerId(), vo.getRevision(), "3.0",
+					vo.getRuleSetIds());
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
-			callScannerAPI(scannerDTO);
+			callScannerAPI(scannerDTO, jsessionid);
 		}
 		return new ResponseEntity<Void>(headers, HttpStatus.NO_CONTENT);
 	}
@@ -720,38 +765,37 @@ public class SwaggerServiceImpl implements SwaggerService {
 		return new ResponseEntity<List<Revision>>(list, HttpStatus.OK);
 	}
 
+	@Override
+	public ResponseEntity<Object> getListOfSwaggerNames(String interactionid, String oas,
+			String page,String jsessionid) throws Exception {
+		{
+			if (oas == null || oas.trim().equals("")) {
+				oas = "2.0";
+			}
+			JSONObject jsonObject = new JSONObject();
+			if (oas.equals("2.0")) {
+				List<SwaggerVO> swaggers = swaggerBusiness.getSwaggerNames(page,jsessionid);
+				jsonObject.accumulate("swaggers", swaggers);
+			} else if (oas.equals("3.0")) {
+				List<Swagger3VO> swagger3s = swaggerBusiness.getSwagger3Names(page,jsessionid);
+				jsonObject.accumulate("swaggers", swagger3s);
+			}
+			return new ResponseEntity<Object>(jsonObject.toString(), HttpStatus.OK);
+		}
+	}
+
 	/**
 	 * Using this we will get all the Swagger's.
 	 *
-	 * @param interactionid
-	 * @param jsessionid
 	 * @param request
 	 * @param response
+	 * @param interactionid
+	 * @param jsessionid
+	 * @param page
+	 * @param oas
 	 * @return
 	 * @throws ItorixException
 	 */
-	@ApiOperation(value = "Get List Of Swagger Names", notes = "", code = 200)
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Ok", response = String.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers", produces = {MediaType.APPLICATION_JSON_VALUE})
-	public ResponseEntity<Object> getListOfSwaggerNames(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "oas", required = false) String oas) throws Exception {
-		if (oas == null || oas.trim().equals("")) {
-			oas = "2.0";
-		}
-		JSONObject jsonObject = new JSONObject();
-		if (oas.equals("2.0")) {
-			List<SwaggerVO> swaggers = swaggerBusiness.getSwaggerNames();
-			jsonObject.accumulate("swaggers", swaggers);
-		} else if (oas.equals("3.0")) {
-			List<Swagger3VO> swagger3s = swaggerBusiness.getSwagger3Names();
-			jsonObject.accumulate("swaggers", swagger3s);
-		}
-		return new ResponseEntity<Object>(jsonObject.toString(), HttpStatus.OK);
-	}
 
 	/**
 	 * Using this we will get the swagger name along with version and state.
@@ -1016,7 +1060,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
-			callScannerAPI(scannerDTO);
+			callScannerAPI(scannerDTO, jsessionid);
 		}
 
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
@@ -1097,7 +1141,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		}
 
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
-			callScannerAPI(scannerDTO);
+			callScannerAPI(scannerDTO, jsessionid);
 		}
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
@@ -1201,6 +1245,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusiness.createNotification(notificationDetails,jsessionid);
+			initiateLinting(jsessionid, vo.getSwaggerId(), vo.getRevision(), "2.0",
+					vo.getRuleSetIds());
 		} else if (oas.equals("3.0")) {
 			Swagger3VO vo = swaggerBusiness.updateSwagger3Status(swaggername, revision, json, interactionid,
 					jsessionid);
@@ -1212,9 +1258,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusiness.createNotification(notificationDetails,jsessionid);
+			initiateLinting(jsessionid, vo.getSwaggerId(), vo.getRevision(), "3.0",
+					vo.getRuleSetIds());
 		}
 		if (!ObjectUtils.isEmpty(scannerDTO)) {
-			callScannerAPI(scannerDTO);
+			callScannerAPI(scannerDTO, jsessionid);
 
 		}
 
@@ -2579,9 +2627,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 			oas = "2.0";
 		}
 		if (oas.equals("2.0")) {
-			response = swaggerBusiness.swaggerSearch(interactionid, name, limit);
+			response = swaggerBusiness.swaggerSearch(interactionid, name, limit,jsessionid);
 		} else if (oas.equals("3.0")) {
-			response = swaggerBusiness.swagger3Search(interactionid, name, limit);
+			response = swaggerBusiness.swagger3Search(interactionid, name, limit,jsessionid);
 		}
 		return new ResponseEntity<Object>(response, HttpStatus.OK);
 	}
@@ -2765,7 +2813,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@Override
 	public ResponseEntity<?> getSwaggerAssociatedWithModelId(@RequestHeader(value = "JSESSIONID") String jsessionid,
 															 @PathVariable String dictionaryId, @PathVariable String modelId, @PathVariable Integer revision) {
-		log.info("Get Swagger Asoociated with ModelId");
+		log.info("Get Swagger Asoociated with Model Id");
 		DictionarySwagger swaggerAssociatedWithDictionary = swaggerBusiness
 				.getSwaggerAssociatedWithDictionary(dictionaryId, modelId , revision);
 		if (swaggerAssociatedWithDictionary != null) {
@@ -2828,7 +2876,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		scannerDTO.setOperation(CREATE);
 		scannerDTO.setTenantId(getWorkspaceId());
 		scannerDTO.setSwaggerId(swaggersList);
-		callScannerAPI(scannerDTO);
+		callScannerAPI(scannerDTO, jsessionid);
 		return ResponseEntity.ok().body("Syncing " + swaggersList.size() + " Swaggers.");
 
 	}
@@ -2891,9 +2939,11 @@ public class SwaggerServiceImpl implements SwaggerService {
 						jsessionid, offset, pageSize));
 	}
 
-	private void callScannerAPI(ScannerDTO scannerDTO) {
+	private void callScannerAPI(ScannerDTO scannerDTO, String jsessionid) {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+		httpHeaders.set("JSESSIONID", jsessionid);
+
 		HttpEntity<ScannerDTO> entity = new HttpEntity<>(scannerDTO, httpHeaders);
 
 		try {
@@ -2904,4 +2954,93 @@ public class SwaggerServiceImpl implements SwaggerService {
 
 	}
 
+	private void callLintingAPI(SwaggerLintingInfo swaggerLintingInfo, String jsessionid) {
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+		httpHeaders.set("jsessionid", jsessionid);
+		HttpEntity<SwaggerLintingInfo> entity = new HttpEntity<>(swaggerLintingInfo, httpHeaders);
+
+		try {
+			restTemplate.exchange(lintingUrl+lintSwagger, HttpMethod.POST, entity, String.class).getBody();
+		} catch (Exception e) {
+			logger.error("Error while calling linting API {} ", e.getMessage());
+		}
+
+	}
+
+	@ApiOperation(value = "Get Swagger Revison's", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/swaggers/stats")
+	public ResponseEntity<Object> getSwaggerStatsV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = false) String oas,
+			@RequestParam(value = "timeunit", required = false) String timeunit,
+			@RequestParam(value = "timerange", required = false) String timerange) throws Exception {
+		SwaggerObjectResponse obj = null;
+		if (oas == null || oas.trim().equals("")) {
+			oas = "2.0";
+		}
+		if (oas.equals("2.0")) {
+			return new ResponseEntity<Object>(swaggerBusiness.getSwaggerStatsV2(timeunit, timerange,jsessionid), HttpStatus.OK);
+		} else if (oas.equals("3.0")) {
+			obj = swaggerBusiness.getSwagger3Statsv2(timeunit, timerange,jsessionid);
+		}
+		return new ResponseEntity<Object>(obj, HttpStatus.OK);
+	}
+
+	@ApiOperation(value = "Get List Of Swagger Details", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Ok", response = SwaggerVO.class, responseContainer = "List"),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/swaggers/history", produces = {
+			MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<Object> getListOfSwaggerDetailsV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "oas", required = false) String oas,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
+			@RequestParam(value = "swagger", required = false) String swagger,
+			@RequestParam(value = "status", required = false) String status,
+			@RequestParam(value = "product", required = false) String product,
+			@RequestParam(value = "modifieddate", required = false) String modifiedDate,
+			@RequestParam(value = "sortbymodifieddate", required = false) String sortByModifiedDate) throws Exception {
+		if (oas == null || oas.trim().equals("")) {
+			oas = "2.0";
+		}
+		String json = "";
+		List<String> products = null;
+		if (null != product) {
+			products = Arrays.asList(product.split(","));
+		}
+		if (oas.equals("2.0")) {
+			SwaggerHistoryResponse response;
+			if (null != products) {
+				response = swaggerBusiness.getSwaggerDetailsByproduct(products, interactionid, jsessionid, offset, oas,
+						swagger, pageSize);
+			} else {
+				response = swaggerBusiness.getListOfSwaggerDetailsV2(status, modifiedDate, interactionid, jsessionid,
+						offset, oas, swagger, pageSize, sortByModifiedDate);
+			}
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.setSerializationInclusion(Include.NON_NULL);
+			json = mapper.writeValueAsString(response);
+		} else if (oas.equals("3.0")) {
+			SwaggerHistoryResponse response;
+			if (null != products) {
+				response = swaggerBusiness.getSwaggerDetailsByproduct(products, interactionid, jsessionid, offset, oas,
+						swagger, pageSize);
+			} else {
+				response = swaggerBusiness.getListOfSwagger3DetailsV2(status, modifiedDate, interactionid, jsessionid,
+						offset, oas, swagger, pageSize, sortByModifiedDate);
+			}
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.setSerializationInclusion(Include.NON_NULL);
+			json = mapper.writeValueAsString(response);
+		}
+		return new ResponseEntity<Object>(json, HttpStatus.OK);
+	}
 }

@@ -7,6 +7,7 @@ import javax.xml.bind.JAXBException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -53,6 +54,8 @@ public interface PolicyPerformanceService {
 	 * @throws IOException
 	 * @throws JAXBException
 	 */
+
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Prepare PolicyPerformance", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = PolicyPerformanceBackUpInfo.class),
 			@ApiResponse(code = 400, message = "Sorry! There is no apigee credentails defined for the logged in user.", response = ErrorObj.class),
@@ -86,6 +89,7 @@ public interface PolicyPerformanceService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Code Policy Performance ForId", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = PolicyPerformanceBackUpInfo.class),
 			@ApiResponse(code = 404, message = "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.", response = ErrorObj.class),
@@ -114,6 +118,7 @@ public interface PolicyPerformanceService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Delete PolicyPerformance On Id", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 404, message = "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.", response = ErrorObj.class),
@@ -124,18 +129,21 @@ public interface PolicyPerformanceService {
 			@PathVariable("id") String id, @RequestHeader HttpHeaders headers,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
-	@ApiOperation(value = "Get Policy Performance List", notes = "", code = 200)
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "Ok", response = History.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/policyperformance", produces = {
-			MediaType.APPLICATION_JSON_VALUE})
-	public ResponseEntity<List<History>> getPolicyPerformanceList(
+	public ResponseEntity<?> getPolicyPerformanceList(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader HttpHeaders headers, @RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(name = "filter", required = false) boolean filter,
 			@RequestParam(name = "proxy", required = false) String proxy,
 			@RequestParam(name = "org", required = false) String org,
 			@RequestParam(name = "env", required = false) String env,
-			@RequestParam(name = "daterange", required = false) String daterange) throws Exception;
+			@RequestParam(name = "daterange", required = false) String daterange,
+			@RequestParam(name = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(name = "pagesize", required = false, defaultValue = "10") int pageSize,
+			@RequestParam(name = "expand", required = false, defaultValue = "true") String expand) throws Exception;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/policyperformance/search", produces = "application/json")
+	public org.springframework.http.ResponseEntity<?> searchPolicyPerformance(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "name") String name, @RequestParam(value = "limit") int limit) throws Exception;
 }

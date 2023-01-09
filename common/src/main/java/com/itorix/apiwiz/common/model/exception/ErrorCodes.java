@@ -164,6 +164,7 @@ public enum ErrorCodes {
 			put("Swagger-1008", "Request validation failed. Malformed URL Provided for Server Host - %s.");
 			put("Swagger-1009", "Request validation failed. Incorrect OAS version. Please check the OAS version");
 			put("Swagger-1010", "Request validation failed. File size should not be greater than 25MB");
+			put("Swagger-1011", "Failed to import swagger. Swagger with same name already exists in a different team.");
 
 			put("Teams-1000", "Request validation failed. Team name already exists.");
 			put("Teams-1001", "Resource not found. No records found for selected team name - %s.");
@@ -254,6 +255,12 @@ public enum ErrorCodes {
 			put("Consent-004", "Request validation failed. Report can be generated only for 30 day duration");
 			put("Consent-005", "Resource not found. No records found for the selected date range");
 			put("SCM-001", "SCM Connection Failure");
+
+			put("rate-limiting-1000", "Hazelcast connection is down. Please try after sometime.");
+			put("rate-limiting-1001", "Invalid Quota. Quota is empty.");
+			put("rate-limiting-1002", "Plan mismatch in quota and workspace.");
+			put("rate-limiting-1003", "Failed to update quotas. Please try again.");
+			put("rate-limiting-1004", "Quotas list is empty.");
 		}
 	};
 
@@ -347,7 +354,7 @@ public enum ErrorCodes {
 			put("Identity-1040", 500);
 			put("Identity-1041", 500);
 			put("Identity-1042", 403);
-			put("Identity-1043", 401);
+			put("Identity-1043", 403);
 			put("Identity-1044", 400);
 			put("Identity-1045", 400);
 			put("USER_005", 400);
@@ -372,6 +379,7 @@ public enum ErrorCodes {
 			put("Swagger-1008", 400);
 			put("Swagger-1009", 400);
 			put("Swagger-1010",400);
+			put("Swagger-1011", 400);
 			put("Teams-1000", 400);
 			put("Teams-1001", 404);
 			put("Teams-1002", 400);
@@ -439,6 +447,12 @@ public enum ErrorCodes {
 			put("Consent-004", 400);
 			put("Consent-005", 400);
 			put("SCM-001", 500);
+
+			put("rate-limiting-1000", 500);
+			put("rate-limiting-1001", 400);
+			put("rate-limiting-1002", 400);
+			put("rate-limiting-1003", 500);
+			put("rate-limiting-1004", 400);
 		}
 	};
 	private String message;

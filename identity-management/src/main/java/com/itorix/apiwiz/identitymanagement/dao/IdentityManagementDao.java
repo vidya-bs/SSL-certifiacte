@@ -1,8 +1,11 @@
 package com.itorix.apiwiz.identitymanagement.dao;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.common.model.MetaData;
 import com.itorix.apiwiz.common.model.SwaggerContacts;
 import com.itorix.apiwiz.common.model.SwaggerTeam;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
@@ -27,6 +30,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -89,8 +93,8 @@ public class IdentityManagementDao {
     @PostConstruct
     private void initDBProperties() {
         applicationProperties = getDBApplicationProperties();
-        getRegionData();
-        getPodHost();
+//        getRegionData();
+//        getPodHost();
     }
 
 	private void getRegionData() {
@@ -184,6 +188,7 @@ public class IdentityManagementDao {
                         : "active";
                 userSession.setStatus(status);
                 user.setUserCount(0);
+                user.setLastLoginTime(workspace.getName());
                 saveUser(user);
                 userSession.setPlanId(workspace.getPlanId());
                 userSession.setPaymentSchedule(workspace.getPaymentSchedule());
@@ -756,6 +761,8 @@ public class IdentityManagementDao {
                     e.printStackTrace();
                 }
             }
+            workspace.setCts(System.currentTimeMillis());
+            workspace.setMts(System.currentTimeMillis());
             masterMongoTemplate.save(workspace);
             return workspace;
         } else {
@@ -1037,13 +1044,40 @@ public class IdentityManagementDao {
         }
     }
 
-    public void resendToken(UserInfo userInfo) throws ItorixException {
+    public VerificationToken password(User user,String workspaceId,String appType) throws ItorixException {
+        User userByEmail = findByEmail(user.getEmail());
+        if (userByEmail != null) {
+            VerificationToken token = createVerificationToken("resetPassword", user.getEmail(),appType);
+            sendPassWordResetEmail(token, userByEmail,workspaceId);
+            saveVerificationToken(token);
+            return token;
+        } else {
+            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1000"), "Identity-1000");
+        }
+    }
+
+    public void sendPassWordResetEmail(VerificationToken token, User user,String workspaceId) {
+        try {
+            String link = applicationProperties.getAppURL() + "/reset-password/" +token.getId()+"?appType="+token.getAppType()+"&workspaceId="+workspaceId;
+            String bodyText = MessageFormat.format(applicationProperties.getResetMailBody(),
+                    user.getFirstName() + " " + user.getLastName(), link);
+            ArrayList<String> toRecipients = new ArrayList<String>();
+            toRecipients.add(user.getEmail());
+            String subject = applicationProperties.getResetSubject();
+            sendMail(subject, bodyText, toRecipients);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            e.printStackTrace();
+        }
+    }
+
+    public void resendToken(UserInfo userInfo,String appType) throws ItorixException {
         if (userInfo.allowCreateToken() != true)
             throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1038"), "Identity-1038");
         if (userInfo.getType().equals("password-reset")) {
             User user = new User();
             user.setEmail(userInfo.getEmail());
-            password(user);
+            password(user,userInfo.getWorkspaceId(),appType);
         } else if (userInfo.getType().equals("register")) {
             User user = findByEmail(userInfo.getEmail());
             VerificationToken token = createVerificationToken("registerUser", user.getEmail(),null);
@@ -1051,6 +1085,7 @@ public class IdentityManagementDao {
             sendRegistrationEmail(token, user);
         }
     }
+
 
     public void resendInvite(UserInfo userInfo) throws ItorixException {
         UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
@@ -1092,6 +1127,7 @@ public class IdentityManagementDao {
         saveUser(user);
         Workspace workspace = getWorkspace(token.getWorkspaceId());
         workspace.setStatus("active");
+        workspace.setMts(System.currentTimeMillis());
         masterMongoTemplate.save(workspace);
         token.setUsed(true);
         saveVerificationToken(token);
@@ -1150,6 +1186,7 @@ public class IdentityManagementDao {
             masterMongoTemplate.save(subscription);
             Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
             workspace.setStatus("cancel");
+            workspace.setMts(System.currentTimeMillis());
             masterMongoTemplate.save(workspace);
         } else {
             throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1042"), "Identity-1042");
@@ -1160,9 +1197,6 @@ public class IdentityManagementDao {
         UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
         String workspaceId = userSessionToken.getWorkspaceId();
         User loginUser = findUserById(userSessionToken.getUserId());
-        if (!loginUser.isWorkspaceAdmin(workspaceId)) {
-            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
-        }
         Users allUsers = new Users();
         List<String> userName = new ArrayList<String>();
         List<UserDetails> userDetails = new ArrayList<UserDetails>();
@@ -1236,9 +1270,6 @@ public class IdentityManagementDao {
         String workspaceId = userSessionToken.getWorkspaceId();
         logger.debug("workspace : {}", workspaceId);
         User loginUser = findUserById(userSessionToken.getUserId());
-        if (!loginUser.isWorkspaceAdmin(workspaceId)) {
-            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
-        }
         Users allUsers = new Users();
         List<UserDetails> userDetails = new ArrayList<UserDetails>();
         List<User> dbUsers = findUsersByWorkspace(workspaceId);
@@ -1910,5 +1941,85 @@ public class IdentityManagementDao {
         applicationProperties.setProxyScmUserType(map.get("itorix.core.gocd.proxy.scm.userType"));
         applicationProperties.setProxyScmToken(map.get("itorix.core.gocd.proxy.scm.token"));
         return applicationProperties;
+    }
+
+    public void createPlanPermissionsV2(PlanV2 plan) throws ItorixException {
+        if (validatePermission(plan.getUiPermissions())) {
+            Query query = new Query(Criteria.where("planId").is(plan.getPlanId()));
+            PlanV2 planV2 = masterMongoTemplate.findOne(query, PlanV2.class);
+            if (planV2 == null)
+                masterMongoTemplate.save(plan);
+            else {
+                planV2.setUiPermissions(plan.getUiPermissions());
+                masterMongoTemplate.save(planV2);
+            }
+        } else {
+            String message = "Invalid request data! Invalid permissions ";
+            throw new ItorixException(message, "Identity-1007");
+        }
+    }
+
+    public String getPlanPermissionsV2(String planId) throws ItorixException {
+        UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+        Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
+        if (planId == null) {
+            planId = workspace.getPlanId();
+        }
+        Query query = new Query(Criteria.where("planId").is(planId));
+
+        PlanV2 planV2 = masterMongoTemplate.findOne(query, PlanV2.class);
+        if (planV2 == null || planV2.getUiPermissions() == null) {
+            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1041"), "Identity-1041");
+        }
+        return planV2.getUiPermissions();
+    }
+
+    public void createMenu(Menu menu) throws ItorixException {
+        masterMongoTemplate.save(menu);
+    }
+
+    public JsonNode getMenu() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Menu menu = masterMongoTemplate.findById("menu",Menu.class);
+        if(menu != null){
+            return objectMapper.readTree(menu.getMenus());
+        }
+        return null;
+    }
+
+    public void createRolesMetaData(String metadataStr) {
+        Query query = new Query().addCriteria(Criteria.where("key").is("roles"));
+        MetaData metaData = masterMongoTemplate.findOne(query, MetaData.class);
+        if (metaData != null) {
+            logger.debug("Updating masterMongoTemplate");
+            Update update = new Update();
+            update.set("metadata", metadataStr);
+            masterMongoTemplate.updateFirst(query, update, MetaData.class);
+        } else
+            masterMongoTemplate.save(new MetaData("roles", metadataStr));
+    }
+
+    public List<String> getRoles() {
+        List<String> roles = new ArrayList<String>();
+        Query query = new Query().addCriteria(Criteria.where("key").is("roles"));
+        MetaData metaData = masterMongoTemplate.findOne(query, MetaData.class);
+        if (metaData != null) {
+            JSONObject jsonObject = JSONObject.fromObject(metaData.getMetadata());
+            JSONArray jsonArray = jsonObject.getJSONArray("roles");
+            for(Object role : jsonArray){
+                roles.add(role.toString());
+            }
+        }else {
+            roles.add("Developer");
+            roles.add("Admin");
+            roles.add("Portal");
+            roles.add("Analyst");
+            roles.add("Project-Admin");
+            roles.add("Site-Admin");
+            roles.add("Operation");
+            roles.add("Test");
+        }
+        return roles;
     }
 }

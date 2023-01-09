@@ -1,8 +1,13 @@
 package com.itorix.apiwiz.design.studio.model;
 
+import com.itorix.apiwiz.common.model.slack.PostMessage;
+import com.itorix.apiwiz.common.model.slack.SlackChannel;
+import com.itorix.apiwiz.common.model.slack.SlackWorkspace;
+import com.itorix.apiwiz.common.model.slack.notificationScope;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.mail.EmailTemplate;
 import com.itorix.apiwiz.common.util.mail.MailUtil;
+import com.itorix.apiwiz.common.util.slack.SlackUtil;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +50,9 @@ import javax.mail.MessagingException;
 @Component
 
 public class SwaggerSubscriptionDao {
+
+	@Autowired
+	SlackUtil slackUtil;
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
@@ -161,6 +169,27 @@ public class SwaggerSubscriptionDao {
 						mailUtil.sendEmailWtithAttachment(emailTemplate, path.toString(),
 								swaggerSubscription.getSwaggerName() + swaggerSubscription.getOas()
 										.replace(".", "_") + ".md");
+					}
+					try {
+						// Refer slackUtil to send slack Notif here
+						log.info("Sending Slack notification:{}",mongoTemplate.getDb().getName());
+						List<SlackWorkspace> slackWorkspaces = mongoTemplate.findAll(SlackWorkspace.class);
+						SlackWorkspace slackWorkspace=slackWorkspaces.get(0);
+						if (slackWorkspace != null) {
+							String token = slackWorkspace.getToken();
+							List<SlackChannel> channels = slackWorkspace.getChannelList();
+							for (SlackChannel i : channels) {
+								if (i.getScopeSet().contains(notificationScope.NotificationScope.DESIGN_STUDIO)) {
+									PostMessage at = new PostMessage();
+									at.setFileName(String.format("%s-changelog.md", swaggerName));
+									at.setInitialComment("Swagger ChangeLog Notification");
+									at.setFile(file);
+									slackUtil.sendMessage(at, i.getChannelName(), token);
+								}
+							}
+						}
+					} catch (Exception e) {
+						log.warn("Failed to Send Slack Notification", e);
 					}
 					file.delete();
 				}

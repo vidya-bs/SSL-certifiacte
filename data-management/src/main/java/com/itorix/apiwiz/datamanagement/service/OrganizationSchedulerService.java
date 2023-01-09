@@ -3,6 +3,7 @@ package com.itorix.apiwiz.datamanagement.service;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -39,6 +40,7 @@ public interface OrganizationSchedulerService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Create Organization Schedule", notes = "", code = 201)
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Created", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
@@ -64,6 +66,7 @@ public interface OrganizationSchedulerService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Update Organization Schedule", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
@@ -89,6 +92,7 @@ public interface OrganizationSchedulerService {
 	 * 
 	 * @return
 	 */
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Delete Organization Schedule", notes = "", code = 201)
 	@ApiResponses(value = {@ApiResponse(code = 201, message = "Success", response = Void.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
@@ -116,6 +120,7 @@ public interface OrganizationSchedulerService {
 	 * 
 	 * @throws Exception
 	 */
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@ApiOperation(value = "Get Organization Schedule", notes = "", code = 200)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Ok", response = ScheduleModel.class, responseContainer = "List"),
