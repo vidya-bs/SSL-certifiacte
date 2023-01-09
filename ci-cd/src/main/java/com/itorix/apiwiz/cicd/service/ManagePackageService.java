@@ -44,8 +44,7 @@ public interface ManagePackageService {
 
 	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = {RequestMethod.DELETE,
-			RequestMethod.PATCH}, value = "/v1/packages/{reqestId}", consumes = {
-					"application/json"}, produces = {"application/json"})
+			RequestMethod.PATCH}, value = "/v1/packages/{reqestId}", produces = {"application/json"})
 	public ResponseEntity<?> deletePackage(@PathVariable("reqestId") String reqestId,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request);
