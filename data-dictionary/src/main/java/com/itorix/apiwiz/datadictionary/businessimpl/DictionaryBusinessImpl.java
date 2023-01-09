@@ -4,6 +4,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.grou
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
 import static org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter.filter;
 import static org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Eq.valueOf;
 
@@ -40,6 +41,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.aggregation.SortOperation;
+import org.springframework.data.mongodb.core.aggregation.UnwindOperation;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -139,6 +141,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 
 		SortOperation sortOperation = sort(Sort.Direction.ASC, "mts");
 
+		UnwindOperation unwindOperation = unwind("originalDoc");
 		ProjectionOperation projectionOperation = project("originalDoc.name").andInclude(
 				"originalDoc.dictionaryId","originalDoc.summary","originalDoc.description",
 				"originalDoc.revision","originalDoc.status","originalDoc.createdBy",
@@ -148,34 +151,8 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		List<PortfolioVO> results = mongoTemplate
 				.aggregate(
 						newAggregation(projectRequiredFields, groupByMaxRevision,
-								filterMaxRevision,projectionOperation,sortOperation),
+								filterMaxRevision,unwindOperation,projectionOperation,sortOperation),
 						PortfolioVO.class, PortfolioVO.class).getMappedResults();
-
-//    List<PortfolioVO> results = mongoTemplate
-//        .aggregate(
-//            newAggregation(projectRequiredFields, groupByMaxRevision, filterMaxRevision,
-//                projectionOperation, groupByName,sortOperation),
-//            PortfolioVO.class, PortfolioVO.class).getMappedResults();
-
-//		Collections.reverse(allPortfolios);
-//		allPortfolios = allPortfolios.stream().filter(p->p.getDictionaryId()!=null).collect(Collectors.toList());;
-//
-//		Set<String> distinctIds = new HashSet<>();
-//		List<PortfolioVO> finalAllPortfolios = allPortfolios;
-//		List<PortfolioVO> revisedPortfolios = allPortfolios.stream().filter(p->
-//				{
-//					OptionalInt maxRevision = finalAllPortfolios.stream().filter(
-//							all->all.getDictionaryId().equalsIgnoreCase(p.getDictionaryId())).collect(
-//							Collectors.toList()).stream().mapToInt(PortfolioVO::getRevision).max();
-//					if(maxRevision.isPresent())
-//						p.setRevision(maxRevision.getAsInt());
-//					return true;
-//				}).collect(Collectors.toList());
-//
-//		revisedPortfolios = revisedPortfolios.stream().filter(p->distinctIds
-//				.add(p.getDictionaryId())).collect(Collectors.toList());
-//
-//		revisedPortfolios = trimList(revisedPortfolios,offset,pageSize);
 
 		results = trimList(results, offset, pageSize);
 		Long counter = (long) results.size();
@@ -187,7 +164,6 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		historyResponse.setData(results);
 		return historyResponse;
 	}
-
 	private List<PortfolioVO> trimList(List<PortfolioVO> portfolioVOList, int offset, int pageSize) {
 		List<PortfolioVO> dictionaryIds = new ArrayList<>();
 		int i = offset > 0 ? ((offset - 1) * pageSize) : 0;
