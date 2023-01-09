@@ -250,6 +250,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setInteractionid(interactionid);
 			SwaggerVO vo = swaggerBusiness.findSwagger(swaggerVO);
 			if (vo != null) {
+				swaggerBusiness.checkSwaggerTeams(jsessionid, swaggerVO.getName(), "2.0");
 				swaggerVO.setSwagger(json);
 				swaggerVO=swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid,publish);
 			} else {
@@ -289,6 +290,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setInteractionid(interactionid);
 			Swagger3VO vo = swaggerBusiness.findSwagger(swaggerVO);
 			if (vo != null) {
+				swaggerBusiness.checkSwaggerTeams(jsessionid, swaggerVO.getName(), "3.0");
 				swaggerVO.setSwagger(json);
 				swaggerVO=swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid,publish);
 			} else {
