@@ -4323,6 +4323,39 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return mongoTemplate.findOne(query,Document.class,"Astrum.RuleSet").get("_id").toString();
 	}
 
+	public void checkSwaggerTeams(String jsessionid, String swaggerName, String oasVersion) throws ItorixException {
+		log.debug("Checking for swagger teams ...");
+		if (swaggerName == null) {
+			log.error("Swagger name cannot be empty");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"), "Swagger-1000");
+		}
+		User user = getUserDetailsFromSessionID(jsessionid);
+		List<SwaggerTeam> userTeams = getUserTeams(user);
+		boolean teamFound = false;
+		Set<String> swaggerTeams = new HashSet<>();
+		Query query = new Query(Criteria.where("swaggerName").is(swaggerName).and("oas").is(oasVersion));
+		SwaggerMetadata metadata = mongoTemplate.findOne(query, SwaggerMetadata.class);
+		if (metadata != null) {
+			swaggerTeams = metadata.getTeams();
+		}
+		if (!swaggerTeams.isEmpty()) {
+			if (!userTeams.isEmpty()) {
+				for (SwaggerTeam team : userTeams) {
+					if (swaggerTeams.contains(team.getName())) {
+						teamFound = true;
+						break;
+					}
+				}
+			}
+		} else {
+			teamFound = true;
+		}
+		if (!teamFound) {
+			log.error("Swagger with the same name is already present in the workspace with different team.");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1011"), "Swagger-1011");
+		}
+	}
+
 	private DeleteResult removeBasePath(Query query, Class clazz) {
 		log.debug("removeBasePath : {}", query);
 		return mongoTemplate.remove(query, clazz);

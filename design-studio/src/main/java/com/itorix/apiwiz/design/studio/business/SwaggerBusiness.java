@@ -823,4 +823,6 @@ public interface SwaggerBusiness {
 	void updatePartners(List<SwaggerPartner> swaggerPartners);
 
 	String getGolbalRule(String oas);
+
+	public void checkSwaggerTeams(String jsessionid, String swaggerName, String oasVersion) throws ItorixException;
 }
