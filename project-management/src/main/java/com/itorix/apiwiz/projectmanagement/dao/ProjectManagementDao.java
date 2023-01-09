@@ -19,6 +19,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.model.GridFSFile;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -38,6 +43,10 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.gridfs.GridFsCriteria;
+import org.springframework.data.mongodb.gridfs.GridFsOperations;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -136,6 +145,12 @@ public class ProjectManagementDao {
 
 	@Value("${server.contextPath}")
 	private String context;
+
+	@Autowired
+	private GridFsTemplate gridFsTemplate;
+
+	@Autowired
+	private GridFsOperations gfsOperations;
 
 	private static final String GIT_HOST_URL = "https://github.com/itorix-api/";
 
@@ -782,12 +797,11 @@ public class ProjectManagementDao {
 
 	private String getFile(String fileName) {
 		String reader = null;
-		// DB db = mongoTemplate.getDb();
-		DB db = mongoTemplate.getMongoDbFactory().getLegacyDb();
 		try {
-			GridFS gfs = new GridFS(db, "Project.Files");
-			GridFSDBFile file = gfs.findOne(fileName);
-			BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
+			Query query = new Query(GridFsCriteria.whereFilename().is(fileName));
+			GridFSFile gridfsFile = gridFsTemplate.findOne(query);
+			GridFsResource resource = gfsOperations.getResource(gridfsFile.getFilename());
+			BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream()));
 			StringBuilder stringBuilder = new StringBuilder();
 			String ls = System.getProperty("line.separator");
 			String line = null;
@@ -798,45 +812,118 @@ public class ProjectManagementDao {
 			br.close();
 			reader = stringBuilder.toString();
 		} catch (MongoException e) {
-			log.error("Exception occurred", e);
-			logger.error("getFile " + fileName + " : " + e.getMessage());
+			e.printStackTrace();
+			logger.error("MongoConnection::getFile " + fileName + " : " + e.getMessage());
 		} catch (IOException e) {
-			log.error("Exception occurred", e);
-			logger.error("getFile " + fileName + " : " + e.getMessage());
+			e.printStackTrace();
+			logger.error("MongoConnection::getFile " + fileName + " : " + e.getMessage());
 		}
 		return reader;
 	}
 
-	private void insertFile(InputStream inStream, String fileName) throws IOException {
+//	private String getFile(String fileName) {
+//		String reader = null;
+//		// DB db = mongoTemplate.getDb();
+//		DB db = mongoTemplate.getMongoDbFactory().getLegacyDb();
+//		try {
+//			GridFS gfs = new GridFS(db, "Project.Files");
+//			GridFSDBFile file = gfs.findOne(fileName);
+//			BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
+//			StringBuilder stringBuilder = new StringBuilder();
+//			String ls = System.getProperty("line.separator");
+//			String line = null;
+//			while ((line = br.readLine()) != null) {
+//				stringBuilder.append(line);
+//				stringBuilder.append(ls);
+//			}
+//			br.close();
+//			reader = stringBuilder.toString();
+//		} catch (MongoException e) {
+//			log.error("Exception occurred", e);
+//			logger.error("getFile " + fileName + " : " + e.getMessage());
+//		} catch (IOException e) {
+//			log.error("Exception occurred", e);
+//			logger.error("getFile " + fileName + " : " + e.getMessage());
+//		}
+//		return reader;
+//	}
+
+
+	public boolean insertFile(InputStream inStream, String fileName) throws IOException {
 		try {
-			DB db = mongoTemplate.getMongoDbFactory().getLegacyDb();
-			GridFS gfs = new GridFS(db, "Project.Files");
-			GridFSDBFile dbFile = gfs.findOne(fileName);
-			if (dbFile != null)
-				gfs.remove(fileName);
-			GridFSInputFile gfsFile = gfs.createFile(inStream);
-			gfsFile.setFilename(fileName);
-			gfsFile.save();
+			Query query = new Query(GridFsCriteria.whereFilename().is(fileName));
+			GridFSFile gridfsFile = gridFsTemplate.findOne(query);
+			if (gridfsFile != null) {
+				gridFsTemplate.delete(query);
+			}
+			DBObject metaData = new BasicDBObject();
+			metaData.put("type", "template");
+			metaData.put("fileName", fileName);
+			gridFsTemplate.store(inStream, fileName, null, metaData);
+
+			// DB db = getDB();
+			// GridFS gfs = new GridFS(db, "Files");
+			// GridFSDBFile dbFile = gfs.findOne(fileName);
+			// if (dbFile != null) {
+			// gfs.remove(fileName);
+			// }
+			// GridFSInputFile gfsFile = gfs.createFile(inStream);
+			// gfsFile.setFilename(fileName);
+			// gfsFile.save();
+			return true;
 		} catch (MongoException e) {
-			log.error("Exception occurred", e);
-			logger.error("insertFile " + e.getMessage());
+			e.printStackTrace();
+			logger.error("MongoConnection::insertFile " + e.getMessage());
 			throw e;
 		}
 	}
 
+//	private void insertFile(InputStream inStream, String fileName) throws IOException {
+//		try {
+//			DB db = mongoTemplate.getMongoDbFactory().getLegacyDb();
+//			GridFS gfs = new GridFS(db, "Project.Files");
+//			GridFSDBFile dbFile = gfs.findOne(fileName);
+//			if (dbFile != null)
+//				gfs.remove(fileName);
+//			GridFSInputFile gfsFile = gfs.createFile(inStream);
+//			gfsFile.setFilename(fileName);
+//			gfsFile.save();
+//		} catch (MongoException e) {
+//			log.error("Exception occurred", e);
+//			logger.error("insertFile " + e.getMessage());
+//			throw e;
+//		}
+//	}
+
 	private boolean deleteFile(String fileName) {
 		try {
-			GridFS gfs = new GridFS(mongoTemplate.getMongoDbFactory().getLegacyDb(), "Project.Files");
-			GridFSDBFile dbFile = gfs.findOne(fileName);
-			if (dbFile != null)
-				gfs.remove(fileName);
-			return true;
+			Query query = new Query(GridFsCriteria.whereFilename().is(fileName));
+			GridFSFile gridfsFile = gridFsTemplate.findOne(query);
+			if (gridfsFile != null) {
+				gridFsTemplate.delete(query);
+				return true;
+			}
+			return false;
 		} catch (MongoException e) {
-			log.error("Exception occurred", e);
-			logger.error("insertFile " + e.getMessage());
+			e.printStackTrace();
+			logger.error("MongoConnection::removeFile " + e.getMessage());
 			throw e;
 		}
 	}
+
+//	private boolean deleteFile(String fileName) {
+//		try {
+//			GridFS gfs = new GridFS(mongoTemplate.getMongoDbFactory().getLegacyDb(), "Project.Files");
+//			GridFSDBFile dbFile = gfs.findOne(fileName);
+//			if (dbFile != null)
+//				gfs.remove(fileName);
+//			return true;
+//		} catch (MongoException e) {
+//			log.error("Exception occurred", e);
+//			logger.error("insertFile " + e.getMessage());
+//			throw e;
+//		}
+//	}
 
 	public ServiceRegistry getServiceRegistry(String projectName, String proxyName, String registryName) {
 		Project project = findByProjectName(projectName);

@@ -19,6 +19,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import com.itorix.apiwiz.performance.coverge.dao.TestSuiteDAO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.io.FileUtils;
@@ -28,7 +29,6 @@ import org.codehaus.jackson.map.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.multipart.MultipartFile;
 import org.zeroturnaround.zip.ZipUtil;
@@ -52,7 +52,6 @@ import com.itorix.apiwiz.common.service.GridFsRepository;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.common.util.zip.ZIPUtil;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
-import com.itorix.apiwiz.testsuite.dao.TestSuiteDAO;
 import com.itorix.test.executor.beans.Header;
 import com.itorix.test.executor.beans.Scenario;
 import com.itorix.test.executor.beans.TestCase;
@@ -82,6 +81,7 @@ public class CommonServices {
 
 	@Autowired
 	PerformanceAndCoveragePostmanCollectionRunner postmanCollectionRunner;
+
 	@Autowired
 	private TestSuiteDAO testsuitDAO;
 

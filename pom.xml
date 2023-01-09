@@ -10,7 +10,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<!-- <version>1.4.3.RELEASE</version> -->
-		<version>2.2.7.RELEASE</version>
+		<version>2.6.3</version>
 	</parent>
 	<modules>
 		<module>common</module>
@@ -19,9 +19,9 @@
 		<module>data-dictionary</module>
 		<module>collaboration</module>
 		<module>third-party-integrations</module>
-		<module>api-test</module>
-		<module>test-suite-lib</module>
-		<module>api-virtualization</module>
+<!--		<module>api-test</module>-->
+<!--		<module>test-suite-lib</module>-->
+<!--		<module>api-virtualization</module>-->
 		<module>config-management</module>
 		<module>api-developer-portal</module>
 		<module>data-management</module>
@@ -33,17 +33,17 @@
 		<module>ci-cd</module>
 		<module>analytics</module>
 		<module>app</module>
-		<module>sso</module>
+<!--		<module>sso</module>-->
 		<module>api-portfolio</module>
-		<module>api-monitor</module>
-		<module>api-monitor-agent</module>
+<!--		<module>api-monitor</module>-->
+<!--		<module>api-monitor-agent</module>-->
 		<module>marketing</module>
-		<module>notification-agent</module>
-		<module>api-mock-server</module>
+<!--		<module>notification-agent</module>-->
+<!--		<module>api-mock-server</module>-->
 		<module>api-license</module>
 		<module>license-validator</module>
-        <module>api-consent</module>
-		<module>api-consent-server</module>
+<!--        <module>api-consent</module>-->
+<!--		<module>api-consent-server</module>-->
 	</modules>
 	<name>Itorix Hyggee Core Project</name>
 	<!-- <parent> -->
@@ -93,14 +93,14 @@
 			<dependency>
         		<groupId>org.springframework.boot</groupId>
        			<artifactId>spring-boot-dependencies</artifactId>
-        		<version>2.2.7.RELEASE</version>
+        		<version>2.6.3</version>
         		<type>pom</type>
         		<scope>import</scope>
       		</dependency>
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter</artifactId>
-				<version>2.2.7.RELEASE</version>
+				<version>2.6.3</version>
 				<!-- <exclusions>
 					<exclusion>
 						<groupId>org.springframework.boot</groupId>
@@ -130,7 +130,7 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-web</artifactId>
-				<version>2.2.7.RELEASE</version>
+				<version>2.6.3</version>
 				<!-- <exclusions>
 					<exclusion>
 						<groupId>org.springframework.boot</groupId>
@@ -159,7 +159,7 @@
 			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-data-commons</artifactId>
-				<version>2.2.7.RELEASE</version>
+				<version>2.6.3</version>
 			</dependency>
 			<dependency>
 				<groupId>com.itorix.hyggee.cloud</groupId>
@@ -186,21 +186,21 @@
 				<artifactId>cloud-collaboration</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
-				<artifactId>api-virtualization</artifactId>
-				<version>${project.version}</version>
-			</dependency>
+<!--			<dependency>-->
+<!--				<groupId>com.itorix.hyggee.cloud</groupId>-->
+<!--				<artifactId>api-virtualization</artifactId>-->
+<!--				<version>${project.version}</version>-->
+<!--			</dependency>-->
 			<dependency>
 				<groupId>com.itorix.hyggee.cloud</groupId>
 				<artifactId>third-party-integrations</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
-				<artifactId>api-test</artifactId>
-				<version>${project.version}</version>
-			</dependency>
+<!--			<dependency>-->
+<!--				<groupId>com.itorix.hyggee.cloud</groupId>-->
+<!--				<artifactId>api-test</artifactId>-->
+<!--				<version>${project.version}</version>-->
+<!--			</dependency>-->
 			<dependency>
 				<groupId>com.itorix.hyggee.cloud</groupId>
 				<artifactId>cloud-config-management</artifactId>
@@ -256,21 +256,21 @@
 				<artifactId>api-portfolio</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
-				<artifactId>api-monitor</artifactId>
-				<version>${project.version}</version>
-			</dependency>
+<!--			<dependency>-->
+<!--				<groupId>com.itorix.hyggee.cloud</groupId>-->
+<!--				<artifactId>api-monitor</artifactId>-->
+<!--				<version>${project.version}</version>-->
+<!--			</dependency>-->
 			<dependency>
 				<groupId>com.itorix.hyggee.cloud</groupId>
 				<artifactId>marketing</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
-				<artifactId>api-consent</artifactId>
-				<version>${project.version}</version>
-			</dependency>
+<!--			<dependency>-->
+<!--				<groupId>com.itorix.hyggee.cloud</groupId>-->
+<!--				<artifactId>api-consent</artifactId>-->
+<!--				<version>${project.version}</version>-->
+<!--			</dependency>-->
 		</dependencies>
 	</dependencyManagement>
 
@@ -307,8 +307,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>11</source>
+					<target>11</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -332,8 +332,8 @@
 				<artifactId>maven-release-plugin</artifactId>
 				<version>3.3</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>11</source>
+					<target>11</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -353,15 +353,15 @@
 			</plugin>
 		</plugins>
 	</reporting>
-	<profiles>
-		<profile>
-			<id>java8-disable-strict-javadoc</id>
-			<activation>
-				<jdk>[1.8,)</jdk>
-			</activation>
-			<properties>
-				<javadoc.doclint.none>-Xdoclint:none</javadoc.doclint.none>
-			</properties>
-		</profile>
-	</profiles>
+<!--	<profiles>-->
+<!--		<profile>-->
+<!--			<id>java8-disable-strict-javadoc</id>-->
+<!--			<activation>-->
+<!--				<jdk>[1.8,)</jdk>-->
+<!--			</activation>-->
+<!--			<properties>-->
+<!--				<javadoc.doclint.none>-Xdoclint:none</javadoc.doclint.none>-->
+<!--			</properties>-->
+<!--		</profile>-->
+<!--	</profiles>-->
 </project>

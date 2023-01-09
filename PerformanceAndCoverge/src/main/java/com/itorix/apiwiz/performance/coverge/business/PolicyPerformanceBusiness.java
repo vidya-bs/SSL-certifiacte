@@ -40,7 +40,7 @@ public interface PolicyPerformanceBusiness {
 	public List<History> getPolicyPerformanceList(String interactionid) throws Exception;
 
 	public List<History> getPolicyPerformanceList(String interactionid, boolean filter, String proxy, String org,
-			String env, String daterange) throws Exception;
+			String env, String daterange, boolean expand, Integer offset, Integer pageSize) throws Exception;
 
 	/**
 	 * getPolicyPerformanceOnId

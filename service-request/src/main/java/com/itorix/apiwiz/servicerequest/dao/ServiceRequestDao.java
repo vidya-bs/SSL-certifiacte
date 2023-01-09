@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.servicerequest.dao;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -13,6 +14,8 @@ import java.util.Map;
 
 import javax.mail.MessagingException;
 
+import com.itorix.apiwiz.common.model.slack.*;
+import com.itorix.apiwiz.common.util.slack.SlackUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.bson.Document;
@@ -58,6 +61,9 @@ import com.mongodb.client.result.UpdateResult;
 @Component
 @Slf4j
 public class ServiceRequestDao {
+
+	@Autowired
+	SlackUtil slackUtil;
 
 	@Qualifier("masterMongoTemplate")
 	@Autowired
@@ -199,11 +205,20 @@ public class ServiceRequestDao {
 		}
 	}
 
-	public Object getServiceRequests(ServiceRequest config, int offset, int pageSize) throws ItorixException {
+	public Object getServiceRequests(ServiceRequest config, int offset, int pageSize,String timerange) throws ItorixException {
 		try {
+			Query query=new Query();
+			if(timerange!=null){
+				SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+				String[] timeRanges = timerange.split("~");
+				Date startDate=new Date(format.parse(timeRanges[0]).getTime());
+				Date endDate=DateUtil.getEndOfDay(new Date(format.parse(timeRanges[1]).getTime()));
+				query.addCriteria(Criteria.where("modifiedDate").gte(startDate).lte(endDate));
+			}
+
 			ServiceRequestHistoryResponse response = new ServiceRequestHistoryResponse();
 			Query countquery = new Query(Criteria.where("activeFlag").is(Boolean.TRUE));
-			Query query = new Query(Criteria.where("activeFlag").is(Boolean.TRUE))
+			query.addCriteria(Criteria.where("activeFlag").is(Boolean.TRUE))
 					.with(Sort.by(Direction.DESC, "modifiedDate")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
 					.limit(pageSize);
 
@@ -259,6 +274,44 @@ public class ServiceRequestDao {
 		} catch (Exception e) {
 
 			log.error("Exception occurred", e);
+		}
+		try {
+			UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+			User user = masterMongoTemplate.findById(userSessionToken.getUserId(), User.class);
+			String userName = user.getFirstName() + " " + user.getLastName();
+			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			Date date = new Date();
+			String formatedDate = dateFormat.format(date);
+
+			log.info("Sending slack message");
+			List<SlackWorkspace> slackWorkspaces = mongoTemplate.findAll(SlackWorkspace.class);
+			SlackWorkspace slackWorkspace=slackWorkspaces.get(0);
+			if(slackWorkspace!=null) {
+				String token = slackWorkspace.getToken();
+				List<SlackChannel> channels = slackWorkspace.getChannelList();
+				for (SlackChannel i : channels) {
+					if (i.getScopeSet().contains(notificationScope.NotificationScope.GATEWAY)) {
+						PostMessage postMessage = new PostMessage();
+						ArrayList<Attachment> attachmentsToSend = new ArrayList<>();
+						Attachment attachment = new Attachment();
+						attachment.setMrkdwn_in("text");
+						attachment.setTitle_link("https://www.apiwiz.io/");
+						attachment.setColor("#0000FF");
+						attachment.setPretext("GATEWAY");
+						attachment.setText ("Name: "+ config.getName()+"\n"+"Date: "+formatedDate+"\n"+
+								"Request Count: "+getRequestCount()+"\n"+"Type: "+ config.getType()
+								+"\n"+"Count: "+getCountbyType(config.getType())+"\n"+"Status: "+config.getStatus()
+								+"\n"+ "Status Count: "+getCountbyStatus(config.getStatus())+"\n"+
+								"UserName:"+userName+"\n"+
+								"Count by UserId: "+getCountbyuserId(userName));
+						attachmentsToSend.add(attachment);
+						postMessage.setAttachments(attachmentsToSend);
+						slackUtil.sendMessage(postMessage, i.getChannelName(), token);
+					}
+				}
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -637,7 +690,7 @@ public class ServiceRequestDao {
 				mongoTemplate.getConverter().write(serviceRequest, dbDoc);
 				Update update = Update.fromDocument(dbDoc, "_id");
 				UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
-				return result.isModifiedCountAvailable();
+				return result.wasAcknowledged();
 			} else {
 				if ("TargetServer".equalsIgnoreCase(serviceRequest.getType())) {
 					if (config.getGwType() != null && config.getGwType().equalsIgnoreCase("apigeex")) {
@@ -765,7 +818,7 @@ public class ServiceRequestDao {
 				mongoTemplate.getConverter().write(serviceRequest, dbDoc);
 				Update update = Update.fromDocument(dbDoc, "_id");
 				UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
-				return result.isModifiedCountAvailable();
+				return result.wasAcknowledged();
 			}
 
 		} else if (config.getStatus().equalsIgnoreCase("Change Required")) {
@@ -790,7 +843,7 @@ public class ServiceRequestDao {
 			mongoTemplate.getConverter().write(serviceRequest, dbDoc);
 			Update update = Update.fromDocument(dbDoc, "_id");
 			UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
-			return result.isModifiedCountAvailable();
+			return result.wasAcknowledged();
 		} else if (config.getStatus().equalsIgnoreCase("Rejected")) {
 			if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
 				query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("name").is(config.getName())
@@ -809,7 +862,7 @@ public class ServiceRequestDao {
 			mongoTemplate.getConverter().write(serviceRequest, dbDoc);
 			Update update = Update.fromDocument(dbDoc, "_id");
 			UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
-			return result.isModifiedCountAvailable();
+			return result.wasAcknowledged();
 		}else if (config.getStatus().equalsIgnoreCase("Review")) {
 			if ("Product".equalsIgnoreCase(serviceRequest.getType())) {
 				query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("name").is(config.getName())
@@ -828,7 +881,7 @@ public class ServiceRequestDao {
 			mongoTemplate.getConverter().write(serviceRequest, dbDoc);
 			Update update = Update.fromDocument(dbDoc, "_id");
 			UpdateResult result = mongoTemplate.updateFirst(query, update, ServiceRequest.class);
-			return result.isModifiedCountAvailable();
+			return result.wasAcknowledged();
 		}  else {
 			if ((!config.getStatus().equalsIgnoreCase("Change Required")
 					&& (!config.getStatus().equalsIgnoreCase("Approved")))

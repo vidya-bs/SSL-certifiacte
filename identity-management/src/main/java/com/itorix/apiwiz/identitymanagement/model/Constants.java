@@ -20,4 +20,18 @@ public class Constants {
 
 	public static final String[] SWAGGER_PROJECTION_FIELDS = new String[]{"swaggerId", "name", "status", "mts",
 			"revision", "createdUserName", "createdBy"};
+
+	public static final String STATUS = "status";
+
+	public static final String REVISION = "revision";
+
+	public static final String ORIGINAL_DOC = "originalDoc";
+
+	public static final String SWAGGER_ID = "swaggerId";
+
+	public static final String MAX_REVISION = "maxRevision";
+
+	public static final String CREATED_BY = "createdBy";
+
+	public static final String MTS_TO_DATE = "mtsToDate";
 }

@@ -68,6 +68,12 @@ public class WorkspaceDao {
 			dBworkspace.setStatus("active");
 			dBworkspace.setSeats(subWorkspace.getSeats());
 			dBworkspace.setPaymentSchedule(subWorkspace.getPaymentSchedule());
+			if (workspace.getCts() != null) {
+				dBworkspace.setCts(workspace.getCts());
+			} else {
+				dBworkspace.setCts(System.currentTimeMillis());
+			}
+			dBworkspace.setMts(System.currentTimeMillis());
 			masterMongoTemplate.save(dBworkspace);
 		}
 		return workspace;
@@ -118,6 +124,7 @@ public class WorkspaceDao {
 		Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
 		long seats = workspace.getSeats() + count;
 		workspace.setSeats(seats);
+		workspace.setMts(System.currentTimeMillis());
 		masterMongoTemplate.save(workspace);
 	}
 
@@ -128,6 +135,7 @@ public class WorkspaceDao {
 		if ((workspace.getSeats() - usedSeats) >= count) {
 			long seats = workspace.getSeats() - count;
 			workspace.setSeats(seats);
+			workspace.setMts(System.currentTimeMillis());
 			masterMongoTemplate.save(workspace);
 		} else
 			throw new ItorixException("current used seats is larger, delete current users before down sizing",
@@ -138,6 +146,7 @@ public class WorkspaceDao {
 		Workspace workspace = getWorkspace(workapaceId);
 		if (workspace != null) {
 			workspace.setStatus(status);
+			workspace.setMts(System.currentTimeMillis());
 			masterMongoTemplate.save(workspace);
 		}
 		return workspace;
@@ -148,6 +157,7 @@ public class WorkspaceDao {
 		Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
 		if (workspace != null) {
 			workspace.setStatus(status);
+			workspace.setMts(System.currentTimeMillis());
 			masterMongoTemplate.save(workspace);
 		}
 		return workspace;
@@ -166,6 +176,7 @@ public class WorkspaceDao {
 		dbWorkspace.setSsoHost(workspace.getSsoHost());
 		dbWorkspace.setSsoPath(workspace.getSsoPath());
 		dbWorkspace.setIdpProvider(workspace.getIdpProvider());
+		dbWorkspace.setMts(System.currentTimeMillis());
 		masterMongoTemplate.save(dbWorkspace);
 	}
 
@@ -234,7 +245,10 @@ public class WorkspaceDao {
 
 	public void disableSso(String workspaceName) {
 		Query query = Query.query(Criteria.where("_id").is(workspaceName));
-		UpdateResult updateResult = masterMongoTemplate.updateFirst(query, Update.update("ssoEnabled", false),
+		Update update = new Update();
+		update.set("ssoEnabled", false);
+		update.set("mts", System.currentTimeMillis());
+		UpdateResult updateResult = masterMongoTemplate.updateFirst(query, update,
 				Workspace.class);
 	}
 
@@ -337,5 +351,15 @@ public class WorkspaceDao {
 
 	public void deleteSMTPConnector() {
 		baseRepository.remove(new Query(), MailProperty.class);
+	}
+
+	public List<SubscriptionV2> getSubscriptionsV2() {
+		return masterMongoTemplate.findAll(SubscriptionV2.class);
+	}
+
+	public void createSubscriptionPlansV2(List<SubscriptionV2> subscriptions) {
+		for (SubscriptionV2 subscriptionV2 : subscriptions) {
+			masterMongoTemplate.save(subscriptionV2);
+		}
 	}
 }

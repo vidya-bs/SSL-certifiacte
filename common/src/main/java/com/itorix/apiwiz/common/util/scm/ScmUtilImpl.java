@@ -124,7 +124,19 @@ public class ScmUtilImpl {
 								.setCredentialsProvider(
 										new UsernamePasswordCredentialsProvider("PRIVATE-TOKEN", authToken))
 								.setDirectory(cloningDirectory).setBranch(branch).call();
-					} else {
+					} else if(scmSource.equalsIgnoreCase("bitbucket")){
+						String url="";
+						if(urlParts[1].contains("@")) {
+							String[] urlPartsBitBucket = urlParts[1].split("@");
+							url=urlParts[0] + "//"+"x-token-auth:" + authToken + "@" + urlPartsBitBucket[1];
+						}
+						else {
+							url=urlParts[0] + "//"+"x-token-auth:" + authToken + "@" + urlParts[1];
+						}
+						git = Git.cloneRepository().setURI(url)
+								.setCredentialsProvider(new UsernamePasswordCredentialsProvider(authToken, ""))
+								.setDirectory(cloningDirectory).setBranch(branch).call();
+					}else {
 						git = Git.cloneRepository().setURI(urlParts[0] + "//" + authToken + "@" + urlParts[1])
 								.setCredentialsProvider(new UsernamePasswordCredentialsProvider(authToken, ""))
 								.setDirectory(cloningDirectory).setBranch(branch).call();
@@ -443,14 +455,25 @@ public class ScmUtilImpl {
 		File workingDirectory;
 		String cloneDirPath = applicationProperties.getTempDir() + File.separatorChar + "GIT_TEMP" + time;
 		File cloningDirectory = new File(cloneDirPath);
-
+		String[] urlParts = hostUrl.split("//");
 		Git git;
 		if (scmType.equalsIgnoreCase("gitlab")) {
 			git = Git.cloneRepository().setURI(hostUrl)
 					.setCredentialsProvider(new UsernamePasswordCredentialsProvider("PRIVATE-TOKEN", token))
 					.setDirectory(cloningDirectory).call();
+		}else if(scmType.equalsIgnoreCase("bitbucket")){
+			String url="";
+			if(urlParts[1].contains("@")) {
+				String[] urlPartsBitBucket = urlParts[1].split("@");
+				url=urlParts[0] + "//"+"x-token-auth:" + token + "@" + urlPartsBitBucket[1];
+			}
+			else {
+				url=urlParts[0] + "//"+"x-token-auth:" + token + "@" + urlParts[1];
+			}
+			git = Git.cloneRepository().setURI(url)
+					.setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
+					.setDirectory(cloningDirectory).setBranch(sourceBranch).call();
 		} else {
-			String[] urlParts = hostUrl.split("//");
 			git = Git.cloneRepository().setURI(urlParts[0] + "//" + token + "@" + urlParts[1])
 					.setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
 					.setDirectory(cloningDirectory).call();
@@ -518,12 +541,24 @@ public class ScmUtilImpl {
 		logger.debug("Is proxy defined ::: " + isProxySettingsDefined(hostUrl));
 		File directory = new File(tempDirectory);
 		Git git;
+		String[] urlParts = hostUrl.split("//");
 		if (scmType.equalsIgnoreCase("gitlab")) {
 			git = Git.cloneRepository().setURI(hostUrl)
 					.setCredentialsProvider(new UsernamePasswordCredentialsProvider("PRIVATE-TOKEN", token))
 					.setDirectory(directory).setBranch(branchName).call();
-		} else {
-			String[] urlParts = hostUrl.split("//");
+		} else if(scmType.equalsIgnoreCase("bitbucket")){
+			String url="";
+			if(urlParts[1].contains("@")) {
+				String[] urlPartsBitBucket = urlParts[1].split("@");
+				url=urlParts[0] + "//"+"x-token-auth:" + token + "@" + urlPartsBitBucket[1];
+			}
+			else {
+				url=urlParts[0] + "//"+"x-token-auth:" + token + "@" + urlParts[1];
+			}
+			git = Git.cloneRepository().setURI(url)
+					.setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, ""))
+					.setDirectory(directory).setBranch(branchName).call();
+		}else {
 			git = Git.cloneRepository().setURI(urlParts[0] + "//" + token + "@" + urlParts[1])
 					.setCredentialsProvider(new UsernamePasswordCredentialsProvider(token, "")).setDirectory(directory)
 					.setBranch(branchName).call();
@@ -623,13 +658,51 @@ public class ScmUtilImpl {
 				+ String.valueOf(File.separatorChar) + Long.toString(System.currentTimeMillis());
 		File cloningDirectory = new File(tempDirectory);
 		try {
-			if (branch != null && !branch.isEmpty()) {
+			if (branch != null && !branch.isEmpty() && gitURI.contains("github")) {
 				Git result = Git.cloneRepository().setURI(urlParts[0] + "//" + authToken + "@" + urlParts[1])
 						.setCredentialsProvider(new UsernamePasswordCredentialsProvider(authToken, ""))
 						.setDirectory(cloningDirectory).setBranch(branch).call();
 				return result.getRepository().getDirectory().getParent();
-			} else {
+			} else if (branch == null && branch.isEmpty() && gitURI.contains("github")) {
 				Git result = Git.cloneRepository().setURI(urlParts[0] + "//" + authToken + "@" + urlParts[1])
+						.setCredentialsProvider(new UsernamePasswordCredentialsProvider(authToken, ""))
+						.setDirectory(cloningDirectory).call();
+				return result.getRepository().getDirectory().getParent();
+			}
+			if (branch != null && !branch.isEmpty() && gitURI.contains("gitlab")) {
+				Git result = Git.cloneRepository().setURI(gitURI)
+						.setCredentialsProvider(new UsernamePasswordCredentialsProvider("PRIVATE-TOKEN", authToken))
+						.setDirectory(cloningDirectory).setBranch(branch).call();
+				return result.getRepository().getDirectory().getParent();
+			} else if (branch == null && branch.isEmpty() && gitURI.contains("gitlab")){
+				Git result = Git.cloneRepository().setURI(gitURI)
+						.setCredentialsProvider(new UsernamePasswordCredentialsProvider("PRIVATE-TOKEN", authToken))
+						.setDirectory(cloningDirectory).call();
+				return result.getRepository().getDirectory().getParent();
+			}
+			if (branch != null && !branch.isEmpty() && gitURI.contains("bitbucket")) {
+				String url="";
+				if(urlParts[1].contains("@")) {
+					String[] urlPartsBitBucket = urlParts[1].split("@");
+					url=urlParts[0] + "//"+"x-token-auth:" + authToken + "@" + urlPartsBitBucket[1];
+				}
+				else {
+					url=urlParts[0] + "//"+"x-token-auth:" + authToken + "@" + urlParts[1];
+				}
+				Git result = Git.cloneRepository().setURI(url)
+						.setCredentialsProvider(new UsernamePasswordCredentialsProvider(authToken, ""))
+						.setDirectory(cloningDirectory).setBranch(branch).call();
+				return result.getRepository().getDirectory().getParent();
+			} else if (branch == null && branch.isEmpty() && gitURI.contains("bitbucket")){
+				String url="";
+				if(urlParts[1].contains("@")) {
+					String[] urlPartsBitBucket = urlParts[1].split("@");
+					url=urlParts[0] + "//"+"x-token-auth:" + authToken + "@" + urlPartsBitBucket[1];
+				}
+				else {
+					url=urlParts[0] + "//"+"x-token-auth:" + authToken + "@" + urlParts[1];
+				}
+				Git result = Git.cloneRepository().setURI(url)
 						.setCredentialsProvider(new UsernamePasswordCredentialsProvider(authToken, ""))
 						.setDirectory(cloningDirectory).call();
 				return result.getRepository().getDirectory().getParent();

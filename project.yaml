@@ -1,10 +1,10 @@
 build:
-  name: apiwiz-core-platform-api
-  gitURL: 'git@github.com:itorix/apiwiz-core-platform-api.git'
+  name: apiwiz-core-platform-api-v2
+  gitURL: 'git@github.com:itorix/apiwiz-core-platform-api-v2.git'
   customerType: internal
   customerName: apiwiz
 deployment:
-  - appName: coreapi
+  - appName: core-api
     buildImage: enable
     jarName: cloud-app-0.0.1-SNAPSHOT.jar
     jarLocation: /app/target
@@ -65,351 +65,363 @@ deployment:
         approval: enable
         host: NA
         pem: NA
-        configBranch: main
+        configBranch: prod
         configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
         container: enable
         spaceName: apiwiz-system
         awsCredProfile: default
         cloudProvider: aws
-  - appName: apimock
-    buildImage: enable
-    jarLocation: /api-mock-server/target
-    jarName: api-mock-server-0.0.1-SNAPSHOT.jar
-    environments:
-      - env: local
-        branch: feature
-        container: disable
-        deployFlag: disable
-        approval: disable
-        host: 3.128.86.36
-        pem: itorix-dev.pem
-        configBranch: local
-        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
-        spaceName: NA
-        awsCredProfile: NA
-        cloudProvider: NA
-      - env: development
-        branch: feature
-        deployFlag: disable
-        container: enable
-        spaceName: dev
-        awsCredProfile: nonprod
-        approval: disable
-        host: 54.203.2.220
-        pem: NA
-        configBranch: dev
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        cloudProvider: aws
-      - env: gcp-dev
-        branch: feature
-        deployFlag: enable
-        approval: disable
-        host: 34.102.79.102
-        pem: NA
-        configBranch: dev-gcp
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        container: enable
-        spaceName: apiwiz-system
-        awsCredProfile: NA
-        gcpCredProfile: nonprod
-        cloudProvider: google
-      - env: stage
-        branch: develop
+      - env: aws-preprod
+        branch: aws-preprod
         deployFlag: enable
         container: enable
         spaceName: stage
-        awsCredProfile: NA
-        approval: disable
-        host: 34.102.79.102
-        pem: NA
-        configBranch: stage
-        gcpCredProfile: nonprod
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        cloudProvider: google
-      - env: production
-        deployFlag: enable
-        branch: main
-        container: enable
-        spaceName: apiwiz-system
-        awsCredProfile: default
-        approval: enable
-        host: NA
-        pem: NA
-        configBranch: main
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
-        cloudProvider: aws
-  - appName: testsuite
-    buildImage: enable
-    jarLocation: /test-suite-lib/target
-    jarName: test-suite-lib-1.5.10.RELEASE.jar
-    environments:
-      - env: local
-        branch: feature
-        deployFlag: disable
-        container: disable
-        approval: disable
-        host: 3.128.86.36
-        pem: itorix-dev.pem
-        configBranch: local
-        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
-        spaceName: NA
-        awsCredProfile: NA
-        cloudProvider: NA
-      - env: development
-        branch: feature
-        deployFlag: disable
-        container: enable
-        spaceName: dev
         awsCredProfile: nonprod
         approval: disable
-        host: 54.203.2.220
+        host: 52.26.178.178
         pem: NA
-        configBranch: dev
+        configBranch: aws-preprod
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         cloudProvider: aws
-      - env: gcp-dev
-        branch: feature
-        deployFlag: enable
-        approval: disable
-        host: 34.102.79.102
-        pem: NA
-        configBranch: dev-gcp
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        container: enable
-        spaceName: apiwiz-system
-        awsCredProfile: NA
-        gcpCredProfile: nonprod
-        cloudProvider: google
-      - env: stage
-        branch: develop
-        deployFlag: enable
-        container: enable
-        spaceName: stage
-        awsCredProfile: NA
-        approval: disable
-        host: 34.102.79.102
-        gcpCredProfile: nonprod
-        pem: NA
-        configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        cloudProvider: google
-      - env: production
-        branch: main
-        deployFlag: enable
-        container: enable
-        spaceName: apiwiz-system
-        awsCredProfile: default
-        approval: enable
-        host: NA
-        pem: NA
-        configBranch: main
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
-        cloudProvider: aws
-  - appName: sso
-    buildImage: enable
-    jarName: sso-0.0.1-SNAPSHOT.jar
-    jarLocation: /sso/target
-    environments:
-      - env: local
-        branch: feature
-        deployFlag: disable
-        spaceName: NA
-        container: disable
-        approval: disable
-        host: 3.128.86.36
-        pem: itorix-dev.pem
-        configBranch: local
-        awsCredProfile: NA
-        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
-        cloudProvider: NA
-      - env: development
-        deployFlag: disable
-        branch: feature
-        container: enable
-        spaceName: dev
-        awsCredProfile: nonprod
-        approval: disable
-        host: 54.203.2.220
-        pem: NA
-        configBranch: dev
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        ssoHelmValueFileName: 'sso-values.yaml'
-        cloudProvider: aws
-      - env: gcp-dev
-        branch: feature
-        deployFlag: enable
-        approval: disable
-        host: 34.102.79.102
-        pem: NA
-        configBranch: dev-gcp
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        container: enable
-        spaceName: apiwiz-system
-        awsCredProfile: NA
-        gcpCredProfile: nonprod
-        cloudProvider: google
-      - env: stage
-        branch: develop
-        deployFlag: enable
-        container: enable
-        spaceName: stage
-        awsCredProfile: NA
-        approval: disable
-        host: 34.102.79.102
-        pem: NA
-        configBranch: stage
-        gcpCredProfile: nonprod
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        ssoHelmValueFileName: 'sso-values.yaml'
-        cloudProvider: google
-      - env: production
-        branch: main
-        deployFlag: enable
-        container: enable
-        spaceName: apiwiz-system
-        awsCredProfile: default
-        approval: enable
-        host: NA
-        pem: NA
-        configBranch: tonikbank
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
-        cloudProvider: aws
-        ssoHelmValueFileName: 'sso-tonikbank-values.yaml'
-  - appName: apimonitor
-    buildImage: enable
-    jarName: api-monitor-agent-0.0.1.jar
-    jarLocation: /api-monitor-agent/target
-    environments:
-      - env: local
-        branch: feature
-        deployFlag: disable
-        container: disable
-        approval: disable
-        host: 3.128.86.36
-        pem: itorix-dev.pem
-        configBranch: local
-        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
-        spaceName: NA
-        awsCredProfile: NA
-        cloudProvider: NA
-      - env: gcp-dev
-        branch: feature
-        deployFlag: enable
-        approval: disable
-        host: 34.102.79.102
-        pem: NA
-        configBranch: dev-gcp
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        container: enable
-        spaceName: apiwiz-system
-        awsCredProfile: NA
-        gcpCredProfile: nonprod
-        cloudProvider: google
-      - env: development
-        branch: feature
-        deployFlag: disable
-        container: enable
-        spaceName: dev
-        awsCredProfile: nonprod
-        approval: disable
-        host: 54.203.2.220
-        pem: NA
-        configBranch: dev
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        cloudProvider: aws
-      - env: stage
-        branch: develop
-        deployFlag: enable
-        container: enable
-        spaceName: stage
-        awsCredProfile: NA
-        approval: disable
-        host: 34.102.79.102
-        gcpCredProfile: nonprod
-        pem: NA
-        configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        cloudProvider: google
-      - env: production
-        branch: main
-        deployFlag: enable
-        container: enable
-        spaceName: apiwiz-system
-        awsCredProfile: default
-        approval: enable
-        host: NA
-        pem: NA
-        configBranch: main
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
-        cloudProvider: aws
-  - appName: notification
-    buildImage: enable
-    jarName: notification-agent-0.0.1.jar
-    jarLocation: /notification-agent/target
-    environments:
-      - env: local
-        branch: feature
-        container: disable
-        deployFlag: disable
-        approval: disable
-        host: 3.128.86.36
-        pem: itorix-dev.pem
-        configBranch: local
-        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
-        spaceName: NA
-        awsCredProfile: NA
-        cloudProvider: NA
-      - env: development
-        branch: feature
-        deployFlag: disable
-        container: enable
-        spaceName: dev
-        awsCredProfile: nonprod
-        approval: disable
-        host: 54.203.2.220
-        pem: NA
-        configBranch: dev
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        cloudProvider: aws
-      - env: gcp-dev
-        branch: feature
-        deployFlag: enable
-        approval: disable
-        host: 34.102.79.102
-        pem: NA
-        configBranch: dev-gcp
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        container: enable
-        spaceName: apiwiz-system
-        awsCredProfile: NA
-        gcpCredProfile: nonprod
-        cloudProvider: google
-      - env: stage
-        branch: develop
-        deployFlag: enable
-        container: enable
-        spaceName: stage
-        awsCredProfile: NA
-        approval: disable
-        host: 34.102.79.102
-        pem: NA
-        configBranch: stage
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        cloudProvider: google
-        gcpCredProfile: nonprod
-      - env: production
-        deployFlag: enable
-        branch: main
-        container: enable
-        spaceName: apiwiz-system
-        awsCredProfile: default
-        approval: enable
-        host: NA
-        pem: NA
-        configBranch: main
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
-        cloudProvider: aws
-  - appName: api-license
+#  - appName: apimock
+#    buildImage: enable
+#    jarLocation: /api-mock-server/target
+#    jarName: api-mock-server-0.0.1-SNAPSHOT.jar
+#    environments:
+#      - env: local
+#        branch: feature
+#        container: disable
+#        deployFlag: disable
+#        approval: disable
+#        host: 3.128.86.36
+#        pem: itorix-dev.pem
+#        configBranch: local
+#        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
+#        spaceName: NA
+#        awsCredProfile: NA
+#        cloudProvider: NA
+#      - env: development
+#        branch: feature
+#        deployFlag: disable
+#        container: enable
+#        spaceName: dev
+#        awsCredProfile: nonprod
+#        approval: disable
+#        host: 54.203.2.220
+#        pem: NA
+#        configBranch: dev
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        cloudProvider: aws
+#      - env: gcp-dev
+#        branch: feature
+#        deployFlag: disable
+#        approval: disable
+#        host: 34.102.79.102
+#        pem: NA
+#        configBranch: dev-gcp
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        container: enable
+#        spaceName: apiwiz-system
+#        awsCredProfile: NA
+#        gcpCredProfile: nonprod
+#        cloudProvider: google
+#      - env: stage
+#        branch: develop
+#        deployFlag: disable
+#        container: disable
+#        spaceName: stage
+#        awsCredProfile: NA
+#        approval: disable
+#        host: 34.102.79.102
+#        pem: NA
+#        configBranch: stage
+#        gcpCredProfile: nonprod
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        cloudProvider: google
+#      - env: production
+#        deployFlag: disable
+#        branch: main
+#        container: disable
+#        spaceName: apiwiz-system
+#        awsCredProfile: default
+#        approval: enable
+#        host: NA
+#        pem: NA
+#        configBranch: main
+#        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+#        cloudProvider: aws
+#  - appName: testsuite
+#    buildImage: enable
+#    jarLocation: /test-suite-lib/target
+#    jarName: test-suite-lib-1.5.10.RELEASE.jar
+#    environments:
+#      - env: local
+#        branch: feature
+#        deployFlag: disable
+#        container: disable
+#        approval: disable
+#        host: 3.128.86.36
+#        pem: itorix-dev.pem
+#        configBranch: local
+#        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
+#        spaceName: NA
+#        awsCredProfile: NA
+#        cloudProvider: NA
+#      - env: development
+#        branch: feature
+#        deployFlag: disable
+#        container: enable
+#        spaceName: dev
+#        awsCredProfile: nonprod
+#        approval: disable
+#        host: 54.203.2.220
+#        pem: NA
+#        configBranch: dev
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        cloudProvider: aws
+#      - env: gcp-dev
+#        branch: feature
+#        deployFlag: disable
+#        approval: disable
+#        host: 34.102.79.102
+#        pem: NA
+#        configBranch: dev-gcp
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        container: enable
+#        spaceName: apiwiz-system
+#        awsCredProfile: NA
+#        gcpCredProfile: nonprod
+#        cloudProvider: google
+#      - env: stage
+#        branch: develop
+#        deployFlag: disable
+#        container: disable
+#        spaceName: stage
+#        awsCredProfile: NA
+#        approval: disable
+#        host: 34.102.79.102
+#        gcpCredProfile: nonprod
+#        pem: NA
+#        configBranch: stage
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        cloudProvider: google
+#      - env: production
+#        branch: main
+#        deployFlag: disable
+#        container: disable
+#        spaceName: apiwiz-system
+#        awsCredProfile: default
+#        approval: enable
+#        host: NA
+#        pem: NA
+#        configBranch: main
+#        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+#        cloudProvider: aws
+#  - appName: sso
+#    buildImage: enable
+#    jarName: sso-0.0.1-SNAPSHOT.jar
+#    jarLocation: /sso/target
+#    environments:
+#      - env: local
+#        branch: feature
+#        deployFlag: disable
+#        spaceName: NA
+#        container: disable
+#        approval: disable
+#        host: 3.128.86.36
+#        pem: itorix-dev.pem
+#        configBranch: local
+#        awsCredProfile: NA
+#        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
+#        cloudProvider: NA
+#      - env: development
+#        deployFlag: disable
+#        branch: feature
+#        container: enable
+#        spaceName: dev
+#        awsCredProfile: nonprod
+#        approval: disable
+#        host: 54.203.2.220
+#        pem: NA
+#        configBranch: dev
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        ssoHelmValueFileName: 'sso-values.yaml'
+#        cloudProvider: aws
+#      - env: gcp-dev
+#        branch: feature
+#        deployFlag: enable
+#        approval: disable
+#        host: 34.102.79.102
+#        pem: NA
+#        configBranch: dev-gcp
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        container: enable
+#        spaceName: apiwiz-system
+#        awsCredProfile: NA
+#        gcpCredProfile: nonprod
+#        cloudProvider: google
+#      - env: stage
+#        branch: develop
+#        deployFlag: enable
+#        container: enable
+#        spaceName: stage
+#        awsCredProfile: NA
+#        approval: disable
+#        host: 34.102.79.102
+#        pem: NA
+#        configBranch: stage
+#        gcpCredProfile: nonprod
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        ssoHelmValueFileName: 'sso-values.yaml'
+#        cloudProvider: google
+#      - env: production
+#        branch: main
+#        deployFlag: enable
+#        container: enable
+#        spaceName: apiwiz-system
+#        awsCredProfile: default
+#        approval: enable
+#        host: NA
+#        pem: NA
+#        configBranch: tonikbank
+#        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+#        cloudProvider: aws
+#        ssoHelmValueFileName: 'sso-tonikbank-values.yaml'
+#  - appName: apimonitor
+#    buildImage: enable
+#    jarName: api-monitor-agent-0.0.1.jar
+#    jarLocation: /api-monitor-agent/target
+#    environments:
+#      - env: local
+#        branch: feature
+#        deployFlag: disable
+#        container: disable
+#        approval: disable
+#        host: 3.128.86.36
+#        pem: itorix-dev.pem
+#        configBranch: local
+#        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
+#        spaceName: NA
+#        awsCredProfile: NA
+#        cloudProvider: NA
+#      - env: gcp-dev
+#        branch: feature
+#        deployFlag: disable
+#        approval: disable
+#        host: 34.102.79.102
+#        pem: NA
+#        configBranch: dev-gcp
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        container: disable
+#        spaceName: apiwiz-system
+#        awsCredProfile: NA
+#        gcpCredProfile: nonprod
+#        cloudProvider: google
+#      - env: development
+#        branch: feature
+#        deployFlag: disable
+#        container: disable
+#        spaceName: dev
+#        awsCredProfile: nonprod
+#        approval: disable
+#        host: 54.203.2.220
+#        pem: NA
+#        configBranch: dev
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        cloudProvider: aws
+#      - env: stage
+#        branch: develop
+#        deployFlag: disable
+#        container: disable
+#        spaceName: stage
+#        awsCredProfile: NA
+#        approval: disable
+#        host: 34.102.79.102
+#        gcpCredProfile: nonprod
+#        pem: NA
+#        configBranch: stage
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        cloudProvider: google
+#      - env: production
+#        branch: main
+#        deployFlag: disable
+#        container: disable
+#        spaceName: apiwiz-system
+#        awsCredProfile: default
+#        approval: enable
+#        host: NA
+#        pem: NA
+#        configBranch: main
+#        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+#        cloudProvider: aws
+#  - appName: notification
+#    buildImage: enable
+#    jarName: notification-agent-0.0.1.jar
+#    jarLocation: /notification-agent/target
+#    environments:
+#      - env: local
+#        branch: feature
+#        container: disable
+#        deployFlag: disable
+#        approval: disable
+#        host: 3.128.86.36
+#        pem: itorix-dev.pem
+#        configBranch: local
+#        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
+#        spaceName: NA
+#        awsCredProfile: NA
+#        cloudProvider: NA
+#      - env: development
+#        branch: feature
+#        deployFlag: disable
+#        container: disable
+#        spaceName: dev
+#        awsCredProfile: nonprod
+#        approval: disable
+#        host: 54.203.2.220
+#        pem: NA
+#        configBranch: dev
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        cloudProvider: aws
+#      - env: gcp-dev
+#        branch: feature
+#        deployFlag: disable
+#        approval: disable
+#        host: 34.102.79.102
+#        pem: NA
+#        configBranch: dev-gcp
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        container: disable
+#        spaceName: apiwiz-system
+#        awsCredProfile: NA
+#        gcpCredProfile: nonprod
+#        cloudProvider: google
+#      - env: stage
+#        branch: develop
+#        deployFlag: disable
+#        container: disable
+#        spaceName: stage
+#        awsCredProfile: NA
+#        approval: disable
+#        host: 34.102.79.102
+#        pem: NA
+#        configBranch: stage
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        cloudProvider: google
+#        gcpCredProfile: nonprod
+#      - env: production
+#        deployFlag: disable
+#        branch: main
+#        container: disable
+#        spaceName: apiwiz-system
+#        awsCredProfile: default
+#        approval: enable
+#        host: NA
+#        pem: NA
+#        configBranch: main
+#        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+#        cloudProvider: aws
+  - appName: license-api
     buildImage: enable
     jarName: api-license-0.0.1-RELEASE.jar
     jarLocation: /api-license/target
@@ -464,71 +476,16 @@ deployment:
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         cloudProvider: google
         gcpCredProfile: nonprod
-      - env: production
-        deployFlag: enable
-        branch: main
-        container: enable
-        spaceName: apiwiz-system
-        awsCredProfile: default
-        approval: enable
-        host: NA
-        pem: NA
-        configBranch: main
-        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
-        cloudProvider: aws
-  - appName: consent-api
-    buildImage: enable
-    jarName: api-consent-server-0.0.1-SNAPSHOT.jar
-    jarLocation: /api-consent-server/target
-    environments:
-      - env: local
-        branch: feature
-        container: disable
-        deployFlag: disable
-        approval: disable
-        host: 3.128.86.36
-        pem: itorix-dev.pem
-        configBranch: local
-        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
-        spaceName: NA
-        awsCredProfile: NA
-        cloudProvider: NA
-      - env: development
-        branch: feature
-        deployFlag: disable
-        container: enable
-        spaceName: dev
-        awsCredProfile: nonprod
-        approval: disable
-        host: 54.203.2.220
-        pem: NA
-        configBranch: dev
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        cloudProvider: aws
-      - env: gcp-dev
-        branch: feature
-        deployFlag: enable
-        approval: disable
-        host: 34.102.79.102
-        pem: NA
-        configBranch: dev-gcp
-        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
-        container: enable
-        spaceName: apiwiz-system
-        awsCredProfile: NA
-        gcpCredProfile: nonprod
-        cloudProvider: google
-      - env: stage
-        branch: develop
+      - env: aws-preprod
+        branch: aws-preprod
         deployFlag: enable
         container: enable
         spaceName: stage
-        awsCredProfile: NA
-        gcpCredProfile: nonprod
+        awsCredProfile: nonprod
         approval: disable
-        host: 34.102.79.102
+        host: 52.26.178.178
         pem: NA
-        configBranch: stage
+        configBranch: aws-preprod
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         cloudProvider: aws
       - env: production
@@ -540,6 +497,73 @@ deployment:
         approval: enable
         host: NA
         pem: NA
-        configBranch: main
+        configBranch: prod
         configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
         cloudProvider: aws
+#  - appName: consent-api
+#    buildImage: enable
+#    jarName: api-consent-server-0.0.1-SNAPSHOT.jar
+#    jarLocation: /api-consent-server/target
+#    environments:
+#      - env: local
+#        branch: feature
+#        container: disable
+#        deployFlag: disable
+#        approval: disable
+#        host: 3.128.86.36
+#        pem: itorix-dev.pem
+#        configBranch: local
+#        configRepo: 'git@github.com:itorix/apiwiz-config-local.git'
+#        spaceName: NA
+#        awsCredProfile: NA
+#        cloudProvider: NA
+#      - env: development
+#        branch: feature
+#        deployFlag: disable
+#        container: enable
+#        spaceName: dev
+#        awsCredProfile: nonprod
+#        approval: disable
+#        host: 54.203.2.220
+#        pem: NA
+#        configBranch: dev
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        cloudProvider: aws
+#      - env: gcp-dev
+#        branch: feature
+#        deployFlag: enable
+#        approval: disable
+#        host: 34.102.79.102
+#        pem: NA
+#        configBranch: dev-gcp
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        container: enable
+#        spaceName: apiwiz-system
+#        awsCredProfile: NA
+#        gcpCredProfile: nonprod
+#        cloudProvider: google
+#      - env: stage
+#        branch: develop
+#        deployFlag: enable
+#        container: enable
+#        spaceName: stage
+#        awsCredProfile: NA
+#        gcpCredProfile: nonprod
+#        approval: disable
+#        host: 34.102.79.102
+#        pem: NA
+#        configBranch: stage
+#        configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
+#        cloudProvider: aws
+#      - env: production
+#        deployFlag: enable
+#        branch: main
+#        container: enable
+#        spaceName: apiwiz-system
+#        awsCredProfile: default
+#        approval: enable
+#        host: NA
+#        pem: NA
+#        configBranch: main
+#        configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
+#        cloudProvider: aws

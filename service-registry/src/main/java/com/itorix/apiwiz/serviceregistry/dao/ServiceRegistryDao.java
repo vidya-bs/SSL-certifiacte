@@ -119,7 +119,7 @@ public class ServiceRegistryDao {
 		Query query = new Query(Criteria.where("id").is(rowId));
 		Update update = new Update();
 		update.set("data", data);
-		if (!mongoTemplate.updateFirst(query, update, ServiceRegistry.class).isModifiedCountAvailable())
+		if (mongoTemplate.updateFirst(query, update, ServiceRegistry.class).getModifiedCount() == 0)
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("ServiceRegistry-1000"), rowId),
 					"ServiceRegistry-1000");
 	}

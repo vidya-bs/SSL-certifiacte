@@ -16,7 +16,7 @@
 	</parent>
 
 	<properties>
-		<java.version>1.8</java.version>
+		<java.version>11</java.version>
 	</properties>
 
 	<dependencies>
@@ -41,18 +41,18 @@
 				<groupId>com.itorix.hyggee.cloud</groupId>
 				<artifactId>cloud-collaboration</artifactId>
 		</dependency>
-		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
-				<artifactId>api-virtualization</artifactId>
-		</dependency>
+<!--		<dependency>-->
+<!--				<groupId>com.itorix.hyggee.cloud</groupId>-->
+<!--				<artifactId>api-virtualization</artifactId>-->
+<!--		</dependency>-->
 		<dependency>
 				<groupId>com.itorix.hyggee.cloud</groupId>
 				<artifactId>third-party-integrations</artifactId>
 		</dependency>
-		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
-				<artifactId>api-test</artifactId>
-		</dependency>
+<!--		<dependency>-->
+<!--				<groupId>com.itorix.hyggee.cloud</groupId>-->
+<!--				<artifactId>api-test</artifactId>-->
+<!--		</dependency>-->
 		<dependency>
 				<groupId>com.itorix.hyggee.cloud</groupId>
 				<artifactId>cloud-config-management</artifactId>
@@ -97,19 +97,19 @@
 				<groupId>com.itorix.hyggee.cloud</groupId>
 				<artifactId>api-portfolio</artifactId>
 		</dependency>
-		<dependency>
-				<groupId>com.itorix.hyggee.cloud</groupId>
-				<artifactId>api-monitor</artifactId>
-		</dependency>
+<!--		<dependency>-->
+<!--				<groupId>com.itorix.hyggee.cloud</groupId>-->
+<!--				<artifactId>api-monitor</artifactId>-->
+<!--		</dependency>-->
 		<dependency>
 				<groupId>com.itorix.hyggee.cloud</groupId>
 				<artifactId>marketing</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>com.itorix.hyggee.cloud</groupId>
-			<artifactId>api-consent</artifactId>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>com.itorix.hyggee.cloud</groupId>-->
+<!--			<artifactId>api-consent</artifactId>-->
+<!--		</dependency>-->
 
 		<dependency>
 			<groupId>com.itorix.apiwiz</groupId>
@@ -143,4 +143,5 @@
 			</plugin>
 		</plugins>
 	</build>
+
 </project>

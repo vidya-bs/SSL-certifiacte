@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RestController
 public interface ProxyStudio {
 
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/buildconfig/codegen/generate", produces = {
 			"application/json"})
 	public ResponseEntity<?> generate(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -41,7 +41,7 @@ public interface ProxyStudio {
 			@RequestHeader HttpHeaders headers, HttpServletRequest request, HttpServletResponse response)
 			throws Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/buildconfig/codegen/getproxyflownames", consumes = {
 			"multipart/form-data", "multipart/mixed"}, produces = {"application/json"})
 	public ResponseEntity<?> getProxyOperations(
@@ -50,7 +50,7 @@ public interface ProxyStudio {
 			@RequestParam("type") String type, @RequestHeader HttpHeaders headers, HttpServletRequest request,
 			HttpServletResponse response) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/codegen/getproxyflownames", produces = {
 			"application/json"})
 	public ResponseEntity<?> getProxyOperations(
@@ -60,7 +60,7 @@ public interface ProxyStudio {
 			@RequestParam("revision") Integer revision, @RequestHeader HttpHeaders headers, HttpServletRequest request,
 			HttpServletResponse response) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/codegen/gettargetflownames", produces = {
 			"application/json"})
 	public ResponseEntity<?> getTargetOperations(
@@ -70,7 +70,7 @@ public interface ProxyStudio {
 			@RequestParam("revision") Integer revision, @RequestHeader HttpHeaders headers, HttpServletRequest request,
 			HttpServletResponse response) throws Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/buildconfig/codegen/gettargetflownames", consumes = {
 			"multipart/form-data", "multipart/mixed"}, produces = {"application/json", "application/xml"})
 	public ResponseEntity<?> getTargetOperations(
@@ -79,7 +79,7 @@ public interface ProxyStudio {
 			@RequestParam("type") String type, @RequestHeader HttpHeaders headers, HttpServletRequest request,
 			HttpServletResponse response) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/proxies/history", produces = {
 			"application/json"})
 	public ResponseEntity<?> gethistory(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -88,12 +88,12 @@ public interface ProxyStudio {
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
 			@RequestParam(value = "proxy", required = false) String proxy) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/proxies", produces = {"application/json"})
 	public ResponseEntity<?> getProxies(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/buildconfig/proxies/{Proxy}/associateapigeeorg", produces = {
 			"application/json"})
 	public ResponseEntity<?> saveAssociatedOrg(
@@ -103,7 +103,7 @@ public interface ProxyStudio {
 			HttpServletResponse response) throws Exception;
 
 	@UnSecure
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/buildconfig/proxies/{Proxy}/proxyartifacts", produces = {
 			"application/json"})
 	public ResponseEntity<?> saveProxyArtifacts(
@@ -113,7 +113,7 @@ public interface ProxyStudio {
 			throws Exception;
 
 	@UnSecure
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/proxies/{Proxy}/proxyartifacts", produces = {
 			"application/json"})
 	public ResponseEntity<?> getProxyArtifacts(
@@ -121,7 +121,7 @@ public interface ProxyStudio {
 			@RequestBody @PathVariable("Proxy") String proxy, @RequestHeader HttpHeaders headers,
 			HttpServletRequest request, HttpServletResponse response) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/proxies/{Proxy}/associateapigeeorg", produces = {
 			"application/json"})
 	public ResponseEntity<?> getAssociatedOrg(
@@ -129,7 +129,7 @@ public interface ProxyStudio {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("Proxy") String proxy,
 			HttpServletRequest request, HttpServletResponse response) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/proxies/{Proxy}/details", produces = {
 			"application/json"})
 	public ResponseEntity<?> getAssociatedApigeeDetails(
@@ -138,7 +138,7 @@ public interface ProxyStudio {
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "refresh", required = false) boolean refresh) throws Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/buildconfig/proxies/{Proxy}", produces = {
 			"application/json"})
 	public ResponseEntity<?> removeApigeeProxy(
@@ -146,41 +146,41 @@ public interface ProxyStudio {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("Proxy") String proxy)
 			throws Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/buildconfig/proxies/{proxyName:.+}/proxyconnections")
 	public ResponseEntity<?> createProjectProxyConnections(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
 			@PathVariable("proxyName") String proxyName, @RequestBody OrgEnv orgEnv) throws Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/buildconfig/codegen/promote-code", produces = {
 			"application/json"})
 	public ResponseEntity<?> promoteApigeeProxy(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody PromoteSCM scmConfig) throws Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/buildconfig/proxies/category")
 	public ResponseEntity<?> addCategory(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody List<Category> categories,
 			HttpServletRequest request, HttpServletResponse response) throws Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/buildconfig/proxies/category")
 	public ResponseEntity<?> updateCategory(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody List<Category> categories,
 			HttpServletRequest request, HttpServletResponse response) throws Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/buildconfig/proxies/category")
 	public ResponseEntity<?> deleteCategory(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody Category category,
 			HttpServletRequest request, HttpServletResponse response) throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/proxies/category")
 	public ResponseEntity<?> getCategories(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -190,7 +190,7 @@ public interface ProxyStudio {
 			@RequestParam(value = "oas", required = false, defaultValue = "2.0") String oas, HttpServletRequest request,
 			HttpServletResponse response) throws Exception;
 
-	// @PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')" )
+	// @PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')" )
 	// @RequestMapping(method = RequestMethod.GET, value =
 	// "/v1/swaggers/{Proxy}/revisions/{Revision}/getassociatedproxy", produces
 	// = {
@@ -203,14 +203,14 @@ public interface ProxyStudio {
 	// @RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
 	@UnSecure
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/template/file")
 	public ResponseEntity<?> getquery(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestParam("file") MultipartFile file, HttpServletRequest request, HttpServletResponse response)
 			throws Exception;
 
 	@UnSecure
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/api/template/file")
 	public ResponseEntity<?> deleteFile(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestParam("fileName") String fileName, HttpServletRequest request, HttpServletResponse response)
@@ -237,20 +237,20 @@ public interface ProxyStudio {
 	// HttpServletRequest request, HttpServletResponse response) throws
 	// Exception ;
 
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/template")
 	public ResponseEntity<?> getFiles(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			HttpServletRequest request, HttpServletResponse response) throws Exception;
 
 	@UnSecure
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/template/{sourceType}/{resourceType}")
 	public ResponseEntity<?> addFile(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestParam("file") MultipartFile file, @PathVariable("sourceType") String sourceType,
 			@PathVariable("resourceType") String resourceType, HttpServletRequest request, HttpServletResponse response)
 			throws Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/template/uploadtemplates")
 	public ResponseEntity<?> uploadTemplates(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -272,7 +272,7 @@ public interface ProxyStudio {
 	// throws Exception ;
 
 	@UnSecure
-	@PreAuthorize("hasAnyRole('ADMIN','DEVELOPER') and hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/api/template/{sourceType}/{resourceType}/{file:.+}", produces = {
 			"application/json"})
 	public ResponseEntity<?> removeFile(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -280,7 +280,7 @@ public interface ProxyStudio {
 			@PathVariable("resourceType") String resourceType, HttpServletRequest request, HttpServletResponse response)
 			throws Exception;
 
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/search", produces = {"application/json"})
 	public ResponseEntity<?> search(@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam("name") String name,

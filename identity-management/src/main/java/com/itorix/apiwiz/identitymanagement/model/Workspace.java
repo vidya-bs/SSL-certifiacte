@@ -33,6 +33,10 @@ public class Workspace {
 	private String ssoPath;
 	private IDPProvider idpProvider;
 
+	private Long cts;
+
+	private Long mts;
+
 	public String getName() {
 		return name;
 	}
@@ -177,5 +181,19 @@ public class Workspace {
 	}
 	public void setIdpProvider(IDPProvider idpProvider) {
 		this.idpProvider = idpProvider;
+	}
+
+	public Long getCts() {
+		return cts;
+	}
+	public void setCts(Long cts) {
+		this.cts = cts;
+	}
+
+	public Long getMts() {
+		return mts;
+	}
+	public void setMts(Long mts) {
+		this.mts = mts;
 	}
 }
