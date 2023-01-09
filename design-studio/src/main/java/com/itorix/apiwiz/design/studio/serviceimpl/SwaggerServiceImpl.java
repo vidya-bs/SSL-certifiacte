@@ -2625,9 +2625,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 			oas = "2.0";
 		}
 		if (oas.equals("2.0")) {
-			response = swaggerBusiness.swaggerSearch(interactionid, name, limit);
+			response = swaggerBusiness.swaggerSearch(interactionid, name, limit,jsessionid);
 		} else if (oas.equals("3.0")) {
-			response = swaggerBusiness.swagger3Search(interactionid, name, limit);
+			response = swaggerBusiness.swagger3Search(interactionid, name, limit,jsessionid);
 		}
 		return new ResponseEntity<Object>(response, HttpStatus.OK);
 	}

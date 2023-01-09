@@ -3532,13 +3532,33 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		}
 	}
 
-	public Object swaggerSearch(String interactionid, String name, int limit)
+	public Object swaggerSearch(String interactionid, String name, int limit,String jsessionid)
 			throws ItorixException, JsonProcessingException {
 		log("searchSwagger", interactionid, "");
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		User user = getUserDetailsFromSessionID(jsessionid);
+		boolean isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
 		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
 		query.limit(limit > 0 ? limit : 10);
-		List<String> allSwaggers = getList(mongoTemplate.getCollection("Design.Swagger.List").distinct("name",
-				query.getQueryObject(), String.class));
+		List<String> allSwaggers = new ArrayList<>();
+		if(isAdmin) {
+			allSwaggers = getList(mongoTemplate.getCollection("Design.Swagger.List").distinct("name",
+					query.getQueryObject(), String.class));
+		}
+		else{
+			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("2.0", user);
+			Set<String> SwaggerNames = new HashSet<>();
+			SwaggerNames.addAll(swaggerRoles.keySet());
+			Map<String, Object> filterFieldsAndValues = new HashMap<>();
+			filterFieldsAndValues.put("createdBy", user.getId());
+			List<String> trimList = baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues,
+					SwaggerVO.class, null);
+			SwaggerNames.addAll(trimList);
+			allSwaggers = SwaggerNames.stream()
+					.filter(names -> names.contains(name))
+					.collect(Collectors.toList());
+			allSwaggers = trimList(allSwaggers,0,limit);
+		}
 		Collections.sort(allSwaggers);
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode response = mapper.createObjectNode();
@@ -3546,21 +3566,43 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		for (String swaggerName : allSwaggers) {
 			SearchItem item = new SearchItem();
 			SwaggerVO swaggerVo = baseRepository.findOne("name", swaggerName, SwaggerVO.class);
-			item.setId(swaggerVo.getSwaggerId());
-			item.setName(swaggerName);
-			responseFields.addPOJO(item);
+			if(swaggerVo!=null) {
+				item.setId(swaggerVo.getSwaggerId());
+				item.setName(swaggerName);
+				responseFields.addPOJO(item);
+			}
 		}
 		response.set("swaggers", responseFields);
 		return response;
 	}
 
-	public Object swagger3Search(String interactionid, String name, int limit)
+	public Object swagger3Search(String interactionid, String name, int limit,String jsessionid)
 			throws ItorixException, JsonProcessingException {
 		log("searchSwagger", interactionid, "");
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		User user = getUserDetailsFromSessionID(jsessionid);
+		boolean isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
 		BasicQuery query = new BasicQuery("{\"name\": {$regex : '" + name + "', $options: 'i'}}");
 		query.limit(limit > 0 ? limit : 10);
-		List<String> allSwaggers = getList(mongoTemplate.getCollection("Design.Swagger3.List").distinct("name",
-				query.getQueryObject(), String.class));
+		List<String> allSwaggers = new ArrayList<>();
+		if(isAdmin) {
+			allSwaggers = getList(mongoTemplate.getCollection("Design.Swagger3.List").distinct("name",
+					query.getQueryObject(), String.class));
+		}
+		else{
+			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("3.0", user);
+			Set<String> SwaggerNames = new HashSet<>();
+			SwaggerNames.addAll(swaggerRoles.keySet());
+			Map<String, Object> filterFieldsAndValues = new HashMap<>();
+			filterFieldsAndValues.put("createdBy", user.getId());
+			List<String> trimList = baseRepository.filterAndGroupBySwaggerName(filterFieldsAndValues,
+					Swagger3VO.class, null);
+			SwaggerNames.addAll(trimList);
+			allSwaggers = SwaggerNames.stream()
+					.filter(names -> names.contains(name))
+					.collect(Collectors.toList());
+			allSwaggers = trimList(allSwaggers,0,limit);
+		}
 		Collections.sort(allSwaggers);
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode response = mapper.createObjectNode();
@@ -3568,9 +3610,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		for (String swaggerName : allSwaggers) {
 			SearchItem item = new SearchItem();
 			Swagger3VO swaggerVo = baseRepository.findOne("name", swaggerName, Swagger3VO.class);
-			item.setId(swaggerVo.getSwaggerId());
-			item.setName(swaggerName);
-			responseFields.addPOJO(item);
+			if(swaggerVo!=null) {
+				item.setId(swaggerVo.getSwaggerId());
+				item.setName(swaggerName);
+				responseFields.addPOJO(item);
+			}
 		}
 		response.set("swaggers", responseFields);
 		return response;

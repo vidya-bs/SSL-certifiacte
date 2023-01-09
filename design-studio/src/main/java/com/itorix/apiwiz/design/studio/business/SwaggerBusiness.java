@@ -721,7 +721,7 @@ public interface SwaggerBusiness {
 	 * 
 	 * @throws ItorixException
 	 */
-	public Object swaggerSearch(String interactionid, String name, int limit)
+	public Object swaggerSearch(String interactionid, String name, int limit,String jsessionid)
 			throws ItorixException, JsonProcessingException;
 
 	/**
@@ -735,7 +735,7 @@ public interface SwaggerBusiness {
 	 * 
 	 * @throws ItorixException
 	 */
-	public Object swagger3Search(String interactionid, String name, int limit)
+	public Object swagger3Search(String interactionid, String name, int limit,String jsessionid)
 			throws ItorixException, JsonProcessingException;
 
 	public Object getSwagger2BasePathsObj();
