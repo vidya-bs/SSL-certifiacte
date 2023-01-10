@@ -1,5 +1,13 @@
 package com.itorix.apiwiz.datadictionary.businessimpl;
 
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
+import static org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter.filter;
+import static org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Eq.valueOf;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -30,6 +38,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation;
+import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
+import org.springframework.data.mongodb.core.aggregation.SortOperation;
+import org.springframework.data.mongodb.core.aggregation.UnwindOperation;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -107,51 +119,57 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		return baseRepository.findOne("name", portfolioVO.getName(), PortfolioVO.class);
 	}
 
-	public PortfolioHistoryResponse findAllPortfolios(String interactionid, int offset, int pageSize) {
+	public PortfolioHistoryResponse findAllPortfolios(String interactionid, int offset,
+			int pageSize) {
 		log("findPortfolio", interactionid);
 		PortfolioHistoryResponse historyResponse = new PortfolioHistoryResponse();
-		List<String> uniqueDictionaryIds = mongoTemplate.findDistinct("dictionaryId", PortfolioVO.class, String.class);
-		// reversing the uniqueDictionaryIds since its in ascending order of
-		// creation
-		Collections.reverse(uniqueDictionaryIds);
-		List<String> dictionaryIds = trimList(uniqueDictionaryIds, offset, pageSize);
-		List<PortfolioVO> portfolios = new ArrayList<>();
-		if (dictionaryIds != null) {
-			for (String dictionaryId : dictionaryIds) {
-				PortfolioVO portfolio = getPortfolioByRevision(dictionaryId, getMaxRevision(dictionaryId));
 
-				List<Object> strModels = new ArrayList<Object>();
-				List<PortfolioModel> dataModels = findPortfolioModelsByportfolioID(portfolio);
-				if (dataModels != null) {
-					for (PortfolioModel model : dataModels) {
-						try {
-							String name = model.getModelName();
-							strModels.add(name);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				}
-				portfolio.setModels(strModels);
-				portfolios.add(portfolio);
-			}
-			Long counter = Long.valueOf(uniqueDictionaryIds.size());
-			Pagination pagination = new Pagination();
-			pagination.setOffset(offset);
-			pagination.setTotal(counter);
-			pagination.setPageSize(pageSize);
-			historyResponse.setPagination(pagination);
-			historyResponse.setData(portfolios);
-		}
+		String[] PROJECTION_FIELDS = {"id", "summary", "description", "name", "revision",
+				"dictionaryId", "status", "createdBy", "modifiedBy", "cts", "mts",
+				"modifiedUserName", "createdUserName"};
+
+		ProjectionOperation projectRequiredFields = project(PROJECTION_FIELDS);
+
+		GroupOperation groupByMaxRevision = group("$dictionaryId").max("revision")
+				.as("maxRevision").push("$$ROOT")
+				.as("originalDoc");
+
+		ProjectionOperation filterMaxRevision = project()
+				.and(filter("originalDoc").as("doc").by(valueOf("maxRevision")
+						.equalToValue("$$doc.revision")))
+				.as("originalDoc");
+
+		SortOperation sortOperation = sort(Sort.Direction.DESC, "mts");
+
+		UnwindOperation unwindOperation = unwind("originalDoc");
+		ProjectionOperation projectionOperation = project("originalDoc.name").andInclude(
+				"originalDoc.dictionaryId","originalDoc.summary","originalDoc.description",
+				"originalDoc.revision","originalDoc.status","originalDoc.createdBy",
+				"originalDoc.modifiedBy","originalDoc.cts","originalDoc.mts","originalDoc.modifiedUserName",
+				"originalDoc.createdUserName", "originalDoc.modified_date","originalDoc._id");
+
+		List<PortfolioVO> results = mongoTemplate
+				.aggregate(
+						newAggregation(projectRequiredFields, groupByMaxRevision,
+								filterMaxRevision,unwindOperation,projectionOperation,sortOperation),
+						PortfolioVO.class, PortfolioVO.class).getMappedResults();
+
+		Long counter = (long) results.size();
+		results = trimList(results, offset, pageSize);
+		Pagination pagination = new Pagination();
+		pagination.setOffset(offset);
+		pagination.setTotal(counter);
+		pagination.setPageSize(pageSize);
+		historyResponse.setPagination(pagination);
+		historyResponse.setData(results);
 		return historyResponse;
 	}
-
-	private List<String> trimList(List<String> ids, int offset, int pageSize) {
-		List<String> dictionaryIds = new ArrayList<String>();
+	private List<PortfolioVO> trimList(List<PortfolioVO> portfolioVOList, int offset, int pageSize) {
+		List<PortfolioVO> dictionaryIds = new ArrayList<>();
 		int i = offset > 0 ? ((offset - 1) * pageSize) : 0;
 		int end = i + pageSize;
-		for (; i < ids.size() && i < end; i++) {
-			dictionaryIds.add(ids.get(i));
+		for (; i < portfolioVOList.size() && i < end; i++) {
+			dictionaryIds.add(portfolioVOList.get(i));
 		}
 		return dictionaryIds;
 	}
@@ -592,7 +610,8 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 	@Override
 	public String getGlobalRule() {
 		Query query = Query.query(Criteria.where("ruleSetType").is("schema").and("isGlobalRuleSet").is(true));
-		return mongoTemplate.findOne(query, Document.class,"Astrum.RuleSet").get("_id").toString();
+		Document ruleset =  mongoTemplate.findOne(query,Document.class,"Linter.RuleSet");
+		return ruleset!=null?ruleset.get("_id").toString():null;
 	}
 
 	@Override
