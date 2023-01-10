@@ -4334,7 +4334,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	@Override
 	public String getGolbalRule(String oas) {
 		Query query = Query.query(Criteria.where("ruleSetType").is("swagger").and("oasVersion").is(oas).and("isGlobalRuleSet").is(true));
-		return mongoTemplate.findOne(query,Document.class,"Astrum.RuleSet").get("_id").toString();
+		Document ruleset = mongoTemplate.findOne(query, Document.class,"Linter.RuleSet");
+		return ruleset!=null?ruleset.get("_id").toString():null;
 	}
 
 	public void checkSwaggerTeams(String jsessionid, String swaggerName, String oasVersion) throws ItorixException {

@@ -610,7 +610,8 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 	@Override
 	public String getGlobalRule() {
 		Query query = Query.query(Criteria.where("ruleSetType").is("schema").and("isGlobalRuleSet").is(true));
-		return mongoTemplate.findOne(query, Document.class,"Astrum.RuleSet").get("_id").toString();
+		Document ruleset =  mongoTemplate.findOne(query,Document.class,"Linter.RuleSet");
+		return ruleset!=null?ruleset.get("_id").toString():null;
 	}
 
 	@Override
