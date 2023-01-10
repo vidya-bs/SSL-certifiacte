@@ -139,7 +139,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 						.equalToValue("$$doc.revision")))
 				.as("originalDoc");
 
-		SortOperation sortOperation = sort(Sort.Direction.ASC, "mts");
+		SortOperation sortOperation = sort(Sort.Direction.DESC, "mts");
 
 		UnwindOperation unwindOperation = unwind("originalDoc");
 		ProjectionOperation projectionOperation = project("originalDoc.name").andInclude(
@@ -154,8 +154,8 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 								filterMaxRevision,unwindOperation,projectionOperation,sortOperation),
 						PortfolioVO.class, PortfolioVO.class).getMappedResults();
 
-		results = trimList(results, offset, pageSize);
 		Long counter = (long) results.size();
+		results = trimList(results, offset, pageSize);
 		Pagination pagination = new Pagination();
 		pagination.setOffset(offset);
 		pagination.setTotal(counter);
