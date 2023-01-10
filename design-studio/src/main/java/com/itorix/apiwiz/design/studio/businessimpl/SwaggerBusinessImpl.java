@@ -138,6 +138,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 	private static final String STATUS_VALUE = "status";
 
+	private static final String PUBLISH_STATUS = "Publish";
+
 	public SwaggerVO createSwagger(SwaggerVO swaggerVO,boolean publish) {
 		log("createSwagger", swaggerVO.getInteractionid(), swaggerVO);
 		swaggerVO.setRevision(1);
@@ -569,6 +571,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			if(publish)
 			{
 				swaggerVO.setStatus(("Publish"));
+				SwaggerVO swaggerVo = findSwagger(swaggerVO.getName(), jsessionid);
+					swaggerVo = baseRepository.findOne("name", swaggerVO.getName(), STATUS_VALUE, PUBLISH_STATUS, SwaggerVO.class);
+					if (swaggerVo != null) {
+						swaggerVo.setStatus(SwaggerStatus.DRAFT.getStatus());
+						baseRepository.save(swaggerVo);
+					}
 			}
 			else {
 				swaggerVO.setStatus("Draft");
@@ -597,6 +605,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			if(publish)
 			{
 				swaggerVO.setStatus(("Publish"));
+				Swagger3VO swaggerVo = findSwagger3(swaggerVO.getName(), jsessionid);
+					swaggerVo = baseRepository.findOne("name", swaggerVO.getName(), STATUS_VALUE, PUBLISH_STATUS, Swagger3VO.class);
+					if (swaggerVo != null) {
+						swaggerVo.setStatus(SwaggerStatus.DRAFT.getStatus());
+						baseRepository.save(swaggerVo);
+					}
 			}
 			else {
 				swaggerVO.setStatus("Draft");
