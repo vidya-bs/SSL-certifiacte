@@ -337,13 +337,13 @@ public enum ErrorCodes {
 			put("Identity-1023", 400);
 			put("Identity-1024", 400);
 			put("Identity-1025", 404);
-			put("Identity-1026", 404);
+			put("Identity-1026", 401);
 			put("Identity-1027", 400);
 			put("Identity-1028", 401);
 			put("Identity-1029", 400);
 			put("Identity-1030", 500);
 			put("Identity-1031", 400);
-			put("Identity-1032", 400);
+			put("Identity-1032", 401);
 			put("Identity-1033", 400);
 			put("Identity-1034", 400);
 			put("Identity-1035", 400);
