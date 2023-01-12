@@ -62,6 +62,7 @@ public class IdentityManagementDao {
     @Autowired
     protected HttpServletResponse response;
 
+    public static final long MILLIS_PER_DAY = 24 * 60 * 60 * 1000L;
     @Qualifier("masterMongoTemplate")
     @Autowired
     private MongoTemplate masterMongoTemplate;
@@ -161,11 +162,12 @@ public class IdentityManagementDao {
 				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1044"), "Identity-1044");
 			}
 			UserWorkspace userWorkspace = user.getUserWorkspace(userInfo.getWorkspaceId().toLowerCase());
-			if (userWorkspace == null
-					|| (userWorkspace.getActive() != true && userWorkspace.getAcceptInvite() == true)) { // (!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
+			if (userWorkspace == null) { // (!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
 				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1045"), "Identity-1045");
 			}
-
+            if ((!userWorkspace.getActive() && userWorkspace.getAcceptInvite())) {
+                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1046"), "Identity-1046");
+            }
             if (userWorkspace == null || userWorkspace.getActive() != true) { // (!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
                 throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1044"), "Identity-1044");
             }
@@ -1517,7 +1519,15 @@ public class IdentityManagementDao {
             }
         }
     }
-
+    public void removeUserSession(String userId) {
+        long timeStamp = System.currentTimeMillis();
+        Query query = new Query(Criteria.where("userId").is(userId));
+        query.addCriteria(Criteria.where("loginTimestamp").gte(timeStamp-MILLIS_PER_DAY).lte(timeStamp));
+        List<UserSession> dbUserSessions = masterMongoTemplate.find(query, UserSession.class);
+        for (UserSession userSession : dbUserSessions) {
+            masterMongoTemplate.remove(userSession);
+        }
+    }
     public Object getUserRoles(User user) throws ItorixException {
         User userByEmail = findByEmail(user.getEmail());
         // List<String> userRoleslist;
