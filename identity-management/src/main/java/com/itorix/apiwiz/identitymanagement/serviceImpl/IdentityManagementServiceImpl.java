@@ -429,6 +429,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("userId") String userId)
 			throws ItorixException, Exception {
 		identityManagementDao.removeWorkspaceUser(userId);
+		identityManagementDao.removeUserSession(userId);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
@@ -521,6 +522,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(value = "userid") String userId)
 			throws Exception {
 		identityManagementDao.lockUser(userId);
+		identityManagementDao.removeUserSession(userId);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
