@@ -137,6 +137,7 @@ public enum ErrorCodes {
 			put("Identity-1043", GENERIC_RESOURCE_AUTH_VALIDATION_FAILED.message());
 			put("Identity-1044", "Request validation failed. Invalid workspace details provided.");
 			put("Identity-1045", "Request validation failed. The user is not mapped to the workspace provided.");
+			put("Identity-1046", "Request validation failed. The user is locked out of the workspace.");
 
 			put("Connector-1000", GENERIC_RESOURCE_ALREADY_EXISTS.message());
 			put("Connector-1001", GENERIC_RESOURCE_ALREADY_EXISTS.message());
@@ -357,6 +358,7 @@ public enum ErrorCodes {
 			put("Identity-1043", 403);
 			put("Identity-1044", 400);
 			put("Identity-1045", 400);
+			put("Identity-1046", 400);
 			put("USER_005", 400);
 			put("USER_008", 400);
 			put("USER_004", 400);

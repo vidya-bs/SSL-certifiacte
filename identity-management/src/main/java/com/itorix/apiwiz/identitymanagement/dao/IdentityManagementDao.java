@@ -162,11 +162,12 @@ public class IdentityManagementDao {
 				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1044"), "Identity-1044");
 			}
 			UserWorkspace userWorkspace = user.getUserWorkspace(userInfo.getWorkspaceId().toLowerCase());
-			if (userWorkspace == null
-					|| (userWorkspace.getActive() != true && userWorkspace.getAcceptInvite() == true)) { // (!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
+			if (userWorkspace == null) { // (!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
 				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1045"), "Identity-1045");
 			}
-
+            if ((!userWorkspace.getActive() && userWorkspace.getAcceptInvite())) {
+                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1046"), "Identity-1046");
+            }
             if (userWorkspace == null || userWorkspace.getActive() != true) { // (!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
                 throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1044"), "Identity-1044");
             }
