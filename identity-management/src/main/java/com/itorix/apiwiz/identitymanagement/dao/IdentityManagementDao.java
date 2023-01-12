@@ -62,6 +62,7 @@ public class IdentityManagementDao {
     @Autowired
     protected HttpServletResponse response;
 
+    public static final long MILLIS_PER_DAY = 24 * 60 * 60 * 1000L;
     @Qualifier("masterMongoTemplate")
     @Autowired
     private MongoTemplate masterMongoTemplate;
@@ -1517,7 +1518,15 @@ public class IdentityManagementDao {
             }
         }
     }
-
+    public void removeUserSession(String userId) {
+        long timeStamp = System.currentTimeMillis();
+        Query query = new Query(Criteria.where("userId").is(userId));
+        query.addCriteria(Criteria.where("loginTimestamp").gte(timeStamp-MILLIS_PER_DAY).lte(timeStamp));
+        List<UserSession> dbUserSessions = masterMongoTemplate.find(query, UserSession.class);
+        for (UserSession userSession : dbUserSessions) {
+            masterMongoTemplate.remove(userSession);
+        }
+    }
     public Object getUserRoles(User user) throws ItorixException {
         User userByEmail = findByEmail(user.getEmail());
         // List<String> userRoleslist;
