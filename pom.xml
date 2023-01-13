@@ -19,9 +19,6 @@
 		<module>data-dictionary</module>
 		<module>collaboration</module>
 		<module>third-party-integrations</module>
-<!--		<module>api-test</module>-->
-<!--		<module>test-suite-lib</module>-->
-<!--		<module>api-virtualization</module>-->
 		<module>config-management</module>
 		<module>api-developer-portal</module>
 		<module>data-management</module>
@@ -33,27 +30,14 @@
 		<module>ci-cd</module>
 		<module>analytics</module>
 		<module>app</module>
-<!--		<module>sso</module>-->
 		<module>api-portfolio</module>
-<!--		<module>api-monitor</module>-->
-<!--		<module>api-monitor-agent</module>-->
+		<module>api-datapower</module>
 		<module>marketing</module>
-<!--		<module>notification-agent</module>-->
-<!--		<module>api-mock-server</module>-->
 		<module>api-license</module>
 		<module>license-validator</module>
-<!--        <module>api-consent</module>-->
-<!--		<module>api-consent-server</module>-->
 	</modules>
 	<name>Itorix Hyggee Core Project</name>
-	<!-- <parent> -->
-	<!-- <groupId>org.springframework.boot</groupId> -->
-	<!-- <artifactId>spring-boot-starter-parent</artifactId> -->
-	<!-- <version>2.1.2.RELEASE</version> -->
-	<!-- </parent> -->
-	<!-- <distributionManagement><repository><id>central</id><name>ip-172-31-2-107.ap-south-1.compute.internal-releases</name><url>http://52.42.224.16:8081/artifactory/local-aura-build</url></repository><snapshotRepository><id>snapshots</id><name>ip-172-31-2-107.ap-south-1.compute.internal-snapshots</name><url>http://52.42.224.16:8081/artifactory/local-aura-build</url></snapshotRepository></distributionManagement> -->
 	<properties>
-		<!-- <oracle.ojdbc6.version>12.1.0.1.0</oracle.ojdbc6.version> -->
 		<guava.version>17.0</guava.version>
 		<apache.cxf.version>2.7.7</apache.cxf.version>
 		<apache-camel.version>2.14.1</apache-camel.version>

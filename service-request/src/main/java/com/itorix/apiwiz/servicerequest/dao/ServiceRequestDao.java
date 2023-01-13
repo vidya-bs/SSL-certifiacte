@@ -9,9 +9,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import java.util.Set;
 import javax.mail.MessagingException;
 
 import com.itorix.apiwiz.common.model.slack.*;
@@ -409,7 +411,7 @@ public class ServiceRequestDao {
 	}
 
 	@SuppressWarnings({"unchecked", "unused"})
-	public void revertServiceRequest(String requestId) throws ItorixException, MessagingException {
+	public boolean revertServiceRequest(String requestId) throws ItorixException, MessagingException {
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		User user = identityManagementDao.getUserDetailsFromSessionID(userSessionToken.getId());
 		boolean isRevertApplicable = true;
@@ -417,9 +419,19 @@ public class ServiceRequestDao {
 		ServiceRequest serviceRequest = findServiceRequestByRequestId(requestId);
 		List<ServiceRequest> existingServiceRequests = (List<ServiceRequest>) getservicerequest(serviceRequest);
 
-		for (ServiceRequest existingServiceRequest : existingServiceRequests) {
-			if (existingServiceRequest.getStatus().equalsIgnoreCase("Review")) {
-				isRevertApplicable = false;
+		if(existingServiceRequests.size()>1){
+			for (ServiceRequest existingServiceRequest : existingServiceRequests) {
+				if (existingServiceRequest.getStatus().equalsIgnoreCase("Approved")) {
+					isRevertApplicable = false;
+					return isRevertApplicable;
+				}
+			}
+		} else {
+			if (!existingServiceRequests.isEmpty()) {
+				if (StringUtils.equalsIgnoreCase(existingServiceRequests.get(0).getStatus(), "Review")) {
+					isRevertApplicable = false;
+					return isRevertApplicable;
+				}
 			}
 		}
 
@@ -452,6 +464,7 @@ public class ServiceRequestDao {
 			UpdateResult result = mongoTemplate.updateMulti(query, update, ServiceRequest.class);
 			sendEmailTo(serviceRequest);
 		}
+		return isRevertApplicable;
 	}
 
 	public ServiceRequest findServiceRequestByRequestId(String requestId) {
@@ -641,6 +654,7 @@ public class ServiceRequestDao {
 						kvmconfig.setEnv(serviceRequest.getEnv());
 						kvmconfig.setName(serviceRequest.getName());
 						kvmconfig.setEntry(serviceRequest.getEntry());
+						kvmconfig.setEncrypted(serviceRequest.getEncrypted());
 						if (serviceRequest.getIsSaaS()) {
 							kvmconfig.setType("saas");
 						} else {
@@ -765,6 +779,7 @@ public class ServiceRequestDao {
 						kvmconfig.setEnv(serviceRequest.getEnv());
 						kvmconfig.setName(serviceRequest.getName());
 						kvmconfig.setEntry(serviceRequest.getEntry());
+						kvmconfig.setEncrypted(serviceRequest.getEncrypted());
 						kvmconfig.setActiveFlag(Boolean.TRUE);
 						if (serviceRequest.getIsSaaS()) {
 							kvmconfig.setType("saas");
@@ -805,7 +820,7 @@ public class ServiceRequestDao {
 						} else {
 							productconfig.setType("onprem");
 						}
-						isCreatedorUpdated = configManagementDao.saveProduct(productconfig);
+						isCreatedorUpdated = configManagementDao.updateProductConfig(productconfig);
 						configManagementDao.createApigeeProduct(productconfig, user);
 					}
 				}
@@ -1036,7 +1051,7 @@ public class ServiceRequestDao {
 				Query query = new Query();
 				query.addCriteria(
 						Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(DateUtil.getStartOfDay(startDate))
-								.lt(DateUtil.getEndOfDay(startDate)).and("type").is(type));
+								.lt(DateUtil.getEndOfDay(endDate)).and("type").is(type));
 				List<ServiceRequest> list = baseRepository.find(query, ServiceRequest.class);
 				// if(list!=null && list.size()>0){
 				ObjectNode valueNode = mapper.createObjectNode();
@@ -1070,10 +1085,13 @@ public class ServiceRequestDao {
 					List<ServiceRequest> listByStatusType = baseRepository.find(query, ServiceRequest.class);
 					ObjectNode statNode = mapper.createObjectNode();
 					statNode.put("type", type);
-					statNode.put("count", listByStatusType.size());
+					Set<String> names = new HashSet<>();
 					for (ServiceRequest serviceRequest : listByStatusType) {
-						namesNode.add(serviceRequest.getName());
+						if (names.add(serviceRequest.getName())) {
+							namesNode.add(serviceRequest.getName());
+						}
 					}
+					statNode.put("count", namesNode.size());
 					statNode.put("names", namesNode);
 					statsNode.add(statNode);
 				}

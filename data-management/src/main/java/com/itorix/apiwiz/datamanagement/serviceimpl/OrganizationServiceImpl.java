@@ -1039,6 +1039,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 			throws Exception {
 		cfg.setOrganization(organization);
 		cfg.setJsessionId(jsessionid);
+		cfg.setBackUpLevel(Constants.APIGEE_BACKUP_ORG);
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
@@ -1242,11 +1243,12 @@ public class OrganizationServiceImpl implements OrganizationService {
 			@RequestHeader(value = "jsessionid") String jsessionid, @RequestBody CommonConfiguration cfg,
 			@RequestParam(value = "type", required = false) String type) throws Exception {
 		cfg.setOrganization(cfg.getNewOrg());
+		cfg.setEnvironment(cfg.getNewEnv());
 		cfg.setJsessionId(jsessionid);
 		cfg.setOperationId(Constants.APIGEE_MIGRATE);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
-		OrgBackUpInfo orgBackUpInfo = organizationBusiness.scheduleRestoreOrganization(cfg);
+		OrgBackUpInfo orgBackUpInfo = organizationBusiness.scheduleMigrateOrganization(cfg);
 		return new ResponseEntity<BackupInfo>(orgBackUpInfo, HttpStatus.OK);
 	}
 
@@ -1397,6 +1399,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 		cfg.setOrganization(organization);
 		cfg.setJsessionId(jsessionid);
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
+		cfg.setBackUpLevel(Constants.APIGEE_BACKUP_ORG);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
 		organizationBusiness.scheduleRestoreResources(cfg);
@@ -1550,6 +1553,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 		cfg.setOrganization(organization);
 		cfg.setJsessionId(jsessionid);
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
+		cfg.setOrganization(Constants.APIGEE_BACKUP_ORG);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
 		organizationBusiness.scheduleRestoreResources(cfg);
@@ -1703,6 +1707,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 		cfg.setOrganization(organization);
 		cfg.setJsessionId(jsessionid);
 		cfg.setOperationId(Constants.APIGEE_RESTORE);
+		cfg.setBackUpLevel(Constants.APIGEE_BACKUP_ORG);
 		cfg.setInteractionid(interactionid);
 		cfg.setType(type);
 		organizationBusiness.scheduleRestoreResources(cfg);

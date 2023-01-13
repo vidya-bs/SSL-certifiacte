@@ -44,15 +44,15 @@ public class CleanApigeeProxyBundle {
 	private static final List<String> unsupportedPolicyTypes = Arrays.asList("ConcurrentRatelimit".toUpperCase(),
 			"Ldap".toUpperCase(), "StatisticsCollector".toUpperCase());
 
-	public static void main(String[] args) {
-		String path = "/Users/sudhakar/apiwiz/temp/ProductCatalog_v1.zip";
-		String outPath = "/Users/sudhakar/apiwiz/temp/proxy";
-		cleanProxy(path, outPath);
-
-		// String sharedflowPath = "/Users/sudhakar/apiwiz/temp/35.zip";
-		// String outputPath = "/Users/sudhakar/apiwiz/temp/sharedflow";
-		// cleanSharedflow(sharedflowPath, outputPath);
-	}
+//	public static void main(String[] args) {
+//		String path = "/Users/sudhakar/apiwiz/temp/ProductCatalog_v1.zip";
+//		String outPath = "/Users/sudhakar/apiwiz/temp/proxy";
+//		cleanProxy(path, outPath);
+//
+//		// String sharedflowPath = "/Users/sudhakar/apiwiz/temp/35.zip";
+//		// String outputPath = "/Users/sudhakar/apiwiz/temp/sharedflow";
+//		// cleanSharedflow(sharedflowPath, outputPath);
+//	}
 
 	public static void cleanSharedflow(String bundlePath, String outputFolder) {
 		try {

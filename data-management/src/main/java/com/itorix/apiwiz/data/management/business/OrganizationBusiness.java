@@ -278,6 +278,8 @@ public interface OrganizationBusiness {
 
 	public OrgBackUpInfo scheduleRestoreOrganization(CommonConfiguration cfg);
 
+	public OrgBackUpInfo scheduleMigrateOrganization(CommonConfiguration cfg);
+
 	public BackupInfo restoreOrganization(CommonConfiguration cfg, String id) throws Exception;
 
 	public BackupInfo migrateOrganization(CommonConfiguration cfg, String id) throws Exception;

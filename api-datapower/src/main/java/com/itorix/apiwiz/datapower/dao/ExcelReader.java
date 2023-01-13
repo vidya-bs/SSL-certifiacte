@@ -1,4 +1,4 @@
-package com.itorix.apiwiz.portfolio.dao;
+package com.itorix.apiwiz.datapower.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -10,23 +10,19 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.datapower.model.proxy.ApigeeConfig;
+import com.itorix.apiwiz.datapower.model.proxy.Metadata;
+import com.itorix.apiwiz.datapower.model.proxy.Policies;
+import com.itorix.apiwiz.datapower.model.proxy.PolicyCategory;
+import com.itorix.apiwiz.datapower.model.proxy.Proxy;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.User;
-import com.itorix.apiwiz.portfolio.model.db.Portfolio;
-import com.itorix.apiwiz.portfolio.model.db.Projects;
-import com.itorix.apiwiz.portfolio.model.db.proxy.ApigeeConfig;
-import com.itorix.apiwiz.portfolio.model.db.proxy.Metadata;
-import com.itorix.apiwiz.portfolio.model.db.proxy.Policies;
-import com.itorix.apiwiz.portfolio.model.db.proxy.PolicyCategory;
-import com.itorix.apiwiz.portfolio.model.db.proxy.Proxies;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,24 +41,28 @@ public class ExcelReader {
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
+	
 	@Autowired
-	private PortfolioDao portfolioDao;
+	private ProxyDAO proxyDAO;
 
-	@Qualifier("masterMongoTemplate")
-	@Autowired
-	private MongoTemplate masterMongoTemplate;
 
 	public Map<String, String> readDataFromExcel(String path, String jsessionid)
 			throws InvalidFormatException, IOException, ItorixException {
 		List<Map<String, String>> data = readExcelData(path);
-		List<Portfolio> portfolios = populatePortfolio(data);
+		List<Proxy> proxies = populatePortfolio(data);
 		Map<String, String> portfolioData = new HashMap<>();
-		for (Portfolio portfolio : portfolios) {
-			Query query = new Query().addCriteria(Criteria.where("name").is(portfolio.getName()));
-			if (mongoTemplate.count(query, Portfolio.class) != 0) {
+		for (Proxy proxy : proxies) {
+			Query query = new Query().addCriteria(Criteria.where("name").is(proxy.getName()));
+			if (mongoTemplate.count(query, Proxy.class) != 0) {
 				log.debug("Performing operations for portfolioDao");
-				Portfolio dbPortfolio = mongoTemplate.findOne(query, Portfolio.class);
-				portfolioData.put(portfolio.getName(), "updated");
+				Proxy dbProxy = mongoTemplate.findOne(query, Proxy.class);
+				portfolioData.put(proxy.getName(), "updated");
+				
+				proxyDAO.updateProxy(proxy);
+				
+				
+				
+				/*
 				for (Projects project : portfolio.getProjects()) {
 					try {
 						Projects dbProject = dbPortfolio.getProjects().stream()
@@ -90,14 +90,15 @@ public class ExcelReader {
 						portfolioDao.createProjects(dbPortfolio.getId(), project, jsessionid);
 					}
 				}
+				*/
 			} else {
 				User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
-				portfolio.setMts(System.currentTimeMillis());
-				portfolio.setModifiedBy(user.getFirstName() + " " + user.getLastName());
-				portfolio.setCts(System.currentTimeMillis());
-				portfolio.setCreatedBy(user.getFirstName() + " " + user.getLastName());
-				mongoTemplate.save(portfolio);
-				portfolioData.put(portfolio.getName(), "created");
+				proxy.setMts(System.currentTimeMillis());
+				proxy.setModifiedBy(user.getFirstName() + " " + user.getLastName());
+				proxy.setCts(System.currentTimeMillis());
+				proxy.setCreatedBy(user.getFirstName() + " " + user.getLastName());
+				mongoTemplate.save(proxy);
+				portfolioData.put(proxy.getName(), "created");
 			}
 		}
 		return portfolioData;
@@ -129,12 +130,14 @@ public class ExcelReader {
 		return dataElements;
 	}
 
-	private List<Portfolio> populatePortfolio(List<Map<String, String>> dataElements) {
-		List<Portfolio> portfolios = new ArrayList<>();
+	private List<Proxy> populatePortfolio(List<Map<String, String>> dataElements) {
+		List<Proxy> proxies = new ArrayList<>();
 		for (Map<String, String> dataElement : dataElements) {
-			String portfolioName = dataElement.get("portfolio.name");
-			String projectName = dataElement.get("project.name");
+			//			String portfolioName = dataElement.get("portfolio.name");
+			//			String projectName = dataElement.get("project.name");
 			String proxyName = dataElement.get("proxy.name");
+
+			/**
 			Portfolio portfolio = null;
 			try {
 				portfolio = portfolios.stream().filter(p -> p.getName().equals(portfolioName)).findFirst().get();
@@ -162,30 +165,27 @@ public class ExcelReader {
 					portfolio.getProjects().add(project);
 				}
 			}
-			if (project.getProxies() != null) {
-				Proxies proxy = null;
-				try {
-					proxy = project.getProxies().stream().filter(p -> p.getName().equals(proxyName)).findFirst().get();
-				} catch (Exception e) {
-				}
-				if (proxy != null) {
-					createProxy(dataElement, proxy);
-				} else {
-					proxy = new Proxies();
-					proxy.setId(new ObjectId().toString());
-					project.getProxies().add(createProxy(dataElement, proxy));
-				}
+			 **/
+
+
+			Proxy proxy = null;
+			try {
+				proxy = proxies.stream().filter(p -> p.getName().equals(proxyName)).findFirst().get();
+			} catch (Exception e) {
+			}
+			if (proxy != null) {
+				createProxy(dataElement, proxy);
 			} else {
-				List<Proxies> proxies = new ArrayList<>();
-				Proxies proxy = new Proxies();
+				proxy = new Proxy();
 				proxy.setId(new ObjectId().toString());
 				proxies.add(createProxy(dataElement, proxy));
-				project.setProxies(proxies);
 			}
+
 		}
-		return portfolios;
+		return proxies;
 	}
 
+	/*
 	private Portfolio createPortfolio(Map<String, String> dataElement) {
 		Portfolio portfolio = new Portfolio();
 		portfolio.setName(dataElement.get("portfolio.name"));
@@ -206,11 +206,12 @@ public class ExcelReader {
 		project.setOwner_email(dataElement.get("project.owneremail"));
 		return project;
 	}
-
-	private Proxies createProxy(Map<String, String> dataElement, Proxies proxy) {
+	 */
+	private Proxy createProxy(Map<String, String> dataElement, Proxy proxy) {
 		proxy.setName(dataElement.get("proxy.name"));
 		proxy.setSummary(dataElement.get("proxy.summary"));
 		proxy.setProxyVersion(dataElement.get("proxy.version"));
+		proxy.setOwner(dataElement.get("proxy.owner"));
 		String[] tokens;
 		try {
 			tokens = dataElement.get("proxy.basepaths").trim().split(",");

@@ -24,6 +24,7 @@ import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
 import com.itorix.apiwiz.data.management.business.ApigeeConfigurationBusiness;
 import com.itorix.apiwiz.datamanagement.service.ApigeeConfigurationService;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
+import org.springframework.web.client.RestClientException;
 
 @Service
 public class ApigeeConfigurationBusinessImpl implements ApigeeConfigurationBusiness {
@@ -261,12 +262,18 @@ public class ApigeeConfigurationBusinessImpl implements ApigeeConfigurationBusin
 		if (apigeeConfigurationVO != null) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Apigee-1004"), "Apigee-1004");
 		}
+		List<String> environments= new ArrayList<>();
+		try {
+			environments = getEnvironmentNames(null, apigeeIntegrationVO.getOrgname(), null,
+					apigeeIntegrationVO.getType(), apigeeIntegrationVO.getHostname(),
+					apigeeIntegrationVO.getPort(),
+					apigeeIntegrationVO.getScheme());
+		} catch (RestClientException exception) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Apigee-1005"), "Apigee-1005");
+		}
+		apigeeConfigurationVO.setEnvironments(environments);
 		apigeeConfigurationVO = apigeeIntegrationVO.getApigeeConfigObject();
 		apigeeConfigurationVO = baseRepository.save(apigeeConfigurationVO);
-		List<String> environments = getEnvironmentNames(null, apigeeIntegrationVO.getOrgname(), null,
-				apigeeIntegrationVO.getType(), apigeeIntegrationVO.getHostname(), apigeeIntegrationVO.getPort(),
-				apigeeIntegrationVO.getScheme());
-		apigeeConfigurationVO.setEnvironments(environments);
 		apigeeConfigurationVO = mongoTemplate.save(apigeeConfigurationVO);
 	}
 
