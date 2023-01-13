@@ -97,11 +97,14 @@ public class ServiceRequestDao {
 
 			boolean isAnyRequestPending = false;
 
-			if (config != null && StringUtils.isNotBlank(config.getType()) && StringUtils.isNotBlank(config.getOrg())
-					&& (StringUtils.isNotBlank(config.getEnv()) || "Product".equalsIgnoreCase(config.getType()))
+			if (config != null && StringUtils.isNotBlank(config.getType()) && StringUtils.isNotBlank(
+					config.getOrg())
+					&& (StringUtils.isNotBlank(config.getEnv()) || "Product".equalsIgnoreCase(
+					config.getType()))
 					&& StringUtils.isNotBlank(config.getName())) {
 				List<ServiceRequest> serviceRequest = (List<ServiceRequest>) getservicerequest(config);
-				if (ServiceRequestTypes.isServiceRequestTypeValid(config.getType()) && serviceRequest.size() == 0) {
+				if (ServiceRequestTypes.isServiceRequestTypeValid(config.getType())
+						&& serviceRequest.size() == 0) {
 					config = mongoTemplate.save(config);
 					sendEmailTo(config);
 					return config;
@@ -114,7 +117,8 @@ public class ServiceRequestDao {
 						}
 						if (!isAnyRequestPending) {
 							Query query = null;
-							if (StringUtils.isNotBlank(config.getType()) && StringUtils.isNotBlank(config.getOrg())
+							if (StringUtils.isNotBlank(config.getType()) && StringUtils.isNotBlank(
+									config.getOrg())
 									&& StringUtils.isNotBlank(config.getEnv())
 									&& StringUtils.isNotBlank(config.getName())) {
 								query = new Query(Criteria.where("org").is(config.getOrg()).and("env")
@@ -135,16 +139,20 @@ public class ServiceRequestDao {
 							config = mongoTemplate.save(config);
 							sendEmailTo(config);
 							return config;
-						} else
+						} else {
 							throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1026"),
 									"Configuration-1026");
+						}
 					}
 				}
 			} else {
-				throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1028"), "Configuration-1028");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Configuration-1028"),
+						"Configuration-1028");
 			}
 		} catch (ItorixException ex) {
 			throw ex;
+		} catch (MessagingException ex) {
+			log.error("Exception while sending email", ex.getMessage());
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
