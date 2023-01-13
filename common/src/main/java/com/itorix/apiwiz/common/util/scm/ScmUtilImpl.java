@@ -208,6 +208,29 @@ public class ScmUtilImpl {
 		}
 	}
 
+	public void createRepository(String repoName, String description, String hostUrl, String token)
+			throws ItorixException {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			headers.set("Authorization", "Bearer " + token);
+			if (description == null || description == "")
+				description = "Created by Itorix platform";
+			GitRepository gItRepository = new GitRepository();
+			gItRepository.setName(repoName);
+			gItRepository.setDescription(description);
+			gItRepository.setRepoPrivate("true");
+			RestTemplate restTemplate = new RestTemplate();
+			HttpEntity<GitRepository> requestEntity = new HttpEntity<>(gItRepository, headers);
+			// ResponseEntity<String> response =
+			logger.debug("Making a call to {}", hostUrl);
+			restTemplate.exchange(hostUrl, HttpMethod.POST, requestEntity, String.class);
+		} catch (Exception e) {
+			logger.error("Exception occurred", e);
+			throw new ItorixException("unable to create repo ", "", e);
+		}
+	}
+
 	public void renameBranch(String oldBranchName, String newBranchName, String hostUrl, String userName,
 			String password) {
 		String time = Long.toString(System.currentTimeMillis());

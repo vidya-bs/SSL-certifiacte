@@ -25,6 +25,9 @@ public class ServiceRequestComments {
 	private String comments;
 
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	private String status;
+
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private String createdUser;
 
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -95,5 +98,21 @@ public class ServiceRequestComments {
 
 	public void setComments(String comments) {
 		this.comments = comments;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public boolean isSaaS() {
+		return isSaaS;
+	}
+
+	public void setSaaS(boolean saaS) {
+		isSaaS = saaS;
 	}
 }

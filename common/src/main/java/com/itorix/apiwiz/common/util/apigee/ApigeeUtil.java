@@ -2302,12 +2302,44 @@ public class ApigeeUtil {
 
 	public List<String> listKeysInAnEnvironmentKeyValueMap(CommonConfiguration cfg, String map_name)
 			throws ItorixException {
+		if (cfg.getGwtype() != null && cfg.getGwtype().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<List<String>> response = exchange(getApigeexURL(
+							"/v1/organizations/" + cfg.getOrganization() + "/keyvaluemaps/" + map_name + "/entries", cfg),
+					HttpMethod.POST, getHttpEntityX(cfg), new ParameterizedTypeReference<List<String>>(){
+					}, cfg);
+
+			return response.getBody();
+		}
 		ResponseEntity<List<String>> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 						+ "/keyvaluemaps/" + map_name + "/keys", cfg),
 				HttpMethod.GET, getHttpEntity(cfg), new ParameterizedTypeReference<List<String>>() {
 				}, cfg);
 		return response.getBody();
+	}
+
+	public List<String> listXKeysInAnEnvironmentKeyValueMap(CommonConfiguration cfg, String map_name)
+			throws ItorixException {
+
+		ResponseEntity<String> response = exchange(getApigeexURL(
+						"/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+								+ "/keyvaluemaps/" + map_name + "/entries", cfg),
+				HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
+
+		List<String> keys = new ArrayList<String>();
+		if (response.getStatusCode().is2xxSuccessful()) {
+			JSONObject keyValueResponse = (JSONObject) JSONSerializer.toJSON(response.getBody());
+			JSONArray keyValue = keyValueResponse.getJSONArray("keyValueEntries");
+
+			for (Object keyValueEntry : keyValue) {
+				if (keyValueEntry instanceof JSONObject) {
+					JSONObject entryJson = (JSONObject) keyValueEntry;
+					String entry_name = entryJson.getString("name");
+					keys.add(entry_name);
+				}
+			}
+		}
+		return keys;
 	}
 
 	public boolean isKeyValueMap(CommonConfiguration cfg, String map_name) throws ItorixException {
@@ -2325,9 +2357,11 @@ public class ApigeeUtil {
 
 	public String createAnEntryInAnEnvironmentKeyValueMap(CommonConfiguration cfg, String map_name)
 			throws ItorixException {
+
 		ResponseEntity<String> response = exchange(
-				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
-						+ "/keyvaluemaps/" + map_name + "/entries", cfg),
+				getSecureURL(
+						"v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+								+ "/keyvaluemaps/" + map_name + "/entries", cfg),
 				HttpMethod.POST, getHttpEntityWithBodyJSON(cfg, cfg.getResource()), String.class, cfg);
 		return response.getBody();
 	}
@@ -2340,12 +2374,65 @@ public class ApigeeUtil {
 		return response.getBody();
 	}
 
+	public String createXKeyValueMapInAnEnvironment(CommonConfiguration cfg, String map_name) throws ItorixException {
+
+		HttpHeaders headers = getHttpEntityX(cfg).getHeaders();
+		JSONObject bodyObj = new JSONObject();
+		bodyObj.put("name", map_name);
+		bodyObj.put("encrypted", true);
+		HttpEntity<Object> entity = new HttpEntity<>(bodyObj.toString(), headers);
+
+
+		ResponseEntity<String> response = exchange(
+				getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+						+ "/keyvaluemaps", cfg),
+				HttpMethod.POST, entity, String.class, cfg);
+
+		logger.info("HttpRequest : {}", entity);
+		return response.getBody();
+	}
+
+	public String createXKeyValueMapEntryInAnEnvironment(CommonConfiguration cfg, String map_name,
+			String entryName, Object entryValue) throws ItorixException {
+
+		HttpHeaders headers = getHttpEntityX(cfg).getHeaders();
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("name", entryName);
+		map.put("value", entryValue);
+		HttpEntity<Object> entity = new HttpEntity<>(map, headers);
+
+		ResponseEntity<String> response = exchange(
+				getApigeexURL(
+						"/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+								+ "/keyvaluemaps", cfg),
+				HttpMethod.POST, entity, String.class, cfg);
+
+		return response.getBody();
+	}
+
 	public String updateAKeyValueMapEntryInAnEnvironment(CommonConfiguration cfg, String map_name, String entry_name)
 			throws ItorixException {
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 						+ "/keyvaluemaps/" + map_name + "/entries/" + entry_name, cfg),
 				HttpMethod.POST, getHttpEntityWithBodyJSON(cfg, cfg.getResource()), String.class, cfg);
+		return response.getBody();
+	}
+
+	public String updateXAKeyValueMapEntryInAnEnvironment(CommonConfiguration cfg, String map_name,
+			String entry_name, Object entry_value)
+			throws ItorixException {
+
+		ResponseEntity<String> response = exchange(getApigeexURL(
+						"/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+								+ "/keyvaluemaps/" + map_name + "/entries" + entry_name,
+						cfg),
+				HttpMethod.DELETE, getHttpEntityX(cfg), String.class, cfg);
+
+		if (response.getStatusCode().is2xxSuccessful()) {
+			return createXKeyValueMapEntryInAnEnvironment(cfg, map_name, entry_name, entry_value);
+		}
+
 		return response.getBody();
 	}
 
@@ -2447,5 +2534,18 @@ public class ApigeeUtil {
 			// throw e;
 		}
 		return token;
+	}
+
+	public List<String> getKeyValueMapsX(CommonConfiguration cfg)
+			throws ItorixException {
+		ResponseEntity<List<String>> response = exchange(
+				getApigeexURL(
+						"/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+								+ "/keyvaluemaps", cfg),
+				HttpMethod.GET,
+				getHttpEntityX(cfg), new ParameterizedTypeReference<List<String>>() {
+				}, cfg);
+		return response.getBody();
+
 	}
 }

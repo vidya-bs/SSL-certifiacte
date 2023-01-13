@@ -123,6 +123,13 @@
 			<artifactId>logstash-logback-encoder</artifactId>
 			<version>4.11</version>
 		</dependency> -->
+
+		<dependency>
+			<groupId>com.itorix.hyggee.cloud</groupId>
+			<artifactId>api-datapower</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
 	</dependencies>
 
 
