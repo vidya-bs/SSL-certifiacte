@@ -1882,6 +1882,9 @@ public class IdentityManagementDao {
         UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
         Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
         Query dBquery = new Query(Criteria.where("planId").is(workspace.getPlanId()));
+        if(workspace.getPlanId().equalsIgnoreCase("starter")){
+            dBquery = new Query(Criteria.where("planId").is("basic"));
+        }
         Plan dbPlan = masterMongoTemplate.findOne(dBquery, Plan.class);
         if (dbPlan == null || dbPlan.getUiPermissions() == null) {
             throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1041"), "Identity-1041");
