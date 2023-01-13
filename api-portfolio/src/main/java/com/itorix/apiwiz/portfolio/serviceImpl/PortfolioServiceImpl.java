@@ -2,17 +2,26 @@ package com.itorix.apiwiz.portfolio.serviceImpl;
 
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.model.projectmanagement.Organization;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.User;
+import com.itorix.apiwiz.portfolio.dao.PortfolioDao;
 import com.itorix.apiwiz.portfolio.model.PortfolioRequest;
-import com.itorix.apiwiz.portfolio.model.PromoteProxyRequest;
-import com.itorix.apiwiz.portfolio.model.ReleaseProxyRequest;
-import com.itorix.apiwiz.portfolio.model.db.*;
+import com.itorix.apiwiz.portfolio.model.db.Metadata;
+import com.itorix.apiwiz.portfolio.model.db.Portfolio;
+import com.itorix.apiwiz.portfolio.model.db.PortfolioDocument;
+import com.itorix.apiwiz.portfolio.model.db.PortfolioResponse;
+import com.itorix.apiwiz.portfolio.model.db.ProductRequest;
+import com.itorix.apiwiz.portfolio.model.db.Products;
+import com.itorix.apiwiz.portfolio.model.db.Projects;
+import com.itorix.apiwiz.portfolio.model.db.ServiceRegistry;
 import com.itorix.apiwiz.portfolio.model.db.proxy.Pipelines;
 import com.itorix.apiwiz.portfolio.model.db.proxy.Proxies;
 import com.itorix.apiwiz.portfolio.service.PortfolioService;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +29,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @CrossOrigin
 @RestController
