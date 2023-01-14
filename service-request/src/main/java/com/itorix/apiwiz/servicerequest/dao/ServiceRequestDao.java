@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import java.util.Optional;
 import java.util.Set;
 import javax.mail.MessagingException;
 
@@ -295,9 +294,9 @@ public class ServiceRequestDao {
 			String formatedDate = dateFormat.format(date);
 
 			log.info("Sending slack message");
-			Optional<SlackWorkspace> optionalSlackWorkspace = mongoTemplate.findAll(SlackWorkspace.class).stream().findFirst();
-			if (!optionalSlackWorkspace.isPresent()) {
-				SlackWorkspace slackWorkspace = optionalSlackWorkspace.get();
+			List<SlackWorkspace> slackWorkspaces = mongoTemplate.findAll(SlackWorkspace.class);
+			if (!slackWorkspaces.isEmpty()) {
+				SlackWorkspace slackWorkspace = slackWorkspaces.get(0);
 				if (slackWorkspace != null) {
 					String token = slackWorkspace.getToken();
 					List<SlackChannel> channels = slackWorkspace.getChannelList();
