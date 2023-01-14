@@ -409,7 +409,11 @@ public class ServiceRequestDao {
 				UpdateResult result = mongoTemplate.updateMulti(query, update, ServiceRequest.class);
 			}
 			mongoTemplate.insert(serviceRequest);
-			sendEmailTo(serviceRequest);
+			try{
+				sendEmailTo(serviceRequest);
+			}catch (MessagingException ex) {
+				log.error("Exception while sending email", ex.getMessage());
+			}
 			return true;
 		} catch (ItorixException ex) {
 			throw ex;
@@ -470,7 +474,11 @@ public class ServiceRequestDao {
 			Update update = new Update();
 			update.set("activeFlag", true);
 			UpdateResult result = mongoTemplate.updateMulti(query, update, ServiceRequest.class);
-			sendEmailTo(serviceRequest);
+			try{
+				sendEmailTo(serviceRequest);
+			}catch (MessagingException ex) {
+				log.error("Exception while sending email", ex.getMessage());
+			}
 		}
 		return isRevertApplicable;
 	}
@@ -706,7 +714,11 @@ public class ServiceRequestDao {
 				serviceRequest.setCreated(true);
 				serviceRequest.setStatus("Approved");
 				serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
-				sendEmailTo(serviceRequest);
+				try{
+					sendEmailTo(serviceRequest);
+				}catch (MessagingException ex) {
+					log.error("Exception while sending email", ex.getMessage());
+				}
 				query = new Query(Criteria.where("_id").is(serviceRequest.get_id()));
 				Document dbDoc = new Document();
 				mongoTemplate.getConverter().write(serviceRequest, dbDoc);
@@ -835,7 +847,11 @@ public class ServiceRequestDao {
 				serviceRequest.setCreated(true);
 				serviceRequest.setStatus("Approved");
 				serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
-				sendEmailTo(serviceRequest);
+				try{
+					sendEmailTo(serviceRequest);
+				}catch (MessagingException ex) {
+					log.error("Exception while sending email", ex.getMessage());
+				}
 				query = new Query(Criteria.where("_id").is(serviceRequest.get_id()));
 				Document dbDoc = new Document();
 				mongoTemplate.getConverter().write(serviceRequest, dbDoc);
@@ -857,7 +873,11 @@ public class ServiceRequestDao {
 			}
 			serviceRequest.setStatus("Change Required");
 			serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
-			sendEmailTo(serviceRequest);
+			try{
+				sendEmailTo(serviceRequest);
+			}catch (MessagingException ex) {
+				log.error("Exception while sending email", ex.getMessage());
+			}
 			// DBObject dbDoc = new BasicDBObject();
 			// mongoTemplate.getConverter().write(serviceRequest, dbDoc);
 			// Update update = Update.fromDBObject(dbDoc, "_id");
@@ -880,7 +900,11 @@ public class ServiceRequestDao {
 			}
 			serviceRequest.setStatus("Rejected");
 			serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
-			sendEmailTo(serviceRequest);
+			try{
+				sendEmailTo(serviceRequest);
+			}catch (MessagingException ex) {
+				log.error("Exception while sending email", ex.getMessage());
+			}
 			Document dbDoc = new Document();
 			mongoTemplate.getConverter().write(serviceRequest, dbDoc);
 			Update update = Update.fromDocument(dbDoc, "_id");
@@ -899,7 +923,11 @@ public class ServiceRequestDao {
 			}
 			serviceRequest.setStatus("Review");
 			serviceRequest.setApprovedBy(serviceRequest.getModifiedUser());
-			sendEmailTo(serviceRequest);
+			try{
+				sendEmailTo(serviceRequest);
+			}catch (MessagingException ex) {
+				log.error("Exception while sending email", ex.getMessage());
+			}
 			Document dbDoc = new Document();
 			mongoTemplate.getConverter().write(serviceRequest, dbDoc);
 			Update update = Update.fromDocument(dbDoc, "_id");
