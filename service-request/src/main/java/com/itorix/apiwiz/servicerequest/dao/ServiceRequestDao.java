@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import java.util.Optional;
 import java.util.Set;
 import javax.mail.MessagingException;
 
@@ -294,29 +295,33 @@ public class ServiceRequestDao {
 			String formatedDate = dateFormat.format(date);
 
 			log.info("Sending slack message");
-			List<SlackWorkspace> slackWorkspaces = mongoTemplate.findAll(SlackWorkspace.class);
-			SlackWorkspace slackWorkspace=slackWorkspaces.get(0);
-			if(slackWorkspace!=null) {
-				String token = slackWorkspace.getToken();
-				List<SlackChannel> channels = slackWorkspace.getChannelList();
-				for (SlackChannel i : channels) {
-					if (i.getScopeSet().contains(notificationScope.NotificationScope.GATEWAY)) {
-						PostMessage postMessage = new PostMessage();
-						ArrayList<Attachment> attachmentsToSend = new ArrayList<>();
-						Attachment attachment = new Attachment();
-						attachment.setMrkdwn_in("text");
-						attachment.setTitle_link("https://www.apiwiz.io/");
-						attachment.setColor("#0000FF");
-						attachment.setPretext("GATEWAY");
-						attachment.setText ("Name: "+ config.getName()+"\n"+"Date: "+formatedDate+"\n"+
-								"Request Count: "+getRequestCount()+"\n"+"Type: "+ config.getType()
-								+"\n"+"Count: "+getCountbyType(config.getType())+"\n"+"Status: "+config.getStatus()
-								+"\n"+ "Status Count: "+getCountbyStatus(config.getStatus())+"\n"+
-								"UserName:"+userName+"\n"+
-								"Count by UserId: "+getCountbyuserId(userName));
-						attachmentsToSend.add(attachment);
-						postMessage.setAttachments(attachmentsToSend);
-						slackUtil.sendMessage(postMessage, i.getChannelName(), token);
+			Optional<SlackWorkspace> optionalSlackWorkspace = mongoTemplate.findAll(SlackWorkspace.class).stream().findFirst();
+			if (!optionalSlackWorkspace.isPresent()) {
+				SlackWorkspace slackWorkspace = optionalSlackWorkspace.get();
+				if (slackWorkspace != null) {
+					String token = slackWorkspace.getToken();
+					List<SlackChannel> channels = slackWorkspace.getChannelList();
+					for (SlackChannel i : channels) {
+						if (i.getScopeSet().contains(notificationScope.NotificationScope.GATEWAY)) {
+							PostMessage postMessage = new PostMessage();
+							ArrayList<Attachment> attachmentsToSend = new ArrayList<>();
+							Attachment attachment = new Attachment();
+							attachment.setMrkdwn_in("text");
+							attachment.setTitle_link("https://www.apiwiz.io/");
+							attachment.setColor("#0000FF");
+							attachment.setPretext("GATEWAY");
+							attachment.setText(
+									"Name: " + config.getName() + "\n" + "Date: " + formatedDate + "\n" +
+											"Request Count: " + getRequestCount() + "\n" + "Type: " + config.getType()
+											+ "\n" + "Count: " + getCountbyType(config.getType()) + "\n" + "Status: "
+											+ config.getStatus()
+											+ "\n" + "Status Count: " + getCountbyStatus(config.getStatus()) + "\n" +
+											"UserName:" + userName + "\n" +
+											"Count by UserId: " + getCountbyuserId(userName));
+							attachmentsToSend.add(attachment);
+							postMessage.setAttachments(attachmentsToSend);
+							slackUtil.sendMessage(postMessage, i.getChannelName(), token);
+						}
 					}
 				}
 			}
