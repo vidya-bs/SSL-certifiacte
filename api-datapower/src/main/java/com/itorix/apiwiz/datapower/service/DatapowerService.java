@@ -60,7 +60,7 @@ public interface DatapowerService {
 	ResponseEntity<Object> generateDatapowerProxy(
 			@PathVariable(value = "proxyId") String proxyId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestPart(value = "requests", required = false) GenerateProxyRequestDTO requests)
+			@RequestBody(required = false) GenerateProxyRequestDTO requests)
 			throws Exception;
 
 	@PostMapping(value = "/v1/datapower/proxies/search", produces = {
