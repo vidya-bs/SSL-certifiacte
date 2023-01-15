@@ -26,8 +26,6 @@ import com.itorix.apiwiz.datapower.model.proxy.Proxy;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.multipart.MultipartFile;
 
 @Component
 @Slf4j
@@ -157,10 +155,10 @@ public class ProxyDAO {
 		return proxiesResponse;
 	}
 
-	public Object generateApigeeProxy(String proxyId, MultipartFile[] attachments,
-			GenerateProxyRequestDTO requests, String jsessionid)
+	public Object generateApigeeProxy(String proxyId,
+      GenerateProxyRequestDTO requests, String jsessionid)
 			throws Exception {
-		return proxyUttils.generateApigeeProxy(getProxy(proxyId), attachments, requests, jsessionid);
+		return proxyUttils.generateApigeeProxy(getProxy(proxyId), requests, jsessionid);
 	}
 }
 
