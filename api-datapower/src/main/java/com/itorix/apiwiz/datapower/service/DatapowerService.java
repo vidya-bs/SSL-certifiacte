@@ -4,10 +4,8 @@ import com.itorix.apiwiz.datapower.model.PromoteProxyRequest;
 import com.itorix.apiwiz.datapower.model.ProxySearchRequest;
 import com.itorix.apiwiz.datapower.model.proxy.GenerateProxyRequestDTO;
 import com.itorix.apiwiz.datapower.model.proxy.Proxy;
-import java.util.Map;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,8 +60,7 @@ public interface DatapowerService {
 	ResponseEntity<Object> generateDatapowerProxy(
 			@PathVariable(value = "proxyId") String proxyId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestPart(value = "attachments", required = false) MultipartFile[] attachments,
-			@RequestPart(value = "requests", required = false) GenerateProxyRequestDTO requests)
+			@RequestBody(required = false) GenerateProxyRequestDTO requests)
 			throws Exception;
 
 	@PostMapping(value = "/v1/datapower/proxies/search", produces = {

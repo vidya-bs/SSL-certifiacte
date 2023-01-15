@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import java.util.stream.Collectors;
 import javax.mail.MessagingException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +46,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -833,18 +831,13 @@ public class ProxyUtils {
 	}
 
 	public Object generateApigeeProxy(com.itorix.apiwiz.datapower.model.proxy.Proxy proxy,
-			MultipartFile[] attachments, GenerateProxyRequestDTO requests, String jsessionId)
+      GenerateProxyRequestDTO requests, String jsessionId)
 			throws Exception {
-		File file = new File(applicationProperties.getTempDir() + proxy.getName());
-		boolean isFolderCreated = file.mkdirs();
-		DesignArtifacts designArtifacts = getDesignArtifacts(
-				attachments, jsessionId, file);
-		proxy.getApigeeConfig().setDesignArtifacts(designArtifacts);
+		proxy.getApigeeConfig().setDesignArtifacts(requests.getDesignArtifacts());
 		ProjectProxyResponse response = new ProjectProxyResponse();
 		try {
 			String projectName = proxy.getName();
 			Project project = populateProject(proxy, projectName);
-			ObjectMapper mapper = new ObjectMapper();
 			CodeGenHistory proxyGen = populateProxyGenerationObj(proxy);
 
 			response.setGitRepoName(proxyGen.getProxySCMDetails().getReponame());
@@ -1021,7 +1014,7 @@ public class ProxyUtils {
 	private String getRegestryId(String name) {
 		Query query = new Query(Criteria.where("name").is(name));
 		ServiceRegistryList serviceRegistry = mongoTemplate.findOne(query, ServiceRegistryList.class);
-		return serviceRegistry.getId();
+		return serviceRegistry!=null ?serviceRegistry.getId() : "";
 	}
 
 	private List<Map<String, String>> getServiceRegistryEntries(String serviceRegistryId) {

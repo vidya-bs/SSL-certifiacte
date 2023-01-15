@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -78,11 +77,10 @@ public class DatapowerServiceImpl implements DatapowerService {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	private ResponseEntity<Object> generateDatapowerApigeeProxy(String proxyId,
-			MultipartFile[] attachments,
 			GenerateProxyRequestDTO requests, String jsessionid)
 			throws Exception {
 		return new ResponseEntity<>(
-				proxyDao.generateApigeeProxy(proxyId, attachments, requests, jsessionid),
+				proxyDao.generateApigeeProxy(proxyId, requests, jsessionid),
 				HttpStatus.OK);
 	}
 
@@ -97,9 +95,9 @@ public class DatapowerServiceImpl implements DatapowerService {
 
 	@Override
 	public ResponseEntity<Object> generateDatapowerProxy(String proxyId, String jsessionid,
-			MultipartFile[] attachments, GenerateProxyRequestDTO requests) throws Exception {
-		if (attachments.length > 0 || requests!=null) {
-			return generateDatapowerApigeeProxy(proxyId, attachments, requests, jsessionid);
+      GenerateProxyRequestDTO requests) throws Exception {
+		if (requests!=null) {
+			return generateDatapowerApigeeProxy(proxyId, requests, jsessionid);
 		}
 		return new ResponseEntity<>(proxyDao.generateProxy(proxyId, jsessionid), HttpStatus.OK);
 	}
