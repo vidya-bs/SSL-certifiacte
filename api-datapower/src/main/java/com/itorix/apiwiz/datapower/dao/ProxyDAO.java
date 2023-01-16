@@ -92,8 +92,6 @@ public class ProxyDAO {
 		Query query = new Query().with(Sort.by(Direction.DESC, "mts"))
 				.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 
-		query.fields().include("name").include("summary").include("owner").include("id").include("cts")
-		.include("createdBy").include("modifiedBy").include("mts");;
 		PortfolioResponse response = new PortfolioResponse();
 
 		List<Proxy> proxies = mongoTemplate.find(query, Proxy.class);
