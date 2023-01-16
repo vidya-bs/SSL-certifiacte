@@ -408,10 +408,10 @@ public class IdentityManagementDao {
                 else
                     return new ArrayList<SwaggerTeam>();
             } else {
-                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1042"), "Identity-1042");
+                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
             }
         } else {
-            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1042"), "Identity-1042");
+            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
         }
     }
 
