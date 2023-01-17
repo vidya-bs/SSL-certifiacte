@@ -512,7 +512,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable(value = "userid") String userId)
 			throws Exception {
-		return new ResponseEntity<Object>(identityManagementDao.getTeams(userId), HttpStatus.OK);
+		return new ResponseEntity<Object>(identityManagementDao.getTeams(userId, false), HttpStatus.OK);
 	}
 
 	@Override
