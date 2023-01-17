@@ -1253,7 +1253,7 @@ public class IdentityManagementDao {
                                 userworkspace.setRoles(workspace.getRoles());
                                 userworkspace.setUserType(workspace.getUserType());
                                 List<SwaggerTeam> userTeams = getTeams(user.getId(), true);
-                                if (loginUser.isWorkspaceAdmin(userSessionToken.getWorkspaceId())) {
+                                if (loginUser.isWorkspaceAdmin(userSessionToken.getWorkspaceId()) || user.getUserId().equals(loginUser.getUserId())) {
                                     userworkspace.setTeams(userTeams);
                                     userworkspaces.add(userworkspace);
                                 } else if (CollectionUtils.containsAny(getUserTeamNames(userTeams), loginUserTeamNames)) {
