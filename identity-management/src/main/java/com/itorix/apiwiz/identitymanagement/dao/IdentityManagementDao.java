@@ -36,6 +36,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -394,11 +395,11 @@ public class IdentityManagementDao {
         return loginUser.getMetadata();
     }
 
-    public List<SwaggerTeam> getTeams(String userId) throws ItorixException {
+    public List<SwaggerTeam> getTeams(String userId, boolean avoidCheck) throws ItorixException {
         UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
         String workspaceId = userSessionToken.getWorkspaceId();
         User loginUser = findUserById(userSessionToken.getUserId());
-        if (loginUser.getId().equals(userId) || loginUser.isWorkspaceAdmin(workspaceId) == true) {
+        if (avoidCheck || loginUser.getId().equals(userId) || loginUser.isWorkspaceAdmin(workspaceId) == true) {
             User user = findUserById(userId);
             if (user != null && user.containsWorkspace(workspaceId)) {
                 Query query = new Query().addCriteria(Criteria.where("contacts.email").is(user.getEmail()));
@@ -1232,6 +1233,7 @@ public class IdentityManagementDao {
             return userNames;
         } else {
             int userSize = dbUsers.size();
+            Set<String> loginUserTeamNames = getUserTeamNames(getTeams(loginUser.getId(), false));
             for (int i = 0; i < userSize; i++) {
                 boolean canAdd = false;
                 User user = dbUsers.get(i);
@@ -1252,8 +1254,23 @@ public class IdentityManagementDao {
                                 userworkspace.setName(workspace.getWorkspace().getName());
                                 userworkspace.setRoles(workspace.getRoles());
                                 userworkspace.setUserType(workspace.getUserType());
-                                userworkspace.setTeams(getTeams(user.getId()));
-                                userworkspaces.add(userworkspace);
+                                List<SwaggerTeam> userTeams = getTeams(user.getId(), true);
+                                if (loginUser.isWorkspaceAdmin(userSessionToken.getWorkspaceId()) || user.getUserId().equals(loginUser.getUserId())) {
+                                    userworkspace.setTeams(userTeams);
+                                    userworkspaces.add(userworkspace);
+                                } else if (CollectionUtils.containsAny(getUserTeamNames(userTeams), loginUserTeamNames)) {
+                                    List<SwaggerTeam> userTeamsList = new ArrayList<>();
+                                    userTeams.forEach(x -> {
+                                            if(!loginUserTeamNames.contains(x.getName())) {
+                                                userTeamsList.add(x);
+                                            }
+                                        }
+                                    );
+                                    userworkspace.setTeams(userTeamsList);
+                                    userworkspaces.add(userworkspace);
+                                } else {
+                                    canAdd = false;
+                                }
                             }
                         }
                     }
@@ -1881,10 +1898,13 @@ public class IdentityManagementDao {
     public String getPlanPermissions() throws ItorixException {
         UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
         Workspace workspace = getWorkspace(userSessionToken.getWorkspaceId());
-        Query dBquery = new Query(Criteria.where("planId").is(workspace.getPlanId()));
-        if(workspace.getPlanId().equalsIgnoreCase("starter")){
-            dBquery = new Query(Criteria.where("planId").is("basic"));
+        String workspaceId = workspace.getPlanId();
+        if (workspaceId.equalsIgnoreCase("growth")) {
+            workspaceId = "enterprise";
+        } else if(workspaceId.equalsIgnoreCase("starter")){
+            workspaceId = "basic";
         }
+        Query dBquery = new Query(Criteria.where("planId").is(workspaceId));
         Plan dbPlan = masterMongoTemplate.findOne(dBquery, Plan.class);
         if (dbPlan == null || dbPlan.getUiPermissions() == null) {
             throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1041"), "Identity-1041");
@@ -2034,5 +2054,13 @@ public class IdentityManagementDao {
             roles.add("Test");
         }
         return roles;
+    }
+
+    private Set<String> getUserTeamNames(List<SwaggerTeam> swaggerTeams) {
+        Set<String> teamNames = new HashSet<>();
+        if (!swaggerTeams.isEmpty()) {
+            swaggerTeams.forEach(x -> teamNames.add(x.getName()));
+        }
+        return teamNames;
     }
 }
