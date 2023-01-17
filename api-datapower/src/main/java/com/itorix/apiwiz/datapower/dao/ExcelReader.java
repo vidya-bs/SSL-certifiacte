@@ -48,58 +48,31 @@ public class ExcelReader {
 
 	public Map<String, String> readDataFromExcel(String path, String jsessionid)
 			throws InvalidFormatException, IOException, ItorixException {
-		List<Map<String, String>> data = readExcelData(path);
-		List<Proxy> proxies = populatePortfolio(data);
 		Map<String, String> portfolioData = new HashMap<>();
-		for (Proxy proxy : proxies) {
-			Query query = new Query().addCriteria(Criteria.where("name").is(proxy.getName()));
-			if (mongoTemplate.count(query, Proxy.class) != 0) {
-				log.debug("Performing operations for portfolioDao");
-				Proxy dbProxy = mongoTemplate.findOne(query, Proxy.class);
-				portfolioData.put(proxy.getName(), "updated");
-				
-				proxyDAO.updateProxy(proxy);
-				
-				
-				
-				/*
-				for (Projects project : portfolio.getProjects()) {
-					try {
-						Projects dbProject = dbPortfolio.getProjects().stream()
-								.filter(p -> p.getName().equals(project.getName())).findFirst().get();
-						if (dbProject != null) {
-							for (Proxies proxy : project.getProxies()) {
-								try {
-									Proxies dbProxy = dbProject.getProxies().stream()
-											.filter(p -> p.getName().equals(proxy.getName())).findFirst().get();
-									if (dbProxy != null) {
-										portfolioDao.updateProxy(dbPortfolio.getId(), dbProject.getId(),
-												dbProxy.getId(), proxy);
-									} else {
-										portfolioDao.createProxy(dbPortfolio.getId(), dbProject.getId(), proxy,
-												jsessionid);
-									}
-								} catch (Exception ex) {
-									portfolioDao.createProxy(dbPortfolio.getId(), dbProject.getId(), proxy, jsessionid);
-								}
-							}
-						} else {
-							portfolioDao.createProjects(dbPortfolio.getId(), project, jsessionid);
-						}
-					} catch (Exception ex) {
-						portfolioDao.createProjects(dbPortfolio.getId(), project, jsessionid);
-					}
+		try {
+			List<Map<String, String>> data = readExcelData(path);
+			List<Proxy> proxies = populatePortfolio(data);
+
+			for (Proxy proxy : proxies) {
+				Query query = new Query().addCriteria(Criteria.where("name").is(proxy.getName()));
+				if (mongoTemplate.count(query, Proxy.class) != 0) {
+					log.debug("Performing operations for portfolioDao");
+					Proxy dbProxy = mongoTemplate.findOne(query, Proxy.class);
+					portfolioData.put(proxy.getName(), "updated");
+
+					proxyDAO.updateProxy(proxy);
+				} else {
+					User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
+					proxy.setMts(System.currentTimeMillis());
+					proxy.setModifiedBy(user.getFirstName() + " " + user.getLastName());
+					proxy.setCts(System.currentTimeMillis());
+					proxy.setCreatedBy(user.getFirstName() + " " + user.getLastName());
+					mongoTemplate.save(proxy);
+					portfolioData.put(proxy.getName(), "created");
 				}
-				*/
-			} else {
-				User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
-				proxy.setMts(System.currentTimeMillis());
-				proxy.setModifiedBy(user.getFirstName() + " " + user.getLastName());
-				proxy.setCts(System.currentTimeMillis());
-				proxy.setCreatedBy(user.getFirstName() + " " + user.getLastName());
-				mongoTemplate.save(proxy);
-				portfolioData.put(proxy.getName(), "created");
 			}
+		} catch (Exception e) {
+			throw new ItorixException("Error Reading Excel", "General-1000");
 		}
 		return portfolioData;
 	}
