@@ -1115,6 +1115,9 @@ public class ServiceRequestDao {
 				ObjectNode dimesionNode = mapper.createObjectNode();
 				Query query = new Query();
 				query.addCriteria(Criteria.where("status").is(status));
+				query.addCriteria(
+						Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(DateUtil.getStartOfDay(startDate))
+								.lt(DateUtil.getEndOfDay(endDate)));
 				List<ServiceRequest> listByStatus = baseRepository.find(query, ServiceRequest.class);
 				typesStatusNode.put("status", status);
 				typesStatusNode.put("count", listByStatus.size());
@@ -1122,6 +1125,9 @@ public class ServiceRequestDao {
 					ArrayNode namesNode = mapper.createArrayNode();
 					query = new Query();
 					query.addCriteria(Criteria.where("status").is(status).and("type").is(type));
+					query.addCriteria(
+							Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(DateUtil.getStartOfDay(startDate))
+									.lt(DateUtil.getEndOfDay(endDate)));
 					List<ServiceRequest> listByStatusType = baseRepository.find(query, ServiceRequest.class);
 					ObjectNode statNode = mapper.createObjectNode();
 					statNode.put("type", type);
