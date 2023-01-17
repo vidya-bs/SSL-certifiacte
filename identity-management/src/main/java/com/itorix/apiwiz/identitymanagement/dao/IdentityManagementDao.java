@@ -702,9 +702,9 @@ public class IdentityManagementDao {
                         mailIds.add(user.getEmail());
                     }
                 }
+            }
                 return mailIds;
             }
-        }
         return mailIds;
     }
 
