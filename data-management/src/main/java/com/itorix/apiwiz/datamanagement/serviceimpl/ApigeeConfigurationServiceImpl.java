@@ -277,7 +277,7 @@ public class ApigeeConfigurationServiceImpl implements ApigeeConfigurationServic
 			@RequestBody ApigeeIntegrationVO apigeeIntegrationVO) throws Exception {
 
 		apigeeConfigurationBusiness.createApigeeIntegration(apigeeIntegrationVO);
-		return new ResponseEntity<Void>(HttpStatus.CREATED);
+		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/connectors/apigee")

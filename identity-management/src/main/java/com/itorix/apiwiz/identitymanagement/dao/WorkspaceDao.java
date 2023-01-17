@@ -32,8 +32,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -55,6 +54,7 @@ public class WorkspaceDao {
 	@Value("${itorix.core.hmac.password}")
 	private String password;
 
+	private Set<String> newPlans = new HashSet<>(Arrays.asList("starter", "growth", "enterprise"));
 
 	public Workspace updateWorkspaceSubscription(Workspace workspace) throws ItorixException, InvalidKeyException,
 			NoSuchAlgorithmException, UnsupportedEncodingException, JsonMappingException, JsonProcessingException {
@@ -194,7 +194,15 @@ public class WorkspaceDao {
 	public Subscription getSubscription(String subscriptionId) {
 		Query query = new Query();
 		query.addCriteria(new Criteria().orOperator(Criteria.where("id").is(subscriptionId)));
-		Subscription subscription = masterMongoTemplate.findOne(query, Subscription.class);
+		Subscription subscription = null;
+		if (newPlans.contains(subscriptionId)) {
+			SubscriptionV2 subscriptionV2 = masterMongoTemplate.findOne(query, SubscriptionV2.class);
+			subscription = new Subscription();
+			subscription.setSubscriptionPrice(subscriptionV2.getSubscriptionPrices());
+			subscription.setPricing(subscriptionV2.getPricing());
+		} else {
+			subscription = masterMongoTemplate.findOne(query, Subscription.class);
+		}
 		return subscription;
 	}
 

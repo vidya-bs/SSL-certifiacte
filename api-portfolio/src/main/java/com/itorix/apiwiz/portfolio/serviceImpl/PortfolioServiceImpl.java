@@ -2,19 +2,26 @@ package com.itorix.apiwiz.portfolio.serviceImpl;
 
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.model.projectmanagement.Organization;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.User;
-import com.itorix.apiwiz.portfolio.dao.ExcelReader;
 import com.itorix.apiwiz.portfolio.dao.PortfolioDao;
 import com.itorix.apiwiz.portfolio.model.PortfolioRequest;
-import com.itorix.apiwiz.portfolio.model.PromoteProxyRequest;
-import com.itorix.apiwiz.portfolio.model.ReleaseProxyRequest;
-import com.itorix.apiwiz.portfolio.model.db.*;
+import com.itorix.apiwiz.portfolio.model.db.Metadata;
+import com.itorix.apiwiz.portfolio.model.db.Portfolio;
+import com.itorix.apiwiz.portfolio.model.db.PortfolioDocument;
+import com.itorix.apiwiz.portfolio.model.db.PortfolioResponse;
+import com.itorix.apiwiz.portfolio.model.db.ProductRequest;
+import com.itorix.apiwiz.portfolio.model.db.Products;
+import com.itorix.apiwiz.portfolio.model.db.Projects;
+import com.itorix.apiwiz.portfolio.model.db.ServiceRegistry;
 import com.itorix.apiwiz.portfolio.model.db.proxy.Pipelines;
 import com.itorix.apiwiz.portfolio.model.db.proxy.Proxies;
 import com.itorix.apiwiz.portfolio.service.PortfolioService;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,14 +29,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @CrossOrigin
 @RestController
@@ -45,9 +52,6 @@ public class PortfolioServiceImpl implements PortfolioService {
 
 	@Autowired
 	private ApplicationProperties applicationProperties;
-
-	@Autowired
-	private ExcelReader excelReader;
 
 	@Override
 	public ResponseEntity<Object> createPortfolio(@RequestBody PortfolioRequest portfolioRequest,
@@ -538,13 +542,6 @@ public class PortfolioServiceImpl implements PortfolioService {
 		return new ResponseEntity<>(map, HttpStatus.CREATED);
 	}
 
-	public ResponseEntity<Object> importDataFromExcel(@RequestPart(value = "file", required = true) MultipartFile file,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
-		String targetFile = applicationProperties.getTempDir() + file.getOriginalFilename();
-		file.transferTo(new File(targetFile));
-		return new ResponseEntity<>(excelReader.readDataFromExcel(targetFile, jsessionid), HttpStatus.OK);
-	}
 
 	public ResponseEntity<Object> getProxyDetails(@PathVariable(value = "proxy") String proxy,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -553,31 +550,5 @@ public class PortfolioServiceImpl implements PortfolioService {
 		return new ResponseEntity<>(portfolioDao.getProxyDetails(proxy), HttpStatus.OK);
 	}
 
-	public ResponseEntity<Object> generateProxy(@PathVariable(value = "portfolioId") String id,
-			@PathVariable(value = "projectId") String projectId, @PathVariable(value = "proxyId") String proxyId,
-			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception {
-		return new ResponseEntity<>(portfolioDao.generateProxy(id, projectId, proxyId, jsessionid), HttpStatus.OK);
-	}
-
-	public ResponseEntity<Object> promoteRelease(@PathVariable(value = "portfolioId") String id,
-			@PathVariable(value = "projectId") String projectId, @PathVariable(value = "proxyId") String proxyId,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody ReleaseProxyRequest releaseProxyRequest) throws Exception {
-		portfolioDao.releaseProxy(id, projectId, proxyId, releaseProxyRequest.getReleaseTag(), jsessionid);
-		return new ResponseEntity<>(HttpStatus.CREATED);
-	}
-
-	public ResponseEntity<Object> promoteProxy(@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody PromoteProxyRequest promoteProxyRequest) throws Exception {
-		portfolioDao.promoteProxy(promoteProxyRequest, jsessionid);
-		return new ResponseEntity<>(HttpStatus.CREATED);
-	}
-
-	public ResponseEntity<Object> promoteRegistry(@PathVariable(value = "registryId") String registryId,
-			@PathVariable(value = "proxyName") String proxyName, @RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody Organization organization) throws Exception {
-		portfolioDao.publishRegistry(organization, proxyName, registryId, jsessionid);
-		return new ResponseEntity<>(HttpStatus.CREATED);
-	}
 
 }

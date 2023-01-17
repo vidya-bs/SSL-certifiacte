@@ -231,7 +231,9 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 			throws Exception {
 		String req = null;
 		log.info("no");
-		serviceRequestDao.revertServiceRequest(requestId);
+		if (!serviceRequestDao.revertServiceRequest(requestId)) {
+			return new ResponseEntity<Void>(HttpStatus.NOT_ACCEPTABLE);
+		}
 		return new ResponseEntity<Void>(HttpStatus.CREATED);
 	}
 
