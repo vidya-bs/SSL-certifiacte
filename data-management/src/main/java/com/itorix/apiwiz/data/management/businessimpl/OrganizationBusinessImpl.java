@@ -1259,12 +1259,6 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		logger.debug("OrganizationDataMigrationService.restoreAppDevelopers : interactionid=" + cfg.getInteractionid()
 				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
 				+ cfg);
-		// ApigeeServiceUser apigeeServiceUser =
-		// apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(),
-		// cfg.getType());
-		// cfg.setApigeeEmail(apigeeServiceUser.getUserName());
-		// cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
-		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
 		downloadBackup1(cfg);
 		File backupLocation = null;
 		if (cfg.getOldOrg() != null) {
@@ -1285,8 +1279,6 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 					log.error("Exception occurred", e);
 				}
 			}
-		// FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
-		// FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
 		return "Success";
 	}
 
@@ -1567,7 +1559,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 
 	private void deployProxies(CommonConfiguration cfg) throws ItorixException {
 		Mappings mapping = cfg.getMappings();
-		if (mapping.getProxies() != null) {
+		if (mapping!=null && mapping.getProxies() != null) {
 			String env = cfg.getNewEnv();
 			cfg.setEnvironment(env);
 			for (com.itorix.apiwiz.common.model.apigee.Proxy proxy : mapping.getProxies()) {
@@ -1583,7 +1575,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 
 	private void deploySharedflows(CommonConfiguration cfg) throws ItorixException {
 		Mappings mapping = cfg.getMappings();
-		if (mapping.getSharedflows() != null) {
+		if (mapping!=null && mapping.getSharedflows() != null) {
 			for (com.itorix.apiwiz.common.model.apigee.Sharedflow sharedflow : mapping.getSharedflows()) {
 				String sharedflowName = sharedflow.getName();
 				cfg.setSharedflowName(sharedflowName);
@@ -2510,7 +2502,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 				try {
 					String apiProxyName = apiproxyDir.getName();
 					Mappings mapping = cfg.getMappings();
-					if (mapping.getProxies() != null) {
+					if (mapping!=null && mapping.getProxies() != null) {
 						String env = cfg.getNewEnv();
 						cfg.setEnvironment(env);
 						for (com.itorix.apiwiz.common.model.apigee.Proxy proxy : mapping.getProxies()) {
@@ -2558,22 +2550,36 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 				try {
 					String sharedflowName = sharedflowDir.getName();
 					logger.debug("sharedFlow:{}", sharedflowName);
-					Mappings mapping = cfg.getMappings();
-					if (mapping.getSharedflows() != null) {
-						for (com.itorix.apiwiz.common.model.apigee.Sharedflow sharedflow : mapping.getSharedflows()) {
-							if (StringUtils.equals(sharedflowName, sharedflow.getName())) {
-								logger.debug("SharedFlow from File:{}, SharedFlow from List:{} ", sharedflowName,
-										sharedflow.getName());
-								cfg.setSharedflowName(sharedflowName);
-								File revision = new File(sharedflowDir, sharedflow.getRevision() + ".zip");
-								try {
-									cfg.setRevision(sharedflow.getRevision());
-									apigeeUtil.importSharedflows(cfg, revision);
-								} catch (IOException e) {
-									log.error("Exception occurred", e);
+					if (StringUtils.equalsIgnoreCase(cfg.getType(), "apigeex")) {
+						Mappings mapping = cfg.getMappings();
+						if (mapping != null && mapping.getSharedflows() != null) {
+							for (com.itorix.apiwiz.common.model.apigee.Sharedflow sharedflow : mapping.getSharedflows()) {
+								if (StringUtils.equals(sharedflowName, sharedflow.getName())) {
+									logger.debug("SharedFlow from File:{}, SharedFlow from List:{} ", sharedflowName,
+											sharedflow.getName());
+									cfg.setSharedflowName(sharedflowName);
+									File revision = new File(sharedflowDir, sharedflow.getRevision() + ".zip");
+									try {
+										cfg.setRevision(sharedflow.getRevision());
+										apigeeUtil.importSharedflows(cfg, revision);
+									} catch (IOException e) {
+										log.error("Exception occurred", e);
+									}
 								}
 							}
 						}
+						return "Success";
+					}
+					else{
+						cfg.setSharedflowName(sharedflowName);
+						File revision = new File(sharedflowDir, ".zip");
+						try {
+//							cfg.setRevision(sharedflow.getRevision());
+							apigeeUtil.importSharedflows(cfg, revision);
+						} catch (IOException e) {
+							log.error("Exception occurred", e);
+						}
+
 					}
 				} catch (IOException e) {
 					log.error("Exception occurred", e);
@@ -2628,19 +2634,11 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 								cfg.setEnvironment(deployedEnv);
 								if (e.getEnvironment().equalsIgnoreCase(cfg.getOldEnv())) {
 									if (deployedRev.equals(i)) {
-										// check if proxy is deployed in e if
-										// yes
-										// undeploy all
-
 										undeploySharedflowRevison(cfg, deployedEnv, sharedflowName, null);
 										apigeeUtil.deploySharedflow(cfg);
 									}
 								} else {
 									if (deployedRev.equals(i)) {
-										// check if proxy is deployed in e if
-										// yes
-										// undeploy all
-
 										undeploySharedflowRevison(cfg, deployedEnv, sharedflowName, null);
 										apigeeUtil.deploySharedflow(cfg);
 									}
@@ -2650,22 +2648,13 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 							JSONObject deployments = (JSONObject) JSONSerializer.toJSON(deploymentsRes);
 							JSONArray envs = (JSONArray) deployments.get("environment");
 							if (envs == null || envs.size() <= 0) {
-								// get max revisions available
 								List<Integer> revisionList = apigeeUtil.getRevisionsListForSharedflow(cfg);
-								// Monetization enabled proxies are not
-								// being imported, hence can't be deployed,
-								// so adding below condition
 								if (revisionList.size() > 0) {
-
 									int maxRev = Collections.max(revisionList);
 									cfg.setRevision(maxRev + "");
-
-									// deploy revision maxRev, since this is
-									// latest uploaded
 									apigeeUtil.deploySharedflow(cfg);
 								}
 							}
-
 						} catch (IOException e) {
 							log.error("Exception occurred", e);
 						}
@@ -2676,7 +2665,6 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 					log.error("Exception occurred", e);
 				}
 			}
-
 		return "Success";
 	}
 
@@ -2727,12 +2715,6 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		logger.debug("OrganizationDataMigrationService.restoreAPP : interactionid=" + cfg.getInteractionid()
 				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
 				+ cfg);
-		// ApigeeServiceUser apigeeServiceUser =
-		// apigeeUtil.getApigeeServiceAccount(cfg.getOrganization(),
-		// cfg.getType());
-		// cfg.setApigeeEmail(apigeeServiceUser.getUserName());
-		// cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
-		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(cfg.getOrganization(), cfg.getType()));
 		downloadBackup1(cfg);
 		File backupLocation = null;
 		if (cfg.getOldOrg() != null) {
@@ -3123,21 +3105,30 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		consoleInfo = baseRepository.save(consoleInfo);
 		try {
 			restoreResource1(cfg);
-			log.info("Restore resource Completed : {}", cfg.getGwtype());
-			restoreApigeexSharedflows(cfg);
-			log.info("Restore ApigeeX SharedFlows Completed : {}", cfg.getGwtype());
-			deploySharedflows(cfg);
-			log.info("Deploy ApigeeX SharedFlows Completed : {}", cfg.getGwtype());
-			restoreApigeexProxies(cfg);
-			log.info("Restore ApigeeX Proxies Completed : {}", cfg.getGwtype());
-			deployProxies(cfg);
-			log.info("Deploy ApigeeX Proxies Completed : {}", cfg.getGwtype());
-			restoreAPIProducts(cfg);
-			log.info("Restore ApigeeX Products Completed : {}", cfg.getGwtype());
-			restoreAppDevelopers(cfg);
-			log.info("Restore ApigeeX Developers Completed : {}", cfg.getGwtype());
-			restoreAPP(cfg);
-			log.info("Restore ApigeeX App Completed : {}", cfg.getGwtype());
+			if (StringUtils.equalsIgnoreCase(cfg.getType(), "apigeex")) {
+				log.info("Restore resource Completed : {}", cfg.getType());
+				restoreApigeexSharedflows(cfg);
+				log.info("Restore ApigeeX SharedFlows Completed : {}", cfg.getGwtype());
+				deploySharedflows(cfg);
+				log.info("Deploy ApigeeX SharedFlows Completed : {}", cfg.getGwtype());
+				restoreApigeexProxies(cfg);
+				log.info("Restore ApigeeX Proxies Completed : {}", cfg.getGwtype());
+				deployProxies(cfg);
+				log.info("Deploy ApigeeX Proxies Completed : {}", cfg.getGwtype());
+				restoreAPIProducts(cfg);
+				log.info("Restore ApigeeX Products Completed : {}", cfg.getGwtype());
+				restoreAppDevelopers(cfg);
+				log.info("Restore ApigeeX Developers Completed : {}", cfg.getGwtype());
+				restoreAPP(cfg);
+				log.info("Restore ApigeeX App Completed : {}", cfg.getGwtype());
+			}else{
+				restoreSharedflows1(cfg);
+				restoreAPIProxies1(cfg);
+				restoreAPIProducts(cfg);
+				restoreAppDevelopers(cfg);
+				restoreAPP(cfg);
+
+			}
 			long end = System.currentTimeMillis();
 			long backupTimeTaken = (end - start) / 1000l;
 			logger.debug("Total Time Taken: (sec): " + backupTimeTaken);

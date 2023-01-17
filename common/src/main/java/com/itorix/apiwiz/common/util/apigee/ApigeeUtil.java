@@ -2082,9 +2082,6 @@ public class ApigeeUtil {
 	private HttpEntity<String> getHttpEntity(CommonConfiguration cfg) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-		// String encodedCredentials = Base64
-		// .encodeBase64String((cfg.getApigeeEmail() + ":" +
-		// cfg.getApigeePassword()).getBytes());
 		String authorization = getApigeeAuth(cfg.getOrganization(), cfg.getType());
 		headers.set("Authorization", authorization);
 		return new HttpEntity<String>("parameters", headers);
@@ -2129,9 +2126,8 @@ public class ApigeeUtil {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		String encodedCredentials = Base64
-				.encodeBase64String((cfg.getApigeeEmail() + ":" + cfg.getApigeePassword()).getBytes());
-		headers.set("Authorization", "Basic " + encodedCredentials);
+		String authorization = getApigeeAuth(cfg.getOrganization(), cfg.getType());
+		headers.set("Authorization", authorization);
 		return new HttpEntity<String>(body, headers);
 	}
 
@@ -2139,9 +2135,8 @@ public class ApigeeUtil {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		String encodedCredentials = Base64
-				.encodeBase64String((cfg.getApigeeEmail() + ":" + cfg.getApigeePassword()).getBytes());
-		headers.set("Authorization", "Basic " + encodedCredentials);
+		String authorization = getApigeeAuth(cfg.getOrganization(), cfg.getType());
+		headers.set("Authorization", authorization);
 		return new HttpEntity<String>(body, headers);
 	}
 
