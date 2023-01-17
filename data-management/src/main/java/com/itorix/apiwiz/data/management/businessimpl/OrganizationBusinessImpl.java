@@ -1,14 +1,61 @@
 package com.itorix.apiwiz.data.management.businessimpl;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.itorix.apiwiz.common.factory.IntegrationHelper;
+import com.itorix.apiwiz.common.model.Constants;
+import com.itorix.apiwiz.common.model.GridFsData;
+import com.itorix.apiwiz.common.model.apigee.APIProxyDeploymentDetailsResponse;
+import com.itorix.apiwiz.common.model.apigee.APIProxyResponse;
+import com.itorix.apiwiz.common.model.apigee.ApigeeServiceUser;
+import com.itorix.apiwiz.common.model.apigee.CommonConfiguration;
+import com.itorix.apiwiz.common.model.apigee.Environment;
+import com.itorix.apiwiz.common.model.apigee.Mappings;
+import com.itorix.apiwiz.common.model.apigee.Revision;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
+import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
+import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import com.itorix.apiwiz.common.service.GridFsRepository;
+import com.itorix.apiwiz.common.util.StorageIntegration;
+import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
+import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
+import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
+import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
+import com.itorix.apiwiz.common.util.s3.S3Utils;
+import com.itorix.apiwiz.data.management.business.OrganizationBusiness;
+import com.itorix.apiwiz.data.management.dao.IntegrationsDataDao;
+import com.itorix.apiwiz.data.management.model.AppBackUpInfo;
+import com.itorix.apiwiz.data.management.model.BackupEvent;
+import com.itorix.apiwiz.data.management.model.BackupInfo;
+import com.itorix.apiwiz.data.management.model.DeveloperBackUpInfo;
+import com.itorix.apiwiz.data.management.model.EnvironmentBackUpInfo;
+import com.itorix.apiwiz.data.management.model.OrgBackUpInfo;
+import com.itorix.apiwiz.data.management.model.ProductsBackUpInfo;
+import com.itorix.apiwiz.data.management.model.ProxyBackUpInfo;
+import com.itorix.apiwiz.data.management.model.ResourceBackUpInfo;
+import com.itorix.apiwiz.data.management.model.RestoreProxyInfo;
+import com.itorix.apiwiz.data.management.model.SharedflowBackUpInfo;
+import com.itorix.apiwiz.data.management.model.mappers.APIProduct;
+import com.itorix.apiwiz.data.management.model.overview.ApigeeOrganizationalVO;
+import com.itorix.apiwiz.data.management.model.overview.Apps;
+import com.itorix.apiwiz.data.management.model.overview.Products;
+import com.itorix.apiwiz.data.management.model.overview.Proxies;
+import com.itorix.apiwiz.data.management.model.overview.Sharedflow;
+import com.itorix.apiwiz.data.management.model.overview.Targetserver;
+import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -18,12 +65,14 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
 import lombok.extern.slf4j.Slf4j;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,73 +88,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.zeroturnaround.zip.ZipUtil;
-
-import com.amazonaws.regions.Regions;
-
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.itorix.apiwiz.common.factory.IntegrationHelper;
-import com.itorix.apiwiz.common.model.Constants;
-import com.itorix.apiwiz.common.model.GridFsData;
-import com.itorix.apiwiz.common.model.apigee.Environment;
-import com.itorix.apiwiz.common.model.apigee.*;
-import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
-import com.itorix.apiwiz.common.model.integrations.s3.S3Integration;
-import com.itorix.apiwiz.common.model.proxystudio.ProxyArtifacts;
-import com.itorix.apiwiz.common.properties.ApplicationProperties;
-import com.itorix.apiwiz.common.service.GridFsRepository;
-import com.itorix.apiwiz.common.util.StorageIntegration;
-import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
-import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
-import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
-import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
-import com.itorix.apiwiz.common.util.s3.S3Utils;
-import com.itorix.apiwiz.data.management.business.OrganizationBusiness;
-import com.itorix.apiwiz.data.management.dao.IntegrationsDataDao;
-import com.itorix.apiwiz.data.management.model.BackupInfo;
-import com.itorix.apiwiz.data.management.model.*;
-import com.itorix.apiwiz.data.management.model.mappers.APIProduct;
-import com.itorix.apiwiz.data.management.model.overview.ApigeeOrganizationalVO;
-import com.itorix.apiwiz.data.management.model.overview.Apps;
-import com.itorix.apiwiz.data.management.model.overview.Products;
-import com.itorix.apiwiz.data.management.model.overview.Proxies;
-import com.itorix.apiwiz.data.management.model.overview.Sharedflow;
-import com.itorix.apiwiz.data.management.model.overview.Targetserver;
-import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-import org.zeroturnaround.zip.ZipUtil;
-
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.*;
-
-import net.sf.json.util.JSONUtils;
 @Slf4j
 @Service
 public class OrganizationBusinessImpl implements OrganizationBusiness {
@@ -139,9 +121,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * @param organization
 	 * @param interactionid
 	 * @param type
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException
 	 */
 	public List<String> getEnvironmentNames(String jsessionid, String organization, String interactionid, String type)
@@ -168,9 +150,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * @param organization
 	 * @param interactionid
 	 * @param type
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException
 	 */
 	public List<String> listAPIProxies(String jsessionid, String organization, String interactionid, String type)
@@ -198,7 +180,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * @param environment
 	 * @param interactionid
 	 * @param type
-	 * 
+	 *
 	 * @return
 	 * @throws ItorixException
 	 */
@@ -245,9 +227,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * This method will do the backup of api's or proxies.
 	 *
 	 * @param cfg
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public BackupInfo backupProxies(CommonConfiguration cfg, String id) throws Exception {
@@ -350,9 +332,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * retrive the c
 	 *
 	 * @param cfg
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public BackupInfo backupSharedflows(CommonConfiguration cfg, String id) throws Exception {
@@ -442,9 +424,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * This method will do the backup of apps.
 	 *
 	 * @param cfg
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public BackupInfo backUpApps(CommonConfiguration cfg, String id) throws Exception {
@@ -536,9 +518,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * This method will do the backup of products.
 	 *
 	 * @param cfg
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public BackupInfo backupProducts(CommonConfiguration cfg, String id) throws Exception {
@@ -634,9 +616,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * This method will do the backup of developers.
 	 *
 	 * @param cfg
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public BackupInfo backupDevelopers(CommonConfiguration cfg, String id) throws Exception {
@@ -729,9 +711,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * This method will do the backup of resources.
 	 *
 	 * @param cfg
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public BackupInfo backupResources(CommonConfiguration cfg, String id) throws Exception {
@@ -823,9 +805,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * This method will do the backup of Organization.
 	 *
 	 * @param cfg
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public BackupInfo backUpOrganization(CommonConfiguration cfg, String id) throws Exception {
@@ -929,9 +911,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * This method will do the backup of Caches.
 	 *
 	 * @param cfg
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public BackupInfo backupCaches(CommonConfiguration cfg, String id) throws Exception {
@@ -1024,9 +1006,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * This method will do the backup of KVM's.
 	 *
 	 * @param cfg
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public BackupInfo backupKVM(boolean delete, CommonConfiguration cfg, String id) throws Exception {
@@ -1117,9 +1099,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * This method will do the backup of Target Servers.
 	 *
 	 * @param cfg
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public BackupInfo backupTargetServers(CommonConfiguration cfg, String id) throws Exception {
@@ -1211,9 +1193,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * Using this method we can restore the developer's
 	 *
 	 * @param cfg
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public BackupInfo restoreAppDevelopers1(CommonConfiguration cfg, String id) throws Exception {
@@ -1247,9 +1229,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * This method we can restore the developer's
 	 *
 	 * @param cfg
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws ItorixException
@@ -1302,9 +1284,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	 * This method will restore the resources.
 	 *
 	 * @param cfg
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws ItorixException
@@ -1785,15 +1767,17 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 
 	/**
 	 * @param cfg
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws ItorixException
 	 */
 	private JSONObject backupSharedflow(CommonConfiguration cfg) throws IOException, ItorixException {
-		logger.debug("OrganizationDataMigrationService.backupSharedflow : interactionid=" + cfg.getInteractionid()
-				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization() + " : cfg ="
+		logger.debug("OrganizationDataMigrationService.backupSharedflow : interactionid="
+				+ cfg.getInteractionid()
+				+ ": jsessionid=" + cfg.getJsessionId() + " : organization =" + cfg.getOrganization()
+				+ " : cfg ="
 				+ cfg);
 		List<String> selectedSharedflows = null;
 		JSONObject sharedflowsData = new JSONObject();
@@ -1815,143 +1799,151 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			JSONObject apiContext = new JSONObject();
 			final String sharedflowName = SharedflowObj;
 			cfg.setSharedflowName(sharedflowName);
-			String sharedflowsDeploymentDetailsResponseString = apigeeUtil.getSharedflowsDeploymentDetails(cfg);
-			JSONObject sharedflowsDeploymentDetailsResponse = (JSONObject) JSONSerializer
-					.toJSON(sharedflowsDeploymentDetailsResponseString);
-			JSONArray environments = (JSONArray) sharedflowsDeploymentDetailsResponse.get("environment");
-			ArrayList<Integer> versionList = new ArrayList<Integer>();
-			Set<String> versions = new HashSet<String>();
-			if (cfg.getIsDepoyedOnly()) {
-				Set<String> set = new HashSet<String>();
+			String sharedflowsDeploymentDetailsResponseString = apigeeUtil.getSharedflowsDeploymentDetails(
+					cfg);
+			logger.info("SharedflowsDeploymentDetailsResponse :{}",
+					sharedflowsDeploymentDetailsResponseString);
+			if (StringUtils.isNotEmpty(sharedflowsDeploymentDetailsResponseString)
+					&& !StringUtils.equalsIgnoreCase("null", sharedflowsDeploymentDetailsResponseString)) {
+				JSONObject sharedflowsDeploymentDetailsResponse = (JSONObject) JSONSerializer
+						.toJSON(sharedflowsDeploymentDetailsResponseString);
+				JSONArray environments = (JSONArray) sharedflowsDeploymentDetailsResponse.get(
+						"environment");
+				ArrayList<Integer> versionList = new ArrayList<Integer>();
+				Set<String> versions = new HashSet<String>();
+				if (cfg.getIsDepoyedOnly()) {
+					Set<String> set = new HashSet<String>();
 
-				for (int i = 0; i < environments.size(); i++) {
-					JSONObject environment = (JSONObject) environments.get(i);
-					JSONArray revisions = (JSONArray) environment.get("revision");
-					for (int j = 0; j < revisions.size(); j++) {
-						JSONObject revision = (JSONObject) revisions.get(j);
-						String name = (String) revision.get("name");
-						cfg.setRevision(name);
-						set.add(name);
-						versionList.add(Integer.valueOf(name));
+					for (int i = 0; i < environments.size(); i++) {
+						JSONObject environment = (JSONObject) environments.get(i);
+						JSONArray revisions = (JSONArray) environment.get("revision");
+						for (int j = 0; j < revisions.size(); j++) {
+							JSONObject revision = (JSONObject) revisions.get(j);
+							String name = (String) revision.get("name");
+							cfg.setRevision(name);
+							set.add(name);
+							versionList.add(Integer.valueOf(name));
+							final File versionFile = new File(backupLocation,
+									File.separator + sharedflowName + File.separator + name);
+							versionFile.getParentFile().mkdirs();
+							byte[] revisionBundle = apigeeUtil.getAnSharedflowRevision(cfg);
+							FileUtils.writeByteArrayToFile(new File(versionFile.getAbsolutePath() + ".zip"),
+									revisionBundle);
+						}
+					}
+					/*
+					 * versions = new String[set.size()];
+					 * versions=set.toArray(versions);
+					 */
+					versions.addAll(set);
+					if (environments.size() > 0) {
+						JSONArray deploymentConfgs = new JSONArray();
+						for (int i = 0; i < environments.size(); i++) {
+							JSONObject environment = (JSONObject) environments.get(i);
+							JSONArray revisions = (JSONArray) environment.get("revision");
+							for (int j = 0; j < revisions.size(); j++) {
+								JSONObject revision = (JSONObject) revisions.get(j);
+								String name = (String) revision.get("name");
+								JSONObject envObj = new JSONObject();
+								envObj.put("environment", (String) environment.get("name"));
+								envObj.put("revision", name);
+								deploymentConfgs.add(envObj);
+								if (cfg.getIsCleanUpAreBackUp()) {
+									cfg.setEnvironment((String) environment.get("name"));
+									cfg.setRevision(name);
+									apigeeUtil.forceUndeploySharedflow(cfg);
+								}
+							}
+							apiContext.put("environments", deploymentConfgs);
+						}
+					}
+					try {
+
+						if (versions.size() > 0 && versionList.size() > 0) {
+							apiContext.put("versions", versions);
+							apiContext.put("maxversion", Collections.max(versionList));
+							FileWriter file = new FileWriter(new File(backupLocation,
+									File.separator + sharedflowName + File.separator + "context.json"));
+							file.write(apiContext.toString());
+							file.flush();
+							file.close();
+							JSONObject apiContext1 = new JSONObject();
+							apiContext1.put(sharedflowName, apiContext);
+							SharedflowsInfo.add(apiContext1);
+						}
+
+					} catch (IOException e) {
+						logger.error(e.getMessage());
+						throw e;
+					}
+					if (cfg.getIsCleanUpAreBackUp()) {
+						apigeeUtil.deleteSharedflow(cfg);
+					}
+				} else {
+					String sharedflowResponse = apigeeUtil.getSharedflow(cfg);
+					JSONObject sharedflowResponseObj = (JSONObject) JSONSerializer.toJSON(sharedflowResponse);
+					if (sharedflowResponseObj != null) {
+						JSONArray revisions = (JSONArray) sharedflowResponseObj.get("revision");
+						if (revisions != null) {
+							for (int i = 0; i < revisions.size(); i++) {
+								versions.add(revisions.getString(i));
+							}
+						}
+					}
+					for (String verObj : versions) {
+						String version = (String) verObj;
+						cfg.setRevision(version);
+						versionList.add(Integer.valueOf(version));
 						final File versionFile = new File(backupLocation,
-								File.separator + sharedflowName + File.separator + name);
+								File.separator + sharedflowName + File.separator + version);
 						versionFile.getParentFile().mkdirs();
 						byte[] revisionBundle = apigeeUtil.getAnSharedflowRevision(cfg);
 						FileUtils.writeByteArrayToFile(new File(versionFile.getAbsolutePath() + ".zip"),
 								revisionBundle);
 					}
-				}
-				/*
-				 * versions = new String[set.size()];
-				 * versions=set.toArray(versions);
-				 */
-				versions.addAll(set);
-				if (environments.size() > 0) {
-					JSONArray deploymentConfgs = new JSONArray();
-					for (int i = 0; i < environments.size(); i++) {
-						JSONObject environment = (JSONObject) environments.get(i);
-						JSONArray revisions = (JSONArray) environment.get("revision");
-						for (int j = 0; j < revisions.size(); j++) {
-							JSONObject revision = (JSONObject) revisions.get(j);
-							String name = (String) revision.get("name");
-							JSONObject envObj = new JSONObject();
-							envObj.put("environment", (String) environment.get("name"));
-							envObj.put("revision", name);
-							deploymentConfgs.add(envObj);
-							if (cfg.getIsCleanUpAreBackUp()) {
-								cfg.setEnvironment((String) environment.get("name"));
-								cfg.setRevision(name);
-								apigeeUtil.forceUndeploySharedflow(cfg);
+					if (environments.size() > 0) {
+						JSONArray deploymentConfgs = new JSONArray();
+						for (int i = 0; i < environments.size(); i++) {
+							JSONObject environment = (JSONObject) environments.get(i);
+							JSONArray revisions = (JSONArray) environment.get("revision");
+							for (int j = 0; j < revisions.size(); j++) {
+								JSONObject revision = (JSONObject) revisions.get(j);
+								String name = (String) revision.get("name");
+								JSONObject envObj = new JSONObject();
+								envObj.put("environment", (String) environment.get("name"));
+								envObj.put("revision", name);
+								deploymentConfgs.add(envObj);
+								if (cfg.getIsCleanUpAreBackUp()) {
+									cfg.setEnvironment((String) environment.get("name"));
+									cfg.setRevision(name);
+									apigeeUtil.forceUndeploySharedflow(cfg);
+								}
 							}
-						}
-						apiContext.put("environments", deploymentConfgs);
-					}
-				}
-				try {
-
-					if (versions.size() > 0 && versionList.size() > 0) {
-						apiContext.put("versions", versions);
-						apiContext.put("maxversion", Collections.max(versionList));
-						FileWriter file = new FileWriter(new File(backupLocation,
-								File.separator + sharedflowName + File.separator + "context.json"));
-						file.write(apiContext.toString());
-						file.flush();
-						file.close();
-						JSONObject apiContext1 = new JSONObject();
-						apiContext1.put(sharedflowName, apiContext);
-						SharedflowsInfo.add(apiContext1);
-					}
-
-				} catch (IOException e) {
-					logger.error(e.getMessage());
-					throw e;
-				}
-				if (cfg.getIsCleanUpAreBackUp()) {
-					apigeeUtil.deleteSharedflow(cfg);
-				}
-			} else {
-				String sharedflowResponse = apigeeUtil.getSharedflow(cfg);
-				JSONObject sharedflowResponseObj = (JSONObject) JSONSerializer.toJSON(sharedflowResponse);
-				if (sharedflowResponseObj != null) {
-					JSONArray revisions = (JSONArray) sharedflowResponseObj.get("revision");
-					if (revisions != null) {
-						for (int i = 0; i < revisions.size(); i++) {
-							versions.add(revisions.getString(i));
+							apiContext.put("environments", deploymentConfgs);
 						}
 					}
-				}
-				for (String verObj : versions) {
-					String version = (String) verObj;
-					cfg.setRevision(version);
-					versionList.add(Integer.valueOf(version));
-					final File versionFile = new File(backupLocation,
-							File.separator + sharedflowName + File.separator + version);
-					versionFile.getParentFile().mkdirs();
-					byte[] revisionBundle = apigeeUtil.getAnSharedflowRevision(cfg);
-					FileUtils.writeByteArrayToFile(new File(versionFile.getAbsolutePath() + ".zip"), revisionBundle);
-				}
-				if (environments.size() > 0) {
-					JSONArray deploymentConfgs = new JSONArray();
-					for (int i = 0; i < environments.size(); i++) {
-						JSONObject environment = (JSONObject) environments.get(i);
-						JSONArray revisions = (JSONArray) environment.get("revision");
-						for (int j = 0; j < revisions.size(); j++) {
-							JSONObject revision = (JSONObject) revisions.get(j);
-							String name = (String) revision.get("name");
-							JSONObject envObj = new JSONObject();
-							envObj.put("environment", (String) environment.get("name"));
-							envObj.put("revision", name);
-							deploymentConfgs.add(envObj);
-							if (cfg.getIsCleanUpAreBackUp()) {
-								cfg.setEnvironment((String) environment.get("name"));
-								cfg.setRevision(name);
-								apigeeUtil.forceUndeploySharedflow(cfg);
-							}
+					try {
+
+						if (versions.size() > 0 && versionList.size() > 0) {
+							apiContext.put("versions", versions);
+							apiContext.put("maxversion", Collections.max(versionList));
+							FileWriter file = new FileWriter(new File(backupLocation,
+									File.separator + sharedflowName + File.separator + "context.json"));
+							file.write(apiContext.toString());
+							file.flush();
+							file.close();
+							JSONObject apiContext1 = new JSONObject();
+							apiContext1.put(sharedflowName, apiContext);
+							SharedflowsInfo.add(apiContext1);
 						}
-						apiContext.put("environments", deploymentConfgs);
-					}
-				}
-				try {
 
-					if (versions.size() > 0 && versionList.size() > 0) {
-						apiContext.put("versions", versions);
-						apiContext.put("maxversion", Collections.max(versionList));
-						FileWriter file = new FileWriter(new File(backupLocation,
-								File.separator + sharedflowName + File.separator + "context.json"));
-						file.write(apiContext.toString());
-						file.flush();
-						file.close();
-						JSONObject apiContext1 = new JSONObject();
-						apiContext1.put(sharedflowName, apiContext);
-						SharedflowsInfo.add(apiContext1);
+					} catch (IOException e) {
+						logger.error(e.getMessage());
+						throw e;
 					}
-
-				} catch (IOException e) {
-					logger.error(e.getMessage());
-					throw e;
-				}
-				if (cfg.getIsCleanUpAreBackUp()) {
-					apigeeUtil.deleteSharedflow(cfg);
+					if (cfg.getIsCleanUpAreBackUp()) {
+						apigeeUtil.deleteSharedflow(cfg);
+					}
 				}
 			}
 		}
@@ -3641,11 +3633,11 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 					String host = (String) targetServer.get("host");
 					Integer port = (Integer) targetServer.get("port");
 					String protocol = "http";
-					if (ObjectUtils.isNotEmpty(targetServer.get("sSLInfo"))) 
+					if (ObjectUtils.isNotEmpty(targetServer.get("sSLInfo")))
 						protocol = "https";
 					String url = protocol + "://" + host +":" + port;
 					target.setUrl(url);
-					
+
 				}
 			}
 		}
