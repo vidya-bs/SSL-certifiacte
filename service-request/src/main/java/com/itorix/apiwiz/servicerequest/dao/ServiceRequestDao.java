@@ -1116,7 +1116,7 @@ public class ServiceRequestDao {
 				Query query = new Query();
 				query.addCriteria(Criteria.where("status").is(status));
 				query.addCriteria(
-						Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(DateUtil.getStartOfDay(startDate))
+						Criteria.where("modifiedDate").gte(DateUtil.getStartOfDay(startDate))
 								.lt(DateUtil.getEndOfDay(endDate)));
 				List<ServiceRequest> listByStatus = baseRepository.find(query, ServiceRequest.class);
 				typesStatusNode.put("status", status);
@@ -1126,7 +1126,7 @@ public class ServiceRequestDao {
 					query = new Query();
 					query.addCriteria(Criteria.where("status").is(status).and("type").is(type));
 					query.addCriteria(
-							Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(DateUtil.getStartOfDay(startDate))
+							Criteria.where("modifiedDate").gte(DateUtil.getStartOfDay(startDate))
 									.lt(DateUtil.getEndOfDay(endDate)));
 					List<ServiceRequest> listByStatusType = baseRepository.find(query, ServiceRequest.class);
 					ObjectNode statNode = mapper.createObjectNode();
