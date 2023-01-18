@@ -1118,6 +1118,7 @@ public class ServiceRequestDao {
 				query.addCriteria(
 						Criteria.where("modifiedDate").gte(DateUtil.getStartOfDay(startDate))
 								.lt(DateUtil.getEndOfDay(endDate)));
+				query.addCriteria((Criteria.where("activeFlag").is(Boolean.TRUE)));
 				List<ServiceRequest> listByStatus = baseRepository.find(query, ServiceRequest.class);
 				typesStatusNode.put("status", status);
 				typesStatusNode.put("count", listByStatus.size());
@@ -1128,10 +1129,11 @@ public class ServiceRequestDao {
 					query.addCriteria(
 							Criteria.where("modifiedDate").gte(DateUtil.getStartOfDay(startDate))
 									.lt(DateUtil.getEndOfDay(endDate)));
+					query.addCriteria((Criteria.where("activeFlag").is(Boolean.TRUE)));
 					List<ServiceRequest> listByStatusType = baseRepository.find(query, ServiceRequest.class);
 					ObjectNode statNode = mapper.createObjectNode();
 					statNode.put("type", type);
-					Set<String> names = new HashSet<>();
+					ArrayList<String> names = new ArrayList<>();
 					for (ServiceRequest serviceRequest : listByStatusType) {
 						if (names.add(serviceRequest.getName())) {
 							namesNode.add(serviceRequest.getName());
