@@ -1261,7 +1261,7 @@ public class IdentityManagementDao {
                                 } else if (CollectionUtils.containsAny(getUserTeamNames(userTeams), loginUserTeamNames)) {
                                     List<SwaggerTeam> userTeamsList = new ArrayList<>();
                                     userTeams.forEach(x -> {
-                                            if(!loginUserTeamNames.contains(x.getName())) {
+                                            if(loginUserTeamNames.contains(x.getName())) {
                                                 userTeamsList.add(x);
                                             }
                                         }
