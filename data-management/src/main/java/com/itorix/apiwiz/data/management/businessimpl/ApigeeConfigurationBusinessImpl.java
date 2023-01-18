@@ -266,8 +266,8 @@ public class ApigeeConfigurationBusinessImpl implements ApigeeConfigurationBusin
 		} catch (RestClientException exception) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Apigee-1005"), "Apigee-1005");
 		}
-		apigeeConfigurationVO.setEnvironments(environments);
 		apigeeConfigurationVO = apigeeIntegrationVO.getApigeeConfigObject();
+		apigeeConfigurationVO.setEnvironments(environments);
 		apigeeConfigurationVO = baseRepository.save(apigeeConfigurationVO);
 	}
 
