@@ -79,9 +79,6 @@ public class PortfolioDao {
 	private IdentityManagementDao identityManagementDao;
 
 	@Autowired
-	private ProxyUtils proxyUttils;
-
-	@Autowired
 	private S3Connection s3Connection;
 
 	@Autowired
@@ -1190,33 +1187,6 @@ public class PortfolioDao {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1013"), "Portfolio-1013");
 		}
 		return portfolio;
-	}
-
-	public ProjectProxyResponse generateProxy(String portfolioId, String projectId, String proxyId, String jsessionId)
-			throws ItorixException {
-		Portfolio portfolio = getPortfolio(portfolioId, projectId, proxyId);
-		return proxyUttils.generateProxy(portfolio, projectId, proxyId, jsessionId);
-	}
-
-	public void releaseProxy(String portfolioId, String projectId, String proxyId, String releaseTag, String jsessionId)
-			throws ItorixException {
-		Portfolio portfolio = getPortfolio(portfolioId, projectId, proxyId);
-		proxyUttils.createRelease(portfolio, projectId, proxyId, releaseTag, jsessionId);
-	}
-
-	public void promoteProxy(PromoteProxyRequest promoteProxyRequest, String jsessionid) throws ItorixException {
-		ProxyPortfolio proxyPortfolio = promoteProxyRequest.getPortfolio();
-		Scm scm = promoteProxyRequest.getScm();
-		String portfolioId = proxyPortfolio.getId();
-		String projectId = proxyPortfolio.getProjects().get(0).getId();
-		String proxyId = proxyPortfolio.getProjects().get(0).getProxies().get(0).getId();
-		Portfolio portfolio = getPortfolio(portfolioId, projectId, proxyId);
-		proxyUttils.promoteProxy(proxyPortfolio, scm, portfolio, jsessionid);
-	}
-
-	public void publishRegistry(Organization organization, String proxyName, String registryId, String jsessionId)
-			throws ItorixException {
-		proxyUttils.createServiceConfig(organization, proxyName, registryId, jsessionId);
 	}
 
 }

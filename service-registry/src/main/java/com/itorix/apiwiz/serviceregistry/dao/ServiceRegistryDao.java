@@ -1,9 +1,18 @@
 package com.itorix.apiwiz.serviceregistry.dao;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.itorix.apiwiz.common.model.configmanagement.KVMEntry;
+import com.itorix.apiwiz.common.model.projectmanagement.Endpoints;
+import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
+import com.itorix.apiwiz.identitymanagement.model.User;
+import com.itorix.apiwiz.servicerequest.dao.ServiceRequestDao;
+import com.itorix.apiwiz.servicerequest.model.ServiceRequest;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.mail.MessagingException;
 import org.bson.Document;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +63,11 @@ public class ServiceRegistryDao {
 
 	@Autowired
 	private BaseRepository baseRepository;
+
+	@Autowired
+	private IdentityManagementDao identityManagementDao;
+	@Autowired
+	private ServiceRequestDao serviceRequestDao;
 
 	public ServiceRegistryColumns getServiceRegistryColumns() {
 		List<ServiceRegistryColumns> findAll = mongoTemplate.findAll(ServiceRegistryColumns.class);
@@ -112,6 +126,35 @@ public class ServiceRegistryDao {
 	public List<ServiceRegistry> getServiceRegistryEntries(String serviceRegistryId) {
 		return mongoTemplate.find(new Query(Criteria.where("serviceRegistryId").is(serviceRegistryId)),
 				ServiceRegistry.class);
+	}
+
+	private List<Map<String, String>> getServiceRegistryEntriesMap(String serviceRegistryId) {
+		List<com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistry> rowList = mongoTemplate
+				.find(new Query(Criteria.where("serviceRegistryId").is(serviceRegistryId)),
+						ServiceRegistry.class);
+		if (rowList != null) {
+			List<Map<String, String>> data = new ArrayList<>();
+			for (com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistry row : rowList) {
+				data.add(row.getData());
+			}
+			return data;
+		}
+		return null;
+
+	}
+
+	private String getEndpoints(List<Map<String, String>> registryEndpoints) {
+		Endpoints endpoints = new Endpoints();
+		endpoints.setEndpoints(registryEndpoints);
+		try {
+			String value = new ObjectMapper().writeValueAsString(endpoints);
+			value = value.replaceAll("\"endpoints\"", "\"Endpoints\"")
+					.replaceAll("\"endpoint\"", "\"Endpoint\"");
+			return value;
+		} catch (JsonProcessingException e) {
+			log.error("Exception occurred", e);
+			return "";
+		}
 	}
 
 	public void updateServiceRegistryEntry(String serviceRegistryId, String rowId, Map<String, String> data)
@@ -274,21 +317,44 @@ public class ServiceRegistryDao {
 	private void publish(Organization organization, String proxyName, String registryId, String jsessionId)
 			throws ItorixException {
 		try {
-			String hostUrl = "http://localhost:#port#/#context#/v1/portfolios/promote/registry/#registryId#/proxies/#proxyName#";
-			hostUrl = hostUrl.replaceAll("#port#", port);
-			hostUrl = hostUrl.replaceAll("#context#", context.replaceAll("/", ""));
-			hostUrl = hostUrl.replaceAll("#registryId#", registryId);
-			hostUrl = hostUrl.replaceAll("#proxyName#", proxyName);
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.set("JSESSIONID", jsessionId);
-			RestTemplate restTemplate = new RestTemplate();
-			HttpEntity<Organization> requestEntity = new HttpEntity<>(organization, headers);
-			// ResponseEntity<String> response =
-			log.debug("Making a call to {}", hostUrl);
-			restTemplate.exchange(hostUrl, HttpMethod.POST, requestEntity, String.class);
-		} catch (Exception e) {
-			throw new ItorixException("error publishing regitry", "", e);
+			List<Map<String, String>> serviceRegistry = getServiceRegistryEntriesMap(registryId);
+			if (serviceRegistry == null) {
+				throw new ItorixException(
+						"no service registry for proxy " + proxyName + " registry Id " + registryId,
+						"");
+			}
+			ServiceRequest config = new ServiceRequest();
+			config.setType("KVM");
+			config.setName(proxyName);
+			config.setOrg(organization.getName());
+			config.setEnv(organization.getEnv());
+			config.setEncrypted("false");
+			config.setIsSaaS(organization.getType().equalsIgnoreCase("saas") ? true : false);
+			KVMEntry entry = new KVMEntry();
+			entry.setName("endpoints");
+			entry.setValue(getEndpoints(serviceRegistry));
+			List<KVMEntry> entries = new ArrayList<KVMEntry>();
+			entries.add(entry);
+			config.setEntry(entries);
+			User user = identityManagementDao.getUserDetailsFromSessionID(jsessionId);
+			config.setCreatedUser(user.getFirstName() + " " + user.getLastName());
+			config.setCreatedUserEmailId(user.getEmail());
+			config.setCreatedDate(new Date(System.currentTimeMillis()));
+			config.setModifiedUser(user.getFirstName() + " " + user.getLastName());
+			config.setModifiedDate(new Date(System.currentTimeMillis()));
+			config.setStatus("Review");
+			config.setCreated(false);
+			config.setActiveFlag(Boolean.TRUE);
+			serviceRequestDao.createServiceRequest(config);
+			config.setStatus("Approved");
+			List<String> roles = identityManagementDao.getUserRoles(jsessionId); // user.getRoles();
+			if (!roles.contains("Admin")) {
+				roles.add("Admin");
+			}
+			config.setUserRole(roles);
+			serviceRequestDao.changeServiceRequestStatus(config, user);
+		} catch (MessagingException e) {
+			log.error("Exception occurred", e);
 		}
 	}
 }
