@@ -697,9 +697,17 @@ public class IdentityManagementDao {
         String workspaceId = userSessionToken.getWorkspaceId();
         List<User> users = findUsersByWorkspace(workspaceId);
         List<String> mailIds = new ArrayList<>();
-        if (users != null)
-            for (User user : users)
-                mailIds.add(user.getEmail());
+        if (users != null) {
+            for (User user : users) {
+                UserWorkspace userWorkspace = user.getUserWorkspace(workspaceId);
+                if (userWorkspace != null) {
+                    if (userWorkspace.getAcceptInvite() != false) {
+                        mailIds.add(user.getEmail());
+                    }
+                }
+            }
+                return mailIds;
+            }
         return mailIds;
     }
 
