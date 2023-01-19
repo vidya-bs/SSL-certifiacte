@@ -7,6 +7,7 @@ public class EmailBody {
 	private String company;
 	private String jobTitle;
 	private String message;
+	private String planId;
 
 	public EmailBody() {
 		super();
@@ -61,22 +62,34 @@ public class EmailBody {
 		this.message = message;
 	}
 
+
+	public String getPlanId() {
+		return planId;
+	}
+
+	public void setPlanId(String planId) {
+		this.planId = planId;
+	}
+
 	@Override
 	public String toString() {
 		return "EmailBody [name=" + name + ",\n email=" + email + ",\n company=" + company + ",\n jobTitle=" + jobTitle
-				+ ",\n message=" + message + "]";
+				+ ",\n planId=" + planId + ",\n message=" + message + "]";
 	}
 
 	public String toHTML() {
-		String html = "<table style='border-collapse: collapse; width: 60%;' border='1'><tbody>"
-				+ "<tr><td style='width: 30%;'><p class='p1'>name</p></td><td style='width: 70%;'>" + name
-				+ "</td></tr>" + "<tr><td style='width: 30%;'><p class='p1'>email</p></td><td style='width: 70%;'>"
-				+ email + "</td></tr>"
-				+ "<tr><td style='width: 30%;'><p class='p1'>company</p></td><td style='width: 70%;'>" + company
-				+ "</td></tr>" + "<tr><td style='width: 30%;'><p class='p1'>jobTitle</p></td><td style='width: 70%;'>"
-				+ jobTitle + "</td></tr>"
-				+ "<tr><td style='width: 30%;'><p class='p1'>message</p></td><td style='width: 70%;'>" + message
-				+ "</td></tr>" + "</tbody></table>";
+		String html =
+				"<table style='border-collapse: collapse; width: 60%; border:2px double #b3adad; padding:5px;' border='2px'><tbody>"
+						+ "<tr><td style='width: 30%; text-align:center; background: #ffffff; color: #2b2b2b; padding:5px; border:2px double #b3adad;'><p class='p1'>Name</p></td><td style='width: 70%; text-align:center; background: #ffffff; color: #2b2b2b; padding:5px; border:2px double #b3adad;'>" + name
+						+ "</td></tr>" + "<tr><td style='width: 30%; text-align:center; background: #ffffff; color: #2b2b2b; padding:5px; border:2px double #b3adad;'><p class='p1'>Email</p></td><td style='width: 70%; text-align:center; background: #ffffff; color: #2b2b2b; padding:5px; border:2px double #b3adad;'>"
+						+ email + "</td></tr>"
+						+ "<tr><td style='width: 30%; text-align:center; background: #ffffff; color: #2b2b2b; padding:5px; border:2px double #b3adad;'><p class='p1'>Plan id</p></td><td style='width: 70%; text-align:center; background: #ffffff; color: #2b2b2b; padding:5px; border:2px double #b3adad;'>" + planId
+						+ "</td></tr>"
+						+ "<tr><td style='width: 30%; text-align:center; background: #ffffff; color: #2b2b2b; padding:5px; border:2px double #b3adad;'><p class='p1'>Company</p></td><td style='width: 70%; text-align:center; background: #ffffff; color: #2b2b2b; padding:5px; border:2px double #b3adad;'>" + company
+						+ "</td></tr>" + "<tr><td style='width: 30%; text-align:center; background: #ffffff; color: #2b2b2b; padding:5px; border:2px double #b3adad;'><p class='p1'>Job Title</p></td><td style='width: 70%; text-align:center; background: #ffffff; color: #2b2b2b; padding:5px; border:2px double #b3adad;'>"
+						+ jobTitle + "</td></tr>"
+						+ "<tr><td style='width: 30%; text-align:center; background: #ffffff; color: #2b2b2b; padding:5px; border:2px double #b3adad;'><p class='p1'>Message</p></td><td style='width: 70%; text-align:center; background: #ffffff; color: #2b2b2b; padding:5px; border:2px double #b3adad;'>" + message
+						+ "</td></tr>" + "</tbody></table>";
 		return html;
 	}
 }
