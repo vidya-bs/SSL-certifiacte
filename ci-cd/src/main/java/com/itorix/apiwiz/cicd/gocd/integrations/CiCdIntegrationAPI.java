@@ -1013,32 +1013,31 @@ public class CiCdIntegrationAPI {
 		emailTemplate.setBody(emailBody);
 		mailUtil.sendEmail(emailTemplate);
 
+
 		logger.info("Sending slack message");
 		List<SlackWorkspace> slackWorkspaces = mongoTemplate.findAll(SlackWorkspace.class);
-		SlackWorkspace slackWorkspace=slackWorkspaces.get(0);
-		if(slackWorkspace!=null) {
-			String token = slackWorkspace.getToken();
-			List<SlackChannel> channels = slackWorkspace.getChannelList();
-			for (SlackChannel i : channels) {
-				if (i.getScopeSet().contains(notificationScope.NotificationScope.BUILD)) {
-					PostMessage postMessage = new PostMessage();
-					ArrayList<Attachment> attachmentsToSend = new ArrayList<>();
-					Attachment attachment = new Attachment();
-					attachment.setMrkdwn_in("text");
-					attachment.setTitle_link("https://www.apiwiz.io/");
-					attachment.setColor("#820309");
-					attachment.setPretext("INFO");
-					attachment.setTitle("NOTIFICATION");
+		if (slackWorkspaces.isEmpty()) return null;
+		SlackWorkspace slackWorkspace = slackWorkspaces.get(0);
+		String token = slackWorkspace.getToken();
+		List<SlackChannel> channels = slackWorkspace.getChannelList();
+		for (SlackChannel i : channels) {
+			if (i.getScopeSet().contains(NotificationScope.Scopes.Build)) {
+				PostMessage postMessage = new PostMessage();
+				ArrayList<Attachment> attachmentsToSend = new ArrayList<>();
+				Attachment attachment = new Attachment();
+				attachment.setMrkdwn_in("text");
+				attachment.setTitle_link("https://www.apiwiz.io/");
+				attachment.setColor("#820309");
+				attachment.setPretext("INFO");
+				attachment.setTitle("NOTIFICATION");
 //					String s=notificationData.get(STATUS);
-					attachment.setText(emailBody);
+				attachment.setText(emailBody);
 
-					attachmentsToSend.add(attachment);
-					postMessage.setAttachments(attachmentsToSend);
-					slackUtil.sendMessage(postMessage, i.getChannelName(), token);
-				}
+				attachmentsToSend.add(attachment);
+				postMessage.setAttachments(attachmentsToSend);
+				slackUtil.sendMessage(postMessage, i.getChannelName(), token);
 			}
 		}
-
 
 		return null;
 	}

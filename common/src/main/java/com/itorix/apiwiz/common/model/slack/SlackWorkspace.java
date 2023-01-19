@@ -11,7 +11,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "Slack.Connectors.List")
 public class SlackWorkspace extends AbstractObject {
-    private String workspaceName;
+    private String slackWorkspaceName;
     private String token;
     private List<SlackChannel> channelList;
 }
