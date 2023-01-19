@@ -3096,6 +3096,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		consoleInfo.setOperationId(cfg.getOperationId());
 		consoleInfo = baseRepository.save(consoleInfo);
 		try {
+
 			restoreResource1(cfg);
 			if (StringUtils.equalsIgnoreCase(cfg.getType(), "apigeex")) {
 				log.info("Restore resource Completed : {}", cfg.getType());

@@ -281,7 +281,8 @@ public interface DictionaryService {
 	public ResponseEntity<?> updatePortfolioModelStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
-			@PathVariable("modelId") String modelId, @PathVariable("modelStatus") ModelStatus modelStatus);
+			@PathVariable("modelId") String modelId, @PathVariable("modelStatus") ModelStatus modelStatus)
+			throws ItorixException;
 
 	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/data-dictionary/{id}/revision/{revision}")
