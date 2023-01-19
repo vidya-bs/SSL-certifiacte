@@ -1,6 +1,12 @@
 package com.itorix.apiwiz.data.management.businessimpl;
 
+import com.itorix.apiwiz.identitymanagement.model.Workspace;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
@@ -35,10 +41,15 @@ public class OrganizationBackupScheduler {
 	public void executeBackupEvent() {
 
 		try (MongoClient mongoClient = new MongoClient(new MongoClientURI(mongoProperties.getUri()));) {
-			MongoCursor<String> dbsCursor = mongoClient.listDatabaseNames().iterator();
+			MongoDatabase mongoDatabase = mongoClient.getDatabase(mongoProperties.getDatabase());
+
+			MongoCollection collection = mongoDatabase.getCollection("Users.Workspace.List");
+			MongoCursor<Document> dbsCursor = collection.find().iterator();
 			while (dbsCursor.hasNext()) {
-				String workSpace = dbsCursor.next();
-				TenantContext.setCurrentTenant(workSpace);
+				Document workSpace = dbsCursor.next();
+				TenantContext.setCurrentTenant(workSpace.getString("tenant"));
+				String tenant = TenantContext.getCurrentTenant();
+				log.info("Tenant : {}", tenant);
 				Query query = new Query(Criteria.where("status").is(Constants.STATUS_SCHEDULED));
 				BackupEvent backupEvent = mongoTemplate.findOne(query, BackupEvent.class);
 				if (null != backupEvent) {
