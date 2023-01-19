@@ -4344,7 +4344,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			log.error("Swagger name cannot be empty");
 			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"), "Swagger-1000");
 		}
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		User user = getUserDetailsFromSessionID(jsessionid);
+		if (user.isWorkspaceAdmin(userSessionToken.getWorkspaceId())){
+			return;
+		}
 		List<SwaggerTeam> userTeams = getUserTeams(user);
 		boolean teamFound = false;
 		Set<String> swaggerTeams = new HashSet<>();

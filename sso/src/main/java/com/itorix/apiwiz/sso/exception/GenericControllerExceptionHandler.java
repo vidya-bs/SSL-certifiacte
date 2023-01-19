@@ -124,13 +124,13 @@ public class GenericControllerExceptionHandler {
             final HttpServletResponse response, final HttpServletRequest request) throws IOException {
         logger.error("inside handleControllerException : {} ", ex);
         loggerService.logServiceResponseForError("GenericControllerExceptionHandler", "handleControllerException",
-                System.currentTimeMillis(), HttpStatus.valueOf(ErrorCodes.responseCode.get("Identity-1042")),
-                "General-1001", ErrorCodes.errorMessage.get("Identity-1042"), response, request);
+                System.currentTimeMillis(), HttpStatus.valueOf(ErrorCodes.responseCode.get("Identity-1043")),
+                "General-1001", ErrorCodes.errorMessage.get("Identity-1043"), response, request);
         ErrorObj error = new ErrorObj();
-        error.setErrorMessage(ErrorCodes.errorMessage.get("Identity-1042"), "Identity-1042");
-        response.setStatus(ErrorCodes.responseCode.get("Identity-1042"));
+        error.setErrorMessage(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
+        response.setStatus(ErrorCodes.responseCode.get("Identity-1043"));
         ResponseEntity<ErrorObj> responseEntity = new ResponseEntity<ErrorObj>(error,
-                HttpStatus.valueOf(ErrorCodes.responseCode.get("Identity-1042")));
+                HttpStatus.valueOf(ErrorCodes.responseCode.get("Identity-1043")));
 
         return responseEntity;
     }

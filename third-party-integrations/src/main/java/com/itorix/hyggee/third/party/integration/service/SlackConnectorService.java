@@ -48,4 +48,12 @@ public interface SlackConnectorService {
             @RequestHeader(value = "JSESSIONID") String jsessionid,
             @PathVariable(value = "id") String workspaceId
     ) throws Exception;
+
+
+    @GetMapping(value = "/scopes")
+    public ResponseEntity<Object> getAllScopes(
+            @RequestHeader(value = "interactionid",required = false) String interactionid,
+            @RequestHeader(value = "JSESSIONID") String jsessionid
+    ) throws Exception;
+
 }

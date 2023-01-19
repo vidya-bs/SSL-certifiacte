@@ -228,8 +228,11 @@ public class DictionaryServiceImpl implements DictionaryService {
 			log.error("PortfolioVO not found: {}", id);
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1003"), id), "Portfolio-1003");
 		}
-       dictionaryBusiness.sendNotificationToSwagger(jsessionid, portfolioVO,
-			   " Portfolio has been deleted ".concat(portfolioVO.getName()));
+		NotificationDetails notificationDetails = new NotificationDetails();
+		notificationDetails.setUserId(Arrays.asList(portfolioVO.getCreatedBy()));
+		notificationDetails.setType(NotificationType.fromValue("Data Dictionary"));
+		notificationDetails.setNotification("Data Dictionary has been Deleted -".concat(portfolioVO.getName()));
+		notificationBusiness.createNotification(notificationDetails, jsessionid);
 
 		dictionaryBusiness.deletePortfolioById(portfolioVO);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
@@ -522,8 +525,11 @@ public class DictionaryServiceImpl implements DictionaryService {
 		PortfolioModel models = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelId(id,
 				model_name);
 
-		dictionaryBusiness.sendNotificationForModel(jsessionid, models,
-				" Model has been deleted ".concat(models.getModelName()));
+		NotificationDetails notificationDetails = new NotificationDetails();
+		notificationDetails.setUserId(Arrays.asList(models.getCreatedBy()));
+		notificationDetails.setType(NotificationType.fromValue("Model"));
+		notificationDetails.setNotification(String.format("Model %s has been Deleted ",models.getModelName()));
+		notificationBusiness.createNotification(notificationDetails, jsessionid);
 		dictionaryBusiness.deletePortfolioModelByModelId(model_name);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
@@ -603,8 +609,12 @@ public class DictionaryServiceImpl implements DictionaryService {
 					"Portfolio-1002");
 		}
 		PortfolioVO portfolioVO = dictionaryBusiness.getPortfolioByRevision(id, revision);
-	dictionaryBusiness.sendNotificationToSwagger(jsessionid, portfolioVO,
-				"Portfolio revision has been deleted  ".concat(portfolioVO.getName()));
+		NotificationDetails notificationDetails = new NotificationDetails();
+		notificationDetails.setNotification(
+				String.format("Portfolio %s - revision %s has been deleted ",portfolioVO.getName(),portfolioVO.getRevision()));
+		notificationDetails.setUserId(Arrays.asList(portfolioVO.getCreatedBy()));
+		notificationDetails.setType(NotificationType.fromValue("Data Dictionary"));
+		notificationBusiness.createNotification(notificationDetails, jsessionid);
 		dictionaryBusiness.deletePortfolioByIdAndRevision(vo);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
@@ -669,8 +679,11 @@ public class DictionaryServiceImpl implements DictionaryService {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1003"), id),
 					"Portfolio-1003");
 		}
-		dictionaryBusiness.sendNotificationForModel(jsessionid, model1,
-				"Model has been deleted with Revision ".concat(model1.getModelName()));
+		NotificationDetails notificationDetails = new NotificationDetails();
+		notificationDetails.setUserId(Arrays.asList(model1.getCreatedBy()));
+		notificationDetails.setType(NotificationType.fromValue("Model"));
+		notificationDetails.setNotification(String.format("Model %s - revision %s has been Deleted ",model1.getModelName(),model1.getRevision()));
+		notificationBusiness.createNotification(notificationDetails, jsessionid);
 
 		dictionaryBusiness.deletePortfolioModelByportfolioIDAndModelIdAndRevision(model1);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);

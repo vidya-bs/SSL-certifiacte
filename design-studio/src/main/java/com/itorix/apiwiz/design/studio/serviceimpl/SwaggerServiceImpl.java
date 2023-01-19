@@ -1100,16 +1100,16 @@ public class SwaggerServiceImpl implements SwaggerService {
 				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerBusiness.deleteSwaggerVersion(vo.getName(), revision, interactionid);
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification(String.format("Swagger %s - revision %s has been Deleted ",vo.getName(),vo.getRevision()));
+			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusiness.createNotification(notificationDetails,jsessionid);
 			if (swaggerBusiness.findSwaggersCount(vo.getSwaggerId()) < 1) {
 				swaggerBusiness.deleteSwagger2BasePath(vo);
 				scannerDTO.setTenantId(getWorkspaceId());
 				scannerDTO.setOperation("Delete");
 				scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
-				NotificationDetails notificationDetails = new NotificationDetails();
-				notificationDetails.setNotification("Swagger revision has been Deleted" .concat(vo.getName()));
-				notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
-				notificationDetails.setType(NotificationType.fromValue("Swagger"));
-				notificationBusiness.createNotification(notificationDetails,jsessionid);
 
 			} else {
 				scannerDTO.setTenantId(getWorkspaceId());
@@ -1122,16 +1122,16 @@ public class SwaggerServiceImpl implements SwaggerService {
 				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
 			}
 			swaggerBusiness.deleteSwagger3Version(vo.getName(), revision, interactionid);
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setNotification(String.format("Swagger %s revision - %s has been Deleted ",vo.getName(),vo.getRevision()));
+			notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Swagger"));
+			notificationBusiness.createNotification(notificationDetails,jsessionid);
 			if (swaggerBusiness.findSwaggers3VOCount(vo.getSwaggerId()) < 1) {
 				swaggerBusiness.deleteSwagger3BasePath(vo);
 				scannerDTO.setTenantId(getWorkspaceId());
 				scannerDTO.setOperation("Delete");
 				scannerDTO.setSwaggerId(Arrays.asList(vo.getSwaggerId()));
-				NotificationDetails notificationDetails = new NotificationDetails();
-				notificationDetails.setNotification("Swagger revision has been Deleted" .concat(vo.getName()));
-				notificationDetails.setUserId(Arrays.asList(vo.getCreatedBy()));
-				notificationDetails.setType(NotificationType.fromValue("Swagger"));
-				notificationBusiness.createNotification(notificationDetails,jsessionid);
 			} else {
 				scannerDTO.setTenantId(getWorkspaceId());
 				scannerDTO.setOperation(UPDATE);

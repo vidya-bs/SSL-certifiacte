@@ -21,10 +21,12 @@ import javax.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bson.Document;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.opensaml.xml.encryption.Public;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -233,8 +235,10 @@ public class CodeGenService {
 		ProxyArtifacts proxyArtifacts = null;
 		// if (true) {
 		if (proxyGeneration != null && proxyGeneration.equalsIgnoreCase("true")) {
-			String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName() + "_"
-					+ codeGen.getProxy().getVersion() + "/apiproxy";
+			String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName() + (
+					StringUtils.isEmpty(codeGen.getProxy().getVersion()) ? StringUtils.EMPTY
+							: "_" + codeGen.getProxy().getVersion())
+					+ "/apiproxy";
 			if (codeGen.getProxy() != null)
 				apigeeProxyGen.generateProxyCode(proxyFolder, commonFolder, codeGen, proxyDir);
 			if (codeGen.getTarget() != null)
@@ -249,8 +253,9 @@ public class CodeGenService {
 			if (codeGen.getTarget() != null)
 				targetGen.generateTargetCode(targetFolder, codeGen, dir);
 		}
-		String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName() + "_" + codeGen.getProxy().getVersion()
-				+ "/apiproxy";
+		String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName() + (
+				StringUtils.isEmpty(codeGen.getProxy().getVersion()) ? StringUtils.EMPTY
+						: "_" + codeGen.getProxy().getVersion()) + "/apiproxy";
 		CleanUnused.clean(proxyDir + File.separatorChar);
 		proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
 		ZipUtil.pack(new File(dir), new File(operations.getDir() + time + ".zip"));
@@ -314,7 +319,9 @@ public class CodeGenService {
 					operations.getUser().getFirstName() + " " + operations.getUser().getLastName());
 			if (codeGen.getProxy() != null)
 				if (codeGen.getProxy().getVersion() != null && project == null)
-					data.setProxyName(codeGen.getProxy().getName() + "_" + codeGen.getProxy().getVersion());
+					data.setProxyName(codeGen.getProxy().getName() +(
+							StringUtils.isEmpty(codeGen.getProxy().getVersion()) ? StringUtils.EMPTY
+									: "_" + codeGen.getProxy().getVersion()));
 				else
 					data.setProxyName(codeGen.getProxy().getName());
 			else
@@ -766,7 +773,7 @@ public class CodeGenService {
 		return s3Integration;
 	}
 
-	private GitIntegration getScmIntegration(String type) {
+	public GitIntegration getScmIntegration(String type) {
 		GitIntegration gitIntegration = null;
 		Integration integration = integrationsDao.getGitIntegration(type, "proxy");
 

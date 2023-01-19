@@ -83,17 +83,19 @@ public class ApigeeTargetGeneration {
 				Map<String, Object> data = new HashMap<String, Object>();
 
 				List<Object> operations = new ArrayList<>();
-				for (Flow flow : flows.getFlow()) {
-					Map<String, Object> mapApi = new HashMap<String, Object>();
-					operations.add(mapApi);
-					mapApi.put("name", flow.getName());
-					mapApi.put("disablePathSuffix", flow.getDisablePathSuffix());
-					if (flow.getPolicyTemplates() != null) {
-						Map flowMap = commonsGen.createMap(flow.getPolicyTemplates());
-						mapApi.put("flowPolicyTemplate", flowMap.get("policyTemplate"));
-						mapApi.put("flowPolicyName", flowMap.get("policyName"));
+				if (flows != null && flows.getFlow() != null) {
+					for (Flow flow : flows.getFlow()) {
+						Map<String, Object> mapApi = new HashMap<String, Object>();
+						operations.add(mapApi);
+						mapApi.put("name", flow.getName());
+						mapApi.put("disablePathSuffix", flow.getDisablePathSuffix());
+						if (flow.getPolicyTemplates() != null) {
+							Map flowMap = commonsGen.createMap(flow.getPolicyTemplates());
+							mapApi.put("flowPolicyTemplate", flowMap.get("policyTemplate"));
+							mapApi.put("flowPolicyName", flowMap.get("policyName"));
+						}
+						//operations.add(flow.getName());
 					}
-					//operations.add(flow.getName());
 				}
 				data.put("targetOperations", operations);
 				data.put("targetName", targetName);

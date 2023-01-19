@@ -148,28 +148,27 @@ public class PackageDao {
 
 		logger.info("Sending slack message");
 		List<SlackWorkspace> slackWorkspaces = mongoTemplate.findAll(SlackWorkspace.class);
-		SlackWorkspace slackWorkspace=slackWorkspaces.get(0);
-		if(slackWorkspace!=null) {
-			String token = slackWorkspace.getToken();
-			List<SlackChannel> channels = slackWorkspace.getChannelList();
-			for (SlackChannel i : channels) {
-				if (i.getScopeSet().contains(notificationScope.NotificationScope.BUILD)) {
-					PostMessage postMessage = new PostMessage();
-					ArrayList<Attachment> attachmentsToSend = new ArrayList<>();
-					Attachment attachment = new Attachment();
-					attachment.setMrkdwn_in("text");
-					attachment.setTitle_link("https://www.apiwiz.io/");
-					attachment.setColor("#820309");
-					attachment.setPretext("BUILD");
+		if (slackWorkspaces.isEmpty()) return;
+		SlackWorkspace slackWorkspace = slackWorkspaces.get(0);
+		String token = slackWorkspace.getToken();
+		List<SlackChannel> channels = slackWorkspace.getChannelList();
+		for (SlackChannel i : channels) {
+			if (i.getScopeSet().contains(NotificationScope.Scopes.Build)) {
+				PostMessage postMessage = new PostMessage();
+				ArrayList<Attachment> attachmentsToSend = new ArrayList<>();
+				Attachment attachment = new Attachment();
+				attachment.setMrkdwn_in("text");
+				attachment.setTitle_link("https://www.apiwiz.io/");
+				attachment.setColor("#820309");
+				attachment.setPretext("BUILD");
 //					attachment.setTitle(packageRequest.getPackageName());
 //					String s=notificationData.get(STATUS);
-					attachment.setText("Package Request: " + packageRequest.getPackageName() + "\n    Date: " + formatedDate +
-							"\n    State: " + packageRequest.getState() + "\n    Metadata: " + packageRequest.getMetadata().getCreatedBy());
+				attachment.setText("Package Request: " + packageRequest.getPackageName() + "\n    Date: " + formatedDate +
+						"\n    State: " + packageRequest.getState() + "\n    Metadata: " + packageRequest.getMetadata().getCreatedBy());
 
-					attachmentsToSend.add(attachment);
-					postMessage.setAttachments(attachmentsToSend);
-					slackUtil.sendMessage(postMessage, i.getChannelName(), token);
-				}
+				attachmentsToSend.add(attachment);
+				postMessage.setAttachments(attachmentsToSend);
+				slackUtil.sendMessage(postMessage, i.getChannelName(), token);
 			}
 		}
 	}
@@ -576,27 +575,27 @@ public class PackageDao {
 
 			logger.info("Sending slack message");
 			List<SlackWorkspace> slackWorkspaces = mongoTemplate.findAll(SlackWorkspace.class);
-			SlackWorkspace slackWorkspace=slackWorkspaces.get(0);
-			if(slackWorkspace!=null) {
-				String token = slackWorkspace.getToken();
-				List<SlackChannel> channels = slackWorkspace.getChannelList();
-				for (SlackChannel i : channels) {
-					if (i.getScopeSet().contains(notificationScope.NotificationScope.BUILD)) {
-						PostMessage postMessage = new PostMessage();
-						ArrayList<Attachment> attachmentsToSend = new ArrayList<>();
-						Attachment attachment = new Attachment();
-						attachment.setMrkdwn_in("text");
-						attachment.setTitle_link("https://www.apiwiz.io/");
-						attachment.setColor("#0000FF");
-						attachment.setPretext("BUILD");
+			if (slackWorkspaces.isEmpty()) return;
+			SlackWorkspace slackWorkspace = slackWorkspaces.get(0);
+			String token = slackWorkspace.getToken();
+			List<SlackChannel> channels = slackWorkspace.getChannelList();
+			for (SlackChannel i : channels) {
+				if (i.getScopeSet().contains(NotificationScope.Scopes.Build)) {
+					PostMessage postMessage = new PostMessage();
+					ArrayList<Attachment> attachmentsToSend = new ArrayList<>();
+					Attachment attachment = new Attachment();
+					attachment.setMrkdwn_in("text");
+					attachment.setTitle_link("https://www.apiwiz.io/");
+					attachment.setColor("#0000FF");
+					attachment.setPretext("BUILD");
 //					attachment.setTitle(packageRequest.getPackageName());
 //					String s=notificationData.get(STATUS);
-						attachment.setText ("Package Name: "+packageRequest.getPackageName()+"\n"+"Status: "+"Review"+"\n"+"Description: "+packageRequest.getDescription()+"\n"+ "Date: "+formatedDate+"\n"+ "Metadata: "+packageRequest.getMetadata().getCreatedBy()+"\n"+ "Comments: "+packageRequest.getComments());
+					attachment.setText ("Package Name: "+packageRequest.getPackageName()+"\n"+"Status: "+"Review"+"\n"+"Description: "+packageRequest.getDescription()+"\n"+ "Date: "+formatedDate+"\n"+ "Metadata: "+packageRequest.getMetadata().getCreatedBy()+"\n"+ "Comments: "+packageRequest.getComments());
 
-						attachmentsToSend.add(attachment);
-						postMessage.setAttachments(attachmentsToSend);
-						slackUtil.sendMessage(postMessage, i.getChannelName(), token);
-					}
+					attachmentsToSend.add(attachment);
+					postMessage.setAttachments(attachmentsToSend);
+					slackUtil.sendMessage(postMessage, i.getChannelName(), token);
+
 				}
 			}
 		}
