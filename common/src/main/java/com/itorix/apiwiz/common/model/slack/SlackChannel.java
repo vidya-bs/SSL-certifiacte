@@ -9,5 +9,5 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SlackChannel {
     private String channelName;
-    private Set<notificationScope.NotificationScope> scopeSet;
+    private Set<NotificationScope.Scopes> scopeSet;
 }
