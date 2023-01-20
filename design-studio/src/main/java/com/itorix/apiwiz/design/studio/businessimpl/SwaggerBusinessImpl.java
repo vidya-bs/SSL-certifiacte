@@ -23,6 +23,7 @@ import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.common.util.zip.ZIPUtil;
 import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
 import com.itorix.apiwiz.design.studio.model.*;
+import com.itorix.apiwiz.design.studio.model.dto.MetadataErrorDTO;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger.Status;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SchemaInfo;
@@ -52,6 +53,8 @@ import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.json.JSON;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -4375,6 +4378,74 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		}
 	}
 
+	@Override
+	public List<MetadataErrorDTO> checkMetadataSwagger(String oas, String swaggerString) {
+		String missingError = "%s is missing in %s";
+		Set<String> metadataList = new HashSet<>(Arrays.asList("x-metadata", "x-mock", "x-servers"));
+		List<MetadataErrorDTO> response = new ArrayList<>();
+		Map<String, Object> metadata = new HashMap<>();
+		Set<String> swaggerPaths = new HashSet<>();
+		Set<String> swaggerDefinition = new HashSet<>();
+		if(oas.startsWith("2")) {
+			SwaggerParser swaggerParser = new SwaggerParser();
+			Swagger swagger = swaggerParser.parse(swaggerString);
+			swaggerPaths = swagger.getPaths().keySet();
+			swaggerDefinition = swagger.getDefinitions().keySet();
+			swagger.getVendorExtensions().forEach( (key, value) -> {
+				if (metadataList.contains(key)) {
+					if (key.equalsIgnoreCase("x-metadata")){
+						metadata.put("metadata", new ObjectMapper().convertValue(value, Map.class).get("metadata"));
+					}else {
+						metadata.put(key, value);
+					}
+				}
+			});
+		} else if (oas.startsWith("3")) {
+			OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
+			OpenAPI swagger = openAPIV3Parser.readContents(swaggerString).getOpenAPI();
+			swaggerPaths = swagger.getPaths().keySet();
+			swaggerDefinition = swagger.getComponents().getSchemas().keySet();
+			swagger.getExtensions().forEach( (key, value) -> {
+				if (metadataList.contains(key)) {
+					if (key.equalsIgnoreCase("x-metadata")){
+						metadata.put("metadata", new ObjectMapper().convertValue(value, Map.class).get("metadata"));
+					}else {
+						metadata.put(key, value);
+					}
+				}
+			});
+		}
+		ObjectMapper m = new ObjectMapper();
+		List<Map<String,Object>> categoryMetadataList = m.convertValue(m.convertValue(metadata.get("metadata"), Map.class).get("category"), List.class);
+		Set<String> metadataPaths = new HashSet<>();
+		Set<String> metadataDefinitions = new HashSet<>();
+		for (Map<String, Object> categoryMetadata : categoryMetadataList) {
+			Set<String> metadataObject = m.convertValue(categoryMetadata.get("paths"), Set.class);
+			if (metadataObject != null) {
+				metadataPaths.addAll(metadataObject);
+			}
+			metadataObject = m.convertValue(categoryMetadata.get("definitions"), Set.class);
+			if (metadataObject != null) {
+				metadataDefinitions.addAll(metadataObject);
+			}
+		}
+		response = checkDifference(swaggerPaths, metadataPaths, response, missingError, "Paths");
+		response = checkDifference(metadataPaths, swaggerPaths, response, missingError, "x-metadata-paths");
+		response = checkDifference(swaggerDefinition, metadataDefinitions,response, missingError, "Definitions");
+		response = checkDifference(metadataDefinitions, swaggerDefinition,response, missingError, "x-metadata-Definitions");
+
+		return response;
+	}
+
+	private List<MetadataErrorDTO> checkDifference(Collection source, Collection target,List<MetadataErrorDTO> response, String error, String errorSource){
+		List<String> difference = new ArrayList<>(CollectionUtils.subtract(source, target));
+		if (!difference.isEmpty()){
+			for (String object : difference) {
+				response.add(new MetadataErrorDTO(errorSource, null, String.format(error, object, errorSource)));
+			}
+		}
+		return response;
+	}
 	private DeleteResult removeBasePath(Query query, Class clazz) {
 		log.debug("removeBasePath : {}", query);
 		return mongoTemplate.remove(query, clazz);
