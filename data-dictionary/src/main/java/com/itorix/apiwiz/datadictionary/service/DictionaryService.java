@@ -95,6 +95,20 @@ public interface DictionaryService {
 			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v2/data-dictionary/overview")
+	public ResponseEntity<PortfolioHistoryResponse> getPortfolioOverviewV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) throws Exception;
+
+
+	@ApiOperation(value = "Get Portfolio Overview", notes = "", code = 200, response = PortfolioVO.class, responseContainer = "List")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = PortfolioVO.class, responseContainer = "List"),
+			@ApiResponse(code = 400, message = "Sorry! Portfolio - %s already exists.", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary")
 	public ResponseEntity<List<PortfolioVO>> getPortfolios(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -281,7 +295,8 @@ public interface DictionaryService {
 	public ResponseEntity<?> updatePortfolioModelStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
-			@PathVariable("modelId") String modelId, @PathVariable("modelStatus") ModelStatus modelStatus);
+			@PathVariable("modelId") String modelId, @PathVariable("modelStatus") ModelStatus modelStatus)
+			throws ItorixException;
 
 	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/data-dictionary/{id}/revision/{revision}")

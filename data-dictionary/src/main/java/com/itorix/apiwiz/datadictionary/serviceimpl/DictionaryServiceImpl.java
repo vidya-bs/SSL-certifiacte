@@ -129,8 +129,11 @@ public class DictionaryServiceImpl implements DictionaryService {
 						"Portfolio-1001");
 			}
 			portfolioVO = dictionaryBusiness.createPortfolio(portfolioVO);
-			dictionaryBusiness.sendNotificationToSwagger(jsessionid, portfolioVO,
-					" Portfolio has been updated ".concat(portfolioVO.getName()));
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setUserId(Arrays.asList(portfolioVO.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Data Dictionary"));
+			notificationDetails.setNotification(String.format("Data Dictionary %s revision %s has been updated",portfolioVO.getName(),portfolioVO.getRevision()));
+			notificationBusiness.createNotification(notificationDetails, jsessionid);
 
 			// dictionaryBusiness.sendNotificationForDD(portfolioVO);
 		}
@@ -154,6 +157,24 @@ public class DictionaryServiceImpl implements DictionaryService {
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) throws Exception {
 		PortfolioHistoryResponse list = dictionaryBusiness.findAllPortfolios(interactionid, offset, pageSize);
+		return new ResponseEntity<PortfolioHistoryResponse>(list, HttpStatus.OK);
+	}
+
+	/**
+	 * Using this method we can get the Portfolio.
+	 *
+	 * @param interactionid
+	 * @param jsessionid
+	 * @return
+	 * @throws ItorixException
+	 * @throws Exception
+	 */
+	public ResponseEntity<PortfolioHistoryResponse> getPortfolioOverviewV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) throws Exception {
+		PortfolioHistoryResponse list = dictionaryBusiness.findAllPortfoliosV2(interactionid, offset, pageSize);
 		return new ResponseEntity<PortfolioHistoryResponse>(list, HttpStatus.OK);
 	}
 
@@ -311,8 +332,11 @@ public class DictionaryServiceImpl implements DictionaryService {
 				model = dictionaryBusiness.createnewPortfolioModel(model);
 				model = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelIdAndRevison(id, modelId,
 						revisions);
-				dictionaryBusiness.sendNotificationForModel(jsessionid, model,
-						" Model has been updated ".concat(model.getModelName()));
+				NotificationDetails notificationDetails = new NotificationDetails();
+				notificationDetails.setUserId(Arrays.asList(model.getCreatedBy()));
+				notificationDetails.setType(NotificationType.fromValue("Model"));
+				notificationDetails.setNotification(String.format("Model revision has been created %s",model.getModelName()));
+				notificationBusiness.createNotification(notificationDetails, jsessionid);
 				initiateLinting(jsessionid, model.getPortfolioID(),model.getModelId(),newRevision,model.getRuleSetIds());
 				// dictionaryBusiness.sendNotificationForDDModel(model);
 			}
@@ -355,8 +379,11 @@ public class DictionaryServiceImpl implements DictionaryService {
 			PortfolioModel models = dictionaryBusiness
 					.findPortfolioModelByportfolioIDAndModelIdAndRevison(id, modelId, revision);
 			dictionaryBusiness.updateModelRevision(model);
-		dictionaryBusiness.sendNotificationForModel(jsessionid, models,
-					" Model has been updated with Revision ".concat(models.getModelName()));
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setUserId(Arrays.asList(models.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Model"));
+			notificationDetails.setNotification(String.format("Model %s revision %s has been updated",models.getModelName(),models.getRevision()));
+			notificationBusiness.createNotification(notificationDetails, jsessionid);
 			// dictionaryBusiness.sendNotificationForDDModel(modelWithRevision);
 			initiateLinting(jsessionid, model.getPortfolioID(),model.getModelId(),model.getRevision(),model.getRuleSetIds());
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
@@ -546,12 +573,16 @@ public class DictionaryServiceImpl implements DictionaryService {
 	public ResponseEntity<?> updatePortfolioModelStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
-			@PathVariable("modelId") String modelId, @PathVariable("modelStatus") ModelStatus modelStatus) {
+			@PathVariable("modelId") String modelId, @PathVariable("modelStatus") ModelStatus modelStatus)
+			throws ItorixException {
 		dictionaryBusiness.updatePortfolioModelStatus(id, modelId, modelStatus);
 		PortfolioModel model = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelId(id,
 				modelId);
-		dictionaryBusiness.sendNotificationForModel(jsessionid, model,
-				" Model status has been updated ".concat(model.getModelName()));
+		NotificationDetails notificationDetails = new NotificationDetails();
+		notificationDetails.setUserId(Arrays.asList(model.getCreatedBy()));
+		notificationDetails.setType(NotificationType.fromValue("Model"));
+		notificationDetails.setNotification(String.format("Model %s revision %s status has been updated",model.getModelName(),model.getRevision()));
+		notificationBusiness.createNotification(notificationDetails, jsessionid);
 		initiateLinting(jsessionid, model.getPortfolioID(),model.getModelId(),model.getRevision(),model.getRuleSetIds());
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
@@ -632,8 +663,11 @@ public class DictionaryServiceImpl implements DictionaryService {
 			vo.setStatus(status.getStatus());
 			dictionaryBusiness.createPortfolio(vo);
 			PortfolioVO portfolioVO = dictionaryBusiness.getPortfolioByRevision(id, revision);
-			dictionaryBusiness.sendNotificationToSwagger(jsessionid, portfolioVO,
-					" Portfolio Status has been updated ".concat(portfolioVO.getName()));
+			NotificationDetails notificationDetails = new NotificationDetails();
+			notificationDetails.setUserId(Arrays.asList(portfolioVO.getCreatedBy()));
+			notificationDetails.setType(NotificationType.fromValue("Data Dictionary"));
+			notificationDetails.setNotification(String.format("Data Dictionary %s revision %s status has been updated",portfolioVO.getName(),portfolioVO.getRevision()));
+			notificationBusiness.createNotification(notificationDetails, jsessionid);
 			PortfolioReport report=dictionaryBusiness.getModelswithRulesets(portfolioVO.getId());
 			initiateLintingforPortfolio(jsessionid,report);
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
@@ -648,13 +682,16 @@ public class DictionaryServiceImpl implements DictionaryService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
 			@PathVariable("modelId") String modelId, @PathVariable("modelStatus") ModelStatus modelStatus,
-			@PathVariable("revision") Integer revision) {
+			@PathVariable("revision") Integer revision) throws ItorixException {
 		log.info("Change Status of a particular model revision");
 		dictionaryBusiness.updatePortfolioModelStatusWithRevision(id, modelId, modelStatus, revision);
 		PortfolioModel model = dictionaryBusiness.findPortfolioModelByportfolioIDAndModelIdAndRevison(
 				id, modelId, revision);
-		dictionaryBusiness.sendNotificationForModel(jsessionid, model,
-				"Model Status has been updated with revision ".concat(model.getModelName()));
+		NotificationDetails notificationDetails = new NotificationDetails();
+		notificationDetails.setUserId(Arrays.asList(model.getCreatedBy()));
+		notificationDetails.setType(NotificationType.fromValue("Model"));
+		notificationDetails.setNotification(String.format("Model %s revision %s status has been update",model.getModelName(),model.getRevision()));
+		notificationBusiness.createNotification(notificationDetails, jsessionid);
 		initiateLinting(jsessionid, model.getPortfolioID(),model.getModelId(),model.getRevision(),model.getRuleSetIds());
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
