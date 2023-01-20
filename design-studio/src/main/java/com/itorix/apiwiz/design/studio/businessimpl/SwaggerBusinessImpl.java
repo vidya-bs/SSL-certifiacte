@@ -4438,11 +4438,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				log.error(e.getMessage());
 			}
 		}
+		Set<String> metadataPaths = new HashSet<>();
+		Set<String> metadataDefinitions = new HashSet<>();
 		if (!metadata.isEmpty()) {
 			ObjectMapper m = new ObjectMapper();
 			List<Map<String, Object>> categoryMetadataList = m.convertValue(m.convertValue(metadata.get("metadata"), Map.class).get("category"), List.class);
-			Set<String> metadataPaths = new HashSet<>();
-			Set<String> metadataDefinitions = new HashSet<>();
 			if (!categoryMetadataList.isEmpty()) {
 				for (Map<String, Object> categoryMetadata : categoryMetadataList) {
 					Set<String> metadataObject = m.convertValue(categoryMetadata.get("paths"), Set.class);
@@ -4455,12 +4455,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					}
 				}
 			}
-
-			response = checkDifference(swaggerPaths, metadataPaths, response, missingError, "Paths", "x-metadata-paths");
-			response = checkDifference(metadataPaths, swaggerPaths, response, missingError, "x-metadata-paths", "Paths");
-			response = checkDifference(swaggerDefinition, metadataDefinitions, response, missingError, definitionsEnum, "x-metadata-Definitions");
-			response = checkDifference(metadataDefinitions, swaggerDefinition, response, missingError, "x-metadata-Definitions", definitionsEnum);
 		}
+		response = checkDifference(swaggerPaths, metadataPaths, response, missingError, "Paths", "x-metadata-paths");
+		response = checkDifference(metadataPaths, swaggerPaths, response, missingError, "x-metadata-paths", "Paths");
+		response = checkDifference(swaggerDefinition, metadataDefinitions, response, missingError, definitionsEnum, "x-metadata-Definitions");
+		response = checkDifference(metadataDefinitions, swaggerDefinition, response, missingError, "x-metadata-Definitions", definitionsEnum);
 		return response;
 	}
 
