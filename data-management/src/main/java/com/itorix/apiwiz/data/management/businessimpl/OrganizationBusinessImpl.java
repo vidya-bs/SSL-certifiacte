@@ -1721,7 +1721,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 					byte[] revisionBundle = apigeeUtil.getAnAPIProxyRevision(cfg);
 					FileUtils.writeByteArrayToFile(new File(versionFile.getAbsolutePath() + ".zip"), revisionBundle);
 				}
-				if (apiProxyDeploymentResponse.getEnvironment().length > 0) {
+				if (apiProxyDeploymentResponse != null
+						&& apiProxyDeploymentResponse.getEnvironment() != null
+						&& apiProxyDeploymentResponse.getEnvironment().length > 0) {
 					JSONArray deploymentConfgs = new JSONArray();
 					for (Environment envo : apiProxyDeploymentResponse.getEnvironment()) {
 						if (envo.getRevision().length > 0) {
