@@ -49,7 +49,7 @@ public class SlackConnectorServiceImpl implements SlackConnectorService {
         TenantContext.setCurrentTenant(userSession.getTenant());
         logger.info("installSlack {}", slackWorkspace);
         String tenant = TenantContext.getCurrentTenant();
-        if (slackWorkspace.getWorkspaceName() == null || slackWorkspace.getToken() == null || slackWorkspace.getChannelList() == null)
+        if (slackWorkspace.getSlackWorkspaceName() == null || slackWorkspace.getToken() == null || slackWorkspace.getChannelList() == null)
             return new ResponseEntity<>("Please check the mandatory data fields", HttpStatus.INTERNAL_SERVER_ERROR);
         mongoTemplate.save(slackWorkspace);
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -65,7 +65,7 @@ public class SlackConnectorServiceImpl implements SlackConnectorService {
         Query query = new Query();
         List<SlackWorkspace> existingWorkspaces = mongoTemplate.findAll(SlackWorkspace.class);
         if (existingWorkspaces.isEmpty()) {
-            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
         }
         return new ResponseEntity<>(existingWorkspaces, org.springframework.http.HttpStatus.OK);
     }
@@ -94,23 +94,15 @@ public class SlackConnectorServiceImpl implements SlackConnectorService {
         logger.info("user session:{}", userSession);
         TenantContext.setCurrentTenant(userSession.getTenant());
         String tenant = TenantContext.getCurrentTenant();
-        String slackWorkspaceName = slackWorkspace.getWorkspaceName();
-        List<SlackWorkspace> workspaces = mongoTemplate.findAll(SlackWorkspace.class);
-        if (workspaces.stream()
-                .anyMatch(w -> StringUtils.equals(w.getWorkspaceName(), slackWorkspaceName))) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-//        Query query = new Query().addCriteria(Criteria.where("_id").is(workspaceId));
-//        SlackWorkspace existingWorkspace = mongoTemplate.findOne(query, SlackWorkspace.class);
-        SlackWorkspace existingWorkspace=workspaces.get(0);
-
+        Query query = new Query().addCriteria(Criteria.where("_id").is(workspaceId));
+        SlackWorkspace existingWorkspace = mongoTemplate.findOne(query, SlackWorkspace.class);
         if (existingWorkspace!=null) {
             if (!StringUtils.isEmpty(slackWorkspace.getToken())) {
                 existingWorkspace.setToken(slackWorkspace.getToken());
             }
 
-            if (!StringUtils.isEmpty(slackWorkspace.getWorkspaceName())) {
-                existingWorkspace.setWorkspaceName(slackWorkspace.getWorkspaceName());
+            if (!StringUtils.isEmpty(slackWorkspace.getSlackWorkspaceName())) {
+                existingWorkspace.setSlackWorkspaceName(slackWorkspace.getSlackWorkspaceName());
             }
 
             if (slackWorkspace.getChannelList()!=null) {
@@ -138,6 +130,16 @@ public class SlackConnectorServiceImpl implements SlackConnectorService {
         }
         mongoTemplate.findAndRemove(query, SlackWorkspace.class);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Override
+    public ResponseEntity<Object> getAllScopes(String interactionid, String jsessionid) throws Exception {
+        List<String> allScopes=new ArrayList<>();
+        allScopes.add("Design");
+        allScopes.add("Monitoring");
+        allScopes.add("Build");
+        allScopes.add("Gateway");
+        return new ResponseEntity<>(allScopes,HttpStatus.OK);
     }
 
 

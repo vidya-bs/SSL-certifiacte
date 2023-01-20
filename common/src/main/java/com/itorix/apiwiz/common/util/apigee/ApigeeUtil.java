@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import net.sf.json.JSON;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -1162,11 +1163,19 @@ public class ApigeeUtil {
 					"/v1/organizations/" + cfg.getOrganization() + "/apis/" + cfg.getApiName() + "/revisions", cfg),
 					HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
 			List<Integer> revisionList = new ArrayList<Integer>();
-			JSONArray revisionsArray = (JSONArray) JSONSerializer.toJSON(response.getBody());
-			for (Object revisionObj : revisionsArray) {
-				String revision = (String) revisionObj;
-				revisionList.add(Integer.parseInt(revision));
+			JSON jsonObject = JSONSerializer.toJSON(response.getBody());
+			if (jsonObject.isArray()) {
+				JSONArray revisionsArray = (JSONArray) JSONSerializer.toJSON(response.getBody());
+				for (Object revisionObj : revisionsArray) {
+					String revision = (String) revisionObj;
+					revisionList.add(Integer.parseInt(revision));
+				}
+			} else {
+				if (org.apache.commons.lang3.StringUtils.isNumeric(jsonObject.toString(1))) {
+					revisionList.add(Integer.parseInt(jsonObject.toString(1)));
+				}
 			}
+
 			return revisionList;
 		}
 
@@ -1192,10 +1201,12 @@ public class ApigeeUtil {
 							+ cfg.getSharedflowName() + "/revisions", cfg),
 					HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
 			List<Integer> revisionList = new ArrayList<Integer>();
-			JSONArray revisionsArray = (JSONArray) JSONSerializer.toJSON(response.getBody());
-			for (Object revisionObj : revisionsArray) {
-				String revision = (String) revisionObj;
-				revisionList.add(Integer.parseInt(revision));
+			if(response.getStatusCode().is2xxSuccessful()) {
+				JSONArray revisionsArray = (JSONArray) JSONSerializer.toJSON(response.getBody());
+				for (Object revisionObj : revisionsArray) {
+					String revision = (String) revisionObj;
+					revisionList.add(Integer.parseInt(revision));
+				}
 			}
 			return revisionList;
 		}
@@ -2082,11 +2093,17 @@ public class ApigeeUtil {
 	private HttpEntity<String> getHttpEntity(CommonConfiguration cfg) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-		// String encodedCredentials = Base64
-		// .encodeBase64String((cfg.getApigeeEmail() + ":" +
-		// cfg.getApigeePassword()).getBytes());
-		String authorization = getApigeeAuth(cfg.getOrganization(), cfg.getType());
-		headers.set("Authorization", authorization);
+		if (StringUtils.isNotEmpty(cfg.getApigeeEmail()) && StringUtils.isNotEmpty(
+				cfg.getApigeePassword())) {
+			String encodedCredentials = Base64
+					.encodeBase64String((cfg.getApigeeEmail() + ":" + cfg.getApigeePassword()).getBytes());
+			headers.set("Authorization", "Basic " + encodedCredentials);
+		} else if (StringUtils.isEmpty(cfg.getApigeeEmail()) && StringUtils.isEmpty(
+				cfg.getApigeePassword())) {
+			String authorization = getApigeeAuth(cfg.getOrganization(), cfg.getType());
+			headers.set("Authorization", authorization);
+		}
+
 		return new HttpEntity<String>("parameters", headers);
 	}
 
@@ -2129,9 +2146,8 @@ public class ApigeeUtil {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		String encodedCredentials = Base64
-				.encodeBase64String((cfg.getApigeeEmail() + ":" + cfg.getApigeePassword()).getBytes());
-		headers.set("Authorization", "Basic " + encodedCredentials);
+		String authorization = getApigeeAuth(cfg.getOrganization(), cfg.getType());
+		headers.set("Authorization", authorization);
 		return new HttpEntity<String>(body, headers);
 	}
 
@@ -2139,9 +2155,8 @@ public class ApigeeUtil {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		String encodedCredentials = Base64
-				.encodeBase64String((cfg.getApigeeEmail() + ":" + cfg.getApigeePassword()).getBytes());
-		headers.set("Authorization", "Basic " + encodedCredentials);
+		String authorization = getApigeeAuth(cfg.getOrganization(), cfg.getType());
+		headers.set("Authorization", authorization);
 		return new HttpEntity<String>(body, headers);
 	}
 
@@ -2302,12 +2317,44 @@ public class ApigeeUtil {
 
 	public List<String> listKeysInAnEnvironmentKeyValueMap(CommonConfiguration cfg, String map_name)
 			throws ItorixException {
+		if (cfg.getGwtype() != null && cfg.getGwtype().equalsIgnoreCase("apigeex")) {
+			ResponseEntity<List<String>> response = exchange(getApigeexURL(
+							"/v1/organizations/" + cfg.getOrganization() + "/keyvaluemaps/" + map_name + "/entries", cfg),
+					HttpMethod.POST, getHttpEntityX(cfg), new ParameterizedTypeReference<List<String>>(){
+					}, cfg);
+
+			return response.getBody();
+		}
 		ResponseEntity<List<String>> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 						+ "/keyvaluemaps/" + map_name + "/keys", cfg),
 				HttpMethod.GET, getHttpEntity(cfg), new ParameterizedTypeReference<List<String>>() {
 				}, cfg);
 		return response.getBody();
+	}
+
+	public List<String> listXKeysInAnEnvironmentKeyValueMap(CommonConfiguration cfg, String map_name)
+			throws ItorixException {
+
+		ResponseEntity<String> response = exchange(getApigeexURL(
+						"/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+								+ "/keyvaluemaps/" + map_name + "/entries", cfg),
+				HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
+
+		List<String> keys = new ArrayList<String>();
+		if (response.getStatusCode().is2xxSuccessful()) {
+			JSONObject keyValueResponse = (JSONObject) JSONSerializer.toJSON(response.getBody());
+			JSONArray keyValue = keyValueResponse.getJSONArray("keyValueEntries");
+
+			for (Object keyValueEntry : keyValue) {
+				if (keyValueEntry instanceof JSONObject) {
+					JSONObject entryJson = (JSONObject) keyValueEntry;
+					String entry_name = entryJson.getString("name");
+					keys.add(entry_name);
+				}
+			}
+		}
+		return keys;
 	}
 
 	public boolean isKeyValueMap(CommonConfiguration cfg, String map_name) throws ItorixException {
@@ -2325,9 +2372,11 @@ public class ApigeeUtil {
 
 	public String createAnEntryInAnEnvironmentKeyValueMap(CommonConfiguration cfg, String map_name)
 			throws ItorixException {
+
 		ResponseEntity<String> response = exchange(
-				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
-						+ "/keyvaluemaps/" + map_name + "/entries", cfg),
+				getSecureURL(
+						"v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+								+ "/keyvaluemaps/" + map_name + "/entries", cfg),
 				HttpMethod.POST, getHttpEntityWithBodyJSON(cfg, cfg.getResource()), String.class, cfg);
 		return response.getBody();
 	}
@@ -2340,12 +2389,65 @@ public class ApigeeUtil {
 		return response.getBody();
 	}
 
+	public String createXKeyValueMapInAnEnvironment(CommonConfiguration cfg, String map_name) throws ItorixException {
+
+		HttpHeaders headers = getHttpEntityX(cfg).getHeaders();
+		JSONObject bodyObj = new JSONObject();
+		bodyObj.put("name", map_name);
+		bodyObj.put("encrypted", true);
+		HttpEntity<Object> entity = new HttpEntity<>(bodyObj.toString(), headers);
+
+
+		ResponseEntity<String> response = exchange(
+				getApigeexURL("/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+						+ "/keyvaluemaps", cfg),
+				HttpMethod.POST, entity, String.class, cfg);
+
+		logger.info("HttpRequest : {}", entity);
+		return response.getBody();
+	}
+
+	public String createXKeyValueMapEntryInAnEnvironment(CommonConfiguration cfg, String map_name,
+			String entryName, Object entryValue) throws ItorixException {
+
+		HttpHeaders headers = getHttpEntityX(cfg).getHeaders();
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("name", entryName);
+		map.put("value", entryValue);
+		HttpEntity<Object> entity = new HttpEntity<>(map, headers);
+
+		ResponseEntity<String> response = exchange(
+				getApigeexURL(
+						"/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+								+ "/keyvaluemaps", cfg),
+				HttpMethod.POST, entity, String.class, cfg);
+
+		return response.getBody();
+	}
+
 	public String updateAKeyValueMapEntryInAnEnvironment(CommonConfiguration cfg, String map_name, String entry_name)
 			throws ItorixException {
 		ResponseEntity<String> response = exchange(
 				getSecureURL("v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
 						+ "/keyvaluemaps/" + map_name + "/entries/" + entry_name, cfg),
 				HttpMethod.POST, getHttpEntityWithBodyJSON(cfg, cfg.getResource()), String.class, cfg);
+		return response.getBody();
+	}
+
+	public String updateXAKeyValueMapEntryInAnEnvironment(CommonConfiguration cfg, String map_name,
+			String entry_name, Object entry_value)
+			throws ItorixException {
+
+		ResponseEntity<String> response = exchange(getApigeexURL(
+						"/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+								+ "/keyvaluemaps/" + map_name + "/entries" + entry_name,
+						cfg),
+				HttpMethod.DELETE, getHttpEntityX(cfg), String.class, cfg);
+
+		if (response.getStatusCode().is2xxSuccessful()) {
+			return createXKeyValueMapEntryInAnEnvironment(cfg, map_name, entry_name, entry_value);
+		}
+
 		return response.getBody();
 	}
 
@@ -2447,5 +2549,18 @@ public class ApigeeUtil {
 			// throw e;
 		}
 		return token;
+	}
+
+	public List<String> getKeyValueMapsX(CommonConfiguration cfg)
+			throws ItorixException {
+		ResponseEntity<List<String>> response = exchange(
+				getApigeexURL(
+						"/v1/organizations/" + cfg.getOrganization() + "/environments/" + cfg.getEnvironment()
+								+ "/keyvaluemaps", cfg),
+				HttpMethod.GET,
+				getHttpEntityX(cfg), new ParameterizedTypeReference<List<String>>() {
+				}, cfg);
+		return response.getBody();
+
 	}
 }

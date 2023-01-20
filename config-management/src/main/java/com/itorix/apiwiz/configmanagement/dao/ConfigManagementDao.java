@@ -1092,32 +1092,35 @@ public class ConfigManagementDao {
 			ConfigMetadata metadata = productConfig.getMetadata();
 			metadata.setResourceType("product");
 
-			if (obj.size() > 0) {
-				Query query = new Query(
-						Criteria.where("org").is(productConfig.getOrg()).and("name").is(productConfig.getName()));
-				Update update = new Update();
-				update.set("createdUser", productConfig.getCreatedUser());
-				update.set("modifiedUser", productConfig.getModifiedUser());
-				update.set("createdDate", productConfig.getCreatedDate());
-				update.set("modifiedDate", productConfig.getModifiedDate());
-				update.set("description", productConfig.getDescription());
-				update.set("type", productConfig.getType());
-				update.set("apiResources", productConfig.getApiResources());
-				update.set("displayName", productConfig.getDisplayName());
-				update.set("environments", productConfig.getEnvironments());
-				update.set("proxies", productConfig.getProxies());
-				update.set("approvalType", productConfig.getApprovalType());
-				if (productConfig.getQuota() != null)
-					update.set("quota", productConfig.getQuota());
-				if (productConfig.getQuotaInterval() != null)
-					update.set("quotaInterval", productConfig.getQuotaInterval());
-				if (productConfig.getQuotaTimeUnit() != null)
-					update.set("quotaTimeUnit", productConfig.getQuotaTimeUnit());
-				if (productConfig.getScopes() != null && productConfig.getScopes().size() > 0)
-					update.set("scopes", productConfig.getScopes());
-				update.set("attributes", productConfig.getAttributes());
-				mongoTemplate.updateMulti(query, update, ProductConfig.class);
+			Query query = new Query(
+					Criteria.where("org").is(productConfig.getOrg()).and("name").is(productConfig.getName()));
+			Update update = new Update();
+			update.set("createdUser", productConfig.getCreatedUser());
+			update.set("modifiedUser", productConfig.getModifiedUser());
+			update.set("createdDate", productConfig.getCreatedDate());
+			update.set("modifiedDate", productConfig.getModifiedDate());
+			update.set("description", productConfig.getDescription());
+			update.set("type", productConfig.getType());
+			update.set("apiResources", productConfig.getApiResources());
+			update.set("displayName", productConfig.getDisplayName());
+			update.set("environments", productConfig.getEnvironments());
+			update.set("proxies", productConfig.getProxies());
+			update.set("approvalType", productConfig.getApprovalType());
+			update.set("activeFlag", productConfig.isActiveFlag());
+			if (productConfig.getQuota() != null) {
+				update.set("quota", productConfig.getQuota());
 			}
+			if (productConfig.getQuotaInterval() != null) {
+				update.set("quotaInterval", productConfig.getQuotaInterval());
+			}
+			if (productConfig.getQuotaTimeUnit() != null) {
+				update.set("quotaTimeUnit", productConfig.getQuotaTimeUnit());
+			}
+			if (productConfig.getScopes() != null && productConfig.getScopes().size() > 0) {
+				update.set("scopes", productConfig.getScopes());
+			}
+			update.set("attributes", productConfig.getAttributes());
+			mongoTemplate.upsert(query, update, ProductConfig.class);
 			saveMetadata(metadata);
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
@@ -1133,10 +1136,7 @@ public class ConfigManagementDao {
 			metadata.setResourceType("product");
 
 			if (obj.size() > 0) {
-				Query query = new Query(Criteria.where("org").is(config.getOrg()).and("name").is(config.getName()));
-				Update update = new Update();
-				update.set("activeFlag", false);
-				UpdateResult result = mongoTemplate.updateMulti(query, update, ProductConfig.class);
+				throw new ItorixException("Resource already exists", "Configuration-1000");
 			}
 			mongoTemplate.insert(config);
 			saveMetadata(metadata);
@@ -1266,26 +1266,38 @@ public class ConfigManagementDao {
 		try {
 			@SuppressWarnings("unchecked")
 			List<ProductConfig> data = (ArrayList) getAllActiveProducts(config);
-			ProductConfig productConfig = data.get(0);
-			if (isResourceAvailable(productService.getUpdateProductURL(productConfig),
-					getApigeeCredentials(config.getOrg(), config.getType()))) {
-				return updateApigeeProduct(config, user);
+			ProductConfig productConfig = null;
+			if (data.stream().findFirst().isPresent()) {
+				productConfig = data.stream().findFirst().get();
+			}
+			if (productConfig != null) {
+				if (isResourceAvailable(productService.getUpdateProductURL(productConfig),
+						getApigeeCredentials(config.getOrg(), config.getType()))) {
+					return updateApigeeProduct(config, user);
+				} else {
+					ApigeeProduct product = productService.getProductBody(productConfig);
+					String URL = productService.getProductURL(productConfig);
+					HTTPUtil httpConn = new HTTPUtil(product, URL,
+							getApigeeCredentials(config.getOrg(), config.getType()));
+					ResponseEntity<String> response = httpConn.doPost();
+					HttpStatus statusCode = response.getStatusCode();
+					if (statusCode.is2xxSuccessful()) {
+						return true;
+					} else if (statusCode.value() >= 401 && statusCode.value() <= 403) {
+						throw new ItorixException(
+								"Request validation failed. Exception connecting to apigee connector. "
+										+ statusCode.value(), "Configuration-1006");
+					} else if (statusCode.value() == 409) {
+						throw new ItorixException(
+								"Request resource already available in Apigee " + statusCode.value(),
+								"Configuration-1007");
+					} else {
+						throw new ItorixException("invalid request data " + statusCode.value(),
+								"Configuration-1000");
+					}
+				}
 			} else {
-				ApigeeProduct product = productService.getProductBody(productConfig);
-				String URL = productService.getProductURL(productConfig);
-				HTTPUtil httpConn = new HTTPUtil(product, URL, getApigeeCredentials(config.getOrg(), config.getType()));
-				ResponseEntity<String> response = httpConn.doPost();
-				HttpStatus statusCode = response.getStatusCode();
-				if (statusCode.is2xxSuccessful())
-					return true;
-				else if (statusCode.value() >= 401 && statusCode.value() <= 403)
-					throw new ItorixException("Request validation failed. Exception connecting to apigee connector. "
-							+ statusCode.value(), "Configuration-1006");
-				else if (statusCode.value() == 409)
-					throw new ItorixException("Request resource already available in Apigee " + statusCode.value(),
-							"Configuration-1007");
-				else
-					throw new ItorixException("invalid request data " + statusCode.value(), "Configuration-1000");
+				throw new ItorixException("Product is not present", "Configuration-1000");
 			}
 		} catch (ItorixException ex) {
 			throw ex;

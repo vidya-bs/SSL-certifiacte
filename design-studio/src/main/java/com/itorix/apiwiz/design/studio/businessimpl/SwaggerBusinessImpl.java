@@ -23,6 +23,7 @@ import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.common.util.zip.ZIPUtil;
 import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
 import com.itorix.apiwiz.design.studio.model.*;
+import com.itorix.apiwiz.design.studio.model.dto.MetadataErrorDTO;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger.Status;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SchemaInfo;
@@ -52,6 +53,8 @@ import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.json.JSON;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -140,16 +143,10 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 	private static final String PUBLISH_STATUS = "Publish";
 
-	public SwaggerVO createSwagger(SwaggerVO swaggerVO,boolean publish) {
+	public SwaggerVO createSwagger(SwaggerVO swaggerVO) {
 		log("createSwagger", swaggerVO.getInteractionid(), swaggerVO);
 		swaggerVO.setRevision(1);
-		if(publish)
-		{
-			swaggerVO.setStatus(("Publish"));
-		}
-		else {
-			swaggerVO.setStatus("Draft");
-		}
+		swaggerVO.setStatus("Draft");
 		swaggerVO.setLock(false);
 		swaggerVO.setId(null);
 		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
@@ -170,16 +167,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return details;
 	}
 
-	public Swagger3VO createSwagger(Swagger3VO swaggerVO,boolean publish) {
+	public Swagger3VO createSwagger(Swagger3VO swaggerVO) {
 		log("createSwagger", swaggerVO.getInteractionid(), swaggerVO);
 		swaggerVO.setRevision(1);
-		if(publish)
-		{
-			swaggerVO.setStatus(("Publish"));
-		}
-		else {
-			swaggerVO.setStatus("Draft");
-		}		swaggerVO.setLock(false);
+		swaggerVO.setStatus("Draft");
+		swaggerVO.setLock(false);
 		swaggerVO.setId(null);
 		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
 		Swagger3VO details = baseRepository.save(swaggerVO);
@@ -406,7 +398,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 						} catch (ItorixException e) {
 							if (e.errorCode.equals("Swagger-1002")) {
 								reason = "swagger with same name exists";
-								createSwaggerWithNewRevision(swaggerVO, null,false);
+								createSwaggerWithNewRevision(swaggerVO, null);
 							}
 							swagger.setReason(reason);
 						}
@@ -465,7 +457,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 						} catch (ItorixException e) {
 							if (e.errorCode.equals("Swagger-1002")) {
 								reason = "swagger with same name exists";
-								createSwaggerWithNewRevision(swaggerVO, null,false);
+								createSwaggerWithNewRevision(swaggerVO, null);
 							}
 							swagger.setReason(reason);
 						}
@@ -557,7 +549,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return vo;
 	}
 
-	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid,boolean publish) throws ItorixException {
+	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid) throws ItorixException {
 		log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), swaggerVO);
 		SwaggerVO vo = findSwagger(swaggerVO.getName(), swaggerVO.getInteractionid());
 		if (vo != null) {
@@ -568,19 +560,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Revision revision = Collections.max(revisions);
 			Integer newRevision = revision.getRevision() + 1;
 			swaggerVO.setRevision(newRevision);
-			if(publish)
-			{
-				swaggerVO.setStatus(("Publish"));
-				SwaggerVO swaggerVo = findSwagger(swaggerVO.getName(), jsessionid);
-					swaggerVo = baseRepository.findOne("name", swaggerVO.getName(), STATUS_VALUE, PUBLISH_STATUS, SwaggerVO.class);
-					if (swaggerVo != null) {
-						swaggerVo.setStatus(SwaggerStatus.DRAFT.getStatus());
-						baseRepository.save(swaggerVo);
-					}
-			}
-			else {
 				swaggerVO.setStatus("Draft");
-			}
 			swaggerVO.setLock(false);
 			swaggerVO.setId(null);
 			swaggerVO.setSwaggerId(vo.getSwaggerId());
@@ -591,7 +571,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return null;
 	}
 
-	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid,boolean publish) throws ItorixException {
+	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid) throws ItorixException {
 		log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), swaggerVO);
 		Swagger3VO vo = findSwagger3(swaggerVO.getName(), swaggerVO.getInteractionid());
 		if (vo != null) {
@@ -602,19 +582,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Revision revision = Collections.max(revisions);
 			Integer newRevision = revision.getRevision() + 1;
 			swaggerVO.setRevision(newRevision);
-			if(publish)
-			{
-				swaggerVO.setStatus(("Publish"));
-				Swagger3VO swaggerVo = findSwagger3(swaggerVO.getName(), jsessionid);
-					swaggerVo = baseRepository.findOne("name", swaggerVO.getName(), STATUS_VALUE, PUBLISH_STATUS, Swagger3VO.class);
-					if (swaggerVo != null) {
-						swaggerVo.setStatus(SwaggerStatus.DRAFT.getStatus());
-						baseRepository.save(swaggerVo);
-					}
-			}
-			else {
-				swaggerVO.setStatus("Draft");
-			}
+			swaggerVO.setStatus("Draft");
 			swaggerVO.setLock(false);
 			swaggerVO.setId(null);
 			swaggerVO.setSwaggerId(vo.getSwaggerId());
@@ -4344,7 +4312,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			log.error("Swagger name cannot be empty");
 			throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"), "Swagger-1000");
 		}
+		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		User user = getUserDetailsFromSessionID(jsessionid);
+		if (user.isWorkspaceAdmin(userSessionToken.getWorkspaceId())){
+			return;
+		}
 		List<SwaggerTeam> userTeams = getUserTeams(user);
 		boolean teamFound = false;
 		Set<String> swaggerTeams = new HashSet<>();
@@ -4371,6 +4343,112 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		}
 	}
 
+	@Override
+	public List<MetadataErrorDTO> checkMetadataSwagger(String oas, String swaggerString) throws ItorixException {
+		if (StringUtils.isEmpty(swaggerString)){
+			log.error("Swagger string is empty.");
+			throw new ItorixException("Swagger string is empty", "General-1001");
+		}
+		String missingError = "%s is missing in %s";
+		Set<String> metadataList = new HashSet<>(List.of("x-metadata"));
+		List<MetadataErrorDTO> response = new ArrayList<>();
+		Map<String, Object> metadata = new HashMap<>();
+		Set<String> swaggerPaths = new HashSet<>();
+		Set<String> swaggerDefinition = new HashSet<>();
+		String definitionsEnum = null;
+		if(oas.startsWith("2")) {
+			definitionsEnum = "Definitions";
+			SwaggerParser swaggerParser = new SwaggerParser();
+			Swagger swagger = swaggerParser.parse(swaggerString);
+			try {
+				swaggerPaths = swagger.getPaths().keySet();
+			}catch (Exception exception) {
+				log.error("Paths is empty.");
+			}
+			try {
+				swaggerDefinition = swagger.getDefinitions().keySet();
+			}catch (Exception exception) {
+				log.error("Definition is empty.");
+			}
+			swagger.getVendorExtensions().forEach( (key, value) -> {
+				if (metadataList.contains(key)) {
+					if (key.equalsIgnoreCase("x-metadata")){
+						try {
+							metadata.put("metadata", new ObjectMapper().convertValue(value, Map.class).get("metadata"));
+						}catch (Exception e){
+							log.error("metadata is empty");
+						}
+					}else {
+						metadata.put(key, value);
+					}
+				}
+			});
+		} else if (oas.startsWith("3")) {
+			definitionsEnum = "Components-schema";
+			OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
+			OpenAPI swagger = openAPIV3Parser.readContents(swaggerString).getOpenAPI();
+			try {
+				swaggerPaths = swagger.getPaths().keySet();
+			} catch (Exception e) {
+				log.error("Paths is empty");
+			}
+			try {
+				swaggerDefinition = swagger.getComponents().getSchemas().keySet();
+			} catch (Exception e) {
+				log.error("Components is empty");
+			}
+			try {
+				swagger.getExtensions().forEach((key, value) -> {
+					if (metadataList.contains(key)) {
+						if (key.equalsIgnoreCase("x-metadata")) {
+							try {
+								metadata.put("metadata", new ObjectMapper().convertValue(value, Map.class).get("metadata"));
+							} catch (Exception e) {
+								log.error(e.getMessage());
+							}
+						} else {
+							metadata.put(key, value);
+						}
+					}
+				});
+			}catch (Exception e){
+				log.error(e.getMessage());
+			}
+		}
+		Set<String> metadataPaths = new HashSet<>();
+		Set<String> metadataDefinitions = new HashSet<>();
+		if (!metadata.isEmpty()) {
+			ObjectMapper m = new ObjectMapper();
+			List<Map<String, Object>> categoryMetadataList = m.convertValue(m.convertValue(metadata.get("metadata"), Map.class).get("category"), List.class);
+			if (!categoryMetadataList.isEmpty()) {
+				for (Map<String, Object> categoryMetadata : categoryMetadataList) {
+					Set<String> metadataObject = m.convertValue(categoryMetadata.get("paths"), Set.class);
+					if (metadataObject != null) {
+						metadataPaths.addAll(metadataObject);
+					}
+					metadataObject = m.convertValue(categoryMetadata.get("definitions"), Set.class);
+					if (metadataObject != null) {
+						metadataDefinitions.addAll(metadataObject);
+					}
+				}
+			}
+		}
+		response = checkDifference(swaggerPaths, metadataPaths, response, missingError, "Paths", "x-metadata-paths");
+		response = checkDifference(metadataPaths, swaggerPaths, response, missingError, "x-metadata-paths", "Paths");
+		response = checkDifference(swaggerDefinition, metadataDefinitions, response, missingError, definitionsEnum, "x-metadata-Definitions");
+		response = checkDifference(metadataDefinitions, swaggerDefinition, response, missingError, "x-metadata-Definitions", definitionsEnum);
+		return response;
+	}
+
+	private List<MetadataErrorDTO> checkDifference(Collection source, Collection target,List<MetadataErrorDTO> response, String error, String errorSource, String errorTarget){
+		List<String> difference = new ArrayList<>(CollectionUtils.subtract(source, target));
+		if (!difference.isEmpty()){
+			for (String object : difference) {
+				response.add(new MetadataErrorDTO(errorSource, null, object, String.format(error, object, errorTarget)));
+			}
+		}
+		return response;
+	}
 	private DeleteResult removeBasePath(Query query, Class clazz) {
 		log.debug("removeBasePath : {}", query);
 		return mongoTemplate.remove(query, clazz);

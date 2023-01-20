@@ -52,7 +52,7 @@ deployment:
         approval: disable
         host: 34.102.79.102
         pem: NA
-        configBranch: stage
+        configBranch: develop
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         container: enable
         spaceName: stage
@@ -472,7 +472,7 @@ deployment:
         host: 34.102.79.102
         approval: disable
         pem: NA
-        configBranch: stage
+        configBranch: develop
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         cloudProvider: google
         gcpCredProfile: nonprod

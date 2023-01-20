@@ -3,6 +3,7 @@ package com.itorix.apiwiz.data.management.businessimpl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
 import com.itorix.apiwiz.data.management.business.ApigeeConfigurationBusiness;
 import com.itorix.apiwiz.datamanagement.service.ApigeeConfigurationService;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
+import org.springframework.web.client.RestClientException;
 
 @Service
 public class ApigeeConfigurationBusinessImpl implements ApigeeConfigurationBusiness {
@@ -119,12 +121,6 @@ public class ApigeeConfigurationBusinessImpl implements ApigeeConfigurationBusin
 			String host, String port, String scheme) throws ItorixException {
 		logger.debug("ApigeeConfigurationService.getEnvironmentNames : interactionid=" + interactionid + ": jsessionid="
 				+ jsessionid + " : organization =" + organization);
-		/*
-		 * Apigee apigee = getApigeeCredential(jsessionid); if (apigee == null)
-		 * { throw new
-		 * ItorixException(ErrorCodes.errorMessage.get("Apigee-1007"),
-		 * "Apigee-1007"); }
-		 */
 		List<String> envList = null;
 		CommonConfiguration cfg = new CommonConfiguration();
 		cfg.setType(type);
@@ -261,14 +257,37 @@ public class ApigeeConfigurationBusinessImpl implements ApigeeConfigurationBusin
 		if (apigeeConfigurationVO != null) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Apigee-1004"), "Apigee-1004");
 		}
+		List<String> environments= new ArrayList<>();
+		try {
+			environments = getEnvironmentDetails(apigeeIntegrationVO.getOrgname(),
+					apigeeIntegrationVO.getType(), apigeeIntegrationVO.getHostname(),
+					apigeeIntegrationVO.getPort(),
+					apigeeIntegrationVO.getScheme(), apigeeIntegrationVO.getUserName(), apigeeIntegrationVO.getPassword());
+		} catch (RestClientException exception) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Apigee-1005"), "Apigee-1005");
+		}
 		apigeeConfigurationVO = apigeeIntegrationVO.getApigeeConfigObject();
-		apigeeConfigurationVO = baseRepository.save(apigeeConfigurationVO);
-		List<String> environments = getEnvironmentNames(null, apigeeIntegrationVO.getOrgname(), null,
-				apigeeIntegrationVO.getType(), apigeeIntegrationVO.getHostname(), apigeeIntegrationVO.getPort(),
-				apigeeIntegrationVO.getScheme());
 		apigeeConfigurationVO.setEnvironments(environments);
-		apigeeConfigurationVO = mongoTemplate.save(apigeeConfigurationVO);
+		apigeeConfigurationVO = baseRepository.save(apigeeConfigurationVO);
 	}
+
+	private List<String> getEnvironmentDetails(String orgname, String type, String hostname,
+			String port, String scheme, String userName, String password) throws ItorixException {
+		logger.debug("ApigeeConfigurationService.getEnvironmentNames : organization =" + orgname);
+		List<String> envList = null;
+		CommonConfiguration cfg = new CommonConfiguration();
+		cfg.setType(type);
+		cfg.setOrganization(orgname);
+		ApigeeServiceUser apigeeServiceUser = apigeeUtil.getApigeeServiceAccount(orgname, type);
+		apigeeServiceUser.setUserName(userName);
+		apigeeServiceUser.setPassword(password);
+		cfg.setApigeeEmail(apigeeServiceUser.getUserName());
+		cfg.setApigeePassword(apigeeServiceUser.getDecryptedPassword());
+		cfg.setApigeeCred(apigeeUtil.getApigeeAuth(orgname, type));
+		envList = apigeeUtil.getEnvironmentNames(cfg, hostname, port, scheme);
+		return envList;
+	}
+
 
 	@Override
 	public void updateApigeeIntegration(ApigeeIntegrationVO apigeeIntegrationVO) throws ItorixException {
