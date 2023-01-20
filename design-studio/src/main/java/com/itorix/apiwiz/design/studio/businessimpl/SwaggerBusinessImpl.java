@@ -4381,12 +4381,14 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	@Override
 	public List<MetadataErrorDTO> checkMetadataSwagger(String oas, String swaggerString) {
 		String missingError = "%s is missing in %s";
-		Set<String> metadataList = new HashSet<>(Arrays.asList("x-metadata", "x-mock", "x-servers"));
+		Set<String> metadataList = new HashSet<>(Arrays.asList("x-metadata"));
 		List<MetadataErrorDTO> response = new ArrayList<>();
 		Map<String, Object> metadata = new HashMap<>();
 		Set<String> swaggerPaths = new HashSet<>();
 		Set<String> swaggerDefinition = new HashSet<>();
+		String definitionsEnum = null;
 		if(oas.startsWith("2")) {
+			definitionsEnum = "Definitions";
 			SwaggerParser swaggerParser = new SwaggerParser();
 			Swagger swagger = swaggerParser.parse(swaggerString);
 			swaggerPaths = swagger.getPaths().keySet();
@@ -4401,6 +4403,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				}
 			});
 		} else if (oas.startsWith("3")) {
+			definitionsEnum = "Components-schema";
 			OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
 			OpenAPI swagger = openAPIV3Parser.readContents(swaggerString).getOpenAPI();
 			swaggerPaths = swagger.getPaths().keySet();
@@ -4429,19 +4432,20 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				metadataDefinitions.addAll(metadataObject);
 			}
 		}
-		response = checkDifference(swaggerPaths, metadataPaths, response, missingError, "Paths");
-		response = checkDifference(metadataPaths, swaggerPaths, response, missingError, "x-metadata-paths");
-		response = checkDifference(swaggerDefinition, metadataDefinitions,response, missingError, "Definitions");
-		response = checkDifference(metadataDefinitions, swaggerDefinition,response, missingError, "x-metadata-Definitions");
+
+		response = checkDifference(swaggerPaths, metadataPaths, response, missingError, "Paths", "x-metadata-paths");
+		response = checkDifference(metadataPaths, swaggerPaths, response, missingError, "x-metadata-paths", "Paths");
+		response = checkDifference(swaggerDefinition, metadataDefinitions,response, missingError, definitionsEnum, "x-metadata-Definitions");
+		response = checkDifference(metadataDefinitions, swaggerDefinition,response, missingError, "x-metadata-Definitions", definitionsEnum);
 
 		return response;
 	}
 
-	private List<MetadataErrorDTO> checkDifference(Collection source, Collection target,List<MetadataErrorDTO> response, String error, String errorSource){
+	private List<MetadataErrorDTO> checkDifference(Collection source, Collection target,List<MetadataErrorDTO> response, String error, String errorSource, String errorTarget){
 		List<String> difference = new ArrayList<>(CollectionUtils.subtract(source, target));
 		if (!difference.isEmpty()){
 			for (String object : difference) {
-				response.add(new MetadataErrorDTO(errorSource, null, String.format(error, object, errorSource)));
+				response.add(new MetadataErrorDTO(errorSource, null, object, String.format(error, object, errorTarget)));
 			}
 		}
 		return response;
