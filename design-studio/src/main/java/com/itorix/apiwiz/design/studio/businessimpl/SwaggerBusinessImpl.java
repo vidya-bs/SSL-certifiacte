@@ -4395,15 +4395,23 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			definitionsEnum = "Definitions";
 			SwaggerParser swaggerParser = new SwaggerParser();
 			Swagger swagger = swaggerParser.parse(swaggerString);
-			swaggerPaths = swagger.getPaths().keySet();
-			swaggerDefinition = swagger.getDefinitions().keySet();
+			try {
+				swaggerPaths = swagger.getPaths().keySet();
+			}catch (Exception exception) {
+				log.error("Paths is empty.");
+			}
+			try {
+				swaggerDefinition = swagger.getDefinitions().keySet();
+			}catch (Exception exception) {
+				log.error("Definition is empty.");
+			}
 			swagger.getVendorExtensions().forEach( (key, value) -> {
 				if (metadataList.contains(key)) {
 					if (key.equalsIgnoreCase("x-metadata")){
 						try {
 							metadata.put("metadata", new ObjectMapper().convertValue(value, Map.class).get("metadata"));
 						}catch (Exception e){
-							log.error(e.getMessage());
+							log.error("metadata is empty");
 						}
 					}else {
 						metadata.put(key, value);
@@ -4414,11 +4422,15 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			definitionsEnum = "Components-schema";
 			OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
 			OpenAPI swagger = openAPIV3Parser.readContents(swaggerString).getOpenAPI();
-			swaggerPaths = swagger.getPaths().keySet();
+			try {
+				swaggerPaths = swagger.getPaths().keySet();
+			} catch (Exception e) {
+				log.error("Paths is empty");
+			}
 			try {
 				swaggerDefinition = swagger.getComponents().getSchemas().keySet();
 			} catch (Exception e) {
-				log.error(e.getMessage());
+				log.error("Components is empty");
 			}
 			try {
 				swagger.getExtensions().forEach((key, value) -> {
