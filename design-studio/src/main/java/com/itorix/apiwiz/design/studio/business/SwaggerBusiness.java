@@ -34,7 +34,7 @@ public interface SwaggerBusiness {
 	 * 
 	 * @return SwaggerVO
 	 */
-	public SwaggerVO createSwagger(SwaggerVO swaggerVO,boolean publish);
+	public SwaggerVO createSwagger(SwaggerVO swaggerVO);
 
 	/**
 	 * createSwagger
@@ -43,7 +43,7 @@ public interface SwaggerBusiness {
 	 * 
 	 * @return SwaggerVO
 	 */
-	public Swagger3VO createSwagger(Swagger3VO swaggerVO,boolean publish);
+	public Swagger3VO createSwagger(Swagger3VO swaggerVO);
 
 	/**
 	 * findSwagger
@@ -94,7 +94,7 @@ public interface SwaggerBusiness {
 	 * 
 	 * @return
 	 */
-	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid,boolean publish) throws ItorixException;
+	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid) throws ItorixException;
 
 	/**
 	 * createSwaggerWithNewRevision
@@ -104,7 +104,7 @@ public interface SwaggerBusiness {
 	 * 
 	 * @return
 	 */
-	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid,boolean publish) throws ItorixException;
+	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid) throws ItorixException;
 
 	/**
 	 * updateSwagger

@@ -140,16 +140,10 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 	private static final String PUBLISH_STATUS = "Publish";
 
-	public SwaggerVO createSwagger(SwaggerVO swaggerVO,boolean publish) {
+	public SwaggerVO createSwagger(SwaggerVO swaggerVO) {
 		log("createSwagger", swaggerVO.getInteractionid(), swaggerVO);
 		swaggerVO.setRevision(1);
-		if(publish)
-		{
-			swaggerVO.setStatus(("Publish"));
-		}
-		else {
-			swaggerVO.setStatus("Draft");
-		}
+		swaggerVO.setStatus("Draft");
 		swaggerVO.setLock(false);
 		swaggerVO.setId(null);
 		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
@@ -170,16 +164,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return details;
 	}
 
-	public Swagger3VO createSwagger(Swagger3VO swaggerVO,boolean publish) {
+	public Swagger3VO createSwagger(Swagger3VO swaggerVO) {
 		log("createSwagger", swaggerVO.getInteractionid(), swaggerVO);
 		swaggerVO.setRevision(1);
-		if(publish)
-		{
-			swaggerVO.setStatus(("Publish"));
-		}
-		else {
-			swaggerVO.setStatus("Draft");
-		}		swaggerVO.setLock(false);
+		swaggerVO.setStatus("Draft");
+		swaggerVO.setLock(false);
 		swaggerVO.setId(null);
 		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
 		Swagger3VO details = baseRepository.save(swaggerVO);
@@ -406,7 +395,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 						} catch (ItorixException e) {
 							if (e.errorCode.equals("Swagger-1002")) {
 								reason = "swagger with same name exists";
-								createSwaggerWithNewRevision(swaggerVO, null,false);
+								createSwaggerWithNewRevision(swaggerVO, null);
 							}
 							swagger.setReason(reason);
 						}
@@ -465,7 +454,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 						} catch (ItorixException e) {
 							if (e.errorCode.equals("Swagger-1002")) {
 								reason = "swagger with same name exists";
-								createSwaggerWithNewRevision(swaggerVO, null,false);
+								createSwaggerWithNewRevision(swaggerVO, null);
 							}
 							swagger.setReason(reason);
 						}
@@ -557,7 +546,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return vo;
 	}
 
-	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid,boolean publish) throws ItorixException {
+	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid) throws ItorixException {
 		log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), swaggerVO);
 		SwaggerVO vo = findSwagger(swaggerVO.getName(), swaggerVO.getInteractionid());
 		if (vo != null) {
@@ -568,19 +557,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Revision revision = Collections.max(revisions);
 			Integer newRevision = revision.getRevision() + 1;
 			swaggerVO.setRevision(newRevision);
-			if(publish)
-			{
-				swaggerVO.setStatus(("Publish"));
-				SwaggerVO swaggerVo = findSwagger(swaggerVO.getName(), jsessionid);
-					swaggerVo = baseRepository.findOne("name", swaggerVO.getName(), STATUS_VALUE, PUBLISH_STATUS, SwaggerVO.class);
-					if (swaggerVo != null) {
-						swaggerVo.setStatus(SwaggerStatus.DRAFT.getStatus());
-						baseRepository.save(swaggerVo);
-					}
-			}
-			else {
 				swaggerVO.setStatus("Draft");
-			}
 			swaggerVO.setLock(false);
 			swaggerVO.setId(null);
 			swaggerVO.setSwaggerId(vo.getSwaggerId());
@@ -591,7 +568,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return null;
 	}
 
-	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid,boolean publish) throws ItorixException {
+	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid) throws ItorixException {
 		log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), swaggerVO);
 		Swagger3VO vo = findSwagger3(swaggerVO.getName(), swaggerVO.getInteractionid());
 		if (vo != null) {
@@ -602,19 +579,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Revision revision = Collections.max(revisions);
 			Integer newRevision = revision.getRevision() + 1;
 			swaggerVO.setRevision(newRevision);
-			if(publish)
-			{
-				swaggerVO.setStatus(("Publish"));
-				Swagger3VO swaggerVo = findSwagger3(swaggerVO.getName(), jsessionid);
-					swaggerVo = baseRepository.findOne("name", swaggerVO.getName(), STATUS_VALUE, PUBLISH_STATUS, Swagger3VO.class);
-					if (swaggerVo != null) {
-						swaggerVo.setStatus(SwaggerStatus.DRAFT.getStatus());
-						baseRepository.save(swaggerVo);
-					}
-			}
-			else {
-				swaggerVO.setStatus("Draft");
-			}
+			swaggerVO.setStatus("Draft");
 			swaggerVO.setLock(false);
 			swaggerVO.setId(null);
 			swaggerVO.setSwaggerId(vo.getSwaggerId());
