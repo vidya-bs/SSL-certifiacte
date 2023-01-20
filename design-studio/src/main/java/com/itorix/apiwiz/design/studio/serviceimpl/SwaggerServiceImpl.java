@@ -3043,4 +3043,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 		}
 		return new ResponseEntity<Object>(json, HttpStatus.OK);
 	}
+
+	@Override
+	public ResponseEntity<Object> checkSwaggerMetadata(String interactionid, String oas, String jsessionid, String swagger) throws Exception {
+		return new ResponseEntity<>(swaggerBusiness.checkMetadataSwagger(oas, swagger), HttpStatus.OK);
+	}
 }

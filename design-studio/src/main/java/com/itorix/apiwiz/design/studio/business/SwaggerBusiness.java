@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.design.studio.model.*;
+import com.itorix.apiwiz.design.studio.model.dto.MetadataErrorDTO;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import com.mongodb.client.result.DeleteResult;
@@ -825,4 +826,6 @@ public interface SwaggerBusiness {
 	String getGolbalRule(String oas);
 
 	public void checkSwaggerTeams(String jsessionid, String swaggerName, String oasVersion) throws ItorixException;
+
+	List<MetadataErrorDTO> checkMetadataSwagger(String oas, String swagger) throws ItorixException;
 }
