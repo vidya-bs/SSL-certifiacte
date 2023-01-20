@@ -161,6 +161,24 @@ public class DictionaryServiceImpl implements DictionaryService {
 	}
 
 	/**
+	 * Using this method we can get the Portfolio.
+	 *
+	 * @param interactionid
+	 * @param jsessionid
+	 * @return
+	 * @throws ItorixException
+	 * @throws Exception
+	 */
+	public ResponseEntity<PortfolioHistoryResponse> getPortfolioOverviewV2(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) throws Exception {
+		PortfolioHistoryResponse list = dictionaryBusiness.findAllPortfoliosV2(interactionid, offset, pageSize);
+		return new ResponseEntity<PortfolioHistoryResponse>(list, HttpStatus.OK);
+	}
+
+	/**
 	 * Using this method we can get the Portfolios.
 	 *
 	 * @param interactionid

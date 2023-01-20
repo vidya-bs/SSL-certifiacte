@@ -31,6 +31,7 @@ public interface DictionaryBusiness {
 	// ItorixException;
 
 	public PortfolioHistoryResponse findAllPortfolios(String interactionid, int offset, int pageSize);
+	public PortfolioHistoryResponse findAllPortfoliosV2(String interactionid, int offset, int pageSize);
 
 	public PortfolioVO findPortfolioById(PortfolioVO portfolioVO);
 
