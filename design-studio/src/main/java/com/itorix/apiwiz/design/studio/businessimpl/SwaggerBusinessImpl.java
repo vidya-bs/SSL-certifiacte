@@ -4379,9 +4379,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	@Override
-	public List<MetadataErrorDTO> checkMetadataSwagger(String oas, String swaggerString) {
+	public List<MetadataErrorDTO> checkMetadataSwagger(String oas, String swaggerString) throws ItorixException {
+		if (StringUtils.isEmpty(swaggerString)){
+			log.error("Swagger string is empty.");
+			throw new ItorixException("Swagger string is empty", "General-1001");
+		}
 		String missingError = "%s is missing in %s";
-		Set<String> metadataList = new HashSet<>(Arrays.asList("x-metadata"));
+		Set<String> metadataList = new HashSet<>(List.of("x-metadata"));
 		List<MetadataErrorDTO> response = new ArrayList<>();
 		Map<String, Object> metadata = new HashMap<>();
 		Set<String> swaggerPaths = new HashSet<>();
@@ -4396,7 +4400,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			swagger.getVendorExtensions().forEach( (key, value) -> {
 				if (metadataList.contains(key)) {
 					if (key.equalsIgnoreCase("x-metadata")){
-						metadata.put("metadata", new ObjectMapper().convertValue(value, Map.class).get("metadata"));
+						try {
+							metadata.put("metadata", new ObjectMapper().convertValue(value, Map.class).get("metadata"));
+						}catch (Exception e){
+							log.error(e.getMessage());
+						}
 					}else {
 						metadata.put(key, value);
 					}
@@ -4407,37 +4415,52 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
 			OpenAPI swagger = openAPIV3Parser.readContents(swaggerString).getOpenAPI();
 			swaggerPaths = swagger.getPaths().keySet();
-			swaggerDefinition = swagger.getComponents().getSchemas().keySet();
-			swagger.getExtensions().forEach( (key, value) -> {
-				if (metadataList.contains(key)) {
-					if (key.equalsIgnoreCase("x-metadata")){
-						metadata.put("metadata", new ObjectMapper().convertValue(value, Map.class).get("metadata"));
-					}else {
-						metadata.put(key, value);
+			try {
+				swaggerDefinition = swagger.getComponents().getSchemas().keySet();
+			} catch (Exception e) {
+				log.error(e.getMessage());
+			}
+			try {
+				swagger.getExtensions().forEach((key, value) -> {
+					if (metadataList.contains(key)) {
+						if (key.equalsIgnoreCase("x-metadata")) {
+							try {
+								metadata.put("metadata", new ObjectMapper().convertValue(value, Map.class).get("metadata"));
+							} catch (Exception e) {
+								log.error(e.getMessage());
+							}
+						} else {
+							metadata.put(key, value);
+						}
+					}
+				});
+			}catch (Exception e){
+				log.error(e.getMessage());
+			}
+		}
+		if (!metadata.isEmpty()) {
+			ObjectMapper m = new ObjectMapper();
+			List<Map<String, Object>> categoryMetadataList = m.convertValue(m.convertValue(metadata.get("metadata"), Map.class).get("category"), List.class);
+			Set<String> metadataPaths = new HashSet<>();
+			Set<String> metadataDefinitions = new HashSet<>();
+			if (!categoryMetadataList.isEmpty()) {
+				for (Map<String, Object> categoryMetadata : categoryMetadataList) {
+					Set<String> metadataObject = m.convertValue(categoryMetadata.get("paths"), Set.class);
+					if (metadataObject != null) {
+						metadataPaths.addAll(metadataObject);
+					}
+					metadataObject = m.convertValue(categoryMetadata.get("definitions"), Set.class);
+					if (metadataObject != null) {
+						metadataDefinitions.addAll(metadataObject);
 					}
 				}
-			});
-		}
-		ObjectMapper m = new ObjectMapper();
-		List<Map<String,Object>> categoryMetadataList = m.convertValue(m.convertValue(metadata.get("metadata"), Map.class).get("category"), List.class);
-		Set<String> metadataPaths = new HashSet<>();
-		Set<String> metadataDefinitions = new HashSet<>();
-		for (Map<String, Object> categoryMetadata : categoryMetadataList) {
-			Set<String> metadataObject = m.convertValue(categoryMetadata.get("paths"), Set.class);
-			if (metadataObject != null) {
-				metadataPaths.addAll(metadataObject);
 			}
-			metadataObject = m.convertValue(categoryMetadata.get("definitions"), Set.class);
-			if (metadataObject != null) {
-				metadataDefinitions.addAll(metadataObject);
-			}
+
+			response = checkDifference(swaggerPaths, metadataPaths, response, missingError, "Paths", "x-metadata-paths");
+			response = checkDifference(metadataPaths, swaggerPaths, response, missingError, "x-metadata-paths", "Paths");
+			response = checkDifference(swaggerDefinition, metadataDefinitions, response, missingError, definitionsEnum, "x-metadata-Definitions");
+			response = checkDifference(metadataDefinitions, swaggerDefinition, response, missingError, "x-metadata-Definitions", definitionsEnum);
 		}
-
-		response = checkDifference(swaggerPaths, metadataPaths, response, missingError, "Paths", "x-metadata-paths");
-		response = checkDifference(metadataPaths, swaggerPaths, response, missingError, "x-metadata-paths", "Paths");
-		response = checkDifference(swaggerDefinition, metadataDefinitions,response, missingError, definitionsEnum, "x-metadata-Definitions");
-		response = checkDifference(metadataDefinitions, swaggerDefinition,response, missingError, "x-metadata-Definitions", definitionsEnum);
-
 		return response;
 	}
 

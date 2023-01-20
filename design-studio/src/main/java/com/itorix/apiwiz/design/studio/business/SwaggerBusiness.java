@@ -827,5 +827,5 @@ public interface SwaggerBusiness {
 
 	public void checkSwaggerTeams(String jsessionid, String swaggerName, String oasVersion) throws ItorixException;
 
-	List<MetadataErrorDTO> checkMetadataSwagger(String oas, String swagger);
+	List<MetadataErrorDTO> checkMetadataSwagger(String oas, String swagger) throws ItorixException;
 }
