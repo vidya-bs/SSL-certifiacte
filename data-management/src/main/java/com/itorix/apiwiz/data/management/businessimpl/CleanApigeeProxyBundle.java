@@ -29,6 +29,7 @@ import javax.xml.xpath.XPathFactory;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -39,6 +40,7 @@ import org.zeroturnaround.zip.ZipUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Slf4j
 public class CleanApigeeProxyBundle {
 
 	private static final List<String> unsupportedPolicyTypes = Arrays.asList("ConcurrentRatelimit".toUpperCase(),
@@ -48,10 +50,9 @@ public class CleanApigeeProxyBundle {
 //		String path = "/Users/sudhakar/apiwiz/temp/ProductCatalog_v1.zip";
 //		String outPath = "/Users/sudhakar/apiwiz/temp/proxy";
 //		cleanProxy(path, outPath);
-//
-//		// String sharedflowPath = "/Users/sudhakar/apiwiz/temp/35.zip";
-//		// String outputPath = "/Users/sudhakar/apiwiz/temp/sharedflow";
-//		// cleanSharedflow(sharedflowPath, outputPath);
+//		 String sharedflowPath = "/Users/yathinsomaiah/Downloads/backups 4/apiwiznonprod/sharedflows/SF-Default-Fault-Handler/1.zip";
+//		 String outputPath = "/Users/yathinsomaiah/Downloads/backups 4/apiwiznonprod/sharedflows/SF-Default-Fault-Handler/temp";
+//		 cleanSharedflow(sharedflowPath, outputPath);
 //	}
 
 	public static void cleanSharedflow(String bundlePath, String outputFolder) {
@@ -73,8 +74,10 @@ public class CleanApigeeProxyBundle {
 				removeNameElements(policies);
 			}
 			ObjectMapper objectMapper = new ObjectMapper();
-			System.out.println("OUTPUT : " + objectMapper.writeValueAsString(policies));
+
+			log.debug("OUTPUT : " + objectMapper.writeValueAsString(policies));
 			ZipUtil.pack(new File(outputFolder), new File(bundlePath));
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -90,7 +93,7 @@ public class CleanApigeeProxyBundle {
 					+ System.getProperty("file.separator") + "proxies";
 			String targetPath = outputFolder + System.getProperty("file.separator") + "apiproxy"
 					+ System.getProperty("file.separator") + "targets";
-			System.out.println("policies path : " + policiesPath);
+			log.debug("policies path : " + policiesPath);
 			File[] fList = getPolicyFiles(policiesPath);
 			List<ApigeePolicy> policies = new ArrayList<>();
 			for (File file : fList) {
@@ -103,7 +106,7 @@ public class CleanApigeeProxyBundle {
 				removeProxyPolicies(targetPath, policies);
 				removeNameElements(policies);
 				ObjectMapper objectMapper = new ObjectMapper();
-				System.out.println("OUTPUT : " + objectMapper.writeValueAsString(policies));
+				log.debug("OUTPUT : " + objectMapper.writeValueAsString(policies));
 				ZipUtil.pack(new File(outputFolder), new File(proxyBundlePath));
 			}
 		} catch (IOException e) {
