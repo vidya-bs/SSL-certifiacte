@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import net.sf.json.JSON;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -1162,11 +1163,19 @@ public class ApigeeUtil {
 					"/v1/organizations/" + cfg.getOrganization() + "/apis/" + cfg.getApiName() + "/revisions", cfg),
 					HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
 			List<Integer> revisionList = new ArrayList<Integer>();
-			JSONArray revisionsArray = (JSONArray) JSONSerializer.toJSON(response.getBody());
-			for (Object revisionObj : revisionsArray) {
-				String revision = (String) revisionObj;
-				revisionList.add(Integer.parseInt(revision));
+			JSON jsonObject = JSONSerializer.toJSON(response.getBody());
+			if (jsonObject.isArray()) {
+				JSONArray revisionsArray = (JSONArray) JSONSerializer.toJSON(response.getBody());
+				for (Object revisionObj : revisionsArray) {
+					String revision = (String) revisionObj;
+					revisionList.add(Integer.parseInt(revision));
+				}
+			} else {
+				if (org.apache.commons.lang3.StringUtils.isNumeric(jsonObject.toString(1))) {
+					revisionList.add(Integer.parseInt(jsonObject.toString(1)));
+				}
 			}
+
 			return revisionList;
 		}
 
@@ -1192,10 +1201,12 @@ public class ApigeeUtil {
 							+ cfg.getSharedflowName() + "/revisions", cfg),
 					HttpMethod.GET, getHttpEntityX(cfg), String.class, cfg);
 			List<Integer> revisionList = new ArrayList<Integer>();
-			JSONArray revisionsArray = (JSONArray) JSONSerializer.toJSON(response.getBody());
-			for (Object revisionObj : revisionsArray) {
-				String revision = (String) revisionObj;
-				revisionList.add(Integer.parseInt(revision));
+			if(response.getStatusCode().is2xxSuccessful()) {
+				JSONArray revisionsArray = (JSONArray) JSONSerializer.toJSON(response.getBody());
+				for (Object revisionObj : revisionsArray) {
+					String revision = (String) revisionObj;
+					revisionList.add(Integer.parseInt(revision));
+				}
 			}
 			return revisionList;
 		}

@@ -1548,9 +1548,11 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 				String proxyName = proxy.getName();
 				cfg.setApiName(proxyName);
 				List<Integer> revsList = apigeeUtil.getRevisionsListForProxy(cfg);
-				Integer rev = Collections.max(revsList);
-				cfg.setRevision(Integer.toString(rev));
-				apigeeUtil.deployAPIProxy1(cfg);
+				if (!revsList.isEmpty()) {
+					Integer rev = Collections.max(revsList);
+					cfg.setRevision(Integer.toString(rev));
+					apigeeUtil.deployAPIProxy1(cfg);
+				}
 			}
 		}
 	}
@@ -1562,9 +1564,11 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 				String sharedflowName = sharedflow.getName();
 				cfg.setSharedflowName(sharedflowName);
 				List<Integer> revsList = apigeeUtil.getRevisionsListForSharedflow(cfg);
-				Integer rev = Collections.max(revsList);
-				cfg.setRevision(Integer.toString(rev));
-				apigeeUtil.deploySharedflow(cfg);
+				if (!revsList.isEmpty()) {
+					Integer rev = Collections.max(revsList);
+					cfg.setRevision(Integer.toString(rev));
+					apigeeUtil.deploySharedflow(cfg);
+				}
 			}
 		}
 	}
@@ -2505,6 +2509,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 								File revision = new File(apiproxyDir, proxy.getRevision() + ".zip");
 								try {
 									logger.debug("ProxyName:{}", proxy.getName());
+									CleanApigeeProxyBundle.cleanProxy(revision.getAbsolutePath(), new File(apiproxyDir, "temp").getAbsolutePath());
 									cfg.setRevision(proxy.getRevision());
 									String response = apigeeUtil.importApiProxy(cfg, revision);
 								} catch (Exception e) {
@@ -2527,8 +2532,11 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		logger.debug(
 				"OrganizationDataMigrationService.restoreSharedflows1 : interactionid={}: jsessionid={} : organization ={}  : cfg ={}"
 				, cfg.getInteractionid(), cfg.getJsessionId(), cfg.getOrganization(), cfg);
+
 		downloadBackup1(cfg);
+
 		File sharedflowsDir = null;
+
 		if (cfg.getOldOrg() != null) {
 			sharedflowsDir = new File(getBaseRestoreAndMigareDirectory(cfg), "sharedflows");
 			logger.debug("SharedFlowDir:{}", sharedflowsDir);
@@ -2536,12 +2544,17 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			sharedflowsDir = new File(getBaseRestoreDirectory(cfg), "sharedflows");
 			logger.debug("SharedFlowDir:{}", sharedflowsDir);
 		}
+
 		if (sharedflowsDir != null && sharedflowsDir.listFiles() != null
 				&& sharedflowsDir.listFiles().length > 0) {
+
 			for (File sharedflowDir : sharedflowsDir.listFiles()) {
+
 				try {
+
 					String sharedflowName = sharedflowDir.getName();
 					logger.debug("sharedFlow:{}", sharedflowName);
+
 					if (StringUtils.equalsIgnoreCase(cfg.getType(), "apigeex")) {
 						Mappings mapping = cfg.getMappings();
 						if (mapping != null && mapping.getSharedflows() != null) {
@@ -2553,6 +2566,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 									File revision = new File(sharedflowDir, sharedflow.getRevision() + ".zip");
 									try {
 										cfg.setRevision(sharedflow.getRevision());
+										CleanApigeeProxyBundle.cleanSharedflow(revision.getAbsolutePath(),
+												new File(sharedflowDir, "temp").getAbsolutePath());
 										apigeeUtil.importSharedflows(cfg, revision);
 									} catch (IOException e) {
 										log.error("Exception occurred", e);
@@ -2560,9 +2575,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 								}
 							}
 						}
-						return "Success";
-					}
-					else{
+					} else {
 						cfg.setSharedflowName(sharedflowName);
 						File revision = new File(sharedflowDir, ".zip");
 						try {
@@ -3278,8 +3291,6 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		ResponseEntity<byte[]> response = restTemplate.exchange(cfg.getArtifatURL(), HttpMethod.GET, requestEntity,
 				byte[].class);
 
-		// byte[] imageBytes = restTemplate.getForObject(cfg.getJfrogUrl(),
-		// byte[].class);
 		byte[] imageBytes = response.getBody();
 		Files.write(Paths.get(cfg.getBackUpLocation() + "/" + cfg.getOrganization() + ".zip"), imageBytes);
 		if (null != cfg.getNewOrg() && cfg.getNewOrg().length() > 0) {
