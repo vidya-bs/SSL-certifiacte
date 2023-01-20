@@ -232,7 +232,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas, @PathVariable("swaggername") String swaggername,
-			@RequestHeader(value="x-publish" ,required = false) boolean publish,
+			@RequestHeader(value="x-editor" ,required = false) boolean editor,
 			@RequestBody String json) throws Exception {
 
 		if (oas == null || oas.trim().equals("")) {
@@ -252,10 +252,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 			if (vo != null) {
 				swaggerBusiness.checkSwaggerTeams(jsessionid, swaggerVO.getName(), "2.0");
 				swaggerVO.setSwagger(json);
-				swaggerVO=swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid,publish);
+				swaggerVO=swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid);
 			} else {
 				swaggerVO.setSwagger(json);
-				swaggerVO = swaggerBusiness.createSwagger(swaggerVO,publish);
+				swaggerVO = swaggerBusiness.createSwagger(swaggerVO);
 			}
 
 			swaggerBusiness.updateSwaggerBasePath(swaggerVO.getName(), swaggerVO); // update
@@ -276,7 +276,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusiness.createNotification(notificationDetails,jsessionid);
-			if(publish) {
+			if(editor) {
 				initiateLinting(jsessionid, swaggerVO.getSwaggerId(), swaggerVO.getRevision(), "2.0",
 						swaggerVO.getRuleSetIds());
 			}
@@ -292,10 +292,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 			if (vo != null) {
 				swaggerBusiness.checkSwaggerTeams(jsessionid, swaggerVO.getName(), "3.0");
 				swaggerVO.setSwagger(json);
-				swaggerVO=swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid,publish);
+				swaggerVO=swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid);
 			} else {
 				swaggerVO.setSwagger(json);
-				swaggerVO = swaggerBusiness.createSwagger(swaggerVO,publish);
+				swaggerVO = swaggerBusiness.createSwagger(swaggerVO);
 			}
 
 			swaggerBusiness.updateSwagger3BasePath(swaggerVO.getName(), swaggerVO);
@@ -311,7 +311,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			notificationDetails.setUserId(Arrays.asList(swaggerVO.getCreatedBy()));
 			notificationDetails.setType(NotificationType.fromValue("Swagger"));
 			notificationBusiness.createNotification(notificationDetails,jsessionid);
-			if(publish) {
+			if(editor) {
 				initiateLinting(jsessionid, swaggerVO.getSwaggerId(), swaggerVO.getRevision(), "3.0",
 						swaggerVO.getRuleSetIds());
 			}
@@ -455,7 +455,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setName(swaggername);
 			swaggerVO.setInteractionid(interactionid);
 			swaggerVO.setSwagger(json);
-			swaggerVO = swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid,false);
+			swaggerVO = swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid);
 			swaggerBusiness.updateSwaggerBasePath(swaggerVO.getName(), swaggerVO); // update
 			// the
 			// base
@@ -485,7 +485,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setName(swaggername);
 			swaggerVO.setInteractionid(interactionid);
 			swaggerVO.setSwagger(json);
-			swaggerVO = swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid,false);
+			swaggerVO = swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid);
 			swaggerBusiness.updateSwagger3BasePath(swaggerVO.getName(), swaggerVO); // update
 			// the
 			// base
@@ -3042,5 +3042,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 			json = mapper.writeValueAsString(response);
 		}
 		return new ResponseEntity<Object>(json, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<Object> checkSwaggerMetadata(String interactionid, String oas, String jsessionid, String swagger) throws Exception {
+		return new ResponseEntity<>(swaggerBusiness.checkMetadataSwagger(oas, swagger), HttpStatus.OK);
 	}
 }

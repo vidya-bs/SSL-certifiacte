@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.design.studio.model.*;
+import com.itorix.apiwiz.design.studio.model.dto.MetadataErrorDTO;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import com.mongodb.client.result.DeleteResult;
@@ -34,7 +35,7 @@ public interface SwaggerBusiness {
 	 * 
 	 * @return SwaggerVO
 	 */
-	public SwaggerVO createSwagger(SwaggerVO swaggerVO,boolean publish);
+	public SwaggerVO createSwagger(SwaggerVO swaggerVO);
 
 	/**
 	 * createSwagger
@@ -43,7 +44,7 @@ public interface SwaggerBusiness {
 	 * 
 	 * @return SwaggerVO
 	 */
-	public Swagger3VO createSwagger(Swagger3VO swaggerVO,boolean publish);
+	public Swagger3VO createSwagger(Swagger3VO swaggerVO);
 
 	/**
 	 * findSwagger
@@ -94,7 +95,7 @@ public interface SwaggerBusiness {
 	 * 
 	 * @return
 	 */
-	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid,boolean publish) throws ItorixException;
+	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid) throws ItorixException;
 
 	/**
 	 * createSwaggerWithNewRevision
@@ -104,7 +105,7 @@ public interface SwaggerBusiness {
 	 * 
 	 * @return
 	 */
-	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid,boolean publish) throws ItorixException;
+	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid) throws ItorixException;
 
 	/**
 	 * updateSwagger
@@ -825,4 +826,6 @@ public interface SwaggerBusiness {
 	String getGolbalRule(String oas);
 
 	public void checkSwaggerTeams(String jsessionid, String swaggerName, String oasVersion) throws ItorixException;
+
+	List<MetadataErrorDTO> checkMetadataSwagger(String oas, String swagger) throws ItorixException;
 }

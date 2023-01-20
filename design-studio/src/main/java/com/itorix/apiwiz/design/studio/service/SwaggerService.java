@@ -77,7 +77,7 @@ public interface SwaggerService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("swaggername") String swaggername,
-			@RequestHeader(value="x-publish",required = false) boolean publish,
+			@RequestHeader(value="x-editor",required = false) boolean editor,
 			@RequestBody String json) throws Exception;
 
 	/**
@@ -1467,4 +1467,16 @@ public interface SwaggerService {
 			@RequestParam(value = "modifieddate", required = false) String modifiedDate,
 			@RequestParam(value = "sortbymodifieddate", required = false) String sortByModifiedDate,
 			@RequestParam(value = "product", required = false) String product) throws Exception;
+
+	@ApiOperation(value = "Check Swagger Metadata", notes = "", response = Void.class)
+	@ApiResponses(value = {@ApiResponse(code = 200, message = "Swagger Metadata validation is successful", response = Void.class),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorObj.class),
+			@ApiResponse(code = 500, message = "System Error", response = ErrorObj.class)})
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/check-metadata")
+	public ResponseEntity<Object> checkSwaggerMetadata(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "oas") String oas,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody String swagger) throws Exception;
 }
