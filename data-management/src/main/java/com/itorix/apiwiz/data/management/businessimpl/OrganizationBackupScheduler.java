@@ -35,16 +35,19 @@ public class OrganizationBackupScheduler {
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
+	@Qualifier("masterMongoTemplate")
+	@Autowired
+	private MongoTemplate masterMongoTemplate;
+
+
 	@Autowired
 	private OrganizationBusiness organizationBusiness;
 
 	@Scheduled(fixedRate = 10000)
 	public void executeBackupEvent() {
 
-		try (MongoClient mongoClient = new MongoClient(new MongoClientURI(mongoProperties.getUri()));) {
-			MongoDatabase mongoDatabase = mongoClient.getDatabase(mongoProperties.getDatabase());
-
-			MongoCollection collection = mongoDatabase.getCollection("Users.Workspace.List");
+		try{
+			MongoCollection collection = masterMongoTemplate.getCollection("Users.Workspace.List");
 			MongoCursor<Document> dbsCursor = collection.find().iterator();
 			while (dbsCursor.hasNext()) {
 				Document workSpace = dbsCursor.next();
