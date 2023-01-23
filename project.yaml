@@ -65,7 +65,7 @@ deployment:
         approval: enable
         host: NA
         pem: NA
-        configBranch: prod
+        configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
         container: enable
         spaceName: apiwiz-system
@@ -497,7 +497,7 @@ deployment:
         approval: enable
         host: NA
         pem: NA
-        configBranch: prod
+        configBranch: main
         configRepo: 'git@github.com:itorix/apiwiz-prod-config.git'
         cloudProvider: aws
 #  - appName: consent-api
