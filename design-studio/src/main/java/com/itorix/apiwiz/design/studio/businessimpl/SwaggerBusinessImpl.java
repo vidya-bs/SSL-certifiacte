@@ -4370,19 +4370,21 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			}catch (Exception exception) {
 				log.error("Definition is empty.");
 			}
-			swagger.getVendorExtensions().forEach( (key, value) -> {
-				if (metadataList.contains(key)) {
-					if (key.equalsIgnoreCase("x-metadata")){
-						try {
-							metadata.put("metadata", new ObjectMapper().convertValue(value, Map.class).get("metadata"));
-						}catch (Exception e){
-							log.error("metadata is empty");
+			if (swagger.getVendorExtensions() != null && !swagger.getVendorExtensions().isEmpty()) {
+				swagger.getVendorExtensions().forEach((key, value) -> {
+					if (metadataList.contains(key)) {
+						if (key.equalsIgnoreCase("x-metadata")) {
+							try {
+								metadata.put("metadata", new ObjectMapper().convertValue(value, Map.class).get("metadata"));
+							} catch (Exception e) {
+								log.error("metadata is empty");
+							}
+						} else {
+							metadata.put(key, value);
 						}
-					}else {
-						metadata.put(key, value);
 					}
-				}
-			});
+				});
+			}
 		} else if (oas.startsWith("3")) {
 			definitionsEnum = "Components-schema";
 			OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
@@ -4412,14 +4414,19 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					}
 				});
 			}catch (Exception e){
-				log.error(e.getMessage());
+				log.error("Error while parsing swagger.");
 			}
 		}
 		Set<String> metadataPaths = new HashSet<>();
 		Set<String> metadataDefinitions = new HashSet<>();
 		if (!metadata.isEmpty()) {
 			ObjectMapper m = new ObjectMapper();
-			List<Map<String, Object>> categoryMetadataList = m.convertValue(m.convertValue(metadata.get("metadata"), Map.class).get("category"), List.class);
+			List<Map<String, Object>> categoryMetadataList = null;
+			try {
+				categoryMetadataList = m.convertValue(m.convertValue(metadata.get("metadata"), Map.class).get("category"), List.class);
+			} catch (Exception e) {
+				log.error("Error converting metadata/category");
+			}
 			if (!categoryMetadataList.isEmpty()) {
 				for (Map<String, Object> categoryMetadata : categoryMetadataList) {
 					Set<String> metadataObject = m.convertValue(categoryMetadata.get("paths"), Set.class);
