@@ -119,7 +119,46 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		return baseRepository.findOne("name", portfolioVO.getName(), PortfolioVO.class);
 	}
 
-	public PortfolioHistoryResponse findAllPortfolios(String interactionid, int offset,
+
+	public PortfolioHistoryResponse findAllPortfolios(String interactionid, int offset, int pageSize) {
+		log("findPortfolio", interactionid);
+		PortfolioHistoryResponse historyResponse = new PortfolioHistoryResponse();
+		List<String> uniqueDictionaryIds = mongoTemplate.findDistinct("dictionaryId", PortfolioVO.class, String.class);
+		// reversing the uniqueDictionaryIds since its in ascending order of
+		// creation
+		Collections.reverse(uniqueDictionaryIds);
+		List<String> dictionaryIds = trimList2(uniqueDictionaryIds, offset, pageSize);
+		List<PortfolioVO> portfolios = new ArrayList<>();
+		if (dictionaryIds != null) {
+			for (String dictionaryId : dictionaryIds) {
+				PortfolioVO portfolio = getPortfolioByRevision(dictionaryId, getMaxRevision(dictionaryId));
+
+				List<Object> strModels = new ArrayList<Object>();
+				List<PortfolioModel> dataModels = findPortfolioModelsByportfolioID(portfolio);
+				if (dataModels != null) {
+					for (PortfolioModel model : dataModels) {
+						try {
+							String name = model.getModelName();
+							strModels.add(name);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				portfolio.setModels(strModels);
+				portfolios.add(portfolio);
+			}
+			Long counter = Long.valueOf(uniqueDictionaryIds.size());
+			Pagination pagination = new Pagination();
+			pagination.setOffset(offset);
+			pagination.setTotal(counter);
+			pagination.setPageSize(pageSize);
+			historyResponse.setPagination(pagination);
+			historyResponse.setData(portfolios);
+		}
+		return historyResponse;
+	}
+	public PortfolioHistoryResponse findAllPortfoliosV2(String interactionid, int offset,
 			int pageSize) {
 		log("findPortfolio", interactionid);
 		PortfolioHistoryResponse historyResponse = new PortfolioHistoryResponse();
@@ -174,6 +213,15 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		return dictionaryIds;
 	}
 
+	private List<String> trimList2(List<String> ids, int offset, int pageSize) {
+		List<String> dictionaryIds = new ArrayList<String>();
+		int i = offset > 0 ? ((offset - 1) * pageSize) : 0;
+		int end = i + pageSize;
+		for (; i < ids.size() && i < end; i++) {
+			dictionaryIds.add(ids.get(i));
+		}
+		return dictionaryIds;
+	}
 	public List<PortfolioVO> findAllPortfolioSummary(String interactionid) {
 		log("findPortfolio", interactionid);
 		List<PortfolioVO> portfolios = baseRepository.findAll(PortfolioVO.class);
