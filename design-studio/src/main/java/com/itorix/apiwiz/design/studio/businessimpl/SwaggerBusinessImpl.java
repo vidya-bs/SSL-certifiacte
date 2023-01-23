@@ -4370,7 +4370,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			}catch (Exception exception) {
 				log.error("Definition is empty.");
 			}
-			if (!swagger.getVendorExtensions().isEmpty()) {
+			if (swagger.getVendorExtensions() != null && !swagger.getVendorExtensions().isEmpty()) {
 				swagger.getVendorExtensions().forEach((key, value) -> {
 					if (metadataList.contains(key)) {
 						if (key.equalsIgnoreCase("x-metadata")) {
