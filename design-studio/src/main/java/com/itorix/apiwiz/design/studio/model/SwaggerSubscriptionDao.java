@@ -153,29 +153,29 @@ public class SwaggerSubscriptionDao {
 						mailUtil.sendEmailWtithAttachment(emailTemplate, path.toString(),
 								swaggerSubscription.getSwaggerName() + swaggerSubscription.getOas()
 										.replace(".", "_") + ".md", latch);
-						try {
-							// Refer slackUtil to send slack Notif here
-							latch.countDown();
-							log.info("Sending Slack notification:{}",mongoTemplate.getDb().getName());
-							List<SlackWorkspace> slackWorkspaces = mongoTemplate.findAll(SlackWorkspace.class);
-							if (slackWorkspaces.isEmpty()) return;
-							SlackWorkspace slackWorkspace = slackWorkspaces.get(0);
-							if (slackWorkspace != null) {
-								String token = slackWorkspace.getToken();
-								List<SlackChannel> channels = slackWorkspace.getChannelList();
-								for (SlackChannel i : channels) {
-									if (i.getScopeSet().contains(NotificationScope.Scopes.Design)) {
-										PostMessage at = new PostMessage();
-										at.setFileName(String.format("%s-changelog.md", swaggerName));
-										at.setInitialComment("Swagger ChangeLog Notification");
-										at.setFile(file);
-										slackUtil.sendMessage(at, i.getChannelName(), token);
-									}
+					}
+					try {
+						// Refer slackUtil to send slack Notif here
+						latch.countDown();
+						log.info("Sending Slack notification:{}",mongoTemplate.getDb().getName());
+						List<SlackWorkspace> slackWorkspaces = mongoTemplate.findAll(SlackWorkspace.class);
+						if (slackWorkspaces.isEmpty()) return;
+						SlackWorkspace slackWorkspace = slackWorkspaces.get(0);
+						if (slackWorkspace != null) {
+							String token = slackWorkspace.getToken();
+							List<SlackChannel> channels = slackWorkspace.getChannelList();
+							for (SlackChannel i : channels) {
+								if (i.getScopeSet().contains(NotificationScope.Scopes.Design)) {
+									PostMessage at = new PostMessage();
+									at.setFileName(String.format("%s-changelog.md", swaggerName));
+									at.setInitialComment("Swagger ChangeLog Notification");
+									at.setFile(file);
+									slackUtil.sendMessage(at, i.getChannelName(), token);
 								}
 							}
-						} catch (Exception e) {
-							log.warn("Failed to Send Slack Notification", e);
 						}
+					} catch (Exception e) {
+						log.warn("Failed to Send Slack Notification", e);
 					}
 					latch.await();
 					file.delete();
