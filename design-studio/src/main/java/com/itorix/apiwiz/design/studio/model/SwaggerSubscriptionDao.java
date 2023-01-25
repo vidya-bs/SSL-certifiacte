@@ -156,7 +156,6 @@ public class SwaggerSubscriptionDao {
 					}
 					try {
 						// Refer slackUtil to send slack Notif here
-						latch.countDown();
 						log.info("Sending Slack notification:{}",mongoTemplate.getDb().getName());
 						List<SlackWorkspace> slackWorkspaces = mongoTemplate.findAll(SlackWorkspace.class);
 						if (slackWorkspaces.isEmpty()) return;
@@ -176,6 +175,9 @@ public class SwaggerSubscriptionDao {
 						}
 					} catch (Exception e) {
 						log.warn("Failed to Send Slack Notification", e);
+					}
+					finally {
+						latch.countDown();
 					}
 					latch.await();
 					file.delete();
