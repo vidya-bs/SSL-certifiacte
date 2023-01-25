@@ -12,40 +12,23 @@ import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
-import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
-import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
+import javax.mail.MessagingException;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import javax.mail.MessagingException;
+import java.util.concurrent.CountDownLatch;
 @Slf4j
 @Component
 
@@ -154,6 +137,7 @@ public class SwaggerSubscriptionDao {
 		
 		            // Close connection
 		            bw.close();
+					CountDownLatch latch = new CountDownLatch(2);
 		            
 					String swaggerName = swaggerSubscription.getSwaggerName();
 					String subject = MessageFormat.format(applicationProperties.getSwaggerSubscriptionSubject(),
@@ -168,35 +152,39 @@ public class SwaggerSubscriptionDao {
 						emailTemplate.setBody(body);
 						mailUtil.sendEmailWtithAttachment(emailTemplate, path.toString(),
 								swaggerSubscription.getSwaggerName() + swaggerSubscription.getOas()
-										.replace(".", "_") + ".md");
-					}
-					try {
-						// Refer slackUtil to send slack Notif here
-						log.info("Sending Slack notification:{}",mongoTemplate.getDb().getName());
-						List<SlackWorkspace> slackWorkspaces = mongoTemplate.findAll(SlackWorkspace.class);
-						if (slackWorkspaces.isEmpty()) return;
-						SlackWorkspace slackWorkspace = slackWorkspaces.get(0);
-						if (slackWorkspace != null) {
-							String token = slackWorkspace.getToken();
-							List<SlackChannel> channels = slackWorkspace.getChannelList();
-							for (SlackChannel i : channels) {
-								if (i.getScopeSet().contains(NotificationScope.Scopes.Design)) {
-									PostMessage at = new PostMessage();
-									at.setFileName(String.format("%s-changelog.md", swaggerName));
-									at.setInitialComment("Swagger ChangeLog Notification");
-									at.setFile(file);
-									slackUtil.sendMessage(at, i.getChannelName(), token);
+										.replace(".", "_") + ".md", latch);
+						try {
+							// Refer slackUtil to send slack Notif here
+							latch.countDown();
+							log.info("Sending Slack notification:{}",mongoTemplate.getDb().getName());
+							List<SlackWorkspace> slackWorkspaces = mongoTemplate.findAll(SlackWorkspace.class);
+							if (slackWorkspaces.isEmpty()) return;
+							SlackWorkspace slackWorkspace = slackWorkspaces.get(0);
+							if (slackWorkspace != null) {
+								String token = slackWorkspace.getToken();
+								List<SlackChannel> channels = slackWorkspace.getChannelList();
+								for (SlackChannel i : channels) {
+									if (i.getScopeSet().contains(NotificationScope.Scopes.Design)) {
+										PostMessage at = new PostMessage();
+										at.setFileName(String.format("%s-changelog.md", swaggerName));
+										at.setInitialComment("Swagger ChangeLog Notification");
+										at.setFile(file);
+										slackUtil.sendMessage(at, i.getChannelName(), token);
+									}
 								}
 							}
+						} catch (Exception e) {
+							log.warn("Failed to Send Slack Notification", e);
 						}
-					} catch (Exception e) {
-						log.warn("Failed to Send Slack Notification", e);
 					}
+					latch.await();
 					file.delete();
 				}
 
 				catch (IOException e) {
 					log.error("Exception occurred", e);
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
 				}
 
 			}

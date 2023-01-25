@@ -11,10 +11,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -75,11 +72,10 @@ public class MailUtil {
 	}
 
 
-	public void sendEmailWtithAttachment(EmailTemplate emailTemplate, String path, String attachment)
+	public void sendEmailWtithAttachment(EmailTemplate emailTemplate, String path, String attachment,CountDownLatch latch)
 			throws MessagingException {
 
 		ExecutorService executor = Executors.newFixedThreadPool(12);
-
 		Future future = executor.submit(new Callable() {
 			@Override
 			public Object call() throws ItorixException, MessagingException {
@@ -116,6 +112,8 @@ public class MailUtil {
 				} catch (Exception e) {
 
 					logger.error(e.getMessage(), e);
+				}finally {
+					latch.countDown();
 				}
 				return "Mail initiated..";
 			}
