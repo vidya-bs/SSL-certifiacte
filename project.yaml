@@ -47,12 +47,12 @@ deployment:
         gcpCredProfile: nonprod
         cloudProvider: google
       - env: stage
-        branch: develop
+        branch: stage
         deployFlag: enable
         approval: disable
         host: 34.102.79.102
         pem: NA
-        configBranch: develop
+        configBranch: stage
         configRepo: 'git@github.com:itorix/apiwiz-non-prod-config.git'
         container: enable
         spaceName: stage
