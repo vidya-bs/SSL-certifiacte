@@ -37,6 +37,7 @@ import com.itorix.apiwiz.data.management.model.BackupInfo;
 import com.itorix.apiwiz.data.management.model.DeveloperBackUpInfo;
 import com.itorix.apiwiz.data.management.model.EnvironmentBackUpInfo;
 import com.itorix.apiwiz.data.management.model.OrgBackUpInfo;
+import com.itorix.apiwiz.data.management.model.OrgOverviewInfo;
 import com.itorix.apiwiz.data.management.model.ProductsBackUpInfo;
 import com.itorix.apiwiz.data.management.model.ProxyBackUpInfo;
 import com.itorix.apiwiz.data.management.model.ResourceBackUpInfo;
@@ -77,6 +78,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpEntity;
@@ -98,6 +101,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	private JfrogUtilImpl jfrogUtil;
 	@Autowired
 	private ApigeeUtil apigeeUtil;
+
+  @Autowired
+	private MongoTemplate mongoTemplate;
 
 	@Autowired
 	private ApigeeXUtill apigeeXUtil;
@@ -3485,156 +3491,238 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		return cfg;
 	}
 
-	public ApigeeOrganizationalVO apigeeOrganizationalView(CommonConfiguration cfg, boolean refresh)
+	public ApigeeOrganizationalVO apigeeOrganizationalView(CommonConfiguration cfg, String eventId)
 			throws ItorixException, JsonProcessingException, IOException {
 		ApigeeOrganizationalVO vo = new ApigeeOrganizationalVO();
-		if (refresh) {
-			vo.setType(cfg.getType());
-			ObjectMapper mapper = new ObjectMapper();
-			long start = System.currentTimeMillis();
-			if (cfg.getBackUpLocation() == null || cfg.getBackUpLocation() == "") {
-				cfg.setBackUpLocation(applicationProperties.getBackupDir() + start);
-			}
-			final File backupLocation = new File(getBaseBackupDirectory(false, cfg), "apiproxies");
-			backupLocation.mkdirs();
-			cfg.setExpand(true);
-			vo.setName(cfg.getOrganization());
-			List<com.itorix.apiwiz.data.management.model.overview.Environment> environmentList = new ArrayList<>();
-			try {
-				List<String> environments = apigeeUtil.getEnvironmentNames(cfg);
-				String apiProductsList = apigeeUtil.listAPIProductsByQuery(cfg);
-				String appsList = apigeeUtil.listAppIDsInAnOrganizationByQuery(cfg);
-				String developersList = apigeeUtil.listDevelopersByQuery(cfg);
-				if (environments != null) {
-					for (String environment : environments) {
-						com.itorix.apiwiz.data.management.model.overview.Environment env = new com.itorix.apiwiz.data.management.model.overview.Environment();
-						env.setName(environment);
-						cfg.setEnvironment(environment);
-						String deployedProxies = getAPIsDeployedToEnvironment(cfg.getJsessionId(),
-								cfg.getOrganization(), cfg.getEnvironment(), cfg.getInteractionid(), cfg.getType());
-						// System.out.println(deployedProxies);
-						List<String> proxyList = apigeeUtil.listAPIProxies(cfg);
-						JsonNode proxyResponseNode = mapper.readTree(deployedProxies).get("aPIProxy");
-						List<Proxies> proxiesList = new ArrayList<>();
-						for (String proxyName : proxyList) {
-							String revison = "";
-							cfg.setApiName(proxyName);
-							if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
-								String deployments = apigeeUtil.getApigeexAPIDeployment(cfg);
-								JSONObject deployedNodes = (JSONObject) JSONSerializer.toJSON(deployments);
-								if (ObjectUtils.isNotEmpty(deployedNodes.get("deployments"))) {
-									JSONArray envApis = (JSONArray) deployedNodes.get("deployments");
-									for (int j = 0; j < envApis.size(); j++) {
-										JSONObject apiProxyObject = (JSONObject) envApis.get(j);
-										String envStr = (String) apiProxyObject.get("environment");
-										if (envStr.equals(environment))
-											revison = (String) apiProxyObject.get("revision");
+		vo.setType(cfg.getType());
+		ObjectMapper mapper = new ObjectMapper();
+		long start = System.currentTimeMillis();
+
+		BackupEvent backupEvent;
+		OrgOverviewInfo orgOverviewInfo;
+		if (eventId != null) {
+			orgOverviewInfo = baseRepository.findById(eventId, OrgOverviewInfo.class);
+			backupEvent = baseRepository.findOne("eventId", eventId, BackupEvent.class);
+		} else {
+			orgOverviewInfo = new OrgOverviewInfo();
+			backupEvent = new BackupEvent();
+		}
+
+		orgOverviewInfo.setStatus(Constants.STATUS_INPROGRESS);
+		backupEvent.setStatus(Constants.STATUS_INPROGRESS);
+		baseRepository.save(orgOverviewInfo);
+		baseRepository.save(backupEvent);
+
+		if (cfg.getBackUpLocation() == null || cfg.getBackUpLocation() == "") {
+			cfg.setBackUpLocation(applicationProperties.getBackupDir() + start);
+		}
+		final File backupLocation = new File(getBaseBackupDirectory(false, cfg), "apiproxies");
+		backupLocation.mkdirs();
+		cfg.setExpand(true);
+		vo.setName(cfg.getOrganization());
+		List<com.itorix.apiwiz.data.management.model.overview.Environment> environmentList = new ArrayList<>();
+		try {
+			List<String> environments = apigeeUtil.getEnvironmentNames(cfg);
+			String apiProductsList = apigeeUtil.listAPIProductsByQuery(cfg);
+			String appsList = apigeeUtil.listAppIDsInAnOrganizationByQuery(cfg);
+			String developersList = apigeeUtil.listDevelopersByQuery(cfg);
+			int counterSlice = (100/(environments!=null?environments.size():1));
+			int counter = 0;
+			if (environments != null) {
+
+				for (String environment : environments) {
+					com.itorix.apiwiz.data.management.model.overview.Environment env = new com.itorix.apiwiz.data.management.model.overview.Environment();
+					env.setName(environment);
+					cfg.setEnvironment(environment);
+					String deployedProxies = getAPIsDeployedToEnvironment(cfg.getJsessionId(),
+							cfg.getOrganization(), cfg.getEnvironment(), cfg.getInteractionid(), cfg.getType());
+					// System.out.println(deployedProxies);
+					List<String> proxyList = apigeeUtil.listAPIProxies(cfg);
+					JsonNode proxyResponseNode = mapper.readTree(deployedProxies).get("aPIProxy");
+					List<Proxies> proxiesList = new ArrayList<>();
+					int proxySlice = counterSlice / (proxyList != null ? proxyList.size() : 1);
+					for (String proxyName : proxyList) {
+						String revison = "";
+						cfg.setApiName(proxyName);
+						if (cfg.getType() != null && cfg.getType().equalsIgnoreCase("apigeex")) {
+							String deployments = apigeeUtil.getApigeexAPIDeployment(cfg);
+							JSONObject deployedNodes = (JSONObject) JSONSerializer.toJSON(deployments);
+							if (ObjectUtils.isNotEmpty(deployedNodes.get("deployments"))) {
+								JSONArray envApis = (JSONArray) deployedNodes.get("deployments");
+								for (int j = 0; j < envApis.size(); j++) {
+									JSONObject apiProxyObject = (JSONObject) envApis.get(j);
+									String envStr = (String) apiProxyObject.get("environment");
+									if (envStr.equals(environment)) {
+										revison = (String) apiProxyObject.get("revision");
 									}
 								}
-							} else {
-								// List<Products> productsList = new
-								// ArrayList<>();
-								JsonNode revisonsNode = proxyResponseNode.get("revision");
-								if (revisonsNode != null && revisonsNode.isArray()) {
-									for (final JsonNode revisonNode : revisonsNode) {
-										revison = revisonNode.get("name").asText();
-									}
+							}
+						} else {
+							JsonNode revisonsNode = proxyResponseNode.get("revision");
+							if (revisonsNode != null && revisonsNode.isArray()) {
+								for (final JsonNode revisonNode : revisonsNode) {
+									revison = revisonNode.get("name").asText();
 								}
-								APIProxyDeploymentDetailsResponse aPIProxyDeploymentDetailsResponse = apigeeUtil
-										.getAPIProxyDeploymentDetails(cfg);
-								Environment[] environmentArray = aPIProxyDeploymentDetailsResponse.getEnvironment();
-								if (environmentArray != null && environmentArray.length > 0) {
-									for (Environment en : environmentArray) {
-										if (environment.equals(en.getName())) {
-											Revision[] revisionArray = en.getRevision();
-											if (revisionArray != null && revisionArray.length > 0) {
-												for (Revision re : revisionArray) {
-													revison = re.getName();
-												}
+							}
+							APIProxyDeploymentDetailsResponse aPIProxyDeploymentDetailsResponse = apigeeUtil
+									.getAPIProxyDeploymentDetails(cfg);
+							Environment[] environmentArray = aPIProxyDeploymentDetailsResponse.getEnvironment();
+							if (environmentArray != null && environmentArray.length > 0) {
+								for (Environment en : environmentArray) {
+									if (environment.equals(en.getName())) {
+										Revision[] revisionArray = en.getRevision();
+										if (revisionArray != null && revisionArray.length > 0) {
+											for (Revision re : revisionArray) {
+												revison = re.getName();
 											}
 										}
 									}
 								}
 							}
-							if (revison.length() > 0) {
-								Proxies pro = new Proxies();
-								pro.setName(proxyName);
-
-								JsonNode apiProductsResponseNode = mapper.readTree(apiProductsList);
-								JsonNode appsResponseNode = mapper.readTree(appsList);
-								JsonNode developersResponseNode = mapper.readTree(developersList);
-
-								List<Products> products = new ArrayList<>();
-								List<String> productList = filterMappedProductsForEachProxy(apiProductsResponseNode,
-										proxyName);
-								for (String product : productList) {
-									Products p = new Products();
-									p.setName(product);
-									List<String> appList = filterMappedAppsForEachProduct(appsResponseNode, product);
-									List<Apps> apps = new ArrayList<>();
-									for (String appName : appList) {
-										Apps app = new Apps();
-										app.setName(appName);
-										List<String> developerList = filterMappedDevelopersForEachApp(
-												developersResponseNode, appName);
-										app.setDevelopers(developerList);
-										apps.add(app);
-									}
-									if (!CollectionUtils.isEmpty(apps))
-										p.setApps(apps);
-									products.add(p);
-								}
-								pro.setProducts(products);
-								pro.setRevision(revison);
-								cfg.setRevision(revison);
-								try {
-									final File versionFile = new File(backupLocation, File.separator + proxyName);
-									versionFile.getParentFile().mkdirs();
-									byte[] revisionBundle = apigeeUtil.getAnAPIProxyRevision(cfg);
-									FileUtils.writeByteArrayToFile(new File(versionFile.getAbsolutePath() + ".zip"),
-											revisionBundle);
-									ZipUtil.unpack(new File(versionFile.getAbsolutePath() + ".zip"),
-											new File(versionFile.getAbsolutePath()));
-									Proxies proxyArtifacts = ProcessProxyArtifacts.processArtifacts(
-											versionFile.getAbsolutePath() + File.separator + "apiproxy");
-									FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
-									FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
-									if (proxyArtifacts != null) {
-										pro.setCache(proxyArtifacts.getCache());
-										pro.setKvm(proxyArtifacts.getKvm());
-										pro.setPaths(proxyArtifacts.getPaths());
-										pro.setTargetservers(getTargetURL(proxyArtifacts.getTargetservers(), cfg));
-										pro.setProxyPolicies(proxyArtifacts.getProxyPolicies());
-										pro.setTargetPolicies(proxyArtifacts.getTargetPolicies());
-										pro.setBasePath(proxyArtifacts.getBasePath());
-									}
-								} catch (Exception e) {
-									logger.error(e.getMessage(), e);
-								}
-								proxiesList.add(pro);
-							}
 						}
-						List<Sharedflow> sharedFlows = getSharedflowDetails(cfg, environment);
-						env.setProxies(proxiesList);
-						env.setSharedFlows(sharedFlows);
-						environmentList.add(env);
+						if (revison.length() > 0) {
+							Proxies pro = new Proxies();
+							pro.setName(proxyName);
+
+							JsonNode apiProductsResponseNode = mapper.readTree(apiProductsList);
+							JsonNode appsResponseNode = mapper.readTree(appsList);
+							JsonNode developersResponseNode = mapper.readTree(developersList);
+
+							List<Products> products = new ArrayList<>();
+							List<String> productList = filterMappedProductsForEachProxy(apiProductsResponseNode,
+									proxyName);
+							for (String product : productList) {
+								Products p = new Products();
+								p.setName(product);
+								List<String> appList = filterMappedAppsForEachProduct(appsResponseNode, product);
+								List<Apps> apps = new ArrayList<>();
+								for (String appName : appList) {
+									Apps app = new Apps();
+									app.setName(appName);
+									List<String> developerList = filterMappedDevelopersForEachApp(
+											developersResponseNode, appName);
+									app.setDevelopers(developerList);
+									apps.add(app);
+								}
+								if (!CollectionUtils.isEmpty(apps)) {
+									p.setApps(apps);
+								}
+								products.add(p);
+							}
+							pro.setProducts(products);
+							pro.setRevision(revison);
+							cfg.setRevision(revison);
+							try {
+								final File versionFile = new File(backupLocation, File.separator + proxyName);
+								versionFile.getParentFile().mkdirs();
+								byte[] revisionBundle = apigeeUtil.getAnAPIProxyRevision(cfg);
+								FileUtils.writeByteArrayToFile(new File(versionFile.getAbsolutePath() + ".zip"),
+										revisionBundle);
+								ZipUtil.unpack(new File(versionFile.getAbsolutePath() + ".zip"),
+										new File(versionFile.getAbsolutePath()));
+								Proxies proxyArtifacts = ProcessProxyArtifacts.processArtifacts(
+										versionFile.getAbsolutePath() + File.separator + "apiproxy");
+								FileUtils.cleanDirectory(new File(cfg.getBackUpLocation()));
+								FileUtils.deleteDirectory(new File(cfg.getBackUpLocation()));
+								if (proxyArtifacts != null) {
+									pro.setCache(proxyArtifacts.getCache());
+									pro.setKvm(proxyArtifacts.getKvm());
+									pro.setPaths(proxyArtifacts.getPaths());
+									pro.setTargetservers(getTargetURL(proxyArtifacts.getTargetservers(), cfg));
+									pro.setProxyPolicies(proxyArtifacts.getProxyPolicies());
+									pro.setTargetPolicies(proxyArtifacts.getTargetPolicies());
+									pro.setBasePath(proxyArtifacts.getBasePath());
+								}
+							} catch (Exception e) {
+								logger.error(e.getMessage(), e);
+							}
+							proxiesList.add(pro);
+						}
+						counter+=proxySlice;
+						orgOverviewInfo.setPercentage(counter);
+						baseRepository.save(orgOverviewInfo);
 					}
+					orgOverviewInfo.setPercentage(counter);
+					baseRepository.save(orgOverviewInfo);
+					List<Sharedflow> sharedFlows = getSharedflowDetails(cfg, environment);
+					env.setProxies(proxiesList);
+					env.setSharedFlows(sharedFlows);
+					environmentList.add(env);
+
+					orgOverviewInfo.setPercentage(counter);
+					baseRepository.save(orgOverviewInfo);
 				}
-				vo.setEnvironment(environmentList);
-				baseRepository.delete("name", cfg.getOrganization(), "type", cfg.getType(),
-						ApigeeOrganizationalVO.class);
-				baseRepository.save(vo);
-			} catch (Exception e) {
-				throw e;
 			}
-		} else {
-			List<ApigeeOrganizationalVO> list = baseRepository.find("name", cfg.getOrganization(), "type",
-					cfg.getType(), ApigeeOrganizationalVO.class);
-			if (list != null && list.size() > 0) {
-				vo = list.get(0);
-			}
+			vo.setEnvironment(environmentList);
+			baseRepository.delete("name", cfg.getOrganization(), "type", cfg.getType(),
+					ApigeeOrganizationalVO.class);
+			baseRepository.save(vo);
+		} catch (Exception e) {
+			orgOverviewInfo.setStatus(Constants.STATUS_FAILED);
+			backupEvent.setStatus(Constants.STATUS_FAILED);
+			baseRepository.save(orgOverviewInfo);
+			baseRepository.save(backupEvent);
+			throw e;
+		}
+		orgOverviewInfo.setStatus(Constants.STATUS_COMPLETED);
+		backupEvent.setStatus(Constants.STATUS_COMPLETED);
+		baseRepository.save(orgOverviewInfo);
+		baseRepository.save(backupEvent);
+		return vo;
+	}
+
+	@Override
+	public ApigeeOrganizationalVO retrieveOrganizationalView(CommonConfiguration cfg) {
+		ApigeeOrganizationalVO vo = new ApigeeOrganizationalVO();
+		List<ApigeeOrganizationalVO> list = baseRepository.find("name", cfg.getOrganization(), "type",
+				cfg.getType(), ApigeeOrganizationalVO.class);
+		if (list != null && list.size() > 0) {
+			vo = list.get(0);
 		}
 		return vo;
+	}
+
+	@Override
+	public void scheduleApigeeOrganizationalView(CommonConfiguration cfg) throws ItorixException {
+
+		Query query = new Query();
+		query.addCriteria(
+				Criteria.where("type").is(cfg.getType()).and("organisation").is(cfg.getOrganization()));
+		Criteria scheduledCriteria = Criteria.where("status").is(Constants.STATUS_SCHEDULED);
+		Criteria progressCriteria = Criteria.where("status").is(Constants.STATUS_INPROGRESS);
+		query.addCriteria(scheduledCriteria.orOperator(progressCriteria));
+		List<OrgOverviewInfo> orgOveList =	baseRepository.find(query, OrgOverviewInfo.class);
+		if(!orgOveList.isEmpty()){
+			throw new ItorixException("Org overview Schedule in Queue, Please wait...",
+					"DataBackup-1000");
+		}
+		OrgOverviewInfo orgOverviewInfo = new OrgOverviewInfo();
+		orgOverviewInfo.setPercentage(0);
+		orgOverviewInfo.setOrganization(cfg.getOrganization());
+		orgOverviewInfo.setType(cfg.getType());
+		orgOverviewInfo.setStatus(Constants.STATUS_SCHEDULED);
+		orgOverviewInfo = baseRepository.save(orgOverviewInfo);
+
+		BackupEvent backupEvent = new BackupEvent();
+		backupEvent.setCfg(cfg);
+		backupEvent.setEvent(BackupEvent.ORG_OVERVIEW);
+		backupEvent.setStatus(Constants.STATUS_SCHEDULED);
+		backupEvent.setEventId(orgOverviewInfo.getId());
+		baseRepository.save(backupEvent);
+	}
+
+	@Override
+	public OrgOverviewInfo getScheduledApigeeOrganizationalView(CommonConfiguration cfg) throws ItorixException {
+
+		Query query = new Query();
+		query.addCriteria(
+				Criteria.where("type").is(cfg.getType()).and("organisation").is(cfg.getOrganization()));
+		query.with(Sort.by(Direction.DESC, "mts"));
+
+		OrgOverviewInfo orgOverviewInfo =	mongoTemplate.findOne(query, OrgOverviewInfo.class);
+
+		return orgOverviewInfo;
+
 	}
 
 	private List<Targetserver> getTargetURL(List<Targetserver> targets, CommonConfiguration cfg) throws ItorixException{

@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.data.management.business;
 
+import com.itorix.apiwiz.data.management.model.OrgOverviewInfo;
 import java.io.IOException;
 import java.util.List;
 
@@ -316,6 +317,12 @@ public interface OrganizationBusiness {
 	public JsonNode populateVoToJson(CommonConfiguration cfg)
 			throws JsonGenerationException, JsonMappingException, IOException, ItorixException;
 
-	public ApigeeOrganizationalVO apigeeOrganizationalView(CommonConfiguration cfg, boolean refresh)
+	public ApigeeOrganizationalVO apigeeOrganizationalView(CommonConfiguration cfg, String eventId)
 			throws ItorixException, JsonProcessingException, IOException;
+
+	public ApigeeOrganizationalVO retrieveOrganizationalView(CommonConfiguration cfg);
+
+	public void scheduleApigeeOrganizationalView(CommonConfiguration cfg) throws ItorixException;
+
+	public OrgOverviewInfo getScheduledApigeeOrganizationalView(CommonConfiguration cfg) throws ItorixException;
 }
