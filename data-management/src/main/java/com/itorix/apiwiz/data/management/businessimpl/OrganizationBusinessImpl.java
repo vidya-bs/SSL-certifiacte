@@ -3643,7 +3643,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 						}
 
 						counter+=Math.ceil(proxySlice);
-						orgOverviewInfo.setPercentage(counter);
+						orgOverviewInfo.setPercentage(counter>100 ? 99 : counter);
 						baseRepository.save(orgOverviewInfo);
 					}
 					orgOverviewInfo.setPercentage(counter);
@@ -3653,7 +3653,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 					env.setSharedFlows(sharedFlows);
 					environmentList.add(env);
 
-					orgOverviewInfo.setPercentage(counter);
+					orgOverviewInfo.setPercentage(counter>100 ? 99 : counter);
 					baseRepository.save(orgOverviewInfo);
 				}
 			}
