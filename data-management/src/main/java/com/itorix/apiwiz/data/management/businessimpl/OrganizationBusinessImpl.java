@@ -51,6 +51,8 @@ import com.itorix.apiwiz.data.management.model.overview.Proxies;
 import com.itorix.apiwiz.data.management.model.overview.Sharedflow;
 import com.itorix.apiwiz.data.management.model.overview.Targetserver;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
+import com.itorix.apiwiz.identitymanagement.model.TenantContext;
+import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -102,9 +104,6 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	@Autowired
 	private ApigeeUtil apigeeUtil;
 
-  @Autowired
-	private MongoTemplate mongoTemplate;
-
 	@Autowired
 	private ApigeeXUtill apigeeXUtil;
 	@Autowired
@@ -119,6 +118,9 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 
 	@Autowired
 	private IntegrationHelper integrationHelper;
+
+	@Autowired
+	MongoTemplate mongoTemplate;
 
 	/**
 	 * This method is used to get the list of environments for an organization.
@@ -3510,6 +3512,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 
 		orgOverviewInfo.setStatus(Constants.STATUS_INPROGRESS);
 		backupEvent.setStatus(Constants.STATUS_INPROGRESS);
+		int counter = 0;
+		orgOverviewInfo.setPercentage(counter);
 		baseRepository.save(orgOverviewInfo);
 		baseRepository.save(backupEvent);
 
@@ -3526,8 +3530,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 			String apiProductsList = apigeeUtil.listAPIProductsByQuery(cfg);
 			String appsList = apigeeUtil.listAppIDsInAnOrganizationByQuery(cfg);
 			String developersList = apigeeUtil.listDevelopersByQuery(cfg);
-			int counterSlice = (100/(environments!=null?environments.size():1));
-			int counter = 0;
+			float counterSlice = (100/(environments!=null?environments.size():1));
 			if (environments != null) {
 
 				for (String environment : environments) {
@@ -3540,7 +3543,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 					List<String> proxyList = apigeeUtil.listAPIProxies(cfg);
 					JsonNode proxyResponseNode = mapper.readTree(deployedProxies).get("aPIProxy");
 					List<Proxies> proxiesList = new ArrayList<>();
-					int proxySlice = counterSlice / (proxyList != null ? proxyList.size() : 1);
+					float proxySlice = counterSlice / (proxyList != null ? proxyList.size() : 1);
 					for (String proxyName : proxyList) {
 						String revison = "";
 						cfg.setApiName(proxyName);
@@ -3638,7 +3641,8 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 							}
 							proxiesList.add(pro);
 						}
-						counter+=proxySlice;
+
+						counter+=Math.ceil(proxySlice);
 						orgOverviewInfo.setPercentage(counter);
 						baseRepository.save(orgOverviewInfo);
 					}
@@ -3658,6 +3662,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 					ApigeeOrganizationalVO.class);
 			baseRepository.save(vo);
 		} catch (Exception e) {
+			orgOverviewInfo.setPercentage(counter);
 			orgOverviewInfo.setStatus(Constants.STATUS_FAILED);
 			backupEvent.setStatus(Constants.STATUS_FAILED);
 			baseRepository.save(orgOverviewInfo);
@@ -3666,13 +3671,16 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		}
 		orgOverviewInfo.setStatus(Constants.STATUS_COMPLETED);
 		backupEvent.setStatus(Constants.STATUS_COMPLETED);
+		orgOverviewInfo.setPercentage(counter>100 ? 100 : counter);
 		baseRepository.save(orgOverviewInfo);
 		baseRepository.save(backupEvent);
 		return vo;
 	}
 
 	@Override
-	public ApigeeOrganizationalVO retrieveOrganizationalView(CommonConfiguration cfg) {
+	public ApigeeOrganizationalVO retrieveOrganizationalView(CommonConfiguration cfg,
+			String jsessionid) {
+
 		ApigeeOrganizationalVO vo = new ApigeeOrganizationalVO();
 		List<ApigeeOrganizationalVO> list = baseRepository.find("name", cfg.getOrganization(), "type",
 				cfg.getType(), ApigeeOrganizationalVO.class);
@@ -3683,16 +3691,19 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	}
 
 	@Override
-	public void scheduleApigeeOrganizationalView(CommonConfiguration cfg) throws ItorixException {
+	public void scheduleApigeeOrganizationalView(CommonConfiguration cfg, String jsessionid) throws ItorixException {
+
+		UserSession userSession = UserSession.getCurrentSessionToken();
 
 		Query query = new Query();
-		query.addCriteria(
-				Criteria.where("type").is(cfg.getType()).and("organisation").is(cfg.getOrganization()));
 		Criteria scheduledCriteria = Criteria.where("status").is(Constants.STATUS_SCHEDULED);
 		Criteria progressCriteria = Criteria.where("status").is(Constants.STATUS_INPROGRESS);
-		query.addCriteria(scheduledCriteria.orOperator(progressCriteria));
-		List<OrgOverviewInfo> orgOveList =	baseRepository.find(query, OrgOverviewInfo.class);
-		if(!orgOveList.isEmpty()){
+		query.addCriteria(
+				Criteria.where("type").is(cfg.getType()).and("organization").is(cfg.getOrganization())
+						.orOperator(scheduledCriteria, progressCriteria));
+
+		List<OrgOverviewInfo> orgOverviewList =	baseRepository.find(query, OrgOverviewInfo.class);
+		if(!orgOverviewList.isEmpty()){
 			throw new ItorixException("Org overview Schedule in Queue, Please wait...",
 					"DataBackup-1000");
 		}
@@ -3712,16 +3723,17 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 	}
 
 	@Override
-	public OrgOverviewInfo getScheduledApigeeOrganizationalView(CommonConfiguration cfg) throws ItorixException {
+	public Object getScheduledApigeeOrganizationalView(CommonConfiguration cfg,
+			String jsessionid) throws ItorixException {
 
 		Query query = new Query();
 		query.addCriteria(
-				Criteria.where("type").is(cfg.getType()).and("organisation").is(cfg.getOrganization()));
+				Criteria.where("type").is(cfg.getType()).and("organization").is(cfg.getOrganization()));
 		query.with(Sort.by(Direction.DESC, "mts"));
 
-		OrgOverviewInfo orgOverviewInfo =	mongoTemplate.findOne(query, OrgOverviewInfo.class);
+		List<OrgOverviewInfo> orgOverviewInfos =	mongoTemplate.find(query, OrgOverviewInfo.class);
 
-		return orgOverviewInfo;
+		return orgOverviewInfos.isEmpty()? "" : orgOverviewInfos.get(0);
 
 	}
 

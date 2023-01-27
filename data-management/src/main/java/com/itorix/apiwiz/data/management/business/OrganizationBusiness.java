@@ -1,6 +1,5 @@
 package com.itorix.apiwiz.data.management.business;
 
-import com.itorix.apiwiz.data.management.model.OrgOverviewInfo;
 import java.io.IOException;
 import java.util.List;
 
@@ -320,9 +319,11 @@ public interface OrganizationBusiness {
 	public ApigeeOrganizationalVO apigeeOrganizationalView(CommonConfiguration cfg, String eventId)
 			throws ItorixException, JsonProcessingException, IOException;
 
-	public ApigeeOrganizationalVO retrieveOrganizationalView(CommonConfiguration cfg);
+	public ApigeeOrganizationalVO retrieveOrganizationalView(CommonConfiguration cfg,
+			String jsessionid);
 
-	public void scheduleApigeeOrganizationalView(CommonConfiguration cfg) throws ItorixException;
+	public void scheduleApigeeOrganizationalView(CommonConfiguration cfg, String jsessionid) throws ItorixException;
 
-	public OrgOverviewInfo getScheduledApigeeOrganizationalView(CommonConfiguration cfg) throws ItorixException;
+	public Object getScheduledApigeeOrganizationalView(CommonConfiguration cfg,
+			String jsessionid) throws ItorixException;
 }

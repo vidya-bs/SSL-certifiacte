@@ -8,7 +8,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -1421,4 +1423,28 @@ public interface OrganizationService {
 			@RequestHeader(value = "jsessionid") String jsessionid, @PathVariable("org_name") String org_name,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "refresh", required = false) boolean refresh) throws Exception;
+
+
+	@ApiOperation(value = "Scehedule apigee Organizational View", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Ok", response = ApigeeOrganizationalVO.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@PostMapping(
+	value = "/v1/apigee/organizations/{org_name}/overview-schedule")
+	public ResponseEntity<?> scheduleOrganizationalOverView(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "jsessionid") String jsessionid,
+			@PathVariable("org_name") String org_name,
+			@RequestParam(value = "type", required = false) String type) throws Exception;
+
+	@ApiOperation(value = "Get apigee Organizational Schedule View", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Ok", response = ApigeeOrganizationalVO.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@GetMapping( value = "/v1/apigee/organizations/{org_name}/overview-schedule")
+	public ResponseEntity<?> retrieveScheduleOrganizationalOverView(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "jsessionid") String jsessionid,
+			@PathVariable("org_name") String org_name,
+			@RequestParam(value = "type", required = false) String type) throws Exception;
 }
