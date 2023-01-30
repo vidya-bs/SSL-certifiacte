@@ -145,7 +145,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		codeCoverageBackUpInfo.setProxy(cfg.getApiName());
 		codeCoverageBackUpInfo.setApigeeUser(cfg.getUserName());
 		codeCoverageBackUpInfo.setStatus(Constants.STATUS_INPROGRESS);
-		codeCoverageBackUpInfo =mongoTemplate.save(codeCoverageBackUpInfo);
+		codeCoverageBackUpInfo =baseRepository.save(codeCoverageBackUpInfo);
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 
 		String rev = null;
@@ -257,6 +257,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		update.set("proxyStat", proxyStat);
 		update.set("status", Constants.STATUS_COMPLETED);
 		update.set("htmlReportLoc", downloadURI);
+		update.set("mts", end);
 		Query query = new Query(Criteria.where("id").is(codeCoverageBackUpInfo.getId()));
 		UpdateResult result = mongoTemplate.upsert(query, update, CodeCoverageBackUpInfo.class);
 		log("executeCodeCoverage", cfg.getInteractionid(), codeCoverageBackUpInfo);
