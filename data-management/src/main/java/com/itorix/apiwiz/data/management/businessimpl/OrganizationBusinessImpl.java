@@ -3646,8 +3646,6 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 						orgOverviewInfo.setPercentage(counter>100 ? 99 : counter);
 						baseRepository.save(orgOverviewInfo);
 					}
-					orgOverviewInfo.setPercentage(counter);
-					baseRepository.save(orgOverviewInfo);
 					List<Sharedflow> sharedFlows = getSharedflowDetails(cfg, environment);
 					env.setProxies(proxiesList);
 					env.setSharedFlows(sharedFlows);
@@ -3671,7 +3669,7 @@ public class OrganizationBusinessImpl implements OrganizationBusiness {
 		}
 		orgOverviewInfo.setStatus(Constants.STATUS_COMPLETED);
 		backupEvent.setStatus(Constants.STATUS_COMPLETED);
-		orgOverviewInfo.setPercentage(counter>100 ? 100 : counter);
+		orgOverviewInfo.setPercentage(counter>=99 ? 100 : counter);
 		baseRepository.save(orgOverviewInfo);
 		baseRepository.save(backupEvent);
 		return vo;
