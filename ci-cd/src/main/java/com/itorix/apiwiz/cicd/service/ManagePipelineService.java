@@ -60,7 +60,8 @@ public interface ManagePipelineService {
 	public ResponseEntity<?> createPipeline(@RequestBody PipelineGroups pipelineGroups,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request);
+			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request)
+			throws ItorixException;
 
 	@ApiOperation(value = "Update Pipeline", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
@@ -71,7 +72,8 @@ public interface ManagePipelineService {
 	public ResponseEntity<?> updatePipeline(@RequestBody PipelineGroups pipelineGroups,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request);
+			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request)
+			throws ItorixException;
 
 	@ApiOperation(value = "Delete Pipeline Group", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
