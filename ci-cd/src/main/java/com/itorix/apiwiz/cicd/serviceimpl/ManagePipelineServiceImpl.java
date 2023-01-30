@@ -4,6 +4,7 @@ import com.itorix.apiwiz.cicd.beans.*;
 import com.itorix.apiwiz.cicd.dao.PipelineDao;
 import com.itorix.apiwiz.cicd.gocd.integrations.CiCdIntegrationAPI;
 import com.itorix.apiwiz.cicd.service.ManagePipelineService;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
@@ -71,7 +72,8 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 	public ResponseEntity<?> createPipeline(@RequestBody PipelineGroups pipelineGroups,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request) {
+			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request)
+			throws ItorixException {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
 				+ jsessionId + ": requestUrl " + request.getRequestURI());
 		// if(gwType != null){
@@ -86,7 +88,8 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 	public ResponseEntity<?> updatePipeline(@RequestBody PipelineGroups pipelineGroups,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request) {
+			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request)
+			throws ItorixException {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
 				+ jsessionId + ": requestUrl " + request.getRequestURI());
 		// if(gwType != null){
@@ -98,7 +101,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 	}
 
 	public ResponseEntity<?> managePipeline(PipelineGroups pipelineGroups, String jsessionId, String interactionid,
-			boolean isNew, HttpStatus status) {
+			boolean isNew, HttpStatus status) throws ItorixException {
 		if (pipelineGroups == null || !isValidPipeline(pipelineGroups)) {
 			return new ResponseEntity<>(new ErrorObj("Invalid pipeline Data for Create/Edit Pipeline", "CI-CD-CU400"),
 					HttpStatus.BAD_REQUEST);
@@ -407,12 +410,15 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 
-	private boolean isValidPipeline(PipelineGroups pipelineGroups) {
-		if (pipelineGroups == null || pipelineGroups.getPipelines() == null || pipelineGroups.getPipelines().isEmpty()
-				|| pipelineGroups.getPipelines().get(0).getStages() == null
-				|| pipelineGroups.getPipelines().get(0).getStages().isEmpty()
-				|| isValidStage(pipelineGroups.getPipelines().get(0).getStages())) {
-			return false;
+	private boolean isValidPipeline(PipelineGroups pipelineGroups) throws ItorixException{
+		if (pipelineGroups == null || pipelineGroups.getPipelines() == null || pipelineGroups.getPipelines().isEmpty()){
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),"pipelines are empty"),"CICD-1003");
+		}
+		else if (pipelineGroups.getPipelines().get(0).getStages() == null
+				|| pipelineGroups.getPipelines().get(0).getStages().isEmpty()){
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),"stages are empty"),"CICD-1003");
+		} else if (isValidStage(pipelineGroups.getPipelines().get(0).getStages())) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),"invalid stage data"),"CICD-1003");
 		}
 		return true;
 	}
