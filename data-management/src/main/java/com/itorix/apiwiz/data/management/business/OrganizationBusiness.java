@@ -316,6 +316,14 @@ public interface OrganizationBusiness {
 	public JsonNode populateVoToJson(CommonConfiguration cfg)
 			throws JsonGenerationException, JsonMappingException, IOException, ItorixException;
 
-	public ApigeeOrganizationalVO apigeeOrganizationalView(CommonConfiguration cfg, boolean refresh)
+	public ApigeeOrganizationalVO apigeeOrganizationalView(CommonConfiguration cfg, String eventId)
 			throws ItorixException, JsonProcessingException, IOException;
+
+	public ApigeeOrganizationalVO retrieveOrganizationalView(CommonConfiguration cfg,
+			String jsessionid);
+
+	public void scheduleApigeeOrganizationalView(CommonConfiguration cfg, String jsessionid) throws ItorixException;
+
+	public Object getScheduledApigeeOrganizationalView(CommonConfiguration cfg,
+			String jsessionid) throws ItorixException;
 }
