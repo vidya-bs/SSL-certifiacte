@@ -929,9 +929,9 @@ public class CiCdIntegrationAPI {
 			throws ItorixException {
 		GoCDIntegration goCDIntegration = getGocdIntegration();
 		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.getInterceptors()
-				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
 		try{
+			restTemplate.getInterceptors()
+					.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
 			return restTemplate.getForObject(goCDIntegration.getHostURL()
 							+ config.getPipelinesHistoryEndPoint().replaceAll(":PipelineName", name).replaceAll(":offset", offset),
 					String.class);
