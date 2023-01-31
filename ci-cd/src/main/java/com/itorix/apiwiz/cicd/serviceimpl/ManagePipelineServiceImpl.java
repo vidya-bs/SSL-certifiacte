@@ -266,7 +266,8 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			response = cicdIntegrationApi.getPipelineHistory(groupName, name, offset);
 		} catch (Exception ex) {
 			log.error("Error while retrieving pipeline history", ex.getCause());
-			throw new ItorixException(ex.getMessage(),"CI-CD-GPH500");
+
+			throw new ItorixException(ex.getMessage(),"CICD-1003");
 		}
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("x-displayname", pipeline.getDisplayName());
