@@ -545,6 +545,8 @@ public class PackageDao {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			logger.error("Exception occurred", e);
+		} catch (ItorixException e) {
+			logger.error("Exception occurred", e);
 		}
 		return null;
 	}

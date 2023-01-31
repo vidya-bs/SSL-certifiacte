@@ -188,6 +188,7 @@ public enum ErrorCodes {
 			put("CICD-1002", GENERIC_RESOURCE_NOT_FOUND.message());
 			put("CICD-1003", "Error while creating pipeline, %s");
 			put("CICD_006", "Request validation failed. BackUpInterval must be of type Daily,Monthly or Weekly.");
+			put("CI-CD-GBTA500","Runtime logs error %s");
 
 			put("ServiceRegistry-1000", "Resource not found. No records found for the given data %s.");
 			put("ServiceRegistry-1001", "Request validation failed. Record with value %s already exists.");
@@ -394,6 +395,7 @@ public enum ErrorCodes {
 			put("CICD-1001", 400);
 			put("CICD-1002", 400);
 			put("CICD-1003", 400);
+			put("CI-CD-GBTA500",400);
 			put("ServiceRegistry-1000", 404);
 			put("ServiceRegistry-1001", 400);
 			put("ServiceRegistry-1002", 400);
