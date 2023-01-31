@@ -346,7 +346,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			response = cicdIntegrationApi.getRuntimeLogs("", pipelineName, pipelineCounter, stageName, stageCounter,
 					"BuildAndDeploy");
 		} catch (Exception ex) {
-			if(ex.getMessage().contains("Runtime logs error")){
+			if(ex.getMessage().contains("Runtime logs")){
 				return new ResponseEntity<>(ex.getMessage(),HttpStatus.BAD_REQUEST);
 			}
 			log.error("Error while retrieving build and test artifacts", ex.getCause());
@@ -497,7 +497,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			responseLogs = cicdIntegrationApi.getRuntimeLogs(groupName, pipelineName, pipelineCounter, stageName,
 					stageCounter, jobName);
 		} catch (Exception ex) {
-			if(ex.getMessage().contains("Runtime logs error")){
+			if(ex.getMessage().contains("Runtime logs")){
 				throw new ItorixException(ex.getMessage(),"CI-CD-GBTA500");
 			}
 			log.error("Error while retrieving pipeline information", ex);
