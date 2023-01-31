@@ -451,8 +451,9 @@ public class CiCdIntegrationAPI {
 							"Pipeline Not Found"),"CICD-1003");
 				}
 			} catch (Exception e) {
+				logger.error(e.getMessage());
 				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),
-						e.getMessage()),"CICD-1003");
+						"Exception occurred while calling gocd"),"CICD-1003");
 			}
 
 			logger.debug(mapper.writeValueAsString(pipeline));
@@ -465,7 +466,8 @@ public class CiCdIntegrationAPI {
 				response = responseEntity.getBody();
 			} catch (Exception ex) {
 				logger.error("Exception occurred", ex);
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),ex.getMessage()),"CICD-1003");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),
+						"Exception occurred while calling gocd"),"CICD-1003");
 			}
 		}
 		// Un pausing pipeline
