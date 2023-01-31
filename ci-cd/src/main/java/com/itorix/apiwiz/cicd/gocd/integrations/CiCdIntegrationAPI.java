@@ -35,6 +35,7 @@ import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.projectmanagement.dao.ProjectManagementDao;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCursor;
+import net.sf.saxon.trans.Err;
 import org.springframework.util.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -48,6 +49,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.*;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.mail.MessagingException;
@@ -428,7 +430,8 @@ public class CiCdIntegrationAPI {
 						String.class);
 			} catch (Exception e) {
 				logger.error("Error : {} ,occurred while making call to url : {}",e.getMessage(), goHost + config.getPipelineAdminEndPoint());
-				throw new ItorixException("Exception occurred while making call to {}", goHost + config.getPipelineAdminEndPoint());
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),
+						"Exception occurred while making call to {}", goHost + config.getPipelineAdminEndPoint()),"CICD-1003");
 			}
 
 		} else {
@@ -444,10 +447,12 @@ public class CiCdIntegrationAPI {
 					String eTag = responseEntity.getHeaders().get("ETag").get(0).replaceAll("\"", "");
 					headers.set("If-Match", eTag);
 				} else {
-					throw new Exception("Pipeline Not Found");
+					throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),
+							"Pipeline Not Found"),"CICD-1003");
 				}
 			} catch (Exception e) {
-				throw new ItorixException("Exception occurred : ",e.getMessage());
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),
+						e.getMessage()),"CICD-1003");
 			}
 
 			logger.debug(mapper.writeValueAsString(pipeline));
@@ -460,7 +465,7 @@ public class CiCdIntegrationAPI {
 				response = responseEntity.getBody();
 			} catch (Exception ex) {
 				logger.error("Exception occurred", ex);
-				throw new ItorixException("Exception occurred : ",ex.getMessage());
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),ex.getMessage()),"CICD-1003");
 			}
 		}
 		// Un pausing pipeline
@@ -499,7 +504,8 @@ public class CiCdIntegrationAPI {
 
 	private String getBuildScmProp(String key) throws Exception {
 		Query query = new Query();
-		query.addCriteria(Criteria.where("propertyKey").is(key));
+		query.addCriteria(Criteria.where("propertyKey").is(key)
+				.orOperator(Criteria.where("_id").is(key)));
 		WorkspaceIntegration integration = mongoTemplate.findOne(query, WorkspaceIntegration.class);
 		if (integration != null) {
 			RSAEncryption rSAEncryption;
@@ -897,31 +903,42 @@ public class CiCdIntegrationAPI {
 		logger.debug(responseEntity.getBody());
 	}
 
-	public String getPipelineStatus(String name) {
+	public String getPipelineStatus(String name) throws ItorixException {
 		GoCDIntegration goCDIntegration = getGocdIntegration();
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Confirm", "true");
 		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.getInterceptors()
-				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
-		HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
-		logger.debug("Making a call to {}", goCDIntegration.getHostURL() + goCDIntegration.getHostURL()
-				+ config.getPipelineEndPoint() + File.separator + name + File.separator + "status");
-		ResponseEntity<String> responseEntity = restTemplate.exchange(goCDIntegration.getHostURL()
-				+ config.getPipelineEndPoint() + File.separator + name + File.separator + "status", HttpMethod.GET,
-				requestEntity, String.class);
-		logger.debug(responseEntity.getBody());
-		return responseEntity.getBody();
+		try{
+			restTemplate.getInterceptors()
+					.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
+			HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
+			logger.debug("Making a call to {}", goCDIntegration.getHostURL() + goCDIntegration.getHostURL()
+					+ config.getPipelineEndPoint() + File.separator + name + File.separator + "status");
+			ResponseEntity<String> responseEntity = restTemplate.exchange(goCDIntegration.getHostURL()
+							+ config.getPipelineEndPoint() + File.separator + name + File.separator + "status", HttpMethod.GET,
+					requestEntity, String.class);
+			logger.debug(responseEntity.getBody());
+			return responseEntity.getBody();
+		} catch (RestClientException e) {
+			throw new ItorixException("Error while retrieving pipeline status. Pipeline might not be available.Please check the pipeline in input url ","CICD-1003");
+		}
+
 	}
 
-	public String getPipelineHistory(String groupName, String name, String offset) {
+	public String getPipelineHistory(String groupName, String name, String offset)
+			throws ItorixException {
 		GoCDIntegration goCDIntegration = getGocdIntegration();
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors()
 				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
-		return restTemplate.getForObject(goCDIntegration.getHostURL()
-				+ config.getPipelinesHistoryEndPoint().replaceAll(":PipelineName", name).replaceAll(":offset", offset),
-				String.class);
+		try{
+			return restTemplate.getForObject(goCDIntegration.getHostURL()
+							+ config.getPipelinesHistoryEndPoint().replaceAll(":PipelineName", name).replaceAll(":offset", offset),
+					String.class);
+		} catch (RestClientException e) {
+			throw new ItorixException("Error while retrieving pipeline history , "+e.getMessage(),"CI-CD-GBTA500");
+		}
+
 	}
 
 	public String getArtifactDetails(String groupName, String pipelineName, String pipelineCounter, String stageName,
@@ -1127,6 +1144,8 @@ public class CiCdIntegrationAPI {
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			logger.error("Exception occurred", e);
+		} catch (ItorixException e) {
 			logger.error("Exception occurred", e);
 		}
 		return projectsresultmap;
@@ -1408,19 +1427,23 @@ public class CiCdIntegrationAPI {
 
 	// Get runtime build logs for a stage and task name.
 	public String getRuntimeLogs(String groupName, String pipelineName, String pipelineCounter, String stageName,
-			String stageCounter, String jobName) {
+			String stageCounter, String jobName) throws ItorixException {
 		GoCDIntegration goCDIntegration = getGocdIntegration();
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors()
 				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
-		return restTemplate
-				.getForObject(
-						goCDIntegration.getHostURL() + config.getPipelinesRunTimeLogsEndPoint()
-								.replaceAll(":pipelineGroupName", groupName).replaceAll(":pipelineName", pipelineName)
-								.replaceAll(":pipelineCounter", pipelineCounter).replaceAll(":stageName", stageName)
-								.replaceAll(":stageCounter", stageCounter).replaceAll(":jobName", jobName),
-						String.class)
-				.replaceAll("http://localhost:8153", goCDIntegration.getHostURL());
+		try {
+			return restTemplate
+					.getForObject(
+							goCDIntegration.getHostURL() + config.getPipelinesRunTimeLogsEndPoint()
+									.replaceAll(":pipelineGroupName", groupName).replaceAll(":pipelineName", pipelineName)
+									.replaceAll(":pipelineCounter", pipelineCounter).replaceAll(":stageName", stageName)
+									.replaceAll(":stageCounter", stageCounter).replaceAll(":jobName", jobName),
+							String.class)
+					.replaceAll("http://localhost:8153", goCDIntegration.getHostURL());
+		} catch (RestClientException e) {
+			throw new ItorixException("Runtime logs error "+e.getMessage(),"CI-CD-GBTA500");
+		}
 	}
 
 	@SuppressWarnings({"deprecation", "unchecked"})
