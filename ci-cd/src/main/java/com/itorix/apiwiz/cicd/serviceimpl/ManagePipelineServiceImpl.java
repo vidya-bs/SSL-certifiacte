@@ -501,7 +501,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 				throw new ItorixException(ex.getMessage(),"CI-CD-GBTA500");
 			}
 			log.error("Error while retrieving pipeline information", ex);
-			return new ResponseEntity<>(new ErrorObj("Error while retrieving pipeline information", "CI-CD-GBTA500"),
+			return new ResponseEntity<>(new ErrorObj("Error while retrieving runtime logs for pipeline "+pipelineName, "CI-CD-GBTA500"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return new ResponseEntity<>(responseLogs, HttpStatus.OK);
