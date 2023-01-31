@@ -431,7 +431,7 @@ public class CiCdIntegrationAPI {
 			} catch (Exception e) {
 				logger.error("Error : {} ,occurred while making call to url : {}",e.getMessage(), goHost + config.getPipelineAdminEndPoint());
 				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),
-						"Exception occurred while making call to {}", goHost + config.getPipelineAdminEndPoint()),"CICD-1003");
+						"Exception occurred while calling gocd with url {}", goHost + config.getPipelineAdminEndPoint()),"CICD-1003");
 			}
 
 		} else {
@@ -936,7 +936,7 @@ public class CiCdIntegrationAPI {
 							+ config.getPipelinesHistoryEndPoint().replaceAll(":PipelineName", name).replaceAll(":offset", offset),
 					String.class);
 		} catch (RestClientException e) {
-			throw new ItorixException("Error while retrieving pipeline history , "+e.getMessage(),"CI-CD-GBTA500");
+			throw new ItorixException("Error while retrieving pipeline history from GOCD for  "+name,"CI-CD-GBTA500");
 		}
 
 	}
@@ -1442,7 +1442,8 @@ public class CiCdIntegrationAPI {
 							String.class)
 					.replaceAll("http://localhost:8153", goCDIntegration.getHostURL());
 		} catch (RestClientException e) {
-			throw new ItorixException("Runtime logs error "+e.getMessage(),"CI-CD-GBTA500");
+			logger.error(Arrays.toString(e.getStackTrace()));
+			throw new ItorixException("Error while getting Runtime logs from GOCD for "+pipelineName,"CI-CD-GBTA500");
 		}
 	}
 
