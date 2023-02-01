@@ -53,7 +53,7 @@
 		<dependency>
 			<groupId>com.itorix.apiwiz</groupId>
 			<artifactId>rate-limit</artifactId>
-			<version>1.1-SNAPSHOT</version>
+			<version>1.1-RELEASE</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.hazelcast</groupId>
