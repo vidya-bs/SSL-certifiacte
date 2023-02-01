@@ -1,12 +1,13 @@
 package com.itorix.apiwiz.data.management.businessimpl;
 
-import com.itorix.apiwiz.common.model.Constants;
-import com.itorix.apiwiz.data.management.business.OrganizationBusiness;
-import com.itorix.apiwiz.data.management.model.BackupEvent;
-import com.itorix.apiwiz.identitymanagement.model.TenantContext;
 import com.itorix.apiwiz.identitymanagement.model.Workspace;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
@@ -15,6 +16,16 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
+import com.itorix.apiwiz.common.model.Constants;
+import com.itorix.apiwiz.data.management.business.OrganizationBusiness;
+import com.itorix.apiwiz.data.management.model.BackupEvent;
+import com.itorix.apiwiz.identitymanagement.model.TenantContext;
+
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoCursor;
 
 @Slf4j
 @Component
@@ -53,6 +64,10 @@ public class OrganizationBackupScheduler {
               case "BACKUPPROXIES": {
                 organizationBusiness.backupProxies(backupEvent.getCfg(),
                     backupEvent.getEventId());
+                break;
+              }
+              case "ORGOVERVIEW": {
+                organizationBusiness.apigeeOrganizationalView(backupEvent.getCfg(), backupEvent.getEventId());
                 break;
               }
               case "BACKUPSHAREDFLOW": {

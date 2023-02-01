@@ -4,6 +4,7 @@ import com.itorix.apiwiz.cicd.beans.*;
 import com.itorix.apiwiz.cicd.dao.PipelineDao;
 import com.itorix.apiwiz.cicd.gocd.integrations.CiCdIntegrationAPI;
 import com.itorix.apiwiz.cicd.service.ManagePipelineService;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
@@ -71,7 +72,8 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 	public ResponseEntity<?> createPipeline(@RequestBody PipelineGroups pipelineGroups,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request) {
+			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request)
+			throws ItorixException {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
 				+ jsessionId + ": requestUrl " + request.getRequestURI());
 		// if(gwType != null){
@@ -86,7 +88,8 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 	public ResponseEntity<?> updatePipeline(@RequestBody PipelineGroups pipelineGroups,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request) {
+			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request)
+			throws ItorixException {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
 				+ jsessionId + ": requestUrl " + request.getRequestURI());
 		// if(gwType != null){
@@ -98,7 +101,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 	}
 
 	public ResponseEntity<?> managePipeline(PipelineGroups pipelineGroups, String jsessionId, String interactionid,
-			boolean isNew, HttpStatus status) {
+			boolean isNew, HttpStatus status) throws ItorixException {
 		if (pipelineGroups == null || !isValidPipeline(pipelineGroups)) {
 			return new ResponseEntity<>(new ErrorObj("Invalid pipeline Data for Create/Edit Pipeline", "CI-CD-CU400"),
 					HttpStatus.BAD_REQUEST);
@@ -115,6 +118,10 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			cicdIntegrationApi.createOrEditPipeline(pipelineGroups, isNew);
 		} catch (Exception ex) {
 			log.error("Exception occurred", ex);
+			if(ex.getMessage().contains("Error while creating pipeline")){
+				log.error(ex.getMessage());
+				throw new ItorixException(ex.getMessage(),"CICD-1003");
+			}
 			log.error("Error while creating/updating pipeline", ex.getCause());
 			return new ResponseEntity<>(new ErrorObj("Error while creating/updating pipeline", "CI-CD-CU500"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
@@ -245,7 +252,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			@RequestParam(value = "offset", required = false, defaultValue = "1") String offset,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request)
-			throws ParseException {
+			throws ParseException, ItorixException {
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
 				+ jsessionId + ": requestUrl " + request.getRequestURI());
 		if (StringUtils.isEmpty(groupName) || StringUtils.isEmpty(name)) {
@@ -259,8 +266,8 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			response = cicdIntegrationApi.getPipelineHistory(groupName, name, offset);
 		} catch (Exception ex) {
 			log.error("Error while retrieving pipeline history", ex.getCause());
-			return new ResponseEntity<>(new ErrorObj("Error while retrieving pipeline history", "CI-CD-GPH500"),
-					HttpStatus.INTERNAL_SERVER_ERROR);
+
+			throw new ItorixException(ex.getMessage(),"CICD-1003");
 		}
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("x-displayname", pipeline.getDisplayName());
@@ -339,6 +346,9 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			response = cicdIntegrationApi.getRuntimeLogs("", pipelineName, pipelineCounter, stageName, stageCounter,
 					"BuildAndDeploy");
 		} catch (Exception ex) {
+			if(ex.getMessage().contains("Runtime logs")){
+				return new ResponseEntity<>(ex.getMessage(),HttpStatus.BAD_REQUEST);
+			}
 			log.error("Error while retrieving build and test artifacts", ex.getCause());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -407,12 +417,15 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 
-	private boolean isValidPipeline(PipelineGroups pipelineGroups) {
-		if (pipelineGroups == null || pipelineGroups.getPipelines() == null || pipelineGroups.getPipelines().isEmpty()
-				|| pipelineGroups.getPipelines().get(0).getStages() == null
-				|| pipelineGroups.getPipelines().get(0).getStages().isEmpty()
-				|| isValidStage(pipelineGroups.getPipelines().get(0).getStages())) {
-			return false;
+	private boolean isValidPipeline(PipelineGroups pipelineGroups) throws ItorixException{
+		if (pipelineGroups == null || pipelineGroups.getPipelines() == null || pipelineGroups.getPipelines().isEmpty()){
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),"pipelines are empty"),"CICD-1003");
+		}
+		else if (pipelineGroups.getPipelines().get(0).getStages() == null
+				|| pipelineGroups.getPipelines().get(0).getStages().isEmpty()){
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),"stages are empty"),"CICD-1003");
+		} else if (isValidStage(pipelineGroups.getPipelines().get(0).getStages())) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),"invalid stage data"),"CICD-1003");
 		}
 		return true;
 	}
@@ -484,8 +497,11 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			responseLogs = cicdIntegrationApi.getRuntimeLogs(groupName, pipelineName, pipelineCounter, stageName,
 					stageCounter, jobName);
 		} catch (Exception ex) {
+			if(ex.getMessage().contains("Runtime logs")){
+				throw new ItorixException(ex.getMessage(),"CI-CD-GBTA500");
+			}
 			log.error("Error while retrieving pipeline information", ex);
-			return new ResponseEntity<>(new ErrorObj("Error while retrieving pipeline information", "CI-CD-GBTA500"),
+			return new ResponseEntity<>(new ErrorObj("Error while retrieving runtime logs for pipeline "+pipelineName, "CI-CD-GBTA500"),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return new ResponseEntity<>(responseLogs, HttpStatus.OK);
@@ -552,7 +568,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 	public ResponseEntity<?> getPipelineStatus(@PathVariable("pipelineGroupName") String groupName,
 			@PathVariable("pipelineName") String pipelineName, @RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request)
-			throws ParseException {
+			throws ParseException, ItorixException {
 		String response = null;
 		log.debug("ConfigManagementController.addTarget : CorelationId= " + interactionid + " : " + "jsessionid="
 				+ jsessionId + ": requestUrl " + request.getRequestURI());
@@ -564,9 +580,7 @@ public class ManagePipelineServiceImpl implements ManagePipelineService {
 			response = cicdIntegrationApi.getPipelineStatus(pipelineName);
 		} catch (Exception ex) {
 			log.error("Error while retrieving pipeline status. Pipeline might not be available", ex.getCause());
-			return new ResponseEntity<>(
-					new ErrorObj("Error while retrieving pipeline status. Please check the pipeline in input url", ""),
-					HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new ItorixException(ex.getMessage(),"CICD-1003");
 		}
 		return new ResponseEntity<>(new JSONParser().parse(response), HttpStatus.OK);
 	}

@@ -11,6 +11,8 @@ import com.itorix.apiwiz.identitymanagement.model.AbstractObject;
 public class BackupEvent extends AbstractObject {
 	private CommonConfiguration cfg;
 
+	public static String ORG_OVERVIEW="ORGOVERVIEW";
+
 	private String event;
 	private String eventId;
 	private String status;

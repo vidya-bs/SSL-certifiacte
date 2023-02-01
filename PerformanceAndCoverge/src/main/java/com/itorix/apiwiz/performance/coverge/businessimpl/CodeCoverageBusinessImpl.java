@@ -34,6 +34,7 @@ import com.itorix.test.executor.beans.*;
 
 import com.itorix.test.executor.beans.TestSuite;
 import com.itorix.test.executor.beans.TestSuiteResponse;
+import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -50,6 +51,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -143,7 +145,7 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		codeCoverageBackUpInfo.setProxy(cfg.getApiName());
 		codeCoverageBackUpInfo.setApigeeUser(cfg.getUserName());
 		codeCoverageBackUpInfo.setStatus(Constants.STATUS_INPROGRESS);
-		codeCoverageBackUpInfo = baseRepository.save(codeCoverageBackUpInfo);
+		codeCoverageBackUpInfo =baseRepository.save(codeCoverageBackUpInfo);
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 
 		String rev = null;
@@ -249,15 +251,15 @@ public class CodeCoverageBusinessImpl implements CodeCoverageBusiness {
 		// }
 		// TODO We need to delete the hard copy of zipFileName
 		long end = System.currentTimeMillis();
-		codeCoverageBackUpInfo.setOrganization(cfg.getOrganization());
-		codeCoverageBackUpInfo.setEnvironment(cfg.getEnvironment());
-		codeCoverageBackUpInfo.setProxy(cfg.getApiName());
-		codeCoverageBackUpInfo.setTimeTaken((end - timeBegin) / 1000);
-		codeCoverageBackUpInfo.setUrl(downloadURI);
-		codeCoverageBackUpInfo.setProxyStat(proxyStat);
-		codeCoverageBackUpInfo.setStatus(Constants.STATUS_COMPLETED);
-		codeCoverageBackUpInfo.setHtmlReportLoc(downloadURI);
-		codeCoverageBackUpInfo = baseRepository.save(codeCoverageBackUpInfo);
+		Update update = new Update();
+		update.set("timeTaken", ((end - timeBegin) / 1000));
+		update.set("url", downloadURI);
+		update.set("proxyStat", proxyStat);
+		update.set("status", Constants.STATUS_COMPLETED);
+		update.set("htmlReportLoc", downloadURI);
+		update.set("mts", end);
+		Query query = new Query(Criteria.where("id").is(codeCoverageBackUpInfo.getId()));
+		UpdateResult result = mongoTemplate.upsert(query, update, CodeCoverageBackUpInfo.class);
 		log("executeCodeCoverage", cfg.getInteractionid(), codeCoverageBackUpInfo);
 		return codeCoverageBackUpInfo;
 	}

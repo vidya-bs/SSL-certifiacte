@@ -17,7 +17,8 @@ public class WorkspaceIntegrationUtils {
 	public String getBuildScmProp(String key) {
 		try {
 			Query query = new Query();
-			query.addCriteria(Criteria.where("propertyKey").is(key));
+			query.addCriteria(Criteria.where("propertyKey").is(key)
+					.orOperator(Criteria.where("_id").is(key)));
 			WorkspaceIntegration integration = mongoTemplate.findOne(query, WorkspaceIntegration.class);
 			if (integration != null) {
 				RSAEncryption rSAEncryption;

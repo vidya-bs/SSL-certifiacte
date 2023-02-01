@@ -4439,11 +4439,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					}
 				}
 			}
+			response = checkDifference(swaggerPaths, metadataPaths, response, missingError, "Paths", "x-metadata-paths");
+			response = checkDifference(metadataPaths, swaggerPaths, response, missingError, "x-metadata-paths", "Paths");
+			response = checkDifference(swaggerDefinition, metadataDefinitions, response, missingError, definitionsEnum, "x-metadata-Definitions");
+			response = checkDifference(metadataDefinitions, swaggerDefinition, response, missingError, "x-metadata-Definitions", definitionsEnum);
 		}
-		response = checkDifference(swaggerPaths, metadataPaths, response, missingError, "Paths", "x-metadata-paths");
-		response = checkDifference(metadataPaths, swaggerPaths, response, missingError, "x-metadata-paths", "Paths");
-		response = checkDifference(swaggerDefinition, metadataDefinitions, response, missingError, definitionsEnum, "x-metadata-Definitions");
-		response = checkDifference(metadataDefinitions, swaggerDefinition, response, missingError, "x-metadata-Definitions", definitionsEnum);
 		return response;
 	}
 

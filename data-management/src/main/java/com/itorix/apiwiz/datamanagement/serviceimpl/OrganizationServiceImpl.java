@@ -1,33 +1,10 @@
 package com.itorix.apiwiz.datamanagement.serviceimpl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.json.JSONException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.itorix.apiwiz.common.model.Constants;
 import com.itorix.apiwiz.common.model.apigee.ApigeeServiceUser;
 import com.itorix.apiwiz.common.model.apigee.CommonConfiguration;
-import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
-import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.data.management.business.OrganizationBusiness;
@@ -40,14 +17,34 @@ import com.itorix.apiwiz.data.management.model.ProductsBackUpInfo;
 import com.itorix.apiwiz.data.management.model.ProxyBackUpInfo;
 import com.itorix.apiwiz.data.management.model.ResourceBackUpInfo;
 import com.itorix.apiwiz.datamanagement.service.OrganizationService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
 @RestController
@@ -1797,22 +1794,61 @@ public class OrganizationServiceImpl implements OrganizationService {
 	}
 
 	@ApiOperation(value = "Get apigee Organizational View", notes = "", code = 200)
-	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = ApigeeOrganizationalVO.class),
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Ok", response = ApigeeOrganizationalVO.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/apigee/organizations/{org_name}/overview")
 	public ResponseEntity<?> apigeeOrganizationalOverView(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "jsessionid") String jsessionid, @PathVariable("org_name") String org_name,
+			@RequestHeader(value = "jsessionid") String jsessionid,
+			@PathVariable("org_name") String org_name,
 			@RequestParam(value = "type", required = false) String type,
 			@RequestParam(value = "refresh", required = false) boolean refresh) throws Exception {
-		com.itorix.apiwiz.data.management.model.overview.ApigeeOrganizationalVO vo = null;
 		CommonConfiguration cfg = new CommonConfiguration();
 		cfg.setOrganization(org_name);
 		cfg.setInteractionid(interactionid);
 		cfg.setJsessionId(jsessionid);
 		cfg.setType(type);
-		vo = organizationBusiness.apigeeOrganizationalView(cfg, refresh);
+		return new ResponseEntity<>(organizationBusiness.retrieveOrganizationalView(cfg, jsessionid),
+				HttpStatus.OK);
+	}
 
-		return new ResponseEntity<>(vo, HttpStatus.OK);
+	@ApiOperation(value = "Scehedule apigee Organizational View", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Ok", response = ApigeeOrganizationalVO.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@PostMapping(value = "/v1/apigee/organizations/{org_name}/overview-schedule")
+	public ResponseEntity<?> scheduleOrganizationalOverView(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "jsessionid") String jsessionid,
+			@PathVariable("org_name") String org_name,
+			@RequestParam(value = "type", required = false) String type) throws Exception {
+		CommonConfiguration cfg = new CommonConfiguration();
+		cfg.setOrganization(org_name);
+		cfg.setInteractionid(interactionid);
+		cfg.setJsessionId(jsessionid);
+		cfg.setType(type);
+		organizationBusiness.scheduleApigeeOrganizationalView(cfg, jsessionid);
+		return new ResponseEntity<>("Organization Overview Requested successfully",
+				HttpStatus.ACCEPTED);
+	}
+
+	@ApiOperation(value = "Get apigee Organizational Schedule View", notes = "", code = 200)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Ok", response = ApigeeOrganizationalVO.class),
+			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
+	@GetMapping(value = "/v1/apigee/organizations/{org_name}/overview-schedule")
+	public ResponseEntity<?> retrieveScheduleOrganizationalOverView(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "jsessionid") String jsessionid,
+			@PathVariable("org_name") String org_name,
+			@RequestParam(value = "type", required = false) String type) throws Exception {
+		CommonConfiguration cfg = new CommonConfiguration();
+		cfg.setOrganization(org_name);
+		cfg.setInteractionid(interactionid);
+		cfg.setJsessionId(jsessionid);
+		cfg.setType(type);
+		return new ResponseEntity<>(
+				organizationBusiness.getScheduledApigeeOrganizationalView(cfg, jsessionid), HttpStatus.OK);
 	}
 }
