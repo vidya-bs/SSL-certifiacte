@@ -35,6 +35,7 @@ import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.projectmanagement.dao.ProjectManagementDao;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCursor;
+import net.sf.saxon.trans.Err;
 import org.springframework.util.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -48,6 +49,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.*;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.mail.MessagingException;
@@ -136,43 +138,48 @@ public class CiCdIntegrationAPI {
 		String scmType = pipelineGroups.getPipelines().get(0).getMaterials().get(0).getScmType();
 
 		Map<String, String> scmDetails = getSCMDetails(scmType.toUpperCase(), "cicd-proxy");
-		String scmUserName = scmDetails.get("username");
-		String scmPassword = scmDetails.get("password");
-		String scmToken = scmDetails.get("token");
-		String scmUsertype = scmDetails.get("userType");
+		if(scmDetails!=null){
+			String scmUserName = scmDetails.get("username");
+			String scmPassword = scmDetails.get("password");
+			String scmToken = scmDetails.get("token");
+			String scmUsertype = scmDetails.get("userType");
 
-		if (scmType != null && scmType != "" && scmType.equals("svn")) {
-			logger.debug("Setting details to attributes");
-			material.setType("svn");
-			attributes.setUrl(scmURL);
-			attributes.setDestination("PipelineProxy");
-			attributes.setInvertFilter(false);
-			attributes.setName("ProxyPolling");
-			attributes.setAutoUpdate(true);
-			attributes.setUsername(scmUserName);
-			attributes.setPassword(scmPassword);
+			if (scmType != null && scmType != "" && scmType.equals("svn")) {
+				logger.debug("Setting details to attributes");
+				material.setType("svn");
+				attributes.setUrl(scmURL);
+				attributes.setDestination("PipelineProxy");
+				attributes.setInvertFilter(false);
+				attributes.setName("ProxyPolling");
+				attributes.setAutoUpdate(true);
+				attributes.setUsername(scmUserName);
+				attributes.setPassword(scmPassword);
 
-		} else {
-			material.setType("git");
-			String auth = scmUserName + ":" + scmPassword;
-			if (scmUsertype != null && scmUsertype.equalsIgnoreCase("TOKEN")) {
-				auth = scmToken;
-			}
-			if (scmURL.startsWith("http://")) {
-				scmURL = "http://" + auth + "@" + scmURL.replaceAll("http://", "");
 			} else {
-				scmURL = "https://" + auth + "@" + scmURL.replaceAll("https://", "");
+				material.setType("git");
+				String auth = scmUserName + ":" + scmPassword;
+				if (scmUsertype != null && scmUsertype.equalsIgnoreCase("TOKEN")) {
+					auth = scmToken;
+				}
+				if (scmURL.startsWith("http://")) {
+					scmURL = "http://" + auth + "@" + scmURL.replaceAll("http://", "");
+				} else {
+					scmURL = "https://" + auth + "@" + scmURL.replaceAll("https://", "");
+				}
+				attributes.setUrl(scmURL);
+				attributes.setBranch(pipelineGroups.getPipelines().get(0).getMaterials().get(0).getScmBranch());
+				attributes.setDestination("PipelineProxy");
+				attributes.setInvertFilter(false);
+				attributes.setName("ProxyPolling");
+				attributes.setAutoUpdate(true);
+				attributes.setShallowClone(true);
 			}
-			attributes.setUrl(scmURL);
-			attributes.setBranch(pipelineGroups.getPipelines().get(0).getMaterials().get(0).getScmBranch());
-			attributes.setDestination("PipelineProxy");
-			attributes.setInvertFilter(false);
-			attributes.setName("ProxyPolling");
-			attributes.setAutoUpdate(true);
-			attributes.setShallowClone(true);
+			material.setAttributes(attributes);
 		}
-		material.setAttributes(attributes);
-
+		else{
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),
+					"Scm details with given data not found"),"CICD-1003");
+		}
 		// Adding build Materials
 		Material buildMaterial = new Material();
 		Attributes buildAttributes = new Attributes();
@@ -181,42 +188,55 @@ public class CiCdIntegrationAPI {
 		String buildScmURL = getBuildScmProp("itorix.core.gocd.build.scm.url");
 		String buildScmBranch = getBuildScmProp("itorix.core.gocd.build.scm.branch");
 
-		Map<String, String> buildScmDetails = getSCMDetails(buildScmType.toUpperCase(), "cicd-build");
-		String buildScmUserName = buildScmDetails.get("username");
-		String buildScmPassword = buildScmDetails.get("password");
-		String buildScmToken = buildScmDetails.get("token");
-		String buildScmUsertype = buildScmDetails.get("userType");
+		if(buildScmType!=null && buildScmURL!=null && buildScmBranch!=null){
+			Map<String, String> buildScmDetails = getSCMDetails(buildScmType.toUpperCase(), "cicd-build");
+			if(buildScmDetails!=null){
+				String buildScmUserName = buildScmDetails.get("username");
+				String buildScmPassword = buildScmDetails.get("password");
+				String buildScmToken = buildScmDetails.get("token");
+				String buildScmUsertype = buildScmDetails.get("userType");
 
-		if (buildScmType != null && buildScmType != "" && buildScmType.equals("svn")) {
-			logger.debug("Setting details to buildAttributes");
-			buildMaterial.setType("svn");
-			buildAttributes.setUrl(buildScmURL);
-			buildAttributes.setDestination("PipelineBuild");
-			buildAttributes.setInvertFilter(false);
-			buildAttributes.setName("BuildPolling");
-			buildAttributes.setAutoUpdate(false);
-			buildAttributes.setUsername(buildScmUserName);
-			buildAttributes.setPassword(buildScmPassword);
-		} else {
-			buildMaterial.setType("git");
-			String auth = buildScmUserName + ":" + buildScmPassword;
-			if (buildScmUsertype != null && buildScmUsertype.equalsIgnoreCase("TOKEN")) {
-				auth = buildScmToken;
+				if (buildScmType != null && buildScmType != "" && buildScmType.equals("svn")) {
+					logger.debug("Setting details to buildAttributes");
+					buildMaterial.setType("svn");
+					buildAttributes.setUrl(buildScmURL);
+					buildAttributes.setDestination("PipelineBuild");
+					buildAttributes.setInvertFilter(false);
+					buildAttributes.setName("BuildPolling");
+					buildAttributes.setAutoUpdate(false);
+					buildAttributes.setUsername(buildScmUserName);
+					buildAttributes.setPassword(buildScmPassword);
+				} else {
+					buildMaterial.setType("git");
+					String auth = buildScmUserName + ":" + buildScmPassword;
+					if (buildScmUsertype != null && buildScmUsertype.equalsIgnoreCase("TOKEN")) {
+						auth = buildScmToken;
+					}
+					if (buildScmURL.startsWith("http://")) {
+						buildScmURL = "http://" + auth + "@" + buildScmURL.replaceAll("http://", "");
+					} else {
+						buildScmURL = "https://" + auth + "@" + buildScmURL.replaceAll("https://", "");
+					}
+					buildAttributes.setUrl(buildScmURL);
+					buildAttributes.setBranch(buildScmBranch);
+					buildAttributes.setDestination("PipelineBuild");
+					buildAttributes.setInvertFilter(false);
+					buildAttributes.setName("BuildPolling");
+					buildAttributes.setAutoUpdate(false);
+					buildAttributes.setShallowClone(true);
+					buildMaterial.setAttributes(buildAttributes);
+				}
 			}
-			if (buildScmURL.startsWith("http://")) {
-				buildScmURL = "http://" + auth + "@" + buildScmURL.replaceAll("http://", "");
-			} else {
-				buildScmURL = "https://" + auth + "@" + buildScmURL.replaceAll("https://", "");
+			else {
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),
+						"Scm details with given data not found"),"CICD-1003");
 			}
-			buildAttributes.setUrl(buildScmURL);
-			buildAttributes.setBranch(buildScmBranch);
-			buildAttributes.setDestination("PipelineBuild");
-			buildAttributes.setInvertFilter(false);
-			buildAttributes.setName("BuildPolling");
-			buildAttributes.setAutoUpdate(false);
-			buildAttributes.setShallowClone(true);
-			buildMaterial.setAttributes(buildAttributes);
 		}
+		else {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),
+					"Scm details with given data not found"),"CICD-1003");
+		}
+
 
 		List<Material> materials = new ArrayList<Material>();
 		materials.add(material);
@@ -405,33 +425,49 @@ public class CiCdIntegrationAPI {
 					getCommonHttpHeaders(CiCdIntegrationHelper.CREATE_EDIT, gocdVersion));
 			String endpoint = goCDIntegration.getHostURL();
 			logger.debug("Making a call to {}", goHost + config.getPipelineAdminEndPoint());
-			response = restTemplate.postForObject(goHost + config.getPipelineAdminEndPoint(), requestEntity,
-					String.class);
+			try{
+				response = restTemplate.postForObject(goHost + config.getPipelineAdminEndPoint(), requestEntity,
+						String.class);
+			} catch (Exception e) {
+				logger.error("Error : {} ,occurred while making call to url : {}",e.getMessage(), goHost + config.getPipelineAdminEndPoint());
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),
+						"Exception occurred while calling gocd with url {}", goHost + config.getPipelineAdminEndPoint()),"CICD-1003");
+			}
+
 		} else {
 			logger.debug(mapper.writeValueAsString(pipelineGroup));
 			HttpHeaders headers = getCommonHttpHeaders(CiCdIntegrationHelper.CREATE_EDIT, gocdVersion);
 			HttpEntity<String> getRequestEntity = new HttpEntity<>("", headers);
-			ResponseEntity<String> responseEntity = restTemplate.exchange(
-					goHost + config.getPipelineAdminEndPoint() + File.separator + getPipelineName(pipelineGroups),
-					HttpMethod.GET, getRequestEntity, String.class);
-			if (responseEntity != null && responseEntity.getHeaders() != null
-					&& responseEntity.getHeaders().get("ETag") != null) {
-				String eTag = responseEntity.getHeaders().get("ETag").get(0).replaceAll("\"", "");
-				headers.set("If-Match", eTag);
-			} else {
-				throw new Exception("Pipeline Not Found");
+			try{
+				ResponseEntity<String> responseEntity = restTemplate.exchange(
+						goHost + config.getPipelineAdminEndPoint() + File.separator + getPipelineName(pipelineGroups),
+						HttpMethod.GET, getRequestEntity, String.class);
+				if (responseEntity != null && responseEntity.getHeaders() != null
+						&& responseEntity.getHeaders().get("ETag") != null) {
+					String eTag = responseEntity.getHeaders().get("ETag").get(0).replaceAll("\"", "");
+					headers.set("If-Match", eTag);
+				} else {
+					throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),
+							"Pipeline Not Found"),"CICD-1003");
+				}
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),
+						"Exception occurred while calling gocd"),"CICD-1003");
 			}
+
 			logger.debug(mapper.writeValueAsString(pipeline));
 			HttpEntity<Pipeline> requestEntity = new HttpEntity<>(pipeline, headers);
 			try {
 				String url = goHost + config.getPipelineAdminEndPoint() + File.separator
 						+ getPipelineName(pipelineGroups);
 				logger.debug("Making a call to {}", url);
-				responseEntity = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, String.class);
+				ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, String.class);
 				response = responseEntity.getBody();
 			} catch (Exception ex) {
 				logger.error("Exception occurred", ex);
-				throw ex;
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("CICD-1003"),
+						"Exception occurred while calling gocd"),"CICD-1003");
 			}
 		}
 		// Un pausing pipeline
@@ -470,7 +506,8 @@ public class CiCdIntegrationAPI {
 
 	private String getBuildScmProp(String key) throws Exception {
 		Query query = new Query();
-		query.addCriteria(Criteria.where("propertyKey").is(key));
+		query.addCriteria(Criteria.where("propertyKey").is(key)
+				.orOperator(Criteria.where("_id").is(key)));
 		WorkspaceIntegration integration = mongoTemplate.findOne(query, WorkspaceIntegration.class);
 		if (integration != null) {
 			RSAEncryption rSAEncryption;
@@ -868,31 +905,42 @@ public class CiCdIntegrationAPI {
 		logger.debug(responseEntity.getBody());
 	}
 
-	public String getPipelineStatus(String name) {
+	public String getPipelineStatus(String name) throws ItorixException {
 		GoCDIntegration goCDIntegration = getGocdIntegration();
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Confirm", "true");
 		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.getInterceptors()
-				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
-		HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
-		logger.debug("Making a call to {}", goCDIntegration.getHostURL() + goCDIntegration.getHostURL()
-				+ config.getPipelineEndPoint() + File.separator + name + File.separator + "status");
-		ResponseEntity<String> responseEntity = restTemplate.exchange(goCDIntegration.getHostURL()
-				+ config.getPipelineEndPoint() + File.separator + name + File.separator + "status", HttpMethod.GET,
-				requestEntity, String.class);
-		logger.debug(responseEntity.getBody());
-		return responseEntity.getBody();
+		try{
+			restTemplate.getInterceptors()
+					.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
+			HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
+			logger.debug("Making a call to {}", goCDIntegration.getHostURL() + goCDIntegration.getHostURL()
+					+ config.getPipelineEndPoint() + File.separator + name + File.separator + "status");
+			ResponseEntity<String> responseEntity = restTemplate.exchange(goCDIntegration.getHostURL()
+							+ config.getPipelineEndPoint() + File.separator + name + File.separator + "status", HttpMethod.GET,
+					requestEntity, String.class);
+			logger.debug(responseEntity.getBody());
+			return responseEntity.getBody();
+		} catch (RestClientException e) {
+			throw new ItorixException("Error while retrieving pipeline status. Pipeline might not be available.Please check the pipeline in input url ","CICD-1003");
+		}
+
 	}
 
-	public String getPipelineHistory(String groupName, String name, String offset) {
+	public String getPipelineHistory(String groupName, String name, String offset)
+			throws ItorixException {
 		GoCDIntegration goCDIntegration = getGocdIntegration();
 		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.getInterceptors()
-				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
-		return restTemplate.getForObject(goCDIntegration.getHostURL()
-				+ config.getPipelinesHistoryEndPoint().replaceAll(":PipelineName", name).replaceAll(":offset", offset),
-				String.class);
+		try{
+			restTemplate.getInterceptors()
+					.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
+			return restTemplate.getForObject(goCDIntegration.getHostURL()
+							+ config.getPipelinesHistoryEndPoint().replaceAll(":PipelineName", name).replaceAll(":offset", offset),
+					String.class);
+		} catch (RestClientException e) {
+			throw new ItorixException("Error while retrieving pipeline history from GOCD for  "+name,"CI-CD-GBTA500");
+		}
+
 	}
 
 	public String getArtifactDetails(String groupName, String pipelineName, String pipelineCounter, String stageName,
@@ -1098,6 +1146,8 @@ public class CiCdIntegrationAPI {
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			logger.error("Exception occurred", e);
+		} catch (ItorixException e) {
 			logger.error("Exception occurred", e);
 		}
 		return projectsresultmap;
@@ -1379,19 +1429,24 @@ public class CiCdIntegrationAPI {
 
 	// Get runtime build logs for a stage and task name.
 	public String getRuntimeLogs(String groupName, String pipelineName, String pipelineCounter, String stageName,
-			String stageCounter, String jobName) {
+			String stageCounter, String jobName) throws ItorixException {
 		GoCDIntegration goCDIntegration = getGocdIntegration();
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors()
 				.add(new BasicAuthorizationInterceptor(goCDIntegration.getUsername(), goCDIntegration.getPassword()));
-		return restTemplate
-				.getForObject(
-						goCDIntegration.getHostURL() + config.getPipelinesRunTimeLogsEndPoint()
-								.replaceAll(":pipelineGroupName", groupName).replaceAll(":pipelineName", pipelineName)
-								.replaceAll(":pipelineCounter", pipelineCounter).replaceAll(":stageName", stageName)
-								.replaceAll(":stageCounter", stageCounter).replaceAll(":jobName", jobName),
-						String.class)
-				.replaceAll("http://localhost:8153", goCDIntegration.getHostURL());
+		try {
+			return restTemplate
+					.getForObject(
+							goCDIntegration.getHostURL() + config.getPipelinesRunTimeLogsEndPoint()
+									.replaceAll(":pipelineGroupName", groupName).replaceAll(":pipelineName", pipelineName)
+									.replaceAll(":pipelineCounter", pipelineCounter).replaceAll(":stageName", stageName)
+									.replaceAll(":stageCounter", stageCounter).replaceAll(":jobName", jobName),
+							String.class)
+					.replaceAll("http://localhost:8153", goCDIntegration.getHostURL());
+		} catch (RestClientException e) {
+			logger.error(Arrays.toString(e.getStackTrace()));
+			throw new ItorixException("Error while getting Runtime logs from GOCD for "+pipelineName,"CI-CD-GBTA500");
+		}
 	}
 
 	@SuppressWarnings({"deprecation", "unchecked"})

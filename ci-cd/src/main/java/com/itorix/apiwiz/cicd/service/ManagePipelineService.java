@@ -60,7 +60,8 @@ public interface ManagePipelineService {
 	public ResponseEntity<?> createPipeline(@RequestBody PipelineGroups pipelineGroups,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request);
+			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request)
+			throws ItorixException;
 
 	@ApiOperation(value = "Update Pipeline", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
@@ -71,7 +72,8 @@ public interface ManagePipelineService {
 	public ResponseEntity<?> updatePipeline(@RequestBody PipelineGroups pipelineGroups,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request);
+			@RequestHeader(value = "x-gwtype", required = false) String gwType, HttpServletRequest request)
+			throws ItorixException;
 
 	@ApiOperation(value = "Delete Pipeline Group", notes = "", code = 204)
 	@ApiResponses(value = {@ApiResponse(code = 204, message = "No Content", response = Void.class),
@@ -134,7 +136,7 @@ public interface ManagePipelineService {
 			@RequestParam(value = "offset", required = false, defaultValue = "0") String offset,
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request)
-			throws ParseException;
+			throws ParseException, ItorixException;
 
 	@ApiOperation(value = "Get Build And Test Artifacts", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "ok", response = String.class),
@@ -274,7 +276,7 @@ public interface ManagePipelineService {
 	public ResponseEntity<?> getPipelineStatus(@PathVariable("pipelineGroupName") String groupName,
 			@PathVariable("pipelineName") String pipelineName, @RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid, HttpServletRequest request)
-			throws ParseException;
+			throws ParseException, ItorixException;
 
 	@ApiOperation(value = "Get Run Time Logs", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "No Content", response = String.class),
