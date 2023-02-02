@@ -39,5 +39,6 @@ public class ComplianceScannerExecutionEvent extends AbstractObject {
     private String operation;
     private String status;
     private String tennant;
+    private String agent;
     private long scheduledTime;
 }
