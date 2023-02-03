@@ -5037,6 +5037,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		executionEvent.setOperation(operation);
 		executionEvent.setTennant(tenantId);
 		executionEvent.setScheduledTime(System.currentTimeMillis());
+		executionEvent.setStatus(ComplianceScannerExecutionEvent.STATUSES.SCHEDULED.getValue());
 		return mongoTemplate.save(executionEvent).getId();
 	}
 }
