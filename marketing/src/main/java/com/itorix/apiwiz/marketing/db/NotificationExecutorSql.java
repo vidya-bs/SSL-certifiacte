@@ -1,7 +1,7 @@
 package com.itorix.apiwiz.marketing.db;
 
-import com.itorix.apiwiz.exception.ErrorCodes;
-import com.itorix.apiwiz.exception.ItorixException;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
