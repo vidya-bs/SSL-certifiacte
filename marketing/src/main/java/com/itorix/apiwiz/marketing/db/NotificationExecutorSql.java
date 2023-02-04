@@ -21,7 +21,7 @@ public class NotificationExecutorSql {
 
   public void insertIntoNotificationEntity(String tenant, String notificationExecutionId, String status, String lockedBy)
           throws ItorixException {
-    if (!StringUtils.hasText(tenant) || !StringUtils.hasText(notificationExecutionId) || !StringUtils.hasText(status)) {
+    if (!StringUtils.hasText(notificationExecutionId) || !StringUtils.hasText(status)) {
       logger.error("mandatory parameters missing");
       throw new ItorixException(ErrorCodes.errorMessage.get("Notification-Scheduler-1"), "Notification-Scheduler-1");
     }

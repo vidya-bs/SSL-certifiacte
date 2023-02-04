@@ -39,4 +39,5 @@ public class NotificationExecutionEvent extends AbstractObject {
     private String status;
     private String errorCode;
     private String agent;
+    private String tenant;
 }
