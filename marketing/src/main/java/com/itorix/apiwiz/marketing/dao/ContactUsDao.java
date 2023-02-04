@@ -81,7 +81,7 @@ public class ContactUsDao {
 				requestModel.setType(Type.email);
 
 				String notificationExecutionEventId = createNotificationEvent(requestModel);
-				sqlDao.insertIntoNotificationEntity(TenantContext.getCurrentTenant(),
+				sqlDao.insertIntoNotificationEntity(null,
 								notificationExecutionEventId, NotificationExecutorEntity.STATUSES.SCHEDULED.getValue(), null);
 
 				RestTemplate restTemplate = new RestTemplate();
