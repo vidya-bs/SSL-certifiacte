@@ -3,22 +3,34 @@ package com.itorix.apiwiz.marketing.dao;
 import com.itorix.apiwiz.common.factory.IntegrationHelper;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.StorageIntegration;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
+import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
+import com.itorix.apiwiz.common.util.mail.EmailTemplate;
 import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
+import com.itorix.apiwiz.marketing.careers.model.EmailContentParser;
 import com.itorix.apiwiz.marketing.careers.model.JobApplication;
 import com.itorix.apiwiz.marketing.careers.model.JobPosting;
+import com.itorix.apiwiz.marketing.contactus.model.RequestModel;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -44,6 +56,30 @@ public class CareersDao {
 
 	@Autowired
 	private IntegrationHelper integrationHelper;
+
+	@Autowired
+	private ApplicationProperties applicationProperties;
+
+	@Autowired
+	private EmailContentParser emailContentParser;
+
+	@Autowired
+	private RSAEncryption rsaEncryption;
+
+	@Autowired
+	private RestTemplate restTemplate;
+
+	private static final String API_KEY_NAME = "x-apikey";
+	private static final String NOTIFICATION_AGENT_NOTIFY = "/v1/notification";
+
+	@Value("${itorix.notification.agent:null}")
+	private String notificationAgentPath;
+
+	@Value("${itorix.notification.agent.contextPath:null}")
+	private String notificationContextPath;
+
+	@Value("${itorix.app.careers.job.emailId:null}")
+	private String hiringMailId;
 
 	public String createUpdatePosting(JobPosting jobPosting) {
 		Query query = new Query().addCriteria(
@@ -179,6 +215,42 @@ public class CareersDao {
 			jfrogUtilImpl.deleteFileIgnore404(folderPath);
 		} catch (Exception e) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1016"), "Marketing-3");
+		}
+	}
+	public void invokeNotificationAgent(JobApplication jobApplication, MultipartFile profile) {
+		try {
+			if (jobApplication != null) {
+				RequestModel requestModel = new RequestModel();
+				EmailTemplate emailTemplate = new EmailTemplate();
+				String[] emailContentToReplace = emailContentParser.getRelevantEmailContent(jobApplication);
+				String mailBody = emailContentParser.getEmailBody(emailContentToReplace);
+				String mailSubject = emailContentParser.getEmailSubject(emailContentToReplace);
+				emailTemplate.setBody(mailBody);
+				List<String> mailId = new ArrayList<>();
+				mailId.add(hiringMailId);
+				emailTemplate.setToMailId(mailId);
+				emailTemplate.setSubject(mailSubject);
+				try {
+					emailTemplate.setAttachmentName(profile.getOriginalFilename());
+					emailTemplate.setAttachment(profile.getBytes());
+				} catch (Exception ex){
+					log.error("Exception Occured {}", ex.getMessage());
+				}
+				requestModel.setEmailContent(emailTemplate);
+				requestModel.setType(RequestModel.Type.email);
+				HttpHeaders headers = new HttpHeaders();
+				headers.set(API_KEY_NAME, rsaEncryption.decryptText(applicationProperties.getApiKey()));
+				headers.setContentType(MediaType.APPLICATION_JSON);
+				HttpEntity<RequestModel> httpEntity = new HttpEntity<>(requestModel, headers);
+				String monitorUrl = notificationAgentPath + notificationContextPath + NOTIFICATION_AGENT_NOTIFY;
+				log.debug("Making a call to {}", monitorUrl);
+				ResponseEntity<String> result = restTemplate.postForEntity(monitorUrl, httpEntity, String.class);
+				if (!result.getStatusCode().is2xxSuccessful()) {
+					log.error("error returned from notification agent", result.getBody());
+				}
+			}
+		} catch (Exception e) {
+			log.error("error returned from notification agent", e);
 		}
 	}
 }
