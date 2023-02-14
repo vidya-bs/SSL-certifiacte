@@ -362,12 +362,70 @@ public class WorkspaceDao {
 	}
 
 	public List<SubscriptionV2> getSubscriptionsV2() {
-		return masterMongoTemplate.findAll(SubscriptionV2.class);
+		List<SubscriptionV2> subscriptionV2s= masterMongoTemplate.findAll(SubscriptionV2.class);
+		sort(subscriptionV2s);
+		return subscriptionV2s;
 	}
 
 	public void createSubscriptionPlansV2(List<SubscriptionV2> subscriptions) {
 		for (SubscriptionV2 subscriptionV2 : subscriptions) {
 			masterMongoTemplate.save(subscriptionV2);
+		}
+	}
+
+	public void sort(List<SubscriptionV2> plans){
+		try{
+			for (int i = 0; i < plans.size(); i++) {
+				sortBasedOnEnable(plans, i);
+			}
+			for (int i = 0; i < plans.size(); i++) {
+				for (int j = 0; j < plans.get(i).getItems().size(); j++) {
+					sortBasedOnEnableForItems(plans, i, j);
+				}
+			}
+		} catch (Exception ex){
+			ex.printStackTrace();
+			log.error("Exception Occured {}",ex.getMessage());
+		}
+	}
+	public void sortBasedOnEnable(List<SubscriptionV2> plans, int index){
+		int n = plans.get(index).getItems().size();
+		List<SubscriptionItem> items = plans.get(index).getItems();
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				if(items.get(i).getEnabled() == false && items.get(j).getEnabled() == true ){
+					swap(plans,i,j);
+				}
+			}
+		}
+	}
+
+	public void sortBasedOnEnableForItems(List<SubscriptionV2> plans, int index, int itemIndex){
+		int n = plans.get(index).getItems().get(itemIndex).getItems().size();
+		List<SubscriptionItem> items = plans.get(index).getItems().get(itemIndex).getItems();
+		for (int i = 0; i < n; i++) {
+			for (int j = i+1; j < n; j++) {
+				if( items.get(i).getEnabled() == false && items.get(j).getEnabled() == true ){
+					swapItem(plans, itemIndex, i, j);
+				}
+			}
+		}
+	}
+	public void swap(List<SubscriptionV2> plans, int i, int j){
+		for (int k = 0; k < plans.size(); k++) {
+			SubscriptionItem temp = plans.get(k).getItems().get(i);
+			plans.get(k).getItems().set(i, plans.get(k).getItems().get(j));
+			plans.get(k).getItems().set(j, temp);
+			log.info("swapping {} and {}", temp.getLabel(), plans.get(k).getItems().get(i).getLabel());
+		}
+	}
+
+	public void swapItem(List<SubscriptionV2> plans,int itemIndex, int i, int j){
+		for (int k = 0; k < plans.size(); k++) {
+			SubscriptionItem temp = plans.get(k).getItems().get(itemIndex).getItems().get(j);
+			plans.get(k).getItems().get(itemIndex).getItems().set(j, plans.get(k).getItems().get(itemIndex).getItems().get(i));
+			plans.get(k).getItems().get(itemIndex).getItems().set(i, temp);
+			log.info("swapping {} and {}", temp.getLabel(), plans.get(k).getItems().get(itemIndex).getItems().get(i).getLabel());
 		}
 	}
 }
