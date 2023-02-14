@@ -3,28 +3,35 @@ package com.itorix.apiwiz.marketing.dao;
 import com.itorix.apiwiz.common.factory.IntegrationHelper;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.StorageIntegration;
 import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
+import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
+import com.itorix.apiwiz.common.util.mail.EmailTemplate;
 import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
+import com.itorix.apiwiz.marketing.careers.model.EmailContentParser;
 import com.itorix.apiwiz.marketing.careers.model.JobApplication;
 import com.itorix.apiwiz.marketing.careers.model.JobPosting;
-import com.mongodb.client.DistinctIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
+import com.itorix.apiwiz.marketing.careers.model.JobStatus;
+import com.itorix.apiwiz.marketing.contactus.model.RequestModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -45,6 +52,30 @@ public class CareersDao {
 	@Autowired
 	private IntegrationHelper integrationHelper;
 
+	@Autowired
+	private ApplicationProperties applicationProperties;
+
+	@Autowired
+	private EmailContentParser emailContentParser;
+
+	@Autowired
+	private RSAEncryption rsaEncryption;
+
+	@Autowired
+	private RestTemplate restTemplate;
+
+	private static final String API_KEY_NAME = "x-apikey";
+	private static final String NOTIFICATION_AGENT_NOTIFY = "/v1/notification";
+
+	@Value("${itorix.notification.agent:null}")
+	private String notificationAgentPath;
+
+	@Value("${itorix.notification.agent.contextPath:null}")
+	private String notificationContextPath;
+
+	@Value("${itorix.app.careers.job.emailId:null}")
+	private String hiringMailId;
+
 	public String createUpdatePosting(JobPosting jobPosting) {
 		Query query = new Query().addCriteria(
 				Criteria.where("name").is(jobPosting.getName()).and("location").is(jobPosting.getLocation()));
@@ -53,6 +84,7 @@ public class CareersDao {
 			jobPosting.setId(dbJobPosting.getId());
 			masterMongoTemplate.save(jobPosting);
 		} else {
+			if(jobPosting.getStatus()==null)jobPosting.setStatus(JobStatus.ACTIVE);
 			masterMongoTemplate.save(jobPosting);
 		}
 		return jobPosting.getId();
@@ -75,6 +107,7 @@ public class CareersDao {
 	public List<JobPosting> getAllPostings(List<String> categoryList, List<String> locationList,
 			List<String> rollList) {
 		Query query = new Query();
+		query.addCriteria(Criteria.where("status").is(JobStatus.ACTIVE));
 		if (categoryList != null)
 			query.addCriteria(Criteria.where("category").in(categoryList));
 		if (locationList != null)
@@ -97,44 +130,19 @@ public class CareersDao {
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	public Map getCategories() {
-		List<String> categoryList = new ArrayList<>();
-		List<String> rollList = new ArrayList<>();
-		List<String> locationList = new ArrayList<>();
+		Set<String> categoryList = new HashSet<>();
+		Set<String> rollList = new HashSet<>();
+		Set<String> locationList = new HashSet<>();
 		try {
-			String collectionName = masterMongoTemplate.getCollectionName(JobPosting.class);
-			MongoCollection mongoCollection = masterMongoTemplate.getCollection(collectionName);
-			DistinctIterable distinctIterable = mongoCollection.distinct("category", String.class);
-			if (distinctIterable != null) {
-				MongoCursor cursor = distinctIterable.iterator();
-				if (cursor != null) {
-					while (cursor.hasNext()) {
-						String category = (String) cursor.next();
-						categoryList.add(category);
-					}
-				}
+			Query query=new Query().addCriteria(Criteria.where("status").is(JobStatus.ACTIVE));
+			List<JobPosting> allJob=masterMongoTemplate.find(query, JobPosting.class);
+			for(JobPosting i:allJob){
+				categoryList.add(i.getCategory());
+				rollList.add(i.getRole());
+				locationList.add(i.getLocation());
 			}
-			distinctIterable = mongoCollection.distinct("location", String.class);
-			if (distinctIterable != null) {
-				MongoCursor cursor = distinctIterable.iterator();
-				if (cursor != null) {
-					while (cursor.hasNext()) {
-						String category = (String) cursor.next();
-						locationList.add(category);
-					}
-				}
-			}
-			distinctIterable = mongoCollection.distinct("role", String.class);
-			if (distinctIterable != null) {
-				MongoCursor cursor = distinctIterable.iterator();
-				if (cursor != null) {
-					while (cursor.hasNext()) {
-						String category = (String) cursor.next();
-						rollList.add(category);
-					}
-				}
-			}
-		} catch (Exception ex) {
-			log.error("Exception occurred", ex);
+		}catch (Exception ex) {
+		log.error("Exception occurred", ex);
 		}
 		Map categories = new HashMap();
 		categories.put("category", categoryList);
@@ -179,6 +187,42 @@ public class CareersDao {
 			jfrogUtilImpl.deleteFileIgnore404(folderPath);
 		} catch (Exception e) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1016"), "Marketing-3");
+		}
+	}
+	public void invokeNotificationAgent(JobApplication jobApplication, MultipartFile profile) {
+		try {
+			if (jobApplication != null) {
+				RequestModel requestModel = new RequestModel();
+				EmailTemplate emailTemplate = new EmailTemplate();
+				String[] emailContentToReplace = emailContentParser.getRelevantEmailContent(jobApplication);
+				String mailBody = emailContentParser.getEmailBody(emailContentToReplace);
+				String mailSubject = emailContentParser.getEmailSubject(emailContentToReplace);
+				emailTemplate.setBody(mailBody);
+				List<String> mailId = new ArrayList<>();
+				mailId.add(hiringMailId);
+				emailTemplate.setToMailId(mailId);
+				emailTemplate.setSubject(mailSubject);
+				try {
+					emailTemplate.setAttachmentName(profile.getOriginalFilename());
+					emailTemplate.setAttachment(profile.getBytes());
+				} catch (Exception ex){
+					log.error("Exception Occured {}", ex.getMessage());
+				}
+				requestModel.setEmailContent(emailTemplate);
+				requestModel.setType(RequestModel.Type.email);
+				HttpHeaders headers = new HttpHeaders();
+				headers.set(API_KEY_NAME, rsaEncryption.decryptText(applicationProperties.getApiKey()));
+				headers.setContentType(MediaType.APPLICATION_JSON);
+				HttpEntity<RequestModel> httpEntity = new HttpEntity<>(requestModel, headers);
+				String monitorUrl = notificationAgentPath + notificationContextPath + NOTIFICATION_AGENT_NOTIFY;
+				log.debug("Making a call to {}", monitorUrl);
+				ResponseEntity<String> result = restTemplate.postForEntity(monitorUrl, httpEntity, String.class);
+				if (!result.getStatusCode().is2xxSuccessful()) {
+					log.error("error returned from notification agent", result.getBody());
+				}
+			}
+		} catch (Exception e) {
+			log.error("error returned from notification agent", e);
 		}
 	}
 }
