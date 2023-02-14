@@ -398,13 +398,6 @@ public class WorkspaceDao {
 				}
 			}
 		}
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
-				if(items.get(i).isComingSoon() == true && items.get(j).isComingSoon() == false ){
-					swap(plans,i,j);
-				}
-			}
-		}
 	}
 
 	public void sortBasedOnEnableForItems(List<SubscriptionV2> plans, int index, int itemIndex){
@@ -413,14 +406,6 @@ public class WorkspaceDao {
 		for (int i = 0; i < n; i++) {
 			for (int j = i+1; j < n; j++) {
 				if( items.get(i).getEnabled() == false && items.get(j).getEnabled() == true ){
-					swapItem(plans, itemIndex, i, j);
-				}
-			}
-		}
-
-		for (int i = 0; i < n; i++) {
-			for (int j = i+1; j < n; j++) {
-				if( items.get(i).isComingSoon() == true && items.get(j).isComingSoon() == false ){
 					swapItem(plans, itemIndex, i, j);
 				}
 			}
