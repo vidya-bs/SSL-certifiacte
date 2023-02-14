@@ -173,8 +173,12 @@ public class IdentityManagementDao {
                 throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1044"), "Identity-1044");
             }
 
+            if(user.getUserStatus().equalsIgnoreCase("Locked"))
+                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1047"), "Identity-1047");
+
+
             if (user.canLogin() != true) {
-                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"), "Identity-1023");
+                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1048"), "Identity-1048");
             }
 
             if (preAuthenticated || rsaEncryption.decryptText(user.getPassword())
@@ -230,7 +234,7 @@ public class IdentityManagementDao {
                 } else {
                     user.setUserStatus(UserStatus.getStatus(UserStatus.LOCKED));
                     saveUser(user);
-                    throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"), "Identity-1023");
+                    throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1047"), "Identity-1047");
                 }
             }
         }

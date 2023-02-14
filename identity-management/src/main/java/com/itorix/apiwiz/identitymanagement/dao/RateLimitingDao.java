@@ -72,9 +72,6 @@ public class RateLimitingDao {
 
     public void addTenantQuotas(String tenant, RateLimitQuota quota) throws ItorixException {
         log.info("Adding rate limit quota to tenant DB...");
-        if (!hazelCastConfiguration.isHazelcastConnectionStatus()) {
-            throw new ItorixException(ErrorCodes.errorMessage.get(RATE_LIMIT_1000), RATE_LIMIT_1000);
-        }
         if (quota == null || quota.getPlan() == null || quota.getRequests() == null){
             log.error("Invalid Quota.");
             throw new ItorixException(ErrorCodes.errorMessage.get("rate-limiting-1001"), "rate-limiting-1001");
@@ -124,7 +121,7 @@ public class RateLimitingDao {
 
     private void updateCache(String tenant, RateLimitQuota quota) throws ItorixException {
         log.info("Updating cache in hazelcast...");
-        if (hazelCastConfiguration.isHazelcastConnectionStatus()) {
+        try {
             if (bucketCache != null && !bucketCache.isEmpty()) {
                 ProxyManager<String> proxyManager = new HazelcastProxyManager<>(bucketCache);
                 Optional<BucketConfiguration> bucketConfiguration = proxyManager.getProxyConfiguration(tenant);
@@ -136,7 +133,7 @@ public class RateLimitingDao {
                 }
                 log.info("Updated Rate Limit Quotas for workspace {} in Cache", tenant);
             }
-        } else {
+        } catch (Exception e) {
             throw new ItorixException(ErrorCodes.errorMessage.get(RATE_LIMIT_1000), RATE_LIMIT_1000);
         }
     }
