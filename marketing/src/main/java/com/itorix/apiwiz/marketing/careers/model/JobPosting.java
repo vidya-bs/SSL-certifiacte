@@ -19,6 +19,16 @@ public class JobPosting {
 	private String detail;
 	private String aboutUs;
 
+	private JobStatus status;
+
+	public JobStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(JobStatus status) {
+		this.status = status;
+	}
+
 	public JobPosting() {
 		super();
 	}
