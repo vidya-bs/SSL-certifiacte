@@ -14,7 +14,10 @@ import com.itorix.apiwiz.marketing.careers.model.EmailContentParser;
 import com.itorix.apiwiz.marketing.careers.model.JobApplication;
 import com.itorix.apiwiz.marketing.careers.model.JobPosting;
 import com.itorix.apiwiz.marketing.careers.model.JobStatus;
+import com.itorix.apiwiz.marketing.contactus.model.NotificationExecutionEvent;
 import com.itorix.apiwiz.marketing.contactus.model.RequestModel;
+import com.itorix.apiwiz.marketing.db.NotificationExecutorEntity;
+import com.itorix.apiwiz.marketing.db.NotificationExecutorSql;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -64,8 +67,11 @@ public class CareersDao {
 	@Autowired
 	private RestTemplate restTemplate;
 
+	@Autowired
+	private NotificationExecutorSql sqlDao;
+
 	private static final String API_KEY_NAME = "x-apikey";
-	private static final String NOTIFICATION_AGENT_NOTIFY = "/v1/notification";
+	private static final String NOTIFICATION_AGENT_NOTIFY = "/v1/notification/";
 
 	@Value("${itorix.notification.agent:null}")
 	private String notificationAgentPath;
@@ -210,19 +216,30 @@ public class CareersDao {
 				}
 				requestModel.setEmailContent(emailTemplate);
 				requestModel.setType(RequestModel.Type.email);
+				String notificationExecutionEventId = createNotificationEvent(requestModel);
+				sqlDao.insertIntoNotificationEntity(null,
+								notificationExecutionEventId, NotificationExecutorEntity.STATUSES.SCHEDULED.getValue(), null);
+
 				HttpHeaders headers = new HttpHeaders();
 				headers.set(API_KEY_NAME, rsaEncryption.decryptText(applicationProperties.getApiKey()));
 				headers.setContentType(MediaType.APPLICATION_JSON);
 				HttpEntity<RequestModel> httpEntity = new HttpEntity<>(requestModel, headers);
-				String monitorUrl = notificationAgentPath + notificationContextPath + NOTIFICATION_AGENT_NOTIFY;
-				log.debug("Making a call to {}", monitorUrl);
-				ResponseEntity<String> result = restTemplate.postForEntity(monitorUrl, httpEntity, String.class);
-				if (!result.getStatusCode().is2xxSuccessful()) {
-					log.error("error returned from notification agent", result.getBody());
-				}
+				String notifiyUrl = notificationAgentPath + notificationContextPath +
+								NOTIFICATION_AGENT_NOTIFY + notificationExecutionEventId;
+				log.debug("Making a call to {}", notifiyUrl);
+				ResponseEntity<String> result = restTemplate.postForEntity(notifiyUrl, httpEntity, String.class);
 			}
 		} catch (Exception e) {
 			log.error("error returned from notification agent", e);
 		}
+	}
+
+	public String createNotificationEvent(RequestModel requestModel) {
+		NotificationExecutionEvent notificationExecutionEvent = new NotificationExecutionEvent();
+		notificationExecutionEvent.setRequestModel(requestModel);
+		notificationExecutionEvent.setCts(System.currentTimeMillis());
+		notificationExecutionEvent.setStatus(NotificationExecutionEvent.STATUSES.SCHEDULED.getValue());
+		masterMongoTemplate.save(notificationExecutionEvent);
+		return notificationExecutionEvent.getId();
 	}
 }
