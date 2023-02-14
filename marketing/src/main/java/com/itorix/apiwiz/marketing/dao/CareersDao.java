@@ -13,10 +13,8 @@ import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.marketing.careers.model.EmailContentParser;
 import com.itorix.apiwiz.marketing.careers.model.JobApplication;
 import com.itorix.apiwiz.marketing.careers.model.JobPosting;
+import com.itorix.apiwiz.marketing.careers.model.JobStatus;
 import com.itorix.apiwiz.marketing.contactus.model.RequestModel;
-import com.mongodb.client.DistinctIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,10 +31,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -89,6 +84,7 @@ public class CareersDao {
 			jobPosting.setId(dbJobPosting.getId());
 			masterMongoTemplate.save(jobPosting);
 		} else {
+			if(jobPosting.getStatus()==null)jobPosting.setStatus(JobStatus.ACTIVE);
 			masterMongoTemplate.save(jobPosting);
 		}
 		return jobPosting.getId();
@@ -111,6 +107,7 @@ public class CareersDao {
 	public List<JobPosting> getAllPostings(List<String> categoryList, List<String> locationList,
 			List<String> rollList) {
 		Query query = new Query();
+		query.addCriteria(Criteria.where("status").is(JobStatus.ACTIVE));
 		if (categoryList != null)
 			query.addCriteria(Criteria.where("category").in(categoryList));
 		if (locationList != null)
@@ -133,44 +130,19 @@ public class CareersDao {
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	public Map getCategories() {
-		List<String> categoryList = new ArrayList<>();
-		List<String> rollList = new ArrayList<>();
-		List<String> locationList = new ArrayList<>();
+		Set<String> categoryList = new HashSet<>();
+		Set<String> rollList = new HashSet<>();
+		Set<String> locationList = new HashSet<>();
 		try {
-			String collectionName = masterMongoTemplate.getCollectionName(JobPosting.class);
-			MongoCollection mongoCollection = masterMongoTemplate.getCollection(collectionName);
-			DistinctIterable distinctIterable = mongoCollection.distinct("category", String.class);
-			if (distinctIterable != null) {
-				MongoCursor cursor = distinctIterable.iterator();
-				if (cursor != null) {
-					while (cursor.hasNext()) {
-						String category = (String) cursor.next();
-						categoryList.add(category);
-					}
-				}
+			Query query=new Query().addCriteria(Criteria.where("status").is(JobStatus.ACTIVE));
+			List<JobPosting> allJob=masterMongoTemplate.find(query, JobPosting.class);
+			for(JobPosting i:allJob){
+				categoryList.add(i.getCategory());
+				rollList.add(i.getRole());
+				locationList.add(i.getLocation());
 			}
-			distinctIterable = mongoCollection.distinct("location", String.class);
-			if (distinctIterable != null) {
-				MongoCursor cursor = distinctIterable.iterator();
-				if (cursor != null) {
-					while (cursor.hasNext()) {
-						String category = (String) cursor.next();
-						locationList.add(category);
-					}
-				}
-			}
-			distinctIterable = mongoCollection.distinct("role", String.class);
-			if (distinctIterable != null) {
-				MongoCursor cursor = distinctIterable.iterator();
-				if (cursor != null) {
-					while (cursor.hasNext()) {
-						String category = (String) cursor.next();
-						rollList.add(category);
-					}
-				}
-			}
-		} catch (Exception ex) {
-			log.error("Exception occurred", ex);
+		}catch (Exception ex) {
+		log.error("Exception occurred", ex);
 		}
 		Map categories = new HashMap();
 		categories.put("category", categoryList);
