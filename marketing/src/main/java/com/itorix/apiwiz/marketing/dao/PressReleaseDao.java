@@ -122,15 +122,16 @@ public class PressReleaseDao {
     public List<PressRelease> getDataByTagOrSlug(int offset, int pageSize, String filter, String filterValue) {
         List<PressRelease> returningList = new ArrayList<>();
         List<PressRelease> releaseList = getPressReleases(offset, pageSize);
-        Query query = new Query();
         releaseList.forEach(rl->{
             if(filter.equals("tag")){
+                Query query = new Query();
                 query.addCriteria(Criteria.where("meta.tags").is(filterValue));
                 query.with(Sort.by(Sort.Direction.DESC, "meta.publishingDate"))
                         .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
                 returningList.addAll(masterMongoTemplate.find(query, PressRelease.class));
             }
             else {
+                Query query = new Query();
                 query.addCriteria(Criteria.where("meta.slug").is(filterValue));
                 query.with(Sort.by(Sort.Direction.DESC, "meta.publishingDate"))
                         .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
