@@ -246,6 +246,7 @@ public enum ErrorCodes {
 			put("MockServer-1003", "Request validation failed. A group with that name already exists.");
 
 			put("Marketing-1000", GENERIC_INTERNAL_SERVER_ERROR.message());
+			put("Marketing-1001","Please give publishing Date in the format dd-MM-yyyy");
 
 			put("PROJECT_PLAN_TRACK_001", "Request validation failed. Project already exist");
 			put("ProjectPlan-1001", "Resource not found. Project with name %s does not exists.");
@@ -448,6 +449,7 @@ public enum ErrorCodes {
 			put("MockServer-1001", 404);
 			put("MockServer-1002", 400);
 			put("Marketing-1000", 500);
+			put("Marketing-1001",500);
 			put("MockServer-1003", 400);
 			put("General-1000", 500);
 			put("General-1001", 400);
