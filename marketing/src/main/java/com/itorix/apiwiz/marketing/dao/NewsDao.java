@@ -170,9 +170,7 @@ public class NewsDao {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
         newsList = newsList.stream().sorted((o1, o2) -> {
             LocalDate date = LocalDate.parse(o1.getMeta().getPublishingDate(), dateTimeFormatter);
-            log.info("date:{} ", date);
             LocalDate date1 = LocalDate.parse(o2.getMeta().getPublishingDate(), dateTimeFormatter);
-            log.info("date1:{} ", date1);
             return date1.compareTo(date);
         }).collect(Collectors.toList());
         if (newsList != null) return newsList;
@@ -196,9 +194,7 @@ public class NewsDao {
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
             returningList = returningList.stream().sorted((o1, o2) -> {
                 LocalDate date = LocalDate.parse(o1.getMeta().getPublishingDate(), dateTimeFormatter);
-                log.info("date:{} ", date);
                 LocalDate date1 = LocalDate.parse(o2.getMeta().getPublishingDate(), dateTimeFormatter);
-                log.info("date1:{} ", date1);
                 return date1.compareTo(date);
             }).collect(Collectors.toList());
         }
