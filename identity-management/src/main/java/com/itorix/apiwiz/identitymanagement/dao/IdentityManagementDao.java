@@ -157,7 +157,7 @@ public class IdentityManagementDao {
 			User user = findByEmailUserName(userInfo.getLoginId());
 			Workspace workspace = getWorkspace(userInfo.getWorkspaceId().toLowerCase());
 			if (user == null) {
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1036"), "Identity-1037");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1045"), "Identity-1045");
 			}
 			if (workspace == null) {
 				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1044"), "Identity-1044");
@@ -230,7 +230,7 @@ public class IdentityManagementDao {
                 if (user.getUserCount() < 5) {
                     user.setUserCount(user.getUserCount() + 1);
                     saveUser(user);
-                    throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1036"), "Identity-1036");
+                    throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1049"), "Identity-1049");
                 } else {
                     user.setUserStatus(UserStatus.getStatus(UserStatus.LOCKED));
                     saveUser(user);
