@@ -8,7 +8,6 @@ import com.itorix.apiwiz.marketing.news.model.NewsStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -17,10 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -33,26 +28,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NewsDao {
 
+
+    private  static final String DATE_FORMAT="dd-MM-yyyy";
+
     @Qualifier("masterMongoTemplate")
     @Autowired
     MongoTemplate masterMongoTemplate;
 
-
-    private static String encodeValue(String value) {
-        try {
-            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException ex) {
-            throw new RuntimeException(ex.getCause());
-        }
-    }
-
-    private static String decodeValue(String value) {
-        try {
-            return URLDecoder.decode(value, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException ex) {
-            throw new RuntimeException(ex.getCause());
-        }
-    }
 
     public static String validDate(News news) {
         if (news.getMeta().getPublishingDate() == null) return news.getMeta().getPublishingDate();
@@ -66,8 +48,7 @@ public class NewsDao {
         return validDate;
     }
 
-    boolean validateJavaDate(News news) {
-        String date = news.getMeta().getPublishingDate();
+    private boolean validateJavaDate(News news) {
         String day = news.getMeta().getPublishingDate().split("-")[0];
         if (Integer.parseInt(day) > 31) return false;
         String month = news.getMeta().getPublishingDate().split("-")[1];
@@ -115,12 +96,10 @@ public class NewsDao {
         List<News> newsList = null;
         if (status == null) {
             List<News> existing = getAllNews(offset, pageSize);
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
             existing = existing.stream().sorted((o1, o2) -> {
                 LocalDate date = LocalDate.parse(o1.getMeta().getPublishingDate(), dateTimeFormatter);
-                log.info("date:{} ", date);
                 LocalDate date1 = LocalDate.parse(o2.getMeta().getPublishingDate(), dateTimeFormatter);
-                log.info("date1:{} ", date1);
                 return date1.compareTo(date);
             }).collect(Collectors.toList());
 
@@ -133,12 +112,10 @@ public class NewsDao {
             query.addCriteria(Criteria.where("meta.status").is(status))
                     .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
             newsList = masterMongoTemplate.find(query, News.class);
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
             newsList = newsList.stream().sorted((o1, o2) -> {
                 LocalDate date = LocalDate.parse(o1.getMeta().getPublishingDate(), dateTimeFormatter);
-                log.info("date:{} ", date);
                 LocalDate date1 = LocalDate.parse(o2.getMeta().getPublishingDate(), dateTimeFormatter);
-                log.info("date1:{} ", date1);
                 return date1.compareTo(date);
             }).collect(Collectors.toList());
         }
@@ -162,7 +139,7 @@ public class NewsDao {
         String year = news.getMeta().getPublishingDate().split("-")[2];
         news.getMeta().setYear(Integer.parseInt(year));
         news.getMeta().setSlug(existingNews.getMeta().getSlug());
-        if (existingNews.getMeta().getStatus().equals("PUBLISH")) {
+        if (existingNews.getMeta().getStatus().equals(NewsStatus.PUBLISH)) {
             existingNews.getMeta().setStatus(NewsStatus.PUBLISH);
         }
         Update update = new Update();
@@ -190,7 +167,7 @@ public class NewsDao {
         Query query = new Query().addCriteria(Criteria.where("meta.year").is(year))
                 .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
         List<News> newsList = masterMongoTemplate.find(query, News.class);
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
         newsList = newsList.stream().sorted((o1, o2) -> {
             LocalDate date = LocalDate.parse(o1.getMeta().getPublishingDate(), dateTimeFormatter);
             log.info("date:{} ", date);
@@ -216,7 +193,7 @@ public class NewsDao {
                             Criteria.where("meta.tags").elemMatch(Criteria.where("tagName").regex(value, "i")))
                     .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
             returningList.addAll(masterMongoTemplate.find(query, News.class));
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
             returningList = returningList.stream().sorted((o1, o2) -> {
                 LocalDate date = LocalDate.parse(o1.getMeta().getPublishingDate(), dateTimeFormatter);
                 log.info("date:{} ", date);

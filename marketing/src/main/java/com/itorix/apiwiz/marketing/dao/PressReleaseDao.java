@@ -26,6 +26,9 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class PressReleaseDao {
+
+    private  static final String DATE_FORMAT="dd-MM-yyyy";
+
     @Qualifier("masterMongoTemplate")
     @Autowired
     MongoTemplate masterMongoTemplate;
@@ -43,12 +46,10 @@ public class PressReleaseDao {
                             Criteria.where("meta.tags").elemMatch(Criteria.where("tagName").regex(filterValue, "i")))
                     .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
             returningList.addAll(masterMongoTemplate.find(query, PressRelease.class));
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
             returningList = returningList.stream().sorted((o1, o2) -> {
                 LocalDate date = LocalDate.parse(o1.getMeta().getPublishingDate(), dateTimeFormatter);
-                log.info("date:{} ", date);
                 LocalDate date1 = LocalDate.parse(o2.getMeta().getPublishingDate(), dateTimeFormatter);
-                log.info("date1:{} ", date1);
                 return date1.compareTo(date);
             }).collect(Collectors.toList());
         }
@@ -61,12 +62,10 @@ public class PressReleaseDao {
         Query query = new Query().addCriteria(Criteria.where("meta.year").is(year))
                 .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
         List<PressRelease> pressReleaseList = masterMongoTemplate.find(query, PressRelease.class);
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
         pressReleaseList = pressReleaseList.stream().sorted((o1, o2) -> {
             LocalDate date = LocalDate.parse(o1.getMeta().getPublishingDate(), dateTimeFormatter);
-            log.info("date:{} ", date);
             LocalDate date1 = LocalDate.parse(o2.getMeta().getPublishingDate(), dateTimeFormatter);
-            log.info("date1:{} ", date1);
             return date1.compareTo(date);
         }).collect(Collectors.toList());
         if (pressReleaseList != null) return pressReleaseList;
@@ -88,7 +87,7 @@ public class PressReleaseDao {
         List<PressRelease> pressReleaseList = null;
         if (status == null) {
             List<PressRelease> existing = getPressReleases(offset, pageSize);
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
             existing = existing.stream().sorted((o1, o2) -> {
                 LocalDate date = LocalDate.parse(o1.getMeta().getPublishingDate(), dateTimeFormatter);
                 log.info("date:{} ", date);
@@ -106,7 +105,7 @@ public class PressReleaseDao {
             query.addCriteria(Criteria.where("meta.status").is(status))
                     .skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
             pressReleaseList = masterMongoTemplate.find(query, PressRelease.class);
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
             pressReleaseList = pressReleaseList.stream().sorted((o1, o2) -> {
                 LocalDate date = LocalDate.parse(o1.getMeta().getPublishingDate(), dateTimeFormatter);
                 log.info("date:{} ", date);
@@ -134,7 +133,6 @@ public class PressReleaseDao {
     }
 
     boolean validateJavaDate(PressRelease pressRelease) {
-        String date = pressRelease.getMeta().getPublishingDate();
         String day = pressRelease.getMeta().getPublishingDate().split("-")[0];
         if (Integer.parseInt(day) > 31) return false;
         String month = pressRelease.getMeta().getPublishingDate().split("-")[1];
@@ -203,7 +201,7 @@ public class PressReleaseDao {
             String year = pressRelease.getMeta().getPublishingDate().split("-")[2];
             pressRelease.getMeta().setYear(Integer.parseInt(year));
             pressRelease.getMeta().setSlug(existing.getMeta().getSlug());
-            if(existing.getMeta().getStatus().equals("PUBLISH")){
+            if(existing.getMeta().getStatus().equals(PressReleaseStatus.PUBLISH)){
                 pressRelease.getMeta().setStatus(PressReleaseStatus.PUBLISH);
             }
             Update update = new Update();
