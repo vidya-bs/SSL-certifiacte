@@ -132,7 +132,7 @@ public class PressReleaseDao {
         return validDate;
     }
 
-    boolean validateJavaDate(PressRelease pressRelease) {
+    private boolean validateJavaDate(PressRelease pressRelease) {
         String day = pressRelease.getMeta().getPublishingDate().split("-")[0];
         if (Integer.parseInt(day) > 31) return false;
         String month = pressRelease.getMeta().getPublishingDate().split("-")[1];
