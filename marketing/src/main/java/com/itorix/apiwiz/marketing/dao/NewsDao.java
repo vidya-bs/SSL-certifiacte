@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class NewsDao {
 
 
-    private  static final String DATE_FORMAT="dd-MM-yyyy";
+    private static final String DATE_FORMAT = "dd-MM-yyyy";
 
     @Qualifier("masterMongoTemplate")
     @Autowired
