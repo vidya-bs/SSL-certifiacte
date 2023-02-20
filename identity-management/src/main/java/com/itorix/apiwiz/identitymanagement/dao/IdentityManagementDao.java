@@ -157,7 +157,7 @@ public class IdentityManagementDao {
 			User user = findByEmailUserName(userInfo.getLoginId());
 			Workspace workspace = getWorkspace(userInfo.getWorkspaceId().toLowerCase());
 			if (user == null) {
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1036"), "Identity-1037");
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1045"), "Identity-1045");
 			}
 			if (workspace == null) {
 				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1044"), "Identity-1044");
