@@ -2948,6 +2948,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		List<String> executionIds = new ArrayList<>();
 		for(String swaggerId : scannerDTO.getSwaggerId()){
 			String executionEventId = swaggerBusiness.createExecutionEvent(swaggerId, scannerDTO.getOperation(), scannerDTO.getTenantId());
+			log.info("Compliance Scanner Execution Id - {}", executionEventId);
 			complianceScannerSqlDao.insertIntoComplianceExecutorEntity(scannerDTO.getTenantId(), executionEventId,
 					ComplicanceScannerExecutorEntity.STATUSES.SCHEDULED.getValue(), null, scannerDTO.getOperation());
 			executionIds.add(executionEventId);

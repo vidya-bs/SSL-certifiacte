@@ -5,6 +5,7 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.design.studio.dto.ComplicanceScannerExecutorEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -18,18 +19,8 @@ import javax.sql.DataSource;
 public class ComplianceScannerSqlDao {
 
   @Autowired
+  @Qualifier("complianceJdbcTemplate")
   JdbcTemplate jdbcTemplate;
-
-  @Autowired
-  DataSource localDataSource;
-
-  private NamedParameterJdbcTemplate localNamedParameterJdbcTemplate;
-
-
-  @PostConstruct
-  private void postConstruct() {
-    localNamedParameterJdbcTemplate = new NamedParameterJdbcTemplate(localDataSource);
-  }
 
 
   public void insertIntoComplianceExecutorEntity(String tenant, String complianceDetectExecutionId, String status, String lockedBy, String operation)

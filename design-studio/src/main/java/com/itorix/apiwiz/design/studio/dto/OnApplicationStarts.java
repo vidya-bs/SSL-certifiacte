@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 public class OnApplicationStarts {
 
     @Autowired
+    @Qualifier("complianceJdbcTemplate")
     JdbcTemplate jdbcTemplate;
 
 
