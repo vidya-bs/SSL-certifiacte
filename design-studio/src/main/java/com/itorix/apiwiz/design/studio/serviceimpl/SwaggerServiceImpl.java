@@ -24,7 +24,9 @@ import com.itorix.apiwiz.design.studio.businessimpl.Swagger3SDK;
 import com.itorix.apiwiz.design.studio.businessimpl.ValidateSchema;
 import com.itorix.apiwiz.design.studio.businessimpl.XlsUtil;
 import com.itorix.apiwiz.design.studio.dao.ApiRatingsDao;
+import com.itorix.apiwiz.design.studio.dao.ComplianceScannerSqlDao;
 import com.itorix.apiwiz.design.studio.dao.SupportedCodeGenLangDao;
+import com.itorix.apiwiz.design.studio.dto.ComplicanceScannerExecutorEntity;
 import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
@@ -172,6 +174,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 	 */
 	@Autowired
 	ApiRatingsDao apiRatingsDao;
+
+	@Autowired
+	ComplianceScannerSqlDao complianceScannerSqlDao;
 
 	@Autowired
 	NotificationBusiness notificationBusiness;
@@ -2870,7 +2875,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 		return new ResponseEntity<>(apiRatingsDao.deleteRating(swaggerId, revision, oas, email, ratingId), HttpStatus.NO_CONTENT);
 	}
 
-	public ResponseEntity<?> loadSwaggersToScan(String interactionid, String jsessionid) {
+	public ResponseEntity<?> loadSwaggersToScan(String interactionid, String jsessionid) throws ItorixException {
 		List<String> swaggersList = swaggerBusiness.loadSwaggersToScan(interactionid, jsessionid);
 		ScannerDTO scannerDTO = new ScannerDTO();
 		scannerDTO.setOperation(CREATE);
@@ -2939,16 +2944,24 @@ public class SwaggerServiceImpl implements SwaggerService {
 						jsessionid, offset, pageSize));
 	}
 
-	private void callScannerAPI(ScannerDTO scannerDTO, String jsessionid) {
+	private void callScannerAPI(ScannerDTO scannerDTO, String jsessionid) throws ItorixException {
+		List<String> executionIds = new ArrayList<>();
+		for(String swaggerId : scannerDTO.getSwaggerId()){
+			String executionEventId = swaggerBusiness.createExecutionEvent(swaggerId, scannerDTO.getOperation(), scannerDTO.getTenantId());
+			complianceScannerSqlDao.insertIntoComplianceExecutorEntity(scannerDTO.getTenantId(), executionEventId,
+					ComplicanceScannerExecutorEntity.STATUSES.SCHEDULED.getValue(), null, scannerDTO.getOperation());
+			executionIds.add(executionEventId);
+		}
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 		httpHeaders.set("JSESSIONID", jsessionid);
 
-		HttpEntity<ScannerDTO> entity = new HttpEntity<>(scannerDTO, httpHeaders);
+		HttpEntity<List<String>> entity = new HttpEntity<>(executionIds, httpHeaders);
 
 		try {
 			restTemplate.exchange(scannerUri, HttpMethod.POST, entity, String.class).getBody();
 		} catch (Exception e) {
+			log.error(e.getMessage());
 			logger.error(e.getMessage());
 		}
 
