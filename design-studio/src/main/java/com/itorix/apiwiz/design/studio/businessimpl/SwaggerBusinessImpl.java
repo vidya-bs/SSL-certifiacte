@@ -4386,7 +4386,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				});
 			}
 		} else if (oas.startsWith("3")) {
-			definitionsEnum = "Components-schema";
+//			definitionsEnum = "Components-schema";
 			OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
 			OpenAPI swagger = openAPIV3Parser.readContents(swaggerString).getOpenAPI();
 			try {
@@ -4394,11 +4394,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			} catch (Exception e) {
 				log.error("Paths is empty");
 			}
-			try {
-				swaggerDefinition = swagger.getComponents().getSchemas().keySet();
-			} catch (Exception e) {
-				log.error("Components is empty");
-			}
+//			try {
+//				swaggerDefinition = swagger.getComponents().getSchemas().keySet();
+//			} catch (Exception e) {
+//				log.error("Components is empty");
+//			}
 			try {
 				swagger.getExtensions().forEach((key, value) -> {
 					if (metadataList.contains(key)) {
@@ -4433,16 +4433,20 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					if (metadataObject != null) {
 						metadataPaths.addAll(metadataObject);
 					}
-					metadataObject = m.convertValue(categoryMetadata.get("definitions"), Set.class);
-					if (metadataObject != null) {
-						metadataDefinitions.addAll(metadataObject);
+					if (oas.startsWith("2")) {
+						metadataObject = m.convertValue(categoryMetadata.get("definitions"), Set.class);
+						if (metadataObject != null) {
+							metadataDefinitions.addAll(metadataObject);
+						}
 					}
 				}
 			}
 			response = checkDifference(swaggerPaths, metadataPaths, response, missingError, "Paths", "x-metadata-paths");
 			response = checkDifference(metadataPaths, swaggerPaths, response, missingError, "x-metadata-paths", "Paths");
-			response = checkDifference(swaggerDefinition, metadataDefinitions, response, missingError, definitionsEnum, "x-metadata-Definitions");
-			response = checkDifference(metadataDefinitions, swaggerDefinition, response, missingError, "x-metadata-Definitions", definitionsEnum);
+			if (oas.startsWith("2")) {
+				response = checkDifference(swaggerDefinition, metadataDefinitions, response, missingError, definitionsEnum, "x-metadata-Definitions");
+				response = checkDifference(metadataDefinitions, swaggerDefinition, response, missingError, "x-metadata-Definitions", definitionsEnum);
+			}
 		}
 		return response;
 	}
