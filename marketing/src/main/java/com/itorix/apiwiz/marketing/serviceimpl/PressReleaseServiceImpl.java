@@ -4,6 +4,7 @@ import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
 import com.itorix.apiwiz.marketing.common.PaginatedResponse;
 import com.itorix.apiwiz.marketing.dao.PressReleaseDao;
 import com.itorix.apiwiz.marketing.pressrelease.model.PressRelease;
+import com.itorix.apiwiz.marketing.pressrelease.model.PressReleaseFilterRequest;
 import com.itorix.apiwiz.marketing.pressrelease.model.PressReleaseStatus;
 import com.itorix.apiwiz.marketing.service.PressReleaseService;
 import lombok.extern.slf4j.Slf4j;
@@ -58,8 +59,8 @@ public class PressReleaseServiceImpl implements PressReleaseService {
     }
     @UnSecure(ignoreValidation = true)
     @Override
-    public ResponseEntity<?> getDataByFilter(String apikey,int offset, int pageSize, String filter,String filterValue) throws Exception {
-        List<PressRelease>filteredData = pressReleaseDao.getDataByFilter(offset,pageSize,filter,filterValue);
+    public ResponseEntity<?> getDataByFilter(String apikey, int offset, int pageSize, String filter, PressReleaseFilterRequest pressReleaseFilterRequest) throws Exception {
+        List<PressRelease>filteredData = pressReleaseDao.getDataByFilter(offset,pageSize,filter,pressReleaseFilterRequest!=null?pressReleaseFilterRequest.getFilterValue():"");
         PaginatedResponse response = new PaginatedResponse();
         response.setPagination(pressReleaseDao.getPagination(offset,pageSize));
         response.setData(filteredData);
