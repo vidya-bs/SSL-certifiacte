@@ -152,15 +152,18 @@ public class IdentityManagementDao {
 	public UserSession authenticate(UserInfo userInfo, boolean preAuthenticated) throws Exception {
 		logger.debug("UserService.authenticate : " + userInfo);
 		UserSession userSession = null;
-		if (preAuthenticated || userInfo.allowLogin() == true) {
+		if (preAuthenticated || userInfo.allowLogin()) {
 			logger.debug("Authenticating user session");
 			User user = findByEmailUserName(userInfo.getLoginId());
 			Workspace workspace = getWorkspace(userInfo.getWorkspaceId().toLowerCase());
+            if (workspace == null) {
+                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1044"), "Identity-1044");
+            }
+            if(!workspace.getStatus().equalsIgnoreCase("active")){
+                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1013"), "Identity-1013");
+            }
 			if (user == null) {
 				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1045"), "Identity-1045");
-			}
-			if (workspace == null) {
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1044"), "Identity-1044");
 			}
 			UserWorkspace userWorkspace = user.getUserWorkspace(userInfo.getWorkspaceId().toLowerCase());
 			if (userWorkspace == null) { // (!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){

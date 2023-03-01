@@ -1144,7 +1144,6 @@ public class CodeGenService {
 			data.setProxyConnections(null);
 		}
 		if (type.equalsIgnoreCase("history")) {
-			data.setOrgEnvs(null);
 			data.setProxyApigeeDetails(null);
 			data.setProxyArtifacts(null);
 			data.setProxyConnections(null);
