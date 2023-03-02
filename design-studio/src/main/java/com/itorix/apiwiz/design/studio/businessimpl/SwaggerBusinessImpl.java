@@ -382,7 +382,20 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 						}
 					JsonNode info = swaggerObject.path("info");
 					if (info != null) {
-						String swaggerName = info.get("title").asText();
+						String swaggerName = null;
+						try {
+							swaggerName = info.get("title").asText();
+						}catch(NullPointerException e){
+							reason = "Title tag not found";
+							swagger.setName(file.getName());
+							swagger.setLoaded(false);
+							swagger.setReason(reason);
+							listSwaggers.add(swagger);
+							continue;
+						}
+						if(swaggerName.isEmpty()){
+							swaggerName = FilenameUtils.removeExtension(file.getName());
+						}
 						SwaggerVO swaggerVO = new SwaggerVO();
 						swaggerVO.setName(swaggerName);
 						swaggerVO.setSwagger(filecontent);
@@ -442,7 +455,20 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 						}
 					JsonNode info = swaggerObject.path("info");
 					if (info != null) {
-						String swaggerName = info.get("title").asText();
+						String swaggerName = null;
+						try {
+							swaggerName = info.get("title").asText();
+						}catch(NullPointerException e){
+							reason = "Title tag not found";
+							swagger.setName(file.getName());
+							swagger.setLoaded(false);
+							swagger.setReason(reason);
+							listSwaggers.add(swagger);
+							continue;
+						}
+						if(swaggerName.isEmpty()){
+							swaggerName = FilenameUtils.removeExtension(file.getName());
+						}
 						Swagger3VO swaggerVO = new Swagger3VO();
 						swaggerVO.setName(swaggerName);
 						swaggerVO.setSwagger(filecontent);
