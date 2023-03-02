@@ -19,6 +19,7 @@ public class SubscriptionV2 {
 	private String summary;
 	private String pricing;
 	private String message;
+	private Heading heading;
 	private List<SubscriptionPrice> subscriptionPrices;
 	private String pricingMessage;
 	private List<String> features;
