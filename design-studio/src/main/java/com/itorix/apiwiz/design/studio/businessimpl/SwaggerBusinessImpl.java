@@ -373,13 +373,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					SwaggerImport swagger = new SwaggerImport();
 					try {
 						String basepath = swaggerObject.path("basePath").asText();
-						List<Swagger2BasePath> mappings = getSwagger2BasePaths();
-						for (int i = 0; i < mappings.size(); i++) {
-							if (mappings.get(i).getBasePath().equals(basepath)) {
-								throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"),
-										"Swagger-1000");
-							}
-						}
 					JsonNode info = swaggerObject.path("info");
 					if (info != null) {
 						String swaggerName = null;
@@ -392,6 +385,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 							swagger.setReason(reason);
 							listSwaggers.add(swagger);
 							continue;
+						}
+						List<Swagger2BasePath> mappings = getSwagger2BasePaths();
+						for (int i = 0; i < mappings.size(); i++) {
+							if (mappings.get(i).getBasePath().equals(basepath)) {
+								throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"),
+										"Swagger-1000");
+							}
 						}
 						if(swaggerName.isEmpty()){
 							swaggerName = FilenameUtils.removeExtension(file.getName());
@@ -444,15 +444,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 							}
 						}
 						//String basepath = swaggerObject.path("basePath").asText();
-						List<Swagger3BasePath> mappings = getSwagger3BasePaths() ;
-						for (int i = 0; i < mappings.size(); i++) {
-							for(int j=0;j<mappings.get(i).getBasePath().size();j++) {
-								if(basePaths.contains(mappings.get(i).getBasePath().get(j))) {
-									throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"),
-											"Swagger-1000");
-								}
-							}
-						}
 					JsonNode info = swaggerObject.path("info");
 					if (info != null) {
 						String swaggerName = null;
@@ -465,6 +456,15 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 							swagger.setReason(reason);
 							listSwaggers.add(swagger);
 							continue;
+						}
+						List<Swagger3BasePath> mappings = getSwagger3BasePaths() ;
+						for (int i = 0; i < mappings.size(); i++) {
+							for(int j=0;j<mappings.get(i).getBasePath().size();j++) {
+								if(basePaths.contains(mappings.get(i).getBasePath().get(j))) {
+									throw new ItorixException(ErrorCodes.errorMessage.get("Swagger-1000"),
+											"Swagger-1000");
+								}
+							}
 						}
 						if(swaggerName.isEmpty()){
 							swaggerName = FilenameUtils.removeExtension(file.getName());
