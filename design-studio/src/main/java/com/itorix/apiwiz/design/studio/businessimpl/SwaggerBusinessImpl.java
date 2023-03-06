@@ -3656,9 +3656,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		}
 		SwaggerIntegrations integrations = baseRepository.findOne("swaggerName", swaggerName, "oas", oas,
 				SwaggerIntegrations.class);
-		if(integrations.getScm_token() != null){
-			integrations.setScm_token(rsaEncryption.decryptText(integrations.getScm_token()));
-		}
 		return integrations;
 	}
 
@@ -4479,7 +4476,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		integrations.setScm_authorizationType(scmUpload.getAuthType());
 		integrations.setScm_branch(scmUpload.getBranch());
 		integrations.setScm_repository(scmUpload.getRepoName());
-		integrations.setScm_token(rsaEncryption.encryptText(scmUpload.getToken()));
+		integrations.setScm_token(scmUpload.getToken());
 		integrations.setScm_type(scmUpload.getScmSource());
 		createOrUpdateGitIntegrations(interactionid, jsessionid, swaggerId, oas, integrations);
 

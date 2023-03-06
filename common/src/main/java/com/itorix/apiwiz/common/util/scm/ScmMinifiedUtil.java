@@ -46,7 +46,12 @@ public class ScmMinifiedUtil {
 								.setCredentialsProvider(new UsernamePasswordCredentialsProvider("PRIVATE-TOKEN", authToken))
 								.setDirectory(cloningDirectory).setBranch(branch).call();
 						log.info("Cloning repo with gitlab as scm source");
-					} else {
+					}else if(scmSource.equalsIgnoreCase("bitbucket")){
+						git = Git.cloneRepository().setURI(urlParts[0] + "//x-token-auth:" + authToken + "@" + urlParts[1])
+								.setCredentialsProvider(new UsernamePasswordCredentialsProvider(authToken, ""))
+								.setDirectory(cloningDirectory).setBranch(branch).call();
+						log.info("Cloning repo with bitbucket as scm source");
+					}else {
 						try{
 							log.debug("Cloning repo to temp directory {}", cloningDirectory);
 							git = Git.cloneRepository().setURI(urlParts[0] + "//" + authToken + "@" + urlParts[1])

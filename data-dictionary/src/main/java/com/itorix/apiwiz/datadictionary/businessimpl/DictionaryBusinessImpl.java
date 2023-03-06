@@ -787,10 +787,6 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 
 		//Create or Update Git Integration Record
 		dictionaryScmUpload.setPortfolioId(portfolioId);
-		String plainToken = dictionaryScmUpload.getToken();
-		if(plainToken != null){
-			dictionaryScmUpload.setToken(rsaEncryption.encryptText(plainToken));
-		}
 
 		deSyncFromRepo(portfolioId);
 		mongoTemplate.save(dictionaryScmUpload);
@@ -819,10 +815,6 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 	public DictionaryScmUpload getGitIntegrations(String jsessionid, String portfolioId) throws Exception {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("_id").is(portfolioId));
-		DictionaryScmUpload dictionaryScmUpload = mongoTemplate.findOne(query,DictionaryScmUpload.class);
-		if(dictionaryScmUpload != null){
-			dictionaryScmUpload.setToken(rsaEncryption.decryptText(dictionaryScmUpload.getToken()));
-		}
-		return dictionaryScmUpload;
+		return mongoTemplate.findOne(query,DictionaryScmUpload.class);
 	}
 }
