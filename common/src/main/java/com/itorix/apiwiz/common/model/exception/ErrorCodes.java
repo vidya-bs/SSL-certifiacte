@@ -267,6 +267,16 @@ public enum ErrorCodes {
 			put("rate-limiting-1002", "Plan mismatch in quota and workspace.");
 			put("rate-limiting-1003", "Failed to update quotas. Please try again.");
 			put("rate-limiting-1004", "Quotas list is empty.");
+
+			put("SCM-1010","swagger body is empty");
+			put("SCM-1020","Swagger Name is empty");
+			put("SCM-1030","Invalid Scm source");
+			put("SCM-1040","Scm Repository name is empty");
+			put("SCM-1050","Scm branch is empty");
+			put("SCM-1060","Scm host url is empty");
+			put("SCM-1070","Scm Token is empty");
+			put("SCM-1080","Invalid Credentials");
+
 		}
 	};
 
@@ -465,6 +475,15 @@ public enum ErrorCodes {
 			put("rate-limiting-1002", 400);
 			put("rate-limiting-1003", 500);
 			put("rate-limiting-1004", 400);
+
+			put("SCM-1010",400);
+			put("SCM-1020",400);
+			put("SCM-1030",400);
+			put("SCM-1040",400);
+			put("SCM-1050",400);
+			put("SCM-1060",400);
+			put("SCM-1070",400);
+			put("SCM-1080",500);
 		}
 	};
 	private String message;

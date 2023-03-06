@@ -3,10 +3,7 @@ package com.itorix.apiwiz.datadictionary.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.datadictionary.model.ModelStatus;
-import com.itorix.apiwiz.datadictionary.model.PortfolioHistoryResponse;
-import com.itorix.apiwiz.datadictionary.model.PortfolioVO;
-import com.itorix.apiwiz.datadictionary.model.Revision;
+import com.itorix.apiwiz.datadictionary.model.*;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -345,5 +342,28 @@ public interface DictionaryService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @PathVariable("id") String id,
 			@PathVariable("modelId") String modelId, @PathVariable("revision") Integer revision)
 			throws ItorixException;
+
+
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/data-dictionary/{portfolioId}/sync2Repo")
+	public ResponseEntity<?> sync2Repo(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("portfolioId") String portfolioId,
+			@RequestBody DictionaryScmUpload dictionaryScmUpload) throws Exception;
+
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/{portfolioId}/git-integrations")
+	public ResponseEntity<?> getGitIntegrations(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("portfolioId") String portfolioId) throws Exception;
+
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','ANALYST','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/data-dictionary/{portfolioId}/git-integrations")
+	public ResponseEntity<?> deSyncFromRepo(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("portfolioId") String portfolioId) throws Exception;
 
 }

@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.design.studio.businessimpl;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,6 +20,7 @@ import com.itorix.apiwiz.common.util.Date.DateUtil;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.mail.EmailTemplate;
 import com.itorix.apiwiz.common.util.mail.MailUtil;
+import com.itorix.apiwiz.common.util.scm.ScmMinifiedUtil;
 import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.common.util.zip.ZIPUtil;
 import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
@@ -60,6 +62,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -85,10 +88,14 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.crypto.NoSuchPaddingException;
 import javax.mail.MessagingException;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -138,6 +145,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 
 	@Autowired
 	private RestTemplate restTemplate;
+
+	@Autowired
+	private ScmMinifiedUtil scmUtilImpl;
+
+	@Autowired
+	private RSAEncryption rsaEncryption;
 
 	private static final String STATUS_VALUE = "status";
 
@@ -3629,7 +3642,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 	}
 
 	public SwaggerIntegrations getGitIntegrations(String interactionid, String jsessionid, String swaggerid, String oas)
-			throws ItorixException {
+			throws Exception {
 		String swaggerName = null;
 		if (oas.equals("3.0")) {
 			Swagger3VO vo = getSwagger3(swaggerid, null);
@@ -3643,6 +3656,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		}
 		SwaggerIntegrations integrations = baseRepository.findOne("swaggerName", swaggerName, "oas", oas,
 				SwaggerIntegrations.class);
+		if(integrations.getScm_token() != null){
+			integrations.setScm_token(rsaEncryption.decryptText(integrations.getScm_token()));
+		}
 		return integrations;
 	}
 
@@ -4449,6 +4465,99 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			}
 		}
 		return response;
+	}
+	@Override public void sync2Repo(String swaggerId, String revisionNo, String interactionid, String oas,
+			String jsessionid, ScmUpload scmUpload) throws Exception {
+
+		//Create an SCM Integration Record (Support the Existing Git Integration flow)
+		SwaggerIntegrations integrations = new SwaggerIntegrations();
+		integrations.setSwaggerName(scmUpload.getSwaggerName());
+		integrations.setSwaggerId(swaggerId);
+		integrations.setOas(oas);
+		integrations.setScm_folder(scmUpload.getFolderName());
+		integrations.setScm_url(scmUpload.getHostUrl());
+		integrations.setScm_authorizationType(scmUpload.getAuthType());
+		integrations.setScm_branch(scmUpload.getBranch());
+		integrations.setScm_repository(scmUpload.getRepoName());
+		integrations.setScm_token(rsaEncryption.encryptText(scmUpload.getToken()));
+		integrations.setScm_type(scmUpload.getScmSource());
+		createOrUpdateGitIntegrations(interactionid, jsessionid, swaggerId, oas, integrations);
+
+		//Push to SCM (Same as done in Editor Lite)
+		if (scmUpload.getSwagger() == null) {
+			log.error("Swagger body is empty");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1010"), "swagger body is empty"),
+					"SCM-1010");
+		}
+		if (scmUpload.getSwaggerName() == null) {
+			log.error("Swagger name is empty");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1020"), "Swagger Name is empty"),
+					"SCM-1020");
+		}
+		if (scmUpload.getScmSource() == null) {
+			log.error("SCM Source is empty");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1030"), "Invalid Scm source"),
+					"SCM-1030");
+		}
+		if (scmUpload.getRepoName() == null) {
+			log.error("SCM reponame is empty");
+			throw new ItorixException(
+					String.format(ErrorCodes.errorMessage.get("SCM-1040"), "Scm Repository name is empty"), "SCM-1040");
+		}
+		if (scmUpload.getBranch() == null) {
+			log.error("SCM branch is empty");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1050"), "Scm branch is empty"),
+					"SCM-1050");
+		}
+		if (scmUpload.getHostUrl() == null) {
+			log.error("SCM hostUrl is empty");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1060"), "Scm host url is empty"),
+					"SCM-1060");
+		}
+		if (scmUpload.getAuthType().equalsIgnoreCase("TOKEN") && scmUpload.getToken() == null) {
+			log.error("SCM Token is empty");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1070"), "Scm Token is empty"),
+					"SCM-1070");
+		}
+		if (scmUpload.getAuthType()
+				.equalsIgnoreCase("NONE") && (scmUpload.getUsername() == null || scmUpload.getPassword() == null)) {
+			log.error("Invalid SCM Credentials");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1080"), "Invalid Credentials"),
+					"SCM-1080");
+		}
+		log.info("begin : upload swagger to SCM");
+		ObjectMapper om = new ObjectMapper();
+		om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+		om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		File file = createSwaggerFile(scmUpload.getSwaggerName(), om.readTree(scmUpload.getSwagger()).toPrettyString(),
+				scmUpload.getFolderName());
+		String commitMessage = scmUpload.getCommitMessage();
+		if (commitMessage == null) {
+			commitMessage = "Pushed " + scmUpload.getSwaggerName() + " to " + scmUpload.getFolderName() + " in " + scmUpload.getRepoName();
+		}
+
+		if (scmUpload.getAuthType() != null && scmUpload.getAuthType().equalsIgnoreCase("TOKEN")) {
+			scmUtilImpl.pushFilesToSCMBase64(file, scmUpload.getRepoName(), "TOKEN", scmUpload.getToken(),
+					scmUpload.getHostUrl(), scmUpload.getScmSource(), scmUpload.getBranch(), commitMessage);
+		} else {
+			scmUtilImpl.pushFilesToSCM(file, scmUpload.getRepoName(), scmUpload.getUsername(), scmUpload.getPassword(),
+					scmUpload.getHostUrl(), scmUpload.getScmSource(), scmUpload.getBranch(), commitMessage);
+		}
+		file.delete();
+	}
+
+	private File createSwaggerFile(String swaggerName, String swagger, String folder) throws IOException {
+		String separatorChar = String.valueOf(File.separatorChar);
+		String revStr = separatorChar + "swagger" + separatorChar + swaggerName;
+		folder = folder != null && !folder.isEmpty() ? folder + revStr : "Swagger" + revStr;
+		String location = System.getProperty("java.io.tmpdir") + System.currentTimeMillis();
+		String fileLocation = location + separatorChar + folder + separatorChar + swaggerName + ".json";
+		File file = new File(fileLocation);
+		file.getParentFile().mkdirs();
+		file.createNewFile();
+		Files.write(Paths.get(fileLocation), swagger.getBytes());
+		return new File(location);
 	}
 
 	private List<MetadataErrorDTO> checkDifference(Collection source, Collection target,List<MetadataErrorDTO> response, String error, String errorSource, String errorTarget){

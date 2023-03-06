@@ -3048,4 +3048,14 @@ public class SwaggerServiceImpl implements SwaggerService {
 	public ResponseEntity<Object> checkSwaggerMetadata(String interactionid, String oas, String jsessionid, String swagger) throws Exception {
 		return new ResponseEntity<>(swaggerBusiness.checkMetadataSwagger(oas, swagger), HttpStatus.OK);
 	}
+	@Override
+	public ResponseEntity<Object> sync2Repo(String swaggerId, String revisionNo, String interactionid,
+			String oas, String jsessionid, ScmUpload scmUpload) throws Exception {
+		try {
+			swaggerBusiness.sync2Repo(swaggerId, revisionNo, interactionid, oas, jsessionid, scmUpload);
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }
