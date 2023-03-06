@@ -44,7 +44,7 @@ public class OrganizationBackupScheduler {
   @Autowired
   private OrganizationBusiness organizationBusiness;
 
-  @Scheduled(fixedRate = 10000)
+//  @Scheduled(fixedRate = 10000)
   public void executeBackupEvent() {
 
     try {

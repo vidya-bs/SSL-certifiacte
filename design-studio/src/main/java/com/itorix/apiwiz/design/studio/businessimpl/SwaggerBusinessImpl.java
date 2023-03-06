@@ -373,6 +373,19 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					SwaggerImport swagger = new SwaggerImport();
 					try {
 						String basepath = swaggerObject.path("basePath").asText();
+					JsonNode info = swaggerObject.path("info");
+					if (info != null) {
+						String swaggerName = null;
+						try {
+							swaggerName = info.get("title").asText();
+						}catch(NullPointerException e){
+							reason = "Title tag not found";
+							swagger.setName(file.getName());
+							swagger.setLoaded(false);
+							swagger.setReason(reason);
+							listSwaggers.add(swagger);
+							continue;
+						}
 						List<Swagger2BasePath> mappings = getSwagger2BasePaths();
 						for (int i = 0; i < mappings.size(); i++) {
 							if (mappings.get(i).getBasePath().equals(basepath)) {
@@ -380,9 +393,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 										"Swagger-1000");
 							}
 						}
-					JsonNode info = swaggerObject.path("info");
-					if (info != null) {
-						String swaggerName = info.get("title").asText();
+						if(swaggerName.isEmpty()){
+							swaggerName = FilenameUtils.removeExtension(file.getName());
+						}
 						SwaggerVO swaggerVO = new SwaggerVO();
 						swaggerVO.setName(swaggerName);
 						swaggerVO.setSwagger(filecontent);
@@ -431,6 +444,19 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 							}
 						}
 						//String basepath = swaggerObject.path("basePath").asText();
+					JsonNode info = swaggerObject.path("info");
+					if (info != null) {
+						String swaggerName = null;
+						try {
+							swaggerName = info.get("title").asText();
+						}catch(NullPointerException e){
+							reason = "Title tag not found";
+							swagger.setName(file.getName());
+							swagger.setLoaded(false);
+							swagger.setReason(reason);
+							listSwaggers.add(swagger);
+							continue;
+						}
 						List<Swagger3BasePath> mappings = getSwagger3BasePaths() ;
 						for (int i = 0; i < mappings.size(); i++) {
 							for(int j=0;j<mappings.get(i).getBasePath().size();j++) {
@@ -440,9 +466,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 								}
 							}
 						}
-					JsonNode info = swaggerObject.path("info");
-					if (info != null) {
-						String swaggerName = info.get("title").asText();
+						if(swaggerName.isEmpty()){
+							swaggerName = FilenameUtils.removeExtension(file.getName());
+						}
 						Swagger3VO swaggerVO = new Swagger3VO();
 						swaggerVO.setName(swaggerName);
 						swaggerVO.setSwagger(filecontent);
@@ -5032,5 +5058,16 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		}
 		log("getListOfSwaggerDetailsV2", interactionid, list);
 		return response;
+	}
+
+	@Override
+	public String createExecutionEvent(String swaggerId, String operation, String tenantId) {
+		ComplianceScannerExecutionEvent executionEvent = new ComplianceScannerExecutionEvent();
+		executionEvent.setSwaggerId(swaggerId);
+		executionEvent.setOperation(operation);
+		executionEvent.setTennant(tenantId);
+		executionEvent.setScheduledTime(System.currentTimeMillis());
+		executionEvent.setStatus(ComplianceScannerExecutionEvent.STATUSES.SCHEDULED.getValue());
+		return mongoTemplate.save(executionEvent).getId();
 	}
 }
