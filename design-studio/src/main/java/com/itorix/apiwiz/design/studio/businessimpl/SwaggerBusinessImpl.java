@@ -3656,6 +3656,27 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		}
 		SwaggerIntegrations integrations = baseRepository.findOne("swaggerName", swaggerName, "oas", oas,
 				SwaggerIntegrations.class);
+
+		if(integrations.getScm_authorizationType().toUpperCase().contains("TOKEN")){
+			if(!integrations.getScm_type().equalsIgnoreCase("bitbucket")){
+				String scmToken = integrations.getScm_token();
+				if(scmToken != null && !scmToken.isEmpty()){
+					integrations.setScm_token(rsaEncryption.decryptText(scmToken));
+				}
+			}
+		}
+
+		String scmUserName = integrations.getScm_username();
+		String scmPassword = integrations.getScm_password();
+		if(scmUserName != null && !scmUserName.isEmpty()){
+			integrations.setScm_username(rsaEncryption.decryptText(scmUserName));
+		}
+
+		if(scmPassword != null && !scmPassword.isEmpty()){
+			integrations.setScm_password(rsaEncryption.decryptText(scmPassword));
+		}
+
+
 		return integrations;
 	}
 
@@ -4476,7 +4497,19 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		integrations.setScm_authorizationType(scmUpload.getAuthType());
 		integrations.setScm_branch(scmUpload.getBranch());
 		integrations.setScm_repository(scmUpload.getRepoName());
-		integrations.setScm_token(scmUpload.getToken());
+		String token = scmUpload.getToken();
+		integrations.setScm_token(token);
+		if(scmUpload.getAuthType().equalsIgnoreCase("TOKEN")){
+			if(!scmUpload.getScmSource().equalsIgnoreCase("bitbucket")){
+				//Bitbucket Tokens are larger than 53 bytes hence invalid block size for encryption
+				integrations.setScm_token(rsaEncryption.encryptText(token));
+			}
+			integrations.setScm_password("");
+		}else{
+			integrations.setScm_password(rsaEncryption.encryptText(scmUpload.getPassword()));
+		}
+
+		integrations.setScm_username(rsaEncryption.encryptText(scmUpload.getUsername()));
 		integrations.setScm_type(scmUpload.getScmSource());
 		createOrUpdateGitIntegrations(interactionid, jsessionid, swaggerId, oas, integrations);
 

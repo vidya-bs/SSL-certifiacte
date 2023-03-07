@@ -779,9 +779,24 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		if (dictionaryScmUpload.getAuthType() != null && dictionaryScmUpload.getAuthType().equalsIgnoreCase("TOKEN")) {
 			scmUtilImpl.pushFilesToSCMBase64(file, dictionaryScmUpload.getRepoName(), "TOKEN", dictionaryScmUpload.getToken(),
 					dictionaryScmUpload.getHostUrl(), dictionaryScmUpload.getScmSource(), dictionaryScmUpload.getBranch(), commitMessage);
+
+			if(!dictionaryScmUpload.getScmSource().equalsIgnoreCase("bitbucket")){
+				//Bitbucket tokens are > 53 bytes hence invalid block size for encryption
+				dictionaryScmUpload.setToken(rsaEncryption.encryptText(dictionaryScmUpload.getToken()));
+			}
+
+			if(dictionaryScmUpload.getUsername() != null){
+				dictionaryScmUpload.setUsername(rsaEncryption.encryptText(dictionaryScmUpload.getUsername()));
+			}
+
+			if(dictionaryScmUpload.getPassword() != null){
+				dictionaryScmUpload.setPassword(rsaEncryption.encryptText(dictionaryScmUpload.getPassword()));
+			}
 		} else {
 			scmUtilImpl.pushFilesToSCM(file, dictionaryScmUpload.getRepoName(), dictionaryScmUpload.getUsername(), dictionaryScmUpload.getPassword(),
 					dictionaryScmUpload.getHostUrl(), dictionaryScmUpload.getScmSource(), dictionaryScmUpload.getBranch(), commitMessage);
+			dictionaryScmUpload.setUsername(rsaEncryption.encryptText(dictionaryScmUpload.getUsername()));
+			dictionaryScmUpload.setPassword(rsaEncryption.encryptText(dictionaryScmUpload.getPassword()));
 		}
 		file.delete();
 
@@ -815,6 +830,21 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 	public DictionaryScmUpload getGitIntegrations(String jsessionid, String portfolioId) throws Exception {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("_id").is(portfolioId));
-		return mongoTemplate.findOne(query,DictionaryScmUpload.class);
+		DictionaryScmUpload dictionaryScmUpload = mongoTemplate.findOne(query,DictionaryScmUpload.class);
+
+		if(dictionaryScmUpload.getAuthType().equalsIgnoreCase("TOKEN") && !dictionaryScmUpload.getScmSource().equalsIgnoreCase("bitbucket")){
+			dictionaryScmUpload.setToken(rsaEncryption.decryptText(dictionaryScmUpload.getToken()));
+		}
+
+		if(dictionaryScmUpload.getUsername() != null){
+			dictionaryScmUpload.setToken(rsaEncryption.decryptText(dictionaryScmUpload.getUsername()));
+		}
+
+		if(dictionaryScmUpload.getPassword() != null){
+			dictionaryScmUpload.setToken(rsaEncryption.decryptText(dictionaryScmUpload.getPassword()));
+		}
+
+		return dictionaryScmUpload;
+
 	}
 }
