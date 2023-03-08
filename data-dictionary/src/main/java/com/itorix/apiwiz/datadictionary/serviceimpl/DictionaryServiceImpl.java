@@ -725,7 +725,23 @@ public class DictionaryServiceImpl implements DictionaryService {
 		dictionaryBusiness.deletePortfolioModelByportfolioIDAndModelIdAndRevision(model1);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
-
+	@Override
+	public ResponseEntity<?> sync2Repo(String interactionid, String jsessionid, String portfolioId,
+			DictionaryScmUpload dictionaryScmUpload) throws Exception {
+		dictionaryBusiness.sync2Repo(portfolioId, dictionaryScmUpload);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
+	}
+	@Override
+	public ResponseEntity<?> getGitIntegrations(String interactionid, String jsessionid, String portfolioId)
+			throws Exception {
+		return new ResponseEntity<>(dictionaryBusiness.getGitIntegrations(jsessionid,portfolioId),HttpStatus.OK);
+	}
+	@Override
+	public ResponseEntity<?> deSyncFromRepo(String interactionid, String jsessionid, String portfolioId)
+			throws Exception {
+		dictionaryBusiness.deSyncFromRepo(portfolioId);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
 
 	private void initiateLinting(String jsessionid,
 			String dictionaryId,String modelId,Integer revision,List<String> ruleSetIds) {
