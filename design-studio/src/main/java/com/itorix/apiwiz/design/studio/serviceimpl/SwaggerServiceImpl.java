@@ -680,7 +680,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 							integrations.getScm_username(),
 							integrations.getScm_password(), integrations.getScm_url(),
 							integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
-				} else if (integrations != null && vo.getScm_authorizationType() != null) {
+				} else if (integrations != null && integrations.getScm_authorizationType() != null) {
 					File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
 							swaggerVO.getRevision());
 					scmMinifiedUtil.pushFilesToSCMBase64(file, integrations.getScm_repository(), "TOKEN",
