@@ -764,7 +764,30 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1080"), "Invalid Credentials"),
 					"SCM-1080");
 		}
-		log.info("begin : upload swagger to SCM");
+		log.info("begin : upload DD to SCM");
+
+		Map<String,Map<String,String>> modelMap = new HashMap<>();
+		try{
+			Query query = new Query();
+			query.addCriteria(Criteria.where("portfolioID").is(portfolioId));
+			List<PortfolioModel> models = mongoTemplate.find(query,PortfolioModel.class);
+
+			for(PortfolioModel model : models){
+				if(!modelMap.containsKey(model.getModelName())){
+					modelMap.put(model.getModelName(),new HashMap<>());
+				}
+				modelMap.get(model.getModelName()).put(model.getRevision().toString(),model.getModel());
+			}
+
+			String jsonModelMap = new ObjectMapper().writeValueAsString(modelMap);
+			if(jsonModelMap != null && !jsonModelMap.isEmpty()){
+				dictionaryScmUpload.setDictionary(jsonModelMap);
+			}
+
+		}catch (Exception ex){
+			log.error("Couldn't Fetch All Dictionary Models. Syncing as Latest Active Model Revision Only:" + ex.getMessage());
+		}
+
 		ObjectMapper om = new ObjectMapper();
 		om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
