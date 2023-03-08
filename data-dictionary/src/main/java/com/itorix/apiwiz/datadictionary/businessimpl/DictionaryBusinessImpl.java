@@ -837,11 +837,11 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		}
 
 		if(dictionaryScmUpload.getUsername() != null){
-			dictionaryScmUpload.setToken(rsaEncryption.decryptText(dictionaryScmUpload.getUsername()));
+			dictionaryScmUpload.setUsername(rsaEncryption.decryptText(dictionaryScmUpload.getUsername()));
 		}
 
 		if(dictionaryScmUpload.getPassword() != null){
-			dictionaryScmUpload.setToken(rsaEncryption.decryptText(dictionaryScmUpload.getPassword()));
+			dictionaryScmUpload.setPassword(rsaEncryption.decryptText(dictionaryScmUpload.getPassword()));
 		}
 
 		return dictionaryScmUpload;
