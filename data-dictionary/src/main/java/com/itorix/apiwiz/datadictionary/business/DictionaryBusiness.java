@@ -1,13 +1,7 @@
 package com.itorix.apiwiz.datadictionary.business;
 
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.datadictionary.model.DDSchema;
-import com.itorix.apiwiz.datadictionary.model.ModelStatus;
-import com.itorix.apiwiz.datadictionary.model.PortfolioHistoryResponse;
-import com.itorix.apiwiz.datadictionary.model.PortfolioModel;
-import com.itorix.apiwiz.datadictionary.model.PortfolioReport;
-import com.itorix.apiwiz.datadictionary.model.PortfolioVO;
-import com.itorix.apiwiz.datadictionary.model.Revision;
+import com.itorix.apiwiz.datadictionary.model.*;
 import com.mongodb.client.result.DeleteResult;
 import org.springframework.stereotype.Service;
 
@@ -91,5 +85,11 @@ public interface DictionaryBusiness {
 	List<DDSchema> getModels(String id);
 
 	PortfolioReport getModelswithRulesets(String id);
+
+	public void sync2Repo(String portfolioId, DictionaryScmUpload dictionaryScmUpload) throws Exception;
+
+	public void deSyncFromRepo(String portfolioId);
+
+	public DictionaryScmUpload getGitIntegrations(String jsessionid,String portfolioId) throws Exception;
 
 }

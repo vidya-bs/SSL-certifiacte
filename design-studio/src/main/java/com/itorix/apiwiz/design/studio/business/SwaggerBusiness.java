@@ -10,13 +10,16 @@ import com.itorix.apiwiz.design.studio.model.dto.MetadataErrorDTO;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import com.mongodb.client.result.DeleteResult;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.json.JSONException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.crypto.NoSuchPaddingException;
 import javax.mail.MessagingException;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
@@ -747,7 +750,7 @@ public interface SwaggerBusiness {
 			SwaggerIntegrations swaggerIntegrations) throws ItorixException;
 
 	public SwaggerIntegrations getGitIntegrations(String interactionid, String jsessionid, String swaggerid, String oas)
-			throws ItorixException;
+			throws Exception;
 
 	public void deleteGitIntegrations(String interactionid, String jsessionid, String swaggerid, String oas)
 			throws ItorixException;
@@ -828,4 +831,7 @@ public interface SwaggerBusiness {
 	public void checkSwaggerTeams(String jsessionid, String swaggerName, String oasVersion) throws ItorixException;
 
 	List<MetadataErrorDTO> checkMetadataSwagger(String oas, String swagger) throws ItorixException;
+
+	public void sync2Repo(String swaggerId, String revisionNo, String interactionid,
+			String oas, String jsessionid, ScmUpload scmUpload) throws Exception;
 }
