@@ -832,16 +832,18 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		query.addCriteria(Criteria.where("_id").is(portfolioId));
 		DictionaryScmUpload dictionaryScmUpload = mongoTemplate.findOne(query,DictionaryScmUpload.class);
 
-		if(dictionaryScmUpload.getAuthType().equalsIgnoreCase("TOKEN") && !dictionaryScmUpload.getScmSource().equalsIgnoreCase("bitbucket")){
-			dictionaryScmUpload.setToken(rsaEncryption.decryptText(dictionaryScmUpload.getToken()));
-		}
+		if(dictionaryScmUpload != null){
+			if(dictionaryScmUpload.getAuthType().equalsIgnoreCase("TOKEN") && !dictionaryScmUpload.getScmSource().equalsIgnoreCase("bitbucket")){
+				dictionaryScmUpload.setToken(rsaEncryption.decryptText(dictionaryScmUpload.getToken()));
+			}
 
-		if(dictionaryScmUpload.getUsername() != null){
-			dictionaryScmUpload.setUsername(rsaEncryption.decryptText(dictionaryScmUpload.getUsername()));
-		}
+			if(dictionaryScmUpload.getUsername() != null){
+				dictionaryScmUpload.setUsername(rsaEncryption.decryptText(dictionaryScmUpload.getUsername()));
+			}
 
-		if(dictionaryScmUpload.getPassword() != null){
-			dictionaryScmUpload.setPassword(rsaEncryption.decryptText(dictionaryScmUpload.getPassword()));
+			if(dictionaryScmUpload.getPassword() != null){
+				dictionaryScmUpload.setPassword(rsaEncryption.decryptText(dictionaryScmUpload.getPassword()));
+			}
 		}
 
 		return dictionaryScmUpload;
