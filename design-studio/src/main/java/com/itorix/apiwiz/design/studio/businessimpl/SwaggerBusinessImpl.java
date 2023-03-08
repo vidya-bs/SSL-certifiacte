@@ -3657,24 +3657,27 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		SwaggerIntegrations integrations = baseRepository.findOne("swaggerName", swaggerName, "oas", oas,
 				SwaggerIntegrations.class);
 
-		if(integrations.getScm_authorizationType().toUpperCase().contains("TOKEN")){
-			if(!integrations.getScm_type().equalsIgnoreCase("bitbucket")){
-				String scmToken = integrations.getScm_token();
-				if(scmToken != null && !scmToken.isEmpty()){
-					integrations.setScm_token(rsaEncryption.decryptText(scmToken));
+		if(integrations != null){
+			if(integrations.getScm_authorizationType().toUpperCase().contains("TOKEN")){
+				if(!integrations.getScm_type().equalsIgnoreCase("bitbucket")){
+					String scmToken = integrations.getScm_token();
+					if(scmToken != null && !scmToken.isEmpty()){
+						integrations.setScm_token(rsaEncryption.decryptText(scmToken));
+					}
 				}
+			}
+
+			String scmUserName = integrations.getScm_username();
+			String scmPassword = integrations.getScm_password();
+			if(scmUserName != null && !scmUserName.isEmpty()){
+				integrations.setScm_username(rsaEncryption.decryptText(scmUserName));
+			}
+
+			if(scmPassword != null && !scmPassword.isEmpty()){
+				integrations.setScm_password(rsaEncryption.decryptText(scmPassword));
 			}
 		}
 
-		String scmUserName = integrations.getScm_username();
-		String scmPassword = integrations.getScm_password();
-		if(scmUserName != null && !scmUserName.isEmpty()){
-			integrations.setScm_username(rsaEncryption.decryptText(scmUserName));
-		}
-
-		if(scmPassword != null && !scmPassword.isEmpty()){
-			integrations.setScm_password(rsaEncryption.decryptText(scmPassword));
-		}
 
 
 		return integrations;
