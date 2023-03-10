@@ -1378,7 +1378,7 @@ public interface SwaggerService {
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/swaggers/refresh")
 	public ResponseEntity<?> loadSwaggersToScan(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid);
+			@RequestHeader(value = "JSESSIONID") String jsessionid) throws ItorixException;
 
 
 	//CPA-486

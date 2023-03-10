@@ -5201,4 +5201,15 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		log("getListOfSwaggerDetailsV2", interactionid, list);
 		return response;
 	}
+
+	@Override
+	public String createExecutionEvent(String swaggerId, String operation, String tenantId) {
+		ComplianceScannerExecutionEvent executionEvent = new ComplianceScannerExecutionEvent();
+		executionEvent.setSwaggerId(swaggerId);
+		executionEvent.setOperation(operation);
+		executionEvent.setTennant(tenantId);
+		executionEvent.setScheduledTime(System.currentTimeMillis());
+		executionEvent.setStatus(ComplianceScannerExecutionEvent.STATUSES.SCHEDULED.getValue());
+		return mongoTemplate.save(executionEvent).getId();
+	}
 }

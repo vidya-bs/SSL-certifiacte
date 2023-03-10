@@ -832,6 +832,8 @@ public interface SwaggerBusiness {
 
 	List<MetadataErrorDTO> checkMetadataSwagger(String oas, String swagger) throws ItorixException;
 
+	String createExecutionEvent(String swaggerId, String operation, String tenantId);
+  
 	public void sync2Repo(String swaggerId, String revisionNo, String interactionid,
 			String oas, String jsessionid, ScmUpload scmUpload) throws Exception;
 }

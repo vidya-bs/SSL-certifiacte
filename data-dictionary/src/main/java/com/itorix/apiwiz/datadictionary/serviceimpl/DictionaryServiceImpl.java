@@ -385,7 +385,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 			notificationDetails.setNotification(String.format("Model %s revision %s has been updated",models.getModelName(),models.getRevision()));
 			notificationBusiness.createNotification(notificationDetails, jsessionid);
 			// dictionaryBusiness.sendNotificationForDDModel(modelWithRevision);
-			initiateLinting(jsessionid, model.getPortfolioID(),model.getModelId(),model.getRevision(),model.getRuleSetIds());
+			initiateLinting(jsessionid, models.getPortfolioID(),models.getModelId(),models.getRevision(),models.getRuleSetIds());
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		}
 
