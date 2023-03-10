@@ -17,6 +17,7 @@ import com.itorix.apiwiz.common.util.artifatory.JfrogUtilImpl;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
+import com.itorix.apiwiz.common.util.scm.ScmMinifiedUtil;
 import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.design.studio.business.NotificationBusiness;
 import com.itorix.apiwiz.design.studio.business.SwaggerBusiness;
@@ -180,6 +181,9 @@ public class SwaggerServiceImpl implements SwaggerService {
 
 	@Autowired
 	NotificationBusiness notificationBusiness;
+
+	@Autowired
+	private ScmMinifiedUtil scmMinifiedUtil;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/puls")
 	public String checkPuls(@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -619,21 +623,28 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO = swaggerBusiness.updateSwagger(vo);
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggername, oas);
-			if (integrations != null && integrations.getScm_authorizationType().equalsIgnoreCase("basic")) {
-				File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
-						swaggerVO.getRevision());
-				scmUtilImpl.pushFilesToSCM(file, integrations.getScm_repository(),
-						rsaEncryption.decryptText(integrations.getScm_username()),
-						rsaEncryption.decryptText(integrations.getScm_password()), integrations.getScm_url(),
-						integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
-			} else if (integrations != null && integrations.getScm_authorizationType() != null) {
-				File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
-						swaggerVO.getRevision());
-				scmUtilImpl.pushFilesToSCMBase64(file, integrations.getScm_repository(),
-						integrations.getScm_authorizationType(), rsaEncryption.decryptText(integrations.getScm_token()),
-						integrations.getScm_url(), integrations.getScm_type(), integrations.getScm_branch(),
-						COMMIT_MESSAGE);
+			try{
+				if (integrations != null && !integrations.getScm_authorizationType().toUpperCase().contains("TOKEN")) {
+					File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
+							swaggerVO.getRevision());
+
+					scmMinifiedUtil.pushFilesToSCM(file, integrations.getScm_repository(),
+							integrations.getScm_username(),
+							integrations.getScm_password(), integrations.getScm_url(),
+							integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
+
+				} else if (integrations != null && integrations.getScm_authorizationType() != null) {
+					File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
+							swaggerVO.getRevision());
+
+					scmMinifiedUtil.pushFilesToSCMBase64(file, integrations.getScm_repository(), "TOKEN",
+							integrations.getScm_token(), integrations.getScm_url(),
+							integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
+				}
+			}catch (Exception ex){
+				logger.error("Could not sync swagger with SCM:" + ex.getMessage());
 			}
+
 
 			scannerDTO.setTenantId(getWorkspaceId());
 			scannerDTO.setSwaggerId(Arrays.asList(swaggerVO.getSwaggerId()));
@@ -665,21 +676,26 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO = swaggerBusiness.updateSwagger(vo);
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggername, oas);
-			if (integrations != null && integrations.getScm_authorizationType().equalsIgnoreCase("basic")) {
-				File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
-						swaggerVO.getRevision());
-				scmUtilImpl.pushFilesToSCM(file, integrations.getScm_repository(),
-						rsaEncryption.decryptText(integrations.getScm_username()),
-						rsaEncryption.decryptText(integrations.getScm_password()), integrations.getScm_url(),
-						integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
-			} else if (integrations != null && vo.getScm_authorizationType() != null) {
-				File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
-						swaggerVO.getRevision());
-				scmUtilImpl.pushFilesToSCMBase64(file, integrations.getScm_repository(),
-						integrations.getScm_authorizationType(), rsaEncryption.decryptText(integrations.getScm_token()),
-						integrations.getScm_url(), integrations.getScm_type(), integrations.getScm_branch(),
-						COMMIT_MESSAGE);
+
+			try{
+				if (integrations != null && !integrations.getScm_authorizationType().toUpperCase().contains("TOKEN")) {
+					File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
+							swaggerVO.getRevision());
+					scmMinifiedUtil.pushFilesToSCM(file, integrations.getScm_repository(),
+							integrations.getScm_username(),
+							integrations.getScm_password(), integrations.getScm_url(),
+							integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
+				} else if (integrations != null && integrations.getScm_authorizationType() != null) {
+					File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
+							swaggerVO.getRevision());
+					scmMinifiedUtil.pushFilesToSCMBase64(file, integrations.getScm_repository(), "TOKEN",
+							integrations.getScm_token(), integrations.getScm_url(),
+							integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
+				}
+			}catch (Exception ex){
+				logger.error("Could not sync swagger with SCM:" + ex.getMessage());
 			}
+
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
 
 			scannerDTO.setTenantId(getWorkspaceId());
@@ -3061,5 +3077,15 @@ public class SwaggerServiceImpl implements SwaggerService {
 	@Override
 	public ResponseEntity<Object> checkSwaggerMetadata(String interactionid, String oas, String jsessionid, String swagger) throws Exception {
 		return new ResponseEntity<>(swaggerBusiness.checkMetadataSwagger(oas, swagger), HttpStatus.OK);
+	}
+	@Override
+	public ResponseEntity<Object> sync2Repo(String swaggerId, String revisionNo, String interactionid,
+			String oas, String jsessionid, ScmUpload scmUpload) throws Exception {
+		try {
+			swaggerBusiness.sync2Repo(swaggerId, revisionNo, interactionid, oas, jsessionid, scmUpload);
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 }

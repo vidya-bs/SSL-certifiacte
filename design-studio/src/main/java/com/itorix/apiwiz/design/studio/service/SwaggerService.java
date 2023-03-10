@@ -1479,4 +1479,15 @@ public interface SwaggerService {
 			@RequestHeader(value = "oas") String oas,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestBody String swagger) throws Exception;
+
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.POST, value = "/v2/swaggers/{swaggerId}/revision/{revisionNo}/sync2Repo")
+	public ResponseEntity<Object> sync2Repo(
+			@PathVariable("swaggerId") String swaggerId,
+			@PathVariable("revisionNo") String revisionNo,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "oas") String oas,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody ScmUpload scmUpload) throws Exception;
+
 }

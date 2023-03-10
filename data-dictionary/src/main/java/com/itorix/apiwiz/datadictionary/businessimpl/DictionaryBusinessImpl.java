@@ -8,14 +8,19 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwi
 import static org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter.filter;
 import static org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Eq.valueOf;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.model.SearchItem;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.mail.MailUtil;
+import com.itorix.apiwiz.common.util.scm.ScmMinifiedUtil;
 import com.itorix.apiwiz.datadictionary.business.DictionaryBusiness;
 import com.itorix.apiwiz.datadictionary.model.*;
 import com.itorix.apiwiz.design.studio.business.NotificationBusiness;
@@ -48,6 +53,10 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Slf4j
@@ -68,6 +77,12 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 
 	@Autowired
 	private NotificationBusiness notificationBusiness;
+
+	@Autowired
+	private RSAEncryption rsaEncryption;
+
+	@Autowired
+	private ScmMinifiedUtil scmUtilImpl;
 
 	/**
 	 * log
@@ -703,5 +718,158 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		}
 		report.setModels(modelList);
 		return report;
+	}
+	@Override
+	public void sync2Repo(String portfolioId, DictionaryScmUpload dictionaryScmUpload) throws Exception {
+
+		//Push to SCM (Same as done in Editor Lite)
+		if (dictionaryScmUpload.getDictionary() == null) {
+			log.error("DataDictionary is empty");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1090"), "Dictionary is empty"),
+					"SCM-1010");
+		}
+		if (dictionaryScmUpload.getDictionaryName() == null) {
+			log.error("Dictionary Name is empty");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1091"), "Dictionary Name is empty"),
+					"SCM-1020");
+		}
+		if (dictionaryScmUpload.getScmSource() == null) {
+			log.error("SCM Source is empty");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1030"), "Invalid Scm source"),
+					"SCM-1030");
+		}
+		if (dictionaryScmUpload.getRepoName() == null) {
+			log.error("SCM reponame is empty");
+			throw new ItorixException(
+					String.format(ErrorCodes.errorMessage.get("SCM-1040"), "Scm Repository name is empty"), "SCM-1040");
+		}
+		if (dictionaryScmUpload.getBranch() == null) {
+			log.error("SCM branch is empty");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1050"), "Scm branch is empty"),
+					"SCM-1050");
+		}
+		if (dictionaryScmUpload.getHostUrl() == null) {
+			log.error("SCM hostUrl is empty");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1060"), "Scm host url is empty"),
+					"SCM-1060");
+		}
+		if (dictionaryScmUpload.getAuthType().equalsIgnoreCase("TOKEN") && dictionaryScmUpload.getToken() == null) {
+			log.error("SCM Token is empty");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1070"), "Scm Token is empty"),
+					"SCM-1070");
+		}
+		if (dictionaryScmUpload.getAuthType()
+				.equalsIgnoreCase("NONE") && (dictionaryScmUpload.getUsername() == null || dictionaryScmUpload.getPassword() == null)) {
+			log.error("Invalid SCM Credentials");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1080"), "Invalid Credentials"),
+					"SCM-1080");
+		}
+		log.info("begin : upload DD to SCM");
+
+		Map<String,Map<String,String>> modelMap = new HashMap<>();
+		try{
+			Query query = new Query();
+			query.addCriteria(Criteria.where("portfolioID").is(portfolioId));
+			List<PortfolioModel> models = mongoTemplate.find(query,PortfolioModel.class);
+
+			for(PortfolioModel model : models){
+				if(!modelMap.containsKey(model.getModelName())){
+					modelMap.put(model.getModelName(),new HashMap<>());
+				}
+				modelMap.get(model.getModelName()).put(model.getRevision().toString(),model.getModel());
+			}
+
+			String jsonModelMap = new ObjectMapper().writeValueAsString(modelMap);
+			if(jsonModelMap != null && !jsonModelMap.isEmpty()){
+				dictionaryScmUpload.setDictionary(jsonModelMap);
+			}
+
+		}catch (Exception ex){
+			log.error("Couldn't Fetch All Dictionary Models. Syncing as Latest Active Model Revision Only:" + ex.getMessage());
+		}
+
+		ObjectMapper om = new ObjectMapper();
+		om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+		om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		File file = createDDFile(dictionaryScmUpload.getDictionaryName(), om.readTree(dictionaryScmUpload.getDictionary()).toPrettyString(),
+				dictionaryScmUpload.getFolderName());
+		String commitMessage = dictionaryScmUpload.getCommitMessage();
+		if (commitMessage == null) {
+			commitMessage = "Pushed " + dictionaryScmUpload.getDictionaryName() + " to " + dictionaryScmUpload.getFolderName() + " in " + dictionaryScmUpload.getRepoName();
+		}
+
+		if (dictionaryScmUpload.getAuthType() != null && dictionaryScmUpload.getAuthType().equalsIgnoreCase("TOKEN")) {
+			scmUtilImpl.pushFilesToSCMBase64(file, dictionaryScmUpload.getRepoName(), "TOKEN", dictionaryScmUpload.getToken(),
+					dictionaryScmUpload.getHostUrl(), dictionaryScmUpload.getScmSource(), dictionaryScmUpload.getBranch(), commitMessage);
+
+			if(!dictionaryScmUpload.getScmSource().equalsIgnoreCase("bitbucket")){
+				//Bitbucket tokens are > 53 bytes hence invalid block size for encryption
+				dictionaryScmUpload.setToken(rsaEncryption.encryptText(dictionaryScmUpload.getToken()));
+			}
+
+			if(dictionaryScmUpload.getUsername() != null){
+				dictionaryScmUpload.setUsername(rsaEncryption.encryptText(dictionaryScmUpload.getUsername()));
+			}
+
+			if(dictionaryScmUpload.getPassword() != null){
+				dictionaryScmUpload.setPassword(rsaEncryption.encryptText(dictionaryScmUpload.getPassword()));
+			}
+		} else {
+			scmUtilImpl.pushFilesToSCM(file, dictionaryScmUpload.getRepoName(), dictionaryScmUpload.getUsername(), dictionaryScmUpload.getPassword(),
+					dictionaryScmUpload.getHostUrl(), dictionaryScmUpload.getScmSource(), dictionaryScmUpload.getBranch(), commitMessage);
+			dictionaryScmUpload.setUsername(rsaEncryption.encryptText(dictionaryScmUpload.getUsername()));
+			dictionaryScmUpload.setPassword(rsaEncryption.encryptText(dictionaryScmUpload.getPassword()));
+		}
+		file.delete();
+
+		//Create or Update Git Integration Record
+		dictionaryScmUpload.setPortfolioId(portfolioId);
+
+		deSyncFromRepo(portfolioId);
+		mongoTemplate.save(dictionaryScmUpload);
+	}
+
+	private File createDDFile(String dictionaryName,String dataDictionaryJson, String folder) throws IOException {
+		String separatorChar = String.valueOf(File.separatorChar);
+		String revStr = separatorChar + "datadictionary" + separatorChar + dictionaryName;
+		folder = folder != null && !folder.isEmpty() ? folder + revStr : "DataDictionary" + revStr;
+		String location = System.getProperty("java.io.tmpdir") + System.currentTimeMillis();
+		String fileLocation = location + separatorChar + folder + separatorChar + dictionaryName + ".json";
+		File file = new File(fileLocation);
+		file.getParentFile().mkdirs();
+		file.createNewFile();
+		Files.write(Paths.get(fileLocation), dataDictionaryJson.getBytes());
+		return new File(location);
+	}
+
+	@Override
+	public void deSyncFromRepo(String portfolioId) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("_id").is(portfolioId));
+		mongoTemplate.findAndRemove(query,DictionaryScmUpload.class);
+	}
+	@Override
+	public DictionaryScmUpload getGitIntegrations(String jsessionid, String portfolioId) throws Exception {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("_id").is(portfolioId));
+		DictionaryScmUpload dictionaryScmUpload = mongoTemplate.findOne(query,DictionaryScmUpload.class);
+
+		if(dictionaryScmUpload != null){
+			if(dictionaryScmUpload.getAuthType().equalsIgnoreCase("TOKEN") && !dictionaryScmUpload.getScmSource().equalsIgnoreCase("bitbucket")){
+				dictionaryScmUpload.setToken(rsaEncryption.decryptText(dictionaryScmUpload.getToken()));
+			}
+
+			if(dictionaryScmUpload.getUsername() != null){
+				dictionaryScmUpload.setUsername(rsaEncryption.decryptText(dictionaryScmUpload.getUsername()));
+			}
+
+			if(dictionaryScmUpload.getPassword() != null){
+				dictionaryScmUpload.setPassword(rsaEncryption.decryptText(dictionaryScmUpload.getPassword()));
+			}
+		}
+
+		return dictionaryScmUpload;
+
 	}
 }
