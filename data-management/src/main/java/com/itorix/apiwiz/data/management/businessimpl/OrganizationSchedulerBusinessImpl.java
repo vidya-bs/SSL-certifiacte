@@ -117,7 +117,7 @@ public class OrganizationSchedulerBusinessImpl implements OrganizationSchedulerB
 		return list;
 	}
 
-	@Scheduled(cron = "0 1 1 * * ?")
+//	@Scheduled(cron = "0 1 1 * * ?")
 	public void doDaily() throws Exception {
 		if (Schedule.isSchedulable(scheduleEnable, primary, primaryHost)) {
 			List<ScheduleModel> list = baseRepository.findAll(ScheduleModel.class);
@@ -142,7 +142,7 @@ public class OrganizationSchedulerBusinessImpl implements OrganizationSchedulerB
 		}
 	}
 
-	@Scheduled(cron = "1 0 0 ? * WED")
+//	@Scheduled(cron = "1 0 0 ? * WED")
 	public void doWeekly() throws Exception {
 		if (Schedule.isSchedulable(scheduleEnable, primary, primaryHost)) {
 			List<ScheduleModel> list = baseRepository.findAll(ScheduleModel.class);
