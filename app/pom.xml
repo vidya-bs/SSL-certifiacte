@@ -6,13 +6,14 @@
 	<groupId>com.itorix.hyggee.cloud</groupId>
 	<artifactId>cloud-app</artifactId>
 	<packaging>jar</packaging>
+	<version>0.0.1-RELEASE</version>
 	<name>cloud-app</name>
 	<description>cloud-app</description>
 
 	<parent>
 		<groupId>com.itorix.hyggee.cloud</groupId>
 		<artifactId>cloud</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.1-RELEASE</version>
 	</parent>
 
 	<properties>

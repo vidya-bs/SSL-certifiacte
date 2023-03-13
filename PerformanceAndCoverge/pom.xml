@@ -3,13 +3,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.itorix.hyggee.cloud</groupId>
 	<artifactId>PerformanceAndCoverge</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1-RELEASE</version>
 	<packaging>jar</packaging>
 	<name>PerformanceAndCoverge</name>
 	<parent>
 		<groupId>com.itorix.hyggee.cloud</groupId>
 		<artifactId>cloud</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.1-RELEASE</version>
 	</parent>
 
 

@@ -6,7 +6,7 @@
     <groupId>com.itorix.apiwiz</groupId>
     <artifactId>api-license</artifactId>
     <packaging>jar</packaging>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1-RELEASE</version>
     <name>api-license</name>
     <description></description>
     <parent>
