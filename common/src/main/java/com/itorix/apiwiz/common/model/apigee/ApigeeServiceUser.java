@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.common.model.apigee;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -8,6 +9,7 @@ import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "Apigee.ServiceAccount")
+@Slf4j
 public class ApigeeServiceUser {
 
 	private String orgName;
@@ -58,7 +60,7 @@ public class ApigeeServiceUser {
 			RSAEncryption rSAEncryption = new RSAEncryption();
 			decryptedPassword = rSAEncryption.decryptText(this.password);
 		} catch (Exception e) {
-			// log.error("Exception occurred",e)();
+			 log.error("Exception occurred",e);
 		}
 		return decryptedPassword;
 	}

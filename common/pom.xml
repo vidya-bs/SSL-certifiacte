@@ -4,7 +4,7 @@
 
 	<groupId>com.itorix.hyggee.cloud</groupId>
 	<artifactId>cloud-hyggee-common</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1-RELEASE</version>
 	<packaging>jar</packaging>
 
 	<name>cloud-hyggee-common</name>
@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>com.itorix.hyggee.cloud</groupId>
 		<artifactId>cloud</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.1-RELEASE</version>
 	</parent>
 
 	<properties>

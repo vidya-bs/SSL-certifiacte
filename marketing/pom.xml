@@ -4,11 +4,12 @@
 	<groupId>com.itorix.hyggee.cloud</groupId>
 	<artifactId>marketing</artifactId>
 	<packaging>jar</packaging>
+	<version>0.0.1-RELEASE</version>
 	<name>marketing</name>
 	<parent>
 		<groupId>com.itorix.hyggee.cloud</groupId>
 		<artifactId>cloud</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.1-RELEASE</version>
 	</parent>
 
 	<properties>
