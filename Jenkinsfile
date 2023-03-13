@@ -1,5 +1,5 @@
 def gitCloneURL = 'git@github.com:itorix/apiwiz-release-pipeline.git'
-def gitBranch = 'prod'
+def gitBranch = 'main'
 def gitCred =  'github-apiwiz'
 def commonFunctions
 
