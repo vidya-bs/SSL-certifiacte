@@ -35,7 +35,9 @@ public enum ErrorCodes {
 	GENERIC_RESOURCE_ALREADY_EXISTS("Request validation failed. Resource already exist."),
 	GENERIC_RESOURCE_AUTH_VALIDATION_FAILED("Resource authorization validation failed. Please contact your workspace admin."),
 	GENERIC_INTERNAL_SERVER_ERROR("Internal server error. Please contact support for further instructions."),
-	INVALID_SESSION_TOKEN("Request Validation Failed. Invalid Session Token");
+	INVALID_SESSION_TOKEN("Request Validation Failed. Invalid Session Token"),
+	SOCIAL_LOGIN_PROVISION_ERROR("Unable to find/provision user. Workspace Limit may have reached its capacity. Please contact support for further instructions."),
+	SOCIAL_LOGIN_PROFILE_EMAIL_PRIVATE("Profile Email is private. Please update to public and try again.");
 
 	public static final Map<String, String> errorMessage = new HashMap<String, String>() {
 		private static final long serialVersionUID = 1L;
@@ -140,6 +142,7 @@ public enum ErrorCodes {
 			put("Identity-1046", "Request validation failed. The user account is locked out of the workspace.");
 			put("Identity-1047", "User account validation failed. The user account is locked.");
 			put("Identity-1048","User account validation failed. The user account is not Active.");
+			put("Identity-1049","User account validation failed. This email id is already associated with another account on this workspace.");
 
 			put("Connector-1000", GENERIC_RESOURCE_ALREADY_EXISTS.message());
 			put("Connector-1001", GENERIC_RESOURCE_ALREADY_EXISTS.message());
@@ -376,6 +379,7 @@ public enum ErrorCodes {
 			put("Identity-1046", 400);
 			put("Identity-1047", 400);
 			put("Identity-1048",400);
+			put("Identity-1049",400);
 			put("USER_005", 400);
 			put("USER_008", 400);
 			put("USER_004", 400);
