@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.identitymanagement.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.itorix.apiwiz.common.model.MetaData;
 import com.itorix.apiwiz.common.model.SwaggerTeam;
 import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
@@ -604,6 +605,13 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid, @RequestBody String metadata)
 			throws JsonProcessingException, ItorixException;
+
+	@RequestMapping(method = RequestMethod.PUT, value = "/social-logins/enabled", consumes = {
+			"application/json"}, produces = {"application/json"})
+	@UnSecure(useUpdateKey = true)
+	public ResponseEntity<?> updateSocialLoginEnabledStatus(
+			@RequestHeader(value = "x-apikey", required = true) String apikey,
+			@RequestBody MetaData metadata) throws ItorixException;
 
 
 }

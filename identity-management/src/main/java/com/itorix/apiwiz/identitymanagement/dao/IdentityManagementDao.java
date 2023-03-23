@@ -16,6 +16,7 @@ import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.mail.EmailTemplate;
 import com.itorix.apiwiz.common.util.mail.MailUtil;
 import com.itorix.apiwiz.identitymanagement.model.*;
+import com.mongodb.client.result.UpdateResult;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.time.DateUtils;
@@ -154,7 +155,7 @@ public class IdentityManagementDao {
 		UserSession userSession = null;
 		if (preAuthenticated || userInfo.allowLogin()) {
 			logger.debug("Authenticating user session");
-			User user = findByEmailUserName(userInfo.getLoginId());
+            User user = !preAuthenticated ?findByEmailUserName(userInfo.getLoginId()) : findByEmail(userInfo.getEmail());
 			Workspace workspace = getWorkspace(userInfo.getWorkspaceId().toLowerCase());
             if (workspace == null) {
                 throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1044"), "Identity-1044");
@@ -242,6 +243,66 @@ public class IdentityManagementDao {
             }
         }
         throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1036"), "Identity-1036");
+    }
+
+    public void registerOAuth2User(UserInfo userInfo) throws ItorixException{
+        userInfo.setWorkspaceId(userInfo.getWorkspaceId());
+        Workspace workspace = getWorkspace(userInfo.getWorkspaceId().toLowerCase());
+
+        User loginUser = findByEmailUserName(userInfo.getLoginId());
+        if (loginUser != null && !loginUser.isWorkspaceAdmin(userInfo.getWorkspaceId().toLowerCase()) == true) {
+            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
+        }
+        boolean isNewUser = false;
+        User user = findByUserEmail(userInfo.getEmail());
+        if (user == null) {
+            isNewUser = true;
+            user = new User();
+            user.setEmail(userInfo.getEmail());
+        }
+        if (user.containsWorkspace(userInfo.getWorkspaceId().toLowerCase()) != true) {
+            List<UserWorkspace> workspaces;
+            if (user.getWorkspaces() == null)
+                workspaces = new ArrayList<>();
+            else
+                workspaces = user.getWorkspaces();
+            UserWorkspace userWorkspace = new UserWorkspace();
+            userWorkspace.setWorkspace(workspace);
+            userWorkspace.setUserType(User.LABEL_MEMBER);
+
+            userWorkspace.setCreatedUserName(userInfo.getFirstName() + " " + userInfo.getLastName());
+            userWorkspace.setCts(System.currentTimeMillis());
+            userWorkspace.setRoles(Arrays.asList("Developer"));
+            workspaces.add(userWorkspace);
+            user.setWorkspaces(workspaces);
+        }
+        VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail(),null);
+        token.setUsed(false);
+        token.setWorkspaceId(userInfo.getWorkspaceId().toLowerCase());
+        token.setUserType(User.LABEL_MEMBER);
+        saveVerificationToken(token);
+
+
+        user.setLoginId(userInfo.getLoginId());
+        user.setPassword(userInfo.getPassword());
+        user.setFirstName(userInfo.getFirstName());
+        user.setLastName(userInfo.getLastName());
+        user.setRegionCode("");
+        user.setWorkPhone("");
+        user.setCompany("");
+        user.setSubscribeNewsLetter(true);
+        user.setUserStatus("active");
+        if (userInfo.getMetadata() != null)
+            user.setMetadata(userInfo.getMetadata());
+        for (UserWorkspace userWorkspace : user.getWorkspaces())
+            if (userWorkspace.getWorkspace().getName().equals(token.getWorkspaceId().toLowerCase())) {
+                userWorkspace.getWorkspace().setStatus("active");
+                userWorkspace.setAcceptInvite(true);
+                userWorkspace.setActive(true);
+            }
+        user = saveUser(user);
+        token.setUsed(true);
+        saveVerificationToken(token);
     }
 
     public Object addUser(UserInfo userInfo) throws ItorixException {
@@ -2077,5 +2138,13 @@ public class IdentityManagementDao {
             swaggerTeams.forEach(x -> teamNames.add(x.getName()));
         }
         return teamNames;
+    }
+
+    public UpdateResult updateSocialLoginEnabledStatus(String providers){
+        Query query = new Query();
+        query.addCriteria(Criteria.where("key").is("social-logins"));
+        Update update = new Update();
+        update.set("metadata",providers);
+        return masterMongoTemplate.upsert(query,update,MetaData.class);
     }
 }
