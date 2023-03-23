@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.identitymanagement.serviceImpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.itorix.apiwiz.common.model.MetaData;
 import com.itorix.apiwiz.common.model.SwaggerTeam;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
@@ -923,6 +924,21 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			throws JsonProcessingException, ItorixException {
 		identityManagementDao.createRolesMetaData(metadata);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	@UnSecure(useUpdateKey = true)
+	public ResponseEntity<?> updateSocialLoginEnabledStatus(String apikey, MetaData metadata)
+			throws ItorixException {
+		if(metadata.getKey().equalsIgnoreCase("social-logins")){
+			String providers = metadata.getMetadata();
+			if(providers != null){
+				identityManagementDao.updateSocialLoginEnabledStatus(providers);
+				return new ResponseEntity<>("Social Login Providers Successfully Updated",HttpStatus.OK);
+			}
+			return new ResponseEntity<>("Social Login Providers Not Passed",HttpStatus.BAD_REQUEST);
+		}
+		return new ResponseEntity<>("Invalid Key Name",HttpStatus.BAD_REQUEST);
 	}
 
 }
