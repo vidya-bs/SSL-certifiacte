@@ -1034,7 +1034,7 @@ public class IdentityManagementDao {
             }else {
                 link = applicationProperties.getAppURL() + "/register/" + token.getId() + "/verify";
             }
-            String bodyText = MessageFormat.format(applicationProperties.getRegistermailBody(), user.getEmail(), link);
+            String bodyText = MessageFormat.format(applicationProperties.getRegistermailBody(), "", link);
             ArrayList<String> toRecipients = new ArrayList<String>();
             toRecipients.add(user.getEmail());
             String subject = applicationProperties.getRegisterSubject();
