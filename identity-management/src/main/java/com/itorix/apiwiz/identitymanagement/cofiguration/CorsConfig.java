@@ -3,8 +3,10 @@ package com.itorix.apiwiz.identitymanagement.cofiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @Configuration
+@ConditionalOnProperty(prefix = "itorix.core.social.login",name="enabled",havingValue = "true")
 public class CorsConfig implements WebMvcConfigurer {
 
 	@Override
