@@ -43,14 +43,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 					.antMatchers("/v1/users/login", "/registration/**", "/login/**", "/v1/**", "/v2/**","/oauth2-redirect","/social-logins/**")
 					.permitAll().anyRequest().authenticated().and().oauth2Login()
 					.successHandler(socialLoginSuccessHandler);
+			http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().cors();
 		}else{
 			logger.info("Loading Identity Management with Social Login Flow : Disabled");
 			http.csrf().disable().authorizeRequests()
 					.antMatchers("/v1/users/login", "/v1/**", "/v2/**")
 					.permitAll().anyRequest().authenticated();
+			http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		}
 
-		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().cors();
+		
 		http.addFilterBefore(jsessionAuthFilter, UsernamePasswordAuthenticationFilter.class);
 	}
 }
