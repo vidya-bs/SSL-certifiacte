@@ -823,17 +823,18 @@ public class CodeGenService {
 
 		ProxyHistoryResponse response = mongoConnection.getProxyHistory(offset, pageSize, proxy);
 		List<ProxyData> stringData = (List<ProxyData>) response.getData();
-		List<Map<String, String>> listData = new ArrayList<Map<String, String>>();
+		List<Map<String, Object>> listData = new ArrayList<>();
 		if (stringData == null) {
 			new ProxyHistoryResponse();
 		}
 		for (ProxyData proxyData : stringData) {
-			Map<String, String> mapData = new HashMap<String, String>();
+			Map<String, Object> mapData = new HashMap<>();
 			mapData.put("id", proxyData.getId());
 			mapData.put("proxyName", proxyData.getProxyName());
 			mapData.put("userName", proxyData.getLastModifiedUserName());
 			mapData.put("dateModified", proxyData.getDateModified());
 			mapData.put("downloadURI", proxyData.getDownloadURI());
+			mapData.put("orgEnvs", proxyData.getOrgEnvs());
 			List<History> history = null;
 			try {
 				history = codeCoverageService.getCodeCoverageList(null, true, proxyData.getProxyName(), null, null,
