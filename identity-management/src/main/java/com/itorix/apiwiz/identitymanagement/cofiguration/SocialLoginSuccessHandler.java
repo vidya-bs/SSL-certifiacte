@@ -18,6 +18,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +43,9 @@ public class SocialLoginSuccessHandler implements AuthenticationSuccessHandler {
 	@Value("${itorix.core.social.login.apiwiz.parent.domain}")
 	private String APIWIZ_PARENT_DOMAIN;
 	private String REDIRECT = "redirect";
+
+	@Value("${itorix.core.accounts.ui}")
+	private String ACCOUNTS_UI;
 
 	@Autowired
 	private OAuth2UserMapper userService;
@@ -76,35 +80,38 @@ public class SocialLoginSuccessHandler implements AuthenticationSuccessHandler {
 				identityManagementHelper.oauth2Validation(mappedOAuth2User, tenant) :
 				oauth2ValidationResults;
 
-		String hostname = getRedirectHostName(tenant, sourceDomain, oauth2ValidationResults);
-
-		String redirectPath = String.format("https://%s.%s/", hostname, APIWIZ_PARENT_DOMAIN);
-		for (String key : oauth2ValidationResults.keySet()) {
-			if(!key.equalsIgnoreCase(REDIRECT)){
-				Cookie cookie = new Cookie(key, URLEncoder.encode(oauth2ValidationResults.get(key).toString(), "UTF-8"));
-				cookie.setMaxAge(3600);
-				cookie.setPath("/");
-				cookie.setDomain(APIWIZ_PARENT_DOMAIN);
-				response.addCookie(cookie);
-			}
-		}
+		String redirectPath = getRedirectPath(tenant, sourceDomain, oauth2ValidationResults);
 
 		response.sendRedirect(redirectPath);
 	}
 
-	private String getRedirectHostName(String tenant, String sourceDomain,
+	private String getRedirectPath(String tenant, String sourceDomain,
 			Map<String, Object> oauth2ValidationResults) {
-		if (oauth2ValidationResults.containsKey(REDIRECT) && oauth2ValidationResults.get(REDIRECT)
-				.equals("astrum")) {
-			if (sourceDomain.contains(CORE_API_DEV_PREFIX)) {
-				return ASTRUM_DEV_HOSTNAME;
-			} else if (sourceDomain.contains(CORE_API_STAGE_PREFIX)) {
-				return ASTRUM_STAGE_HOSTNAME;
+
+		try {
+			String oauth2ValidationError = oauth2ValidationResults.get("oauth2ErrorMessage").toString();
+			String oauth2ErrorMessageEncoded = URLEncoder.encode(oauth2ValidationError, "UTF-8");
+			String response = ACCOUNTS_UI;
+
+			if (oauth2ErrorMessageEncoded.equalsIgnoreCase("Success")) {
+				response = String.format("%s/social-login?j=%s", ACCOUNTS_UI,
+						oauth2ValidationResults.get("x-token-v2").toString());
+				logger.info("Social Login Success - Redirect Url : " + response);
 			} else {
-				return ASTRUM_PROD_HOSTNAME;
+				response = String.format("%s/social-login?error=%s", ACCOUNTS_UI, oauth2ErrorMessageEncoded);
+				logger.error("Social Login Error - Redirect Url : " + response);
+			}
+			return response;
+		} catch (Exception ex) {
+			try {
+				logger.error("Social Login Post Processing Error :" + ex.getMessage());
+				return String.format("%s/social-login?error=%s", ACCOUNTS_UI, URLEncoder.encode(
+						"Looks like we are unable to service this request at the moment. Please try again later. If the issue persists please contact the application support team",
+						"UTF-8"));
+			} catch (UnsupportedEncodingException unsupportedEncodingException) {
+				return ACCOUNTS_UI;
 			}
 		}
 
-		return tenant;
 	}
 }

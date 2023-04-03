@@ -4,6 +4,7 @@ import com.itorix.apiwiz.identitymanagement.helper.IdentityManagementHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
@@ -34,16 +35,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private IdentityManagementHelper identityManagementHelper;
 
+	@Value("${itorix.core.accounts.ui}")
+	private String ACCOUNTS_UI;
+
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
 		if(socialLoginSuccessHandler != null){
 			logger.info("Loading Identity Management with Social Login Flow : Enabled");
 			http.csrf().disable().authorizeRequests()
-					.antMatchers("/v1/users/login", "/registration/**", "/login/**", "/v1/**", "/v2/**","/oauth2-redirect","/social-logins/**")
+					.antMatchers("/v1/users/login", "/registration/**", "/login/**", "/v1/**", "/v2/**","/oauth2-redirect","/social-logins/**","/actuator/**")
 					.permitAll().anyRequest().authenticated().and().oauth2Login()
-					.successHandler(socialLoginSuccessHandler);
-			http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().cors();
+					.successHandler(socialLoginSuccessHandler)
+					.failureUrl(ACCOUNTS_UI);
+			http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		}else{
 			logger.info("Loading Identity Management with Social Login Flow : Disabled");
 			http.csrf().disable().authorizeRequests()
