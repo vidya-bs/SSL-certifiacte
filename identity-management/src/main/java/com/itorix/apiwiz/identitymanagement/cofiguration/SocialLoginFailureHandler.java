@@ -38,7 +38,7 @@ public class SocialLoginFailureHandler implements AuthenticationFailureHandler {
 	@Override public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException {
 		logger.error("Social Login Auth Failure" + exception.getMessage());
-		logger.error("Trace:%s",exception);
+		logger.error("Trace:" + exception.getStackTrace().toString());
 
 		response.sendRedirect(String.format("%s/social-login?error=%s", ACCOUNTS_UI,"AuthenticationFailed"));
 	}
