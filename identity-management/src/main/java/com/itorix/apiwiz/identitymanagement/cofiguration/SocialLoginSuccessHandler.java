@@ -109,7 +109,7 @@ public class SocialLoginSuccessHandler implements AuthenticationSuccessHandler {
 						"Looks like we are unable to service this request at the moment. Please try again later. If the issue persists please contact the application support team",
 						"UTF-8"));
 			} catch (UnsupportedEncodingException unsupportedEncodingException) {
-				return ACCOUNTS_UI;
+				return String.format("%s/social-login?error=%s", ACCOUNTS_UI,"InternalServerError");
 			}
 		}
 
