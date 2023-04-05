@@ -7,6 +7,14 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
 import static org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter.filter;
 import static org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Eq.valueOf;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
+
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import static com.itorix.apiwiz.identitymanagement.model.Constants.MAX_REVISION;
+import static com.itorix.apiwiz.identitymanagement.model.Constants.ORIGINAL_DOC;
+import static com.itorix.apiwiz.identitymanagement.model.Constants.REVISION;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -374,22 +382,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 
 	public List<PortfolioModel> findPortfolioModelsByportfolioID(PortfolioVO model) {
 		log("findAllPortfolioModels", model.getInteractionid());
-		//return baseRepository.find("portfolioID", model.getId(), PortfolioModel.class);
-		Query query = new Query(Criteria.where("portfolioID").is(model.getId()));
-		List<String> modelIds = mongoTemplate.findDistinct(query, "modelId", PortfolioModel.class, String.class);
-		List<PortfolioModel> models = new ArrayList<>();
-		if (modelIds != null) {
-			for (String modelId : modelIds) {
-				Integer revision = getDDRevisions(modelId, model.getId());
-				PortfolioModel portfolioModel=new PortfolioModel();
-				if(revision != null)
-					portfolioModel = baseRepository.findOne("portfolioID", model.getId(), "modelId", modelId, "revision", revision, PortfolioModel.class);
-				else
-					portfolioModel= baseRepository.findOne ("portfolioID",model.getId(),"modelId",modelId,PortfolioModel.class);
-				models.add(portfolioModel);
-			}
-		}
-
+		List<PortfolioModel> models = getAllModelByPortfolioId(model.getId());
 		return models;
 	}
 
@@ -525,8 +518,6 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		log.debug("findPortfolioModelsWithRevisions :{}",revision);
 		PortfolioModel model = baseRepository.findOne("portfolioID", id, "modelId", modelId, "revision", revision,
 				PortfolioModel.class);
-		if (model == null)
-			model = baseRepository.findOne("portfolioID", id, "modelId", modelId, PortfolioModel.class);
 		return model;
 
 	}
@@ -871,5 +862,30 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 
 		return dictionaryScmUpload;
 
+	}
+
+	public List<PortfolioModel> getAllModelByPortfolioId(String portfolioId) {
+
+		MatchOperation matchOperation =match(Criteria.where("portfolioID").is(portfolioId));
+
+		GroupOperation groupByMaxRevision = group("modelId").max(REVISION).as(MAX_REVISION).push("$$ROOT")
+				.as(ORIGINAL_DOC);
+
+		ProjectionOperation filterMaxRevision = project()
+				.and(filter(ORIGINAL_DOC).as("doc").by(valueOf(MAX_REVISION).equalToValue("$$doc.revision")))
+				.as(ORIGINAL_DOC);
+
+		UnwindOperation unwindOperation = unwind(ORIGINAL_DOC);
+
+		ProjectionOperation projectionOperation = project("originalDoc._id").andInclude("originalDoc.portfolioID",
+				"originalDoc.modelName", "originalDoc.model", "originalDoc.status","originalDoc.revision","originalDoc.modelId", "originalDoc.cts","originalDoc.mts");
+
+		SortOperation sortOperation = sort(Sort.Direction.DESC, "mts");
+
+		AggregationResults<PortfolioModel> results = mongoTemplate.aggregate(
+				newAggregation(matchOperation,groupByMaxRevision, filterMaxRevision,unwindOperation,
+						projectionOperation, sortOperation),
+				PortfolioModel.class, PortfolioModel.class);
+		return results.getMappedResults();
 	}
 }
