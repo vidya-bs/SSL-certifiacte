@@ -29,6 +29,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired(required = false)
 	private SocialLoginSuccessHandler socialLoginSuccessHandler;
 
+	@Autowired(required = false)
+	private SocialLoginFailureHandler socialLoginFailureHandler;
+
 	@Autowired
 	private OAuth2UserMapper userService;
 
@@ -47,7 +50,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 					.antMatchers("/v1/users/login", "/registration/**", "/login/**", "/v1/**", "/v2/**","/oauth2-redirect","/social-logins/**","/actuator/**")
 					.permitAll().anyRequest().authenticated().and().oauth2Login()
 					.successHandler(socialLoginSuccessHandler)
-					.failureUrl(String.format("%s/social-login?error=%s", ACCOUNTS_UI,"Internal-Server-Error"));
+					.failureHandler(socialLoginFailureHandler);
 			http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		}else{
 			logger.info("Loading Identity Management with Social Login Flow : Disabled");
