@@ -468,17 +468,21 @@ public class DictionaryServiceImpl implements DictionaryService {
 			// Integer revisions = revision.get("revision");
 			PortfolioModel portfolioModel = new PortfolioModel();
 			portfolioModel = dictionaryBusiness.findPortfolioModelsWithRevisions(id, modelId, revision);
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(portfolioModel.getModel());
-			ModelWithRevision modelWithRevision = new ModelWithRevision();
-			modelWithRevision.setStatus(portfolioModel.getStatus());
-			if (portfolioModel.getRevision() != null) {
-				modelWithRevision.setRevision(portfolioModel.getRevision());
-			} else {
-				modelWithRevision.setRevision(1);
+			if(portfolioModel != null){
+				ObjectMapper mapper = new ObjectMapper();
+				JsonNode jsonNode = mapper.readTree(portfolioModel.getModel());
+				ModelWithRevision modelWithRevision = new ModelWithRevision();
+				modelWithRevision.setStatus(portfolioModel.getStatus());
+				if (portfolioModel.getRevision() != null) {
+					modelWithRevision.setRevision(portfolioModel.getRevision());
+				} else {
+					modelWithRevision.setRevision(1);
+				}
+				modelWithRevision.setModel(jsonNode);
+				return new ResponseEntity<Object>(modelWithRevision, HttpStatus.OK);
+			}else{
+				throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1011"), "Portfolio-1011");
 			}
-			modelWithRevision.setModel(jsonNode);
-			return new ResponseEntity<Object>(modelWithRevision, HttpStatus.OK);
 		}
 		else {
 			PortfolioModel model = new PortfolioModel();
