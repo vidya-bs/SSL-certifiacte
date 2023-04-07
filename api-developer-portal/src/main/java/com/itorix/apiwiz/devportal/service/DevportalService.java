@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin
 @RestController
 public interface DevportalService {
 
@@ -88,6 +88,16 @@ public interface DevportalService {
 			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @RequestParam(value = "expand", required = false) String expand)
+			throws Exception;
+
+	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/organizations/{org}/developers/apps")
+	public org.springframework.http.ResponseEntity<Object> getAppsByOrganisation(
+			@RequestHeader(value = "JSESSIONID") String jsessionId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
+			@RequestHeader(value = "type", required = false) String type,
+			@PathVariable("org") String org)
 			throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
