@@ -411,11 +411,11 @@ public class ServiceRequestDao {
 				UpdateResult result = mongoTemplate.updateMulti(query, update, ServiceRequest.class);
 			}
 			mongoTemplate.insert(serviceRequest);
-//			try{
-//				sendEmailTo(serviceRequest);
-//			}catch (MessagingException ex) {
-//				log.error("Exception while sending email", ex.getMessage());
-//			}
+			try{
+				sendEmailTo(serviceRequest);
+			}catch (MessagingException ex) {
+				log.error("Exception while sending email", ex.getMessage());
+			}
 			return true;
 		} catch (ItorixException ex) {
 			throw ex;
