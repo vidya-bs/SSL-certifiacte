@@ -279,6 +279,8 @@ public enum ErrorCodes {
 			put("SCM-1060","Scm host url is empty");
 			put("SCM-1070","Scm Token is empty");
 			put("SCM-1080","Invalid Credentials");
+			put("SCM-1090","Model Maps not found");
+			put("SCM-1091","Dictionary Name is empty");
 
 		}
 	};
@@ -488,6 +490,8 @@ public enum ErrorCodes {
 			put("SCM-1060",400);
 			put("SCM-1070",400);
 			put("SCM-1080",500);
+			put("SCM-1090",400);
+			put("SCM-1091",400);
 		}
 	};
 	private String message;
