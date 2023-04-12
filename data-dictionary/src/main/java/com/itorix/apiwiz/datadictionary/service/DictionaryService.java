@@ -366,4 +366,11 @@ public interface DictionaryService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("portfolioId") String portfolioId) throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/{portfolioId}/modelmap")
+	public ResponseEntity<?> getDataModelMap(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("portfolioId") String portfolioId) throws Exception;
+
 }

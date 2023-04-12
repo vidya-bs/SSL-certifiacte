@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.configmanagement.model.apigee.services;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,9 +21,8 @@ public class CacheService {
 			String env = config.getEnv();
 			String org = config.getOrg();
 			String name = config.getName();
-			String URL = apigeeUtil.getApigeeHost(config.getType() == null ? "saas" : config.getType(), org)
+			return apigeeUtil.getApigeeHost(config.getType() == null ? "saas" : config.getType(), org)
 					+ "v1/organizations/" + org + "/environments/" + env + "/caches?name=" + name;
-			return URL;
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
@@ -33,9 +33,8 @@ public class CacheService {
 			String env = config.getEnv();
 			String org = config.getOrg();
 			String name = config.getName();
-			String URL = apigeeUtil.getApigeeHost(config.getType() == null ? "saas" : config.getType(), org)
+			return apigeeUtil.getApigeeHost(config.getType() == null ? "saas" : config.getType(), org)
 					+ "v1/organizations/" + org + "/environments/" + env + "/caches/" + name;
-			return URL;
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
@@ -48,25 +47,31 @@ public class CacheService {
 			ExpiryDate expiryDate = new ExpiryDate();
 			apigeeCache.setDescription(config.getDescription());
 			apigeeCache.setExpirySettings(expirySettings);
-			apigeeCache.setSkipCacheIfElementSizeInKBExceeds(config.getSkipCacheIfElementSizeInKBExceeds());
-			if (config.isOverflowToDisk())
+			apigeeCache.setSkipCacheIfElementSizeInKBExceeds(
+					config.getSkipCacheIfElementSizeInKBExceeds());
+			if (config.isOverflowToDisk()) {
 				apigeeCache.setOverflowToDisk("true");
-			else
+			} else {
 				apigeeCache.setOverflowToDisk("false");
-			if (config.getExpiryDate() != null) {
+			}
+			if (StringUtils.equalsIgnoreCase(config.getExpiryType(), "expiryDate")
+					&& config.getExpiryDate() != null) {
 				expiryDate.setValue(config.getExpiryDate());
 				expirySettings.setExpiryDate(expiryDate);
-			} else if (config.getTimeOfDay() != null) {
+			} else if (StringUtils.equalsIgnoreCase(config.getExpiryType(), "timeOfDay")
+					&& config.getTimeOfDay() != null) {
 				expiryDate.setValue(config.getTimeOfDay());
 				expirySettings.setTimeOfDay(expiryDate);
-			} else if (config.getTimeoutInSec() != null) {
+			} else if (StringUtils.equalsIgnoreCase(config.getExpiryType(), "timeoutInSec")
+					&& config.getTimeoutInSec() != null) {
 				expiryDate.setValue(config.getTimeoutInSec());
 				expirySettings.setTimeoutInSec(expiryDate);
 			}
-			if (config.isValuesNull())
+			if (config.isValuesNull()) {
 				expirySettings.setValuesNull("true");
-			else
+			} else {
 				expirySettings.setValuesNull("false");
+			}
 			return apigeeCache;
 		} catch (Exception ex) {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);

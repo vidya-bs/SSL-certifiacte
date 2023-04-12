@@ -647,6 +647,7 @@ public class ServiceRequestDao {
 					cacheConfig.setExpiryDate(serviceRequest.getExpiryDate());
 					cacheConfig.setTimeOfDay(serviceRequest.getTimeOfDay());
 					cacheConfig.setTimeoutInSec(serviceRequest.getTimeoutInSec());
+					cacheConfig.setExpiryType(serviceRequest.getExpiryType());
 					cacheConfig.setOverflowToDisk(serviceRequest.isOverflowToDisk());
 					cacheConfig.setName(serviceRequest.getName());
 					cacheConfig.setSkipCacheIfElementSizeInKBExceeds(
@@ -778,6 +779,7 @@ public class ServiceRequestDao {
 					cacheConfig.setValuesNull(serviceRequest.isValuesNull());
 					cacheConfig.setTimeOfDay(serviceRequest.getTimeOfDay());
 					cacheConfig.setTimeoutInSec(serviceRequest.getTimeoutInSec());
+					cacheConfig.setExpiryType(serviceRequest.getExpiryType());
 					cacheConfig.setActiveFlag(Boolean.TRUE);
 					if (serviceRequest.getIsSaaS()) {
 						cacheConfig.setType("saas");

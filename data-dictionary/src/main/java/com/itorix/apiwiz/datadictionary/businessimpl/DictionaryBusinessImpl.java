@@ -714,15 +714,15 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 	public void sync2Repo(String portfolioId, DictionaryScmUpload dictionaryScmUpload) throws Exception {
 
 		//Push to SCM (Same as done in Editor Lite)
-		if (dictionaryScmUpload.getDictionary() == null) {
-			log.error("DataDictionary is empty");
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1090"), "Dictionary is empty"),
-					"SCM-1010");
+		if (dictionaryScmUpload.getModelMap() == null) {
+			log.error("ModelMaps not found");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1090"), "Model Maps not found"),
+					"SCM-1090");
 		}
 		if (dictionaryScmUpload.getDictionaryName() == null) {
 			log.error("Dictionary Name is empty");
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("SCM-1091"), "Dictionary Name is empty"),
-					"SCM-1020");
+					"SCM-1091");
 		}
 		if (dictionaryScmUpload.getScmSource() == null) {
 			log.error("SCM Source is empty");
@@ -757,34 +757,9 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		}
 		log.info("begin : upload DD to SCM");
 
-		Map<String,Map<String,String>> modelMap = new HashMap<>();
-		try{
-			Query query = new Query();
-			query.addCriteria(Criteria.where("portfolioID").is(portfolioId));
-			List<PortfolioModel> models = mongoTemplate.find(query,PortfolioModel.class);
+		File file = createDataModelFiles(dictionaryScmUpload.getDictionaryName(),
+				dictionaryScmUpload.getDictionaryRevision(), dictionaryScmUpload.getModelMap(),dictionaryScmUpload.getFolderName());
 
-			for(PortfolioModel model : models){
-				if(!modelMap.containsKey(model.getModelName())){
-					modelMap.put(model.getModelName(),new HashMap<>());
-				}
-				modelMap.get(model.getModelName()).put(model.getRevision().toString(),model.getModel());
-			}
-
-			String jsonModelMap = new ObjectMapper().writeValueAsString(modelMap);
-			if(jsonModelMap != null && !jsonModelMap.isEmpty()){
-				dictionaryScmUpload.setDictionary(jsonModelMap);
-			}
-
-		}catch (Exception ex){
-			log.error("Couldn't Fetch All Dictionary Models. Syncing as Latest Active Model Revision Only:" + ex.getMessage());
-		}
-
-		ObjectMapper om = new ObjectMapper();
-		om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-		om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		File file = createDDFile(dictionaryScmUpload.getDictionaryName(), om.readTree(dictionaryScmUpload.getDictionary()).toPrettyString(),
-				dictionaryScmUpload.getFolderName());
 		String commitMessage = dictionaryScmUpload.getCommitMessage();
 		if (commitMessage == null) {
 			commitMessage = "Pushed " + dictionaryScmUpload.getDictionaryName() + " to " + dictionaryScmUpload.getFolderName() + " in " + dictionaryScmUpload.getRepoName();
@@ -803,7 +778,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 				dictionaryScmUpload.setUsername(rsaEncryption.encryptText(dictionaryScmUpload.getUsername()));
 			}
 
-			if(dictionaryScmUpload.getPassword() != null){
+			if(dictionaryScmUpload.getPassword() != null && !dictionaryScmUpload.getAuthType().equalsIgnoreCase("TOKEN")){
 				dictionaryScmUpload.setPassword(rsaEncryption.encryptText(dictionaryScmUpload.getPassword()));
 			}
 		} else {
@@ -831,6 +806,29 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		file.getParentFile().mkdirs();
 		file.createNewFile();
 		Files.write(Paths.get(fileLocation), dataDictionaryJson.getBytes());
+		return new File(location);
+	}
+
+	private File createDataModelFiles(String dictionaryName, String dictionaryRevision,Map<String,Map<String,String>> modelMap, String folder) throws IOException {
+		String separatorChar = String.valueOf(File.separatorChar);
+		String revStr = separatorChar + "datadictionary" + separatorChar + dictionaryName;
+		folder = folder != null && !folder.isEmpty() ? folder + revStr : "DataDictionary" + revStr;
+		String providedFolderName = folder;
+		String location = System.getProperty("java.io.tmpdir") + System.currentTimeMillis();
+		modelMap.keySet().parallelStream().forEach(modelName ->{
+			modelMap.get(modelName).keySet().parallelStream().forEach(modelRevision ->{
+				String fileLocation = location + separatorChar + providedFolderName + separatorChar + dictionaryRevision + separatorChar + modelName + separatorChar + modelRevision + ".json";
+				File file = new File(fileLocation);
+				file.getParentFile().mkdirs();
+				try{
+					file.createNewFile();
+					Files.write(Paths.get(fileLocation), modelMap.get(modelName).get(modelRevision).getBytes());
+				}catch (Exception fileException){
+					log.error("SCM Error While Creating DataModel File : " + fileException.getMessage());
+				}
+			});
+		});
+
 		return new File(location);
 	}
 
@@ -887,5 +885,26 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 						projectionOperation, sortOperation),
 				PortfolioModel.class, PortfolioModel.class);
 		return results.getMappedResults();
+	}
+
+	@Override
+	public Map<String, Map<String, String>> getDataModelMap(String portfolioId) throws Exception {
+		Map<String, Map<String, String>> modelMap = new HashMap<>();
+		try {
+			Query query = new Query();
+			query.addCriteria(Criteria.where("portfolioID").is(portfolioId));
+			List<PortfolioModel> models = mongoTemplate.find(query, PortfolioModel.class);
+
+			for (PortfolioModel model : models) {
+				if (!modelMap.containsKey(model.getModelName())) {
+					modelMap.put(model.getModelName(), new HashMap<>());
+				}
+				modelMap.get(model.getModelName()).put(model.getRevision() != null ? model.getRevision().toString() : "1", model.getModel());
+			}
+
+		} catch (Exception ex) {
+			log.error(String.format("Couldn't fetch DataModels for portfolioId[%s] : ",portfolioId) + ex.getMessage());
+		}
+		return modelMap;
 	}
 }

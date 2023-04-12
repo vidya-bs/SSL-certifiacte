@@ -6,6 +6,7 @@ import com.mongodb.client.result.DeleteResult;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public interface DictionaryBusiness {
@@ -91,5 +92,7 @@ public interface DictionaryBusiness {
 	public void deSyncFromRepo(String portfolioId);
 
 	public DictionaryScmUpload getGitIntegrations(String jsessionid,String portfolioId) throws Exception;
+
+	public Map<String, Map<String,String>> getDataModelMap(String portfolioId) throws Exception;
 
 }
