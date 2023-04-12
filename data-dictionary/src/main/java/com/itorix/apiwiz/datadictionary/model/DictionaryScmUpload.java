@@ -6,6 +6,8 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Map;
+
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -15,6 +17,8 @@ public class DictionaryScmUpload {
 	@Id
 	public String portfolioId;
 	public String dictionary;
+	public String dictionaryRevision;
+	public Map<String, Map<String,String>> modelMap;
 	private String repoName;
 	private String branch;
 	private String hostUrl;

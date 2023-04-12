@@ -813,4 +813,10 @@ public class DictionaryServiceImpl implements DictionaryService {
 			logger.error("Error while calling linting API {} ", e.getMessage());
 		}
 	}
+
+	@Override
+	public ResponseEntity<?> getDataModelMap(String interactionid, String jsessionid, String portfolioId)
+			throws Exception {
+		return new ResponseEntity<>(dictionaryBusiness.getDataModelMap(portfolioId),HttpStatus.OK);
+	}
 }
