@@ -230,7 +230,8 @@ public class SwaggerDiffService {
 	 * @throws ParseException
 	 * @throws ItorixException
 	 */
-	public SwaggerChangeLogResponse getSwaggerIdReleaseNotes(String timeRange, String oas, String swaggerId, int offset)
+	public SwaggerChangeLogResponse getSwaggerIdReleaseNotes(String timeRange, String oas,
+			String swaggerId, int offset)
 			throws ParseException, ItorixException {
 		String swaggerName = null;
 		if (oas.equals("2.0")) {
@@ -250,16 +251,19 @@ public class SwaggerDiffService {
 				Date endDate = format.parse(timeRanges[1]);
 				long StartTime = DateUtil.getStartOfDay(startDate).getTime();
 				long endDateTime = DateUtil.getEndOfDay(endDate).getTime();
-				query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas).and("mts").gte(StartTime)
-						.lte(endDateTime)).with(Sort.by(Direction.DESC, "mts"))
-								.skip(offset > 0 ? ((offset - 1) * 10) : 0).limit(10);
+				query = new Query(
+						Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas).and("mts").gte(StartTime)
+								.lte(endDateTime)).with(Sort.by(Direction.DESC, "mts"))
+						.skip(offset > 0 ? ((offset - 1) * 10) : 0).limit(10);
 			} else {
 				query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas))
-						.with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * 10) : 0).limit(10);
+						.with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * 10) : 0)
+						.limit(10);
 			}
 			List<SwaggerChangeLog> list = baseRepository.find(query, SwaggerChangeLog.class);
-			for (SwaggerChangeLog log : list)
+			for (SwaggerChangeLog log : list) {
 				log.setNotes(null);
+			}
 			long counter;
 			if (timeRange != null) {
 				SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
@@ -268,25 +272,30 @@ public class SwaggerDiffService {
 				Date endDate = format.parse(timeRanges[1]);
 				long StartTime = DateUtil.getStartOfDay(startDate).getTime();
 				long endDateTime = DateUtil.getEndOfDay(endDate).getTime();
-				counter = mongoTemplate.count(new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas)
-						.and("mts").gte(StartTime).lte(endDateTime)), SwaggerChangeLog.class);
-			} else
-				counter = mongoTemplate.count(new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas)),
+				counter = mongoTemplate.count(
+						new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas)
+								.and("mts").gte(StartTime).lte(endDateTime)), SwaggerChangeLog.class);
+			} else {
+				counter = mongoTemplate.count(
+						new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas)),
 						SwaggerChangeLog.class);
+			}
 			Pagination pagination = new Pagination();
 			pagination.setOffset(offset);
 			pagination.setTotal(counter);
 			pagination.setPageSize(10);
 
 			SwaggerChangeLogResponse response = new SwaggerChangeLogResponse();
-			if (list == null)
+			if (list == null) {
 				response.setData(new ArrayList());
-			else
+			} else {
 				response.setData(list);
+			}
 			response.setPagination(pagination);
 			return response;
 		}
-		throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")), "Swagger-1000");
+		throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
+				"Swagger-1000");
 	}
 
 	/**
