@@ -1,6 +1,5 @@
 package com.itorix.apiwiz.design.studio.swaggerdiff.dao;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,10 +15,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Order;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.model.SwaggerChangeLog;
@@ -249,10 +245,10 @@ public class SwaggerDiffService {
 				String timeRanges[] = timeRange.split("~");
 				Date startDate = format.parse(timeRanges[0]);
 				Date endDate = format.parse(timeRanges[1]);
-				long StartTime = DateUtil.getStartOfDay(startDate).getTime();
+				long startTime = DateUtil.getStartOfDay(startDate).getTime();
 				long endDateTime = DateUtil.getEndOfDay(endDate).getTime();
 				query = new Query(
-						Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas).and("mts").gte(StartTime)
+						Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas).and("mts").gte(startTime)
 								.lte(endDateTime)).with(Sort.by(Direction.DESC, "mts"))
 						.skip(offset > 0 ? ((offset - 1) * 10) : 0).limit(10);
 			} else {
@@ -270,11 +266,11 @@ public class SwaggerDiffService {
 				String timeRanges[] = timeRange.split("~");
 				Date startDate = format.parse(timeRanges[0]);
 				Date endDate = format.parse(timeRanges[1]);
-				long StartTime = DateUtil.getStartOfDay(startDate).getTime();
+				long startTime = DateUtil.getStartOfDay(startDate).getTime();
 				long endDateTime = DateUtil.getEndOfDay(endDate).getTime();
 				counter = mongoTemplate.count(
 						new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas)
-								.and("mts").gte(StartTime).lte(endDateTime)), SwaggerChangeLog.class);
+								.and("mts").gte(startTime).lte(endDateTime)), SwaggerChangeLog.class);
 			} else {
 				counter = mongoTemplate.count(
 						new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas)),
