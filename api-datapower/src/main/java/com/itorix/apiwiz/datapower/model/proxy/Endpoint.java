@@ -1,6 +1,8 @@
 package com.itorix.apiwiz.datapower.model.proxy;
 
-public class Endpoint {
+import java.io.Serializable;
+
+public class Endpoint implements Serializable{
   private String name;
   private String url;
   private String environment;

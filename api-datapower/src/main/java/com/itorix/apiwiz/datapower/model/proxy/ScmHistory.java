@@ -1,6 +1,8 @@
 package com.itorix.apiwiz.datapower.model.proxy;
 
-public class ScmHistory {
+import java.io.Serializable;
+
+public class ScmHistory implements Serializable {
 
   private boolean gitPush;
   private String gitRepoName;
