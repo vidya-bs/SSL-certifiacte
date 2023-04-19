@@ -3,6 +3,7 @@ package com.itorix.apiwiz.datapower.model.proxy;
 import java.io.Serializable;
 import java.util.List;
 
+import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
@@ -13,11 +14,10 @@ import com.itorix.apiwiz.common.model.AbstractObject;
 import lombok.Getter;
 import lombok.Setter;
 
-@Component("proxy")
+//@Component("proxy")
 @Document(collection = "Datapower.Proxies.List")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Getter
-@Setter
+@Data
 public class Proxy extends AbstractObject implements Serializable {
 	
 

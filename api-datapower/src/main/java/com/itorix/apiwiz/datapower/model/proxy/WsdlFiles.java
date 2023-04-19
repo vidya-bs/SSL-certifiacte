@@ -1,14 +1,11 @@
 package com.itorix.apiwiz.datapower.model.proxy;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.io.Serializable;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Getter
-@Setter
+@Data
 public class WsdlFiles implements Serializable {
 	private String wsdlName;
 
