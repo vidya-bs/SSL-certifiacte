@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.datapower.model.proxy;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -12,7 +13,7 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
-public class Proxies {
+public class Proxies implements Serializable {
 	@Id
 	private String id;
 	private String name;

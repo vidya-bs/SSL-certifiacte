@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.datapower.model.proxy;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,7 +18,7 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
-public class Proxy extends AbstractObject{
+public class Proxy extends AbstractObject implements Serializable {
 	
 
 	private String name;

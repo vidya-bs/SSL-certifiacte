@@ -6,6 +6,7 @@ import com.itorix.apiwiz.common.model.AbstractObject;
 import com.itorix.apiwiz.datapower.model.db.Testsuite;
 import com.itorix.apiwiz.datapower.model.db.TestsuiteEnvironment;
 
+import java.io.Serializable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +18,7 @@ import java.util.List;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PortfolioRequest extends AbstractObject {
+public class PortfolioRequest extends AbstractObject implements Serializable {
 	@JsonProperty("name")
 	String name;
 

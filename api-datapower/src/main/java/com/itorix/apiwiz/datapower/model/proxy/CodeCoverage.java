@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.datapower.model.proxy;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -11,7 +12,7 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
-public class CodeCoverage {
+public class CodeCoverage implements Serializable {
 	private String enabled;
 
 	private int acceptance;

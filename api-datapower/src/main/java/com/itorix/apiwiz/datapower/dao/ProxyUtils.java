@@ -832,9 +832,9 @@ public class ProxyUtils {
 	}
 
 	public Object generateApigeeProxy(com.itorix.apiwiz.datapower.model.proxy.Proxy proxy,
-      GenerateProxyRequestDTO requests, String jsessionId)
+      com.itorix.apiwiz.datapower.model.proxy.Proxy requests, String jsessionId)
 			throws Exception {
-		proxy.getApigeeConfig().setDesignArtifacts(requests.getDesignArtifacts());
+		proxy.getApigeeConfig().setDesignArtifacts(requests.getApigeeConfig().getDesignArtifacts());
 		ProjectProxyResponse response = new ProjectProxyResponse();
 		try {
 			String projectName = proxy.getName();
@@ -862,8 +862,8 @@ public class ProxyUtils {
 				scmConfig.setRepoName(proxyGen.getProxySCMDetails().getReponame());
 				proxy.getApigeeConfig().setScmConfig(scmConfig);
 			}
-			if (requests.getPipelinesList() != null && !requests.getPipelinesList().isEmpty()) {
-				proxy.getApigeeConfig().setPipelines(requests.getPipelinesList());
+			if (requests.getApigeeConfig().getPipelines() != null && !requests.getApigeeConfig().getPipelines().isEmpty()) {
+				proxy.getApigeeConfig().setPipelines(requests.getApigeeConfig().getPipelines());
 				String pipelineName = createPipeline(proxy, projectName, proxyGen, jsessionId);
 				response.setPipelineName(pipelineName);
 				ScmHistory scmHistory = new ScmHistory(Boolean.parseBoolean(response.getGitPush()),
@@ -882,10 +882,10 @@ public class ProxyUtils {
 						getBranchType(proxyGen.getProxySCMDetails().getBranch()), jsessionId);
 			}
 
-			if (requests.getServiceRegistryRequest() != null) {
-				createServiceRegistry(requests.getServiceRegistryRequest(),
-						proxy);
-			}
+//			if (requests.getServiceRegistryRequest() != null) {
+//				createServiceRegistry(requests.getServiceRegistryRequest(),
+//						proxy);
+//			}
 		} catch (Exception e) {
 			log.error("Exception occurred", e);
 		}

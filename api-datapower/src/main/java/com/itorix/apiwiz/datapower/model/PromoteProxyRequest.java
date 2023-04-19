@@ -2,8 +2,9 @@ package com.itorix.apiwiz.datapower.model;
 
 import com.itorix.apiwiz.common.model.proxystudio.ProxyPortfolio;
 import com.itorix.apiwiz.common.model.proxystudio.Scm;
+import java.io.Serializable;
 
-public class PromoteProxyRequest {
+public class PromoteProxyRequest implements Serializable {
 	private Scm scm;
 	private ProxyPortfolio portfolio;
 	public Scm getScm() {

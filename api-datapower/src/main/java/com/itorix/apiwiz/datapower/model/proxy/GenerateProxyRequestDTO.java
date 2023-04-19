@@ -1,8 +1,9 @@
 package com.itorix.apiwiz.datapower.model.proxy;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class GenerateProxyRequestDTO {
+public class GenerateProxyRequestDTO implements Serializable{
   List<Pipelines> pipelinesList;
   ServiceRegistryRequest serviceRegistryRequest;
 

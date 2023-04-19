@@ -77,7 +77,7 @@ public class DatapowerServiceImpl implements DatapowerService {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	private ResponseEntity<Object> generateDatapowerApigeeProxy(String proxyId,
-			GenerateProxyRequestDTO requests, String jsessionid)
+			Proxy requests, String jsessionid)
 			throws Exception {
 		return new ResponseEntity<>(
 				proxyDao.generateApigeeProxy(proxyId, requests, jsessionid),
@@ -95,7 +95,7 @@ public class DatapowerServiceImpl implements DatapowerService {
 
 	@Override
 	public ResponseEntity<Object> generateDatapowerProxy(String proxyId, String jsessionid,
-      GenerateProxyRequestDTO requests) throws Exception {
+      Proxy requests) throws Exception {
 		if (requests!=null) {
 			return generateDatapowerApigeeProxy(proxyId, requests, jsessionid);
 		}
