@@ -1,17 +1,14 @@
 package com.itorix.apiwiz.datapower.model.proxy;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.io.Serializable;
+import java.util.List;
+import lombok.Data;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Getter
-@Setter
-public class UnitTests {
+@Data
+public class UnitTests implements Serializable {
 	private String enabled;
 
 	private int acceptance;

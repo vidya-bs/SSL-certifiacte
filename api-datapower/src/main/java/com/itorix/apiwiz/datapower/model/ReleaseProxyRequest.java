@@ -1,6 +1,8 @@
 package com.itorix.apiwiz.datapower.model;
 
-public class ReleaseProxyRequest {
+import java.io.Serializable;
+
+public class ReleaseProxyRequest implements Serializable {
 	private String releaseTag;
 
 	public String getReleaseTag() {

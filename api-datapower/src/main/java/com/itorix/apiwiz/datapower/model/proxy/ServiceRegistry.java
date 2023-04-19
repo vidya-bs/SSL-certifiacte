@@ -1,8 +1,9 @@
 package com.itorix.apiwiz.datapower.model.proxy;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ServiceRegistry {
+public class ServiceRegistry implements Serializable {
   private String name;
   private String org;
   private List<Endpoint> endpoints;

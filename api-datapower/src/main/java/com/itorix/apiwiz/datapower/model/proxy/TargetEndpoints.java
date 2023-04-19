@@ -1,14 +1,12 @@
 package com.itorix.apiwiz.datapower.model.proxy;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.io.Serializable;
+import lombok.Data;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Getter
-@Setter
-public class TargetEndpoints {
+@Data
+public class TargetEndpoints implements Serializable {
 	private String refId;
 	private String name;
 }

@@ -96,6 +96,7 @@ public class ExcelReader {
 							data.put(validKey, cellValue);
 						}
 					} catch (Exception e) {
+						log.info("Exception reading row " + row.getRowNum() + "");
 					}
 				}
 				dataElements.add(data);

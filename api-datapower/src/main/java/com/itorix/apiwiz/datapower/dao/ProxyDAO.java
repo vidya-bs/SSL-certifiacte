@@ -154,7 +154,7 @@ public class ProxyDAO {
 	}
 
 	public Object generateApigeeProxy(String proxyId,
-      GenerateProxyRequestDTO requests, String jsessionid)
+      Proxy requests, String jsessionid)
 			throws Exception {
 		return proxyUttils.generateApigeeProxy(getProxy(proxyId), requests, jsessionid);
 	}

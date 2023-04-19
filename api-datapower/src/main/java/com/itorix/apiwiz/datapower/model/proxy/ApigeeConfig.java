@@ -1,16 +1,13 @@
 package com.itorix.apiwiz.datapower.model.proxy;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.io.Serializable;
+import java.util.List;
+import lombok.Data;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Getter
-@Setter
-public class ApigeeConfig {
+@Data
+public class ApigeeConfig implements Serializable {
 	private List<String> apigeeVirtualHosts;
 
 	private List<Environments> environments;
