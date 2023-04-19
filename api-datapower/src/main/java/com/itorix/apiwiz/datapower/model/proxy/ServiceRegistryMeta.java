@@ -1,7 +1,9 @@
 package com.itorix.apiwiz.datapower.model.proxy;
 
 
-public class ServiceRegistryMeta {
+import java.io.Serializable;
+
+public class ServiceRegistryMeta implements Serializable {
 
     private String serviceName;
     private String proxyName;

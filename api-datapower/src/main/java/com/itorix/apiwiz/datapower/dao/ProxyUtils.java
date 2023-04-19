@@ -9,6 +9,7 @@ import com.itorix.apiwiz.datapower.model.proxy.GenerateProxyRequestDTO;
 import com.itorix.apiwiz.datapower.model.proxy.ScmHistory;
 import com.itorix.apiwiz.datapower.model.proxy.ServiceRegistryRequest;
 import com.itorix.apiwiz.datapower.model.proxy.XsdFiles;
+import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistry;
 import com.itorix.apiwiz.serviceregistry.model.documents.ServiceRegistryList;
@@ -832,9 +833,9 @@ public class ProxyUtils {
 	}
 
 	public Object generateApigeeProxy(com.itorix.apiwiz.datapower.model.proxy.Proxy proxy,
-      GenerateProxyRequestDTO requests, String jsessionId)
+      com.itorix.apiwiz.datapower.model.proxy.Proxy requests, String jsessionId)
 			throws Exception {
-		proxy.getApigeeConfig().setDesignArtifacts(requests.getDesignArtifacts());
+		proxy.getApigeeConfig().setDesignArtifacts(requests.getApigeeConfig().getDesignArtifacts());
 		ProjectProxyResponse response = new ProjectProxyResponse();
 		try {
 			String projectName = proxy.getName();
@@ -862,8 +863,8 @@ public class ProxyUtils {
 				scmConfig.setRepoName(proxyGen.getProxySCMDetails().getReponame());
 				proxy.getApigeeConfig().setScmConfig(scmConfig);
 			}
-			if (requests.getPipelinesList() != null && !requests.getPipelinesList().isEmpty()) {
-				proxy.getApigeeConfig().setPipelines(requests.getPipelinesList());
+			if (requests.getApigeeConfig().getPipelines() != null && !requests.getApigeeConfig().getPipelines().isEmpty()) {
+				proxy.getApigeeConfig().setPipelines(requests.getApigeeConfig().getPipelines());
 				String pipelineName = createPipeline(proxy, projectName, proxyGen, jsessionId);
 				response.setPipelineName(pipelineName);
 				ScmHistory scmHistory = new ScmHistory(Boolean.parseBoolean(response.getGitPush()),
@@ -880,17 +881,95 @@ public class ProxyUtils {
 				}
 				createServiceConfigs(proxy.getApigeeConfig().getPipelines(), proxy.getName(),
 						getBranchType(proxyGen.getProxySCMDetails().getBranch()), jsessionId);
+
+				createTargetServer(proxy.getApigeeConfig().getPipelines(), proxy.getName(),
+						getBranchType(proxyGen.getProxySCMDetails().getBranch()), jsessionId);
 			}
 
-			if (requests.getServiceRegistryRequest() != null) {
-				createServiceRegistry(requests.getServiceRegistryRequest(),
-						proxy);
-			}
+//			if (requests.getServiceRegistryRequest() != null) {
+//				createServiceRegistry(requests.getServiceRegistryRequest(),
+//						proxy);
+//			}
 		} catch (Exception e) {
 			log.error("Exception occurred", e);
 		}
 		mongoTemplate.save(proxy);
 		return response;
+	}
+
+	private void createTargetServer(List<Pipelines> pipelines, String proxyName, String branchType, String jsessionId)
+			throws ItorixException {
+		for(Pipelines pipelines1 : pipelines){
+			if(pipelines1.getBranchType().equals(branchType)){
+				for(Stages stage: pipelines1.getStages()){
+					Organization org = new Organization();
+					org.setName(stage.getOrgName());
+					org.setEnv(stage.getEnvName());
+					org.setType(stage.getType());
+					String registryId = getRegestryId(proxyName + "_" + stage.getEnvName().toUpperCase());
+					createTargetServiceConfig(org, proxyName, "https://mock.apiwiz.io:443", jsessionId);
+				}
+			}
+		}
+	}
+
+	private void createTargetServiceConfig(Organization organization, String name, String targetURL, String jsessionId)
+			throws ItorixException {
+		log.debug("Creating target service configuration for organization {}", organization);
+		try {
+			com.itorix.apiwiz.servicerequest.model.ServiceRequest config = new com.itorix.apiwiz.servicerequest.model.ServiceRequest();
+			config.setType("TargetServer");
+			config.setName(name);
+			String host = null;
+			String scheme = "http";
+			String port = null;
+			try {
+				String[] tokens = targetURL.split("://");
+				if (tokens.length > 1) {
+					host = tokens[1];
+					scheme = tokens[0];
+				} else
+					host = tokens[0];
+				tokens = host.split(":");
+				if (tokens.length > 1) {
+					host = tokens[0];
+					port = tokens[1];
+				}
+
+			} catch (Exception ex) {
+				log.error("Exception occurred", ex);
+			}
+			config.setOrg(organization.getName());
+			config.setHost(host);
+			if (null != port)
+				config.setPort(Integer.parseInt(port));
+			if ("https".equals(scheme)) {
+				config.setSslEnabled(true);
+			}
+			config.setEnv(organization.getEnv());
+			config.setIsSaaS(organization.getType().equalsIgnoreCase("saas") ? true : false);
+			UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
+			User user = identityManagementDao.getUserById(userSessionToken.getUserId());
+			config.setCreatedUser(user.getFirstName() + " " + user.getLastName());
+			config.setCreatedUserEmailId(user.getEmail());
+			config.setCreatedDate(new Date(System.currentTimeMillis()));
+			config.setModifiedUser(user.getFirstName() + " " + user.getLastName());
+			config.setModifiedDate(new Date(System.currentTimeMillis()));
+			config.setStatus("Review");
+			config.setCreated(false);
+			config.setActiveFlag(Boolean.TRUE);
+			serviceRequestDao.createServiceRequest(config);
+			config.setStatus("Approved");
+			List<String> roles = identityManagementDao.getUserRoles(jsessionId); // user.getRoles();
+			if (!roles.contains("Admin")) {
+				roles.add("Admin");
+			}
+			config.setUserRole(roles);
+			serviceRequestDao.changeServiceRequestStatus(config, user);
+
+		} catch (Exception e) {
+			log.error("Exception occurred", e);
+		}
 	}
 
 	private void createServiceRegistry(ServiceRegistryRequest serviceRegistryRequest,
