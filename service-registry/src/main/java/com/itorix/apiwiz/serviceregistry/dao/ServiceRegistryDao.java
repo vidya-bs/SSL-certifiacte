@@ -355,6 +355,8 @@ public class ServiceRegistryDao {
 			serviceRequestDao.changeServiceRequestStatus(config, user);
 		} catch (MessagingException e) {
 			log.error("Exception occurred", e);
+		}catch (JsonProcessingException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }
