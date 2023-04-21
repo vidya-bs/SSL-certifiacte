@@ -3,6 +3,7 @@ package com.itorix.apiwiz.servicerequest.model;
 import java.util.Date;
 import java.util.List;
 
+import com.itorix.apiwiz.common.model.monetization.TransactionRecordingPolicy;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -20,6 +21,25 @@ public class ServiceRequest {
 
 	public static final String LABEL_CREATED_TIME = "createdDate";
 	// common parameters
+
+	public enum AccessType {
+
+		Internal("internal"),
+		External("external"),
+		Private("private"),
+		Public("public");
+		private String accessType;
+
+		AccessType(String accessType) {
+			this.accessType = accessType;
+		}
+
+		public String getAccessType() {
+			return accessType;
+		}
+
+	}
+
 	private String type;
 	private String gwType;
 	private String createdUser;
@@ -71,6 +91,8 @@ public class ServiceRequest {
 	private List<String> userRole;
 	private boolean activeFlag = true;
 	private String _id;
+	private AccessType accessType;
+	private TransactionRecordingPolicy transactionRecordingPolicy;
 
 	public String get_id() {
 		return _id;
@@ -448,6 +470,23 @@ public class ServiceRequest {
 		this.entry = entry;
 	}
 
+	public AccessType getAccessType() {
+		return accessType;
+	}
+
+	public void setAccessType(AccessType accessType) {
+		this.accessType = accessType;
+	}
+
+	public TransactionRecordingPolicy getTransactionRecordingPolicy() {
+		return transactionRecordingPolicy;
+	}
+
+	public void setTransactionRecordingPolicy(
+			TransactionRecordingPolicy transactionRecordingPolicy) {
+		this.transactionRecordingPolicy = transactionRecordingPolicy;
+	}
+
 	@Override
 	public String toString() {
 		return "ServiceRequest [type=" + type + ", createdUser=" + createdUser + ", modifiedUser=" + modifiedUser
@@ -464,7 +503,8 @@ public class ServiceRequest {
 				+ displayName + ", approvalType=" + approvalType + ", apiResources=" + apiResources + ", environments="
 				+ environments + ", proxies=" + proxies + ", quota=" + quota + ", quotaInterval=" + quotaInterval
 				+ ", quotaTimeUnit=" + quotaTimeUnit + ", scopes=" + scopes + ", attributes=" + attributes + ", status="
-				+ status + ", approvedBy=" + approvedBy + ", userRole=" + userRole + ", activeFlag=" + activeFlag
+				+ status + ", approvedBy=" + approvedBy + ", userRole=" + userRole + ", activeFlag=" + activeFlag+ ", accessType=" + accessType
+				+ ", transactionRecordingPolicy=" + transactionRecordingPolicy
 				+ ", _id=" + _id + "]";
 	}
 }

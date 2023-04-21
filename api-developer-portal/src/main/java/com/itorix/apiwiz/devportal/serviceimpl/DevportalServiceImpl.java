@@ -1,18 +1,28 @@
 package com.itorix.apiwiz.devportal.serviceimpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
+import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.monetization.ProductBundle;
+import com.itorix.apiwiz.common.model.monetization.RatePlan;
+import com.itorix.apiwiz.devportal.model.DeveloperApp;
+import com.itorix.apiwiz.devportal.model.monetization.PurchaseRecord;
+import com.itorix.apiwiz.devportal.model.monetization.PurchaseResult;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +40,7 @@ import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
 import com.itorix.apiwiz.common.util.http.HTTPUtil;
 import com.itorix.apiwiz.devportal.dao.DevportalDao;
 import com.itorix.apiwiz.devportal.service.DevportalService;
+import org.springframework.web.client.RestTemplate;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -40,6 +51,9 @@ import net.sf.json.JSONSerializer;
 public class DevportalServiceImpl implements DevportalService {
 
 	private Logger logger = Logger.getLogger(DevportalDao.class);
+
+	@Autowired
+	private RestTemplate restTemplate;
 
 	@Autowired
 	private ApigeeUtil apigeeUtil;
@@ -77,21 +91,46 @@ public class DevportalServiceImpl implements DevportalService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
-			@PathVariable("email") String email, @RequestBody String body) throws Exception {
+			@PathVariable("email") String email, @RequestBody Map<String,Object> body) throws Exception {
 		if (body != null) {
+			ObjectMapper mapper = new ObjectMapper();
+			DeveloperApp developerApp = new DeveloperApp();
+			developerApp.setOrganization(org);
+			developerApp.setEmail(email);
+			developerApp.setAppName(body.get("name") != null ? body.get("name").toString():"");
+			developerApp.setDescription(body.get("description") != null ? body.get("description").toString():"");
+			developerApp.setProductBundle(body.get("productBundle") != null ? mapper.convertValue(body.get("productBundle"),ProductBundle.class):null);
+			developerApp.setRatePlan(body.get("ratePlan") != null ? mapper.convertValue(body.get("ratePlan"),RatePlan.class):null);
+			body.remove("description");
+			body.remove("productBundle");
+			body.remove("ratePlan");
+			String bodyToApigee = mapper.writeValueAsString(body);
 			if (type != null && type.equalsIgnoreCase("apigeex")) {
 				String URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/developers/" + email
 						+ "/apps";
-				HTTPUtil httpConn = new HTTPUtil(body, URL, apigeexUtil.getApigeeCredentials(org, type));
+				logger.info(String.format("Making a call to Apigee with payload %s", bodyToApigee));
+				HTTPUtil httpConn = new HTTPUtil(bodyToApigee, URL, apigeexUtil.getApigeeCredentials(org, type));
 				return devportaldao.proxyService(httpConn, "POST");
 			} else {
 				String URL = apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/" + org + "/developers/" + email
 						+ "/apps";
-				HTTPUtil httpConn = new HTTPUtil(body, URL, getEncodedCredentials(org, type));
-				return devportaldao.proxyService(httpConn, "POST");
+				logger.info(String.format("Making a call to Apigee with payload %s", bodyToApigee));
+				HTTPUtil httpConn = new HTTPUtil(bodyToApigee, URL, getEncodedCredentials(org, type));
+				ResponseEntity<String> response =  devportaldao.proxyService(httpConn, "POST");
+				JSONObject json = mapper.readValue(response.getBody(), JSONObject.class);
+				developerApp.setAppId(json.getString("appId"));
+				devportaldao.saveDeveloperApp(developerApp);
+				return response;
 			}
 		}
 		return null;
+	}
+
+
+	@Override
+	public List<DeveloperApp> getRegisteredApps(String jsessionId, String interactionid, String org,
+			String email, String appId, String appName) throws Exception {
+		return devportaldao.getRegisteredApps(org,email,appId,appName);
 	}
 
 	@Override
@@ -99,18 +138,48 @@ public class DevportalServiceImpl implements DevportalService {
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
-			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
-			@PathVariable("email") String email, @PathVariable("appName") String appName, @RequestBody String body)
+			@RequestHeader(value = "type", required = false) String type,
+			@PathVariable("org") String org,
+			@PathVariable("email") String email,
+			@PathVariable("appName") String appName,
+			@RequestParam(value = "status", required = false) String status,
+			@RequestBody String body)
 			throws Exception {
 		if (body != null) {
 			if (type != null && type.equalsIgnoreCase("apigeex")) {
 				String URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/developers/" + email
 						+ "/apps/" + appName;
+				if(status != null){
+					try{
+						String statusUrl = URL+"?action="+status;
+						statusUrl = statusUrl.replace("//v1/organizations","/v1/organizations");
+						HttpHeaders headers = new HttpHeaders();
+						headers.set("Authorization",apigeexUtil.getApigeeCredentials(org, type));
+						HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
+
+						ResponseEntity<Void> statusResponse = restTemplate.exchange(statusUrl, HttpMethod.POST,requestEntity,Void.class);
+					}catch (Exception ex){
+						logger.error("Could Not Update App Status:" + ex.getMessage());
+					}
+				}
 				HTTPUtil httpConn = new HTTPUtil(body, URL, apigeexUtil.getApigeeCredentials(org, type));
 				return devportaldao.proxyService(httpConn, "PUT");
 			} else {
 				String URL = apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/" + org + "/developers/" + email
 						+ "/apps/" + appName;
+				if(status != null){
+					try{
+						String statusUrl = URL+"?action="+status;
+						statusUrl = statusUrl.replace("//v1/organizations","/v1/organizations");
+						HttpHeaders headers = new HttpHeaders();
+						headers.set("Authorization",getEncodedCredentials(org, type));
+						HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
+
+						ResponseEntity<Void> statusResponse = restTemplate.exchange(statusUrl, HttpMethod.POST,requestEntity,Void.class);
+					}catch (Exception ex){
+						logger.error("Could Not Update App Status:" + ex.getMessage());
+					}
+				}
 				HTTPUtil httpConn = new HTTPUtil(body, URL, getEncodedCredentials(org, type));
 				return devportaldao.proxyService(httpConn, "PUT");
 			}
@@ -274,7 +343,24 @@ public class DevportalServiceImpl implements DevportalService {
 				URL = apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/" + org + "/developers/" + email
 						+ "/apps";
 			HTTPUtil httpConn = new HTTPUtil(URL, getEncodedCredentials(org, type));
-			return devportaldao.proxyService(httpConn, "GET");
+			ResponseEntity<String> response = devportaldao.proxyService(httpConn, "GET");
+			JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(response.getBody());
+			JSONArray apiProducts = (JSONArray) proxyObject.get("app");
+			List<JSONObject> responseObject = new ArrayList<>();
+			for (Object apiObj : apiProducts) {
+				JSONObject prodObj = (JSONObject) apiObj;
+				String appId = prodObj.get("appId").toString();
+				DeveloperApp developerApp = devportaldao.getDeveloperAppWithAppId(appId);
+				if(developerApp != null) {
+					prodObj.put("ratePlan", developerApp.getRatePlan());
+					prodObj.put("productBundle", developerApp.getProductBundle());
+					prodObj.put("description", developerApp.getDescription());
+				}
+				responseObject.add(prodObj);
+			}
+			JSONObject finalResponse = new JSONObject();
+			finalResponse.put("app",responseObject);
+			return new ResponseEntity<>(finalResponse.toString(),HttpStatus.OK);
 		}
 	}
 
@@ -362,6 +448,62 @@ public class DevportalServiceImpl implements DevportalService {
 					response);
 			return responseEntity;
 		}
+	}
+
+	@Override
+	public ResponseEntity<?> getProductBundleCards(String jsessionId, String interactionid,
+			String partnerType,String org, int offset, int pagesize, boolean paginated) throws Exception {
+		return new ResponseEntity<>(devportaldao.getProductBundleCards(partnerType,org,offset,pagesize,paginated),HttpStatus.OK);
+	}
+	@Override
+	public ResponseEntity<?> purchaseRatePlan(String jsessionId, String interactionid,
+			PurchaseRecord purchaseRecord) throws Exception {
+		PurchaseResult purchaseResult = devportaldao.executePurchase(purchaseRecord);
+
+		if(purchaseResult.equals(PurchaseResult.SUCCESS)){
+			return new ResponseEntity<>(purchaseRecord,HttpStatus.CREATED);
+		}else if(purchaseResult.equals(PurchaseResult.INSUFFICIENT_BALANCE)){
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monetization-1010"),"Monetization-1010");
+		}else{
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monetization-1020"),"Monetization-1020");
+		}
+	}
+	@Override
+	public ResponseEntity<?> getPurchaseHistoryByAppId(String jsessionId, String interactionid, String appId)
+			throws Exception {
+		return new ResponseEntity<>(devportaldao.getPurchaseHistoryByAppId(appId),HttpStatus.OK);
+	}
+	@Override
+	public ResponseEntity<?> getPurchaseHistory(String jsessionId, String interactionid, String appId,
+			String developerEmailId, String organization) throws Exception {
+
+		return new ResponseEntity<>(devportaldao.getPurchaseHistory(appId,developerEmailId,organization),HttpStatus.OK);
+	}
+	@Override
+	public ResponseEntity<?> deletePurchaseById(String jsessionId, String interactionid, String appId,
+			String purchaseId) throws Exception {
+		devportaldao.deletePurchaseById(appId,purchaseId);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	@Override
+	public ResponseEntity<?> getWalletBalanceByFilter(String jsessionId, String interactionid, String appId,
+			String email) throws Exception {
+		return new ResponseEntity<>(devportaldao.getWalletBalanceByFilter(appId,email),HttpStatus.OK);
+	}
+	@Override
+	public ResponseEntity<?> getWalletBalanceByAppId(String jsessionId, String interactionid, String appId)
+			throws Exception {
+		return new ResponseEntity<>(devportaldao.getWalletBalanceByAppId(appId),HttpStatus.OK);
+	}
+	@Override
+	public ResponseEntity<?> addWalletBalanceForAppId(String jsessionId, String interactionid, double topUp,
+			String appId) throws Exception {
+		return new ResponseEntity<>(devportaldao.addWalletBalanceForAppId(appId,topUp),HttpStatus.OK);
+	}
+	@Override
+	public ResponseEntity<?> computeBillForAppId(String jsessionId, String interactionid, double transactions,String startDate, String endDate,String appId)
+			throws Exception {
+		return new ResponseEntity<>(devportaldao.computeBillForAppId(appId,transactions,startDate,endDate),HttpStatus.OK);
 	}
 
 	private ResponseEntity<String> getStringResponseEntity(String partner,

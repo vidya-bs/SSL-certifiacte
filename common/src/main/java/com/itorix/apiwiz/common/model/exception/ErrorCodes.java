@@ -86,6 +86,9 @@ public enum ErrorCodes {
 			put("Configuration-1030", "Request validation failed. Approval type provided doesn't match the enum type.");
 			put("Configuration-1031", GENERIC_RESOURCE_AUTH_VALIDATION_FAILED.message());
 			put("Configuration-1032", "Resource status cannot be updated.");
+			put("Configuration-1033","This entity cannot be edited once published.");
+			put("Configuration-1034", "Request validation failed.Approved resources cannot be deleted.");
+			put("Configuration-1035", "Request validation failed.More than ten custom attributes are not allowed.");
 
 			put("USER_012", "Request validation failed. UserDomain Already Exists.");
 			put("USER_013", "Resource not found. UserDomain Doesn't Exists.");
@@ -282,6 +285,11 @@ public enum ErrorCodes {
 			put("SCM-1090","Model Maps not found");
 			put("SCM-1091","Dictionary Name is empty");
 
+			//Monetization
+			put("Monetization-1010","Cannot place purchase. Insufficient Wallet Balance");
+			put("Monetization-1020","Could Not Complete Purchase. Please try again. If issue persists, contact the application support team.");
+			put("Monetization-1030","Could Not Create Rate Plan. Please try again. If issue persists, contact the application support team.");
+			put("Monetization-1040","Could Not Update Rate Plan. Please try again. If issue persists, contact the application support team.");
 		}
 	};
 
@@ -330,6 +338,9 @@ public enum ErrorCodes {
 			put("Configuration-1030", 400);
 			put("Configuration-1031", 401);
 			put("Configuration-1032", 400);
+			put("Configuration-1033", 400);
+			put("Configuration-1034", 400);
+			put("Configuration-1035", 400);
 			put("Config-1004", 500);
 
 			put("Identity-1000", 400);
@@ -492,6 +503,12 @@ public enum ErrorCodes {
 			put("SCM-1080",500);
 			put("SCM-1090",400);
 			put("SCM-1091",400);
+
+			put("Monetization-1010",400);
+			put("Monetization-1020",500);
+			put("Monetization-1030",500);
+			put("Monetization-1040",500);
+
 		}
 	};
 	private String message;
