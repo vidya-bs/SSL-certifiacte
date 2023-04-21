@@ -2563,30 +2563,29 @@ public class ApigeeUtil {
 
 	}
 
-	public Map<String, LinkedHashMap> getOrganizationProfile(String organization){
-		String url = String.format("%s/v1/mint/organizations/%s/",apigeeHost,organization);
+	public Map<String, Object> getOrganizationProfile(String organization) throws JsonProcessingException{
+		String url = String.format("https://%s/v1/mint/organizations/%s/",apigeeHost,organization);
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.set("Authorization", "Basic " + apigeeEdgeAPIBaseToken);
-		HttpEntity<Object> requestEntity = new HttpEntity(headers);
+		headers.set("Authorization",getApigeeAuth(organization,null));
+		HttpEntity<String> requestEntity = new HttpEntity(headers);
 
-		ResponseEntity<Object> res = restTemplate.exchange(url,HttpMethod.GET,requestEntity,Object.class);
-		if(res.getStatusCodeValue() == 200){
-			return (Map<String, LinkedHashMap>) res.getBody();
+		ResponseEntity<JSONObject> res = restTemplate.exchange(url,HttpMethod.GET,requestEntity,JSONObject.class);
+		if(res.getStatusCodeValue() == 200) {
+			return (Map<String, Object>) res.getBody();
 		}
-
 		return null;
 	}
 
 	public Map<String,LinkedHashMap> getCurrencyProfile(String organization,String ccy){
-		String url = String.format("%s/v1/mint/organizations/%s/supported-currencies/%s",apigeeHost,organization,ccy);
+		String url = String.format("https://%s/v1/mint/organizations/%s/supported-currencies/%s",apigeeHost,organization,ccy);
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.set("Authorization", "Basic " + apigeeEdgeAPIBaseToken);
+		headers.set("Authorization",getApigeeAuth(organization,null));
 		HttpEntity<Object> requestEntity = new HttpEntity(headers);
 
 		ResponseEntity<Object> res = restTemplate.exchange(url,HttpMethod.GET,requestEntity,Object.class);
@@ -2597,42 +2596,39 @@ public class ApigeeUtil {
 		return null;
 	}
 
-	public Map<String, LinkedHashMap> getMonetizationPackage(String organization, String productBundleId){
-		String url = String.format("%s/v1/mint/organizations/%s/monetization-packages/%s",apigeeHost,organization,productBundleId);
-
+	public Map<String, Object> getMonetizationPackage(String organization, String productBundleId){
+		String url = String.format("https://%s/v1/mint/organizations/%s/monetization-packages/%s",apigeeHost,organization,productBundleId);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.set("Authorization", "Basic " + apigeeEdgeAPIBaseToken);
+		headers.set("Authorization",getApigeeAuth(organization,null));
 		HttpEntity<Object> requestEntity = new HttpEntity(headers);
 
 		ResponseEntity<Object> res = restTemplate.exchange(url,HttpMethod.GET,requestEntity,Object.class);
 		if(res.getStatusCodeValue() == 200){
-			return (Map<String, LinkedHashMap>) res.getBody();
+			return (Map<String, Object>) res.getBody();
 		}
 
 		return null;
 	}
 
-	public Map<String,LinkedHashMap> createOrUpdateRatePlan(String organization, String apigeeRatePlanId, ApigeeRatePlan apigeeRatePlan){
+	public Map<String,Object> createOrUpdateRatePlan(String organization, String apigeeRatePlanId, ApigeeRatePlan apigeeRatePlan,String productBundleId){
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.set("Authorization", "Basic " + apigeeEdgeAPIBaseToken);
+		headers.set("Authorization", getApigeeAuth(organization,null));
 		HttpEntity<Object> requestEntity = new HttpEntity(apigeeRatePlan,headers);
 
 		if(apigeeRatePlanId != null){
-			String url = String.format("%s/v1/mint/organizations/%s/monetization-packages/%s/rate-plans/%s",apigeeHost,organization,apigeeRatePlanId);
-			ResponseEntity<Object> res = restTemplate.exchange(url,HttpMethod.PUT,requestEntity,Object.class);
+			String url = String.format("https://%s/v1/mint/organizations/%s/monetization-packages/%s/rate-plans/%s",apigeeHost,organization,productBundleId,apigeeRatePlanId);			ResponseEntity<Object> res = restTemplate.exchange(url,HttpMethod.PUT,requestEntity,Object.class);
 			if(res.getStatusCodeValue() == 200){
-				return (Map<String, LinkedHashMap>) res.getBody();
+				return (Map<String, Object>) res.getBody();
 			}
 		}else{
-			String url = String.format("%s/v1/mint/organizations/%s/monetization-packages/%s/rate-plans",apigeeHost,organization);
-			ResponseEntity<Object> res = restTemplate.exchange(url,HttpMethod.POST,requestEntity,Object.class);
+			String url = String.format("https://%s/v1/mint/organizations/%s/monetization-packages/%s/rate-plans",apigeeHost,organization,productBundleId);			ResponseEntity<Object> res = restTemplate.exchange(url,HttpMethod.POST,requestEntity,Object.class);
 			if(res.getStatusCodeValue() == 201){
-				return (Map<String, LinkedHashMap>) res.getBody();
+				return (Map<String, Object>) res.getBody();
 			}
 		}
 		return null;
