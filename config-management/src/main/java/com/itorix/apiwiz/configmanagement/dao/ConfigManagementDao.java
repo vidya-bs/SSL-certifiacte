@@ -9,9 +9,17 @@ import com.itorix.apiwiz.common.model.configmanagement.*;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
+import com.itorix.apiwiz.common.model.configmanagement.DeveloperConfig.Developers;
+import com.itorix.apiwiz.common.model.monetization.Developer;
+import com.itorix.apiwiz.common.model.monetization.DeveloperCategory;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.common.util.http.HTTPUtil;
 import com.itorix.apiwiz.configmanagement.model.apigee.ApigeeCache;
+import org.json.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import com.itorix.apiwiz.configmanagement.model.apigee.ApigeeKVM;
 import com.itorix.apiwiz.configmanagement.model.apigee.ApigeeProduct;
 import com.itorix.apiwiz.configmanagement.model.apigee.ApigeeTarget;
@@ -26,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -59,6 +68,9 @@ public class ConfigManagementDao {
 
 	@Autowired
 	private ApigeeUtil apigeeUtil;
+
+	@Value("${apigee.host:null}")
+	private String apigeeHost;
 
 	public boolean saveTarget(TargetConfig config) throws ItorixException {
 		try {
@@ -1314,7 +1326,8 @@ public class ConfigManagementDao {
 			ProductConfig productConfig = data.get(0);
 			ApigeeProduct product = productService.getProductBody(productConfig);
 			String URL = productService.getUpdateProductURL(productConfig);
-			product.setName(null);
+			product.setName(product.getName());
+			product.setAttributes(config.getAttributes());
 			HTTPUtil httpConn = new HTTPUtil(product, URL, getApigeeCredentials(config.getOrg(), config.getType()));
 			ResponseEntity<String> response = httpConn.doPut();
 			HttpStatus statusCode = response.getStatusCode();
@@ -1524,5 +1537,255 @@ public class ConfigManagementDao {
 		}
 		response.set("Targets", responseFields);
 		return response;
+	}
+
+	public Object createApigeeProductBundle(ProductBundleConfig productBundleConfig,boolean update) throws ItorixException {
+		try {
+			if (productBundleConfig != null) {
+				String URL = "";
+				HTTPUtil httpConn;
+				ResponseEntity<String> response;
+				if(update) {
+					URL = productService.getProductBundleURL(productBundleConfig,true);
+					httpConn = new HTTPUtil(productBundleConfig, URL,
+							getApigeeCredentials(productBundleConfig.getOrganization(),null));
+					response = httpConn.doPut();
+					HttpStatus statusCode = response.getStatusCode();
+					checkStatusCode(statusCode);
+				}else{
+					URL = productService.getProductBundleURL(productBundleConfig,false);
+					httpConn = new HTTPUtil(productBundleConfig, URL,
+							getApigeeCredentials(productBundleConfig.getOrganization(),null));
+					response = httpConn.doPost();
+					HttpStatus statusCode = response.getStatusCode();
+					checkStatusCode(statusCode);
+					String body = response.getBody();
+					return body;
+				}
+			} else {
+				throw new ItorixException("Product is not present", "Configuration-1000");
+			}
+		} catch (ItorixException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
+		}
+		return null;
+	}
+
+	public Object createApigeeDeveloperCategory(DeveloperCategoryConfig config,String orgName,boolean update) throws ItorixException {
+		try {
+			if (config != null) {
+				String URL = "";
+				HTTPUtil httpConn;
+				ResponseEntity<String> response;
+				if(update){
+					URL = productService.getDeveloperCategoryURL(config.getId(),orgName,true);
+					httpConn = new HTTPUtil(config, URL,
+							getApigeeCredentials(orgName,null));
+					response = httpConn.doPut();
+					HttpStatus statusCode = response.getStatusCode();
+					checkStatusCode(statusCode);
+				}else{
+					URL = productService.getDeveloperCategoryURL(config.getId(),orgName,false);
+					httpConn = new HTTPUtil(config, URL,
+							getApigeeCredentials(orgName,null));
+					response = httpConn.doPost();
+					HttpStatus statusCode = response.getStatusCode();
+					checkStatusCode(statusCode);
+					String body = response.getBody();
+					return body;
+				}
+			} else {
+				throw new ItorixException("Product is not present", "Configuration-1000");
+			}
+		} catch (ItorixException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
+		}
+		return null;
+	}
+
+	public Object createApigeeCompany(CompanyConfig config,String orgName,boolean update) throws ItorixException {
+		try {
+			if (config != null) {
+				String URL = "";
+				HTTPUtil httpConn;
+				ResponseEntity<String> response;
+				if(update){
+					URL = productService.getCompanyURL(config.getName(),orgName,true);
+					httpConn = new HTTPUtil(config, URL,
+							getApigeeCredentials(orgName,null));
+					response = httpConn.doPut();
+					HttpStatus statusCode = response.getStatusCode();
+					checkStatusCode(statusCode);
+				}else{
+					URL = productService.getCompanyURL(config.getName(),orgName,false);
+					httpConn = new HTTPUtil(config, URL,
+							getApigeeCredentials(orgName,null));
+					response = httpConn.doPost();
+					HttpStatus statusCode = response.getStatusCode();
+					checkStatusCode(statusCode);
+					String body = response.getBody();
+					return body;
+				}
+			} else {
+				throw new ItorixException("Product is not present", "Configuration-1000");
+			}
+		} catch (ItorixException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
+		}
+		return null;
+	}
+
+	public Object createApigeeWebhook(WebhookConfig config,String orgName,boolean update) throws ItorixException {
+		try {
+			if (config != null) {
+				String URL = "";
+				HTTPUtil httpConn;
+				ResponseEntity<String> response;
+				if(update){
+					URL = productService.getWebhookURL(config.getId(),orgName,true);
+					httpConn = new HTTPUtil(config, URL,
+							getApigeeCredentials(orgName,null));
+					response = httpConn.doPut();
+					HttpStatus statusCode = response.getStatusCode();
+					checkStatusCode(statusCode);
+				}else{
+					URL = productService.getWebhookURL(config.getId(),orgName,false);
+					httpConn = new HTTPUtil(config, URL,
+							getApigeeCredentials(orgName,null));
+					response = httpConn.doPost();
+					HttpStatus statusCode = response.getStatusCode();
+					checkStatusCode(statusCode);
+					String body = response.getBody();
+					return body;
+				}
+			} else {
+				throw new ItorixException("Product is not present", "Configuration-1000");
+			}
+		} catch (ItorixException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
+		}
+		return null;
+	}
+
+	public Object addDevelopersToCompany(String companyName,String orgName,List<Developer> developers) throws ItorixException {
+		try {
+			List<String> developersInApiwiz =new ArrayList<String>();
+			developers.forEach(developer ->{
+				developersInApiwiz.add(developer.getEmail());
+			});
+			if (companyName != null) {
+				String developersURL = productService.getCompanyURL(companyName,orgName,true)+"/developers";
+				HTTPUtil devConn = new HTTPUtil(developersURL,getApigeeCredentials(orgName,null));
+				ResponseEntity<String> developersResponse = devConn.doGet();
+				List<String> developersInApigee = new ArrayList<>();
+				JSONParser parser = new JSONParser();
+				JSONObject developer = (JSONObject) parser.parse(developersResponse.getBody().toString());
+				String developerBody = developer.get("developer").toString();
+				JSONArray jsonArray = new JSONArray(developerBody);
+				for(int n = 0; n < jsonArray.length(); n++) {
+					org.json.JSONObject object = jsonArray.getJSONObject(n);
+					developersInApigee.add(object.get("email").toString());
+				}
+				List<String> developersToAdd = new ArrayList<>(developersInApiwiz);
+				developersToAdd.removeAll(developersInApigee);
+				List<String> developersToRemove = new ArrayList<>(developersInApigee);
+				developersToRemove.removeAll(developersInApiwiz);
+
+				if(!developersToAdd.isEmpty()) {
+					String URLToAdd = productService.getCompanyURL(companyName, orgName, true)+"/developers";
+					HTTPUtil httpConn;
+					ResponseEntity<String> response;
+					DeveloperConfig developerConfig = new DeveloperConfig();
+					List<Developers> developersList = new ArrayList<>();
+					for(String email : developersToAdd){
+						Developers developers1 = new Developers();
+						developers1.setEmail(email);
+						developers1.setRole("default");
+						developersList.add(developers1);
+					}
+					developerConfig.setDeveloper(developersList);
+					httpConn = new HTTPUtil(developerConfig,URLToAdd,getApigeeCredentials(orgName,null));
+					response = httpConn.doPost();
+				}
+
+				if(!developersToRemove.isEmpty()) {
+					for(String email : developersToRemove) {
+						String URLToRemove = productService.getCompanyURL(companyName, orgName, true)+"/developers/"+email;
+						HTTPUtil httpConn;
+						ResponseEntity<String> response;
+						httpConn = new HTTPUtil( URLToRemove,
+								getApigeeCredentials(orgName,null));
+						response = httpConn.doDelete();
+					}
+				}
+			} else {
+				throw new ItorixException("Product is not present", "Configuration-1000");
+			}
+		} catch (ItorixException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
+		}
+		return null;
+	}
+
+	private Object checkStatusCode(HttpStatus statusCode) throws ItorixException {
+		if (statusCode.is2xxSuccessful()) {
+			return true;
+		} else if (statusCode.value() >= 401 && statusCode.value() <= 403) {
+			throw new ItorixException(
+					"Request validation failed. Exception connecting to apigee connector. "
+							+ statusCode.value(), "Configuration-1006");
+		} else if(statusCode.value() == 404){
+			throw new ItorixException(
+					"Request validation failed. Resource not found in Apigee "
+							+ statusCode.value(), "Configuration-1007");
+		}else if (statusCode.value() == 409) {
+			throw new ItorixException(
+					"Request resource already available in Apigee " + statusCode.value(),
+					"Configuration-1007");
+		} else {
+			throw new ItorixException("invalid request data " + statusCode.value(),
+					"Configuration-1000");
+		}
+	}
+
+	public Object getApigeeDevelopers(String org) throws ItorixException, ParseException {
+		String URL = String.format("https://%s/v1/mint/organizations/%s/developers?all=true",apigeeHost,org);
+		HTTPUtil httpConn = new HTTPUtil(URL,
+				getApigeeCredentials(org,null));
+		ResponseEntity<String> response = httpConn.doGet();
+		checkStatusCode(response.getStatusCode());
+		String responseBody = response.getBody();
+		JSONParser parser = new JSONParser();
+		JSONObject developerList = (JSONObject) parser.parse(responseBody.toString());
+		org.json.simple.JSONArray developer = (org.json.simple.JSONArray) developerList.get("developer");
+		return developer;
+	}
+
+	public List<String> getSupportedCurrencies(String organization) throws ItorixException, ParseException {
+		String URL = String.format("https://%s/v1/mint/organizations/%s/supported-currencies",apigeeHost,organization);
+
+		HTTPUtil httpConn = new HTTPUtil(URL, getApigeeCredentials(organization,null));
+		ResponseEntity<String> response = httpConn.doGet();
+		checkStatusCode(response.getStatusCode());
+		String responseBody = response.getBody();
+		JSONParser parser = new JSONParser();
+		List<String> supportedCurrenciesList = new ArrayList<>();
+		JSONObject supportedCurrencyList = (JSONObject) parser.parse(responseBody.toString());
+		org.json.simple.JSONArray supportedCurrencies = (org.json.simple.JSONArray) supportedCurrencyList.get("supportedCurrency");
+		supportedCurrencies.forEach(supportedCurrency ->{
+			JSONObject result = (JSONObject) supportedCurrency;
+			supportedCurrenciesList.add(result.get("name").toString());
+		});
+		return supportedCurrenciesList;
 	}
 }
