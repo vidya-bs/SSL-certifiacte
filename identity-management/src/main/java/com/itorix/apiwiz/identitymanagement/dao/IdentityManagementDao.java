@@ -102,6 +102,10 @@ public class IdentityManagementDao {
 
 	private void getRegionData() {
 		String endPoint = applicationProperties.getAwsURL();
+    //check for null
+      if(endPoint==null){
+          return;
+      }
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", "application/json");
 		RestTemplate restTemplate = new RestTemplate();
@@ -123,6 +127,10 @@ public class IdentityManagementDao {
 
 	private void getPodHost() {
 		String endPoint = applicationProperties.getAwsPodURL();
+    //check for null
+      if(endPoint==null){
+          return;
+      }
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Accept", "application/json");
 		RestTemplate restTemplate = new RestTemplate();
