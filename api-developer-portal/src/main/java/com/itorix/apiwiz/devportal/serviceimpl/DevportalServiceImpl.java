@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itorix.apiwiz.common.model.proxystudio.APIProduct;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
 import com.itorix.apiwiz.common.util.http.HTTPUtil;
@@ -361,6 +360,74 @@ public class DevportalServiceImpl implements DevportalService {
 			JSONObject finalResponse = new JSONObject();
 			finalResponse.put("app",responseObject);
 			return new ResponseEntity<>(finalResponse.toString(),HttpStatus.OK);
+		}
+	}
+
+	@Override
+	public ResponseEntity<Object> getAppsByOrganisation(String jsessionId, String interactionid,
+			String gwtype, String type, String org) throws Exception {
+		if (type != null && type.equalsIgnoreCase("apigeex")) {
+//			String URL;
+//			if (expand != null && expand != "")
+//				URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org
+//						+ "/apps?expand=" + expand;
+//			else
+//				URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/apps";
+//			HTTPUtil httpConn = new HTTPUtil(URL, apigeexUtil.getApigeeCredentials(org, type));
+//			ResponseEntity<String> response = devportaldao.proxyService(httpConn, "GET");
+//			List<String> products = new ArrayList<>();
+//			String apiProductString = response.getBody();
+//			try {
+//				JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
+//				JSONArray apiProducts = (JSONArray) proxyObject.get("app");
+//				for (Object apiObj : apiProducts) {
+//					JSONObject prodObj = (JSONObject) apiObj;
+//					final String apiProduct = (String) prodObj.get("appId");
+//					products.add(apiProduct);
+//				}
+//			} catch (Exception e) {
+//				logger.error("Exception occurred", e);
+//			}
+//			ObjectMapper objectMapper = new ObjectMapper();
+//			HttpHeaders headers = new HttpHeaders();
+//			headers.setContentType(MediaType.APPLICATION_JSON);
+//			ResponseEntity<String> responseEntity = new ResponseEntity<String>(
+//					objectMapper.writeValueAsString(products), headers, HttpStatus.OK);
+//			return responseEntity;
+			return ResponseEntity.ok("{}");
+		} else {
+			String URL = apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/" + org
+						+ "/apps?expand=true";
+
+			HTTPUtil httpConn = new HTTPUtil(URL, getEncodedCredentials(org, type));
+			ResponseEntity<String> response = devportaldao.proxyService(httpConn, "GET");
+			JSONArray appResponseList = new JSONArray();
+			String appList = response.getBody();
+			try {
+				JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(appList);
+				JSONArray apps = (JSONArray) proxyObject.get("app");
+				for (Object appsObj : apps) {
+					JSONObject appDetails = new JSONObject();
+					JSONObject prodObj = (JSONObject) appsObj;
+					appDetails.put("appId",(String) prodObj.get("appId"));
+					JSONArray json = (JSONArray) prodObj.get("attributes");
+					for(Object obj : json){
+						if(obj instanceof  JSONObject){
+							JSONObject nameObject = (JSONObject) obj;
+							if (StringUtils.equalsIgnoreCase(nameObject.getString("name"), "DisplayName")){
+								appDetails.put("appName", nameObject.getString("value"));
+							}
+
+						}
+
+					}
+					appResponseList.add(appDetails);
+				}
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+
+			}
+			return ResponseEntity.ok(appResponseList);
 		}
 	}
 
