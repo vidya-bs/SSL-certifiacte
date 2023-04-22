@@ -313,10 +313,10 @@ public class ApplicationProperties {
 	@Value("${itorix.core.user.blocked.domain.list}")
 	private String blockedMailDomains;
 
-	@Value("${itorix.core.aws.admin.url}")
+	@Value("${itorix.core.aws.admin.url:#{null}}")
 	private String awsURL;
 
-	@Value("${itorix.core.aws.pod.url}")
+	@Value("${itorix.core.aws.pod.url:#{null}}")
 	private String awsPodURL;
 
 	@Value("${itorix.core.gocd.pipelines.cancel.url}")
