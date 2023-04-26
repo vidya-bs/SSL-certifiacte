@@ -613,5 +613,11 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey", required = true) String apikey,
 			@RequestBody MetaData metadata) throws ItorixException;
 
+	@PreAuthorize("hasAnyRole('ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/clientdata/sync")
+	public ResponseEntity<?> syncClientData(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid)
+			throws JsonProcessingException, ItorixException;
 
 }
