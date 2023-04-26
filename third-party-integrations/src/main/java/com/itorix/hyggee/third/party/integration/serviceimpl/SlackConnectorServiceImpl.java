@@ -139,6 +139,8 @@ public class SlackConnectorServiceImpl implements SlackConnectorService {
         allScopes.add("Monitoring");
         allScopes.add("Build");
         allScopes.add("Gateway");
+        allScopes.add("Compliance");
+        allScopes.add("Security");
         return new ResponseEntity<>(allScopes,HttpStatus.OK);
     }
 
