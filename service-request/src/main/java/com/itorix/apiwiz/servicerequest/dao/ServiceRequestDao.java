@@ -1194,7 +1194,7 @@ public class ServiceRequestDao {
 
 	public ObjectNode getServiceRequestStats(String timeunit, String timerange) throws Exception {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-		String[] dates = timerange.split("~");
+		String[] dates = timerange != null ? timerange.split("~") : null;
 		Date startDate = null;
 		Date endDate = null;
 		Date orgStartDateinit = null;
@@ -1217,19 +1217,28 @@ public class ServiceRequestDao {
 			ObjectNode typeNode = mapper.createObjectNode();
 			ArrayNode valuesNode = mapper.createArrayNode();
 			typeNode.put("name", type);
-			while (startDate.compareTo(endDate) <= 0) {
+			if(startDate == null ){
 				Query query = new Query();
-				query.addCriteria(
-						Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(DateUtil.getStartOfDay(startDate))
-								.lt(DateUtil.getEndOfDay(endDate)).and("type").is(type));
+				query.addCriteria(Criteria.where("type").is(type));
 				List<ServiceRequest> list = baseRepository.find(query, ServiceRequest.class);
-				// if(list!=null && list.size()>0){
 				ObjectNode valueNode = mapper.createObjectNode();
-				valueNode.put("timestamp", DateUtil.getStartOfDay(startDate).getTime() + "");
 				valueNode.put("value", list.size());
 				valuesNode.add(valueNode);
-				// }
-				startDate = DateUtil.addDays(startDate, 1);
+			} else {
+				while (startDate.compareTo(endDate) <= 0) {
+					Query query = new Query();
+					query.addCriteria(
+							Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(DateUtil.getStartOfDay(startDate))
+									.lt(DateUtil.getEndOfDay(endDate)).and("type").is(type));
+					List<ServiceRequest> list = baseRepository.find(query, ServiceRequest.class);
+					// if(list!=null && list.size()>0){
+					ObjectNode valueNode = mapper.createObjectNode();
+					valueNode.put("timestamp", DateUtil.getStartOfDay(startDate).getTime() + "");
+					valueNode.put("value", list.size());
+					valuesNode.add(valueNode);
+					// }
+					startDate = DateUtil.addDays(startDate, 1);
+				}
 			}
 			typeNode.put("values", valuesNode);
 			typesNode.add(typeNode);
@@ -1245,9 +1254,11 @@ public class ServiceRequestDao {
 				ObjectNode dimesionNode = mapper.createObjectNode();
 				Query query = new Query();
 				query.addCriteria(Criteria.where("status").is(status));
-				query.addCriteria(
-						Criteria.where("modifiedDate").gte(DateUtil.getStartOfDay(startDate))
-								.lt(DateUtil.getEndOfDay(endDate)));
+				if(startDate != null && endDate != null) {
+					query.addCriteria(
+							Criteria.where("modifiedDate").gte(DateUtil.getStartOfDay(startDate))
+									.lt(DateUtil.getEndOfDay(endDate)));
+				}
 				query.addCriteria((Criteria.where("activeFlag").is(Boolean.TRUE)));
 				List<ServiceRequest> listByStatus = baseRepository.find(query, ServiceRequest.class);
 				typesStatusNode.put("status", status);
@@ -1256,9 +1267,11 @@ public class ServiceRequestDao {
 					ArrayNode namesNode = mapper.createArrayNode();
 					query = new Query();
 					query.addCriteria(Criteria.where("status").is(status).and("type").is(type));
-					query.addCriteria(
-							Criteria.where("modifiedDate").gte(DateUtil.getStartOfDay(startDate))
-									.lt(DateUtil.getEndOfDay(endDate)));
+					if(startDate != null && endDate != null) {
+						query.addCriteria(
+								Criteria.where("modifiedDate").gte(DateUtil.getStartOfDay(startDate))
+										.lt(DateUtil.getEndOfDay(endDate)));
+					}
 					query.addCriteria((Criteria.where("activeFlag").is(Boolean.TRUE)));
 					List<ServiceRequest> listByStatusType = baseRepository.find(query, ServiceRequest.class);
 					ObjectNode statNode = mapper.createObjectNode();
