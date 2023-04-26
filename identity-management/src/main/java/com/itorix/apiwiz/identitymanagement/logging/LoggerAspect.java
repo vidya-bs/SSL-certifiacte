@@ -39,29 +39,34 @@ public class LoggerAspect {
 	// *(..))")
 	@Before("execution(* com.itorix.apiwiz..*.service..*(..)) || execution(* com.itorix.apiwiz..*.serviceImpl..*(..))")
 	public void logControllerInput(JoinPoint joinPoint) throws IOException {
-		HashMap<String, String> keyValuePair = new HashMap<>();
-		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
-				.getRequest();
-		String ip = request.getRemoteAddr();
-		String remoteAddress = request.getHeader("X-FORWARDED-FOR");
-		remoteAddress = request.getRemoteAddr();
-		keyValuePair.put("clientIP", remoteAddress);
-		Map<String, String> headerMap = getHeadersInfo(request);
-		String className = null;
-		String methodName = null;
+		try{
 
-		if (joinPoint != null && joinPoint.getTarget() != null && joinPoint.getTarget().getClass() != null) {
-			className = joinPoint.getTarget().getClass().getName();
+			HashMap<String, String> keyValuePair = new HashMap<>();
+			HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+					.getRequest();
+			String ip = request.getRemoteAddr();
+			String remoteAddress = request.getHeader("X-FORWARDED-FOR");
+			remoteAddress = request.getRemoteAddr();
+			keyValuePair.put("clientIP", remoteAddress);
+			Map<String, String> headerMap = getHeadersInfo(request);
+			String className = null;
+			String methodName = null;
+
+			if (joinPoint != null && joinPoint.getTarget() != null && joinPoint.getTarget().getClass() != null) {
+				className = joinPoint.getTarget().getClass().getName();
+			}
+			if (joinPoint != null && joinPoint.getSignature() != null) {
+				methodName = joinPoint.getSignature().getName();
+			}
+			request.setAttribute("interactionid", headerMap.get("interactionid"));
+			headerMap.put("X-FORWARDED-FOR", remoteAddress);
+			request.setAttribute("startTime", System.currentTimeMillis());
+			String body = null;
+			UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
+			loggerService.logServiceRequest(className, methodName, body, headerMap, keyValuePair, userSession);
+		}catch (Exception e){
+			logger.error("Error occured while logging Service Request - ", e.getMessage());
 		}
-		if (joinPoint != null && joinPoint.getSignature() != null) {
-			methodName = joinPoint.getSignature().getName();
-		}
-		request.setAttribute("interactionid", headerMap.get("interactionid"));
-		headerMap.put("X-FORWARDED-FOR", remoteAddress);
-		request.setAttribute("startTime", System.currentTimeMillis());
-		String body = null;
-		UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
-		loggerService.logServiceRequest(className, methodName, body, headerMap, keyValuePair, userSession);
 	}
 
 	private String extractPostRequestBody(HttpServletRequest request) throws IOException {
@@ -77,7 +82,7 @@ public class LoggerAspect {
 	}
 
 	private Map<String, String> getHeadersInfo(HttpServletRequest request) {
-		Map<String, String> map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<String, String>();
 		if (request != null) {
 			Enumeration headerNames = request.getHeaderNames();
 			while (headerNames.hasMoreElements()) {
@@ -105,69 +110,80 @@ public class LoggerAspect {
 
 	@AfterReturning(pointcut = "execution(public * com.itorix.apiwiz..*.service.*.*(..)) || execution(public * com.itorix.apiwiz..*.serviceImpl.*.*(..))", returning = "result")
 	public void loggingMethodResponse(JoinPoint joinPoint, Object result) throws IOException {
-		RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-		HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
-		HttpServletResponse response = ((ServletRequestAttributes) requestAttributes).getResponse();
-		String className = null;
-		String methodName = null;
-		HashMap<String, String> headerMap = null;
-		if (joinPoint != null && joinPoint.getTarget() != null && joinPoint.getTarget().getClass() != null) {
-			className = joinPoint.getTarget().getClass().getName();
+		try{
+			RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+			HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+			HttpServletResponse response = ((ServletRequestAttributes) requestAttributes).getResponse();
+			String className = null;
+			String methodName = null;
+			HashMap<String, String> headerMap = new HashMap<>();
+			if (joinPoint != null && joinPoint.getTarget() != null && joinPoint.getTarget().getClass() != null) {
+				className = joinPoint.getTarget().getClass().getName();
+			}
+			if (joinPoint != null && joinPoint.getSignature() != null) {
+				methodName = joinPoint.getSignature().getName();
+			}
+			ResponseEntity responseEntity = null;
+			if (result instanceof ResponseEntity) {
+				responseEntity = (ResponseEntity) result;
+			}
+			HttpStatus httpStatus = null;
+			boolean isSuccess = false;
+			if (responseEntity != null) {
+				httpStatus = responseEntity.getStatusCode();
+				if (httpStatus.is2xxSuccessful())
+					isSuccess = true;
+			}
+			Object responseBody = null;
+			String reqbody = "";
+			Map<String, String> requestHeaderMap = null;
+			if (isSuccess == false) {
+				headerMap = getHeadersInfo(response);
+				responseBody = result;
+				requestHeaderMap = getHeadersInfo(request);
+			}
+			String interactionId = (String) request.getAttribute("interactionid");
+			Long elapsedTime = System.currentTimeMillis();
+			UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
+			loggerService.logServiceResponse(className, methodName, responseBody, elapsedTime, headerMap, httpStatus,
+					reqbody, requestHeaderMap, request, userSession, interactionId);
+		}catch (Exception e){
+			logger.error("Error occured while logging Service Request - ", e.getMessage());
 		}
-		if (joinPoint != null && joinPoint.getSignature() != null) {
-			methodName = joinPoint.getSignature().getName();
-		}
-		ResponseEntity responseEntity = null;
-		if (result instanceof ResponseEntity) {
-			responseEntity = (ResponseEntity) result;
-		}
-		HttpStatus httpStatus = null;
-		boolean isSuccess = false;
-		if (responseEntity != null) {
-			httpStatus = responseEntity.getStatusCode();
-			if (httpStatus.is2xxSuccessful())
-				isSuccess = true;
-		}
-		Object responseBody = null;
-		String reqbody = "";
-		Map<String, String> requestHeaderMap = null;
-		if (isSuccess == false) {
-			headerMap = getHeadersInfo(response);
-			headerMap.put("interactionid", (String) request.getAttribute("interactionid"));
-			responseBody = result;
-
-			requestHeaderMap = getHeadersInfo(request);
-			String uri = request.getRequestURI();
-		}
-		Long elapsedTime = System.currentTimeMillis();
-		loggerService.logServiceResponse(className, methodName, responseBody, elapsedTime, headerMap, httpStatus,
-				reqbody, requestHeaderMap);
 	}
 
 	@AfterReturning(pointcut = "execution(public * com.itorix.apiwiz.common.model.exception..handle*(..))", returning = "result")
 	public void loggingErrorResponse(JoinPoint joinPoint, Object result) {
-		logger.debug("Inside loggingErrorResponse...[{}] , [{}]", joinPoint, result);
-		RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-		HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
-		HttpServletResponse response = ((ServletRequestAttributes) requestAttributes).getResponse();
-		String className = null;
-		String methodName = null;
+		try {
+			logger.debug("Inside loggingErrorResponse...[{}] , [{}]", joinPoint, result);
+			RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+			HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+			HttpServletResponse response = ((ServletRequestAttributes) requestAttributes).getResponse();
+			String className = null;
+			String methodName = null;
 
-		if (joinPoint != null && joinPoint.getTarget() != null && joinPoint.getTarget().getClass() != null) {
-			className = joinPoint.getTarget().getClass().getName();
+			if (joinPoint != null && joinPoint.getTarget() != null
+					&& joinPoint.getTarget().getClass() != null) {
+				className = joinPoint.getTarget().getClass().getName();
+			}
+			if (joinPoint != null && joinPoint.getSignature() != null) {
+				methodName = joinPoint.getSignature().getName();
+			}
+			ResponseEntity responseEntity = null;
+			if (result instanceof ResponseEntity) {
+				responseEntity = (ResponseEntity) result;
+			}
+			HttpStatus httpStatus = null;
+			if (responseEntity != null) {
+				httpStatus = responseEntity.getStatusCode();
+			}
+			Map<String, String> requestHeaderMap = getHeadersInfo(request);
+			String interactionId = (String) request.getAttribute("interactionid");
+			UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
+			loggerService.logServiceResponse(className, methodName, result, System.currentTimeMillis(), null, httpStatus,
+					null, requestHeaderMap, request, userSession, interactionId);
+		} catch (Exception ex){
+			logger.error("Error occured while logging Service Request - ", ex.getMessage());
 		}
-		if (joinPoint != null && joinPoint.getSignature() != null) {
-			methodName = joinPoint.getSignature().getName();
-		}
-		ResponseEntity responseEntity = null;
-		if (result instanceof ResponseEntity) {
-			responseEntity = (ResponseEntity) result;
-		}
-		HttpStatus httpStatus = null;
-		if (responseEntity != null) {
-			httpStatus = responseEntity.getStatusCode();
-		}
-		loggerService.logServiceResponse(className, methodName, result, System.currentTimeMillis(), null, httpStatus,
-				null, null);
 	}
 }
