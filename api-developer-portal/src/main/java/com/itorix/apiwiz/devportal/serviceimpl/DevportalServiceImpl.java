@@ -572,6 +572,47 @@ public class DevportalServiceImpl implements DevportalService {
 			throws Exception {
 		return new ResponseEntity<>(devportaldao.computeBillForAppId(appId,transactions,startDate,endDate),HttpStatus.OK);
 	}
+	@Override
+	public ResponseEntity<?> updateProductStatus(String jsessionId, String interactionid, String gwtype,
+			String type, String org, String developerEmailId, String appName, String consumerKey, String productName,
+			String action) throws Exception {
+		if (type != null && type.equalsIgnoreCase("apigeex")) {
+			String URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/developers/" + developerEmailId
+					+ "/apps/" + appName + "/keys/" + consumerKey + "/apiproducts/" + productName;
+			if(action != null){
+				try{
+					String statusUrl = URL+"?action="+action;
+					statusUrl = statusUrl.replace("//v1/organizations","/v1/organizations");
+					HttpHeaders headers = new HttpHeaders();
+					headers.set("Authorization",apigeexUtil.getApigeeCredentials(org, type));
+					HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
+
+					ResponseEntity<Void> statusResponse = restTemplate.exchange(statusUrl, HttpMethod.POST,requestEntity,Void.class);
+				}catch (Exception ex){
+					logger.error("Could Not Update Product Status:" + ex.getMessage());
+					throw new ItorixException(ErrorCodes.errorMessage.get("Monetization-1050"),"Monetization-1050");
+				}
+			}
+		} else {
+			String URL = apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/" + org + "/developers/" + developerEmailId
+					+ "/apps/" + appName + "/keys/" + consumerKey + "/apiproducts/" + productName;
+			if(action != null){
+				try{
+					String statusUrl = URL+"?action="+action;
+					statusUrl = statusUrl.replace("//v1/organizations","/v1/organizations");
+					HttpHeaders headers = new HttpHeaders();
+					headers.set("Authorization",getEncodedCredentials(org, type));
+					HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
+
+					ResponseEntity<Void> statusResponse = restTemplate.exchange(statusUrl, HttpMethod.POST,requestEntity,Void.class);
+				}catch (Exception ex){
+					logger.error("Could Not Update Product Status:" + ex.getMessage());
+					throw new ItorixException(ErrorCodes.errorMessage.get("Monetization-1050"),"Monetization-1050");
+				}
+			}
+		}
+		return new ResponseEntity<>("Successfully Updated Product Status",HttpStatus.OK);
+	}
 
 	private ResponseEntity<String> getStringResponseEntity(String partner,
 			ResponseEntity<String> response) throws JsonProcessingException, ItorixException {
