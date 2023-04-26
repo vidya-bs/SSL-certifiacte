@@ -290,6 +290,8 @@ public enum ErrorCodes {
 			put("Monetization-1020","Could Not Complete Purchase. Please try again. If issue persists, contact the application support team.");
 			put("Monetization-1030","Could Not Create Rate Plan. Please try again. If issue persists, contact the application support team.");
 			put("Monetization-1040","Could Not Update Rate Plan. Please try again. If issue persists, contact the application support team.");
+			put("Monetization-1050","Could Not Update Product Status. Please try again. If issue persists, contact the application support team.");
+
 		}
 	};
 
@@ -508,6 +510,7 @@ public enum ErrorCodes {
 			put("Monetization-1020",500);
 			put("Monetization-1030",500);
 			put("Monetization-1040",500);
+			put("Monetization-1050",500);
 
 		}
 	};
