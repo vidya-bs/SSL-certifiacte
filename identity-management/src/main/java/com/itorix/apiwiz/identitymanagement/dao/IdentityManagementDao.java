@@ -35,6 +35,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -2154,5 +2155,30 @@ public class IdentityManagementDao {
         Update update = new Update();
         update.set("metadata",providers);
         return masterMongoTemplate.upsert(query,update,MetaData.class);
+    }
+
+    public ResponseEntity<?> syncClientData() {
+        ClientData clientData = new ClientData();
+        try {
+            List<Workspace> allWorkspaces = masterMongoTemplate.findAll(Workspace.class);
+            if (allWorkspaces.size() > 0) {
+                allWorkspaces.forEach(ws -> {
+                    try {
+                        clientData.setClientSecret(ws.getKey());
+                    } catch (Exception e) {
+                        logger.error("Exception occurred while encrypting workspace key");
+                    }
+                    clientData.setId(ws.getName());
+                    clientData.setDisabled(false);
+                    masterMongoTemplate.save(clientData);
+                });
+            }
+        }
+        catch (Exception e){
+            return new ResponseEntity<>("Error while syncing client data",
+                HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>("Synced client data successfully",HttpStatus.OK);
+
     }
 }

@@ -941,5 +941,10 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 		return new ResponseEntity<>("Invalid Key Name",HttpStatus.BAD_REQUEST);
 	}
 
+	@Override
+	public ResponseEntity<?> syncClientData(String interactionid, String jsessionid)
+			throws JsonProcessingException, ItorixException {
+		return identityManagementDao.syncClientData();
+	}
 }
 
