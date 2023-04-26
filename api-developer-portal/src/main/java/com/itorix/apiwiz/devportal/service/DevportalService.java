@@ -220,4 +220,18 @@ public interface DevportalService {
 			@RequestHeader(value = "startDate") String startDate,
 			@RequestHeader(value = "endDate") String endDate,
 			@PathVariable("app-id") String appId) throws Exception;
+
+	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/organizations/{org}/developers/{developerEmailId}/apps/{appName}/keys/{consumerKey}/apiproducts/{productName}")
+	public ResponseEntity<?> updateProductStatus(@RequestHeader(value = "JSESSIONID") String jsessionId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
+			@RequestHeader(value = "type", required = false) String type,
+			@PathVariable("org") String org,
+			@PathVariable("developerEmailId") String developerEmailId,
+			@PathVariable("appName") String appName,
+			@PathVariable("consumerKey") String consumerKey,
+			@PathVariable("productName") String productName,
+			@RequestParam(value = "action") String action)
+			throws Exception;
 }
