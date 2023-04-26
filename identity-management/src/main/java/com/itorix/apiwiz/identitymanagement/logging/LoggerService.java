@@ -13,7 +13,6 @@ import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.UUID;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -46,8 +45,6 @@ public class LoggerService {
 	ObjectMapper objectmapper;
 	@Autowired
 	private ApplicationProperties applicationProperties;
-
-	private Map<String, String> logMap;
 
 	private static Logger log = LoggerFactory.getLogger(LoggerService.class);
 
@@ -194,7 +191,7 @@ public class LoggerService {
 			Date date = new Date();
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			df.setTimeZone(TimeZone.getDefault());
-			Map<String, String> logMessage = new HashMap<String, String>();
+			HashMap<String, String> logMessage = new HashMap<String, String>();
 			logMessage.put("date", df.format(date));
 			logMessage.put("timestamp", String.valueOf(System.currentTimeMillis()));
 			logMessage.put("guid", String.valueOf(Long.toHexString(span.traceId())));
@@ -210,7 +207,7 @@ public class LoggerService {
 			if (requestHeader != null) {
 				Map<String, String> map = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
 				map.putAll(requestHeader);
-				logMessage.put("interactionId", map.get("INTERACTIONID"));
+				logMessage.put("interactionId", map.get("interactionId"));
 			} else {
 				logMessage.put("interactionId", null);
 			}
@@ -222,7 +219,7 @@ public class LoggerService {
 				logMessage.put("userEmail", null);
 			}
 			logMessage.put("moduleName", getModuleName(serviceName));
-			this.logMap = logMessage;
+			logMethod(logMessage);
 		} catch (Exception e) {
 			log.error("Error occured while logging Service Request");
 		}
@@ -236,15 +233,46 @@ public class LoggerService {
 			return null;
 		}
 	}
-
 	@Async
 	public void logServiceResponse(String serviceName, String operationName, Object response, long elapsedTime,
 			HashMap<String, String> keyValuePair, HttpStatus httpStatus, String requestBody,
-			Map<String, String> requestHeader) {
+			Map<String, String> requestHeader,HttpServletRequest request, UserSession userSession, String interactionId) {
 		try {
+			TraceContext span = tracer.currentSpan().context();
+			Date date = new Date();
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			df.setTimeZone(TimeZone.getDefault());
+			Map<String, String> logMessage = new HashMap<String, String>();
+			logMessage.put("date", df.format(date));
+			logMessage.put("timestamp", String.valueOf(System.currentTimeMillis()));
+			logMessage.put("guid", String.valueOf(Long.toHexString(span.traceId())));
+			logMessage.put("date", df.format(date));
+			logMessage.put("timestamp", String.valueOf(System.currentTimeMillis()));
+			logMessage.put("guid", String.valueOf(Long.toHexString(span.traceId())));
+			logMessage.put("regionCode", applicationProperties.getRegion());
+			logMessage.put("availabilityZone", applicationProperties.getAvailabilityZone());
+			logMessage.put("podHost", applicationProperties.getPodHost());
+			logMessage.put("podIP", applicationProperties.getPodIP());
+			logMessage.put("applicationName", "itorixApp");
+			logMessage.put("serviceClassName", serviceName);
+			logMessage.put("resourceName", operationName);
+			String remoteAddress =  request.getRemoteAddr();
+			logMessage.put("clientIP", remoteAddress);
+
+			logMessage.put("interactionId", interactionId);
+
+			if (userSession != null) {
+				logMessage.put("workspaceId", userSession.getWorkspaceId());
+				logMessage.put("userEmail", userSession.getEmail());
+			} else {
+				logMessage.put("workspaceId", null);
+				logMessage.put("userEmail", null);
+			}
+			logMessage.put("moduleName", getModuleName(serviceName));
+
 			// Map<String, String> logMessage =
 			// ServiceRequestContextHolder.getContext().getLogMessage();
-			Map<String, String> logMessage = this.logMap;
+
 			logMessage.put("responseTime", String.valueOf(elapsedTime));
 			logMessage.put("responseStatusCode", String.valueOf(httpStatus.value()));
 			if (keyValuePair != null)
@@ -256,12 +284,6 @@ public class LoggerService {
 			if (requestBody != null && requestBody != "")
 				logMessage.put("requestBody", requestBody);
 			logMethod(logMessage);
-			// logMethod(serviceName, operationName,
-			// Span.idToHex(span.getTraceId()), null, null,
-			// objectmapper.writeValueAsString(response), keyValuePair,
-			// String.valueOf(elapsedTime),
-			// httpStatus.name(), String.valueOf(httpStatus.value()), null,
-			// null);
 		} catch (Exception e) {
 			log.error("Error occured while logging Service Response");
 		}
@@ -270,39 +292,55 @@ public class LoggerService {
 	@Async
 	public void logException(String serviceName, String operationName, long elapsedTime, HttpStatus httpStatus,
 			String messageCode, String messageDescription, final HttpServletResponse response,
-			final HttpServletRequest request) {
+			final HttpServletRequest request, UserSession userSession) {
 		try {
 			TraceContext span = tracer.currentSpan().context();
-			if (logMap == null) {
-				this.logMap = new HashMap<String, String>();
-				Date date = new Date();
-				DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				df.setTimeZone(TimeZone.getDefault());
-				logMap.put("date", df.format(date));
-				logMap.put("timestamp", String.valueOf(System.currentTimeMillis()));
-				logMap.put("guid", String.valueOf(Long.toHexString(span.traceId())));
-				logMap.put("regionCode", applicationProperties.getRegion());
-				logMap.put("availabilityZone", applicationProperties.getAvailabilityZone());
-				logMap.put("applicationName", "itorixApp");
-				logMap.put("serviceClassName", serviceName);
-				logMap.put("resourceName", operationName);
+			Date date = new Date();
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			df.setTimeZone(TimeZone.getDefault());
+			Map<String, String> logMessage = new HashMap<String, String>();
+			logMessage.put("date", df.format(date));
+			logMessage.put("timestamp", String.valueOf(System.currentTimeMillis()));
+			logMessage.put("guid", String.valueOf(Long.toHexString(span.traceId())));
+
+			logMessage.put("regionCode", applicationProperties.getRegion());
+			logMessage.put("availabilityZone", applicationProperties.getAvailabilityZone());
+			logMessage.put("podHost", applicationProperties.getPodHost());
+			logMessage.put("podIP", applicationProperties.getPodIP());
+
+			logMessage.put("applicationName", "itorixApp");
+			logMessage.put("serviceClassName", serviceName);
+			logMessage.put("resourceName", operationName);
+
+			String remoteAddress =  request.getRemoteAddr();
+			logMessage.put("clientIP", remoteAddress);
+
+			if (userSession != null) {
+				logMessage.put("workspaceId", userSession.getWorkspaceId());
+				logMessage.put("userEmail", userSession.getEmail());
+			} else {
+				logMessage.put("workspaceId", null);
+				logMessage.put("userEmail", null);
 			}
+			logMessage.put("moduleName", getModuleName(serviceName));
+
 			HashMap<String, String> headerMap = getHeadersInfo(response);
-			headerMap.put("interactionid", (String) request.getAttribute("interactionid"));
+			headerMap.put("interactionId", (String) request.getAttribute("interactionid"));
 			String responseBody = "Message_Code=" + messageCode + "||Message_Description=" + messageDescription;
 			String reqbody = null;
 
 			Map<String, String> requestHeaderMap = getHeadersInfo(request);
 			String uri = request.getRequestURI();
 
-			logMap.put("responseTime", String.valueOf(elapsedTime));
-			logMap.put("responseStatusCode", String.valueOf(httpStatus.value()));
-			logMap.put("responseHeaders", objectmapper.writeValueAsString(headerMap));
-			logMap.put("responseBody", responseBody);
-			logMap.put("requestHeaders", objectmapper.writeValueAsString(requestHeaderMap));
-			logMap.put("requestPayload", reqbody);
-			logMap.put("requestURI", uri);
-			logMethod(logMap);
+			logMessage.put("responseTime", String.valueOf(elapsedTime));
+			logMessage.put("responseStatusCode", String.valueOf(httpStatus.value()));
+			logMessage.put("responseHeaders", objectmapper.writeValueAsString(headerMap));
+			logMessage.put("responseBody", responseBody);
+			logMessage.put("requestHeaders", objectmapper.writeValueAsString(requestHeaderMap));
+			logMessage.put("requestPayload", reqbody);
+			logMessage.put("requestURI", uri);
+
+			logMethod(logMessage);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			log.error("Error occured while logging Service Response");
@@ -336,9 +374,7 @@ public class LoggerService {
 			if (errorMessage != null) {
 				serviceResponse.append(backendName + "_" + "Backend_Exception=" + errorMessage);
 			}
-
 			// log.info(serviceResponse.toString().replaceAll("\\\\", ""));
-
 		} catch (Exception e) {
 			log.error("Error occured while logging backend request/response");
 		}
