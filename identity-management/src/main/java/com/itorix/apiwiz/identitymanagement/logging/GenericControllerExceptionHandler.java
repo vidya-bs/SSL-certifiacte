@@ -1,6 +1,9 @@
 package com.itorix.apiwiz.identitymanagement.logging;
 
 import java.io.IOException;
+
+import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
+import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import org.springframework.security.access.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,9 +48,10 @@ public class GenericControllerExceptionHandler {
 	public ResponseEntity<ErrorObj> handleThrowableException(final Throwable ex, final HttpServletResponse response,
 			final HttpServletRequest request) {
 		logger.error(ex.getMessage(), ex);
+		UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		loggerService.logException("GenericControllerExceptionHandler", "handleThrowableException",
 				System.currentTimeMillis(), HttpStatus.INTERNAL_SERVER_ERROR, "General-1000",
-				ErrorCodes.errorMessage.get("General-1000"), response, request);
+				ErrorCodes.errorMessage.get("General-1000"), response, request, userSession);
 		// ex.printStackTrace();
 		ErrorObj error = new ErrorObj();
 		error.setErrorMessage(ErrorCodes.errorMessage.get("General-1000"), "General-1000");
@@ -94,9 +98,10 @@ public class GenericControllerExceptionHandler {
 	@ResponseBody
 	public ResponseEntity<ErrorObj> handleControllerException(final ItorixException ex,
 			final HttpServletResponse response, final HttpServletRequest request) throws IOException {
+		UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		loggerService.logException("GenericControllerExceptionHandler", "handleControllerException",
 				System.currentTimeMillis(), HttpStatus.valueOf(ErrorCodes.responseCode.get(ex.errorCode)), ex.errorCode,
-				ErrorCodes.errorMessage.get(ex.errorCode), response, request);
+				ErrorCodes.errorMessage.get(ex.errorCode), response, request, userSession);
 		ErrorObj error = new ErrorObj();
 		error.setErrorMessage(ex.getMessage(), ex.errorCode);
 		response.setStatus(ErrorCodes.responseCode.get(ex.errorCode));
@@ -110,9 +115,10 @@ public class GenericControllerExceptionHandler {
 	public ResponseEntity<ErrorObj> handleServletRequestBindingException(final ServletRequestBindingException ex,
 			final HttpServletResponse response, final HttpServletRequest request) throws IOException {
 		logger.error("inside handleControllerException : {} ", ex);
+		UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		loggerService.logException("GenericControllerExceptionHandler", "handleControllerException",
 				System.currentTimeMillis(), HttpStatus.valueOf(ErrorCodes.responseCode.get("General-1001")),
-				"General-1001", ErrorCodes.errorMessage.get("General-1001"), response, request);
+				"General-1001", ErrorCodes.errorMessage.get("General-1001"), response, request, userSession);
 		ErrorObj error = new ErrorObj();
 		error.setErrorMessage(ex.getMessage(), "General-1001");
 		ResponseEntity<ErrorObj> responseEntity = new ResponseEntity<ErrorObj>(error, HttpStatus.BAD_REQUEST);
@@ -126,9 +132,10 @@ public class GenericControllerExceptionHandler {
 
 		logger.error("inside handleBindException : {} ", ex);
 
+		UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		loggerService.logException("GenericControllerExceptionHandler", "handleMaxUploadSizeExceededException",
 				System.currentTimeMillis(), HttpStatus.valueOf(ErrorCodes.responseCode.get("Swagger-1010")),
-				"Swagger-1010", ErrorCodes.errorMessage.get("Swagger-1010"), response, request);
+				"Swagger-1010", ErrorCodes.errorMessage.get("Swagger-1010"), response, request, userSession);
 		ErrorObj error = new ErrorObj();
 		error.setErrorMessage(ErrorCodes.errorMessage.get("Swagger-1010"), "Swagger-1010");
 		ResponseEntity<ErrorObj> responseEntity = new ResponseEntity<ErrorObj>(error, HttpStatus.BAD_REQUEST);
@@ -165,9 +172,10 @@ public class GenericControllerExceptionHandler {
 	public ResponseEntity<ErrorObj> handleAccessDeniedException(final AccessDeniedException ex,
 			final HttpServletResponse response, final HttpServletRequest request) throws IOException {
 		logger.error("inside handleControllerException : {} ", ex);
+		UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		loggerService.logException("GenericControllerExceptionHandler", "handleControllerException",
 				System.currentTimeMillis(), HttpStatus.valueOf(ErrorCodes.responseCode.get("Identity-1043")),
-				"General-1001", ErrorCodes.errorMessage.get("Identity-1043"), response, request);
+				"General-1001", ErrorCodes.errorMessage.get("Identity-1043"), response, request, userSession);
 		ErrorObj error = new ErrorObj();
 		error.setErrorMessage(ErrorCodes.errorMessage.get("Identity-1043"), "Identity-1043");
 		response.setStatus(ErrorCodes.responseCode.get("Identity-1043"));
