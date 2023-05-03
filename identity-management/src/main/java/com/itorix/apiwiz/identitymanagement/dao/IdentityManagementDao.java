@@ -705,6 +705,7 @@ public class IdentityManagementDao {
             if (userByEmail != null) {
                 userByEmail.setPassword(user.getPassword());
                 userByEmail.setUserStatus("active");
+                user.setPasswordLastChangedDate(System.currentTimeMillis());
                 userByEmail = saveUser(userByEmail);
                 token.setUsed(true);
                 saveVerificationToken(token);
@@ -1537,8 +1538,10 @@ public class IdentityManagementDao {
         catch (Exception e) {
             logger.error("Cannot decrypt value : "+user.getPassword());
         }
-        if(password!=null)
+        if(password!=null){
             user.setPassword(getHashedValue(password));
+            user.setPasswordLastChangedDate(System.currentTimeMillis());
+        }
         return baseRepository.save(user, masterMongoTemplate);
     }
     public User findByEmailUserName(String userId) {
