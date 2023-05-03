@@ -292,6 +292,9 @@ public enum ErrorCodes {
 			put("Monetization-1040","Could Not Update Rate Plan. Please try again. If issue persists, contact the application support team.");
 			put("Monetization-1050","Could Not Update Product Status. Please try again. If issue persists, contact the application support team.");
 
+			//GraphQL
+			put("GraphQL-1000","Invalid Request Data,Data not found for Id - %s and revision - %s");
+			put("GraphQL-1001","Invalid Request Data,Data not found for - %s");
 		}
 	};
 
@@ -511,6 +514,9 @@ public enum ErrorCodes {
 			put("Monetization-1030",500);
 			put("Monetization-1040",500);
 			put("Monetization-1050",500);
+
+			put("GraphQL-1000",400);
+			put("GraphQL-1001",400);
 
 		}
 	};
