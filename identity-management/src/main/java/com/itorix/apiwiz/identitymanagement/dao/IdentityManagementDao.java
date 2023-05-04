@@ -2255,7 +2255,7 @@ public class IdentityManagementDao {
         if (userByEmail != null) {
             boolean isValid = validateUser(user, userByEmail);
             if(!isValid){
-                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"), "Identity-1023");
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Identity-1051"), "Users old password is incorrect!"), "Identity-1051");
             }
             userByEmail.setPassword(user.getPassword());
             userByEmail.setUserStatus("active");
@@ -2275,6 +2275,7 @@ public class IdentityManagementDao {
                 oldPassword = rsaEncryption.decryptText(user.getOldPassword());
             } catch (Exception ex) {
                 logger.error("Enable to decrypt the password for user - {}", user.getEmail());
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Identity-1051"), "Unable to verify users old password!"), "Identity-1051");
             }
         } else {
             throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"), "Identity-1023");
@@ -2291,7 +2292,7 @@ public class IdentityManagementDao {
                     logger.error("Enable to decrypt the password for user - {}", user.getEmail());
                 }
             } else {
-                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"), "Identity-1023");
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Identity-1051"), "Unable to decrypt users password!"), "Identity-1051");
             }
             if(originalPassword.equals(oldPassword)){
                 return true;
