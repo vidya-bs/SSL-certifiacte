@@ -2280,7 +2280,7 @@ public class IdentityManagementDao {
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Identity-1051"), "Unable to verify users old password!"), "Identity-1051");
             }
         } else {
-            throw new ItorixException(ErrorCodes.errorMessage.get(String.format("Identity-1051", "old password is required to reset password")), "Identity-1051");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Identity-1051"), "old password is required to reset password"), "Identity-1051");
         }
         String hashedOldPassword = getHashedValue(oldPassword);
 
@@ -2294,7 +2294,7 @@ public class IdentityManagementDao {
                     logger.error("Enable to decrypt the password for user - {}", user.getEmail());
                 }
             } else {
-                throw new ItorixException(ErrorCodes.errorMessage.get(String.format("Identity-1051", "Invalid user details")), "Identity-1051");
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Identity-1051"), "Invalid user details"), "Identity-1051");
             }
             if(originalPassword.equals(oldPassword)){
                 return true;
