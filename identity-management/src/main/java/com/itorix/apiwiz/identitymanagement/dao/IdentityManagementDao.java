@@ -699,13 +699,13 @@ public class IdentityManagementDao {
         }
     }
 
-    public User updatePassword(User user, VerificationToken token) throws ItorixException {
+    public User updatePassword(User user, VerificationToken token) throws Exception {
         if (token.isAlive() && !token.getUsed()) {
             User userByEmail = findByEmail(user.getEmail());
             if (userByEmail != null) {
                 userByEmail.setPassword(user.getPassword());
                 userByEmail.setUserStatus("active");
-                user.setPasswordLastChangedDate(System.currentTimeMillis());
+                userByEmail.setPasswordLastChangedDate(System.currentTimeMillis());
                 userByEmail = saveUser(userByEmail);
                 token.setUsed(true);
                 saveVerificationToken(token);
@@ -2258,6 +2258,7 @@ public class IdentityManagementDao {
         if (userByEmail != null) {
             userByEmail.setPassword(user.getPassword());
             userByEmail.setUserStatus("active");
+            userByEmail.setPasswordLastChangedDate(System.currentTimeMillis());
             userByEmail = saveUser(userByEmail);
             return userByEmail;
         } else {
