@@ -364,16 +364,26 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			"application/json"}, produces = {"application/json"})
 	public ResponseEntity<Void> resetPassword(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-apikey") String apikey, @RequestBody User user) throws Exception {
+			@RequestHeader(value = "x-apikey") String apikey,
+			@RequestHeader(value = "forceReset", required = false) boolean forceReset,
+			@RequestBody User user) throws Exception {
 		String verificationToken = user.getVerificationToken();
-		if (user != null && user.getNewPassword() != null && verificationToken != null) {
-			VerificationToken dbToken = identityManagementDao.getVerificationToken(verificationToken);
-			if (dbToken == null)
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1009"), "Identity-1009");
-			user.setEmail(dbToken.getUserEmail());
-			user.setPassword(user.getNewPassword());
-			user = identityManagementDao.updatePassword(user, dbToken);
-			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		if (user != null && user.getNewPassword() != null ) {
+			if(forceReset){
+				user.setPassword(user.getNewPassword());
+				user = identityManagementDao.updatePasswordWithoutToken(user);
+				return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+			} else if (verificationToken != null) {
+				VerificationToken dbToken = identityManagementDao.getVerificationToken(verificationToken);
+				if (dbToken == null)
+					throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1009"), "Identity-1009");
+				user.setEmail(dbToken.getUserEmail());
+				user.setPassword(user.getNewPassword());
+				user = identityManagementDao.updatePassword(user, dbToken);
+				return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+			} else {
+				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1040"), "Identity-1040");
+			}
 		} else {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1040"), "Identity-1040");
 		}
