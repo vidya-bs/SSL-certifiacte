@@ -2252,4 +2252,54 @@ public class IdentityManagementDao {
         return new ResponseEntity<>("Synced client data successfully",HttpStatus.OK);
 
     }
+
+    public User updatePasswordWithoutToken(User user) throws ItorixException {
+        User userByEmail = findByEmail(user.getEmail());
+        if (userByEmail != null) {
+            boolean isValid = validateUser(user, userByEmail);
+            if(!isValid){
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Identity-1051"), "Users old password is incorrect!"), "Identity-1051");
+            }
+            userByEmail.setPassword(user.getPassword());
+            userByEmail.setUserStatus("active");
+            userByEmail.setPasswordLastChangedDate(System.currentTimeMillis());
+            userByEmail = saveUser(userByEmail);
+            return userByEmail;
+        } else {
+            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"), "Identity-1023");
+        }
+    }
+
+    private boolean validateUser(User user, User userByEmail) throws ItorixException {
+        String oldPassword = null;
+        String originalPassword = userByEmail.getPassword();
+        if (user.getOldPassword() != null) {
+            try {
+                oldPassword = rsaEncryption.decryptText(user.getOldPassword());
+            } catch (Exception ex) {
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Identity-1051"), "Unable to verify users old password!"), "Identity-1051");
+            }
+        } else {
+            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"), "Identity-1023");
+        }
+        String hashedOldPassword = getHashedValue(oldPassword);
+
+        if(hashedOldPassword.equals(originalPassword)){
+            return true;
+        } else {
+            if (originalPassword != null) {
+                try {
+                    originalPassword = rsaEncryption.decryptText(originalPassword);
+                } catch (Exception ex) {
+                    logger.error("Enable to decrypt the password for user - {}", user.getEmail());
+                }
+            } else {
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Identity-1051"), "Unable to decrypt users password!"), "Identity-1051");
+            }
+            if(originalPassword.equals(oldPassword)){
+                return true;
+            }
+        }
+        return false;
+    }
 }
