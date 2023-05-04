@@ -2252,4 +2252,16 @@ public class IdentityManagementDao {
         return new ResponseEntity<>("Synced client data successfully",HttpStatus.OK);
 
     }
+
+    public User updatePasswordWithoutToken(User user) throws ItorixException {
+        User userByEmail = findByEmail(user.getEmail());
+        if (userByEmail != null) {
+            userByEmail.setPassword(user.getPassword());
+            userByEmail.setUserStatus("active");
+            userByEmail = saveUser(userByEmail);
+            return userByEmail;
+        } else {
+            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"), "Identity-1023");
+        }
+    }
 }
