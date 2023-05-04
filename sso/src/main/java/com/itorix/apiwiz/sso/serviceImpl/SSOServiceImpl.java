@@ -213,8 +213,14 @@ public class SSOServiceImpl implements SSOService {
                 throw new ItorixException(ErrorCodes.errorMessage.get("SSO-002"), "SSO-002");
             }
 
-            if (preAuthenticated || rsaEncryption.decryptText(user.getPassword())
-                    .equals(rsaEncryption.decryptText(userInfo.getPassword()))) {
+            String userHashedPassword = "";
+            String userInfoHashedPassword = "";
+            if(userInfo.getPassword()!=null && user.getPassword()!=null){
+                String userInfoPassword = rsaEncryption.decryptText(userInfo.getPassword());
+                userHashedPassword = user.getPassword();
+                userInfoHashedPassword = getHashedValue(userInfoPassword);
+            }
+            if (preAuthenticated || userHashedPassword.equals(userInfoHashedPassword)) {
                 userSession = new UserSession(user);
                 userSession.setRequestAttributes(request);
                 userSession.setLoginId(user.getLoginId());
