@@ -105,52 +105,52 @@ public class IdentityManagementDao {
         getPodHost();
     }
 
-	private void getRegionData() {
-		String endPoint = applicationProperties.getAwsURL();
-    //check for null
-      if(endPoint==null){
-          return;
-      }
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Accept", "application/json");
-		RestTemplate restTemplate = new RestTemplate();
-		HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
-		try {
-			logger.debug("Making a call to {}", endPoint);
-			ResponseEntity<String> response = restTemplate.exchange(endPoint, HttpMethod.GET, requestEntity,
-					new ParameterizedTypeReference<String>() {
-					});
-			JsonNode json = new ObjectMapper().readTree(response.getBody());
-			applicationProperties.setRegion(json.get("region").asText());
-			applicationProperties.setAvailabilityZone(json.get("availabilityZone").asText());
-			applicationProperties.setPodIP(json.get("privateIp").asText());
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+    private void getRegionData() {
+        String endPoint = applicationProperties.getAwsURL();
+        //check for null
+        if (endPoint == null) {
+            return;
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", "application/json");
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
+        try {
+            logger.debug("Making a call to {}", endPoint);
+            ResponseEntity<String> response = restTemplate.exchange(endPoint, HttpMethod.GET, requestEntity,
+                    new ParameterizedTypeReference<String>() {
+                    });
+            JsonNode json = new ObjectMapper().readTree(response.getBody());
+            applicationProperties.setRegion(json.get("region").asText());
+            applicationProperties.setAvailabilityZone(json.get("availabilityZone").asText());
+            applicationProperties.setPodIP(json.get("privateIp").asText());
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
 
-		}
-	}
+        }
+    }
 
-	private void getPodHost() {
-		String endPoint = applicationProperties.getAwsPodURL();
-    //check for null
-      if(endPoint==null){
-          return;
-      }
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Accept", "application/json");
-		RestTemplate restTemplate = new RestTemplate();
-		HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
-		try {
-			logger.debug("Making a call to {}", endPoint);
-			ResponseEntity<String> response = restTemplate.exchange(endPoint, HttpMethod.GET, requestEntity,
-					new ParameterizedTypeReference<String>() {
-					});
-			applicationProperties.setPodHost(response.getBody());
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+    private void getPodHost() {
+        String endPoint = applicationProperties.getAwsPodURL();
+        //check for null
+        if (endPoint == null) {
+            return;
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", "application/json");
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
+        try {
+            logger.debug("Making a call to {}", endPoint);
+            ResponseEntity<String> response = restTemplate.exchange(endPoint, HttpMethod.GET, requestEntity,
+                    new ParameterizedTypeReference<String>() {
+                    });
+            applicationProperties.setPodHost(response.getBody());
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
 
-		}
-	}
+        }
+    }
 
     private ApplicationProperties getDBApplicationProperties() {
         List<DBConfig> dbConfigList = getDBProperties();
@@ -163,122 +163,121 @@ public class IdentityManagementDao {
         return populateDBApplicationProperties(map);
     }
 
-	public UserSession authenticate(UserInfo userInfo, boolean preAuthenticated) throws Exception {
-		logger.debug("UserService.authenticate : " + userInfo);
-		UserSession userSession = null;
-		if (preAuthenticated || userInfo.allowLogin()) {
-			logger.debug("Authenticating user session");
-            User user = !preAuthenticated ?findByEmailUserName(userInfo.getLoginId()) : findByEmail(userInfo.getEmail());
-			Workspace workspace = getWorkspace(userInfo.getWorkspaceId().toLowerCase());
+    public UserSession authenticate(UserInfo userInfo, boolean preAuthenticated) throws Exception {
+        logger.debug("UserService.authenticate : " + userInfo);
+        UserSession userSession = null;
+        if (preAuthenticated || userInfo.allowLogin()) {
+            logger.debug("Authenticating user session");
+            User user = !preAuthenticated ? findByEmailUserName(userInfo.getLoginId()) : findByEmail(userInfo.getEmail());
+            Workspace workspace = getWorkspace(userInfo.getWorkspaceId().toLowerCase());
             if (workspace == null) {
                 throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1044"), "Identity-1044");
             }
-            if(!workspace.getStatus().equalsIgnoreCase("active")){
+            if (!workspace.getStatus().equalsIgnoreCase("active")) {
                 throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1013"), "Identity-1013");
             }
-			if (user == null) {
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1045"), "Identity-1045");
-			}
-			UserWorkspace userWorkspace = user.getUserWorkspace(userInfo.getWorkspaceId().toLowerCase());
-			if (userWorkspace == null) { // (!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
-				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1045"), "Identity-1045");
-			}
-        if ((!userWorkspace.getActive() && userWorkspace.getAcceptInvite())) {
-            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1046"), "Identity-1046");
-        }
-        if (userWorkspace == null || userWorkspace.getActive() != true) { // (!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
-            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1044"), "Identity-1044");
-        }
-
-        if(user.getUserStatus().equalsIgnoreCase("Locked"))
-            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1047"), "Identity-1047");
-
-
-        if (user.canLogin() != true) {
-            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1048"), "Identity-1048");
-        }
-
-        String userHashedPassword = "";
-        String userInfoHashedPassword = "";
-        if(userInfo.getPassword()!=null && user.getPassword()!=null){
-            String userInfoPassword = rsaEncryption.decryptText(userInfo.getPassword());
-            userHashedPassword = user.getPassword();
-            userInfoHashedPassword = getHashedValue(userInfoPassword);
-        }
-        if(!preAuthenticated){
-            if(user.getPasswordLastChangedDate()==0)
-                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1050"),"Identity-1050");
-            long passwordLastChangedDate = user.getPasswordLastChangedDate();
-            long thirtyDay = Instant.now().minus(30, ChronoUnit.DAYS).getEpochSecond();
-            if(passwordLastChangedDate<thirtyDay) {
-                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1050"),"Identity-1050");
-            } else {
-                System.out.println("The given epoch time is within 30 days from the current time.");
-                logger.info("The given epoch time is within 30 days from the current time.");
+            if (user == null) {
+                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1045"), "Identity-1045");
             }
-        }
-        if (preAuthenticated || userHashedPassword.equals(userInfoHashedPassword)) {
-            userSession = new UserSession(user);
-            userSession.setRequestAttributes(request);
-            userSession.setLoginId(user.getLoginId());
-            userSession.setWorkspaceId(workspace.getName());
-            userSession.setTenant(workspace.getTenant());
-            userSession.setRoles(user.getUserWorkspace(workspace.getName()).getRoles());
-            userSession.setUserType(user.getUserWorkspace(workspace.getName()).getUserType());
-            String status = workspace.getStatus() != null && workspace.getStatus() != ""
-                ? workspace.getStatus()
-                : "active";
-            userSession.setStatus(status);
-            user.setUserCount(0);
-            user.setLastLoginTime(workspace.getName());
-            saveUser(user);
-            userSession.setPlanId(workspace.getPlanId());
-            userSession.setPaymentSchedule(workspace.getPaymentSchedule());
-            userSession.setSubscriptionId(workspace.getSubscriptionId());
-            if (workspace.getIsTrial() == true) {
-                Date now = new Date();
-                if (workspace.getExpiresOn() != null && now.compareTo(workspace.getExpiresOn()) > 0) {
-                    long diff = workspace.getExpiresOn().getTime() - now.getTime();
-                    int days = 0;
-                    if (diff > 0)
-                        days = (int) diff / 1000 / 60 / 60 / 24;
-                    userSession.setIsTrial(true);
-                    userSession.setTrialPeriod(workspace.getTrialPeriod());
-                    userSession.setTrialExpired("true");
-                    userSession.setExpiresOn(String.valueOf(days));
-                    userSession.setStatus("cancelled");
+            UserWorkspace userWorkspace = user.getUserWorkspace(userInfo.getWorkspaceId().toLowerCase());
+            if (userWorkspace == null) { // (!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
+                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1045"), "Identity-1045");
+            }
+            if ((!userWorkspace.getActive() && userWorkspace.getAcceptInvite())) {
+                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1046"), "Identity-1046");
+            }
+            if (userWorkspace == null || userWorkspace.getActive() != true) { // (!user.getUserWorkspace(userInfo.getWorkspaceId()).getActive())){
+                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1044"), "Identity-1044");
+            }
+
+            if (user.getUserStatus().equalsIgnoreCase("Locked"))
+                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1047"), "Identity-1047");
+
+
+            if (user.canLogin() != true) {
+                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1048"), "Identity-1048");
+            }
+
+            String userHashedPassword = "";
+            String userInfoHashedPassword = "";
+            if (userInfo.getPassword() != null && user.getPassword() != null) {
+                String userInfoPassword = rsaEncryption.decryptText(userInfo.getPassword());
+                userHashedPassword = user.getPassword();
+                userInfoHashedPassword = getHashedValue(userInfoPassword);
+            }
+            if (!preAuthenticated) {
+                if (user.getPasswordLastChangedDate() == 0)
+                    throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1050"), "Identity-1050");
+                long passwordLastChangedDate = user.getPasswordLastChangedDate();
+                long thirtyDay = Instant.now().minus(30, ChronoUnit.DAYS).getEpochSecond();
+                if (passwordLastChangedDate < thirtyDay) {
+                    throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1050"), "Identity-1050");
                 } else {
-                    long diff = workspace.getExpiresOn().getTime() - now.getTime();
-                    int days = 0;
-                    if (diff > 0)
-                        days = (int) diff / 1000 / 60 / 60 / 24;
-                    userSession.setIsTrial(true);
-                    userSession.setTrialPeriod(workspace.getTrialPeriod());
-                    userSession.setTrialExpired("false");
-                    userSession.setExpiresOn(String.valueOf(days));
-                    userSession.setStatus(status);
+                    System.out.println("The given epoch time is within 30 days from the current time.");
+                    logger.info("The given epoch time is within 30 days from the current time.");
                 }
             }
-            masterMongoTemplate.save(userSession);
-            return userSession;
-        }
-        else {
-            if (user.getUserCount() < 5) {
-                user.setUserCount(user.getUserCount() + 1);
+            if (preAuthenticated || userHashedPassword.equals(userInfoHashedPassword)) {
+                userSession = new UserSession(user);
+                userSession.setRequestAttributes(request);
+                userSession.setLoginId(user.getLoginId());
+                userSession.setWorkspaceId(workspace.getName());
+                userSession.setTenant(workspace.getTenant());
+                userSession.setRoles(user.getUserWorkspace(workspace.getName()).getRoles());
+                userSession.setUserType(user.getUserWorkspace(workspace.getName()).getUserType());
+                String status = workspace.getStatus() != null && workspace.getStatus() != ""
+                        ? workspace.getStatus()
+                        : "active";
+                userSession.setStatus(status);
+                user.setUserCount(0);
+                user.setLastLoginTime(workspace.getName());
                 saveUser(user);
-                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1036"), "Identity-1036");
+                userSession.setPlanId(workspace.getPlanId());
+                userSession.setPaymentSchedule(workspace.getPaymentSchedule());
+                userSession.setSubscriptionId(workspace.getSubscriptionId());
+                if (workspace.getIsTrial() == true) {
+                    Date now = new Date();
+                    if (workspace.getExpiresOn() != null && now.compareTo(workspace.getExpiresOn()) > 0) {
+                        long diff = workspace.getExpiresOn().getTime() - now.getTime();
+                        int days = 0;
+                        if (diff > 0)
+                            days = (int) diff / 1000 / 60 / 60 / 24;
+                        userSession.setIsTrial(true);
+                        userSession.setTrialPeriod(workspace.getTrialPeriod());
+                        userSession.setTrialExpired("true");
+                        userSession.setExpiresOn(String.valueOf(days));
+                        userSession.setStatus("cancelled");
+                    } else {
+                        long diff = workspace.getExpiresOn().getTime() - now.getTime();
+                        int days = 0;
+                        if (diff > 0)
+                            days = (int) diff / 1000 / 60 / 60 / 24;
+                        userSession.setIsTrial(true);
+                        userSession.setTrialPeriod(workspace.getTrialPeriod());
+                        userSession.setTrialExpired("false");
+                        userSession.setExpiresOn(String.valueOf(days));
+                        userSession.setStatus(status);
+                    }
+                }
+                masterMongoTemplate.save(userSession);
+                return userSession;
             } else {
-                user.setUserStatus(UserStatus.getStatus(UserStatus.LOCKED));
-                saveUser(user);
-                throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1047"), "Identity-1047");
+                if (user.getUserCount() < 5) {
+                    user.setUserCount(user.getUserCount() + 1);
+                    saveUser(user);
+                    throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1036"), "Identity-1036");
+                } else {
+                    user.setUserStatus(UserStatus.getStatus(UserStatus.LOCKED));
+                    saveUser(user);
+                    throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1047"), "Identity-1047");
+                }
             }
-        }
 
         }
         throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1036"), "Identity-1036");
     }
 
-    public void registerOAuth2User(UserInfo userInfo) throws ItorixException{
+    public void registerOAuth2User(UserInfo userInfo) throws ItorixException {
         userInfo.setWorkspaceId(userInfo.getWorkspaceId());
         Workspace workspace = getWorkspace(userInfo.getWorkspaceId().toLowerCase());
 
@@ -309,7 +308,7 @@ public class IdentityManagementDao {
             workspaces.add(userWorkspace);
             user.setWorkspaces(workspaces);
         }
-        VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail(),null);
+        VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail(), null);
         token.setUsed(false);
         token.setWorkspaceId(userInfo.getWorkspaceId().toLowerCase());
         token.setUserType(User.LABEL_MEMBER);
@@ -371,7 +370,7 @@ public class IdentityManagementDao {
             workspaces.add(userWorkspace);
             user.setWorkspaces(workspaces);
         }
-        VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail(),null);
+        VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail(), null);
         token.setWorkspaceId(userInfo.getWorkspaceId().toLowerCase());
         token.setUserType(User.LABEL_MEMBER);
         saveVerificationToken(token);
@@ -605,7 +604,7 @@ public class IdentityManagementDao {
         }
     }
 
-    public Object registerWithMail(UserInfo userInfo,String appType) throws ItorixException {
+    public Object registerWithMail(UserInfo userInfo, String appType) throws ItorixException {
         String domainId = userInfo.getEmail().split("@")[1];
         boolean domainAllowed = isDomainAllowed(userInfo.getEmail());
         if (domainAllowed) {
@@ -613,14 +612,12 @@ public class IdentityManagementDao {
             if (userByEmail == null) {
                 User user = new User();
                 user.setEmail(userInfo.getEmail());
-                VerificationToken token = createVerificationToken("registerUser", user.getEmail(),appType);
+                VerificationToken token = createVerificationToken("registerUser", user.getEmail(), appType);
                 saveVerificationToken(token);
-                if (sendRegistrationEmail(token, user)){
+                if (sendRegistrationEmail(token, user)) {
                     user.setPasswordLastChangedDate(System.currentTimeMillis());
                     user = saveUser(user);
-                }
-
-                else
+                } else
                     throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1031"), "Identity-1031");
             } else {
                 throw new ItorixException(ErrorCodes.errorMessage.get("USER_005"), "USER_005");
@@ -690,7 +687,7 @@ public class IdentityManagementDao {
     public VerificationToken password(User user) throws ItorixException {
         User userByEmail = findByEmail(user.getEmail());
         if (userByEmail != null) {
-            VerificationToken token = createVerificationToken("resetPassword", user.getEmail(),null);
+            VerificationToken token = createVerificationToken("resetPassword", user.getEmail(), null);
             sendPassWordResetEmail(token, userByEmail);
             saveVerificationToken(token);
             return token;
@@ -699,13 +696,13 @@ public class IdentityManagementDao {
         }
     }
 
-    public User updatePassword(User user, VerificationToken token) throws ItorixException {
+    public User updatePassword(User user, VerificationToken token) throws Exception {
         if (token.isAlive() && !token.getUsed()) {
             User userByEmail = findByEmail(user.getEmail());
             if (userByEmail != null) {
                 userByEmail.setPassword(user.getPassword());
                 userByEmail.setUserStatus("active");
-                user.setPasswordLastChangedDate(System.currentTimeMillis());
+                userByEmail.setPasswordLastChangedDate(System.currentTimeMillis());
                 userByEmail = saveUser(userByEmail);
                 token.setUsed(true);
                 saveVerificationToken(token);
@@ -817,8 +814,8 @@ public class IdentityManagementDao {
                     }
                 }
             }
-                return mailIds;
-            }
+            return mailIds;
+        }
         return mailIds;
     }
 
@@ -921,10 +918,10 @@ public class IdentityManagementDao {
         Subscription subscription = workspaceDao.getSubscription(workspace.getPlanId());
         List<SubscriptionPrice> prices = subscription.getSubscriptionPrices();
         String subscriptionPrice = subscription.getPricing().replaceAll("\\$", "");
-        String subscriptionPrice1=subscriptionPrice.trim();
-        boolean subscriptionValue=subscriptionPrice.equalsIgnoreCase("0");
-        boolean subscriptionVal=subscriptionPrice1.equalsIgnoreCase("Custom");
-        if (!subscriptionValue && !subscriptionVal){
+        String subscriptionPrice1 = subscriptionPrice.trim();
+        boolean subscriptionValue = subscriptionPrice.equalsIgnoreCase("0");
+        boolean subscriptionVal = subscriptionPrice1.equalsIgnoreCase("Custom");
+        if (!subscriptionValue && !subscriptionVal) {
             if (workspace.getPaymentSchedule().equalsIgnoreCase("month")
                     || workspace.getPaymentSchedule().equalsIgnoreCase("monthly")) {
                 SubscriptionPrice price = prices.stream().filter(o -> o.getPeriod().equalsIgnoreCase("MONTHLY"))
@@ -1072,9 +1069,9 @@ public class IdentityManagementDao {
     public boolean sendRegistrationEmail(VerificationToken token, User user) {
         try {
             String link;
-            if(token.getAppType()!= null){
-                link = applicationProperties.getAppURL() + "/register/" + token.getId() + "/verify" + "?appType="+ token.getAppType();
-            }else {
+            if (token.getAppType() != null) {
+                link = applicationProperties.getAppURL() + "/register/" + token.getId() + "/verify" + "?appType=" + token.getAppType();
+            } else {
                 link = applicationProperties.getAppURL() + "/register/" + token.getId() + "/verify";
             }
             String bodyText = MessageFormat.format(applicationProperties.getRegistermailBody(), "", link);
@@ -1103,12 +1100,12 @@ public class IdentityManagementDao {
         }
     }
 
-    public VerificationToken createVerificationToken(String type, String email,String appType) {
+    public VerificationToken createVerificationToken(String type, String email, String appType) {
         int TOKEN_VALID_DAYS = 7;
         String id = UUID.randomUUID().toString();
         Date created = new Date();
         Date validTill = DateUtils.addDays(new Date(), TOKEN_VALID_DAYS);
-        VerificationToken token = new VerificationToken(id, type, created, validTill, email, null,appType);
+        VerificationToken token = new VerificationToken(id, type, created, validTill, email, null, appType);
         return token;
     }
 
@@ -1144,7 +1141,7 @@ public class IdentityManagementDao {
 
     public void resendToken(VerificationToken token) throws ItorixException {
         User user = findByEmail(token.getUserEmail());
-        VerificationToken newToken = createVerificationToken(token.getType(), token.getUserEmail(),null);
+        VerificationToken newToken = createVerificationToken(token.getType(), token.getUserEmail(), null);
         if (token.getType().equals("registerUser")) {
             newToken.setWorkspaceId(token.getWorkspaceId());
             newToken.setUserType(token.getType());
@@ -1166,11 +1163,11 @@ public class IdentityManagementDao {
         }
     }
 
-    public VerificationToken password(User user,String workspaceId,String appType) throws ItorixException {
+    public VerificationToken password(User user, String workspaceId, String appType) throws ItorixException {
         User userByEmail = findByEmail(user.getEmail());
         if (userByEmail != null) {
-            VerificationToken token = createVerificationToken("resetPassword", user.getEmail(),appType);
-            sendPassWordResetEmail(token, userByEmail,workspaceId);
+            VerificationToken token = createVerificationToken("resetPassword", user.getEmail(), appType);
+            sendPassWordResetEmail(token, userByEmail, workspaceId);
             saveVerificationToken(token);
             return token;
         } else {
@@ -1178,7 +1175,7 @@ public class IdentityManagementDao {
         }
     }
 
-    public void sendPassWordResetEmail(VerificationToken token, User user,String workspaceId) {
+    public void sendPassWordResetEmail(VerificationToken token, User user, String workspaceId) {
         try {
             String link = applicationProperties.getAppURL() + "/reset-password/"+token.getId();
             if(token.getAppType()!=null){
@@ -1199,16 +1196,16 @@ public class IdentityManagementDao {
         }
     }
 
-    public void resendToken(UserInfo userInfo,String appType) throws ItorixException {
+    public void resendToken(UserInfo userInfo, String appType) throws ItorixException {
         if (userInfo.allowCreateToken() != true)
             throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1038"), "Identity-1038");
         if (userInfo.getType().equals("password-reset")) {
             User user = new User();
             user.setEmail(userInfo.getEmail());
-            password(user,userInfo.getWorkspaceId(),appType);
+            password(user, userInfo.getWorkspaceId(), appType);
         } else if (userInfo.getType().equals("register")) {
             User user = findByEmail(userInfo.getEmail());
-            VerificationToken token = createVerificationToken("registerUser", user.getEmail(),null);
+            VerificationToken token = createVerificationToken("registerUser", user.getEmail(), null);
             saveVerificationToken(token);
             sendRegistrationEmail(token, user);
         }
@@ -1223,7 +1220,7 @@ public class IdentityManagementDao {
         if (user.getLoginId() == null) {
             isNewUser = true;
         }
-        VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail(),null);
+        VerificationToken token = createVerificationToken("AddUserToWorkspace", user.getEmail(), null);
         token.setWorkspaceId(workspace.getName());
         token.setUserType(User.LABEL_MEMBER);
         saveVerificationToken(token);
@@ -1386,10 +1383,10 @@ public class IdentityManagementDao {
                                 } else if (CollectionUtils.containsAny(getUserTeamNames(userTeams), loginUserTeamNames)) {
                                     List<SwaggerTeam> userTeamsList = new ArrayList<>();
                                     userTeams.forEach(x -> {
-                                            if(loginUserTeamNames.contains(x.getName())) {
-                                                userTeamsList.add(x);
+                                                if (loginUserTeamNames.contains(x.getName())) {
+                                                    userTeamsList.add(x);
+                                                }
                                             }
-                                        }
                                     );
                                     userworkspace.setTeams(userTeamsList);
                                     userworkspaces.add(userworkspace);
@@ -1508,14 +1505,14 @@ public class IdentityManagementDao {
         return workspace;
     }
 
-    public String getHashedValue(String password){
+    public String getHashedValue(String password) {
         Query query = new Query();
         query.addCriteria(Criteria.where("key").is("salt"));
-        MetaData metadata = masterMongoTemplate.findOne(query,MetaData.class);
-        if(metadata!=null){
-            password +=metadata.getMetadata();
+        MetaData metadata = masterMongoTemplate.findOne(query, MetaData.class);
+        if (metadata != null) {
+            password += metadata.getMetadata();
         }
-        try{
+        try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(password.getBytes());
             StringBuilder hexString = new StringBuilder();
@@ -1525,8 +1522,7 @@ public class IdentityManagementDao {
                 hexString.append(hex);
             }
             password = hexString.toString();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             logger.error("Exception occurred while hashing password");
             return password;
         }
@@ -1536,20 +1532,20 @@ public class IdentityManagementDao {
     public User saveUser(User user) {
         user.setEmail(user.getEmail().toLowerCase());
         String password = null;
-        try{
-            if(user.getPassword()!=null){
+        try {
+            if (user.getPassword() != null) {
                 password = rsaEncryption.decryptText(user.getPassword());
             }
+        } catch (Exception e) {
+            logger.error("Cannot decrypt value : " + user.getPassword());
         }
-        catch (Exception e) {
-            logger.error("Cannot decrypt value : "+user.getPassword());
-        }
-        if(password!=null){
+        if (password != null) {
             user.setPassword(getHashedValue(password));
             user.setPasswordLastChangedDate(System.currentTimeMillis());
         }
         return baseRepository.save(user, masterMongoTemplate);
     }
+
     public User findByEmailUserName(String userId) {
         Query query = new Query();
         query.addCriteria(new Criteria().orOperator(Criteria.where(User.LABEL_EMAIL).is(userId),
@@ -1698,15 +1694,17 @@ public class IdentityManagementDao {
             }
         }
     }
+
     public void removeUserSession(String userId) {
         long timeStamp = System.currentTimeMillis();
         Query query = new Query(Criteria.where("userId").is(userId));
-        query.addCriteria(Criteria.where("loginTimestamp").gte(timeStamp-MILLIS_PER_DAY).lte(timeStamp));
+        query.addCriteria(Criteria.where("loginTimestamp").gte(timeStamp - MILLIS_PER_DAY).lte(timeStamp));
         List<UserSession> dbUserSessions = masterMongoTemplate.find(query, UserSession.class);
         for (UserSession userSession : dbUserSessions) {
             masterMongoTemplate.remove(userSession);
         }
     }
+
     public Object getUserRoles(User user) throws ItorixException {
         User userByEmail = findByEmail(user.getEmail());
         // List<String> userRoleslist;
@@ -2063,7 +2061,7 @@ public class IdentityManagementDao {
         String workspaceId = workspace.getPlanId();
         if (workspaceId.equalsIgnoreCase("growth")) {
             workspaceId = "enterprise";
-        } else if(workspaceId.equalsIgnoreCase("starter")){
+        } else if (workspaceId.equalsIgnoreCase("starter")) {
             workspaceId = "basic";
         }
         Query dBquery = new Query(Criteria.where("planId").is(workspaceId));
@@ -2176,8 +2174,8 @@ public class IdentityManagementDao {
     public JsonNode getMenu() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        Menu menu = masterMongoTemplate.findById("menu",Menu.class);
-        if(menu != null){
+        Menu menu = masterMongoTemplate.findById("menu", Menu.class);
+        if (menu != null) {
             return objectMapper.readTree(menu.getMenus());
         }
         return null;
@@ -2202,10 +2200,10 @@ public class IdentityManagementDao {
         if (metaData != null) {
             JSONObject jsonObject = JSONObject.fromObject(metaData.getMetadata());
             JSONArray jsonArray = jsonObject.getJSONArray("roles");
-            for(Object role : jsonArray){
+            for (Object role : jsonArray) {
                 roles.add(role.toString());
             }
-        }else {
+        } else {
             roles.add("Developer");
             roles.add("Admin");
             roles.add("Portal");
@@ -2226,12 +2224,12 @@ public class IdentityManagementDao {
         return teamNames;
     }
 
-    public UpdateResult updateSocialLoginEnabledStatus(String providers){
+    public UpdateResult updateSocialLoginEnabledStatus(String providers) {
         Query query = new Query();
         query.addCriteria(Criteria.where("key").is("social-logins"));
         Update update = new Update();
-        update.set("metadata",providers);
-        return masterMongoTemplate.upsert(query,update,MetaData.class);
+        update.set("metadata", providers);
+        return masterMongoTemplate.upsert(query, update, MetaData.class);
     }
 
     public ResponseEntity<?> syncClientData() {
@@ -2250,12 +2248,11 @@ public class IdentityManagementDao {
                     masterMongoTemplate.save(clientData);
                 });
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>("Error while syncing client data",
-                HttpStatus.INTERNAL_SERVER_ERROR);
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>("Synced client data successfully",HttpStatus.OK);
+        return new ResponseEntity<>("Synced client data successfully", HttpStatus.OK);
 
     }
 
@@ -2283,6 +2280,7 @@ public class IdentityManagementDao {
             try {
                 oldPassword = rsaEncryption.decryptText(user.getOldPassword());
             } catch (Exception ex) {
+                logger.error("Enable to decrypt the password for user - {}", user.getEmail());
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Identity-1051"), "Unable to verify users old password!"), "Identity-1051");
             }
         } else {
