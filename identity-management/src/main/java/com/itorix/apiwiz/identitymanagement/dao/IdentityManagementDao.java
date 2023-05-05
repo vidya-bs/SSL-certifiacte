@@ -1177,7 +1177,13 @@ public class IdentityManagementDao {
 
     public void sendPassWordResetEmail(VerificationToken token, User user, String workspaceId) {
         try {
-            String link = applicationProperties.getAppURL() + "/reset-password/" + token.getId() + "?appType=" + token.getAppType() + "&workspaceId=" + workspaceId;
+            String link = applicationProperties.getAppURL() + "/reset-password/"+token.getId();
+            if(token.getAppType()!=null){
+                link += "?appType="+token.getAppType();
+            }
+            if(workspaceId!=null){
+                link += "&workspaceId="+workspaceId;
+            }
             String bodyText = MessageFormat.format(applicationProperties.getResetMailBody(),
                     user.getFirstName() + " " + user.getLastName(), link);
             ArrayList<String> toRecipients = new ArrayList<String>();
