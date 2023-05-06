@@ -146,6 +146,8 @@ public enum ErrorCodes {
 			put("Identity-1047", "User account validation failed. The user account is locked.");
 			put("Identity-1048","User account validation failed. The user account is not Active.");
 			put("Identity-1049","User account validation failed. This email id is already associated with another account on this workspace.");
+			put("Identity-1050","User account validation failed. Password is expired");
+			put("Identity-1051","User account validation failed. Unable to reset the password, %s");
 
 			put("Connector-1000", GENERIC_RESOURCE_ALREADY_EXISTS.message());
 			put("Connector-1001", GENERIC_RESOURCE_ALREADY_EXISTS.message());
@@ -395,6 +397,9 @@ public enum ErrorCodes {
 			put("Identity-1047", 400);
 			put("Identity-1048",400);
 			put("Identity-1049",400);
+			put("Identity-1050",400);
+			put("Identity-1051",400);
+
 			put("USER_005", 400);
 			put("USER_008", 400);
 			put("USER_004", 400);

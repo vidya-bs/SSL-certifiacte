@@ -289,7 +289,9 @@ public interface IdentityManagmentService {
 			"application/json"}, produces = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> resetPassword(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-apikey") String apikey, @RequestBody User user) throws Exception;
+			@RequestHeader(value = "x-apikey") String apikey,
+			@RequestHeader(value = "forceReset", required = false) boolean forceReset,
+			@RequestBody User user) throws Exception;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users", produces = {"application/json"})
 	public @ResponseBody ResponseEntity<Object> usersList(

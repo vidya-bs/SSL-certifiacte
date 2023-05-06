@@ -30,6 +30,16 @@ public class User extends AbstractObject {
 	private String loginId;
 	private String email;
 	private String password;
+
+	public long getPasswordLastChangedDate() {
+		return passwordLastChangedDate;
+	}
+
+	public void setPasswordLastChangedDate(long passwordLastChangedDate) {
+		this.passwordLastChangedDate = passwordLastChangedDate;
+	}
+
+	private long passwordLastChangedDate;
 	private String displayMessage;
 	private String lastName;
 	private String firstName;
