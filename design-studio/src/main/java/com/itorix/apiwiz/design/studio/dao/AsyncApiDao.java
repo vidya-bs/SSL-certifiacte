@@ -180,7 +180,7 @@ public class AsyncApiDao {
 	}
 
 	public PaginatedResponse getAllAsyncApis(String jsessionid,int offset,int pageSize,
-			Optional<String> search, Optional<String> sortBy, Optional<String> status){
+			Optional<String> name, Optional<String> sortBy, Optional<String> status){
 
 		String[] PROJECTION_FIELDS = {"id", "name", "revision", "asyncApiId", "status","asyncApi",
 				"createdBy", "modifiedBy", "cts", "mts","lock"};
@@ -203,8 +203,8 @@ public class AsyncApiDao {
 
 		MatchOperation searchOperation = null;
 		MatchOperation statusOperation = null;
-		if(search.isPresent()){
-			searchOperation = new MatchOperation(Criteria.where("name").regex(search.get()));
+		if(name.isPresent()){
+			searchOperation = new MatchOperation(Criteria.where("name").regex(name.get()));
 		}
 		if(status.isPresent()){
 			statusOperation = new MatchOperation(Criteria.where("status").regex(status.get()));

@@ -38,7 +38,7 @@ public interface AsyncApiService {
 	public ResponseEntity<?> getAllAsyncApis(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestParam(value = "search")Optional<String> search,
+			@RequestParam(value = "name")Optional<String> name,
 			@RequestParam(value = "sortBy")Optional<String> sortBy,
 			@RequestParam(value = "status")Optional<String> status,
 			@RequestParam(value = "offset",required = false, defaultValue = "1") int offset,
