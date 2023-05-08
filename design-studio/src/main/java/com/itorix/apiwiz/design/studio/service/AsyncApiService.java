@@ -19,10 +19,11 @@ import org.springframework.web.multipart.MultipartFile;
 public interface AsyncApiService {
 
 	@PreAuthorize("hasAnyRole('ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.POST, value = "/v1/design/async")
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/design/async/{name}")
 	public ResponseEntity<?> createAsyncApi(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable(value = "name") String name,
 			@RequestBody String asyncapi) throws Exception;
 
 

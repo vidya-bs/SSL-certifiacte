@@ -33,7 +33,8 @@ public class AsyncApiServiceImpl implements AsyncApiService {
 	RSAEncryption rsaEncryption;
 
 	@Override
-	public ResponseEntity<?> createAsyncApi(String interactionid,  String jsessionid, String asyncapi) throws Exception {
+	public ResponseEntity<?> createAsyncApi(String interactionid,  String jsessionid, String name, String asyncapi) throws Exception {
+		//TODO check if name already exists
 		AsyncApi asyncApiObj = new AsyncApi();
 		JSONObject jsonObject = new JSONObject(asyncapi);
 		JSONObject info = (JSONObject) jsonObject.get("info");
