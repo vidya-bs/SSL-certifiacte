@@ -38,9 +38,9 @@ public interface AsyncApiService {
 	public ResponseEntity<?> getAllAsyncApis(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "search")Optional<String> search,
-			@RequestHeader(value = "sortBy")Optional<String> sortBy,
-			@RequestHeader(value = "status")Optional<String> status,
+			@RequestParam(value = "search")Optional<String> search,
+			@RequestParam(value = "sortBy")Optional<String> sortBy,
+			@RequestParam(value = "status")Optional<String> status,
 			@RequestParam(value = "offset",required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize) throws Exception;
 
