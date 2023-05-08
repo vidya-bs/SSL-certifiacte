@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.design.studio.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
 import com.itorix.apiwiz.identitymanagement.model.AbstractObject;
 import java.util.List;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -46,6 +47,8 @@ public class AsyncApi extends AbstractObject {
   private String scm_type;
 
   private String scm_password;
+
+  private List<StatusHistory> history;
 
   public List<String> getRuleSetIds() {
     return ruleSetIds;
@@ -205,5 +208,12 @@ public class AsyncApi extends AbstractObject {
 
   public void setAsyncApi(String asyncApi) {
     this.asyncApi = asyncApi;
+  }
+  public List<StatusHistory> getHistory() {
+    return history;
+  }
+
+  public void setHistory(List<StatusHistory> history) {
+    this.history = history;
   }
 }

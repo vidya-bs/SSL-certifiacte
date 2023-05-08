@@ -28,6 +28,7 @@ import com.itorix.apiwiz.design.studio.model.AsyncLintingInfo;
 import com.itorix.apiwiz.design.studio.model.AsyncapiImport;
 import com.itorix.apiwiz.design.studio.model.Revision;
 import com.itorix.apiwiz.design.studio.model.Stat;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.design.studio.model.PaginatedResponse;
@@ -704,10 +705,16 @@ public class AsyncApiDao {
 
 	}
 
-	public void updateStatus(String jsessionId,String asyncId, AsyncApi object, int revision) throws ItorixException {
+	public void updateStatus(String jsessionId, String asyncId, StatusHistory statusHistory, int revision) throws ItorixException {
 		AsyncApi asyncApi = getExistingAsyncByIdAndRevision(asyncId,revision);
 		if(asyncApi!=null){
-			asyncApi.setStatus(object.getStatus());
+			List<StatusHistory> history = asyncApi.getHistory();
+			if (history == null) {
+				history = new ArrayList<>();
+			}
+			history.add(statusHistory);
+			asyncApi.setStatus(statusHistory.getStatus());
+			asyncApi.setHistory(history);
 			mongoTemplate.save(asyncApi);
 			initiateLinting(jsessionId, asyncApi.getAsyncApiId(), asyncApi.getRevision(),
 					asyncApi.getRuleSetIds());

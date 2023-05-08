@@ -10,6 +10,7 @@ import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.design.studio.dao.AsyncApiDao;
 import com.itorix.apiwiz.design.studio.model.AsyncApi;
 import com.itorix.apiwiz.design.studio.model.AsyncapiImport;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
 import com.itorix.apiwiz.design.studio.service.AsyncApiService;
 import java.util.List;
 import java.util.Optional;
@@ -104,8 +105,7 @@ public class AsyncApiServiceImpl implements AsyncApiService {
 		AsyncApi asyncApi = asyncApiDao.getAsyncApiRevision(asyncapiId,revison);
 		if(asyncApi==null)
 			throw new ItorixException(ErrorCodes.errorMessage.get("AsyncApi-1013"),"AsyncApi-1013");
-		JsonNode jsonNode = new ObjectMapper().readTree(asyncApi.getAsyncApi());
-		return new ResponseEntity<>(jsonNode,HttpStatus.OK);
+		return new ResponseEntity<>(asyncApi,HttpStatus.OK);
 	}
 
 	@Override
@@ -117,8 +117,8 @@ public class AsyncApiServiceImpl implements AsyncApiService {
 
 	@Override
 	public ResponseEntity<?> updateStatusAsyncApiRevision(String interactionid, String jsessionid,
-			String asyncId, int revision, AsyncApi asyncapi) throws Exception {
-		asyncApiDao.updateStatus(jsessionid,asyncId,asyncapi,revision);
+			String asyncId, int revision, StatusHistory statusHistory) throws Exception {
+		asyncApiDao.updateStatus(jsessionid,asyncId,statusHistory,revision);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

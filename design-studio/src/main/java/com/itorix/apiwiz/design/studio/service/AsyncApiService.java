@@ -2,6 +2,8 @@ package com.itorix.apiwiz.design.studio.service;
 
 import com.itorix.apiwiz.design.studio.model.AsyncApi;
 import java.util.Optional;
+
+import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -111,7 +113,7 @@ public interface AsyncApiService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("asyncId") String asyncId,
 			@PathVariable("revision") int revision,
-			@RequestBody AsyncApi asyncapi) throws Exception;
+			@RequestBody StatusHistory statusHistory) throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/design/async/{asyncapiId}/revisions/{revison}/lockstatus")
