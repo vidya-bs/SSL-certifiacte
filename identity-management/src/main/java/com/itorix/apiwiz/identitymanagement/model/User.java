@@ -64,7 +64,7 @@ public class User extends AbstractObject {
 		return isServiceAccount;
 	}
 
-	public void setServiceAccount(boolean serviceAccount) {
+	public void setIsServiceAccount(boolean serviceAccount) {
 		isServiceAccount = serviceAccount;
 	}
 	public long getPasswordLastChangedDate() {

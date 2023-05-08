@@ -396,7 +396,7 @@ public class IdentityManagementDao {
             user.setWorkPhone(userInfo.getWorkPhone());
             user.setCompany(userInfo.getCompany());
             user.setSubscribeNewsLetter(userInfo.getSubscribeNewsLetter());
-            user.setServiceAccount(userInfo.isServiceAccount());
+            user.setIsServiceAccount(userInfo.isServiceAccount());
             user.setUserStatus("active");
             if (userInfo.getMetadata() != null)
                 user.setMetadata(userInfo.getMetadata());
@@ -643,7 +643,7 @@ public class IdentityManagementDao {
                 user.setWorkPhone(userInfo.getWorkPhone());
                 user.setCompany(userInfo.getCompany());
                 user.setSubscribeNewsLetter(userInfo.getSubscribeNewsLetter());
-                user.setServiceAccount(userInfo.isServiceAccount());
+                user.setIsServiceAccount(userInfo.isServiceAccount());
                 List<String> userRoles = new ArrayList<>();
                 for (Roles role : Roles.values())
                     userRoles.add(role.getValue());
