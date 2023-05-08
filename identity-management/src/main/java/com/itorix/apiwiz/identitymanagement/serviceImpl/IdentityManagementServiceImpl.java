@@ -71,9 +71,12 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	public ResponseEntity<Object> register(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-apikey") String apikey,
-			@RequestParam(value = "token", required = false) String verificationToken,@RequestParam(value = "appType", required = false) String appType,
+			@RequestParam(value = "token", required = false) String verificationToken
+			,@RequestParam(value = "appType", required = false) String appType,
 			@RequestBody UserInfo userInfo)
 			throws ItorixException, Exception {
+
+		identityManagementDao.validateUserFields(userInfo);
 		if (verificationToken == null)
 			return new ResponseEntity<Object>(identityManagementDao.registerWithMail(userInfo,appType), HttpStatus.CREATED);
 		else {

@@ -21,6 +21,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.time.DateUtils;
@@ -2305,5 +2307,71 @@ public class IdentityManagementDao {
             }
         }
         return false;
+    }
+
+    public void validateUserFields(UserInfo userInfo) throws ItorixException {
+        String nameRegexPattern = "^[a-zA-Z]+$";
+        String loginIdPattern = "^[a-zA-Z\\d.-]+$";
+        String workspaceIdPattern = "^[a-zA-Z\\d-]+$";
+        Pattern pattern = Pattern.compile(nameRegexPattern);
+        Matcher matcher;
+
+        //checking first name
+        if(userInfo.getFirstName()!=null){
+            matcher = pattern.matcher(userInfo.getFirstName());
+            if(!matcher.matches()){
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                    ("Identity-1052"),"full name"),"Identity-1052");
+            }
+        }
+        //checking last name
+        if(userInfo.getLastName()!=null){
+            matcher = pattern.matcher(userInfo.getLastName());
+            if(!matcher.matches()){
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                    ("Identity-1052"),"last name"),"Identity-1052");
+            }
+        }
+
+        //checking loginId
+        if(userInfo.getLoginId()!=null){
+            pattern = Pattern.compile(loginIdPattern);
+            matcher = pattern.matcher(userInfo.getLoginId());
+            if(!matcher.matches()){
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                    ("Identity-1052"),"loginId"),"Identity-1052");
+            }
+        }
+        //checking workspaceId
+        if(userInfo.getWorkspaceId()!=null){
+            pattern = Pattern.compile(workspaceIdPattern);
+            matcher = pattern.matcher(userInfo.getWorkspaceId());
+            if(!matcher.matches()){
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                    ("Identity-1052"),"workspaceId"),"Identity-1052");
+            }
+        }
+        //checking seats
+        Object seats = userInfo.getSeats();
+        if(!(seats instanceof Long)){
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                ("Identity-1052"),"seats"),"Identity-1052");
+        }
+        //checking planId
+        if(userInfo.getPlanId()!=null){
+            String planId = userInfo.getPlanId();
+            boolean notValid = true;
+            switch (planId) {
+                case "starter":
+                case "growth" :
+                case "enterprise":
+                    notValid = false;
+                    break;
+            }
+            if(notValid)
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                    ("Identity-1052"),"planId"),"Identity-1052");
+        }
+
     }
 }
