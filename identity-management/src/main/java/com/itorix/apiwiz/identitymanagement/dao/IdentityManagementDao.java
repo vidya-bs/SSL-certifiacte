@@ -205,7 +205,7 @@ public class IdentityManagementDao {
                 userHashedPassword = user.getPassword();
                 userInfoHashedPassword = getHashedValue(userInfoPassword);
             }
-            if (!preAuthenticated) {
+            if (!preAuthenticated && !user.isServiceAccount()) {
                 if (user.getPasswordLastChangedDate() == 0)
                     throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1050"), "Identity-1050");
                 long passwordLastChangedDate = user.getPasswordLastChangedDate();
@@ -396,6 +396,7 @@ public class IdentityManagementDao {
             user.setWorkPhone(userInfo.getWorkPhone());
             user.setCompany(userInfo.getCompany());
             user.setSubscribeNewsLetter(userInfo.getSubscribeNewsLetter());
+            user.setServiceAccount(userInfo.isServiceAccount());
             user.setUserStatus("active");
             if (userInfo.getMetadata() != null)
                 user.setMetadata(userInfo.getMetadata());
@@ -642,6 +643,7 @@ public class IdentityManagementDao {
                 user.setWorkPhone(userInfo.getWorkPhone());
                 user.setCompany(userInfo.getCompany());
                 user.setSubscribeNewsLetter(userInfo.getSubscribeNewsLetter());
+                user.setServiceAccount(userInfo.isServiceAccount());
                 List<String> userRoles = new ArrayList<>();
                 for (Roles role : Roles.values())
                     userRoles.add(role.getValue());
