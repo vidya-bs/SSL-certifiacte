@@ -198,7 +198,7 @@ public class AsyncApiDao {
 		UnwindOperation unwindOperation = unwind("originalDoc");
 		ProjectionOperation projectionOperation = project("originalDoc.name")
 				.andInclude("originalDoc.asyncApiId",
-				"originalDoc.revision", "originalDoc.status", "originalDoc.createdBy","originalDoc.asyncApi",
+				"originalDoc.revision", "originalDoc.status", "originalDoc.createdBy",
 				"originalDoc.modifiedBy", "originalDoc.cts", "originalDoc.mts",
 				"originalDoc._id");
 
