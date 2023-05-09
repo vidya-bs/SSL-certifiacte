@@ -32,9 +32,8 @@ import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.design.studio.model.PaginatedResponse;
-import com.itorix.apiwiz.identitymanagement.model.Pagination;
-import com.itorix.apiwiz.identitymanagement.model.User;
-import com.itorix.apiwiz.identitymanagement.model.UserSession;
+import com.itorix.apiwiz.identitymanagement.model.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -714,6 +713,8 @@ public class AsyncApiDao {
 			if (history == null) {
 				history = new ArrayList<>();
 			}
+			statusHistory.setMts(System.currentTimeMillis());
+			statusHistory.setUserName(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
 			history.add(statusHistory);
 			asyncApi.setStatus(statusHistory.getStatus());
 			asyncApi.setHistory(history);
