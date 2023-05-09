@@ -1,9 +1,5 @@
 package com.itorix.apiwiz.design.studio.serviceimpl;
 
-
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
@@ -19,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -103,8 +98,9 @@ public class AsyncApiServiceImpl implements AsyncApiService {
 	public ResponseEntity<?> getRevisionOfAsyncApi(String interactionid, String jsessionid,
 												   String asyncapiId, int revison) throws Exception {
 		AsyncApi asyncApi = asyncApiDao.getAsyncApiRevision(asyncapiId,revison);
-		if(asyncApi==null)
-			throw new ItorixException(ErrorCodes.errorMessage.get("AsyncApi-1013"),"AsyncApi-1013");
+		if(asyncApi==null) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("AsyncApi-1013"), "AsyncApi-1013");
+		}
 		return new ResponseEntity<>(asyncApi,HttpStatus.OK);
 	}
 

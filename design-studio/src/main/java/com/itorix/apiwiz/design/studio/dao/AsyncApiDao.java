@@ -210,11 +210,13 @@ public class AsyncApiDao {
 		if(status.isPresent()){
 			statusOperation = new MatchOperation(Criteria.where("status").regex(status.get()));
 		}
-		if(sortBy.isPresent()){
-			if(sortBy.get().equalsIgnoreCase("asc"))
-				sortOperation = sort(Direction.ASC, "name");
-			else
-				sortOperation = sort(Direction.DESC, "name");
+		if(sortBy.isPresent()) {
+			if(sortBy.get().equalsIgnoreCase("asc")) {
+				sortOperation = sort(Direction.ASC, "mts");
+			}
+			else if(sortBy.get().equalsIgnoreCase("desc")) {
+				sortOperation = sort(Direction.DESC, "mts");
+			}
 		}
 		List<AsyncApi> results;
 		if(searchOperation!=null && statusOperation!=null){
