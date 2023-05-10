@@ -4,6 +4,7 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.design.studio.business.GraphQLBusiness;
 import com.itorix.apiwiz.design.studio.model.GraphQL;
 import com.itorix.apiwiz.design.studio.model.GraphQLImport;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
 import com.itorix.apiwiz.design.studio.service.GraphQLService;
 import java.util.List;
 import org.slf4j.Logger;
@@ -78,9 +79,9 @@ public class GraphQLServiceImpl implements GraphQLService {
 
   @Override
   public ResponseEntity<?> changeStatusWithRevision(String interactionid, String jsessionid, String graphQLId,
-      Integer revision, String status) throws ItorixException {
+      Integer revision, StatusHistory statusHistory) throws ItorixException {
     logger.info("Updating the status of the GraphQL Schema for Id-{} and revision-{}",graphQLId,revision);
-    graphQLBusiness.changeStatusWithRevision(graphQLId,revision,status);
+    graphQLBusiness.changeStatusWithRevision(graphQLId,revision,statusHistory);
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
