@@ -199,7 +199,7 @@ public class AsyncApiDao {
 				.andInclude("originalDoc.asyncApiId",
 				"originalDoc.revision", "originalDoc.status", "originalDoc.createdBy",
 				"originalDoc.modifiedBy", "originalDoc.cts", "originalDoc.mts",
-				"originalDoc._id");
+				"originalDoc._id", "originalDoc.lock");
 
 		MatchOperation searchOperation = null;
 		MatchOperation statusOperation = null;

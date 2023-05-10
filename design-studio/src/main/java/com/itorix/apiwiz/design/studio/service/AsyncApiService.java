@@ -107,7 +107,7 @@ public interface AsyncApiService {
 			@PathVariable (value = "revison")int revison) throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.PUT, value = "/v1/design/async/{asyncId}/revision/{revision}/status")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/design/async/{asyncId}/revisions/{revision}/status")
 	public ResponseEntity<?> updateStatusAsyncApiRevision(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
