@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class AsyncApi extends AbstractObject {
   private Integer revision;
 
-  private String status;
+  private Status status;
 
   private String name;
 
@@ -66,11 +66,11 @@ public class AsyncApi extends AbstractObject {
     this.revision = revision;
   }
 
-  public String getStatus() {
+  public Status getStatus() {
     return status;
   }
 
-  public void setStatus(String status) {
+  public void setStatus(Status status) {
     this.status = status;
   }
 

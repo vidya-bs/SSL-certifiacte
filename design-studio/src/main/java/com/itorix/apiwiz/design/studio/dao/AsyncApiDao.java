@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.design.studio.dao;
 
+import static com.itorix.apiwiz.identitymanagement.model.Constants.STATUS;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
@@ -21,17 +22,10 @@ import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.common.util.zip.ZIPUtil;
-import com.itorix.apiwiz.design.studio.model.AsyncApi;
-import com.itorix.apiwiz.design.studio.model.AsyncApiBasePath;
-import com.itorix.apiwiz.design.studio.model.AsyncApiDataModel;
-import com.itorix.apiwiz.design.studio.model.AsyncLintingInfo;
-import com.itorix.apiwiz.design.studio.model.AsyncapiImport;
-import com.itorix.apiwiz.design.studio.model.Revision;
-import com.itorix.apiwiz.design.studio.model.Stat;
+import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
-import com.itorix.apiwiz.design.studio.model.PaginatedResponse;
 import com.itorix.apiwiz.identitymanagement.model.*;
 
 import java.io.File;
@@ -113,7 +107,7 @@ public class AsyncApiDao {
 		asyncApiObj.setAsyncApiId(UUID.randomUUID().toString().replaceAll("-", ""));
 		UserSession user = getUser(jsessionId);
 		asyncApiObj.setLock(true);
-		asyncApiObj.setStatus("Draft");
+		asyncApiObj.setStatus(Status.Draft);
 		asyncApiObj.setLockedBy(user.getUsername());
 		asyncApiObj.setCts(System.currentTimeMillis());
 		asyncApiObj.setCreatedBy(user.getUserId());
@@ -517,7 +511,7 @@ public class AsyncApiDao {
 		for (AsyncApi asyncApi : ascynApis) {
 			Revision version = new Revision();
 			version.setRevision(asyncApi.getRevision());
-			version.setStatus(asyncApi.getStatus());
+			version.setStatus(asyncApi.getStatus().getStatus());
 			version.setId(asyncApi.getAsyncApiId() != null ? asyncApi.getAsyncApiId() : asyncApi.getId());
 			versions.add(version);
 		}
@@ -618,7 +612,7 @@ public class AsyncApiDao {
 			JSONObject info = (JSONObject) jsonObject.get("info");
 			asyncApiObj.setName(info.get("title").toString());
 			asyncApiObj.setLock(true);
-			asyncApiObj.setStatus("Draft");
+			asyncApiObj.setStatus(Status.Draft);
 			asyncApiObj.setLockedBy(user.getUsername());
 			asyncApiObj.setCts(System.currentTimeMillis());
 			asyncApiObj.setCreatedBy(user.getUserId());
@@ -708,22 +702,31 @@ public class AsyncApiDao {
 
 	public void updateStatus(String jsessionId, String asyncId, StatusHistory statusHistory, int revision) throws ItorixException {
 		AsyncApi asyncApi = getExistingAsyncByIdAndRevision(asyncId,revision);
-		if(asyncApi!=null){
-			List<StatusHistory> history = asyncApi.getHistory();
-			if (history == null) {
-				history = new ArrayList<>();
-			}
-			statusHistory.setMts(System.currentTimeMillis());
-			statusHistory.setUserName(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
-			history.add(statusHistory);
-			asyncApi.setStatus(statusHistory.getStatus());
-			asyncApi.setHistory(history);
-			mongoTemplate.save(asyncApi);
-			initiateLinting(jsessionId, asyncApi.getAsyncApiId(), asyncApi.getRevision(),
-					asyncApi.getRuleSetIds());
-		}
-		else
+		if(asyncApi == null) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("AsyncApi-1012"),"AsyncApi-1012");
+		}
+		if (statusHistory.getStatus().equals(Status.Publish)) {
+			AsyncApi tempAsyncApi = mongoTemplate.findOne(new Query(Criteria.where("asyncApiId").is(asyncId)
+					.and(STATUS).is(Status.Publish)), AsyncApi.class);
+			if (tempAsyncApi != null) {
+				tempAsyncApi.setStatus(Status.Draft);
+				tempAsyncApi.setMts(System.currentTimeMillis());
+				tempAsyncApi.setModifiedUserName(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
+				mongoTemplate.save(tempAsyncApi);
+			}
+		}
+		List<StatusHistory> history = asyncApi.getHistory();
+		if (history == null) {
+			history = new ArrayList<>();
+		}
+		statusHistory.setMts(System.currentTimeMillis());
+		statusHistory.setUserName(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
+		history.add(statusHistory);
+		asyncApi.setStatus(statusHistory.getStatus());
+		asyncApi.setHistory(history);
+		mongoTemplate.save(asyncApi);
+		initiateLinting(jsessionId, asyncApi.getAsyncApiId(), asyncApi.getRevision(),
+				asyncApi.getRuleSetIds());
 	}
 
 	public Object getAllAsyncApisStats(String jsessionid) {

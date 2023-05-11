@@ -1,19 +1,21 @@
 package com.itorix.apiwiz.design.studio.model.swagger.sync;
 
+import com.itorix.apiwiz.design.studio.model.Status;
+
 public class StatusHistory {
 
 
-    private String status;
+    private Status status;
     private String message;
     private Long mts;
 
     private String userName;
 
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
