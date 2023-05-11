@@ -25,10 +25,10 @@ import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.common.util.zip.ZIPUtil;
 import com.itorix.apiwiz.design.studio.business.GraphQLBusiness;
 import com.itorix.apiwiz.design.studio.model.GraphQL;
-import com.itorix.apiwiz.design.studio.model.GraphQL.Status;
 import com.itorix.apiwiz.design.studio.model.GraphQLImport;
 import com.itorix.apiwiz.design.studio.model.Revision;
 import com.itorix.apiwiz.design.studio.model.Stat;
+import com.itorix.apiwiz.design.studio.model.Status;
 import com.itorix.apiwiz.design.studio.model.SwaggerHistoryResponse;
 import com.itorix.apiwiz.design.studio.model.SwaggerLockResponse;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
@@ -198,12 +198,15 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
       if (history == null) {
         history = new ArrayList<>();
       }
+      if(graphQL.getStatus().equals(statusHistory.getStatus())){
+        throw new ItorixException(ErrorCodes.errorMessage.get("GraphQL-1002"), "GraphQL-1002");
+      }
       statusHistory.setMts(System.currentTimeMillis());
       statusHistory.setUserName(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
       history.add(statusHistory);
       graphQL.setHistory(history);
-      String statusObject = statusHistory.getStatus();
-      if (statusObject.equals(Status.Publish.getStatus())) {
+      Status statusObject = statusHistory.getStatus();
+      if (statusObject.equals(Status.Publish)) {
         GraphQL publishedGraphQL = new GraphQL() ;
         publishedGraphQL = mongoTemplate.findOne(new Query(Criteria.where(GRAPHQL_ID).is(graphQLId)
             .and(STATUS).is(statusObject)), GraphQL.class);
@@ -213,9 +216,9 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
             publishedGraphQLHistoryList = new ArrayList<>();
           }
           StatusHistory publishedStatusHistory = new StatusHistory();
-          publishedStatusHistory.setStatus(Status.Draft.getStatus());
+          publishedStatusHistory.setStatus(Status.Draft);
           publishedStatusHistory.setMts(System.currentTimeMillis());
-          publishedStatusHistory.setMessage("Converted from Publish to Draft since a new revision got Published");
+          publishedStatusHistory.setMessage(String.format("Moved to Draft from Publish since revision %s got Published",revision));
           publishedStatusHistory.setUserName("System Job");
           publishedGraphQLHistoryList.add(publishedStatusHistory);
           publishedGraphQL.setHistory(publishedGraphQLHistoryList);
@@ -224,7 +227,7 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
           mongoTemplate.save(publishedGraphQL);
         }
       }
-        graphQL.setStatus(Status.valueOf(statusObject));
+        graphQL.setStatus(statusObject);
         updateUserDetails(graphQL);
         mongoTemplate.save(graphQL);
         logger.info("Successfully updated the status of the GraphQL schema for Id - {} and revision - {}",graphQLId,revision);
@@ -284,7 +287,7 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
     UnwindOperation unwindOperation = unwind(ORIGINAL_DOC);
     ProjectionOperation projectionOperation = project("originalDoc.name")
         .andInclude("originalDoc.graphQLId",
-            "originalDoc.revision", "originalDoc.status","originalDoc.graphQLSchema", "originalDoc.createdBy",
+            "originalDoc.revision", "originalDoc.status", "originalDoc.createdBy",
             "originalDoc.cts","originalDoc.createdUserName","originalDoc.modifiedBy","originalDoc.modifiedUserName","originalDoc.mts",
             "originalDoc._id");
 
