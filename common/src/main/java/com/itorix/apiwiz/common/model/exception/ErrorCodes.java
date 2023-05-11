@@ -253,6 +253,7 @@ public enum ErrorCodes {
 			put("AsyncApi-1011", "AsyncApi with same name already exists.");
 			put("AsyncApi-1012", "AsyncApi with given name doesn't exists.");
 			put("AsyncApi-1013", "AsyncApi with given revision or id not found");
+			put("AsyncApi-1014", "Invalid request. AsyncApi is in same status.");
 
 			put("MockServer-1000", "Request validation failed. A mock scenario with similar configuration already exists.");
 			put("MockServer-1001", GENERIC_RESOURCE_NOT_FOUND.message());
@@ -514,6 +515,7 @@ public enum ErrorCodes {
 			put("AsyncApi-1011",409);
 			put("AsyncApi-1012",404);
 			put("AsyncApi-1013",404);
+			put("AsyncApi-1014", 400);
 
 			put("SCM-1010",400);
 			put("SCM-1020",400);
