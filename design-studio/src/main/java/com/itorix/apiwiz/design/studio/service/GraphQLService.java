@@ -2,6 +2,7 @@ package com.itorix.apiwiz.design.studio.service;
 
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.design.studio.model.GraphQL;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -60,7 +61,7 @@ public interface GraphQLService {
       @RequestHeader(value = "JSESSIONID") String jsessionid,
       @PathVariable(value = "graphqlId")String graphqlId,
       @PathVariable(value = "revision")Integer revision,
-      @RequestBody String status)throws ItorixException;
+      @RequestBody StatusHistory statusHistory)throws ItorixException;
 
   @PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
   @RequestMapping(method = RequestMethod.GET, value = "/v1/design/graphql/{graphqlId}")

@@ -25,13 +25,15 @@ import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.common.util.zip.ZIPUtil;
 import com.itorix.apiwiz.design.studio.business.GraphQLBusiness;
 import com.itorix.apiwiz.design.studio.model.GraphQL;
-import com.itorix.apiwiz.design.studio.model.GraphQL.Status;
 import com.itorix.apiwiz.design.studio.model.GraphQLImport;
 import com.itorix.apiwiz.design.studio.model.Revision;
 import com.itorix.apiwiz.design.studio.model.Stat;
+import com.itorix.apiwiz.design.studio.model.Status;
 import com.itorix.apiwiz.design.studio.model.SwaggerHistoryResponse;
 import com.itorix.apiwiz.design.studio.model.SwaggerLockResponse;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
 import com.itorix.apiwiz.identitymanagement.model.Pagination;
+import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 import com.itorix.apiwiz.identitymanagement.model.User;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import graphql.GraphQLException;
@@ -46,7 +48,6 @@ import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.bson.Document;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,6 @@ import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.aggregation.UnwindOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -187,35 +187,50 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
   }
 
   @Override
-  public void changeStatusWithRevision(String graphQLId, Integer revision, String status)
+  public void changeStatusWithRevision(String graphQLId, Integer revision, StatusHistory statusHistory)
       throws ItorixException {
     GraphQL checkGraphQL = new GraphQL();
     checkGraphQL.setGraphQLId(graphQLId);
     checkGraphQL.setRevision(revision);
     GraphQL graphQL = findGraphQL(checkGraphQL);
     if(graphQL!=null) {
-      JSONObject jsonObject = new JSONObject(status);
-      String statusObject = jsonObject.getString("state");
-      if (statusObject.equals(Status.Publish.getStatus())) {
-        graphQL = mongoTemplate.findOne(new Query(Criteria.where(GRAPHQL_ID).is(graphQLId)
+      List<StatusHistory> history = graphQL.getHistory();
+      if (history == null) {
+        history = new ArrayList<>();
+      }
+      if(graphQL.getStatus().equals(statusHistory.getStatus())){
+        throw new ItorixException(ErrorCodes.errorMessage.get("GraphQL-1002"), "GraphQL-1002");
+      }
+      statusHistory.setMts(System.currentTimeMillis());
+      statusHistory.setUserName(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
+      history.add(statusHistory);
+      graphQL.setHistory(history);
+      Status statusObject = statusHistory.getStatus();
+      if (statusObject.equals(Status.Publish)) {
+        GraphQL publishedGraphQL = new GraphQL() ;
+        publishedGraphQL = mongoTemplate.findOne(new Query(Criteria.where(GRAPHQL_ID).is(graphQLId)
             .and(STATUS).is(statusObject)), GraphQL.class);
-        if (graphQL != null) {
-          graphQL.setStatus(Status.Draft);
-          updateUserDetails(graphQL);
-          mongoTemplate.save(graphQL);
+        if (publishedGraphQL != null) {
+          List<StatusHistory> publishedGraphQLHistoryList = publishedGraphQL.getHistory();
+          if (publishedGraphQLHistoryList == null) {
+            publishedGraphQLHistoryList = new ArrayList<>();
+          }
+          StatusHistory publishedStatusHistory = new StatusHistory();
+          publishedStatusHistory.setStatus(Status.Draft);
+          publishedStatusHistory.setMts(System.currentTimeMillis());
+          publishedStatusHistory.setMessage(String.format("Moved to Draft from Publish since revision %s got Published",revision));
+          publishedStatusHistory.setUserName("System Job");
+          publishedGraphQLHistoryList.add(publishedStatusHistory);
+          publishedGraphQL.setHistory(publishedGraphQLHistoryList);
+          publishedGraphQL.setStatus(Status.Draft);
+          updateUserDetails(publishedGraphQL);
+          mongoTemplate.save(publishedGraphQL);
         }
       }
-      graphQL = mongoTemplate.findOne(new Query(Criteria.where(GRAPHQL_ID).is(graphQLId)
-          .and(REVISION).is(revision)), GraphQL.class);
-      if(graphQL != null) {
-        graphQL.setStatus(Status.valueOf(statusObject));
+        graphQL.setStatus(statusObject);
         updateUserDetails(graphQL);
         mongoTemplate.save(graphQL);
         logger.info("Successfully updated the status of the GraphQL schema for Id - {} and revision - {}",graphQLId,revision);
-      }else{
-        logger.error("No Data found for Id - {} and revision - {}",graphQLId,revision);
-        throw new ItorixException(String.format(ErrorCodes.errorMessage.get("GraphQL-1000"),graphQLId,revision), "GraphQL-1000");
-      }
     }else{
       logger.error("No Data found for Id - {} and revision - {}",graphQLId,revision);
       throw new ItorixException(String.format(ErrorCodes.errorMessage.get("GraphQL-1000"),graphQLId,revision), "GraphQL-1000");
@@ -272,7 +287,7 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
     UnwindOperation unwindOperation = unwind(ORIGINAL_DOC);
     ProjectionOperation projectionOperation = project("originalDoc.name")
         .andInclude("originalDoc.graphQLId",
-            "originalDoc.revision", "originalDoc.status","originalDoc.graphQLSchema", "originalDoc.createdBy",
+            "originalDoc.revision", "originalDoc.status", "originalDoc.createdBy",
             "originalDoc.cts","originalDoc.createdUserName","originalDoc.modifiedBy","originalDoc.modifiedUserName","originalDoc.mts",
             "originalDoc._id");
 

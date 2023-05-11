@@ -5,6 +5,7 @@ import com.itorix.apiwiz.design.studio.model.GraphQL;
 import com.itorix.apiwiz.design.studio.model.GraphQLImport;
 import com.itorix.apiwiz.design.studio.model.Stat;
 import com.itorix.apiwiz.design.studio.model.SwaggerLockResponse;
+import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,7 +26,7 @@ public interface GraphQLBusiness {
 
   public void createNewRevisionWithId(GraphQL graphQL) throws ItorixException;
 
-  public void changeStatusWithRevision(String graphqlId,Integer revision,String status)
+  public void changeStatusWithRevision(String graphqlId,Integer revision, StatusHistory statusHistory)
       throws ItorixException;
 
   public List<GraphQL> getAllRevisionsWithId(String graphqlId) throws ItorixException;

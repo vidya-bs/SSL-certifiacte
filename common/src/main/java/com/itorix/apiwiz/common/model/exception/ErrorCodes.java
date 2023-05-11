@@ -304,6 +304,7 @@ public enum ErrorCodes {
 			//GraphQL
 			put("GraphQL-1000","Invalid Request Data,Data not found for Id - %s and revision - %s");
 			put("GraphQL-1001","Invalid Request Data,Data not found for - %s");
+      put("GraphQL-1002","Invalid Request Data.GraphQL is already is same status");
 		}
 	};
 
@@ -536,6 +537,7 @@ public enum ErrorCodes {
 
 			put("GraphQL-1000",400);
 			put("GraphQL-1001",400);
+      put("GraphQL-1002",400);
 
 		}
 	};
