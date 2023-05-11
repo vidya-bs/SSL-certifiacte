@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -182,6 +183,22 @@ public class GenericControllerExceptionHandler {
 		ResponseEntity<ErrorObj> responseEntity = new ResponseEntity<ErrorObj>(error,
 				HttpStatus.valueOf(ErrorCodes.responseCode.get("Identity-1043")));
 
+		return responseEntity;
+	}
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	@ResponseBody
+	public ResponseEntity<ErrorObj> handleDataMissMatchException(final HttpMessageNotReadableException ex,
+			final HttpServletResponse response,final HttpServletRequest request) {
+//		error.setErrorMessage("Unable to parse json. Provided mismatched data type", "General-1001");
+		logger.error("inside handleControllerException : {} ", ex);
+		UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		loggerService.logException("GenericControllerExceptionHandler", "handleControllerException",
+				System.currentTimeMillis(), HttpStatus.valueOf(ErrorCodes.responseCode.get("Identity-1043")),
+				"General-1001", ErrorCodes.errorMessage.get("Identity-1043"), response, request, userSession);
+		ErrorObj error = new ErrorObj();
+		error.setErrorMessage("Unable to parse json. Provided mismatched data type", "General-1001");
+		response.setStatus(HttpStatus.BAD_REQUEST.value());
+		ResponseEntity<ErrorObj> responseEntity = new ResponseEntity<ErrorObj>(error,HttpStatus.BAD_REQUEST);
 		return responseEntity;
 	}
 }

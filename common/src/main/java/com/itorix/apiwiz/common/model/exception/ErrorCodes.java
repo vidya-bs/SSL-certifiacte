@@ -148,6 +148,7 @@ public enum ErrorCodes {
 			put("Identity-1049","User account validation failed. This email id is already associated with another account on this workspace.");
 			put("Identity-1050","User account validation failed. Password is expired");
 			put("Identity-1051","User account validation failed. Unable to reset the password, %s");
+			put("Identity-1052","User account validation failed. Invalid input type for %s");
 
 			put("Connector-1000", GENERIC_RESOURCE_ALREADY_EXISTS.message());
 			put("Connector-1001", GENERIC_RESOURCE_ALREADY_EXISTS.message());
@@ -247,6 +248,11 @@ public enum ErrorCodes {
 			put("Monitor-1004", "Request validation failed. Certificate document is invalid.");
 			put("Monitor-1005", GENERIC_RESOURCE_ALREADY_EXISTS.message());
 			put("Monitor-1006", GENERIC_RESOURCE_ALREADY_EXISTS.message());
+
+			put("AsyncApi-1010", GENERIC_RESOURCE_NOT_FOUND.message());
+			put("AsyncApi-1011", "AsyncApi with same name already exists.");
+			put("AsyncApi-1012", "AsyncApi with given name doesn't exists.");
+			put("AsyncApi-1013", "AsyncApi with given revision or id not found");
 
 			put("MockServer-1000", "Request validation failed. A mock scenario with similar configuration already exists.");
 			put("MockServer-1001", GENERIC_RESOURCE_NOT_FOUND.message());
@@ -402,6 +408,7 @@ public enum ErrorCodes {
 			put("Identity-1049",400);
 			put("Identity-1050",400);
 			put("Identity-1051",400);
+			put("Identity-1052",400);
 
 			put("USER_005", 400);
 			put("USER_008", 400);
@@ -502,6 +509,11 @@ public enum ErrorCodes {
 			put("rate-limiting-1002", 400);
 			put("rate-limiting-1003", 500);
 			put("rate-limiting-1004", 400);
+
+			put("AsyncApi-1010",400);
+			put("AsyncApi-1011",409);
+			put("AsyncApi-1012",404);
+			put("AsyncApi-1013",404);
 
 			put("SCM-1010",400);
 			put("SCM-1020",400);

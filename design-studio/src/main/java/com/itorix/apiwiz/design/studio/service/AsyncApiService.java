@@ -74,7 +74,7 @@ public interface AsyncApiService {
 			@PathVariable("id") String id) throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.POST, value = "/v1/design/async/{asyncId}/revision")
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/design/async/{asyncId}/revisions")
 	public ResponseEntity<?> createAsyncApiRevision(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
@@ -82,7 +82,7 @@ public interface AsyncApiService {
 			@RequestBody String asyncapi) throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.PUT, value = "/v1/design/async/{asyncId}/revision/{revision}")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/design/async/{asyncId}/revisions/{revision}")
 	public ResponseEntity<?> updateAsyncApiRevision(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
@@ -107,7 +107,7 @@ public interface AsyncApiService {
 			@PathVariable (value = "revison")int revison) throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.PUT, value = "/v1/design/async/{asyncId}/revision/{revision}/status")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/design/async/{asyncId}/revisions/{revision}/status")
 	public ResponseEntity<?> updateStatusAsyncApiRevision(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
