@@ -502,7 +502,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			// collection
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggerVO.getName(), oas);
-			uploadFilesToGit(integrations, swaggerVO.getName(), oas,
+			uploadFilesToGit(integrations, swaggerVO, oas,
 					json,
 					rsaEncryption);
 			scannerDTO.setTenantId(getWorkspaceId());
