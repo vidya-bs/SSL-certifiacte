@@ -103,16 +103,21 @@ public class AsyncApiDao {
 
 	public void createAsyncApiOrPushToDesignStudio(AsyncApi asyncApiObj,String jsessionId)
 			throws ItorixException {
-		asyncApiObj.setRevision(1);
-		asyncApiObj.setAsyncApiId(UUID.randomUUID().toString().replaceAll("-", ""));
-		UserSession user = getUser(jsessionId);
-		asyncApiObj.setLock(true);
-		asyncApiObj.setStatus(Status.Draft);
-		asyncApiObj.setLockedBy(user.getUsername());
-		asyncApiObj.setCts(System.currentTimeMillis());
-		asyncApiObj.setCreatedBy(user.getUserId());
-		asyncApiObj.setCreatedUserName(user.getUsername());
-		mongoTemplate.save(asyncApiObj);
+		List<AsyncApi> asyncApiList = findAsyncApiWithName(asyncApiObj.getName());
+		if (!asyncApiList.isEmpty()) {
+			createAsyncApiRevision(null, asyncApiList.get(0).getAsyncApiId(), asyncApiList.get(0).getAsyncApi());
+		} else {
+			asyncApiObj.setRevision(1);
+			asyncApiObj.setAsyncApiId(UUID.randomUUID().toString().replaceAll("-", ""));
+			UserSession user = getUser(jsessionId);
+			asyncApiObj.setLock(true);
+			asyncApiObj.setStatus(Status.Draft);
+			asyncApiObj.setLockedBy(user.getUsername());
+			asyncApiObj.setCts(System.currentTimeMillis());
+			asyncApiObj.setCreatedBy(user.getUserId());
+			asyncApiObj.setCreatedUserName(user.getUsername());
+			mongoTemplate.save(asyncApiObj);
+		}
 	}
 
 	private UserSession getUser(String jsessionId) {
@@ -713,6 +718,12 @@ public class AsyncApiDao {
 					.and(STATUS).is(Status.Publish)), AsyncApi.class);
 			if (tempAsyncApi != null) {
 				tempAsyncApi.setStatus(Status.Draft);
+				StatusHistory tempAsyncApiStatusHistory = new StatusHistory();
+				tempAsyncApiStatusHistory.setStatus(Status.Draft);
+				tempAsyncApiStatusHistory.setMessage(String.format("Moved to Draft from Publish since revision %s got Published",revision));
+				tempAsyncApiStatusHistory.setUserName(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
+				tempAsyncApiStatusHistory.setMts(System.currentTimeMillis());
+				tempAsyncApi.getHistory().add(tempAsyncApiStatusHistory);
 				tempAsyncApi.setMts(System.currentTimeMillis());
 				tempAsyncApi.setModifiedUserName(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
 				mongoTemplate.save(tempAsyncApi);
@@ -786,5 +797,10 @@ public class AsyncApiDao {
 					newAggregation(projectRequiredFields, groupByMaxRevision, filterMaxRevision,
 							unwindOperation, projectionOperation, sortOperation),
 					AsyncApi.class, AsyncApi.class).getMappedResults();
+	}
+	private List<AsyncApi> findAsyncApiWithName(String name) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("name").is(name));
+		return mongoTemplate.find(query, AsyncApi.class);
 	}
 }
