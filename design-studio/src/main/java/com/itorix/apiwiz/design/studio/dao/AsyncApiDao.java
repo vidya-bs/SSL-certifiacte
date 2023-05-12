@@ -711,7 +711,7 @@ public class AsyncApiDao {
 			throw new ItorixException(ErrorCodes.errorMessage.get("AsyncApi-1012"),"AsyncApi-1012");
 		}
 		if (asyncApi.getStatus().equals(statusHistory.getStatus())) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("AsyncApi-1013"),"AsyncApi-1013");
+			throw new ItorixException(ErrorCodes.errorMessage.get("AsyncApi-1014"),"AsyncApi-1014");
 		}
 		if (statusHistory.getStatus().equals(Status.Publish)) {
 			AsyncApi tempAsyncApi = mongoTemplate.findOne(new Query(Criteria.where("asyncApiId").is(asyncId)
