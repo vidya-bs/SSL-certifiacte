@@ -972,6 +972,12 @@ public class IdentityManagementDao {
         }
         return response;
     }
+    public Map<String, Object> checkWorkspace(String workspaceId) throws JsonProcessingException {
+        Workspace workspace = getWorkspace(workspaceId);
+        Map<String, Object> response = new HashMap<>();
+        response.put("isValid", workspace == null && !getRestrictedWorkspaceNames().contains(workspaceId));
+        return response;
+    }
 
     public Map<String, Object> validateSeats(long seats) {
         UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
@@ -2307,5 +2313,31 @@ public class IdentityManagementDao {
             }
         }
         return false;
+    }
+
+    public void restrictedWorkspaceNames(String restrictedNames) {
+        Query query = new Query().addCriteria(Criteria.where("key").is("restrictedNames"));
+        MetaData metaData = masterMongoTemplate.findOne(query, MetaData.class);
+        if (metaData != null) {
+            logger.debug("Updating restricted Names master Mongo Template");
+            Update update = new Update();
+            update.set("metadata", restrictedNames);
+            masterMongoTemplate.updateFirst(query, update, MetaData.class);
+        } else
+            masterMongoTemplate.save(new MetaData("restrictedNames", restrictedNames));
+    }
+    public HashSet<String> getRestrictedWorkspaceNames() throws JsonProcessingException {
+        Query query = new Query().addCriteria(Criteria.where("key").is("restrictedNames"));
+        logger.debug("Retrieving query to find restricted metadata by ID");
+        MetaData metaData = masterMongoTemplate.findOne(query, MetaData.class);
+        if (metaData != null) {
+            try {
+                return new ObjectMapper().readValue(metaData.getMetadata(), HashSet.class);
+            } catch (Exception ex) {
+                logger.error("Error while converting static restricted name", ex);
+                return new HashSet<>();
+            }
+        }
+        return new HashSet<>();
     }
 }
