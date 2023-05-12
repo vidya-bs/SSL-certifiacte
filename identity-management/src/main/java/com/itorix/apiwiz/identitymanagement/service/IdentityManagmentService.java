@@ -52,6 +52,18 @@ public interface IdentityManagmentService {
 			@RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/metadata", consumes = {"application/json"})
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<?> createSaltMetaData(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String xapikey, @RequestBody MetaData metadata)
+			throws JsonProcessingException, ItorixException;
+
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/metadata", produces = {"application/json"})
+	public ResponseEntity<?> getSaltMetaData(@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String xapikey) throws JsonProcessingException, ItorixException;
+
 	@PreAuthorize("hasAnyRole('ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/add", consumes = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> addUser(

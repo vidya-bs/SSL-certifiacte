@@ -74,6 +74,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			@RequestParam(value = "token", required = false) String verificationToken,@RequestParam(value = "appType", required = false) String appType,
 			@RequestBody UserInfo userInfo)
 			throws ItorixException, Exception {
+		identityManagementDao.validateUserFields(userInfo);
 		if (verificationToken == null)
 			return new ResponseEntity<Object>(identityManagementDao.registerWithMail(userInfo,appType), HttpStatus.CREATED);
 		else {
@@ -88,6 +89,19 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			else
 				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1009"), "Identity-1009");
 		}
+	}
+
+	@Override
+	public ResponseEntity<?> createSaltMetaData(String interactionid, String xapikey,
+			MetaData metadata) throws JsonProcessingException, ItorixException {
+		identityManagementDao.createSaltMetaData(metadata);
+		return new ResponseEntity<>(HttpStatus.CREATED);
+	}
+
+	@Override
+	public ResponseEntity<?> getSaltMetaData(String interactionid, String xapikey)
+			throws JsonProcessingException, ItorixException {
+		return new ResponseEntity<>(identityManagementDao.getSaltMetaData(),HttpStatus.OK);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/add", consumes = {"application/json"})
