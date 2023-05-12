@@ -2359,7 +2359,7 @@ public class IdentityManagementDao {
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get
                     ("Identity-1053"),"loginId","10"),"Identity-1053");
             }
-            if(userInfo.getFirstName().length()>20){
+            if(userInfo.getLoginId().length()>20){
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get
                     ("Identity-1054"),"loginId","20"),"Identity-1054");
             }
