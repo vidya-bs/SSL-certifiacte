@@ -52,6 +52,18 @@ public interface IdentityManagmentService {
 			@RequestBody UserInfo userInfo)
 			throws ItorixException, Exception;
 
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/metadata", consumes = {"application/json"})
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<?> createSaltMetaData(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String xapikey, @RequestBody MetaData metadata)
+			throws JsonProcessingException, ItorixException;
+
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/metadata", produces = {"application/json"})
+	public ResponseEntity<?> getSaltMetaData(@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String xapikey) throws JsonProcessingException, ItorixException;
+
 	@PreAuthorize("hasAnyRole('ADMIN','SITE-ADMIN') and hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/add", consumes = {"application/json"})
 	public @ResponseBody ResponseEntity<Void> addUser(
@@ -168,6 +180,21 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-apikey") String apikey, @PathVariable(value = "workspaceId") String workspaceId)
 			throws ItorixException, Exception;
+	@UnSecure
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/workspace/{workspaceId}/check-workspace", produces = {
+			"application/json"})
+	public @ResponseBody ResponseEntity<Object> checkWorkspaceName(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey, @PathVariable(value = "workspaceId") String workspaceId)
+			throws Exception;
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/workspace/restricted-names", produces = {
+			"application/json"})
+	public @ResponseBody ResponseEntity<Object> restrictedWorkspaceNames(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey,
+			@RequestBody String restrictedNames)
+			throws Exception;
 
 	@UnSecure
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/users/validate/{userId}", produces = {

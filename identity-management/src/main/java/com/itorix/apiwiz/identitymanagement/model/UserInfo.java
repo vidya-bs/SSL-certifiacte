@@ -17,6 +17,7 @@ public class UserInfo {
 	private String loginId;
 	private String email;
 	private String password;
+	private boolean isServiceAccount=false;
 	private String lastName;
 	private String firstName;
 	private String userStatus;
@@ -38,6 +39,14 @@ public class UserInfo {
 	private List<SwaggerTeam> teams;
 	private Map<String, String> metadata;
 	private boolean isTrial;
+
+	public boolean isServiceAccount() {
+		return isServiceAccount;
+	}
+
+	public void setIsServiceAccount(boolean serviceAccount) {
+		isServiceAccount = serviceAccount;
+	}
 
 	public boolean getIsTrial() {
 		return isTrial;
