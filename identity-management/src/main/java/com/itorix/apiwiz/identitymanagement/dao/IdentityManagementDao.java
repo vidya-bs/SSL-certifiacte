@@ -2331,7 +2331,12 @@ public class IdentityManagementDao {
         logger.debug("Retrieving query to find restricted metadata by ID");
         MetaData metaData = masterMongoTemplate.findOne(query, MetaData.class);
         if (metaData != null) {
-            return new ObjectMapper().readValue(metaData.getMetadata(), HashSet.class);
+            try {
+                return new ObjectMapper().readValue(metaData.getMetadata(), HashSet.class);
+            } catch (Exception ex) {
+                logger.error("Error while converting static restricted name", ex);
+                return new HashSet<>();
+            }
         }
         return new HashSet<>();
     }
