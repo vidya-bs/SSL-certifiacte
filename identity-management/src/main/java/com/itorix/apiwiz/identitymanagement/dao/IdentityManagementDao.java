@@ -2312,7 +2312,7 @@ public class IdentityManagementDao {
     public void validateUserFields(UserInfo userInfo) throws ItorixException {
         String nameRegexPattern = "^[a-zA-Z]+$";
         String loginIdPattern = "^[a-zA-Z\\d.-]+$";
-        String workspaceIdPattern = "^[a-zA-Z\\d-]+$";
+        String workspaceIdPattern = "^[a-zA-Z-]+$";
         String emailPattern = "^[A-Za-z\\d+_.@()-]+$";
         //String specialCharacters ="^[&,:;=?#|'<>^*()%!]+$";
 
@@ -2327,6 +2327,11 @@ public class IdentityManagementDao {
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get
                     ("Identity-1052"),"first name. Only alphabets are allowed"),"Identity-1052");
             }
+
+            if(userInfo.getFirstName().length()>24){
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                    ("Identity-1054"),"first name","24"),"Identity-1054");
+            }
         }
         //checking last name
         if(userInfo.getLastName()!=null){
@@ -2336,6 +2341,10 @@ public class IdentityManagementDao {
                     ("Identity-1052"),"last name. Only alphabets are allowed"),"Identity-1052");
             }
 
+            if(userInfo.getLastName().length()>24){
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                    ("Identity-1054"),"last name","24"),"Identity-1054");
+            }
         }
         //checking loginId
         if(userInfo.getLoginId()!=null){
@@ -2346,6 +2355,14 @@ public class IdentityManagementDao {
                     ("Identity-1052"),"loginId. Special characters are not allowed"),"Identity-1052");
             }
 
+            if(userInfo.getLoginId().length()<10){
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                    ("Identity-1053"),"loginId","10"),"Identity-1053");
+            }
+            if(userInfo.getFirstName().length()>20){
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                    ("Identity-1054"),"loginId","20"),"Identity-1054");
+            }
         }
         //checking workspaceId
         if(userInfo.getWorkspaceId()!=null){
@@ -2386,7 +2403,22 @@ public class IdentityManagementDao {
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get
                     ("Identity-1052"),"email. Special characters are not allowed"),"Identity-1052");
             }
+        }
 
+        if(userInfo.getPassword()!=null){
+            try{
+                String password = rsaEncryption.decryptText(userInfo.getPassword());
+                if(password.length()<8){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1053"),"password","8"),"Identity-1053");
+                }
+                if(password.length()>14){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1054"),"password","14"),"Identity-1054");
+                }
+            } catch (Exception e) {
+                logger.error("Cannot decrypt hashed value");
+            }
         }
     }
 }
