@@ -2337,115 +2337,120 @@ public class IdentityManagementDao {
     }
 
     public void validateUserFields(UserInfo userInfo) throws ItorixException {
-        String nameRegexPattern = "^[a-zA-Z]+$";
-        String loginIdPattern = "^[a-zA-Z\\d.-]+$";
-        String workspaceIdPattern = "^[a-zA-Z-]+$";
-        String emailPattern = "^[A-Za-z\\d+_.@()-]+$";
-        //String specialCharacters ="^[&,:;=?#|'<>^*()%!]+$";
+        try{
+            String nameRegexPattern = "^[a-zA-Z]+$";
+            String loginIdPattern = "^[a-zA-Z\\d.-]+$";
+            String workspaceIdPattern = "^[a-zA-Z-]+$";
+            String emailPattern = "^[A-Za-z\\d+_.@()-]+$";
+            //String specialCharacters ="^[&,:;=?#|'<>^*()%!]+$";
 
-        Pattern pattern = Pattern.compile(nameRegexPattern);
-        //Pattern specialCharacterPattern = Pattern.compile(specialCharacters);
-        Matcher matcher;
+            Pattern pattern = Pattern.compile(nameRegexPattern);
+            //Pattern specialCharacterPattern = Pattern.compile(specialCharacters);
+            Matcher matcher;
 
-        //checking first name
-        if(userInfo.getFirstName()!=null){
-            matcher = pattern.matcher(userInfo.getFirstName());
-            if(!matcher.matches()){
-                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
-                    ("Identity-1052"),"first name. Only alphabets are allowed"),"Identity-1052");
-            }
-
-            if(userInfo.getFirstName().length()>24){
-                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
-                    ("Identity-1054"),"first name","24"),"Identity-1054");
-            }
-        }
-        //checking last name
-        if(userInfo.getLastName()!=null){
-            matcher = pattern.matcher(userInfo.getLastName());
-            if(!matcher.matches()){
-                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
-                    ("Identity-1052"),"last name. Only alphabets are allowed"),"Identity-1052");
-            }
-
-            if(userInfo.getLastName().length()>24){
-                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
-                    ("Identity-1054"),"last name","24"),"Identity-1054");
-            }
-        }
-        //checking loginId
-        if(userInfo.getLoginId()!=null){
-            pattern = Pattern.compile(loginIdPattern);
-            matcher = pattern.matcher(userInfo.getLoginId());
-            if(!matcher.matches()){
-                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
-                    ("Identity-1052"),"loginId. Special characters are not allowed"),"Identity-1052");
-            }
-
-            if(userInfo.getLoginId().length()<10){
-                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
-                    ("Identity-1053"),"loginId","10"),"Identity-1053");
-            }
-            if(userInfo.getLoginId().length()>20){
-                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
-                    ("Identity-1054"),"loginId","20"),"Identity-1054");
-            }
-        }
-        //checking workspaceId
-        if(userInfo.getWorkspaceId()!=null){
-            pattern = Pattern.compile(workspaceIdPattern);
-            matcher = pattern.matcher(userInfo.getWorkspaceId());
-            if(!matcher.matches()){
-                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
-                    ("Identity-1052"),"workspaceId. Special characters are not allowed"),"Identity-1052");
-            }
-
-        }
-        //checking seats
-        Object seats = userInfo.getSeats();
-        if(!(seats instanceof Long)){
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get
-                ("Identity-1052"),"seats. Only numeric values are allowed"),"Identity-1052");
-        }
-        //checking planId
-        if(userInfo.getPlanId()!=null){
-            String planId = userInfo.getPlanId();
-            boolean notValid = true;
-            switch (planId) {
-                case "starter":
-                case "growth" :
-                case "enterprise":
-                    notValid = false;
-                    break;
-            }
-            if(notValid)
-                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
-                    ("Identity-1052"),"planId"),"Identity-1052");
-        }
-        //checking email
-        if(userInfo.getEmail()!=null){
-            pattern = Pattern.compile(emailPattern);
-            matcher = pattern.matcher(userInfo.getEmail());
-            if(!matcher.matches()){
-                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
-                    ("Identity-1052"),"email. Special characters are not allowed"),"Identity-1052");
-            }
-        }
-
-        if(userInfo.getPassword()!=null){
-            try{
-                String password = rsaEncryption.decryptText(userInfo.getPassword());
-                if(password.length()<8){
+            //checking first name
+            if(userInfo.getFirstName()!=null){
+                matcher = pattern.matcher(userInfo.getFirstName());
+                if(!matcher.matches()){
                     throw new ItorixException(String.format(ErrorCodes.errorMessage.get
-                        ("Identity-1053"),"password","8"),"Identity-1053");
+                        ("Identity-1052"),"first name. Only alphabets are allowed"),"Identity-1052");
                 }
-                if(password.length()>14){
+
+                if(userInfo.getFirstName().length()>24){
                     throw new ItorixException(String.format(ErrorCodes.errorMessage.get
-                        ("Identity-1054"),"password","14"),"Identity-1054");
+                        ("Identity-1054"),"first name","24"),"Identity-1054");
                 }
-            } catch (Exception e) {
-                logger.error("Cannot decrypt hashed value");
             }
+            //checking last name
+            if(userInfo.getLastName()!=null){
+                matcher = pattern.matcher(userInfo.getLastName());
+                if(!matcher.matches()){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1052"),"last name. Only alphabets are allowed"),"Identity-1052");
+                }
+
+                if(userInfo.getLastName().length()>24){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1054"),"last name","24"),"Identity-1054");
+                }
+            }
+            //checking loginId
+            if(userInfo.getLoginId()!=null){
+                pattern = Pattern.compile(loginIdPattern);
+                matcher = pattern.matcher(userInfo.getLoginId());
+                if(!matcher.matches()){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1052"),"loginId. Special characters are not allowed"),"Identity-1052");
+                }
+
+                if(userInfo.getLoginId().length()<10){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1053"),"loginId","10"),"Identity-1053");
+                }
+                if(userInfo.getLoginId().length()>20){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1054"),"loginId","20"),"Identity-1054");
+                }
+            }
+            //checking workspaceId
+            if(userInfo.getWorkspaceId()!=null){
+                pattern = Pattern.compile(workspaceIdPattern);
+                matcher = pattern.matcher(userInfo.getWorkspaceId());
+                if(!matcher.matches()){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1052"),"workspaceId. Special characters are not allowed"),"Identity-1052");
+                }
+
+            }
+            //checking seats
+            Object seats = userInfo.getSeats();
+            if(!(seats instanceof Long)){
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                    ("Identity-1052"),"seats. Only numeric values are allowed"),"Identity-1052");
+            }
+            //checking planId
+            if(userInfo.getPlanId()!=null){
+                String planId = userInfo.getPlanId();
+                boolean notValid = true;
+                switch (planId) {
+                    case "starter":
+                    case "growth" :
+                    case "enterprise":
+                        notValid = false;
+                        break;
+                }
+                if(notValid)
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1052"),"planId"),"Identity-1052");
+            }
+            //checking email
+            if(userInfo.getEmail()!=null){
+                pattern = Pattern.compile(emailPattern);
+                matcher = pattern.matcher(userInfo.getEmail());
+                if(!matcher.matches()){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1052"),"email. Special characters are not allowed"),"Identity-1052");
+                }
+            }
+
+            if(userInfo.getPassword()!=null){
+                try{
+                    String password = rsaEncryption.decryptText(userInfo.getPassword());
+                    if(password.length()<8){
+                        throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                            ("Identity-1053"),"password","8"),"Identity-1053");
+                    }
+                    if(password.length()>14){
+                        throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                            ("Identity-1054"),"password","14"),"Identity-1054");
+                    }
+                } catch (Exception e) {
+                    logger.error("Cannot decrypt hashed value");
+                }
+            }
+        }
+        catch (Exception e) {
+            logger.error("Exception occurred while validating the user fields : {}",e.getMessage());
         }
     }
 
