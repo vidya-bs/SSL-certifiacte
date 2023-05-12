@@ -472,7 +472,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			// collection
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggerVO.getName(), oas);
-			uploadFilesToGit(integrations, swaggerVO, json, oas,
+			uploadFilesToGit(integrations, swaggerVO, oas, json,
 					rsaEncryption);
 			
 			headers.add("X-Swagger-Version", swaggerVO.getRevision() + "");
@@ -502,7 +502,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			// collection
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggerVO.getName(), oas);
-			uploadFilesToGit(integrations, swaggerVO.getName(), oas,
+			uploadFilesToGit(integrations, swaggerVO, oas,
 					json,
 					rsaEncryption);
 			scannerDTO.setTenantId(getWorkspaceId());
@@ -553,14 +553,14 @@ public class SwaggerServiceImpl implements SwaggerService {
 		if (integrations != null && integrations.getScm_authorizationType().equalsIgnoreCase("basic")) {
 			File file = getFile(integrations, swaggerVO, json);
 			scmUtilImpl.pushFilesToSCM(file, integrations.getScm_repository(),
-					rsaEncryption.decryptText(integrations.getScm_username()),
-					rsaEncryption.decryptText(integrations.getScm_password()), integrations.getScm_url(),
+					integrations.getScm_username(),
+					integrations.getScm_password(), integrations.getScm_url(),
 					integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
 		} else if (integrations != null && swaggerVO != null) {
 			File file = getFile(integrations, swaggerVO, json);
 			scmUtilImpl.pushFilesToSCMBase64(file, integrations.getScm_repository(),
 					integrations.getScm_authorizationType(),
-					rsaEncryption.decryptText(integrations.getScm_token()),
+					integrations.getScm_token(),
 					integrations.getScm_url(), integrations.getScm_type(), integrations.getScm_branch(),
 					COMMIT_MESSAGE);
 		}
