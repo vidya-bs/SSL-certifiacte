@@ -103,8 +103,8 @@ public class IdentityManagementDao {
     @PostConstruct
     private void initDBProperties() {
         applicationProperties = getDBApplicationProperties();
-        getRegionData();
-        getPodHost();
+//        getRegionData();
+//        getPodHost();
     }
 
 	private void getRegionData() {
@@ -2478,5 +2478,16 @@ public class IdentityManagementDao {
             }
         }
         return new HashSet<>();
+    }
+
+    public void updateAsServiceAccount(UserInfo userInfo) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("email").is(userInfo.getEmail()));
+        query.addCriteria(Criteria.where("loginId").is(userInfo.getLoginId()));
+        User existing = masterMongoTemplate.findOne(query,User.class);
+        if(existing!=null){
+            existing.setIsServiceAccount(userInfo.isServiceAccount());
+            masterMongoTemplate.save(existing);
+        }
     }
 }
