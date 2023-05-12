@@ -270,6 +270,26 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			throws ItorixException, Exception {
 		return new ResponseEntity<Object>(identityManagementDao.validateWorkspace(workspaceId), HttpStatus.OK);
 	}
+	@UnSecure
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/workspace/{workspaceId}/check-workspace", produces = {
+			"application/json"})
+	public @ResponseBody ResponseEntity<Object> checkWorkspaceName(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey, @PathVariable(value = "workspaceId") String workspaceId)
+			throws ItorixException, Exception {
+		return new ResponseEntity<Object>(identityManagementDao.checkWorkspace(workspaceId), HttpStatus.OK);
+	}
+
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/workspace/restricted-names", produces = {
+			"application/json"})
+	public ResponseEntity<Object> restrictedWorkspaceNames(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey,
+			@RequestBody String restrictedNames) {
+		identityManagementDao.restrictedWorkspaceNames(restrictedNames);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 
 	@UnSecure
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/users/validate/{userId}", produces = {
