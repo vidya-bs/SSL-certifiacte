@@ -59,6 +59,13 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String xapikey, @RequestBody MetaData metadata)
 			throws JsonProcessingException, ItorixException;
 
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/service-account", consumes = {"application/json"})
+	@UnSecure(useUpdateKey = true)
+	public ResponseEntity<?> updateAsServiceAccount(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String xapikey, @RequestBody UserInfo userInfo)
+			throws JsonProcessingException, ItorixException;
+
 	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/metadata", produces = {"application/json"})
 	public ResponseEntity<?> getSaltMetaData(@RequestHeader(value = "interactionid", required = false) String interactionid,

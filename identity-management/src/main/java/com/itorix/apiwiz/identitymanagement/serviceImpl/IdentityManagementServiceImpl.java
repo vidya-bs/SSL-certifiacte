@@ -99,6 +99,14 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	}
 
 	@Override
+	@UnSecure(useUpdateKey = true )
+	public ResponseEntity<?> updateAsServiceAccount(String interactionid, String xapikey, UserInfo userInfo)
+			throws JsonProcessingException, ItorixException {
+		identityManagementDao.updateAsServiceAccount(userInfo);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@Override
 	public ResponseEntity<?> getSaltMetaData(String interactionid, String xapikey)
 			throws JsonProcessingException, ItorixException {
 		return new ResponseEntity<>(identityManagementDao.getSaltMetaData(),HttpStatus.OK);
