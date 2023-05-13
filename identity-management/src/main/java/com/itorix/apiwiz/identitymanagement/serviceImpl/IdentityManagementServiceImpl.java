@@ -74,6 +74,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			@RequestParam(value = "token", required = false) String verificationToken,@RequestParam(value = "appType", required = false) String appType,
 			@RequestBody UserInfo userInfo)
 			throws ItorixException, Exception {
+		identityManagementDao.validateUserFields(userInfo);
 		if (verificationToken == null)
 			return new ResponseEntity<Object>(identityManagementDao.registerWithMail(userInfo,appType), HttpStatus.CREATED);
 		else {
@@ -88,6 +89,27 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			else
 				throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1009"), "Identity-1009");
 		}
+	}
+
+	@Override
+	public ResponseEntity<?> createSaltMetaData(String interactionid, String xapikey,
+			MetaData metadata) throws JsonProcessingException, ItorixException {
+		identityManagementDao.createSaltMetaData(metadata);
+		return new ResponseEntity<>(HttpStatus.CREATED);
+	}
+
+	@Override
+	@UnSecure(useUpdateKey = true )
+	public ResponseEntity<?> updateAsServiceAccount(String interactionid, String xapikey, UserInfo userInfo)
+			throws JsonProcessingException, ItorixException {
+		identityManagementDao.updateAsServiceAccount(userInfo);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getSaltMetaData(String interactionid, String xapikey)
+			throws JsonProcessingException, ItorixException {
+		return new ResponseEntity<>(identityManagementDao.getSaltMetaData(),HttpStatus.OK);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/users/add", consumes = {"application/json"})
@@ -255,6 +277,26 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String apikey, @PathVariable(value = "workspaceId") String workspaceId)
 			throws ItorixException, Exception {
 		return new ResponseEntity<Object>(identityManagementDao.validateWorkspace(workspaceId), HttpStatus.OK);
+	}
+	@UnSecure
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/users/workspace/{workspaceId}/check-workspace", produces = {
+			"application/json"})
+	public @ResponseBody ResponseEntity<Object> checkWorkspaceName(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey, @PathVariable(value = "workspaceId") String workspaceId)
+			throws ItorixException, Exception {
+		return new ResponseEntity<Object>(identityManagementDao.checkWorkspace(workspaceId), HttpStatus.OK);
+	}
+
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/users/workspace/restricted-names", produces = {
+			"application/json"})
+	public ResponseEntity<Object> restrictedWorkspaceNames(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-apikey") String apikey,
+			@RequestBody String restrictedNames) {
+		identityManagementDao.restrictedWorkspaceNames(restrictedNames);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@UnSecure

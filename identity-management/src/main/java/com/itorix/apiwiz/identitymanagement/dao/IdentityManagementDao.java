@@ -21,6 +21,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.time.DateUtils;
@@ -205,7 +207,7 @@ public class IdentityManagementDao {
             userHashedPassword = user.getPassword();
             userInfoHashedPassword = getHashedValue(userInfoPassword);
         }
-        if(!preAuthenticated){
+        if (!preAuthenticated && !user.isServiceAccount()) {
             if(user.getPasswordLastChangedDate()==0)
                 throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1050"),"Identity-1050");
             long passwordLastChangedDate = user.getPasswordLastChangedDate();
@@ -278,7 +280,23 @@ public class IdentityManagementDao {
         throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1036"), "Identity-1036");
     }
 
-    public void registerOAuth2User(UserInfo userInfo) throws ItorixException{
+    public void createSaltMetaData(MetaData metadataStr) {
+        Query query = new Query().addCriteria(Criteria.where("key").is("salt"));
+        MetaData metaData = masterMongoTemplate.findOne(query, MetaData.class);
+        if (metaData != null) {
+            Update update = new Update();
+            update.set("metadata", metadataStr.getKey());
+            masterMongoTemplate.updateFirst(query, update, MetaData.class);
+        } else
+            masterMongoTemplate.save(new MetaData("salt", metadataStr.getKey()));
+    }
+
+    public MetaData getSaltMetaData() {
+        Query query = new Query().addCriteria(Criteria.where("key").is("salt"));
+        return masterMongoTemplate.findOne(query, MetaData.class);
+    }
+
+    public void registerOAuth2User(UserInfo userInfo) throws ItorixException {
         userInfo.setWorkspaceId(userInfo.getWorkspaceId());
         Workspace workspace = getWorkspace(userInfo.getWorkspaceId().toLowerCase());
 
@@ -397,6 +415,7 @@ public class IdentityManagementDao {
             user.setWorkPhone(userInfo.getWorkPhone());
             user.setCompany(userInfo.getCompany());
             user.setSubscribeNewsLetter(userInfo.getSubscribeNewsLetter());
+            user.setIsServiceAccount(userInfo.isServiceAccount());
             user.setUserStatus("active");
             if (userInfo.getMetadata() != null)
                 user.setMetadata(userInfo.getMetadata());
@@ -645,6 +664,7 @@ public class IdentityManagementDao {
                 user.setWorkPhone(userInfo.getWorkPhone());
                 user.setCompany(userInfo.getCompany());
                 user.setSubscribeNewsLetter(userInfo.getSubscribeNewsLetter());
+                user.setIsServiceAccount(userInfo.isServiceAccount());
                 List<String> userRoles = new ArrayList<>();
                 for (Roles role : Roles.values())
                     userRoles.add(role.getValue());
@@ -705,7 +725,7 @@ public class IdentityManagementDao {
             if (userByEmail != null) {
                 userByEmail.setPassword(user.getPassword());
                 userByEmail.setUserStatus("active");
-                user.setPasswordLastChangedDate(System.currentTimeMillis());
+                userByEmail.setPasswordLastChangedDate(System.currentTimeMillis());
                 userByEmail = saveUser(userByEmail);
                 token.setUsed(true);
                 saveVerificationToken(token);
@@ -970,6 +990,12 @@ public class IdentityManagementDao {
         } else {
             response.put("status", "true");
         }
+        return response;
+    }
+    public Map<String, Object> checkWorkspace(String workspaceId) throws JsonProcessingException {
+        Workspace workspace = getWorkspace(workspaceId);
+        Map<String, Object> response = new HashMap<>();
+        response.put("isValid", workspace == null && !getRestrictedWorkspaceNames().contains(workspaceId));
         return response;
     }
 
@@ -2283,6 +2309,7 @@ public class IdentityManagementDao {
             try {
                 oldPassword = rsaEncryption.decryptText(user.getOldPassword());
             } catch (Exception ex) {
+                logger.error("Enable to decrypt the password for user - {}", user.getEmail());
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Identity-1051"), "Unable to verify users old password!"), "Identity-1051");
             }
         } else {
@@ -2307,5 +2334,160 @@ public class IdentityManagementDao {
             }
         }
         return false;
+    }
+
+    public void validateUserFields(UserInfo userInfo) throws ItorixException {
+        try{
+            String nameRegexPattern = "^[a-zA-Z]+$";
+            String loginIdPattern = "^[a-zA-Z\\d.-]+$";
+            String workspaceIdPattern = "^[a-zA-Z-]+$";
+            String emailPattern = "^[A-Za-z\\d+_.@()-]+$";
+            //String specialCharacters ="^[&,:;=?#|'<>^*()%!]+$";
+
+            Pattern pattern = Pattern.compile(nameRegexPattern);
+            //Pattern specialCharacterPattern = Pattern.compile(specialCharacters);
+            Matcher matcher;
+
+            //checking first name
+            if(userInfo.getFirstName()!=null){
+                matcher = pattern.matcher(userInfo.getFirstName());
+                if(!matcher.matches()){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1052"),"first name. Only alphabets are allowed"),"Identity-1052");
+                }
+
+                if(userInfo.getFirstName().length()>24){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1054"),"first name","24"),"Identity-1054");
+                }
+            }
+            //checking last name
+            if(userInfo.getLastName()!=null){
+                matcher = pattern.matcher(userInfo.getLastName());
+                if(!matcher.matches()){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1052"),"last name. Only alphabets are allowed"),"Identity-1052");
+                }
+
+                if(userInfo.getLastName().length()>24){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1054"),"last name","24"),"Identity-1054");
+                }
+            }
+            //checking loginId
+            if(userInfo.getLoginId()!=null){
+                pattern = Pattern.compile(loginIdPattern);
+                matcher = pattern.matcher(userInfo.getLoginId());
+                if(!matcher.matches()){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1052"),"loginId. Special characters are not allowed"),"Identity-1052");
+                }
+
+                if(userInfo.getLoginId().length()<10){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1053"),"loginId","10"),"Identity-1053");
+                }
+                if(userInfo.getLoginId().length()>20){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1054"),"loginId","20"),"Identity-1054");
+                }
+            }
+            //checking workspaceId
+            if(userInfo.getWorkspaceId()!=null){
+                pattern = Pattern.compile(workspaceIdPattern);
+                matcher = pattern.matcher(userInfo.getWorkspaceId());
+                if(!matcher.matches()){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1052"),"workspaceId. Special characters are not allowed"),"Identity-1052");
+                }
+
+            }
+            //checking seats
+            Object seats = userInfo.getSeats();
+            if(!(seats instanceof Long)){
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                    ("Identity-1052"),"seats. Only numeric values are allowed"),"Identity-1052");
+            }
+            //checking planId
+            if(userInfo.getPlanId()!=null){
+                String planId = userInfo.getPlanId();
+                boolean notValid = true;
+                switch (planId) {
+                    case "starter":
+                    case "growth" :
+                    case "enterprise":
+                        notValid = false;
+                        break;
+                }
+                if(notValid)
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1052"),"planId"),"Identity-1052");
+            }
+            //checking email
+            if(userInfo.getEmail()!=null){
+                pattern = Pattern.compile(emailPattern);
+                matcher = pattern.matcher(userInfo.getEmail());
+                if(!matcher.matches()){
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                        ("Identity-1052"),"email. Special characters are not allowed"),"Identity-1052");
+                }
+            }
+
+            if(userInfo.getPassword()!=null){
+                try{
+                    String password = rsaEncryption.decryptText(userInfo.getPassword());
+                    if(password.length()<8){
+                        throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                            ("Identity-1053"),"password","8"),"Identity-1053");
+                    }
+                    if(password.length()>14){
+                        throw new ItorixException(String.format(ErrorCodes.errorMessage.get
+                            ("Identity-1054"),"password","14"),"Identity-1054");
+                    }
+                } catch (Exception e) {
+                    logger.error("Cannot decrypt hashed value");
+                }
+            }
+        }
+        catch (Exception e) {
+            logger.error("Exception occurred while validating the user fields : {}",e.getMessage());
+        }
+    }
+
+    public void restrictedWorkspaceNames(String restrictedNames) {
+        Query query = new Query().addCriteria(Criteria.where("key").is("restrictedNames"));
+        MetaData metaData = masterMongoTemplate.findOne(query, MetaData.class);
+        if (metaData != null) {
+            logger.debug("Updating restricted Names master Mongo Template");
+            Update update = new Update();
+            update.set("metadata", restrictedNames);
+            masterMongoTemplate.updateFirst(query, update, MetaData.class);
+        } else
+            masterMongoTemplate.save(new MetaData("restrictedNames", restrictedNames));
+    }
+    public HashSet<String> getRestrictedWorkspaceNames() throws JsonProcessingException {
+        Query query = new Query().addCriteria(Criteria.where("key").is("restrictedNames"));
+        logger.debug("Retrieving query to find restricted metadata by ID");
+        MetaData metaData = masterMongoTemplate.findOne(query, MetaData.class);
+        if (metaData != null) {
+            try {
+                return new ObjectMapper().readValue(metaData.getMetadata(), HashSet.class);
+            } catch (Exception ex) {
+                logger.error("Error while converting static restricted name", ex);
+                return new HashSet<>();
+            }
+        }
+        return new HashSet<>();
+    }
+
+    public void updateAsServiceAccount(UserInfo userInfo) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("email").is(userInfo.getEmail()));
+        query.addCriteria(Criteria.where("loginId").is(userInfo.getLoginId()));
+        User existing = masterMongoTemplate.findOne(query,User.class);
+        if(existing!=null){
+            existing.setIsServiceAccount(userInfo.isServiceAccount());
+            masterMongoTemplate.save(existing);
+        }
     }
 }

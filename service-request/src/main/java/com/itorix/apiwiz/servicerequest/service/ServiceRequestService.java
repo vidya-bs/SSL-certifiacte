@@ -44,7 +44,7 @@ public interface ServiceRequestService {
 			@RequestBody ServiceRequest config, @RequestHeader(value = "JSESSIONID") String jsessionid)
 			throws Exception;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/config/servicerequests/changestatus")
 	public ResponseEntity<?> changeServiceRequestStatus(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,

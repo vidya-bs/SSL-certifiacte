@@ -132,7 +132,7 @@ public interface CodeCoverageService {
 	@ApiOperation(value = "Get Code Coverages", notes = "", code = 200)
 	@ApiResponses(value = {@ApiResponse(code = 200, message = "Ok", response = MonitorResponse.class),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
-	@PreAuthorize("hasAnyAuthority('TEAM','ENTERPRISE')")
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/buildconfig/codecoverage")
 	public ResponseEntity<?> getMonitoringStats(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,

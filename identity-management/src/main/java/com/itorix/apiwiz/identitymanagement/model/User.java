@@ -30,16 +30,9 @@ public class User extends AbstractObject {
 	private String loginId;
 	private String email;
 	private String password;
-
-	public long getPasswordLastChangedDate() {
-		return passwordLastChangedDate;
-	}
-
-	public void setPasswordLastChangedDate(long passwordLastChangedDate) {
-		this.passwordLastChangedDate = passwordLastChangedDate;
-	}
-
 	private long passwordLastChangedDate;
+
+	private boolean isServiceAccount;
 	private String displayMessage;
 	private String lastName;
 	private String firstName;
@@ -67,6 +60,20 @@ public class User extends AbstractObject {
 		return verificationStatus;
 	}
 
+	public boolean isServiceAccount() {
+		return isServiceAccount;
+	}
+
+	public void setIsServiceAccount(boolean serviceAccount) {
+		isServiceAccount = serviceAccount;
+	}
+	public long getPasswordLastChangedDate() {
+		return passwordLastChangedDate;
+	}
+
+	public void setPasswordLastChangedDate(long passwordLastChangedDate) {
+		this.passwordLastChangedDate = passwordLastChangedDate;
+	}
 	public void setVerificationStatus(String verificationStatus) {
 		this.verificationStatus = verificationStatus;
 	}
