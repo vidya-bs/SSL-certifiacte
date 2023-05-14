@@ -639,13 +639,10 @@ public class AsyncApiDao {
 			throws ItorixException {
 		AsyncApi existing = getExistingAsyncByIdAndRevision(asyncId,revision);
 		if(existing!=null){
-			UserSession user = getUser(jsessionId);
-			asyncapi.setCts(existing.getCts());
-			asyncapi.setCreatedUserName(existing.getCreatedUserName());
-			asyncapi.setCreatedBy(existing.getCreatedBy());
-			asyncapi.setMts(System.currentTimeMillis());
-			asyncapi.setModifiedBy(user.getUserId());
-			asyncapi.setModifiedUserName(user.getUsername());
+			existing.setMts(System.currentTimeMillis());
+			existing.setModifiedBy(ServiceRequestContextHolder.getContext().getUserSessionToken().getUserId());
+			existing.setModifiedUserName(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
+			existing.setAsyncApi(asyncapi.getAsyncApi());
 			mongoTemplate.save(asyncapi);
 			initiateLinting(jsessionId, asyncapi.getAsyncApiId(), asyncapi.getRevision(),
 					existing.getRuleSetIds());
