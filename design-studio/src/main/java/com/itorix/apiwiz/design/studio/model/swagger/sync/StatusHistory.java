@@ -1,16 +1,23 @@
 package com.itorix.apiwiz.design.studio.model.swagger.sync;
 
 import com.itorix.apiwiz.design.studio.model.Status;
+import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 
 public class StatusHistory {
 
 
     private Status status;
     private String message;
-    private Long mts;
+    private Long cts;
+    private String lastModifiedBy;
 
-    private String userName;
-
+    public StatusHistory() {}
+    public StatusHistory(Status status, String message) {
+        this.status = status;
+        this.message = message;
+        this.cts = System.currentTimeMillis();
+        this.lastModifiedBy = ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername();
+    }
     public Status getStatus() {
         return status;
     }
@@ -26,19 +33,19 @@ public class StatusHistory {
     public void setMessage(String message) {
         this.message = message;
     }
-    public Long getMts() {
-        return mts;
+    public Long getCts() {
+        return cts;
     }
 
-    public void setMts(Long mts) {
-        this.mts = mts;
+    public void setCts(Long cts) {
+        this.cts = cts;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getLastModifiedBy() {
+        return lastModifiedBy;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setLastModifiedBy(String lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
     }
 }

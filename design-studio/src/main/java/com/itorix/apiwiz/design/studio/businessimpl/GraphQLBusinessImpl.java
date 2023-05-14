@@ -201,8 +201,8 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
       if(graphQL.getStatus().equals(statusHistory.getStatus())){
         throw new ItorixException(ErrorCodes.errorMessage.get("GraphQL-1002"), "GraphQL-1002");
       }
-      statusHistory.setMts(System.currentTimeMillis());
-      statusHistory.setUserName(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
+      statusHistory.setCts(System.currentTimeMillis());
+      statusHistory.setLastModifiedBy(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
       history.add(statusHistory);
       graphQL.setHistory(history);
       Status statusObject = statusHistory.getStatus();
@@ -217,9 +217,9 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
           }
           StatusHistory publishedStatusHistory = new StatusHistory();
           publishedStatusHistory.setStatus(Status.Draft);
-          publishedStatusHistory.setMts(System.currentTimeMillis());
+          publishedStatusHistory.setCts(System.currentTimeMillis());
           publishedStatusHistory.setMessage(String.format("Moved to Draft from Publish since revision %s got Published",revision));
-          publishedStatusHistory.setUserName("System Job");
+          publishedStatusHistory.setLastModifiedBy("System Job");
           publishedGraphQLHistoryList.add(publishedStatusHistory);
           publishedGraphQL.setHistory(publishedGraphQLHistoryList);
           publishedGraphQL.setStatus(Status.Draft);
