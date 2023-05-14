@@ -644,7 +644,7 @@ public class AsyncApiDao {
 			existing.setModifiedUserName(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
 			existing.setAsyncApi(asyncapi.getAsyncApi());
 			mongoTemplate.save(existing);
-			initiateLinting(jsessionId, asyncapi.getAsyncApiId(), asyncapi.getRevision(),
+			initiateLinting(jsessionId, existing.getAsyncApiId(), existing.getRevision(),
 					existing.getRuleSetIds());
 		}
 		else
