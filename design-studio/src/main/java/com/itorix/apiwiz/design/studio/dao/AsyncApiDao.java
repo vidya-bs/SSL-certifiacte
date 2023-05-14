@@ -643,7 +643,7 @@ public class AsyncApiDao {
 			existing.setModifiedBy(ServiceRequestContextHolder.getContext().getUserSessionToken().getUserId());
 			existing.setModifiedUserName(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
 			existing.setAsyncApi(asyncapi.getAsyncApi());
-			mongoTemplate.save(asyncapi);
+			mongoTemplate.save(existing);
 			initiateLinting(jsessionId, asyncapi.getAsyncApiId(), asyncapi.getRevision(),
 					existing.getRuleSetIds());
 		}
