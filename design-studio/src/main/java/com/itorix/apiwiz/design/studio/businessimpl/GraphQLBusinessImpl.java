@@ -262,7 +262,7 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
   }
 
   @Override
-  public Object getHistory(String jsessionId,int offset, int pagesize, String status, String sortByMts,String name) {
+  public Object getHistory(String jsessionId,int offset, int pagesize, String status, String sortByMts,String name,int limit) {
 
     SwaggerHistoryResponse response = new SwaggerHistoryResponse();
     Map<String, String> filterFieldsAndValues = new HashMap<>();
@@ -303,15 +303,19 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
           unwindOperation, projectionOperation, sortOperation), GraphQL.class, Document.class);
     }
     List<Document> graphQLList = results.getMappedResults();
-    graphQLList = trimList(graphQLList,offset,pagesize);
-    Pagination pagination = new Pagination();
-    pagination.setOffset(offset);
-    pagination.setTotal((long) results.getMappedResults().size());
-    pagination.setPageSize(graphQLList.size());
-    response.setPagination(pagination);
-    response.setData(graphQLList);
-
-    return response;
+    if(name != null){
+      graphQLList = trimList(graphQLList,1,limit);
+      return graphQLList;
+    }else {
+      graphQLList = trimList(graphQLList, offset, pagesize);
+      Pagination pagination = new Pagination();
+      pagination.setOffset(offset);
+      pagination.setTotal((long) results.getMappedResults().size());
+      pagination.setPageSize(graphQLList.size());
+      response.setPagination(pagination);
+      response.setData(graphQLList);
+      return response;
+    }
 
   }
 

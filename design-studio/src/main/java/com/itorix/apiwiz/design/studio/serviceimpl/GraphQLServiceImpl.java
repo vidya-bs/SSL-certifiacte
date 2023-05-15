@@ -7,6 +7,7 @@ import com.itorix.apiwiz.design.studio.model.GraphQLImport;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
 import com.itorix.apiwiz.design.studio.service.GraphQLService;
 import java.util.List;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ public class GraphQLServiceImpl implements GraphQLService {
       throws ItorixException {
     GraphQL checkGraphQL = new GraphQL();
     checkGraphQL.setName(name);
+    graphqlSchema = StringEscapeUtils.unescapeJava(graphqlSchema);
     GraphQL graphQL = graphQLBusiness.findGraphQL(checkGraphQL);
     if(graphQL!=null){
       logger.info("Creating a new revision for {}",graphQL.getName());
@@ -47,6 +49,7 @@ public class GraphQLServiceImpl implements GraphQLService {
   public ResponseEntity<?> updateWithRevision(String interactionid, String jsessionid, String graphQLId,
       Integer revision, String graphqlSchema) throws ItorixException {
     logger.info("Updating the GraphQL schema for Id-{} and revision-{}",graphQLId,revision);
+    graphqlSchema = StringEscapeUtils.unescapeJava(graphqlSchema);
     graphQLBusiness.updateWithRevision(graphQLId,revision,graphqlSchema);
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
@@ -71,6 +74,7 @@ public class GraphQLServiceImpl implements GraphQLService {
       String graphqlSchema) throws ItorixException {
     GraphQL checkGraphQL = new GraphQL();
     checkGraphQL.setGraphQLId(graphQLId);
+    graphqlSchema = StringEscapeUtils.unescapeJava(graphqlSchema);
     checkGraphQL.setGraphQLSchema(graphqlSchema);
     logger.info("Creating a new revision for Id-{}",graphQLId);
     graphQLBusiness.createNewRevisionWithId(checkGraphQL);
@@ -102,9 +106,9 @@ public class GraphQLServiceImpl implements GraphQLService {
 
   @Override
   public ResponseEntity<?> getHistory(String interactionid, String jsessionid, int offset, int pagesize,
-      String status,String sortByMts,String name) throws ItorixException {
+      String status,String sortByMts,String name,int limit) throws ItorixException {
     logger.info("Fetching the latest revisions history");
-    return ResponseEntity.ok(graphQLBusiness.getHistory(jsessionid,offset, pagesize, status, sortByMts,name));
+    return ResponseEntity.ok(graphQLBusiness.getHistory(jsessionid,offset, pagesize, status, sortByMts,name,limit));
   }
 
   @Override
