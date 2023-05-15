@@ -29,27 +29,17 @@ public class AsyncApi extends AbstractObject {
   private String description;
 
   private String asyncApi;
-
-  private String scm_folder;
-
-  private String scm_url;
-
-  private String scm_authorizationType;
-
-  private String scm_branch;
-
-  private String scm_repository;
-
-  private String scm_username;
-
-  private String scm_token;
-
-  private String scm_type;
-
-  private String scm_password;
-
+  private boolean enableScm;
+  private String repoName;
+  private String branch;
+  private String hostUrl;
+  private String folderName;
+  private String token;
+  private String scmSource;
+  private String username;
+  private String password;
+  private String authType;
   private List<StatusHistory> history;
-
   public List<String> getRuleSetIds() {
     return ruleSetIds;
   }
@@ -122,78 +112,6 @@ public class AsyncApi extends AbstractObject {
     this.description = description;
   }
 
-  public String getScm_folder() {
-    return scm_folder;
-  }
-
-  public void setScm_folder(String scm_folder) {
-    this.scm_folder = scm_folder;
-  }
-
-  public String getScm_url() {
-    return scm_url;
-  }
-
-  public void setScm_url(String scm_url) {
-    this.scm_url = scm_url;
-  }
-
-  public String getScm_authorizationType() {
-    return scm_authorizationType;
-  }
-
-  public void setScm_authorizationType(String scm_authorizationType) {
-    this.scm_authorizationType = scm_authorizationType;
-  }
-
-  public String getScm_branch() {
-    return scm_branch;
-  }
-
-  public void setScm_branch(String scm_branch) {
-    this.scm_branch = scm_branch;
-  }
-
-  public String getScm_repository() {
-    return scm_repository;
-  }
-
-  public void setScm_repository(String scm_repository) {
-    this.scm_repository = scm_repository;
-  }
-
-  public String getScm_username() {
-    return scm_username;
-  }
-
-  public void setScm_username(String scm_username) {
-    this.scm_username = scm_username;
-  }
-
-  public String getScm_token() {
-    return scm_token;
-  }
-
-  public void setScm_token(String scm_token) {
-    this.scm_token = scm_token;
-  }
-
-  public String getScm_type() {
-    return scm_type;
-  }
-
-  public void setScm_type(String scm_type) {
-    this.scm_type = scm_type;
-  }
-
-  public String getScm_password() {
-    return scm_password;
-  }
-
-  public void setScm_password(String scm_password) {
-    this.scm_password = scm_password;
-  }
-
   public String getAsyncApiId() {
     return asyncApiId;
   }
@@ -216,4 +134,84 @@ public class AsyncApi extends AbstractObject {
   public void setHistory(List<StatusHistory> history) {
     this.history = history;
   }
+  public boolean isEnableScm() {
+    return enableScm;
+  }
+
+  public void setEnableScm(boolean enableScm) {
+    this.enableScm = enableScm;
+  }
+
+  public String getRepoName() {
+    return repoName;
+  }
+
+  public void setRepoName(String repoName) {
+    this.repoName = repoName;
+  }
+
+  public String getBranch() {
+    return branch;
+  }
+
+  public void setBranch(String branch) {
+    this.branch = branch;
+  }
+
+  public String getHostUrl() {
+    return hostUrl;
+  }
+
+  public void setHostUrl(String hostUrl) {
+    this.hostUrl = hostUrl;
+  }
+
+  public String getFolderName() {
+    return folderName;
+  }
+
+  public void setFolderName(String folderName) {
+    this.folderName = folderName;
+  }
+
+  public String getToken() {
+    return token;
+  }
+
+  public void setToken(String token) {
+    this.token = token;
+  }
+
+  public String getScmSource() {
+    return scmSource;
+  }
+
+  public void setScmSource(String scmSource) {
+    this.scmSource = scmSource;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public String getAuthType() {
+    return authType;
+  }
+
+  public void setAuthType(String authType) {
+    this.authType = authType;
+  }
+
 }

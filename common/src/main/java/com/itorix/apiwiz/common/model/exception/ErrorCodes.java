@@ -295,6 +295,7 @@ public enum ErrorCodes {
 			put("SCM-1080","Invalid Credentials");
 			put("SCM-1090","Model Maps not found");
 			put("SCM-1091","Dictionary Name is empty");
+			put("SCM-1092","Invalid module");
 
 			//Monetization
 			put("Monetization-1010","Cannot place purchase. Insufficient Wallet Balance");
@@ -532,6 +533,7 @@ public enum ErrorCodes {
 			put("SCM-1080",500);
 			put("SCM-1090",400);
 			put("SCM-1091",400);
+			put("SCM-1092", 400);
 
 			put("Monetization-1010",400);
 			put("Monetization-1020",500);

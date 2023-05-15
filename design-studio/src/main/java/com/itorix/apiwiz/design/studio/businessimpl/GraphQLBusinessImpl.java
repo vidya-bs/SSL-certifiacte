@@ -69,7 +69,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class GraphQLBusinessImpl implements GraphQLBusiness {
-
+  public static final String GRAPHQL = "graphQl";
   private static final Logger logger = LoggerFactory.getLogger(GraphQLBusinessImpl.class);
 
   @Autowired
@@ -84,7 +84,8 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
 
   @Autowired
   ApplicationProperties applicationProperties;
-
+  @Autowired
+  SyncBusiness syncBusiness;
   @Override
   public void create(GraphQL graphQL) {
     graphQL.setRevision(1);
@@ -94,6 +95,13 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
     graphQL.setGraphQLId(UUID.randomUUID().toString().replaceAll("-", ""));
     updateUserDetails(graphQL);
     mongoTemplate.save(graphQL);
+    if (graphQL.isEnableScm()) {
+      try {
+        syncBusiness.sync2Repo(null, graphQL, GRAPHQL);
+      } catch (Exception exception) {
+        logger.error("Error while syncing Graph Ql:{} revision:{} to repo.", graphQL.getId(), graphQL.getRevision(), exception);
+      }
+    }
     logger.info("Successfully created a new GraphQL Schema");
   }
 
@@ -107,6 +115,13 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
       checkGraphQL.setGraphQLSchema(graphqlSchema);
       updateUserDetails(checkGraphQL);
       mongoTemplate.save(checkGraphQL);
+      if (graphQL.isEnableScm()) {
+        try {
+          syncBusiness.sync2Repo(null, checkGraphQL, GRAPHQL);
+        } catch (Exception exception) {
+          logger.error("Error while syncing Graph Ql:{} revision:{} to repo.", graphQL.getId(), graphQL.getRevision(), exception);
+        }
+      }
       logger.info("Successfully updated the GraphQL schema for Id - {} and revision - {}",graphQLId,revision);
     }else{
       logger.error("No Data found for Id - {} and revision - {}",graphQLId,revision);
@@ -152,8 +167,25 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
         graphQL.setLock(false);
         graphQL.setId(null);
         graphQL.setGraphQLId(existingGraphQL.getGraphQLId());
+        graphQL.setEnableScm(existingGraphQL.isEnableScm());
+        graphQL.setRepoName(existingGraphQL.getRepoName());
+        graphQL.setBranch(existingGraphQL.getBranch());
+        graphQL.setHostUrl(existingGraphQL.getHostUrl());
+        graphQL.setFolderName(existingGraphQL.getFolderName());
+        graphQL.setToken(existingGraphQL.getToken());
+        graphQL.setScmSource(existingGraphQL.getScmSource());
+        graphQL.setUsername(existingGraphQL.getUsername());
+        graphQL.setPassword(existingGraphQL.getPassword());
+        graphQL.setAuthType(existingGraphQL.getAuthType());
         updateUserDetails(graphQL);
         mongoTemplate.save(graphQL);
+        if (graphQL.isEnableScm()) {
+          try {
+            syncBusiness.sync2Repo(null, graphQL, GRAPHQL);
+          } catch (Exception exception) {
+            logger.error("Error while syncing Graph Ql:{} revision:{} to repo.", graphQL.getId(), graphQL.getRevision(), exception);
+          }
+        }
         logger.info("Successfully created new revision of the GraphQL schema for Name - {}",graphQL.getName());
       }
     }else{
@@ -176,8 +208,25 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
         graphQL.setId(null);
         graphQL.setGraphQLId(checkGraphQL.getGraphQLId());
         graphQL.setName(checkGraphQL.getName());
+        graphQL.setEnableScm(checkGraphQL.isEnableScm());
+        graphQL.setRepoName(checkGraphQL.getRepoName());
+        graphQL.setBranch(checkGraphQL.getBranch());
+        graphQL.setHostUrl(checkGraphQL.getHostUrl());
+        graphQL.setFolderName(checkGraphQL.getFolderName());
+        graphQL.setToken(checkGraphQL.getToken());
+        graphQL.setScmSource(checkGraphQL.getScmSource());
+        graphQL.setUsername(checkGraphQL.getUsername());
+        graphQL.setPassword(checkGraphQL.getPassword());
+        graphQL.setAuthType(checkGraphQL.getAuthType());
         updateUserDetails(graphQL);
         mongoTemplate.save(graphQL);
+        if (graphQL.isEnableScm()) {
+          try {
+            syncBusiness.sync2Repo(null, graphQL, GRAPHQL);
+          } catch (Exception exception) {
+            logger.error("Error while syncing Graph Ql:{} revision:{} to repo.", graphQL.getId(), graphQL.getRevision(), exception);
+          }
+        }
         logger.info("Successfully created new revision of the GraphQL schema for Id - {}",graphQL.getGraphQLId());
       }
     }else{

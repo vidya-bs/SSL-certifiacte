@@ -22,5 +22,14 @@ public class GraphQL extends AbstractObject {
   private Long lockedAt;
   private String lockedByUserId;
   private List<StatusHistory> history;
-
+  private boolean enableScm;
+  private String repoName;
+  private String branch;
+  private String hostUrl;
+  private String folderName;
+  private String token;
+  private String scmSource;
+  private String username;
+  private String password;
+  private String authType;
 }

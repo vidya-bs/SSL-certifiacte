@@ -22,6 +22,7 @@ import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.common.util.zip.ZIPUtil;
+import com.itorix.apiwiz.design.studio.businessimpl.SyncBusiness;
 import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
@@ -64,7 +65,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 @Slf4j
 public class AsyncApiDao {
-
+	public static final String ASYNC = "async-api";
 	@Autowired
 	MongoTemplate mongoTemplate;
 
@@ -86,6 +87,8 @@ public class AsyncApiDao {
 
 	@Autowired
 	RestTemplate restTemplate;
+	@Autowired
+	SyncBusiness syncBusiness;
 
 	@Value("${linting.api.url:}")
 	private String lintingUrl;
@@ -111,6 +114,13 @@ public class AsyncApiDao {
 			asyncApiObj.setCreatedBy(user.getUserId());
 			asyncApiObj.setCreatedUserName(user.getUsername());
 			mongoTemplate.save(asyncApiObj);
+			if (asyncApiObj.isEnableScm()) {
+				try {
+					syncBusiness.sync2Repo(asyncApiObj, null, ASYNC);
+				} catch (Exception exception) {
+					log.error("Error while syncing Async API:{} revision:{} to repo.", asyncApiObj.getId(), asyncApiObj.getRevision(), exception);
+				}
+			}
 		}
 	}
 
@@ -644,10 +654,27 @@ public class AsyncApiDao {
 			asyncApiObj.setCreatedBy(user.getUserId());
 			asyncApiObj.setCreatedUserName(user.getUsername());
 			asyncApiObj.setAsyncApi(asyncapi);
+			asyncApiObj.setEnableScm(existing.isEnableScm());
+			asyncApiObj.setRepoName(existing.getRepoName());
+			asyncApiObj.setBranch(existing.getBranch());
+			asyncApiObj.setHostUrl(existing.getHostUrl());
+			asyncApiObj.setFolderName(existing.getFolderName());
+			asyncApiObj.setToken(existing.getToken());
+			asyncApiObj.setScmSource(existing.getScmSource());
+			asyncApiObj.setUsername(existing.getUsername());
+			asyncApiObj.setPassword(existing.getPassword());
+			asyncApiObj.setAuthType(existing.getAuthType());
 			int maxRevision = groupByAsyncIdAndGetMaxRevision(asyncId);
 			asyncApiObj.setRevision(maxRevision+1);
 			asyncApiObj.setAsyncApiId(existing.getAsyncApiId());
 			mongoTemplate.save(asyncApiObj);
+			if (asyncApiObj.isEnableScm()) {
+				try {
+					syncBusiness.sync2Repo(asyncApiObj, null, ASYNC);
+				} catch (Exception exception) {
+					log.error("Error while syncing Async API:{} revision:{} to repo.", asyncApiObj.getId(), asyncApiObj.getRevision(), exception);
+				}
+			}
 			initiateLinting(jsessionId, asyncApiObj.getAsyncApiId(), asyncApiObj.getRevision(),
 					existing.getRuleSetIds());
 		}
@@ -665,6 +692,13 @@ public class AsyncApiDao {
 			existing.setModifiedUserName(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
 			existing.setAsyncApi(asyncapi.getAsyncApi());
 			mongoTemplate.save(existing);
+			if (existing.isEnableScm()) {
+				try {
+					syncBusiness.sync2Repo(existing, null, ASYNC);
+				} catch (Exception exception) {
+					log.error("Error while syncing Async API:{} revision:{} to repo.", existing.getId(), existing.getRevision(), exception);
+				}
+			}
 			initiateLinting(jsessionId, existing.getAsyncApiId(), existing.getRevision(),
 					existing.getRuleSetIds());
 		}
