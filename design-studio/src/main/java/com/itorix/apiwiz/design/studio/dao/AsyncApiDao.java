@@ -247,7 +247,7 @@ public class AsyncApiDao {
 		}
 
 		Long counter = (long) results.size();
-    if(name != null){
+    if(name.isPresent()){
       results = trimList(results, 1, limit);
       return results;
     }else {
