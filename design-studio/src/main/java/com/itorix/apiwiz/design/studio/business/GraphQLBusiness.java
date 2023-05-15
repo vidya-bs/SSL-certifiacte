@@ -34,7 +34,7 @@ public interface GraphQLBusiness {
   public void deleteAllRevisionsWithId(String graphqlId) throws ItorixException;
 
   public Object getHistory(String jsessionId,int offset, int pagesize,
-      String status, String sortByMts,String name);
+      String status, String sortByMts,String name,int limit);
 
   public List<Stat> getStats();
 

@@ -83,7 +83,8 @@ public interface GraphQLService {
       @RequestParam(value = "pagesize", required = false, defaultValue = "10") int pagesize,
       @RequestParam(value = "status", required = false) String status,
       @RequestParam(value = "sortbymts", required = false) String sortByMts,
-      @RequestParam(value = "name", required = false)String name)throws ItorixException;
+      @RequestParam(value = "name", required = false)String name,
+      @RequestParam(value= "limit", required = false,defaultValue = "10")int limit)throws ItorixException;
 
   @PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
   @RequestMapping(method = RequestMethod.GET, value = "/v1/design/graphql/stats")
