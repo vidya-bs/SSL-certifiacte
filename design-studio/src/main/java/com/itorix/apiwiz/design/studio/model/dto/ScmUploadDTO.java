@@ -16,6 +16,7 @@ public class ScmUploadDTO {
 	private String hostUrl;
 	private String folderName;
 	private String token;
+	private String commitMessage;
 	private String scmSource;
 	private String username;
 	private String password;
@@ -32,6 +33,7 @@ public class ScmUploadDTO {
 		this.folderName = asyncApi.getFolderName();
 		this.token = asyncApi.getToken();
 		this.scmSource = asyncApi.getScmSource();
+		this.commitMessage = asyncApi.getCommitMessage();
 		this.username = asyncApi.getUsername();
 		this.password = asyncApi.getPassword();
 		this.authType = asyncApi.getAuthType();
@@ -46,6 +48,7 @@ public class ScmUploadDTO {
 		this.folderName = graphQl.getFolderName();
 		this.token = graphQl.getToken();
 		this.scmSource = graphQl.getScmSource();
+		this.commitMessage = graphQl.getCommitMessage();
 		this.username = graphQl.getUsername();
 		this.password = graphQl.getPassword();
 		this.authType = graphQl.getAuthType();

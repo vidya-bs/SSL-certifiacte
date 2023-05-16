@@ -74,7 +74,10 @@ public class SyncBusiness {
         log.info("begin : upload DD to SCM");
         File file = createDataModelFiles(scmUploadDTO.getName(),
                 scmUploadDTO.getRevision(), asyncApi, graphQL, scmUploadDTO.getFolderName(), module);
-        String commitMessage = "Pushed " + scmUploadDTO.getName() + " to " + scmUploadDTO.getFolderName() + " in " + scmUploadDTO.getRepoName();
+        String commitMessage = scmUploadDTO.getCommitMessage();
+        if (commitMessage == null) {
+            commitMessage = "Pushed " + scmUploadDTO.getName() + " to " + scmUploadDTO.getFolderName() + " in " + scmUploadDTO.getRepoName();
+        }
 
         if (scmUploadDTO.getAuthType() != null && scmUploadDTO.getAuthType().equalsIgnoreCase("TOKEN")) {
             scmUtilImpl.pushFilesToSCMBase64(file, scmUploadDTO.getRepoName(), "TOKEN", scmUploadDTO.getToken(),

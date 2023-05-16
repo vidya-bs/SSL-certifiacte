@@ -32,4 +32,5 @@ public class GraphQL extends AbstractObject {
   private String username;
   private String password;
   private String authType;
+  private String commitMessage;
 }

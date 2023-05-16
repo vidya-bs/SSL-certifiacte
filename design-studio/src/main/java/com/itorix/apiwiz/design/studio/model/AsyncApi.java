@@ -34,6 +34,7 @@ public class AsyncApi extends AbstractObject {
   private String branch;
   private String hostUrl;
   private String folderName;
+  private String commitMessage;
   private String token;
   private String scmSource;
   private String username;
@@ -212,6 +213,14 @@ public class AsyncApi extends AbstractObject {
 
   public void setAuthType(String authType) {
     this.authType = authType;
+  }
+
+  public String getCommitMessage() {
+    return commitMessage;
+  }
+
+  public void setCommitMessage(String commitMessage) {
+    this.commitMessage = commitMessage;
   }
 
 }
