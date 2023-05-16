@@ -51,6 +51,7 @@ public class SyncServiceImpl implements SyncService {
         update.set("hostUrl",scmUploadDTO.getHostUrl());
         update.set("folderName",scmUploadDTO.getFolderName());
         update.set("token",scmUploadDTO.getToken());
+        update.set("commitMessage", scmUploadDTO.getCommitMessage());
         update.set("scmSource",scmUploadDTO.getScmSource());
         update.set("username",scmUploadDTO.getUsername());
         update.set("password",scmUploadDTO.getPassword());
