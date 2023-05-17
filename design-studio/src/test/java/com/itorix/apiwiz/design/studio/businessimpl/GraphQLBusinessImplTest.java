@@ -5,8 +5,8 @@ import static com.itorix.apiwiz.identitymanagement.model.Constants.REVISION;
 
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.design.studio.model.GraphQL;
-import com.itorix.apiwiz.design.studio.model.GraphQL.Status;
 import com.itorix.apiwiz.design.studio.model.Revision;
+import com.itorix.apiwiz.design.studio.model.Status;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

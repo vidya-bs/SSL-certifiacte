@@ -2,6 +2,7 @@ package com.itorix.apiwiz.design.studio.service;
 
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.design.studio.model.GraphQL;
+import com.itorix.apiwiz.design.studio.model.GraphQLData;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,7 +25,7 @@ public interface GraphQLService {
   public ResponseEntity<?> create(@RequestHeader(value = "interactionid", required = false) String interactionid,
       @RequestHeader(value = "JSESSIONID") String jsessionid,
       @PathVariable(value="name") String name,
-      @RequestBody String graphqlSchema)throws ItorixException;
+      @RequestBody GraphQLData graphqlSchema)throws ItorixException;
 
   @PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
   @RequestMapping(method = RequestMethod.PUT, value = "/v1/design/graphql/{graphqlId}/revision/{revision}")
@@ -32,7 +33,7 @@ public interface GraphQLService {
       @RequestHeader(value = "JSESSIONID") String jsessionid,
       @PathVariable(value = "graphqlId")String graphqlId,
       @PathVariable(value = "revision")Integer revision,
-      @RequestBody String graphqlSchema)throws ItorixException;
+      @RequestBody GraphQLData graphqlSchema)throws ItorixException;
 
   @PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
   @RequestMapping(method = RequestMethod.GET, value = "/v1/design/graphql/{graphqlId}/revision/{revision}")
@@ -53,7 +54,7 @@ public interface GraphQLService {
   public ResponseEntity<?> createNewRevision(@RequestHeader(value = "interactionid", required = false) String interactionid,
       @RequestHeader(value = "JSESSIONID") String jsessionid,
       @PathVariable(value = "graphqlId")String graphqlId,
-      @RequestBody String graphqlSchema)throws ItorixException;
+      @RequestBody GraphQLData graphqlSchema)throws ItorixException;
 
   @PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
   @RequestMapping(method = RequestMethod.PUT, value = "/v1/design/graphql/{graphqlId}/revision/{revision}/status")
