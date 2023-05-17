@@ -89,7 +89,7 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
   @Override
   public void create(GraphQL graphQL) {
     graphQL.setRevision(1);
-    graphQL.setStatus(Status.Draft);
+    graphQL.setStatus(Status.Draft.getStatus());
     graphQL.setLock(false);
     graphQL.setId(null);
     graphQL.setGraphQLId(UUID.randomUUID().toString().replaceAll("-", ""));
@@ -163,7 +163,7 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
         Revision revision = Collections.max(revisions);
         Integer newRevision = revision.getRevision() + 1;
         graphQL.setRevision(newRevision);
-        graphQL.setStatus(Status.Draft);
+        graphQL.setStatus(Status.Draft.getStatus());
         graphQL.setLock(false);
         graphQL.setId(null);
         graphQL.setGraphQLId(existingGraphQL.getGraphQLId());
@@ -203,7 +203,7 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
         Revision revision = Collections.max(revisions);
         Integer newRevision = revision.getRevision() + 1;
         graphQL.setRevision(newRevision);
-        graphQL.setStatus(Status.Draft);
+        graphQL.setStatus(Status.Draft.getStatus());
         graphQL.setLock(false);
         graphQL.setId(null);
         graphQL.setGraphQLId(checkGraphQL.getGraphQLId());
@@ -254,29 +254,29 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
       statusHistory.setLastModifiedBy(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
       history.add(statusHistory);
       graphQL.setHistory(history);
-      Status statusObject = statusHistory.getStatus();
+      Status statusObject = Status.valueOf(statusHistory.getStatus());
       if (statusObject.equals(Status.Publish)) {
         GraphQL publishedGraphQL = new GraphQL() ;
         publishedGraphQL = mongoTemplate.findOne(new Query(Criteria.where(GRAPHQL_ID).is(graphQLId)
-            .and(STATUS).is(statusObject)), GraphQL.class);
+            .and(STATUS).is(statusObject.getStatus())), GraphQL.class);
         if (publishedGraphQL != null) {
           List<StatusHistory> publishedGraphQLHistoryList = publishedGraphQL.getHistory();
           if (publishedGraphQLHistoryList == null) {
             publishedGraphQLHistoryList = new ArrayList<>();
           }
           StatusHistory publishedStatusHistory = new StatusHistory();
-          publishedStatusHistory.setStatus(Status.Draft);
+          publishedStatusHistory.setStatus(Status.Draft.getStatus());
           publishedStatusHistory.setCts(System.currentTimeMillis());
           publishedStatusHistory.setMessage(String.format("Moved to Draft from Publish since revision %s got Published",revision));
           publishedStatusHistory.setLastModifiedBy("System Job");
           publishedGraphQLHistoryList.add(publishedStatusHistory);
           publishedGraphQL.setHistory(publishedGraphQLHistoryList);
-          publishedGraphQL.setStatus(Status.Draft);
+          publishedGraphQL.setStatus(Status.Draft.getStatus());
           updateUserDetails(publishedGraphQL);
           mongoTemplate.save(publishedGraphQL);
         }
       }
-        graphQL.setStatus(statusObject);
+        graphQL.setStatus(statusObject.getStatus());
         updateUserDetails(graphQL);
         mongoTemplate.save(graphQL);
         logger.info("Successfully updated the status of the GraphQL schema for Id - {} and revision - {}",graphQLId,revision);
@@ -551,7 +551,7 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
     for (GraphQL graphQl : graphQLList) {
       Revision version = new Revision();
       version.setRevision(graphQl.getRevision());
-      version.setStatus(graphQl.getStatus().getStatus());
+      version.setStatus(graphQl.getStatus());
       version.setId(graphQl.getGraphQLId() != null ? graphQl.getGraphQLId() : graphQl.getId());
       versions.add(version);
     }

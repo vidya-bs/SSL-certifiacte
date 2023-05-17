@@ -16,7 +16,7 @@ public class GraphQL extends AbstractObject {
   private Integer revision;
   private String graphQLSchema;
   private String graphQLId;
-  private Status status;
+  private String status;
   private Boolean lock;
   private String lockedBy;
   private Long lockedAt;

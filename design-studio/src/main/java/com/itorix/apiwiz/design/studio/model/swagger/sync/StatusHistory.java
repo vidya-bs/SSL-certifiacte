@@ -6,23 +6,23 @@ import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
 public class StatusHistory {
 
 
-    private Status status;
+    private String status;
     private String message;
     private Long cts;
     private String lastModifiedBy;
 
     public StatusHistory() {}
-    public StatusHistory(Status status, String message) {
+    public StatusHistory(String status, String message) {
         this.status = status;
         this.message = message;
         this.cts = System.currentTimeMillis();
         this.lastModifiedBy = ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername();
     }
-    public Status getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 

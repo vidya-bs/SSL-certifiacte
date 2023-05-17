@@ -107,8 +107,8 @@ public class AsyncApiDao {
 			asyncApiObj.setAsyncApiId(UUID.randomUUID().toString().replaceAll("-", ""));
 			UserSession user = getUser(jsessionId);
 			asyncApiObj.setLock(true);
-			asyncApiObj.setStatus(Status.Draft);
-			asyncApiObj.setHistory(List.of(new StatusHistory(Status.Draft, String.format("New Async Api - %s is created", asyncApiObj.getName()))));
+			asyncApiObj.setStatus(Status.Draft.getStatus());
+			asyncApiObj.setHistory(List.of(new StatusHistory(Status.Draft.getStatus(), String.format("New Async Api - %s is created", asyncApiObj.getName()))));
 			asyncApiObj.setCts(System.currentTimeMillis());
 			asyncApiObj.setMts(System.currentTimeMillis());
 			asyncApiObj.setLockedBy(user.getUsername());
@@ -543,7 +543,7 @@ public class AsyncApiDao {
 		for (AsyncApi asyncApi : ascynApis) {
 			Revision version = new Revision();
 			version.setRevision(asyncApi.getRevision());
-			version.setStatus(asyncApi.getStatus().getStatus());
+			version.setStatus(asyncApi.getStatus());
 			version.setId(asyncApi.getAsyncApiId() != null ? asyncApi.getAsyncApiId() : asyncApi.getId());
 			versions.add(version);
 		}
@@ -644,9 +644,9 @@ public class AsyncApiDao {
 			JSONObject info = (JSONObject) jsonObject.get("info");
 			asyncApiObj.setName(info.get("title").toString());
 			asyncApiObj.setLock(true);
-			asyncApiObj.setStatus(Status.Draft);
+			asyncApiObj.setStatus(Status.Draft.getStatus());
 			asyncApiObj.setLockedBy(user.getUsername());
-			asyncApiObj.setHistory(List.of(new StatusHistory(Status.Draft, String.format("New Async Api - %s is created", asyncApiObj.getName()))));
+			asyncApiObj.setHistory(List.of(new StatusHistory(Status.Draft.getStatus(), String.format("New Async Api - %s is created", asyncApiObj.getName()))));
 			asyncApiObj.setCts(System.currentTimeMillis());
 			asyncApiObj.setMts(System.currentTimeMillis());
 			asyncApiObj.setCreatedBy(user.getUserId());
@@ -763,12 +763,12 @@ public class AsyncApiDao {
 		if (asyncApi.getStatus().equals(statusHistory.getStatus())) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("AsyncApi-1014"),"AsyncApi-1014");
 		}
-		if (statusHistory.getStatus().equals(Status.Publish)) {
+		if (statusHistory.getStatus().equals(Status.Publish.getStatus())) {
 			AsyncApi tempAsyncApi = mongoTemplate.findOne(new Query(Criteria.where("asyncApiId").is(asyncId)
-					.and(STATUS).is(Status.Publish)), AsyncApi.class);
+					.and(STATUS).is(Status.Publish.getStatus())), AsyncApi.class);
 			if (tempAsyncApi != null) {
-				tempAsyncApi.setStatus(Status.Draft);
-				tempAsyncApi.getHistory().add(new StatusHistory(Status.Draft, String.format("Moved to Draft from Publish since revision %s got Published",revision)));
+				tempAsyncApi.setStatus(Status.Draft.getStatus());
+				tempAsyncApi.getHistory().add(new StatusHistory(Status.Draft.getStatus(), String.format("Moved to Draft from Publish since revision %s got Published",revision)));
 				tempAsyncApi.setMts(System.currentTimeMillis());
 				tempAsyncApi.setModifiedUserName(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
 				mongoTemplate.save(tempAsyncApi);
