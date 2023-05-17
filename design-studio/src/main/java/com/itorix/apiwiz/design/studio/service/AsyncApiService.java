@@ -45,8 +45,8 @@ public interface AsyncApiService {
 			@RequestParam(value = "sortBy")Optional<String> sortBy,
 			@RequestParam(value = "status")Optional<String> status,
 			@RequestParam(value = "offset",required = false, defaultValue = "1") int offset,
-			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
-      @RequestParam(value = "limit",required = false, defaultValue = "10")int limit) throws Exception;
+			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize
+      ) throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN','OPERATION') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/design/async/names")

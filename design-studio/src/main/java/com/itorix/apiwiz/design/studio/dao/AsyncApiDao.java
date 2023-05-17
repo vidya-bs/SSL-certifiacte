@@ -184,7 +184,7 @@ public class AsyncApiDao {
 	}
 
 	public Object getAllAsyncApis(String jsessionid,int offset,int pageSize,
-			Optional<String> name, Optional<String> sortBy, Optional<String> status,int limit){
+			Optional<String> name, Optional<String> sortBy, Optional<String> status){
 
 		String[] PROJECTION_FIELDS = {"id", "name", "revision", "asyncApiId", "status","asyncApi",
 				"createdBy", "modifiedBy", "cts", "mts","lock"};
@@ -248,10 +248,6 @@ public class AsyncApiDao {
 		}
 
 		Long counter = (long) results.size();
-    if(name.isPresent()){
-      results = trimList(results, 1, limit);
-      return results;
-    }else {
       results = trimList(results, offset, pageSize);
       Pagination pagination = new Pagination();
       pagination.setOffset(offset);
@@ -261,7 +257,6 @@ public class AsyncApiDao {
       paginatedResponse.setPagination(pagination);
       paginatedResponse.setData(results);
       return paginatedResponse;
-    }
 	}
 	private List<AsyncApi> trimList(List<AsyncApi> asyncApis, int offset, int pageSize) {
 		List<AsyncApi> dictionaryIds = new ArrayList<>();

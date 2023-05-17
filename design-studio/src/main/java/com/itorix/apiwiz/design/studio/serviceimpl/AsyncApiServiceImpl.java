@@ -50,9 +50,9 @@ public class AsyncApiServiceImpl implements AsyncApiService {
 	@Override
 	public ResponseEntity<?> getAllAsyncApis(String interactionid, String jsessionid,Optional<String> name,
 			Optional<String> sortBy,Optional<String> status,int offset,
-			int pageSize,int limit) throws Exception {
+			int pageSize) throws Exception {
 		return new ResponseEntity<>(asyncApiDao.getAllAsyncApis(jsessionid,offset, pageSize,name,
-				sortBy,status,limit), HttpStatus.OK);
+				sortBy,status), HttpStatus.OK);
 	}
 
 	@Override
