@@ -12,6 +12,7 @@ import static org.springframework.data.mongodb.core.aggregation.ComparisonOperat
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -395,6 +396,7 @@ public class AsyncApiDao {
 			try {
 				asyncapiImports = importAsyncApisFromFiles(files,jsessionid);
 			} catch (Exception e) {
+				log.error("error occurred while importing async apis", e);
 				throw new ItorixException(e.getMessage(), "General-1000");
 			} finally {
 				FileUtils.cleanDirectory(new File(fileLocation));
@@ -417,22 +419,23 @@ public class AsyncApiDao {
 				}
 				String reason = null;
 				AsyncapiImport asyncapiImport = new AsyncapiImport();
+				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 				JsonNode asyncApiObject = mapper.readTree(filecontent);
 				if(asyncApiObject.get("asyncapi")!=null){
 					try {
-						AsyncApiDataModel dataModel = new ObjectMapper().convertValue(asyncApiObject, new TypeReference<>() {});
+						AsyncApiDataModel dataModel = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).convertValue(asyncApiObject, new TypeReference<>() {});
 						Set<String> basePaths = new HashSet();
 						HashMap<String,Object> servers = dataModel.getServers();
 						for (Map.Entry<String, Object> entry : servers.entrySet()) {
 							String key = entry.getKey();
-							HashMap<String,Object> server = new ObjectMapper().convertValue(entry.getValue(), new TypeReference<>() {});
+							HashMap<String,Object> server = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).convertValue(entry.getValue(), new TypeReference<>() {});
 							String urlStr = getReplacedURLStr(server);
 							try {
 								URL url = new URL(urlStr);
 								if(!url.getPath().equals(""))
 									basePaths.add(url.getPath());
 							} catch (MalformedURLException e) {
-								log.error("Error while getting basePath for Asyncapi : {} URL {} ", e.getMessage(),urlStr);
+								log.error("Error while getting basePath for Asyncapi : {} URL {} ", e.getMessage(),urlStr, e);
 							}
 							// ...
 						}
@@ -472,7 +475,7 @@ public class AsyncApiDao {
 								asyncapiImport.setAsyncapiId(asyncApi.getAsyncApiId());
 								asyncapiImport.setLoaded(true);
 							} catch (ItorixException e) {
-								log.error("Exception occured : {}",e.getMessage());
+								log.error("Exception occured : {}",e.getMessage(), e);
 								asyncapiImport.setReason(e.getMessage());
 							}
 							asyncapiImports.add(asyncapiImport);
@@ -480,7 +483,7 @@ public class AsyncApiDao {
 							new ItorixException("invalid JSON file");
 						}
 					} catch (Exception e) {
-						log.error(e.getMessage());
+						log.error(e.getMessage(), e);
 						asyncapiImport.setName(file.getName());
 						asyncapiImport.setLoaded(false);
 						asyncapiImport.setReason("Basepath already exists");
@@ -567,7 +570,7 @@ public class AsyncApiDao {
 		try {
 			mappings = mongoTemplate.findAll(AsyncApiBasePath.class);
 		} catch (Exception ex) {
-			log.error("Error while finding Asyncapi base path {} ", ex.getMessage());
+			log.error("Error while finding Asyncapi base path {} ", ex.getMessage(), ex);
 		}
 		if (mappings == null || mappings.size() == 0) {
 			publishAsyncApiBasepaths();
@@ -593,7 +596,7 @@ public class AsyncApiDao {
 				if(!url.getPath().equals(""))
 					basePaths.add(url.getPath());
 			} catch (MalformedURLException e) {
-				log.error("Error while getting basePath for Asyncapi : {} URL {} ", e.getMessage(),urlStr);
+				log.error("Error while getting basePath for Asyncapi : {} URL {} ", e.getMessage(),urlStr, e);
 			}
 			// ...
 		}
@@ -728,7 +731,7 @@ public class AsyncApiDao {
 			asyncLintingInfo.setRuleSetIds(ruleSetIds);
 			callLintingAPI(asyncLintingInfo, jsessionid);
 		} catch (Exception ex) {
-			log.error("Error while calling linting API {} ", ex.getMessage());
+			log.error("Error while calling linting API. ", ex);
 		}
 	}
 
@@ -747,7 +750,7 @@ public class AsyncApiDao {
 		try {
 			restTemplate.exchange(lintingUrl+ lintAsync, HttpMethod.POST, entity, String.class).getBody();
 		} catch (Exception e) {
-			log.error("Error while calling linting API {} ", e.getMessage());
+			log.error("Error while calling linting API. ", e);
 		}
 
 	}
