@@ -302,13 +302,7 @@ public class AsyncApiDao {
 	}
 
 	public List<AsyncApi> search(String name) {
-//		Query query = new Query();
-//		query.addCriteria(Criteria.where("name").regex(name));
-//		List<AsyncApi> asyncApis = mongoTemplate.find(query,AsyncApi.class);
-//		if(asyncApis.size() == 0)
-//			return new ArrayList<>();
-//		return asyncApis;
-		String[] PROJECTION_FIELDS = {"id", "name", "revision", "asyncApiId"};
+		String[] PROJECTION_FIELDS = {"name", "revision", "asyncApiId"};
 		ProjectionOperation projectRequiredFields = project(PROJECTION_FIELDS);
 
 		GroupOperation groupByMaxRevision = group("$asyncApiId").max("revision")
@@ -321,13 +315,14 @@ public class AsyncApiDao {
 		SortOperation sortOperation = sort(Direction.ASC, "name");
 		UnwindOperation unwindOperation = unwind("originalDoc");
 		ProjectionOperation projectionOperation = project("originalDoc.name")
-				.andInclude("originalDoc.asyncApiId", "originalDoc._id");
+				.andInclude("originalDoc.asyncApiId",
+						"originalDoc.revision");
+		ProjectionOperation excludeFields = project().andExclude("id" , "enableScm");
 		MatchOperation searchOperation = new MatchOperation(Criteria.where("name").regex(name));
 		return mongoTemplate.aggregate(
-				newAggregation(projectRequiredFields, searchOperation,
-						groupByMaxRevision, filterMaxRevision, groupByMaxRevision, filterMaxRevision,
-						unwindOperation, projectionOperation, sortOperation),
-				AsyncApi.class, AsyncApi.class).getMappedResults();
+					newAggregation(projectRequiredFields, searchOperation, excludeFields,
+							groupByMaxRevision, filterMaxRevision, unwindOperation, projectionOperation, sortOperation),
+					AsyncApi.class, AsyncApi.class).getMappedResults();
 	}
 
 	public List<AsyncapiImport> importAsyncApis(MultipartFile zipFile, String type, String gitURI, String branch, String authType, String userName, String password,
