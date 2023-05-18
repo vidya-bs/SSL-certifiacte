@@ -112,7 +112,7 @@ public class AsyncApiDao {
 			asyncApiObj.setCts(System.currentTimeMillis());
 			asyncApiObj.setMts(System.currentTimeMillis());
 			asyncApiObj.setLockedBy(user.getUsername());
-			asyncApiObj.setCreatedBy(user.getUserId());
+			asyncApiObj.setCreatedBy(user.getUsername());
 			asyncApiObj.setCreatedUserName(user.getUsername());
 			mongoTemplate.save(asyncApiObj);
 			if (asyncApiObj.isEnableScm()) {
@@ -644,7 +644,7 @@ public class AsyncApiDao {
 			asyncApiObj.setHistory(List.of(new StatusHistory(Status.Draft.getStatus(), String.format("New Async Api - %s is created", asyncApiObj.getName()))));
 			asyncApiObj.setCts(System.currentTimeMillis());
 			asyncApiObj.setMts(System.currentTimeMillis());
-			asyncApiObj.setCreatedBy(user.getUserId());
+			asyncApiObj.setCreatedBy(user.getUsername());
 			asyncApiObj.setCreatedUserName(user.getUsername());
 			asyncApiObj.setAsyncApi(asyncapi);
 			asyncApiObj.setEnableScm(existing.isEnableScm());
