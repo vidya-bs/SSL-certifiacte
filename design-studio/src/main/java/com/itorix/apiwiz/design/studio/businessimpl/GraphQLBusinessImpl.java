@@ -115,7 +115,7 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
       checkGraphQL.setGraphQLSchema(graphqlSchema);
       updateUserDetails(checkGraphQL);
       mongoTemplate.save(checkGraphQL);
-      if (graphQL.isEnableScm()) {
+      if (checkGraphQL.isEnableScm()) {
         try {
           syncBusiness.sync2Repo(null, checkGraphQL, GRAPHQL);
         } catch (Exception exception) {
