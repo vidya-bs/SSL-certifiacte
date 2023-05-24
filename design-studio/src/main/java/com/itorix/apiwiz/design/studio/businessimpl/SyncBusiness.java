@@ -32,7 +32,7 @@ public class SyncBusiness {
         String fileExtension = null;
         if (module.equalsIgnoreCase(ASYNC)) {
             scmUploadDTO = new ScmUploadDTO(asyncApi);
-            fileData = asyncApi.getAsyncApiId();
+            fileData = asyncApi.getAsyncApi();
             fileExtension = ".json";
         } else if (module.equalsIgnoreCase(GRAPHQL)) {
             scmUploadDTO = new ScmUploadDTO(graphQL);
