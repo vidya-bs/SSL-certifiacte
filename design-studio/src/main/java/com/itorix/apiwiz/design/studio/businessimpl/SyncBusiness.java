@@ -8,7 +8,6 @@ import com.itorix.apiwiz.design.studio.model.GraphQL;
 import com.itorix.apiwiz.design.studio.model.dto.ScmUploadDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,10 +28,16 @@ public class SyncBusiness {
                     "SCM-1091");
         }
         ScmUploadDTO scmUploadDTO = null;
+        String fileData = null;
+        String fileExtension = null;
         if (module.equalsIgnoreCase(ASYNC)) {
             scmUploadDTO = new ScmUploadDTO(asyncApi);
+            fileData = asyncApi.getAsyncApiId();
+            fileExtension = ".json";
         } else if (module.equalsIgnoreCase(GRAPHQL)) {
             scmUploadDTO = new ScmUploadDTO(graphQL);
+            fileData = graphQL.getGraphQLSchema();
+            fileExtension = ".graphql";
         }
         //Push to SCM (Same as done in Editor Lite)
         if (scmUploadDTO.getName() == null) {
@@ -73,7 +78,7 @@ public class SyncBusiness {
         }
         log.info("begin : upload DD to SCM");
         File file = createDataModelFiles(scmUploadDTO.getName(),
-                scmUploadDTO.getRevision(), asyncApi, graphQL, scmUploadDTO.getFolderName(), module);
+                scmUploadDTO.getRevision(), fileData, scmUploadDTO.getFolderName(), module, fileExtension);
         String commitMessage = scmUploadDTO.getCommitMessage();
         if (commitMessage == null) {
             commitMessage = "Pushed " + scmUploadDTO.getName() + " to " + scmUploadDTO.getFolderName() + " in " + scmUploadDTO.getRepoName();
@@ -90,45 +95,19 @@ public class SyncBusiness {
         file.delete();
     }
 
-    private File createDataModelFiles(String name, int revision, AsyncApi asyncApi, GraphQL graphQL, String folder, String module) {
+    private File createDataModelFiles(String name, int revision, String fileData, String folder, String module, String fileExtension) {
         String separatorChar = String.valueOf(File.separatorChar);
         String revStr = separatorChar + module + separatorChar + name;
         folder = folder != null && !folder.isEmpty() ? folder + revStr : module + revStr;
         String providedFolderName = folder;
         String location = System.getProperty("java.io.tmpdir") + System.currentTimeMillis();
-        String fileLocation = location + separatorChar + providedFolderName + separatorChar + revision + separatorChar + name + separatorChar + revision + ".json";
+        String fileLocation = location + separatorChar + providedFolderName + separatorChar + revision + separatorChar + name + separatorChar + revision + fileExtension;
         File file = new File(fileLocation);
         file.getParentFile().mkdirs();
         try {
             file.createNewFile();
             ObjectMapper om = new ObjectMapper();
-            if (asyncApi != null) {
-                AsyncApi copyAsyncApi = new AsyncApi();
-                BeanUtils.copyProperties(asyncApi, copyAsyncApi);
-                copyAsyncApi.setRepoName(null);
-                copyAsyncApi.setBranch(null);
-                copyAsyncApi.setHostUrl(null);
-                copyAsyncApi.setFolderName(null);
-                copyAsyncApi.setToken(null);
-                copyAsyncApi.setScmSource(null);
-                copyAsyncApi.setUsername(null);
-                copyAsyncApi.setPassword(null);
-                copyAsyncApi.setAuthType(null);
-                om.writerWithDefaultPrettyPrinter().writeValue(file, copyAsyncApi);
-            } else if (graphQL != null) {
-                GraphQL copyGraphQl = new GraphQL();
-                BeanUtils.copyProperties(graphQL, copyGraphQl);
-                copyGraphQl.setRepoName(null);
-                copyGraphQl.setBranch(null);
-                copyGraphQl.setHostUrl(null);
-                copyGraphQl.setFolderName(null);
-                copyGraphQl.setToken(null);
-                copyGraphQl.setScmSource(null);
-                copyGraphQl.setUsername(null);
-                copyGraphQl.setPassword(null);
-                copyGraphQl.setAuthType(null);
-                om.writerWithDefaultPrettyPrinter().writeValue(file,graphQL);
-            }
+            om.writerWithDefaultPrettyPrinter().writeValue(file, fileData);
         } catch (Exception fileException){
             log.error("SCM Error While Creating {} File : " + fileException.getMessage(), module);
         }
