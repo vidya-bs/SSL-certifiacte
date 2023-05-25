@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static com.itorix.apiwiz.design.studio.businessimpl.GraphQLBusinessImpl.GRAPHQL;
 import static com.itorix.apiwiz.design.studio.dao.AsyncApiDao.ASYNC;
@@ -34,12 +36,7 @@ public class SyncBusiness {
         String fileExtension = null;
         if (module.equalsIgnoreCase(ASYNC)) {
             scmUploadDTO = new ScmUploadDTO(asyncApi);
-            try {
-                fileData = new JSONObject(asyncApi.getAsyncApi());
-            }catch (JSONException err){
-                log.error("Error while parsing Json String. {}", err.getMessage());
-                fileData = asyncApi.getAsyncApi();
-            }
+            fileData = asyncApi.getAsyncApi();
             fileExtension = ".json";
         } else if (module.equalsIgnoreCase(GRAPHQL)) {
             scmUploadDTO = new ScmUploadDTO(graphQL);
@@ -113,8 +110,7 @@ public class SyncBusiness {
         file.getParentFile().mkdirs();
         try {
             file.createNewFile();
-            ObjectMapper om = new ObjectMapper();
-            om.writerWithDefaultPrettyPrinter().writeValue(file, fileData);
+            Files.write(Paths.get(fileLocation), fileData.toString().getBytes());
         } catch (Exception fileException){
             log.error("SCM Error While Creating {} File : " + fileException.getMessage(), module);
         }
