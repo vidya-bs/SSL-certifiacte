@@ -912,28 +912,31 @@ public class IdentityManagementDao {
         }
     }
 
-    public void recoverWorkspace(String email) {
+    public void recoverWorkspace(String email) throws ItorixException{
         User user = findByEmailUserName(email);
-        String workspacesStr = "";
-        int length = user.getWorkspaces().size();
-        int index = 1;
-        List<UserWorkspace> workspaces = user.getWorkspaces();
-        for (UserWorkspace workspace : workspaces) {
-            workspacesStr = workspacesStr + workspace.getWorkspace().getName();
-            if (index < length)
-                workspacesStr = workspacesStr + ", ";
-            index++;
-        }
-        try {
-            String bodyText = MessageFormat.format(applicationProperties.getRecoverWorkspaceBody(),
-                    user.getFirstName() + " " + user.getLastName(), workspacesStr, applicationProperties.getAppURL());
-            ArrayList<String> toRecipients = new ArrayList<String>();
-            toRecipients.add(user.getEmail());
-            String subject = applicationProperties.getRecoverWorkspaceSubject();
-            sendMail(subject, bodyText, toRecipients);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            e.printStackTrace();
+        if(user!=null) {
+            StringBuilder workspacesStr = new StringBuilder();
+            int length = user.getWorkspaces().size();
+            int index = 1;
+            List<UserWorkspace> workspaces = user.getWorkspaces();
+            for (UserWorkspace workspace : workspaces) {
+                workspacesStr.append(workspace.getWorkspace().getName());
+                if (index < length)
+                    workspacesStr.append(", ");
+                index++;
+            }
+            try {
+                String bodyText = MessageFormat.format(applicationProperties.getRecoverWorkspaceBody(),
+                        user.getFirstName() + " " + user.getLastName(), workspacesStr, applicationProperties.getAppURL());
+                ArrayList<String> toRecipients = new ArrayList<String>();
+                toRecipients.add(user.getEmail());
+                sendMail(applicationProperties.getRecoverWorkspaceSubject(), bodyText, toRecipients);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+                e.printStackTrace();
+            }
+        }else {
+            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1023"), "Identity-1023");
         }
     }
 
