@@ -8,6 +8,8 @@ import com.itorix.apiwiz.design.studio.model.GraphQL;
 import com.itorix.apiwiz.design.studio.model.dto.ScmUploadDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,11 +30,16 @@ public class SyncBusiness {
                     "SCM-1091");
         }
         ScmUploadDTO scmUploadDTO = null;
-        String fileData = null;
+        Object fileData = null;
         String fileExtension = null;
         if (module.equalsIgnoreCase(ASYNC)) {
             scmUploadDTO = new ScmUploadDTO(asyncApi);
-            fileData = asyncApi.getAsyncApi();
+            try {
+                fileData = new JSONObject(asyncApi.getAsyncApi());
+            }catch (JSONException err){
+                log.error("Error while parsing Json String. {}", err.getMessage());
+                fileData = asyncApi.getAsyncApi();
+            }
             fileExtension = ".json";
         } else if (module.equalsIgnoreCase(GRAPHQL)) {
             scmUploadDTO = new ScmUploadDTO(graphQL);
@@ -95,7 +102,7 @@ public class SyncBusiness {
         file.delete();
     }
 
-    private File createDataModelFiles(String name, int revision, String fileData, String folder, String module, String fileExtension) {
+    private File createDataModelFiles(String name, int revision, Object fileData, String folder, String module, String fileExtension) {
         String separatorChar = String.valueOf(File.separatorChar);
         String revStr = separatorChar + module + separatorChar + name;
         folder = folder != null && !folder.isEmpty() ? folder + revStr : module + revStr;
