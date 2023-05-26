@@ -8,6 +8,8 @@ import com.itorix.apiwiz.common.model.MetaData;
 import com.itorix.apiwiz.common.model.integrations.Integration;
 import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
 import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
+import com.itorix.apiwiz.devstudio.model.metricsMetadata.BuildGovernance;
+import com.itorix.apiwiz.devstudio.model.metricsMetadata.MetricMetadata;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,6 +133,31 @@ public class IntegrationsDao {
 	}
 
 	public void updateWorkspaceIntegration(WorkspaceIntegration workspaceIntegration) {
+		if(workspaceIntegration.getPropertyKey().equalsIgnoreCase("apiwiz.codecoverage.threshold.rating")){
+			List<MetricMetadata> metricMetadataList = mongoTemplate.findAll(MetricMetadata.class);
+			if(metricMetadataList.size()>0){
+				metricMetadataList.forEach(metricMetadata -> {
+					BuildGovernance buildGovernance = metricMetadata.getBuildGovernance()!=null ?
+							metricMetadata.getBuildGovernance() : null;
+					if(buildGovernance!=null){
+						int percentage = buildGovernance.getAvgCodeCoverage();
+						String [] values = workspaceIntegration.getPropertyValue().split("\\|");
+						for (String value : values) {
+							String[] range = value.split(":");
+							int leftRange = Integer.parseInt(range[0].split("-")[0]);
+							int rightRange = Integer.parseInt(range[0].split("-")[1]);
+							if (percentage >= leftRange && percentage <= rightRange) {
+								int currentRating = Integer.parseInt(range[1]);
+								buildGovernance.setMaturity(currentRating);
+								break;
+							}
+						}
+						metricMetadata.setBuildGovernance(buildGovernance);
+						mongoTemplate.save(metricMetadata);
+					}
+				});
+			}
+		}
 		mongoTemplate.save(workspaceIntegration);
 	}
 
