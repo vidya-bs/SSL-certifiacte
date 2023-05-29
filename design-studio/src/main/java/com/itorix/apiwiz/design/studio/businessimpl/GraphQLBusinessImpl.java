@@ -254,11 +254,10 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
       statusHistory.setLastModifiedBy(ServiceRequestContextHolder.getContext().getUserSessionToken().getUsername());
       history.add(statusHistory);
       graphQL.setHistory(history);
-      Status statusObject = Status.valueOf(statusHistory.getStatus());
-      if (statusObject.equals(Status.Publish)) {
+      if (statusHistory.getStatus().equals(Status.Publish)) {
         GraphQL publishedGraphQL = new GraphQL() ;
         publishedGraphQL = mongoTemplate.findOne(new Query(Criteria.where(GRAPHQL_ID).is(graphQLId)
-            .and(STATUS).is(statusObject.getStatus())), GraphQL.class);
+            .and(STATUS).is(Status.Publish.getStatus())), GraphQL.class);
         if (publishedGraphQL != null) {
           List<StatusHistory> publishedGraphQLHistoryList = publishedGraphQL.getHistory();
           if (publishedGraphQLHistoryList == null) {
@@ -276,7 +275,7 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
           mongoTemplate.save(publishedGraphQL);
         }
       }
-        graphQL.setStatus(statusObject.getStatus());
+        graphQL.setStatus(statusHistory.getStatus());
         updateUserDetails(graphQL);
         mongoTemplate.save(graphQL);
         logger.info("Successfully updated the status of the GraphQL schema for Id - {} and revision - {}",graphQLId,revision);
