@@ -49,7 +49,7 @@ Make sure the mongodump folder is in this folder structure - foldername < folder
 
 **CLONING AND INSTALLING REPOSITORIES**
 
- - Clone the repositories (1.apiwiz-core-platform-api-v2 and 2.apiwiz-non-prod-config) from the Itorix git repository and import the apiwiz-core-platform-api to you IDE in a new workspace.
+ - Clone the repositories (1.apiwiz-core-platform-api-v2, 2.apiwiz-non-prod-config, 3.apiwiz-ratelimit) from the Itorix git repository and import the apiwiz-core-platform-api to you IDE in a new workspace.
 
  - In the terminal go to apiwiz-core-platform-api and enter `mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true`
 
