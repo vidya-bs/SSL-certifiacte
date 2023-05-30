@@ -101,7 +101,7 @@ public class AsyncApiDao {
 			throws ItorixException {
 		List<AsyncApi> asyncApiList = findAsyncApiWithName(asyncApiObj.getName());
 		if (!asyncApiList.isEmpty()) {
-			createAsyncApiRevision(jsessionId, asyncApiList.get(0).getAsyncApiId(), asyncApiList.get(0).getAsyncApi());
+			createAsyncApiRevision(jsessionId, asyncApiList.get(0).getAsyncApiId(), asyncApiObj.getAsyncApi());
 		} else {
 			asyncApiObj.setRevision(1);
 			asyncApiObj.setAsyncApiId(UUID.randomUUID().toString().replaceAll("-", ""));
