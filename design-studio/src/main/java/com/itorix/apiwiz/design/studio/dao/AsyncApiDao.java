@@ -418,22 +418,6 @@ public class AsyncApiDao {
 				JsonNode asyncApiObject = mapper.readTree(filecontent);
 				if(asyncApiObject.get("asyncapi")!=null){
 					try {
-						AsyncApiDataModel dataModel = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).convertValue(asyncApiObject, new TypeReference<>() {});
-						Set<String> basePaths = new HashSet();
-						HashMap<String,Object> servers = dataModel.getServers();
-						for (Map.Entry<String, Object> entry : servers.entrySet()) {
-							String key = entry.getKey();
-							HashMap<String,Object> server = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).convertValue(entry.getValue(), new TypeReference<>() {});
-							String urlStr = getReplacedURLStr(server);
-							try {
-								URL url = new URL(urlStr);
-								if(!url.getPath().equals(""))
-									basePaths.add(url.getPath());
-							} catch (MalformedURLException e) {
-								log.error("Error while getting basePath for Asyncapi : {} URL {} ", e.getMessage(),urlStr, e);
-							}
-							// ...
-						}
 						JsonNode info = asyncApiObject.path("info");
 						if (info != null) {
 							String asyncapiName = null;
@@ -446,15 +430,6 @@ public class AsyncApiDao {
 								asyncapiImport.setReason(reason);
 								continue;
 							}
-							List<AsyncApiBasePath> mappings = getAsyncApiBasePaths() ;
-							for (int i = 0; i < mappings.size(); i++) {
-								for(int j=0;j<mappings.get(i).getBasePath().size();j++) {
-									if(basePaths.contains(mappings.get(i).getBasePath().get(j))) {
-										throw new ItorixException(ErrorCodes.errorMessage.get("AsyncApi-1000"),
-												"AsyncApi-1010");
-									}
-								}
-							}
 							if(asyncapiName.isEmpty()){
 								asyncapiName = FilenameUtils.removeExtension(file.getName());
 							}
@@ -465,7 +440,6 @@ public class AsyncApiDao {
 							asyncapiImport.setName(asyncapiName);
 							asyncapiImport.setPath(file.getAbsolutePath());
 							try {
-								updateAsyncBasePath(asyncapiName,asyncApi);
 								createAsyncApiOrPushToDesignStudio(asyncApi,jessionid);
 								asyncapiImport.setAsyncapiId(asyncApi.getAsyncApiId());
 								asyncapiImport.setLoaded(true);
@@ -481,7 +455,7 @@ public class AsyncApiDao {
 						log.error(e.getMessage(), e);
 						asyncapiImport.setName(file.getName());
 						asyncapiImport.setLoaded(false);
-						asyncapiImport.setReason("Basepath already exists");
+						asyncapiImport.setReason(e.getMessage());
 						asyncapiImports.add(asyncapiImport);
 					}
 				}
