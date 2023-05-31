@@ -372,6 +372,17 @@ public class ApplicationProperties {
 	@Value("${itorix.core.gocd.pipelines.base.url}")
 	private String pipelineBaseUrl;
 
+	@Value("${itorix.core.s3.marketing.bucket.name}")
+	private String awsMarketingBucketName;
+
+	@Value("${itorix.core.s3.marketing.region}")
+	private String awsMarketingRegion;
+
+	@Value("${itorix.core.s3.marketing.access.key}")
+	private String awsMarketingKey;
+
+	@Value("${itorix.core.s3.marketing.access.secret}")
+	private String awsMarketingSecret;
 	@Value("${itorix.core.gocd.version}")
 	private String gocdVersion;
 
@@ -1471,5 +1482,37 @@ public class ApplicationProperties {
 
 	public void setSmtpFromAddress(String smtpFromAddress) {
 		this.smtpFromAddress = smtpFromAddress;
+	}
+
+	public String getAwsMarketingBucketName() {
+		return awsMarketingBucketName;
+	}
+
+	public void setAwsMarketingBucketName(String awsMarketingBucketName) {
+		this.awsMarketingBucketName = awsMarketingBucketName;
+	}
+
+	public String getAwsMarketingRegion() {
+		return awsMarketingRegion;
+	}
+
+	public void setAwsMarketingRegion(String awsMarketingRegion) {
+		this.awsMarketingRegion = awsMarketingRegion;
+	}
+
+	public String getAwsMarketingKey() {
+		return awsMarketingKey;
+	}
+
+	public void setAwsMarketingKey(String awsMarketingKey) {
+		this.awsMarketingKey = awsMarketingKey;
+	}
+
+	public String getAwsMarketingSecret() {
+		return awsMarketingSecret;
+	}
+
+	public void setAwsMarketingSecret(String awsMarketingSecret) {
+		this.awsMarketingSecret = awsMarketingSecret;
 	}
 }
