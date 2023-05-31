@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.servicerequest.serviceImpl;
 
+import com.itorix.apiwiz.common.model.apigee.StaticFields;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.monetization.Webhook;
 import com.itorix.apiwiz.identitymanagement.security.annotation.UnSecure;
@@ -77,6 +78,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 			@RequestParam(value = "productId", required = false) String productId,
 			@RequestBody ServiceRequest config, @RequestHeader(value = "JSESSIONID") String jsessionid)
 			throws Exception {
+//		ResponseEntity responseEntity;
 		if (productId != null) {
 			User user = identityManagementDao.getUserDetailsFromSessionID(jsessionid);
 			serviceRequestDao.updateServiceRequestInApigee(productId,config,user);
@@ -89,7 +91,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 				config.setModifiedUser(user.getFirstName() + " " + user.getLastName());
 				config.setModifiedDate(new Date(System.currentTimeMillis()));
 				config.setModifiedUserEmailId(user.getEmail());
-				config.setStatus("Review");
+				config.setStatus(StaticFields.STATUS_REVIEW);
 				config.setActiveFlag(Boolean.TRUE);
 				serviceRequestDao.updateServiceRequest(config);
 				return new ResponseEntity<Void>(HttpStatus.CREATED);

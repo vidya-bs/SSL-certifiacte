@@ -132,6 +132,14 @@ public class ZIPUtil {
 		return files;
 	}
 
+
+	public List<File> getGrapgQLFiles(String folder) {
+		List<File> files = new ArrayList<File>();
+		getFiles(folder, ".graphql", files);
+		getFiles(folder, ".gql", files);
+		return files;
+	}
+
 	public void getFiles(String folder, String extension, List<File> files) {
 		File dir = new File(folder);
 		for (File file : dir.listFiles())

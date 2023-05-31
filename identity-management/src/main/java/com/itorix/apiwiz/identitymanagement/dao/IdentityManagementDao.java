@@ -710,7 +710,7 @@ public class IdentityManagementDao {
     public VerificationToken password(User user) throws ItorixException {
         User userByEmail = findByEmail(user.getEmail());
         if (userByEmail != null) {
-            VerificationToken token = createVerificationToken("resetPassword", user.getEmail(),null);
+            VerificationToken token = createVerificationToken("resetPassword", user.getEmail(), null);
             sendPassWordResetEmail(token, userByEmail);
             saveVerificationToken(token);
             return token;
@@ -1173,7 +1173,7 @@ public class IdentityManagementDao {
 
     public void resendToken(VerificationToken token) throws ItorixException {
         User user = findByEmail(token.getUserEmail());
-        VerificationToken newToken = createVerificationToken(token.getType(), token.getUserEmail(),null);
+        VerificationToken newToken = createVerificationToken(token.getType(), token.getUserEmail(), null);
         if (token.getType().equals("registerUser")) {
             newToken.setWorkspaceId(token.getWorkspaceId());
             newToken.setUserType(token.getType());
@@ -1554,8 +1554,7 @@ public class IdentityManagementDao {
                 hexString.append(hex);
             }
             password = hexString.toString();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             logger.error("Exception occurred while hashing password");
             return password;
         }
@@ -1569,8 +1568,7 @@ public class IdentityManagementDao {
             if(user.getPassword()!=null){
                 password = rsaEncryption.decryptText(user.getPassword());
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error("Cannot decrypt value : "+user.getPassword());
         }
         if(password!=null){
@@ -2279,8 +2277,7 @@ public class IdentityManagementDao {
                     masterMongoTemplate.save(clientData);
                 });
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>("Error while syncing client data",
                 HttpStatus.INTERNAL_SERVER_ERROR);
         }

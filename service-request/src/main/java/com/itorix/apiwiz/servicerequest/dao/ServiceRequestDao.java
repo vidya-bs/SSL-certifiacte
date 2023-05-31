@@ -6,6 +6,7 @@ import com.itorix.apiwiz.common.model.CountryMetaData;
 import com.itorix.apiwiz.common.model.MetaData;
 import com.itorix.apiwiz.common.model.apigee.ApigeeConfigurationVO;
 import com.itorix.apiwiz.common.model.apigee.ApigeeServiceUser;
+import com.itorix.apiwiz.common.model.apigee.StaticFields;
 import com.itorix.apiwiz.common.model.apigeeX.ApigeeXConfigurationVO;
 import com.itorix.apiwiz.common.model.configmanagement.CompanyConfig;
 import com.itorix.apiwiz.common.model.configmanagement.CompanyConfig.Attribute;
@@ -18,7 +19,6 @@ import com.itorix.apiwiz.common.model.monetization.*;
 import com.itorix.apiwiz.common.model.monetization.ResponseVariableLocation.Location;
 import com.itorix.apiwiz.common.model.monetization.apigeepayloads.ApigeeRatePlan;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
-import com.itorix.apiwiz.identitymanagement.model.*;
 import com.itorix.apiwiz.servicerequest.model.JSONPayload;
 import com.itorix.apiwiz.servicerequest.model.MonetizationConfigComments;
 import com.itorix.apiwiz.servicerequest.model.ResponseObject;
@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.*;
 
@@ -131,7 +130,9 @@ public class ServiceRequestDao {
 	@SuppressWarnings({"unchecked", "unused"})
 	public ServiceRequest createServiceRequest(ServiceRequest config) throws ItorixException {
 		try {
-
+			if(isApproved(config)){
+				throw new ItorixException(StaticFields.ERR_MSG_APIGEE_1009, StaticFields.ERR_CODE_APIGEE_1009);
+			}
 			boolean isAnyRequestPending = false;
 
 			if (config != null && StringUtils.isNotBlank(config.getType()) && StringUtils.isNotBlank(
@@ -421,6 +422,9 @@ public class ServiceRequestDao {
 			throws ItorixException, MessagingException, JsonProcessingException {
 		Query query = new Query(Criteria.where("_id").is(id));
 		ServiceRequest serviceRequests = mongoTemplate.findOne(query,ServiceRequest.class);
+		if(serviceRequests.getStatus()!=null && serviceRequests.getStatus().equals("Approved")){
+			throw new ItorixException(StaticFields.ERR_MSG_APIGEE_1008, StaticFields.ERR_CODE_APIGEE_1008);
+		}
 		Update update = new Update();
 		serviceRequests.setTransactionRecordingPolicy(config.getTransactionRecordingPolicy());
 		update.set("transactionRecordingPolicy", config.getTransactionRecordingPolicy());
@@ -484,10 +488,24 @@ public class ServiceRequestDao {
 		}
 		return 0;
 	}
-
+	public boolean isApproved(ServiceRequest serviceRequest) throws ItorixException{
+		Query query = new Query(Criteria.where(StaticFields.ORG_NAME).is(serviceRequest.getOrg()).and(StaticFields.ENV_NAME).is(serviceRequest.getEnv())
+				.and(StaticFields.NAME).is(serviceRequest.getName()).and(StaticFields.TYPE_NAME).is(serviceRequest.getType()).and(StaticFields.ACTIVE_FLAG).is(Boolean.TRUE));
+		List<ServiceRequest> serviceRequestList = mongoTemplate.find(query,ServiceRequest.class);
+		for(ServiceRequest request:serviceRequestList){
+			if(request.getStatus()!=null && request.getStatus().equals(StaticFields.STATUS_APPROVED)){
+				return true;
+			}
+		}
+		return false;
+	}
 	@SuppressWarnings({"unchecked", "unused"})
 	public boolean updateServiceRequest(ServiceRequest serviceRequest) throws ItorixException {
 		try {
+			if(isApproved(serviceRequest)){
+				throw new ItorixException(StaticFields.ERR_MSG_APIGEE_1008,StaticFields.ERR_CODE_APIGEE_1008);
+			}
+
 			Query query = null;
 			List<ServiceRequest> serviceRequests = (ArrayList<ServiceRequest>) getAllActiveServiceRequests(
 					serviceRequest);
@@ -497,19 +515,19 @@ public class ServiceRequestDao {
 				if (StringUtils.isNotBlank(serviceRequest.getType()) && StringUtils.isNotBlank(serviceRequest.getOrg())
 						&& StringUtils.isNotBlank(serviceRequest.getEnv())
 						&& StringUtils.isNotBlank(serviceRequest.getName())) {
-					query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("env")
-							.is(serviceRequest.getEnv()).and("name").is(serviceRequest.getName()).and("type")
-							.is(serviceRequest.getType()).and("isSaaS").is(serviceRequest.getIsSaaS()));
+					query = new Query(Criteria.where(StaticFields.ORG_NAME).is(serviceRequest.getOrg()).and(StaticFields.ENV_NAME)
+							.is(serviceRequest.getEnv()).and(StaticFields.NAME).is(serviceRequest.getName()).and(StaticFields.TYPE_NAME)
+							.is(serviceRequest.getType()).and(StaticFields.IS_SAAS).is(serviceRequest.getIsSaaS()));
 				} else if (StringUtils.isNotBlank(serviceRequest.getType())
 						&& StringUtils.isNotBlank(serviceRequest.getOrg())
 						&& StringUtils.isNotBlank(serviceRequest.getName())) {
-					query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("name")
-							.is(serviceRequest.getName()).and("type").is(serviceRequest.getType()).and("isSaaS")
+					query = new Query(Criteria.where(StaticFields.ORG_NAME).is(serviceRequest.getOrg()).and(StaticFields.NAME)
+							.is(serviceRequest.getName()).and(StaticFields.TYPE_NAME).is(serviceRequest.getType()).and(StaticFields.IS_SAAS)
 							.is(serviceRequest.getIsSaaS()));
 				}
 
 				Update update = new Update();
-				update.set("activeFlag", Boolean.FALSE);
+				update.set(StaticFields.ACTIVE_FLAG, Boolean.FALSE);
 				UpdateResult result = mongoTemplate.updateMulti(query, update, ServiceRequest.class);
 			}
 			mongoTemplate.insert(serviceRequest);
