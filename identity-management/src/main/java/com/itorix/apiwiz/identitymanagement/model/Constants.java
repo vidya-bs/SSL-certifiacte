@@ -34,4 +34,11 @@ public class Constants {
 	public static final String CREATED_BY = "createdBy";
 
 	public static final String MTS_TO_DATE = "mtsToDate";
+
+	public static final String[] GRAPHQL_PROJECTION_FIELDS = new String[]{"name","revision","graphQLSchema","graphQLId","status","cts",
+			"mts","createdUserName","createdBy","modifiedUserName","modifiedBy"};
+
+	public static final String GRAPHQL_ID = "graphQLId";
+
+	public static final String COUNT = "count";
 }

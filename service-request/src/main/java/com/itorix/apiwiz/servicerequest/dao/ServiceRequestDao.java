@@ -6,6 +6,7 @@ import com.itorix.apiwiz.common.model.CountryMetaData;
 import com.itorix.apiwiz.common.model.MetaData;
 import com.itorix.apiwiz.common.model.apigee.ApigeeConfigurationVO;
 import com.itorix.apiwiz.common.model.apigee.ApigeeServiceUser;
+import com.itorix.apiwiz.common.model.apigee.StaticFields;
 import com.itorix.apiwiz.common.model.apigeeX.ApigeeXConfigurationVO;
 import com.itorix.apiwiz.common.model.configmanagement.CompanyConfig;
 import com.itorix.apiwiz.common.model.configmanagement.CompanyConfig.Attribute;
@@ -18,7 +19,6 @@ import com.itorix.apiwiz.common.model.monetization.*;
 import com.itorix.apiwiz.common.model.monetization.ResponseVariableLocation.Location;
 import com.itorix.apiwiz.common.model.monetization.apigeepayloads.ApigeeRatePlan;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
-import com.itorix.apiwiz.identitymanagement.model.*;
 import com.itorix.apiwiz.servicerequest.model.JSONPayload;
 import com.itorix.apiwiz.servicerequest.model.MonetizationConfigComments;
 import com.itorix.apiwiz.servicerequest.model.ResponseObject;
@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.*;
 
@@ -131,7 +130,9 @@ public class ServiceRequestDao {
 	@SuppressWarnings({"unchecked", "unused"})
 	public ServiceRequest createServiceRequest(ServiceRequest config) throws ItorixException {
 		try {
-
+			if(isApproved(config)){
+				throw new ItorixException(StaticFields.ERR_MSG_APIGEE_1009, StaticFields.ERR_CODE_APIGEE_1009);
+			}
 			boolean isAnyRequestPending = false;
 
 			if (config != null && StringUtils.isNotBlank(config.getType()) && StringUtils.isNotBlank(
@@ -421,6 +422,9 @@ public class ServiceRequestDao {
 			throws ItorixException, MessagingException, JsonProcessingException {
 		Query query = new Query(Criteria.where("_id").is(id));
 		ServiceRequest serviceRequests = mongoTemplate.findOne(query,ServiceRequest.class);
+		if(serviceRequests.getStatus()!=null && serviceRequests.getStatus().equals("Approved")){
+			throw new ItorixException(StaticFields.ERR_MSG_APIGEE_1008, StaticFields.ERR_CODE_APIGEE_1008);
+		}
 		Update update = new Update();
 		serviceRequests.setTransactionRecordingPolicy(config.getTransactionRecordingPolicy());
 		update.set("transactionRecordingPolicy", config.getTransactionRecordingPolicy());
@@ -484,10 +488,24 @@ public class ServiceRequestDao {
 		}
 		return 0;
 	}
-
+	public boolean isApproved(ServiceRequest serviceRequest) throws ItorixException{
+		Query query = new Query(Criteria.where(StaticFields.ORG_NAME).is(serviceRequest.getOrg()).and(StaticFields.ENV_NAME).is(serviceRequest.getEnv())
+				.and(StaticFields.NAME).is(serviceRequest.getName()).and(StaticFields.TYPE_NAME).is(serviceRequest.getType()).and(StaticFields.ACTIVE_FLAG).is(Boolean.TRUE));
+		List<ServiceRequest> serviceRequestList = mongoTemplate.find(query,ServiceRequest.class);
+		for(ServiceRequest request:serviceRequestList){
+			if(request.getStatus()!=null && request.getStatus().equals(StaticFields.STATUS_APPROVED)){
+				return true;
+			}
+		}
+		return false;
+	}
 	@SuppressWarnings({"unchecked", "unused"})
 	public boolean updateServiceRequest(ServiceRequest serviceRequest) throws ItorixException {
 		try {
+			if(isApproved(serviceRequest)){
+				throw new ItorixException(StaticFields.ERR_MSG_APIGEE_1008,StaticFields.ERR_CODE_APIGEE_1008);
+			}
+
 			Query query = null;
 			List<ServiceRequest> serviceRequests = (ArrayList<ServiceRequest>) getAllActiveServiceRequests(
 					serviceRequest);
@@ -497,19 +515,19 @@ public class ServiceRequestDao {
 				if (StringUtils.isNotBlank(serviceRequest.getType()) && StringUtils.isNotBlank(serviceRequest.getOrg())
 						&& StringUtils.isNotBlank(serviceRequest.getEnv())
 						&& StringUtils.isNotBlank(serviceRequest.getName())) {
-					query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("env")
-							.is(serviceRequest.getEnv()).and("name").is(serviceRequest.getName()).and("type")
-							.is(serviceRequest.getType()).and("isSaaS").is(serviceRequest.getIsSaaS()));
+					query = new Query(Criteria.where(StaticFields.ORG_NAME).is(serviceRequest.getOrg()).and(StaticFields.ENV_NAME)
+							.is(serviceRequest.getEnv()).and(StaticFields.NAME).is(serviceRequest.getName()).and(StaticFields.TYPE_NAME)
+							.is(serviceRequest.getType()).and(StaticFields.IS_SAAS).is(serviceRequest.getIsSaaS()));
 				} else if (StringUtils.isNotBlank(serviceRequest.getType())
 						&& StringUtils.isNotBlank(serviceRequest.getOrg())
 						&& StringUtils.isNotBlank(serviceRequest.getName())) {
-					query = new Query(Criteria.where("org").is(serviceRequest.getOrg()).and("name")
-							.is(serviceRequest.getName()).and("type").is(serviceRequest.getType()).and("isSaaS")
+					query = new Query(Criteria.where(StaticFields.ORG_NAME).is(serviceRequest.getOrg()).and(StaticFields.NAME)
+							.is(serviceRequest.getName()).and(StaticFields.TYPE_NAME).is(serviceRequest.getType()).and(StaticFields.IS_SAAS)
 							.is(serviceRequest.getIsSaaS()));
 				}
 
 				Update update = new Update();
-				update.set("activeFlag", Boolean.FALSE);
+				update.set(StaticFields.ACTIVE_FLAG, Boolean.FALSE);
 				UpdateResult result = mongoTemplate.updateMulti(query, update, ServiceRequest.class);
 			}
 			mongoTemplate.insert(serviceRequest);
@@ -3561,7 +3579,7 @@ public class ServiceRequestDao {
 					// We need 3 Common data from Apigee which will be reused across the payload : 1. Organization, 2. Currency, 3. Monetization Package
 
 					// Get Organization Profile Details
-					Map<String, LinkedHashMap> orgProfile = apigeeUtil.getOrganizationProfile(organization);
+					Map<String, Object> orgProfile = apigeeUtil.getOrganizationProfile(organization);
 					if(orgProfile != null && orgProfile.containsKey("currency")){
 						String ccy = orgProfile.get("currency").toString();
 
@@ -3569,19 +3587,19 @@ public class ServiceRequestDao {
 						Map<String, LinkedHashMap> currencyProfile = apigeeUtil.getCurrencyProfile(organization,ccy);
 
 						//Get Monetization Package Details
-						Map<String, LinkedHashMap> monetizationPackageDetails = apigeeUtil.getMonetizationPackage(organization,ratePlan.getProductBundleId());
+						Map<String, Object> monetizationPackageDetails = apigeeUtil.getMonetizationPackage(organization,ratePlan.getProductBundleId());
 
 						ApigeeRatePlan apigeePayload = new ApigeeRatePlan();
 
 						//General Field Sets
 						apigeePayload.setPublished(true);
-						apigeePayload.setAdvance(ratePlan.getCostModel().getPrepaidFee().booleanValue());
+						apigeePayload.setAdvance(ratePlan.getCostModel()!=null?ratePlan.getCostModel().getPrepaidFee().booleanValue():true);
 						apigeePayload.setType("STANDARD");
 						apigeePayload.setStartDate(ratePlan.getStartDate());
 						apigeePayload.setRecurringStartUnit(1);
 						apigeePayload.setRecurringType("CALENDAR");
 						apigeePayload.setPrivate(ratePlan.getVisibleToPortals().booleanValue());
-						apigeePayload.setProrate(ratePlan.getCostModel().getProratedFee().booleanValue());
+						apigeePayload.setProrate(ratePlan.getCostModel()!=null?ratePlan.getCostModel().getProratedFee().booleanValue():true);
 						apigeePayload.setOrganization(orgProfile);
 						apigeePayload.setCurrency(currencyProfile);
 						apigeePayload.setMonetizationPackage(monetizationPackageDetails);
@@ -3590,32 +3608,23 @@ public class ServiceRequestDao {
 						apigeePayload.setDisplayName(ratePlan.getName());
 						apigeePayload.setName(ratePlan.getName());
 						apigeePayload.setDescription(ratePlan.getName());
-						apigeePayload.setPaymentDueDays(String.valueOf(ratePlan.getContractDetail().getPaymentDueDays()));
-						apigeePayload.setId(String.format("%s_%s",monetizationPackageDetails.get("id").toString(),ratePlan.getName()));
-						apigeePayload.setRatePLanDetails(new ArrayList<>());
+						apigeePayload.setId(ratePlan.getApigeeId()!=null?ratePlan.getApigeeId():null);
+						apigeePayload.setRatePlanDetails(new ArrayList<>());
 
 						//Contract Field Sets
-						apigeePayload.setSetupFee(ratePlan.getContractDetail().getSetupFee());
-						apigeePayload.setEarlyTerminationFee(ratePlan.getContractDetail().getEarlyTerminationFee());
-						apigeePayload.setContractDuration(ratePlan.getContractDetail().getDuration());
-						apigeePayload.setContractDurationType(ratePlan.getContractDetail().getDurationUnit().name().toUpperCase());
+						apigeePayload.setSetupFee(ratePlan.getContractDetail()!=null?ratePlan.getContractDetail().getSetupFee():0);
+						apigeePayload.setEarlyTerminationFee(ratePlan.getContractDetail()!=null?ratePlan.getContractDetail().getEarlyTerminationFee():0);
+						apigeePayload.setContractDuration(ratePlan.getContractDetail()!=null?ratePlan.getContractDetail().getDuration():1);
+						apigeePayload.setContractDurationType(ratePlan.getContractDetail()!=null?ratePlan.getContractDetail().getDurationUnit().name().toUpperCase():"MONTH");
+						apigeePayload.setPaymentDueDays(ratePlan.getContractDetail()!=null? String.valueOf(
+								ratePlan.getContractDetail().getPaymentDueDays()) :"30");
 
 						//Cost Field Sets
-						apigeePayload.setRecurringFee(ratePlan.getCostModel().getBaseFee());
-						apigeePayload.setFrequencyDuration(ratePlan.getCostModel().getBillingPeriod());
-						apigeePayload.setFrequencyDurationType(ratePlan.getCostModel().getBillingPeriodUnit().name().toUpperCase());
+						apigeePayload.setRecurringFee(ratePlan.getCostModel()!=null?ratePlan.getCostModel().getBaseFee():0);
+						apigeePayload.setFrequencyDuration(ratePlan.getCostModel()!=null?ratePlan.getCostModel().getBillingPeriod():1);
+						apigeePayload.setFrequencyDurationType(ratePlan.getCostModel()!=null?ratePlan.getCostModel().getBillingPeriodUnit().name().toUpperCase():"MONTH");
 
 						Map<String,Object> ratePlanDetails = new HashMap<>();
-						ratePlanDetails.put("aggregateFreemiumCounters",true);
-						ratePlanDetails.put("freemiumDuration",0);
-						ratePlanDetails.put("freemiumDurationType","MONTH");
-						ratePlanDetails.put("freemiumUnit",0);
-						ratePlanDetails.put("paymentDueDays",apigeePayload.getPaymentDueDays());
-						ratePlanDetails.put("aggregateStandardCounters",true);
-						ratePlanDetails.put("aggregateTransactions",true);
-						ratePlanDetails.put("customPaymentTerm",true);
-						ratePlanDetails.put("organization",orgProfile);
-						ratePlanDetails.put("currency",currencyProfile);
 
 						List<Map<String,Object>> ratePlanRates = new ArrayList<>();
 
@@ -3625,6 +3634,16 @@ public class ServiceRequestDao {
 							ratePlanDetails.put("durationType",ratePlan.getRateCard().getCalculationFrequencyUnit());
 							ratePlanDetails.put("type",ratePlan.getType().name().toUpperCase());
 							ratePlanDetails.put("revenueType","NET");
+							ratePlanDetails.put("aggregateFreemiumCounters",true);
+							ratePlanDetails.put("freemiumDuration",0);
+							ratePlanDetails.put("freemiumDurationType","MONTH");
+							ratePlanDetails.put("freemiumUnit",0);
+							ratePlanDetails.put("paymentDueDays",apigeePayload.getPaymentDueDays());
+							ratePlanDetails.put("aggregateStandardCounters",true);
+							ratePlanDetails.put("aggregateTransactions",true);
+							ratePlanDetails.put("customPaymentTerm",true);
+							ratePlanDetails.put("organization",orgProfile);
+							ratePlanDetails.put("currency",currencyProfile);
 
 							if(ratePlan.getRateCard().getFlatRate() > 0){
 								//FLATRATE
@@ -3687,9 +3706,19 @@ public class ServiceRequestDao {
 
 						if(ratePlan.getType().name().toUpperCase().contains("REVSHARE")){
 							//REVENUE SHARE RatePlan
+							ratePlanDetails.put("aggregateFreemiumCounters",true);
+							ratePlanDetails.put("freemiumDuration",0);
+							ratePlanDetails.put("freemiumDurationType","MONTH");
+							ratePlanDetails.put("freemiumUnit",0);
+							ratePlanDetails.put("paymentDueDays",apigeePayload.getPaymentDueDays());
+							ratePlanDetails.put("aggregateStandardCounters",true);
+							ratePlanDetails.put("aggregateTransactions",true);
+							ratePlanDetails.put("customPaymentTerm",true);
+							ratePlanDetails.put("organization",orgProfile);
+							ratePlanDetails.put("currency",currencyProfile);
 							ratePlanDetails.put("ratingParameter","VOLUME");
-							ratePlanDetails.put("duration",ratePlan.getRateCard().getCalculationFrequency());
-							ratePlanDetails.put("durationType",ratePlan.getRateCard().getCalculationFrequencyUnit());
+							ratePlanDetails.put("duration",ratePlan.getRateCard()!=null?ratePlan.getRateCard().getCalculationFrequency():1);
+							ratePlanDetails.put("durationType",ratePlan.getRateCard()!=null?ratePlan.getRateCard().getCalculationFrequencyUnit():"MONTH");
 							ratePlanDetails.put("type",ratePlan.getType().name().toUpperCase());
 							ratePlanDetails.put("revenueType",ratePlan.getRevenueShare().getCalculationModel().name().toUpperCase());
 
@@ -3725,18 +3754,46 @@ public class ServiceRequestDao {
 						}
 
 						if(ratePlan.getType().name().equalsIgnoreCase("REVSHARE_RATECARD")){
+							ratePlanDetails.put("aggregateFreemiumCounters",true);
+							ratePlanDetails.put("freemiumDuration",0);
+							ratePlanDetails.put("freemiumDurationType","MONTH");
+							ratePlanDetails.put("freemiumUnit",0);
+							ratePlanDetails.put("paymentDueDays",apigeePayload.getPaymentDueDays());
+							ratePlanDetails.put("aggregateStandardCounters",true);
+							ratePlanDetails.put("aggregateTransactions",true);
+							ratePlanDetails.put("customPaymentTerm",true);
+							ratePlanDetails.put("organization",orgProfile);
+							ratePlanDetails.put("currency",currencyProfile);
 							ratePlanDetails.put("type","REVSHARE_RATECARD");
 						}
 
 						if(ratePlan.getType().name().equalsIgnoreCase("ADJUSTABLE_NOTIFICATION")){
+							ratePlanDetails.put("aggregateFreemiumCounters",true);
+							apigeePayload.setPaymentDueDays(String.valueOf(ratePlan.getAdjNotificationCalcFreqInMonths()*30));
+							ratePlanDetails.put("freemiumDuration",0);
+							ratePlanDetails.put("freemiumDurationType","MONTH");
+							ratePlanDetails.put("freemiumUnit",0);
+							ratePlanDetails.put("paymentDueDays",String.valueOf(ratePlan.getAdjNotificationCalcFreqInMonths()*30));
+							ratePlanDetails.put("aggregateStandardCounters",true);
+							ratePlanDetails.put("aggregateTransactions",true);
+							ratePlanDetails.put("customPaymentTerm",true);
+							ratePlanDetails.put("organization",orgProfile);
+							ratePlanDetails.put("currency",currencyProfile);
 							ratePlanDetails.put("type","USAGE_TARGET");
 							ratePlanDetails.put("meteringType","DEV_SPECIFIC");
+							ratePlanDetails.put("ratingParameter","VOLUME");
 						}
 
-						ratePlanDetails.put("ratePlanRates",ratePlanRates.isEmpty() ? new ArrayList<>() : ratePlanRates);
-
-						apigeePayload.setRatePLanDetails(ratePlanDetails.isEmpty() ? new ArrayList<>(): Arrays.asList(ratePlanDetails));
-						Map<String,LinkedHashMap> response = apigeeUtil.createOrUpdateRatePlan(organization,ratePlan.getApigeeId(),apigeePayload);
+						if(!ratePlanRates.isEmpty()){
+							ratePlanDetails.put("ratePlanRates",ratePlanRates);
+						}
+						apigeePayload.setRatePlanDetails(ratePlanDetails.isEmpty() ? new ArrayList<>(): Arrays.asList(ratePlanDetails));
+						if(!ratePlan.getIsFreemium()){
+							apigeePayload.setFreemiumDuration(null);
+							apigeePayload.setFreemiumDurationType(null);
+							apigeePayload.setFreemiumUnit(null);
+						}
+						Map<String,Object> response = apigeeUtil.createOrUpdateRatePlan(organization,ratePlan.getApigeeId(),apigeePayload,ratePlan.getProductBundleId());
 						if(response != null && response.containsKey("id")){
 							return response.get("id").toString();
 						}

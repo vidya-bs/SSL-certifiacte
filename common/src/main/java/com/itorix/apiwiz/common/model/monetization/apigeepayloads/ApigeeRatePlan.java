@@ -31,9 +31,9 @@ public class ApigeeRatePlan {
 
 	public boolean isPrivate;
 
-	public Map<String, LinkedHashMap> organization;
+	public Map<String, Object> organization;
 	public Map<String, LinkedHashMap> currency;
-	public Map<String, LinkedHashMap> monetizationPackage;
+	public Map<String, Object> monetizationPackage;
 
 	public boolean customPaymentTerm;
 	public boolean keepOriginalStartDate;
@@ -42,9 +42,9 @@ public class ApigeeRatePlan {
 	public String description;
 	public String paymentDueDays;
 	public String id;
-	public int freemiumDuration;
+	public Integer freemiumDuration;
 	public String freemiumDurationType;
-	public int freemiumUnit;
-	public List<Object> ratePLanDetails;
+	public Integer freemiumUnit;
+	public List<Object> ratePlanDetails;
 
 }
