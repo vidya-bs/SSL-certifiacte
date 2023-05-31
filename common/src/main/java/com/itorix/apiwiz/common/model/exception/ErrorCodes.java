@@ -253,6 +253,12 @@ public enum ErrorCodes {
 			put("Monitor-1005", GENERIC_RESOURCE_ALREADY_EXISTS.message());
 			put("Monitor-1006", GENERIC_RESOURCE_ALREADY_EXISTS.message());
 
+			put("AsyncApi-1010", GENERIC_RESOURCE_NOT_FOUND.message());
+			put("AsyncApi-1011", "AsyncApi with same name already exists.");
+			put("AsyncApi-1012", "AsyncApi with given name doesn't exists.");
+			put("AsyncApi-1013", "AsyncApi with given revision or id not found");
+			put("AsyncApi-1014", "Invalid request. AsyncApi is in same status.");
+
 			put("MockServer-1000", "Request validation failed. A mock scenario with similar configuration already exists.");
 			put("MockServer-1001", GENERIC_RESOURCE_NOT_FOUND.message());
 			put("MockServer-1002", GENERIC_RESOURCE_NOT_FOUND.message());
@@ -291,6 +297,7 @@ public enum ErrorCodes {
 			put("SCM-1080","Invalid Credentials");
 			put("SCM-1090","Model Maps not found");
 			put("SCM-1091","Dictionary Name is empty");
+			put("SCM-1092","Invalid module");
 
 			//Monetization
 			put("Monetization-1010","Cannot place purchase. Insufficient Wallet Balance");
@@ -299,6 +306,10 @@ public enum ErrorCodes {
 			put("Monetization-1040","Could Not Update Rate Plan. Please try again. If issue persists, contact the application support team.");
 			put("Monetization-1050","Could Not Update Product Status. Please try again. If issue persists, contact the application support team.");
 
+			//GraphQL
+			put("GraphQL-1000","Invalid Request Data,Data not found for Id - %s and revision - %s");
+			put("GraphQL-1001","Invalid Request Data,Data not found for - %s");
+      put("GraphQL-1002","Invalid Request Data.GraphQL is already is same status");
 		}
 	};
 
@@ -510,6 +521,12 @@ public enum ErrorCodes {
 			put("rate-limiting-1003", 500);
 			put("rate-limiting-1004", 400);
 
+			put("AsyncApi-1010",400);
+			put("AsyncApi-1011",409);
+			put("AsyncApi-1012",404);
+			put("AsyncApi-1013",404);
+			put("AsyncApi-1014", 400);
+
 			put("SCM-1010",400);
 			put("SCM-1020",400);
 			put("SCM-1030",400);
@@ -520,12 +537,17 @@ public enum ErrorCodes {
 			put("SCM-1080",500);
 			put("SCM-1090",400);
 			put("SCM-1091",400);
+			put("SCM-1092", 400);
 
 			put("Monetization-1010",400);
 			put("Monetization-1020",500);
 			put("Monetization-1030",500);
 			put("Monetization-1040",500);
 			put("Monetization-1050",500);
+
+			put("GraphQL-1000",400);
+			put("GraphQL-1001",400);
+      put("GraphQL-1002",400);
 
 		}
 	};
