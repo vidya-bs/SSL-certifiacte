@@ -171,11 +171,11 @@ public class GraphQLBusinessImplTest {
     GraphQL graphQL1 = new GraphQL();
     graphQL1.setGraphQLId(graphQLId);
     graphQL1.setRevision(1);
-    graphQL1.setStatus(Status.Draft);
+    graphQL1.setStatus(String.valueOf(Status.Draft));
     GraphQL graphQL2 = new GraphQL();
     graphQL2.setGraphQLId(graphQLId);
     graphQL2.setRevision(2);
-    graphQL2.setStatus(Status.Draft);
+    graphQL2.setStatus(String.valueOf(Status.Draft));
     List<GraphQL> graphQLList = new ArrayList<>();
     graphQLList.add(graphQL1);
     graphQLList.add(graphQL2);
@@ -183,7 +183,7 @@ public class GraphQLBusinessImplTest {
     for (GraphQL graphQl : graphQLList) {
       Revision version = new Revision();
       version.setRevision(graphQl.getRevision());
-      version.setStatus(graphQl.getStatus().getStatus());
+      version.setStatus(graphQl.getStatus());
       version.setId(graphQl.getGraphQLId() != null ? graphQl.getGraphQLId() : graphQl.getId());
       versions.add(version);
     }
