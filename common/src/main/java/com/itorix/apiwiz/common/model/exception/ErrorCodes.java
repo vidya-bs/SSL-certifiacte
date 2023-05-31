@@ -195,6 +195,8 @@ public enum ErrorCodes {
 			put("Apigee-1005", "Resource not found. Request validation failed. Please check the mandatory data fields and retry again.");
 			put("Apigee-1006", "Resource authorization validation failed. Insufficient permissions to carry out this task.");
 			put("Apigee-1007", "Request validation failed. There is no apigee credentials defined for the logged in user.");
+			put("Apigee-1008", "Service Request already in Approved state, Editing not possible.");
+			put("Apigee-1009", "Service Request already present and Approved.");
 
 			put("CICD-1000", "Request validation failed. Project names can only contain following special character '-'.");
 			put("CICD-1001", "Request validation failed. Pipeline name already exists.");
@@ -436,6 +438,8 @@ public enum ErrorCodes {
 			put("CodeCoverage-1001", 400);
 			put("PolicyPerformance-1000", 400);
 			put("PolicyPerformance-1001", 404);
+			put("Apigee-1008", 400);
+			put("Apigee-1009",400);
 			put("CICD-1000", 400);
 			put("CICD-1001", 400);
 			put("CICD-1002", 400);
