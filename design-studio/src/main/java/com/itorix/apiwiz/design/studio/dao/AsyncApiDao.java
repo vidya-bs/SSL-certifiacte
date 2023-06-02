@@ -131,19 +131,19 @@ public class AsyncApiDao {
 		return masterMongoTemplate.findOne(query,UserSession.class);
 	}
 
-	private AsyncApi getExistingAsync(String name) {
+	public AsyncApi getExistingAsync(String name) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("name").is(name));
 		return mongoTemplate.findOne(query,AsyncApi.class);
 	}
 
-	private AsyncApi getExistingAsyncById(String id) {
+	public AsyncApi getExistingAsyncById(String id) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("asyncApiId").is(id));
 		return mongoTemplate.findOne(query,AsyncApi.class);
 	}
 
-	private AsyncApi getExistingAsyncByIdAndRevision(String id,int revision) {
+	public AsyncApi getExistingAsyncByIdAndRevision(String id,int revision) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("asyncApiId").is(id));
 		query.addCriteria(Criteria.where("revision").is(revision));
