@@ -43,25 +43,18 @@ public class GraphQLServiceImpl implements GraphQLService {
     GraphQL graphQL = graphQLBusiness.findGraphQL(checkGraphQL);
     UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
     if(graphQL!=null){
+      //if already present in db
       logger.info("Creating a new revision for {}",graphQL.getName());
       checkGraphQL.setGraphQLSchema(graphQLData);
       graphQLBusiness.createNewRevisionWithName(checkGraphQL);
-      NotificationDetails notificationDetails = new NotificationDetails();
-      graphQL.setCreatedBy(userSession.getUserId());
-      notificationDetails.setNotification("GraphQL Revision has been created " .concat(graphQL.getName()));
-      notificationDetails.setUserId(Arrays.asList(graphQL.getCreatedBy()));
-      notificationDetails.setType(NotificationType.fromValue("GraphQL"));
-      notificationBusiness.createNotification(notificationDetails,jsessionid);
+      notificationBusiness.instantiateNotification(jsessionid, graphQL.getName(), graphQL.getCreatedBy(), "GraphQL", "GraphQL Revision has been created for "  );
     }else{
+      //if not present in db
       logger.info("Creating a new GraphQL Schema");
       checkGraphQL.setGraphQLSchema(graphQLData);
       graphQLBusiness.create(checkGraphQL);
-      NotificationDetails notificationDetails = new NotificationDetails();
-      notificationDetails.setNotification("GraphQL Schema has been created " .concat(checkGraphQL.getName()));
-      checkGraphQL.setCreatedBy(userSession.getUserId());
-      notificationDetails.setUserId(Arrays.asList(graphQL.getCreatedBy()));
-      notificationDetails.setType(NotificationType.fromValue("GraphQL"));
-      notificationBusiness.createNotification(notificationDetails,jsessionid);
+      graphQL.setCreatedBy(userSession.getUserId());
+      notificationBusiness.instantiateNotification(jsessionid, graphQL.getName(), graphQL.getCreatedBy(), "GraphQL", "GraphQL Schema has been created for "  );
     }
     return new ResponseEntity<>(HttpStatus.CREATED);
   }
@@ -75,11 +68,7 @@ public class GraphQLServiceImpl implements GraphQLService {
     logger.info("Updating the GraphQL schema for Id-{} and revision-{}",graphQLId,revision);
     String graphQLData = graphqlSchema.getData()!=null ? graphqlSchema.getData() : "";
     graphQLBusiness.updateWithRevision(graphQLId,revision,graphQLData);
-    NotificationDetails notificationDetails = new NotificationDetails();
-    notificationDetails.setNotification("GraphQL Schema Revision has been updated " .concat(graphQL.getName()));
-    notificationDetails.setUserId(Arrays.asList(graphQL.getCreatedBy()));
-    notificationDetails.setType(NotificationType.fromValue("GraphQL"));
-    notificationBusiness.createNotification(notificationDetails,jsessionid);
+    notificationBusiness.instantiateNotification(jsessionid, graphQL.getName(), graphQL.getCreatedBy(), "GraphQL", "GraphQL Schema Revision has been updated for "  );
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
@@ -98,13 +87,7 @@ public class GraphQLServiceImpl implements GraphQLService {
     GraphQL graphQL = graphQLBusiness.findGraphQL(checkGraphQL);
     logger.info("Deleting the GraphQL schema for Id-{} and revision-{}",graphQLId,revision);
     graphQLBusiness.deleteWithRevision(graphQLId,revision);
-    NotificationDetails notificationDetails = new NotificationDetails();
-    notificationDetails.setNotification("GraphQL Schema has been deleted " .concat(graphQL.getName()));
-    UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
-    graphQL.setCreatedBy(userSession.getUserId());
-    notificationDetails.setUserId(Arrays.asList(graphQL.getCreatedBy()));
-    notificationDetails.setType(NotificationType.fromValue("GraphQL"));
-    notificationBusiness.createNotification(notificationDetails,jsessionid);
+    notificationBusiness.instantiateNotification(jsessionid, graphQL.getName(), graphQL.getCreatedBy(), "GraphQL", "GraphQL Schema has been deleted " );
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
@@ -118,11 +101,7 @@ public class GraphQLServiceImpl implements GraphQLService {
     checkGraphQL.setGraphQLSchema(graphQLData);
     logger.info("Creating a new revision for Id-{}",graphQLId);
     graphQLBusiness.createNewRevisionWithId(checkGraphQL);
-    NotificationDetails notificationDetails = new NotificationDetails();
-    notificationDetails.setNotification("GraphQL new revision has been created " .concat(graphQL.getName()));
-    notificationDetails.setUserId(Arrays.asList(graphQL.getCreatedBy()));
-    notificationDetails.setType(NotificationType.fromValue("GraphQL"));
-    notificationBusiness.createNotification(notificationDetails,jsessionid);
+    notificationBusiness.instantiateNotification(jsessionid, graphQL.getName(), graphQL.getCreatedBy(), "GraphQL", "GraphQL new revision has been created for "  );
     return new ResponseEntity<>(HttpStatus.CREATED);
   }
 
@@ -134,11 +113,7 @@ public class GraphQLServiceImpl implements GraphQLService {
     GraphQL graphQL = graphQLBusiness.findGraphQL(checkGraphQL);
     logger.info("Updating the status of the GraphQL Schema for Id-{} and revision-{}",graphQLId,revision);
     graphQLBusiness.changeStatusWithRevision(graphQLId,revision,statusHistory);
-    NotificationDetails notificationDetails = new NotificationDetails();
-    notificationDetails.setNotification("GraphQL status has been updated " .concat(graphQL.getName()));
-    notificationDetails.setUserId(Arrays.asList(graphQL.getCreatedBy()));
-    notificationDetails.setType(NotificationType.fromValue("GraphQL"));
-    notificationBusiness.createNotification(notificationDetails,jsessionid);
+    notificationBusiness.instantiateNotification(jsessionid, graphQL.getName(), graphQL.getCreatedBy(), "GraphQL", "GraphQL revision status has been updated "  );
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
@@ -157,11 +132,7 @@ public class GraphQLServiceImpl implements GraphQLService {
     GraphQL graphQL = graphQLBusiness.findGraphQL(checkGraphQL);
     logger.info("Deleting all revision of the GraphQL Schema for Id-{}",graphQLId);
     graphQLBusiness.deleteAllRevisionsWithId(graphQLId);
-    NotificationDetails notificationDetails = new NotificationDetails();
-    notificationDetails.setNotification("All GraphQL revisions have been deleted for" .concat(graphQL.getName()));
-    notificationDetails.setUserId(Arrays.asList(graphQL.getCreatedBy()));
-    notificationDetails.setType(NotificationType.fromValue("GraphQL"));
-    notificationBusiness.createNotification(notificationDetails,jsessionid);
+    notificationBusiness.instantiateNotification(jsessionid, graphQL.getName(), graphQL.getCreatedBy(), "GraphQL", "All GraphQL revisions deleted for "  );
     return ResponseEntity.noContent().build();
   }
 
