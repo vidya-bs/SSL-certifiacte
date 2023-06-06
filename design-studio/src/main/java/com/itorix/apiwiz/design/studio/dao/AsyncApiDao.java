@@ -314,7 +314,7 @@ public class AsyncApiDao {
 				.andInclude("originalDoc.asyncApiId",
 						"originalDoc.revision");
 		ProjectionOperation excludeFields = project().andExclude("id" , "enableScm");
-		MatchOperation searchOperation = new MatchOperation(Criteria.where("name").regex("^"+name+"$","i"));
+		MatchOperation searchOperation = new MatchOperation(Criteria.where("name").regex(".*"+name+".*","i"));
 		return mongoTemplate.aggregate(
 					newAggregation(projectRequiredFields, searchOperation, excludeFields,
 							groupByMaxRevision, filterMaxRevision, unwindOperation, projectionOperation, sortOperation),
