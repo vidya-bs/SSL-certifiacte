@@ -595,7 +595,7 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
       criteriaList.add(Criteria.where("status").in(filterFieldsAndValues.get("status")));
     }
     if(filterFieldsAndValues.containsKey("name")){
-      criteriaList.add(Criteria.where("name").regex(filterFieldsAndValues.get("name")));
+      criteriaList.add(Criteria.where("name").regex("^"+filterFieldsAndValues.get("name")+"$","i"));
     }
     Criteria criteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()]));
     return !criteriaList.isEmpty() ? match(criteria) : null;

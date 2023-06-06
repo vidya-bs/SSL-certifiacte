@@ -224,20 +224,20 @@ public class AsyncApiDao {
 		List<AsyncApi> results;
 		if(searchOperation!=null && statusOperation!=null){
 			results= mongoTemplate.aggregate(
-					newAggregation(projectRequiredFields, searchOperation,statusOperation,
-							groupByMaxRevision, filterMaxRevision, unwindOperation, projectionOperation, sortOperation),
+					newAggregation(projectRequiredFields, groupByMaxRevision, filterMaxRevision,
+							unwindOperation, projectionOperation, sortOperation,searchOperation,statusOperation),
 					AsyncApi.class, AsyncApi.class).getMappedResults();
 		}
 		else if(searchOperation!=null){
 			results= mongoTemplate.aggregate(
-					newAggregation(projectRequiredFields, searchOperation,
-							groupByMaxRevision, filterMaxRevision, unwindOperation, projectionOperation, sortOperation),
+					newAggregation(projectRequiredFields, groupByMaxRevision, filterMaxRevision,
+							unwindOperation, projectionOperation, sortOperation, searchOperation),
 					AsyncApi.class, AsyncApi.class).getMappedResults();
 		}
 		else if(statusOperation!=null){
 			results= mongoTemplate.aggregate(
-					newAggregation(projectRequiredFields,statusOperation,
-							groupByMaxRevision, filterMaxRevision, unwindOperation, projectionOperation, sortOperation),
+					newAggregation(projectRequiredFields, groupByMaxRevision, filterMaxRevision,
+							unwindOperation, projectionOperation, sortOperation,statusOperation),
 					AsyncApi.class, AsyncApi.class).getMappedResults();
 		}
 		else {
@@ -314,7 +314,7 @@ public class AsyncApiDao {
 				.andInclude("originalDoc.asyncApiId",
 						"originalDoc.revision");
 		ProjectionOperation excludeFields = project().andExclude("id" , "enableScm");
-		MatchOperation searchOperation = new MatchOperation(Criteria.where("name").regex(name));
+		MatchOperation searchOperation = new MatchOperation(Criteria.where("name").regex("^"+name+"$","i"));
 		return mongoTemplate.aggregate(
 					newAggregation(projectRequiredFields, searchOperation, excludeFields,
 							groupByMaxRevision, filterMaxRevision, unwindOperation, projectionOperation, sortOperation),
