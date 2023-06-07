@@ -186,8 +186,9 @@ public class AsyncApiDao {
 	public Object getAllAsyncApis(String jsessionid,int offset,int pageSize,
 			Optional<String> name, Optional<String> sortBy, Optional<String> status){
 
-		String[] PROJECTION_FIELDS = {"id", "name", "revision", "asyncApiId", "status","asyncApi",
-				"createdBy", "createdUserName", "modifiedBy", "modifiedUserName", "cts", "mts","lock","lockedBy","lockedAt","lockedByUserId"};
+		String[] PROJECTION_FIELDS = {"id", "name", "revision", "asyncApiId", "status", "asyncApi", "createdBy",
+				"createdUserName", "modifiedBy", "modifiedUserName", "cts", "mts", "lock", "lockedBy", "lockedAt",
+				"lockedByUserId"};
 		ProjectionOperation projectRequiredFields = project(PROJECTION_FIELDS);
 
 		GroupOperation groupByMaxRevision = group("$asyncApiId").max("revision")
@@ -199,11 +200,11 @@ public class AsyncApiDao {
 				.as("originalDoc");
 		SortOperation sortOperation = sort(Direction.ASC, "name");
 		UnwindOperation unwindOperation = unwind("originalDoc");
-		ProjectionOperation projectionOperation = project("originalDoc.name")
-				.andInclude("originalDoc.asyncApiId",
+		ProjectionOperation projectionOperation = project("originalDoc.name").andInclude("originalDoc.asyncApiId",
 				"originalDoc.revision", "originalDoc.status", "originalDoc.createdBy", "originalDoc.createdUserName",
 				"originalDoc.modifiedBy", "originalDoc.modifiedUserName", "originalDoc.cts", "originalDoc.mts",
-				"originalDoc._id", "originalDoc.lock","originalDoc.lockedBy","originalDoc.lockedAt","originalDoc.lockedByUserId");
+				"originalDoc._id", "originalDoc.lock", "originalDoc.lockedBy", "originalDoc.lockedAt",
+				"originalDoc.lockedByUserId");
 
 		MatchOperation searchOperation = null;
 		MatchOperation statusOperation = null;
