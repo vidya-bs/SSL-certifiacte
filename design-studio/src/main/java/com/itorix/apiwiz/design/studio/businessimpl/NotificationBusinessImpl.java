@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-
+import com.itorix.apiwiz.design.studio.model.NotificationType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +41,20 @@ public class NotificationBusinessImpl implements NotificationBusiness {
 
     @Override
     public void createNotification(NotificationDetails notificationDetails, String jsessionid) throws ItorixException {
+        log.debug("createNotification:{} {} " , jsessionid , notificationDetails);
+        if (null == notificationDetails.getUserId()) {
+            notificationDetails.setUserId(Arrays.asList(new ObjectId().toString()));
+        }
+        baseRepository.save(notificationDetails);
+    }
+
+    @Override
+    public void instantiateNotification(String jsessionid, String name, String createdBy, String notifType, String notificationMessage) throws ItorixException {
+        NotificationDetails notificationDetails = new NotificationDetails();
+        notificationDetails.setNotification(notificationMessage .concat(name));
+        notificationDetails.setUserId(Arrays.asList(createdBy));
+        notificationDetails.setType(NotificationType.fromValue(notifType));
+        createNotification(notificationDetails,jsessionid);
         log.debug("createNotification:{} {} " , jsessionid , notificationDetails);
         if (null == notificationDetails.getUserId()) {
             notificationDetails.setUserId(Arrays.asList(new ObjectId().toString()));
