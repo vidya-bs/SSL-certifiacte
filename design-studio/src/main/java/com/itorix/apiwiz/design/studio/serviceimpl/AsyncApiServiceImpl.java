@@ -17,6 +17,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import com.itorix.apiwiz.design.studio.model.NotificationDetails;
+import com.itorix.apiwiz.design.studio.model.NotificationType;
+import java.util.Arrays;
+import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContext;
+import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
+import com.itorix.apiwiz.identitymanagement.model.TenantContext;
+import com.itorix.apiwiz.identitymanagement.model.UserSession;
+import com.itorix.apiwiz.design.studio.business.NotificationBusiness;
+
+
 
 @CrossOrigin
 @RestController
@@ -28,6 +38,11 @@ public class AsyncApiServiceImpl implements AsyncApiService {
 	@Autowired
 	RSAEncryption rsaEncryption;
 
+
+	@Autowired
+	NotificationBusiness notificationBusiness;
+
+
 	@Override
 	public ResponseEntity<?> createAsyncApi(String interactionid,  String jsessionid, String name, String asyncapi) throws Exception {
 		//TODO check if name already exists
@@ -37,13 +52,16 @@ public class AsyncApiServiceImpl implements AsyncApiService {
 		asyncApiObj.setName(info.get("title").toString());
 		asyncApiObj.setAsyncApi(asyncapi);
 		asyncApiDao.createAsyncApiOrPushToDesignStudio(asyncApiObj,jsessionid);
+		notificationBusiness.instantiateNotification(jsessionid, asyncApiObj.getName(), asyncApiObj.getCreatedBy(), "AsyncApi", "AsyncApi has been created for "  );
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
 	@Override
 	public ResponseEntity<?> updateAsyncApi(String interactionid, String jsessionid,
 			String id, String asyncapi) throws Exception {
+			AsyncApi existingAsyncApi= asyncApiDao.getExistingAsyncById(id);
 		asyncApiDao.updateAsyncApi(id,asyncapi,jsessionid);
+		notificationBusiness.instantiateNotification(jsessionid, existingAsyncApi.getName(), existingAsyncApi.getCreatedBy(), "AsyncApi", "AsyncApi has been updated for "  );
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -76,21 +94,27 @@ public class AsyncApiServiceImpl implements AsyncApiService {
 	@Override
 	public ResponseEntity<?> deleteAsyncApi(String interactionid, String jsessionid, String id)
 			throws Exception {
+		AsyncApi existingAsyncApi = asyncApiDao.getExistingAsyncById(id);
 		asyncApiDao.deleteAsyncApi(id);
+		notificationBusiness.instantiateNotification(jsessionid, existingAsyncApi.getName(), existingAsyncApi.getCreatedBy(), "AsyncApi", "AsyncApi has been deleted "  );
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
 	public ResponseEntity<?> createAsyncApiRevision(String interactionid, String jsessionid,
 			String asyncId, String asyncapi) throws Exception {
+		AsyncApi existingAsyncApi = asyncApiDao.getExistingAsyncById(asyncId);
 		asyncApiDao.createAsyncApiRevision(jsessionid,asyncId,asyncapi);
+		notificationBusiness.instantiateNotification(jsessionid, existingAsyncApi.getName(), existingAsyncApi.getCreatedBy(), "AsyncApi", "AsyncApi Revision has been created for "  );
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
 	@Override
 	public ResponseEntity<?> updateAsyncApiRevision(String interactionid, String jsessionid,
 			String asyncId, int revision, AsyncApi asyncapi) throws Exception {
+		AsyncApi existingAsyncApi = asyncApiDao.getExistingAsyncByIdAndRevision(asyncId, revision);
 		asyncApiDao.updateAsyncApiRevision(jsessionid,asyncId,asyncapi,revision);
+		notificationBusiness.instantiateNotification(jsessionid, existingAsyncApi.getName(), existingAsyncApi.getCreatedBy(), "AsyncApi", "AsyncApi Revision has been updated for "  );
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -106,15 +130,19 @@ public class AsyncApiServiceImpl implements AsyncApiService {
 
 	@Override
 	public ResponseEntity<?> deleteRevisionOfAsyncApi(String interactionid, String jsessionid,
-			String asyncapiId, int revison) throws Exception {
-		asyncApiDao.deleteAsyncApiRevision(asyncapiId,revison);
+			String asyncapiId, int revision) throws Exception {
+		AsyncApi existingAsyncApi = asyncApiDao.getExistingAsyncByIdAndRevision(asyncapiId, revision);
+		asyncApiDao.deleteAsyncApiRevision(asyncapiId,revision);
+		notificationBusiness.instantiateNotification(jsessionid, existingAsyncApi.getName(), existingAsyncApi.getCreatedBy(), "AsyncApi", "AsyncApi Revision has been deleted for "  );
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@Override
 	public ResponseEntity<?> updateStatusAsyncApiRevision(String interactionid, String jsessionid,
 			String asyncId, int revision, StatusHistory statusHistory) throws Exception {
+		AsyncApi existingAsyncApi = asyncApiDao.getExistingAsyncByIdAndRevision(asyncId, revision);
 		asyncApiDao.updateStatus(jsessionid,asyncId,statusHistory,revision);
+		notificationBusiness.instantiateNotification(jsessionid, existingAsyncApi.getName(), existingAsyncApi.getCreatedBy(), "AsyncApi", "AsyncApi Revision has been updated for "  );
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
