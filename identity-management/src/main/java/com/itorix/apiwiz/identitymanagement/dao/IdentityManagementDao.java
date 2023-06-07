@@ -271,6 +271,8 @@ public class IdentityManagementDao {
                 throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1036"), "Identity-1036");
             } else {
                 user.setUserStatus(UserStatus.getStatus(UserStatus.LOCKED));
+                List<UserWorkspace> userWorkspaceList=user.getWorkspaces();
+                userWorkspaceList.forEach(w->w.setActive(false));
                 saveUser(user);
                 throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1047"), "Identity-1047");
             }
@@ -1508,7 +1510,7 @@ public class IdentityManagementDao {
         }
         User user = findUserById(userId);
         if (user.getUserWorkspace(workspaceId) != null) {
-            user.setUserStatus("active");
+            user.setUserStatus(UserStatus.ACTIVE.getValue());
             user.setUserCount(0);
             user.getUserWorkspace(workspaceId).setActive(true);
             saveUser(user);
