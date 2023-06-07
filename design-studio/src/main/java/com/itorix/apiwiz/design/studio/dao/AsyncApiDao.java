@@ -186,8 +186,9 @@ public class AsyncApiDao {
 	public Object getAllAsyncApis(String jsessionid,int offset,int pageSize,
 			Optional<String> name, Optional<String> sortBy, Optional<String> status){
 
-		String[] PROJECTION_FIELDS = {"id", "name", "revision", "asyncApiId", "status","asyncApi",
-				"createdBy", "createdUserName", "modifiedBy", "modifiedUserName", "cts", "mts","lock"};
+		String[] PROJECTION_FIELDS = {"id", "name", "revision", "asyncApiId", "status", "asyncApi", "createdBy",
+				"createdUserName", "modifiedBy", "modifiedUserName", "cts", "mts", "lock", "lockedBy", "lockedAt",
+				"lockedByUserId"};
 		ProjectionOperation projectRequiredFields = project(PROJECTION_FIELDS);
 
 		GroupOperation groupByMaxRevision = group("$asyncApiId").max("revision")
@@ -199,11 +200,11 @@ public class AsyncApiDao {
 				.as("originalDoc");
 		SortOperation sortOperation = sort(Direction.ASC, "name");
 		UnwindOperation unwindOperation = unwind("originalDoc");
-		ProjectionOperation projectionOperation = project("originalDoc.name")
-				.andInclude("originalDoc.asyncApiId",
+		ProjectionOperation projectionOperation = project("originalDoc.name").andInclude("originalDoc.asyncApiId",
 				"originalDoc.revision", "originalDoc.status", "originalDoc.createdBy", "originalDoc.createdUserName",
 				"originalDoc.modifiedBy", "originalDoc.modifiedUserName", "originalDoc.cts", "originalDoc.mts",
-				"originalDoc._id", "originalDoc.lock");
+				"originalDoc._id", "originalDoc.lock", "originalDoc.lockedBy", "originalDoc.lockedAt",
+				"originalDoc.lockedByUserId");
 
 		MatchOperation searchOperation = null;
 		MatchOperation statusOperation = null;
@@ -224,20 +225,20 @@ public class AsyncApiDao {
 		List<AsyncApi> results;
 		if(searchOperation!=null && statusOperation!=null){
 			results= mongoTemplate.aggregate(
-					newAggregation(projectRequiredFields, searchOperation,statusOperation,
-							groupByMaxRevision, filterMaxRevision, unwindOperation, projectionOperation, sortOperation),
+					newAggregation(projectRequiredFields, groupByMaxRevision, filterMaxRevision,
+							unwindOperation, projectionOperation, sortOperation,searchOperation,statusOperation),
 					AsyncApi.class, AsyncApi.class).getMappedResults();
 		}
 		else if(searchOperation!=null){
 			results= mongoTemplate.aggregate(
-					newAggregation(projectRequiredFields, searchOperation,
-							groupByMaxRevision, filterMaxRevision, unwindOperation, projectionOperation, sortOperation),
+					newAggregation(projectRequiredFields, groupByMaxRevision, filterMaxRevision,
+							unwindOperation, projectionOperation, sortOperation, searchOperation),
 					AsyncApi.class, AsyncApi.class).getMappedResults();
 		}
 		else if(statusOperation!=null){
 			results= mongoTemplate.aggregate(
-					newAggregation(projectRequiredFields,statusOperation,
-							groupByMaxRevision, filterMaxRevision, unwindOperation, projectionOperation, sortOperation),
+					newAggregation(projectRequiredFields, groupByMaxRevision, filterMaxRevision,
+							unwindOperation, projectionOperation, sortOperation,statusOperation),
 					AsyncApi.class, AsyncApi.class).getMappedResults();
 		}
 		else {
@@ -314,7 +315,7 @@ public class AsyncApiDao {
 				.andInclude("originalDoc.asyncApiId",
 						"originalDoc.revision");
 		ProjectionOperation excludeFields = project().andExclude("id" , "enableScm");
-		MatchOperation searchOperation = new MatchOperation(Criteria.where("name").regex(name));
+		MatchOperation searchOperation = new MatchOperation(Criteria.where("name").regex(".*"+name+".*","i"));
 		return mongoTemplate.aggregate(
 					newAggregation(projectRequiredFields, searchOperation, excludeFields,
 							groupByMaxRevision, filterMaxRevision, unwindOperation, projectionOperation, sortOperation),
