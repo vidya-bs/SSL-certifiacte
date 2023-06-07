@@ -13,6 +13,8 @@ public interface NotificationBusiness {
 
     public void createNotification(NotificationDetails notificationDetails, String jsessionid) throws ItorixException;
 
+    public void instantiateNotification(String jsessionid, String name, String createdBy, String notifType, String notificationMessage) throws ItorixException;
+
     public String deleteNotification(String id) throws ItorixException;
 
     public NotificationDetails updateNotification(NotificationDetails notificationDetails, String id)
