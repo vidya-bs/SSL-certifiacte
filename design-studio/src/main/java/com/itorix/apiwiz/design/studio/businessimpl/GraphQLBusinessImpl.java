@@ -677,5 +677,4 @@ public class GraphQLBusinessImpl implements GraphQLBusiness {
     }
     return listGraphQL;
   }
-
 }
