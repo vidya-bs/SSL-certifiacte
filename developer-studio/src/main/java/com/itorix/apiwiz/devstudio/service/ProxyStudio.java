@@ -41,6 +41,14 @@ public interface ProxyStudio {
 			@RequestHeader HttpHeaders headers, HttpServletRequest request, HttpServletResponse response)
 			throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/buildconfig/codegen/update", produces = {
+			"application/json"})
+	public ResponseEntity<?> updateProxyDetails(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestBody CodeGenHistory codeGen,
+			@RequestHeader HttpHeaders headers, HttpServletRequest request, HttpServletResponse response) throws Exception;
+
 	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/buildconfig/codegen/getproxyflownames", consumes = {
 			"multipart/form-data", "multipart/mixed"}, produces = {"application/json"})
