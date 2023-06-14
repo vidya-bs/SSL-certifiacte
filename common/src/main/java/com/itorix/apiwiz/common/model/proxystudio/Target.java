@@ -17,6 +17,16 @@ public class Target {
 	private String version;
 	private String revision;
 
+	private String swaggerId;
+
+	public String getSwaggerId() {
+		return swaggerId;
+	}
+
+	public void setSwaggerId(String swaggerId) {
+		this.swaggerId = swaggerId;
+	}
+
 	public String getDescription() {
 		return description;
 	}
