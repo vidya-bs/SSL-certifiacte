@@ -372,16 +372,16 @@ public class ApplicationProperties {
 	@Value("${itorix.core.gocd.pipelines.base.url}")
 	private String pipelineBaseUrl;
 
-	@Value("${itorix.core.s3.marketing.bucket.name}")
+	@Value("${itorix.core.s3.marketing.bucket.name:null}")
 	private String awsMarketingBucketName;
 
-	@Value("${itorix.core.s3.marketing.region}")
+	@Value("${itorix.core.s3.marketing.region:null}")
 	private String awsMarketingRegion;
 
-	@Value("${itorix.core.s3.marketing.access.key}")
+	@Value("${itorix.core.s3.marketing.access.key:null}")
 	private String awsMarketingKey;
 
-	@Value("${itorix.core.s3.marketing.access.secret}")
+	@Value("${itorix.core.s3.marketing.access.secret:null}")
 	private String awsMarketingSecret;
 	@Value("${itorix.core.gocd.version}")
 	private String gocdVersion;
