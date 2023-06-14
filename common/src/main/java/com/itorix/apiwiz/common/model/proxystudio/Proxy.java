@@ -28,6 +28,16 @@ public class Proxy {
 
 	private String isMaster = "false";
 
+	private String swaggerId;
+
+	public String getSwaggerId() {
+		return swaggerId;
+	}
+
+	public void setSwaggerId(String swaggerId) {
+		this.swaggerId = swaggerId;
+	}
+
 	public String getBasePath() {
 		return basePath;
 	}

@@ -72,6 +72,20 @@ public class ProxyStudioImpl implements ProxyStudio {
 	}
 
 	@Override
+	public ResponseEntity<?> updateProxyDetails(String interactionid, String jsessionid,
+			CodeGenHistory codeGen, HttpHeaders headers, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		String folderPath = request.getServletContext().getRealPath("/");
+		Operations operations = new Operations();
+		operations.setDir(folderPath);
+		operations.setjSessionid(jsessionid);
+		User user = commonServices.getUserDetailsFromSessionID(jsessionid);
+		operations.setUser(user);
+		Object obj = codeGenService.processCodeGen(codeGen, operations, null);
+		response.setContentType("application/json");
+		return new ResponseEntity<>(obj, HttpStatus.OK);
+	}
+	@Override
 	public ResponseEntity<?> getProxyOperations(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid, @RequestParam("file") MultipartFile file,
