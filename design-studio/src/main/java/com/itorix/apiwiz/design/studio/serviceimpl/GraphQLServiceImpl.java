@@ -53,8 +53,8 @@ public class GraphQLServiceImpl implements GraphQLService {
       logger.info("Creating a new GraphQL Schema");
       checkGraphQL.setGraphQLSchema(graphQLData);
       graphQLBusiness.create(checkGraphQL);
-      graphQL.setCreatedBy(userSession.getUserId());
-      notificationBusiness.instantiateNotification(jsessionid, graphQL.getName(), graphQL.getCreatedBy(), "GraphQL", "GraphQL Schema has been created for "  );
+      checkGraphQL.setCreatedBy(userSession.getUserId());
+      notificationBusiness.instantiateNotification(jsessionid, checkGraphQL.getName(), checkGraphQL.getCreatedBy(), "GraphQL", "GraphQL Schema has been created for "  );
     }
     return new ResponseEntity<>(HttpStatus.CREATED);
   }
