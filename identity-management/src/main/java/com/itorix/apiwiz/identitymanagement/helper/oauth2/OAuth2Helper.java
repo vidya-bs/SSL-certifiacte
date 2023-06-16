@@ -28,6 +28,7 @@ public class OAuth2Helper {
 
 	private static String GOOGLE = "google";
 	private static String GITHUB = "github";
+	private static String LINKEDIN="linkedin";
 
 	@Autowired
 	@Qualifier("masterMongoTemplate")
@@ -59,7 +60,7 @@ public class OAuth2Helper {
 		if(metaData != null){
 			String data = metaData.getMetadata();
 			if(data != null){
-				List<String> supportedSocialLoginProviders = Arrays.asList(GITHUB,GOOGLE);
+				List<String> supportedSocialLoginProviders = Arrays.asList(GITHUB,GOOGLE,LINKEDIN);
 				for(String provider : supportedSocialLoginProviders){
 					enabledLogins.put(provider, data.contains(provider));
 				}
