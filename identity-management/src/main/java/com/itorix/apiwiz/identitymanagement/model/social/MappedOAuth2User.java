@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.identitymanagement.model.social;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -17,7 +18,13 @@ public class MappedOAuth2User implements OAuth2User {
 
 	@Override
 	public Map<String, Object> getAttributes() {
-		return oauth2User.getAttributes();
+		Map<String,Object> attributeMap = new HashMap<>(oauth2User.getAttributes());
+		//For LinkedIn, we need principal name to not be null
+		if(attributeMap.containsKey("localizedFirstName")){ //Identify if its Linkedin provider using this key
+			attributeMap.put("name",attributeMap.get("localizedFirstName") + " " + attributeMap.get("localizedLastName"));
+			attributeMap.put("user_name",attributeMap.get("localizedFirstName") + " " + attributeMap.get("localizedLastName"));
+		}
+		return attributeMap;
 	}
 
 	@Override
@@ -27,7 +34,11 @@ public class MappedOAuth2User implements OAuth2User {
 
 	@Override
 	public String getName() {
-		return oauth2User.getAttribute("name");
+		String name = oauth2User.getAttribute("name");
+		if(name == null || name.isEmpty()){
+			return (String) this.getAttributes().get("name");
+		}
+		return name;
 	}
 
 	public String getEmail() {
