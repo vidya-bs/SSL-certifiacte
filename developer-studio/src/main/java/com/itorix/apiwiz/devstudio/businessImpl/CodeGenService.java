@@ -102,6 +102,7 @@ import java.io.*;
 @Slf4j
 @Component("codeGenService")
 public class CodeGenService {
+
 	@Value("${itorix.core.apigee.proxy.templates.base}")
 	private String proxyGeneration;
 	@Value("${server.port}")
@@ -174,7 +175,9 @@ public class CodeGenService {
 		return null;
 	}
 
-	public void createFoldersAndFiles(Folder folder, String basePath) {
+	public void createFoldersAndFiles(Folder folder, String basePath) throws IOException {
+		try {
+
 		if (folder.isFolder()) {
 			String folderPath = basePath + File.separator + folder.getName();
 			createFolder(folderPath);
@@ -183,12 +186,15 @@ public class CodeGenService {
 			if (files != null) {
 				for (Folder file : files) {
 					createFoldersAndFiles(file, folderPath);
+					}
 				}
-			}
-		} else {
+			} else {
 			String filePath = basePath + File.separator + folder.getName();
 			String fileContent= mongoConnection.getFile(folder.getName());
 			createFile(filePath, fileContent);
+			}
+		}catch (IOException e){
+			throw e;
 		}
 	}
 
@@ -197,107 +203,101 @@ public class CodeGenService {
 		if (!folder.exists()) {
 			boolean created = folder.mkdirs();
 			if (created) {
-				System.out.println("Folder created: " + folderPath);
+				log.info("Folder created: " + folderPath);
 			} else {
-				System.out.println("Failed to create folder: " + folderPath);
+				log.info("Failed to create folder: " + folderPath);
 			}
 		} else {
-			System.out.println("Folder already exists: " + folderPath);
+				log.info("Folder already exists: " + folderPath);
 		}
 	}
 
-	private void createFile(String filePath, String content) {
+	private void createFile(String filePath, String content) throws IOException {
 		File file = new File(filePath);
 		try (FileWriter writer = new FileWriter(file)) {
 			writer.write(content);
-			System.out.println("File created: " + filePath);
+				log.info("File created: " + filePath);
 		} catch (IOException e) {
-			System.out.println("Failed to create file: " + filePath);
-			e.printStackTrace();
+				log.info("Failed to create file: " + filePath);e.printStackTrace();
+				throw e;
 		}
 	}
 
-	public static void zipFolder(String folderPath, String zipPath) {
+	public static void zipFolder(String folderPath, String zipPath) throws IOException {
 		File folder = new File(folderPath);
 		if (!folder.exists()) {
-			System.out.println("Folder does not exist.");
-			return;
+				log.info("Folder does not exist.");
+				return;
 		}
 
-		try (FileOutputStream fos = new FileOutputStream(zipPath);
-				ZipOutputStream zos = new ZipOutputStream(fos)) {
+			try (FileOutputStream fos = new FileOutputStream(zipPath);
+					ZipOutputStream zos = new ZipOutputStream(fos)) {
 
-			zipFolderRecursive(folder, folder.getName(), zos);
+				zipFolderRecursive(folder, folder.getName(), zos);
 
-			System.out.println("Folder zipped successfully.");
+				log.info("Folder zipped successfully.");
 
-		} catch (IOException e) {
-			System.out.println("Error occurred during folder zipping: " + e.getMessage());
+			} catch (IOException e) {
+				log.info("Error occurred during folder zipping: " + e.getMessage());
+				throw e;
+			}
 		}
-	}
 
-	private static void zipFolderRecursive(File folder, String parentFolder, ZipOutputStream zos) throws IOException {
-		byte[] buffer = new byte[1024];
+		private static void zipFolderRecursive(File folder, String parentFolder, ZipOutputStream zos) throws IOException {
+			byte[] buffer = new byte[1024];
 
-		File[] files = folder.listFiles();
-		if (files != null) {
-			for (File file : files) {
-				if (file.isDirectory()) {
-					zipFolderRecursive(file, parentFolder + File.separator + file.getName(), zos);
-				} else {
-					ZipEntry zipEntry = new ZipEntry(parentFolder + File.separator + file.getName());
-					zos.putNextEntry(zipEntry);
+			File[] files = folder.listFiles();
+			if (files != null) {
+				for (File file : files) {
+					if (file.isDirectory()) {
+						zipFolderRecursive(file, parentFolder + File.separator + file.getName(), zos);
+					} else {
+						ZipEntry zipEntry = new ZipEntry(parentFolder + File.separator + file.getName());
+						zos.putNextEntry(zipEntry);
 
-					try (FileInputStream fis = new FileInputStream(file)) {
-						int length;
-						while ((length = fis.read(buffer)) > 0) {
-							zos.write(buffer, 0, length);
+						try (FileInputStream fis = new FileInputStream(file)) {
+							int length;
+							while ((length = fis.read(buffer)) > 0) {
+								zos.write(buffer, 0, length);
+							}
+						}catch (IOException e){
+							throw e;
 						}
 					}
 				}
 			}
 		}
-	}
 
-	public ResponseEntity<?> downloadTemplates(String templateId) throws IOException {
-		log.debug(" Getting folders from {}", "API/"+ templateId);
-		log.info("Folder received : {}", templateId);
-		String tempDirLocation=applicationProperties.getTempDir();
-		String basePath=tempDirLocation+"TEMP_ZIP_LOCATION";
-		//delete if it already exists
-		FileUtils.deleteDirectory(new File(basePath));
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			String dbFolder = mongoConnection.getFolder();
-			Folder folderToBeDownloaded = mapper.readValue(dbFolder, Folder.class);
-//			String[] pathToken = ("API/"+templateId).split("/");
-//			Folder pathFolder = folder;
-//			for (int i = 0; i < pathToken.length - 1; i++)
-//				pathFolder = pathFolder.getFile(pathToken[i + 1]);
-//			List<Folder> files = pathFolder.getFiles();
-//
-//			Folder folderToBeDownloaded= new Folder();
-//			folderToBeDownloaded.setFiles(files);
-//			folderToBeDownloaded.setName(templateId);
-//			folderToBeDownloaded.setFolder(true);
-			createFoldersAndFiles(folderToBeDownloaded, basePath);
-			zipFolder(basePath+"/"+folderToBeDownloaded.getName(),basePath+"/"+folderToBeDownloaded.getName()+".zip");
-			File file = new File(basePath+"/"+folderToBeDownloaded.getName()+".zip");
+		public ResponseEntity<?> downloadTemplates(String templateId) throws IOException {
 
-			FileSystemResource resource = new FileSystemResource(file);
+			log.info("Folder received : {}", "API/"+templateId);
+			String tempDirLocation=applicationProperties.getTempDir();
+			String basePath=tempDirLocation+"TEMP_ZIP_LOCATION";
+			//delete if it already exists
+			FileUtils.deleteDirectory(new File(basePath));
+			try {
+				ObjectMapper mapper = new ObjectMapper();
+				String dbFolder = mongoConnection.getFolder();
+				Folder folderToBeDownloaded = mapper.readValue(dbFolder, Folder.class);
+				createFoldersAndFiles(folderToBeDownloaded, basePath);
+				String zipLocation=basePath+"/"+folderToBeDownloaded.getName();
+				zipFolder(zipLocation,zipLocation+".zip");
+				File file = new File(basePath+"/"+folderToBeDownloaded.getName()+".zip");
 
-			HttpHeaders headers = new HttpHeaders();
-			headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
+				FileSystemResource resource = new FileSystemResource(file);
 
-			return ResponseEntity.ok()
-					.headers(headers)
-					.contentLength(file.length())
-					.contentType(MediaType.APPLICATION_OCTET_STREAM)
-					.body(resource);
-		}catch (Exception e){
-			log.error("Exception occurred", e);
-		}
-			return null;
+				HttpHeaders headers = new HttpHeaders();
+				headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
+
+				return ResponseEntity.ok()
+						.headers(headers)
+						.contentLength(file.length())
+						.contentType(MediaType.APPLICATION_OCTET_STREAM)
+						.body(resource);
+			}catch (Exception e){
+				log.error("Exception occurred", e);
+				throw e;
+			}
 		}
 
 	private Folder getFolder(String dirName) {
