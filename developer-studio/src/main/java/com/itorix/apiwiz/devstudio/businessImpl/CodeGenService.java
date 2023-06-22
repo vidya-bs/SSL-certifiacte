@@ -16,21 +16,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.mail.MessagingException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bson.Document;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
-import org.eclipse.jgit.api.errors.TransportException;
-import org.opensaml.xml.encryption.Public;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -45,7 +42,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.zeroturnaround.zip.ZipUtil;
-import com.amazonaws.regions.Regions;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -77,7 +73,6 @@ import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.common.util.scm.ScmUtilImpl;
 import com.itorix.apiwiz.common.util.zip.ZIPUtil;
-import com.itorix.apiwiz.devstudio.business.LoadSwagger;
 import com.itorix.apiwiz.devstudio.business.LoadWADL;
 import com.itorix.apiwiz.devstudio.business.LoadWSDL;
 import com.itorix.apiwiz.devstudio.dao.IntegrationsDao;
@@ -101,26 +96,9 @@ import freemarker.template.TemplateException;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.BasicQuery;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.http.*;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
-import org.zeroturnaround.zip.ZipUtil;
 
 import java.io.*;
-import java.time.Instant;
-import java.util.*;
+
 @Slf4j
 @Component("codeGenService")
 public class CodeGenService {
@@ -169,7 +147,7 @@ public class CodeGenService {
 	private ServiceRequestDao serviceRequestDao;
 	@Autowired
 	private  LoadSwaggerImpl swagger ;
-	
+
 
 	@Autowired
 	private IntegrationHelper integrationHelper;
@@ -195,6 +173,132 @@ public class CodeGenService {
 		}
 		return null;
 	}
+
+	public void createFoldersAndFiles(Folder folder, String basePath) {
+		if (folder.isFolder()) {
+			String folderPath = basePath + File.separator + folder.getName();
+			createFolder(folderPath);
+
+			List<Folder> files = folder.getFiles();
+			if (files != null) {
+				for (Folder file : files) {
+					createFoldersAndFiles(file, folderPath);
+				}
+			}
+		} else {
+			String filePath = basePath + File.separator + folder.getName();
+			String fileContent= mongoConnection.getFile(folder.getName());
+			createFile(filePath, fileContent);
+		}
+	}
+
+	private void createFolder(String folderPath) {
+		File folder = new File(folderPath);
+		if (!folder.exists()) {
+			boolean created = folder.mkdirs();
+			if (created) {
+				System.out.println("Folder created: " + folderPath);
+			} else {
+				System.out.println("Failed to create folder: " + folderPath);
+			}
+		} else {
+			System.out.println("Folder already exists: " + folderPath);
+		}
+	}
+
+	private void createFile(String filePath, String content) {
+		File file = new File(filePath);
+		try (FileWriter writer = new FileWriter(file)) {
+			writer.write(content);
+			System.out.println("File created: " + filePath);
+		} catch (IOException e) {
+			System.out.println("Failed to create file: " + filePath);
+			e.printStackTrace();
+		}
+	}
+
+	public static void zipFolder(String folderPath, String zipPath) {
+		File folder = new File(folderPath);
+		if (!folder.exists()) {
+			System.out.println("Folder does not exist.");
+			return;
+		}
+
+		try (FileOutputStream fos = new FileOutputStream(zipPath);
+				ZipOutputStream zos = new ZipOutputStream(fos)) {
+
+			zipFolderRecursive(folder, folder.getName(), zos);
+
+			System.out.println("Folder zipped successfully.");
+
+		} catch (IOException e) {
+			System.out.println("Error occurred during folder zipping: " + e.getMessage());
+		}
+	}
+
+	private static void zipFolderRecursive(File folder, String parentFolder, ZipOutputStream zos) throws IOException {
+		byte[] buffer = new byte[1024];
+
+		File[] files = folder.listFiles();
+		if (files != null) {
+			for (File file : files) {
+				if (file.isDirectory()) {
+					zipFolderRecursive(file, parentFolder + File.separator + file.getName(), zos);
+				} else {
+					ZipEntry zipEntry = new ZipEntry(parentFolder + File.separator + file.getName());
+					zos.putNextEntry(zipEntry);
+
+					try (FileInputStream fis = new FileInputStream(file)) {
+						int length;
+						while ((length = fis.read(buffer)) > 0) {
+							zos.write(buffer, 0, length);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public ResponseEntity<?> downloadTemplates(String templateId) throws IOException {
+		log.debug(" Getting folders from {}", "API/"+ templateId);
+		log.info("Folder received : {}", templateId);
+		String tempDirLocation=applicationProperties.getTempDir();
+		String basePath=tempDirLocation+"TEMP_ZIP_LOCATION";
+		//delete if it already exists
+		FileUtils.deleteDirectory(new File(basePath));
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			String dbFolder = mongoConnection.getFolder();
+			Folder folderToBeDownloaded = mapper.readValue(dbFolder, Folder.class);
+//			String[] pathToken = ("API/"+templateId).split("/");
+//			Folder pathFolder = folder;
+//			for (int i = 0; i < pathToken.length - 1; i++)
+//				pathFolder = pathFolder.getFile(pathToken[i + 1]);
+//			List<Folder> files = pathFolder.getFiles();
+//
+//			Folder folderToBeDownloaded= new Folder();
+//			folderToBeDownloaded.setFiles(files);
+//			folderToBeDownloaded.setName(templateId);
+//			folderToBeDownloaded.setFolder(true);
+			createFoldersAndFiles(folderToBeDownloaded, basePath);
+			zipFolder(basePath+"/"+folderToBeDownloaded.getName(),basePath+"/"+folderToBeDownloaded.getName()+".zip");
+			File file = new File(basePath+"/"+folderToBeDownloaded.getName()+".zip");
+
+			FileSystemResource resource = new FileSystemResource(file);
+
+			HttpHeaders headers = new HttpHeaders();
+			headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
+
+			return ResponseEntity.ok()
+					.headers(headers)
+					.contentLength(file.length())
+					.contentType(MediaType.APPLICATION_OCTET_STREAM)
+					.body(resource);
+		}catch (Exception e){
+			log.error("Exception occurred", e);
+		}
+			return null;
+		}
 
 	private Folder getFolder(String dirName) {
 		log.debug("Getting folder for {}", dirName);
