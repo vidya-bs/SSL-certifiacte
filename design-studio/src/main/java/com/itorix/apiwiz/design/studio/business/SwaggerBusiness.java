@@ -98,7 +98,8 @@ public interface SwaggerBusiness {
 	 * 
 	 * @return
 	 */
-	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid) throws ItorixException;
+	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid,String interactionid)
+			throws Exception;
 
 	/**
 	 * createSwaggerWithNewRevision
@@ -108,7 +109,8 @@ public interface SwaggerBusiness {
 	 * 
 	 * @return
 	 */
-	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid) throws ItorixException;
+	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid,String interactionid)
+			throws Exception;
 
 	/**
 	 * updateSwagger
@@ -835,5 +837,8 @@ public interface SwaggerBusiness {
 	String createExecutionEvent(String swaggerId, String operation, String tenantId);
   
 	public void sync2Repo(String swaggerId, String revisionNo, String interactionid,
+			String oas, String jsessionid, ScmUpload scmUpload) throws Exception;
+
+	public void saveScmDetails(String swaggerId, String revisionNo, String interactionid,
 			String oas, String jsessionid, ScmUpload scmUpload) throws Exception;
 }

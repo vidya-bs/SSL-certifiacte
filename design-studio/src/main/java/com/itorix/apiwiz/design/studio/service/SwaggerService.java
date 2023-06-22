@@ -1490,4 +1490,14 @@ public interface SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestBody ScmUpload scmUpload) throws Exception;
 
+	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.POST, value = "/v2/swaggers/{swaggerId}/revision/{revisionNo}/scmDeatils")
+	public ResponseEntity<Object> saveSwaggerScmDeatils(
+			@PathVariable("swaggerId") String swaggerId,
+			@PathVariable("revisionNo") String revisionNo,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "oas") String oas,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody ScmUpload scmUpload) throws Exception;
+
 }
