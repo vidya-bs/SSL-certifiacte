@@ -203,12 +203,12 @@ public class CodeGenService {
 		if (!folder.exists()) {
 			boolean created = folder.mkdirs();
 			if (created) {
-				log.info("Folder created: " + folderPath);
+				log.debug("Folder created: " + folderPath);
 			} else {
-				log.info("Failed to create folder: " + folderPath);
+				log.debug("Failed to create folder: " + folderPath);
 			}
 		} else {
-				log.info("Folder already exists: " + folderPath);
+				log.debug("Folder already exists: " + folderPath);
 		}
 	}
 
@@ -216,9 +216,9 @@ public class CodeGenService {
 		File file = new File(filePath);
 		try (FileWriter writer = new FileWriter(file)) {
 			writer.write(content);
-				log.info("File created: " + filePath);
+				log.debug("File created: " + filePath);
 		} catch (IOException e) {
-				log.info("Failed to create file: " + filePath);e.printStackTrace();
+				log.error("Failed to create file: " + filePath);e.printStackTrace();
 				throw e;
 		}
 	}
@@ -238,7 +238,7 @@ public class CodeGenService {
 				log.info("Folder zipped successfully.");
 
 			} catch (IOException e) {
-				log.info("Error occurred during folder zipping: " + e.getMessage());
+				log.error("Error occurred during folder zipping: " + e.getMessage());
 				throw e;
 			}
 		}
