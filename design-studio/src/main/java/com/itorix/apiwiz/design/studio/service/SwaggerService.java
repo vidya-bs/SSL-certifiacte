@@ -1491,7 +1491,7 @@ public interface SwaggerService {
 			@RequestBody ScmUpload scmUpload) throws Exception;
 
 	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.POST, value = "/v2/swaggers/{swaggerId}/revision/{revisionNo}/scmDeatils")
+	@RequestMapping(method = RequestMethod.POST, value = "/v2/swaggers/{swaggerId}/revision/{revisionNo}/scmSync")
 	public ResponseEntity<Object> saveSwaggerScmDeatils(
 			@PathVariable("swaggerId") String swaggerId,
 			@PathVariable("revisionNo") String revisionNo,
