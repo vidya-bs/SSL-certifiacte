@@ -604,8 +604,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			swaggerVO.setLock(false);
 			swaggerVO.setId(null);
 			swaggerVO.setSwaggerId(vo.getSwaggerId());
-			SwaggerVO details = baseRepository.save(swaggerVO);SwaggerIntegrations swaggerIntegrations=getGitIntegrations(interactionid, jsessionid,
-					vo.getName(), "2.0");
+			SwaggerVO details = baseRepository.save(swaggerVO);
+			SwaggerIntegrations swaggerIntegrations=getGitIntegrations(interactionid, jsessionid,
+					vo.getSwaggerId(), "2.0");
 			if(swaggerIntegrations!=null&&swaggerIntegrations.isEnableScm()){
 				ScmUpload scmUpload=new ScmUpload();
 				scmUpload.setSwagger(swaggerVO.getSwagger());
@@ -654,7 +655,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			swaggerVO.setSwaggerId(vo.getSwaggerId());
 			Swagger3VO details = baseRepository.save(swaggerVO);
 			SwaggerIntegrations swaggerIntegrations=getGitIntegrations(interactionid, jsessionid,
-					vo.getName(), "3.0");
+					vo.getSwaggerId(), "3.0");
 			if(swaggerIntegrations!=null&&swaggerIntegrations.isEnableScm()){
 				ScmUpload scmUpload=new ScmUpload();
 				scmUpload.setSwagger(swaggerVO.getSwagger());

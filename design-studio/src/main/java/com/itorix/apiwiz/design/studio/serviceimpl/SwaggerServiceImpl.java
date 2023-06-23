@@ -74,6 +74,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 
 /**
  * The type Swagger service.
@@ -619,7 +622,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
 						"Swagger-1001");
 			}
-			vo.setSwagger(json);
+			String formattedJson = formatJson(json);
+			vo.setSwagger(formattedJson);
 			swaggerVO = swaggerBusiness.updateSwagger(vo);
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggername, oas);
@@ -672,7 +676,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
 						"Swagger-1001");
 			}
-			vo.setSwagger(json);
+			String formattedJson = formatJson(json);
+			vo.setSwagger(formattedJson);
 			swaggerVO = swaggerBusiness.updateSwagger(vo);
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggername, oas);
@@ -728,6 +733,12 @@ public class SwaggerServiceImpl implements SwaggerService {
 		file.createNewFile();
 		Files.write(Paths.get(fileLocation), swagger.getBytes());
 		return new File(location);
+	}
+
+	private static String formatJson(String jsonString) {
+		JsonParser jsonParser = new JsonParser();
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		return gson.toJson(jsonParser.parse(jsonString));
 	}
 
 	/**
