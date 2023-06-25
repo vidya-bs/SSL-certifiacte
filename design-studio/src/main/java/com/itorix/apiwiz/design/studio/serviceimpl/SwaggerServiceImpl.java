@@ -1,8 +1,10 @@
 package com.itorix.apiwiz.design.studio.serviceimpl;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -622,14 +624,17 @@ public class SwaggerServiceImpl implements SwaggerService {
 				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
 						"Swagger-1001");
 			}
-			String formattedJson = formatJson(json);
-			vo.setSwagger(formattedJson);
+			vo.setSwagger(json);
+			ObjectMapper om = new ObjectMapper();
+			om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+			om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+			om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			swaggerVO = swaggerBusiness.updateSwagger(vo);
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggername, oas);
 			try{
 				if (integrations != null && !integrations.getScm_authorizationType().toUpperCase().contains("TOKEN")&&integrations.isEnableScm()) {
-					File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
+					File file = createSwaggerFile(swaggerVO.getName(), om.readTree(vo.getSwagger()).toPrettyString(), integrations.getScm_folder(),
 							swaggerVO.getRevision());
 
 					scmMinifiedUtil.pushFilesToSCM(file, integrations.getScm_repository(),
@@ -638,7 +643,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 							integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
 
 				} else if (integrations != null && integrations.getScm_authorizationType() != null&&integrations.isEnableScm()) {
-					File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
+					File file = createSwaggerFile(swaggerVO.getName(), om.readTree(vo.getSwagger()).toPrettyString(), integrations.getScm_folder(),
 							swaggerVO.getRevision());
 
 					scmMinifiedUtil.pushFilesToSCMBase64(file, integrations.getScm_repository(), "TOKEN",
