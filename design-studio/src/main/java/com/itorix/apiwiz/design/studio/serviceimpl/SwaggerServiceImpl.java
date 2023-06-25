@@ -625,13 +625,13 @@ public class SwaggerServiceImpl implements SwaggerService {
 						"Swagger-1001");
 			}
 			vo.setSwagger(json);
+			swaggerVO = swaggerBusiness.updateSwagger(vo);
+			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
+					swaggername, oas);
 			ObjectMapper om = new ObjectMapper();
 			om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 			om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 			om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-			swaggerVO = swaggerBusiness.updateSwagger(vo);
-			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
-					swaggername, oas);
 			try{
 				if (integrations != null && !integrations.getScm_authorizationType().toUpperCase().contains("TOKEN")&&integrations.isEnableScm()) {
 					File file = createSwaggerFile(swaggerVO.getName(), om.readTree(vo.getSwagger()).toPrettyString(), integrations.getScm_folder(),
@@ -681,22 +681,24 @@ public class SwaggerServiceImpl implements SwaggerService {
 				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1001"), name, revision),
 						"Swagger-1001");
 			}
-			String formattedJson = formatJson(json);
-			vo.setSwagger(formattedJson);
+			vo.setSwagger(json);
 			swaggerVO = swaggerBusiness.updateSwagger(vo);
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggername, oas);
-
+			ObjectMapper om = new ObjectMapper();
+			om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+			om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+			om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			try{
 				if (integrations != null && !integrations.getScm_authorizationType().toUpperCase().contains("TOKEN")&&integrations.isEnableScm()) {
-					File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
+					File file = createSwaggerFile(swaggerVO.getName(), om.readTree(vo.getSwagger()).toPrettyString(), integrations.getScm_folder(),
 							swaggerVO.getRevision());
 					scmMinifiedUtil.pushFilesToSCM(file, integrations.getScm_repository(),
 							integrations.getScm_username(),
 							integrations.getScm_password(), integrations.getScm_url(),
 							integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
 				} else if (integrations != null && integrations.getScm_authorizationType() != null&&integrations.isEnableScm()) {
-					File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
+					File file = createSwaggerFile(swaggerVO.getName(), om.readTree(vo.getSwagger()).toPrettyString(), integrations.getScm_folder(),
 							swaggerVO.getRevision());
 					scmMinifiedUtil.pushFilesToSCMBase64(file, integrations.getScm_repository(), "TOKEN",
 							integrations.getScm_token(), integrations.getScm_url(),
@@ -738,12 +740,6 @@ public class SwaggerServiceImpl implements SwaggerService {
 		file.createNewFile();
 		Files.write(Paths.get(fileLocation), swagger.getBytes());
 		return new File(location);
-	}
-
-	private static String formatJson(String jsonString) {
-		JsonParser jsonParser = new JsonParser();
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		return gson.toJson(jsonParser.parse(jsonString));
 	}
 
 	/**
