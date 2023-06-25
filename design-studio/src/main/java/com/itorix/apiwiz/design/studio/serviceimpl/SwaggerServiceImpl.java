@@ -610,6 +610,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 		}
 		HttpHeaders headers = new HttpHeaders();
 		ScannerDTO scannerDTO = new ScannerDTO();
+		ObjectMapper om = new ObjectMapper();
+		om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+		om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		if (oas.equals("2.0")) {
 			SwaggerVO swaggerVO = new SwaggerVO();
 			swaggerVO.setName(swaggername);
@@ -628,10 +632,6 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO = swaggerBusiness.updateSwagger(vo);
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggername, oas);
-			ObjectMapper om = new ObjectMapper();
-			om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-			om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-			om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			try{
 				if (integrations != null && !integrations.getScm_authorizationType().toUpperCase().contains("TOKEN")&&integrations.isEnableScm()) {
 					File file = createSwaggerFile(swaggerVO.getName(), om.readTree(vo.getSwagger()).toPrettyString(), integrations.getScm_folder(),
@@ -685,10 +685,6 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO = swaggerBusiness.updateSwagger(vo);
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggername, oas);
-			ObjectMapper om = new ObjectMapper();
-			om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-			om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-			om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			try{
 				if (integrations != null && !integrations.getScm_authorizationType().toUpperCase().contains("TOKEN")&&integrations.isEnableScm()) {
 					File file = createSwaggerFile(swaggerVO.getName(), om.readTree(vo.getSwagger()).toPrettyString(), integrations.getScm_folder(),
