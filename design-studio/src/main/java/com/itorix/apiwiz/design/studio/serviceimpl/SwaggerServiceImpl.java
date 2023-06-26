@@ -1,8 +1,10 @@
 package com.itorix.apiwiz.design.studio.serviceimpl;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -74,6 +76,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 
 /**
  * The type Swagger service.
@@ -261,7 +266,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			if (vo != null) {
 				swaggerBusiness.checkSwaggerTeams(jsessionid, swaggerVO.getName(), "2.0");
 				swaggerVO.setSwagger(json);
-				swaggerVO=swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid);
+				swaggerVO=swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid,interactionid);
 			} else {
 				swaggerVO.setSwagger(json);
 				swaggerVO = swaggerBusiness.createSwagger(swaggerVO);
@@ -301,7 +306,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			if (vo != null) {
 				swaggerBusiness.checkSwaggerTeams(jsessionid, swaggerVO.getName(), "3.0");
 				swaggerVO.setSwagger(json);
-				swaggerVO=swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid);
+				swaggerVO=swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid,interactionid);
 			} else {
 				swaggerVO.setSwagger(json);
 				swaggerVO = swaggerBusiness.createSwagger(swaggerVO);
@@ -464,7 +469,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setName(swaggername);
 			swaggerVO.setInteractionid(interactionid);
 			swaggerVO.setSwagger(json);
-			swaggerVO = swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid);
+			swaggerVO = swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid,interactionid);
 			swaggerBusiness.updateSwaggerBasePath(swaggerVO.getName(), swaggerVO); // update
 			// the
 			// base
@@ -494,7 +499,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO.setName(swaggername);
 			swaggerVO.setInteractionid(interactionid);
 			swaggerVO.setSwagger(json);
-			swaggerVO = swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid);
+			swaggerVO = swaggerBusiness.createSwaggerWithNewRevision(swaggerVO, jsessionid,interactionid);
 			swaggerBusiness.updateSwagger3BasePath(swaggerVO.getName(), swaggerVO); // update
 			// the
 			// base
@@ -605,6 +610,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 		}
 		HttpHeaders headers = new HttpHeaders();
 		ScannerDTO scannerDTO = new ScannerDTO();
+		ObjectMapper om = new ObjectMapper();
+		om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+		om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		if (oas.equals("2.0")) {
 			SwaggerVO swaggerVO = new SwaggerVO();
 			swaggerVO.setName(swaggername);
@@ -624,8 +633,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggername, oas);
 			try{
-				if (integrations != null && !integrations.getScm_authorizationType().toUpperCase().contains("TOKEN")) {
-					File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
+				if (integrations != null && !integrations.getScm_authorizationType().toUpperCase().contains("TOKEN")&&integrations.isEnableScm()) {
+					File file = createSwaggerFile(swaggerVO.getName(), om.readTree(vo.getSwagger()).toPrettyString(), integrations.getScm_folder(),
 							swaggerVO.getRevision());
 
 					scmMinifiedUtil.pushFilesToSCM(file, integrations.getScm_repository(),
@@ -633,8 +642,8 @@ public class SwaggerServiceImpl implements SwaggerService {
 							integrations.getScm_password(), integrations.getScm_url(),
 							integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
 
-				} else if (integrations != null && integrations.getScm_authorizationType() != null) {
-					File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
+				} else if (integrations != null && integrations.getScm_authorizationType() != null&&integrations.isEnableScm()) {
+					File file = createSwaggerFile(swaggerVO.getName(), om.readTree(vo.getSwagger()).toPrettyString(), integrations.getScm_folder(),
 							swaggerVO.getRevision());
 
 					scmMinifiedUtil.pushFilesToSCMBase64(file, integrations.getScm_repository(), "TOKEN",
@@ -676,17 +685,16 @@ public class SwaggerServiceImpl implements SwaggerService {
 			swaggerVO = swaggerBusiness.updateSwagger(vo);
 			SwaggerIntegrations integrations = swaggerBusiness.getGitIntegrations(interactionid, jsessionid,
 					swaggername, oas);
-
 			try{
-				if (integrations != null && !integrations.getScm_authorizationType().toUpperCase().contains("TOKEN")) {
-					File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
+				if (integrations != null && !integrations.getScm_authorizationType().toUpperCase().contains("TOKEN")&&integrations.isEnableScm()) {
+					File file = createSwaggerFile(swaggerVO.getName(), om.readTree(vo.getSwagger()).toPrettyString(), integrations.getScm_folder(),
 							swaggerVO.getRevision());
 					scmMinifiedUtil.pushFilesToSCM(file, integrations.getScm_repository(),
 							integrations.getScm_username(),
 							integrations.getScm_password(), integrations.getScm_url(),
 							integrations.getScm_type(), integrations.getScm_branch(), COMMIT_MESSAGE);
-				} else if (integrations != null && integrations.getScm_authorizationType() != null) {
-					File file = createSwaggerFile(swaggerVO.getName(), json, integrations.getScm_folder(),
+				} else if (integrations != null && integrations.getScm_authorizationType() != null&&integrations.isEnableScm()) {
+					File file = createSwaggerFile(swaggerVO.getName(), om.readTree(vo.getSwagger()).toPrettyString(), integrations.getScm_folder(),
 							swaggerVO.getRevision());
 					scmMinifiedUtil.pushFilesToSCMBase64(file, integrations.getScm_repository(), "TOKEN",
 							integrations.getScm_token(), integrations.getScm_url(),
@@ -3083,6 +3091,16 @@ public class SwaggerServiceImpl implements SwaggerService {
 			String oas, String jsessionid, ScmUpload scmUpload) throws Exception {
 		try {
 			swaggerBusiness.sync2Repo(swaggerId, revisionNo, interactionid, oas, jsessionid, scmUpload);
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	@Override
+	public ResponseEntity<Object> saveSwaggerScmDeatils(String swaggerId, String revisionNo, String interactionid,
+			String oas, String jsessionid, ScmUpload scmUpload) throws Exception {
+		try {
+			swaggerBusiness.saveScmDetails(swaggerId, revisionNo, interactionid, oas, jsessionid, scmUpload);
 			return new ResponseEntity<>(HttpStatus.ACCEPTED);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

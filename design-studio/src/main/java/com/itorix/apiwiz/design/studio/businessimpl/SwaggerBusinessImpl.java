@@ -424,7 +424,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 						} catch (ItorixException e) {
 							if (e.errorCode.equals("Swagger-1002")) {
 								reason = "swagger with same name exists";
-								createSwaggerWithNewRevision(swaggerVO, null);
+								createSwaggerWithNewRevision(swaggerVO, null,null);
 							}
 							swagger.setReason(reason);
 						}
@@ -496,7 +496,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 						} catch (ItorixException e) {
 							if (e.errorCode.equals("Swagger-1002")) {
 								reason = "swagger with same name exists";
-								createSwaggerWithNewRevision(swaggerVO, null);
+								createSwaggerWithNewRevision(swaggerVO, null,null);
 							}
 							swagger.setReason(reason);
 						}
@@ -588,7 +588,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return vo;
 	}
 
-	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid) throws ItorixException {
+	public SwaggerVO createSwaggerWithNewRevision(SwaggerVO swaggerVO, String jsessionid,String interactionid)
+			throws Exception {
 		log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), swaggerVO);
 		SwaggerVO vo = findSwagger(swaggerVO.getName(), swaggerVO.getInteractionid());
 		if (vo != null) {
@@ -604,13 +605,40 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			swaggerVO.setId(null);
 			swaggerVO.setSwaggerId(vo.getSwaggerId());
 			SwaggerVO details = baseRepository.save(swaggerVO);
+			SwaggerIntegrations swaggerIntegrations=getGitIntegrations(interactionid, jsessionid,
+					vo.getSwaggerId(), "2.0");
+			if(swaggerIntegrations!=null&&swaggerIntegrations.isEnableScm()){
+				ScmUpload scmUpload=new ScmUpload();
+				scmUpload.setSwagger(swaggerVO.getSwagger());
+				scmUpload.setSwaggerName(vo.getName());
+				scmUpload.setBranch(swaggerIntegrations.getScm_branch());
+				scmUpload.setScmSource(swaggerIntegrations.getScm_type());
+				scmUpload.setCommitMessage(swaggerIntegrations.getCommitMessage());
+				scmUpload.setBranch(swaggerIntegrations.getScm_branch());
+				scmUpload.setAuthType(swaggerIntegrations.getScm_authorizationType());
+				scmUpload.setToken(swaggerIntegrations.getScm_token());
+				scmUpload.setPassword(swaggerIntegrations.getScm_password());
+				scmUpload.setFolderName(swaggerIntegrations.getScm_folder());
+				scmUpload.setHostUrl(swaggerIntegrations.getScm_url());
+				scmUpload.setRepoName(swaggerIntegrations.getScm_repository());
+				scmUpload.setUsername(swaggerIntegrations.getScm_username());
+				scmUpload.setEnableScm(true);
+				try {
+					sync2Repo(vo.getSwaggerId(), newRevision.toString(), interactionid, "2.0", jsessionid, scmUpload);
+				}
+				catch (Exception e){
+					throw new ItorixException(ErrorCodes.errorMessage.get(""),"");
+				}
+			}
+
 			log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), details);
 			return details;
 		}
 		return null;
 	}
 
-	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid) throws ItorixException {
+	public Swagger3VO createSwaggerWithNewRevision(Swagger3VO swaggerVO, String jsessionid,String interactionid)
+			throws Exception {
 		log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), swaggerVO);
 		Swagger3VO vo = findSwagger3(swaggerVO.getName(), swaggerVO.getInteractionid());
 		if (vo != null) {
@@ -626,6 +654,31 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			swaggerVO.setId(null);
 			swaggerVO.setSwaggerId(vo.getSwaggerId());
 			Swagger3VO details = baseRepository.save(swaggerVO);
+			SwaggerIntegrations swaggerIntegrations=getGitIntegrations(interactionid, jsessionid,
+					vo.getSwaggerId(), "3.0");
+			if(swaggerIntegrations!=null&&swaggerIntegrations.isEnableScm()){
+				ScmUpload scmUpload=new ScmUpload();
+				scmUpload.setSwagger(swaggerVO.getSwagger());
+				scmUpload.setSwaggerName(vo.getName());
+				scmUpload.setBranch(swaggerIntegrations.getScm_branch());
+				scmUpload.setScmSource(swaggerIntegrations.getScm_type());
+				scmUpload.setCommitMessage(swaggerIntegrations.getCommitMessage());
+				scmUpload.setBranch(swaggerIntegrations.getScm_branch());
+				scmUpload.setAuthType(swaggerIntegrations.getScm_authorizationType());
+				scmUpload.setToken(swaggerIntegrations.getScm_token());
+				scmUpload.setPassword(swaggerIntegrations.getScm_password());
+				scmUpload.setFolderName(swaggerIntegrations.getScm_folder());
+				scmUpload.setHostUrl(swaggerIntegrations.getScm_url());
+				scmUpload.setRepoName(swaggerIntegrations.getScm_repository());
+				scmUpload.setUsername(swaggerIntegrations.getScm_username());
+				scmUpload.setEnableScm(true);
+				try {
+					sync2Repo(vo.getSwaggerId(), newRevision.toString(), interactionid, "3.0", jsessionid, scmUpload);
+				}
+				catch (Exception e){
+					throw new ItorixException(ErrorCodes.errorMessage.get(""),"");
+				}
+			}
 			log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), details);
 			return details;
 		}
@@ -3660,6 +3713,9 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				SwaggerIntegrations.class);
 		if (integrations != null) {
 			swaggerIntegrations.setId(integrations.getId());
+			swaggerIntegrations.setCts(integrations.getCts());
+			swaggerIntegrations.setCreatedBy(integrations.getCreatedBy());
+			swaggerIntegrations.setCreatedUserName(integrations.getCreatedUserName());
 		}
 		swaggerIntegrations.setSwaggerId(swaggerid);
 		swaggerIntegrations.setSwaggerName(swaggerName);
@@ -4528,6 +4584,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		integrations.setScm_repository(scmUpload.getRepoName());
 		String token = scmUpload.getToken();
 		integrations.setScm_token(token);
+		integrations.setEnableScm(scmUpload.isEnableScm());
 		if(scmUpload.getAuthType().equalsIgnoreCase("TOKEN")){
 			if(!scmUpload.getScmSource().equalsIgnoreCase("bitbucket")){
 				//Bitbucket Tokens are larger than 53 bytes hence invalid block size for encryption
@@ -4604,6 +4661,36 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					scmUpload.getHostUrl(), scmUpload.getScmSource(), scmUpload.getBranch(), commitMessage);
 		}
 		file.delete();
+	}
+	@Override
+	public void saveScmDetails(String swaggerId, String revisionNo, String interactionid, String oas, String jsessionid,
+			ScmUpload scmUpload) throws Exception {
+		//Create an SCM Integration Record (Support the Existing Git Integration flow)
+		SwaggerIntegrations integrations = new SwaggerIntegrations();
+		integrations.setSwaggerName(scmUpload.getSwaggerName());
+		integrations.setSwaggerId(swaggerId);
+		integrations.setOas(oas);
+		integrations.setScm_folder(scmUpload.getFolderName());
+		integrations.setScm_url(scmUpload.getHostUrl());
+		integrations.setScm_authorizationType(scmUpload.getAuthType());
+		integrations.setScm_branch(scmUpload.getBranch());
+		integrations.setScm_repository(scmUpload.getRepoName());
+		String token = scmUpload.getToken();
+		integrations.setScm_token(token);
+		integrations.setEnableScm(scmUpload.isEnableScm());
+		if(scmUpload.getAuthType().equalsIgnoreCase("TOKEN")){
+			if(!scmUpload.getScmSource().equalsIgnoreCase("bitbucket")){
+				//Bitbucket Tokens are larger than 53 bytes hence invalid block size for encryption
+				integrations.setScm_token(rsaEncryption.encryptText(token));
+			}
+			integrations.setScm_password("");
+		}else{
+			integrations.setScm_password(rsaEncryption.encryptText(scmUpload.getPassword()));
+		}
+
+		integrations.setScm_username(rsaEncryption.encryptText(scmUpload.getUsername()));
+		integrations.setScm_type(scmUpload.getScmSource());
+		createOrUpdateGitIntegrations(interactionid, jsessionid, swaggerId, oas, integrations);
 	}
 
 	private File createSwaggerFile(String swaggerName, String swagger, String folder) throws IOException {
