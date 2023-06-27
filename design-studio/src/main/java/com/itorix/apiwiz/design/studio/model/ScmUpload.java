@@ -22,5 +22,6 @@ public class ScmUpload {
 	private String password;
 	private String authType;
 	private boolean enableScm;
+	private Integer revision;
 
 }

@@ -623,6 +623,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				scmUpload.setRepoName(swaggerIntegrations.getScm_repository());
 				scmUpload.setUsername(swaggerIntegrations.getScm_username());
 				scmUpload.setEnableScm(true);
+				scmUpload.setRevision(newRevision);
 				try {
 					sync2Repo(vo.getSwaggerId(), newRevision.toString(), interactionid, "2.0", jsessionid, scmUpload);
 				}
@@ -672,6 +673,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				scmUpload.setRepoName(swaggerIntegrations.getScm_repository());
 				scmUpload.setUsername(swaggerIntegrations.getScm_username());
 				scmUpload.setEnableScm(true);
+				scmUpload.setRevision(newRevision);
 				try {
 					sync2Repo(vo.getSwaggerId(), newRevision.toString(), interactionid, "3.0", jsessionid, scmUpload);
 				}
@@ -4647,7 +4649,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 		om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		File file = createSwaggerFile(scmUpload.getSwaggerName(), om.readTree(scmUpload.getSwagger()).toPrettyString(),
-				scmUpload.getFolderName());
+				scmUpload.getFolderName(),scmUpload.getRevision());
 		String commitMessage = scmUpload.getCommitMessage();
 		if (commitMessage == null) {
 			commitMessage = "Pushed " + scmUpload.getSwaggerName() + " to " + scmUpload.getFolderName() + " in " + scmUpload.getRepoName();
@@ -4698,6 +4700,19 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		String revStr = separatorChar + "swagger" + separatorChar + swaggerName;
 		folder = folder != null && !folder.isEmpty() ? folder + revStr : "Swagger" + revStr;
 		String location = System.getProperty("java.io.tmpdir") + System.currentTimeMillis();
+		String fileLocation = location + separatorChar + folder + separatorChar + swaggerName + ".json";
+		File file = new File(fileLocation);
+		file.getParentFile().mkdirs();
+		file.createNewFile();
+		Files.write(Paths.get(fileLocation), swagger.getBytes());
+		return new File(location);
+	}
+	private File createSwaggerFile(String swaggerName, String swagger, String folder, int revision) throws IOException {
+		String separatorChar = String.valueOf(File.separatorChar);
+		String revStr = separatorChar + "swagger" + separatorChar + swaggerName + separatorChar
+				+ String.valueOf(revision);
+		folder = folder != null && !folder.isEmpty() ? folder + revStr : "Swagger" + revStr;
+		String location = applicationProperties.getTempDir() + System.currentTimeMillis();
 		String fileLocation = location + separatorChar + folder + separatorChar + swaggerName + ".json";
 		File file = new File(fileLocation);
 		file.getParentFile().mkdirs();
