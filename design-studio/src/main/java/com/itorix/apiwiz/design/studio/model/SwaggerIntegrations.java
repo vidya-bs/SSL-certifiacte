@@ -34,6 +34,26 @@ public class SwaggerIntegrations extends AbstractObject {
 	private String scm_type;
 	private String scm_password;
 
+	private boolean enableScm;
+	private String commitMessage;
+
+	public String getCommitMessage() {
+		return commitMessage;
+	}
+
+	public void setCommitMessage(String commitMessage) {
+		this.commitMessage = commitMessage;
+	}
+
+	public boolean isEnableScm() {
+		return enableScm;
+	}
+
+
+	public void setEnableScm(boolean enableScm) {
+		this.enableScm = enableScm;
+	}
+
 	public String getSwaggerName() {
 		return swaggerName;
 	}
