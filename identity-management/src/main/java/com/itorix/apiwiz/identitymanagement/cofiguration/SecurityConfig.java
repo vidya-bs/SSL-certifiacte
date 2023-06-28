@@ -15,6 +15,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
+import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -47,8 +57,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		if(socialLoginSuccessHandler != null){
 			logger.info("Loading Identity Management with Social Login Flow : Enabled");
 			http.csrf().disable().authorizeRequests()
-					.antMatchers("/v1/users/login", "/registration/**", "/login/**", "/v1/**", "/v2/**","/oauth2-redirect","/social-logins/**","/actuator/**")
-					.permitAll().anyRequest().authenticated().and().oauth2Login()
+					.antMatchers("/v1/users/login", "/registration/**", "/login/**", "/v1/**", "/v2/**","/oauth2-redirect","/social-logins/**","/actuator/**","/oauth2/**")
+					.permitAll().anyRequest().authenticated().and()
+					.oauth2Login()
+					.tokenEndpoint()
+					.accessTokenResponseClient(authorizationCodeTokenResponseClient()).and()
 					.successHandler(socialLoginSuccessHandler)
 					.failureHandler(socialLoginFailureHandler);
 			http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -62,5 +75,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 		
 		http.addFilterBefore(jsessionAuthFilter, UsernamePasswordAuthenticationFilter.class);
+	}
+	private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> authorizationCodeTokenResponseClient() {
+		OAuth2AccessTokenResponseHttpMessageConverter tokenResponseHttpMessageConverter =
+				new OAuth2AccessTokenResponseHttpMessageConverter();
+		tokenResponseHttpMessageConverter.setTokenResponseConverter(new CustomAccessTokenResponseConvertor());
+
+		RestTemplate restTemplate = new RestTemplate(Arrays.asList(
+				new FormHttpMessageConverter(), tokenResponseHttpMessageConverter));
+		restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
+
+		DefaultAuthorizationCodeTokenResponseClient tokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
+		tokenResponseClient.setRestOperations(restTemplate);
+
+		return tokenResponseClient;
 	}
 }
