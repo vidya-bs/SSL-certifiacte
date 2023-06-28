@@ -628,7 +628,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					sync2Repo(vo.getSwaggerId(), newRevision.toString(), interactionid, "2.0", jsessionid, scmUpload);
 				}
 				catch (Exception e){
-					throw new ItorixException(ErrorCodes.errorMessage.get(""),"");
+					throw new ItorixException(ErrorCodes.errorMessage.get("SCM-001"),"SCM-001");
 				}
 			}
 
@@ -678,7 +678,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 					sync2Repo(vo.getSwaggerId(), newRevision.toString(), interactionid, "3.0", jsessionid, scmUpload);
 				}
 				catch (Exception e){
-					throw new ItorixException(ErrorCodes.errorMessage.get(""),"");
+					throw new ItorixException(ErrorCodes.errorMessage.get("SCM-001"),"SCM-001");
 				}
 			}
 			log("createSwaggerWithNewRevision", swaggerVO.getInteractionid(), details);
