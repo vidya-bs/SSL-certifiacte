@@ -143,30 +143,6 @@ public class GenericControllerExceptionHandler {
 		return responseEntity;
 	}
 
-	// @ExceptionHandler(AccessDeniedException.class)
-	// @ResponseBody
-	// public ResponseEntity<ErrorObj> handleAccessDeniedException(final
-	// ItorixException ex,
-	// final HttpServletResponse response, final HttpServletRequest request)
-	// throws IOException {
-	// logger.error("inside handleControllerException : {} ", ex);
-	// loggerService.logException("GenericControllerExceptionHandler",
-	// "handleControllerException",
-	// System.currentTimeMillis(),
-	// HttpStatus.valueOf(ErrorCodes.responseCode.get("Identity-1042")),
-	// "General-1001", ErrorCodes.errorMessage.get("Identity-1042"), response,
-	// request);
-	// ErrorObj error = new ErrorObj();
-	// error.setErrorMessage(ErrorCodes.errorMessage.get("Identity-1042"),
-	// "Identity-1042");
-	// response.setStatus(ErrorCodes.responseCode.get("Identity-1042"));
-	// ResponseEntity<ErrorObj> responseEntity = new
-	// ResponseEntity<ErrorObj>(error,
-	// HttpStatus.valueOf(ErrorCodes.responseCode.get("Identity-1042")));
-	//
-	//
-	// return responseEntity;
-	// }
 
 	@ExceptionHandler(AccessDeniedException.class)
 	@ResponseBody
@@ -198,6 +174,23 @@ public class GenericControllerExceptionHandler {
 				"General-1001", ErrorCodes.errorMessage.get("Identity-1043"), response, request, userSession);
 		ErrorObj error = new ErrorObj();
 		error.setErrorMessage("Unable to parse json. Provided mismatched data type", "General-1001");
+		response.setStatus(HttpStatus.BAD_REQUEST.value());
+		ResponseEntity<ErrorObj> responseEntity = new ResponseEntity<ErrorObj>(error,HttpStatus.BAD_REQUEST);
+		return responseEntity;
+	}
+
+	@ExceptionHandler(IOException.class)
+	@ResponseBody
+	public ResponseEntity<ErrorObj> handleIOException(final IOException ex,
+			final HttpServletResponse response,final HttpServletRequest request) {
+//		error.setErrorMessage("Unable to parse json. Provided mismatched data type", "General-1001");
+		logger.error("inside handleControllerException : {} ", ex);
+		UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		loggerService.logException("GenericControllerExceptionHandler", "handleControllerException",
+				System.currentTimeMillis(), HttpStatus.valueOf(ErrorCodes.responseCode.get("Configuration-1003")),
+				"Configuration-1003", ErrorCodes.errorMessage.get("Configuration-1003"), response, request, userSession);
+		ErrorObj error = new ErrorObj();
+		error.setErrorMessage(ErrorCodes.errorMessage.get("Configuration-1003"), "Configuration-1003");
 		response.setStatus(HttpStatus.BAD_REQUEST.value());
 		ResponseEntity<ErrorObj> responseEntity = new ResponseEntity<ErrorObj>(error,HttpStatus.BAD_REQUEST);
 		return responseEntity;
