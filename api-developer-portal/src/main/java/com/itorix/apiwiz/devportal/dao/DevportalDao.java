@@ -1,6 +1,10 @@
 package com.itorix.apiwiz.devportal.dao;
 
+import com.itorix.apiwiz.common.model.azure.AzureConfigurationVO;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.kong.KongRuntime;
 import com.itorix.apiwiz.common.model.monetization.*;
+import com.itorix.apiwiz.common.util.http.HTTPUtil;
 import com.itorix.apiwiz.design.studio.model.Swagger3VO;
 import com.itorix.apiwiz.design.studio.model.SwaggerMetadata;
 import com.itorix.apiwiz.design.studio.model.SwaggerProduct;
@@ -19,6 +23,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import org.apache.log4j.Logger;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -30,10 +35,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.function.ServerRequest.Headers;
 
-import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.util.http.HTTPUtil;
 
 @Component("devportalDao")
 public class DevportalDao {
@@ -443,5 +445,86 @@ public class DevportalDao {
 	public DeveloperApp getDeveloperAppWithAppId(String appId){
 		return mongoTemplate.findOne(Query.query(Criteria.where("appId").is(appId)),DeveloperApp.class);
 	}
+
+	public List<String> getAllGateways(){
+			try {
+				final String ApigeeCollection="Connectors.Apigee.Configuration";
+				final String ApigeeXCollection="Connectors.ApigeeX.Configuration";
+				final String KongCollection="Connectors.Kong.Runtime.List";
+				final String AzureCollection="Connectors.Azure.Configuration";
+
+				long countApigee = mongoTemplate.count(new Query(), ApigeeCollection);
+				long countApigeeX = mongoTemplate.count(new Query(), ApigeeXCollection);
+				long countKong = mongoTemplate.count(new Query(), KongCollection);
+				long countAzure = mongoTemplate.count(new Query(), AzureCollection);
+
+				List<String> gateways=new ArrayList<>();
+
+				if(countApigee>0){
+					gateways.add("Apigee");
+				}
+
+				if(countApigeeX>0){
+					gateways.add("ApigeeX");
+				}
+
+				if(countKong>0){
+					gateways.add("Kong");
+				}
+
+				if(countAzure>0){
+					gateways.add("Azure");
+				}
+
+				return gateways;
+			}catch (Exception e){
+				throw e;
+			}
+
+		}
+
+		public List<?> getGatewayInfo(String name){
+
+			try{
+				if(name.equalsIgnoreCase("Apigee")){
+					Query query = new Query();
+					query.fields().include("orgname").exclude("_id");
+					return mongoTemplate.find(query, Document.class,"Connectors.Apigee.Configuration");
+				}
+
+				if(name.equalsIgnoreCase("ApigeeX")){
+					Query query = new Query();
+					query.fields().include("orgname").exclude("_id");
+					return mongoTemplate.find(query, Document.class,"Connectors.ApigeeX.Configuration");
+				}
+
+				if(name.equalsIgnoreCase("Kong")){
+					Query query = new Query();
+					query.fields().include("name").exclude("_id");
+					return mongoTemplate.find(query,Document.class,"Connectors.Kong.Runtime.List");
+				}
+
+				if(name.equalsIgnoreCase("Azure")){
+					Query query = new Query();
+					query.fields().include("serviceName").exclude("_id");
+					return mongoTemplate.find(query,Document.class,"Connectors.Azure.Configuration");
+				}
+
+				return new ArrayList<>();
+			}catch (Exception e){
+				throw e;
+			}
+		}
+
+		public AzureConfigurationVO getConnector(String connectorName){
+			Query query = new Query(Criteria.where("connectorName").is(connectorName));
+			return mongoTemplate.find(query,AzureConfigurationVO.class).get(0);
+		}
+
+		public KongRuntime getKongRuntime(String runtime){
+			Query query = new Query(Criteria.where("name").is(runtime));
+			return mongoTemplate.find(query,KongRuntime.class).get(0);
+		}
+
 
 }

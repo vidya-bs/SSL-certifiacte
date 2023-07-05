@@ -1,49 +1,38 @@
 package com.itorix.apiwiz.devportal.serviceimpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.common.model.azure.AzureConfigurationVO;
+import com.itorix.apiwiz.common.model.azure.AzureProductResponse;
+import com.itorix.apiwiz.common.model.azure.AzureProductResponseDTO;
+import com.itorix.apiwiz.common.model.azure.AzureProductValues;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
-import com.itorix.apiwiz.common.model.exception.ErrorObj;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.kong.Consumer;
+import com.itorix.apiwiz.common.model.kong.ConsumerDTO;
+import com.itorix.apiwiz.common.model.kong.ConsumerResponse;
+import com.itorix.apiwiz.common.model.kong.KongRuntime;
 import com.itorix.apiwiz.common.model.monetization.ProductBundle;
 import com.itorix.apiwiz.common.model.monetization.RatePlan;
-import com.itorix.apiwiz.devportal.model.DeveloperApp;
-import com.itorix.apiwiz.devportal.model.monetization.PurchaseRecord;
-import com.itorix.apiwiz.devportal.model.monetization.PurchaseResult;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-
-import java.util.Map;
-import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
 import com.itorix.apiwiz.common.util.http.HTTPUtil;
 import com.itorix.apiwiz.devportal.dao.DevportalDao;
+import com.itorix.apiwiz.devportal.model.DeveloperApp;
+import com.itorix.apiwiz.devportal.model.monetization.PurchaseRecord;
+import com.itorix.apiwiz.devportal.model.monetization.PurchaseResult;
 import com.itorix.apiwiz.devportal.service.DevportalService;
-import org.springframework.web.client.RestTemplate;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.*;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -397,7 +386,7 @@ public class DevportalServiceImpl implements DevportalService {
 			return ResponseEntity.ok("{}");
 		} else {
 			String URL = apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/" + org
-						+ "/apps?expand=true";
+					+ "/apps?expand=true";
 
 			HTTPUtil httpConn = new HTTPUtil(URL, getEncodedCredentials(org, type));
 			ResponseEntity<String> response = devportaldao.proxyService(httpConn, "GET");
@@ -431,6 +420,112 @@ public class DevportalServiceImpl implements DevportalService {
 		}
 	}
 
+	public ResponseEntity<?> apigeeXAppsHelper(String type,String org) throws Exception {
+		String URL;
+		URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/apps";
+		HTTPUtil httpConn = new HTTPUtil(URL, apigeexUtil.getApigeeCredentials(org, type));
+		ResponseEntity<String> response = devportaldao.proxyService(httpConn, "GET");
+		List<String> products = new ArrayList<>();
+		String apiProductString = response.getBody();
+		try {
+			JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
+			JSONArray apiProducts = (JSONArray) proxyObject.get("app");
+			for (Object apiObj : apiProducts) {
+				JSONObject prodObj = (JSONObject) apiObj;
+				final String apiProduct = (String) prodObj.get("appId");
+				products.add(apiProduct);
+			}
+		} catch (Exception e) {
+			logger.error("Exception occurred", e);
+		}
+		ObjectMapper objectMapper = new ObjectMapper();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		ResponseEntity<String> responseEntity = new ResponseEntity<String>(
+				objectMapper.writeValueAsString(products), headers, HttpStatus.OK);
+		return responseEntity;
+	}
+
+	public JSONArray apigeeAppsHelper(String type,String org) throws ItorixException {
+		String URL = apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/" + org
+				+ "/apps?expand=true";
+
+		HTTPUtil httpConn = new HTTPUtil(URL, getEncodedCredentials(org, type));
+		ResponseEntity<String> response = devportaldao.proxyService(httpConn, "GET");
+		JSONArray appResponseList = new JSONArray();
+		String appList = response.getBody();
+		try {
+			JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(appList);
+			JSONArray apps = (JSONArray) proxyObject.get("app");
+			for (Object appsObj : apps) {
+				JSONObject appDetails = new JSONObject();
+				JSONObject prodObj = (JSONObject) appsObj;
+				appDetails.put("appId", (String) prodObj.get("appId"));
+				JSONArray json = (JSONArray) prodObj.get("attributes");
+				for (Object obj : json) {
+					if (obj instanceof JSONObject) {
+						JSONObject nameObject = (JSONObject) obj;
+						if (StringUtils.equalsIgnoreCase(nameObject.getString("name"), "DisplayName")) {
+							appDetails.put("appName", nameObject.getString("value"));
+						}
+					}
+				}
+				appResponseList.add(appDetails);
+			}
+		}catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return appResponseList;
+	}
+
+	public static <T> HttpEntity<T> requestEntity(T body, String azureAccessToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Authorization", azureAccessToken);
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		if (body != null) {
+			return new HttpEntity<>(body, headers);
+		}
+		return new HttpEntity<>(headers);
+	}
+
+	public Object getProductsFromAzure(String connectorName) throws ItorixException {
+		AzureConfigurationVO connector = devportaldao.getConnector(connectorName);
+		String url =String.format("https://%s/subscriptions/%s/resourceGroups/%s/providers/Microsoft.ApiManagement/service/%s/%s?api-version=%s", connector.getManagementHost(), connector.getSubscriptionId(), connector.getResourceGroup(), connector.getServiceName(), "products", connector.getApiVersion());
+		try {
+			ResponseEntity<AzureProductResponse> azureProductResponse = restTemplate.exchange(url, HttpMethod.GET, requestEntity(null, connector.getSharedAccessToken()), AzureProductResponse.class);
+			List<AzureProductValues> response=azureProductResponse.getBody().getValue();
+			List<AzureProductResponseDTO> azureProductResponseDTOS = new ArrayList<>();
+			for(AzureProductValues azureProductValues:response){
+				azureProductResponseDTOS.add(new AzureProductResponseDTO(azureProductValues.getName(),azureProductValues.getProperties().getDisplayName()));
+			}
+			return azureProductResponseDTOS;
+		} catch (Exception e) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Azure-Connector-1022"), "Failed while syncing products."), "Azure-Connector-1022");
+		}
+	}
+
+	public Object getConsumersFromKong(String runtime){
+		try {
+			KongRuntime kongRuntime = devportaldao.getKongRuntime(runtime);
+			String url = String.format("%sconsumers/", kongRuntime.getKongAdminHost());
+			HttpHeaders headers = new HttpHeaders();
+			headers.set("Kong-Admin-Token", kongRuntime.getKongAdminToken());
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
+			ResponseEntity<ConsumerResponse> consumers =  restTemplate.exchange(url, HttpMethod.GET,
+					requestEntity, ConsumerResponse.class);
+			ConsumerResponse consumerResponse= consumers.getBody();
+
+			List<ConsumerDTO> requiredConsumerList = new ArrayList<>();
+
+			for(Consumer consumer : consumerResponse.getData()){
+				requiredConsumerList.add(new ConsumerDTO(consumer.getId(),consumer.getUsername()));
+			}
+			return requiredConsumerList;
+		}catch (Exception e){
+			throw e;
+		}
+	}
 	@Override
 	public org.springframework.http.ResponseEntity<String> getApp(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -537,7 +632,7 @@ public class DevportalServiceImpl implements DevportalService {
 	}
 	@Override
 	public ResponseEntity<?> getPurchaseHistoryByAppId(String jsessionId, String interactionid, String appId)
-			throws Exception {
+		throws Exception {
 		return new ResponseEntity<>(devportaldao.getPurchaseHistoryByAppId(appId),HttpStatus.OK);
 	}
 	@Override
@@ -559,17 +654,17 @@ public class DevportalServiceImpl implements DevportalService {
 	}
 	@Override
 	public ResponseEntity<?> getWalletBalanceByAppId(String jsessionId, String interactionid, String appId)
-			throws Exception {
+		throws Exception {
 		return new ResponseEntity<>(devportaldao.getWalletBalanceByAppId(appId),HttpStatus.OK);
 	}
 	@Override
 	public ResponseEntity<?> addWalletBalanceForAppId(String jsessionId, String interactionid, double topUp,
-			String appId) throws Exception {
+	String appId) throws Exception {
 		return new ResponseEntity<>(devportaldao.addWalletBalanceForAppId(appId,topUp),HttpStatus.OK);
 	}
 	@Override
 	public ResponseEntity<?> computeBillForAppId(String jsessionId, String interactionid, double transactions,String startDate, String endDate,String appId)
-			throws Exception {
+		throws Exception {
 		return new ResponseEntity<>(devportaldao.computeBillForAppId(appId,transactions,startDate,endDate),HttpStatus.OK);
 	}
 	@Override
@@ -613,6 +708,44 @@ public class DevportalServiceImpl implements DevportalService {
 		}
 		return new ResponseEntity<>("Successfully Updated Product Status",HttpStatus.OK);
 	}
+
+	@Override
+	public ResponseEntity<?> getAllGateways(String jsessionId, String interactionid,
+			String gwtype, String type) throws Exception {
+		return new ResponseEntity<>(devportaldao.getAllGateways(),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getGatewayDetails(String jsessionId, String interactionid, String gwtype,
+			String type, String gateway) throws Exception {
+		return new ResponseEntity<>(devportaldao.getGatewayInfo(gateway),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getGatewayDetails(String jsessionId, String interactionid, String gwtype,
+			String type, String gateway, String env) throws Exception {
+
+		Object object = new Object();
+		if(gateway.equalsIgnoreCase("apigee")){
+			//call Apigee With The Env
+			object= apigeeAppsHelper("onprem",env);
+		}
+		if(gateway.equalsIgnoreCase("apigeeX")){
+			//call ApigeeX With The Env
+			object= apigeeXAppsHelper("apigeex",env);
+		}
+		if(gateway.equalsIgnoreCase("Kong")){
+			//call Kong With The Env
+			object=getConsumersFromKong(env);
+		}
+		if(gateway.equalsIgnoreCase("Azure")){
+			//call Azure With The Env
+			object=getProductsFromAzure(env);
+		}
+
+		return new ResponseEntity<>(object,HttpStatus.OK);
+	}
+
 
 	private ResponseEntity<String> getStringResponseEntity(String partner,
 			ResponseEntity<String> response) throws JsonProcessingException, ItorixException {

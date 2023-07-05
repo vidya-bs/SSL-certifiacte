@@ -106,7 +106,7 @@ public interface DevportalService {
 			@PathVariable("email") String email, @RequestParam(value = "expand", required = false) String expand)
 			throws Exception;
 
-	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/organizations/{org}/developers/apps")
 	public org.springframework.http.ResponseEntity<Object> getAppsByOrganisation(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -233,5 +233,32 @@ public interface DevportalService {
 			@PathVariable("consumerKey") String consumerKey,
 			@PathVariable("productName") String productName,
 			@RequestParam(value = "action") String action)
+			throws Exception;
+
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/gateway")
+	public ResponseEntity<?> getAllGateways(@RequestHeader(value = "JSESSIONID") String jsessionId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
+			@RequestHeader(value = "type", required = false) String type)
+			throws Exception;
+
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/gateway/{gateway}")
+	public ResponseEntity<?> getGatewayDetails(@RequestHeader(value = "JSESSIONID") String jsessionId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
+			@RequestHeader(value = "type", required = false) String type,
+			@PathVariable("gateway") String gateway)
+			throws Exception;
+
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/gateway/{gateway}/{env}")
+	public ResponseEntity<?> getGatewayDetails(@RequestHeader(value = "JSESSIONID") String jsessionId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
+			@RequestHeader(value = "type", required = false) String type,
+			@PathVariable("gateway") String gateway,
+			@PathVariable("env") String env)
 			throws Exception;
 }
