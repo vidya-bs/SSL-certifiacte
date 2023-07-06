@@ -421,7 +421,7 @@ public class DevportalServiceImpl implements DevportalService {
         }
     }
 
-    public ResponseEntity<?> apigeeXAppsHelper(String org, String type) throws Exception {
+    public Object apigeeXAppsHelper(String org, String type) throws Exception {
         String URL;
         URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/apps";
         HTTPUtil httpConn = new HTTPUtil(URL, apigeexUtil.getApigeeCredentials(org, type));
@@ -430,11 +430,13 @@ public class DevportalServiceImpl implements DevportalService {
         String apiProductString = response.getBody();
         try {
             JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
+            if(!proxyObject.isEmpty()){
             JSONArray apiProducts = (JSONArray) proxyObject.get("app");
             for (Object apiObj : apiProducts) {
                 JSONObject prodObj = (JSONObject) apiObj;
                 final String apiProduct = (String) prodObj.get("appId");
                 products.add(apiProduct);
+            }
             }
         } catch (Exception e) {
             logger.error("Exception occurred", e);
@@ -444,7 +446,7 @@ public class DevportalServiceImpl implements DevportalService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         ResponseEntity<String> responseEntity = new ResponseEntity<String>(
                 objectMapper.writeValueAsString(products), headers, HttpStatus.OK);
-        return responseEntity;
+        return responseEntity.getBody();
     }
 
     public JSONArray apigeeAppsHelper(String org, String type) throws ItorixException {
@@ -747,11 +749,11 @@ public class DevportalServiceImpl implements DevportalService {
             Object object = new Object();
             if (gateway.equalsIgnoreCase(StaticFields.APIGEE)) {
                 //call Apigee With The Env
-                object = apigeeAppsHelper(env, "onprem");
+                object = apigeeAppsHelper(env, type);
             }
             if (gateway.equalsIgnoreCase(StaticFields.APIGEEX)) {
                 //call ApigeeX With The Env
-                object = apigeeXAppsHelper(env, "apigeex");
+                object = apigeeXAppsHelper(env, StaticFields.APIGEEX);
             }
             if (gateway.equalsIgnoreCase(StaticFields.KONG)) {
                 //call Kong With The Env

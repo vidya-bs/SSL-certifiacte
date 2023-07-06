@@ -492,13 +492,13 @@ public class DevportalDao {
         try {
             if (name.equalsIgnoreCase(StaticFields.APIGEE)) {
                 Query query = new Query();
-                query.fields().include("orgname").exclude("_id");
+                query.fields().include("orgname","type").exclude("_id");
                 return mongoTemplate.find(query, Document.class, StaticFields.APIGEE_CONFIG_COLLECTION);
             }
 
             if (name.equalsIgnoreCase(StaticFields.APIGEEX)) {
                 Query query = new Query();
-                query.fields().include("orgname").exclude("_id");
+                query.fields().include("orgName").exclude("_id");
                 return mongoTemplate.find(query, Document.class, StaticFields.APIGEEX_CONFIG_COLLECTION);
             }
 

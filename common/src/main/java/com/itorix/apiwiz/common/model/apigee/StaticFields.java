@@ -26,6 +26,6 @@ public class StaticFields {
   public static final String AZURE="Azure";
   public static final String KONG="Kong";
   public static final String APIGEE="apigee";
-  public static final String APIGEEX="apigeeX";
+  public static final String APIGEEX="apigeex";
 
 }
