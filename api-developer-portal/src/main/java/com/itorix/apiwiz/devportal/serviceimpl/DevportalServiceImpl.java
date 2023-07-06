@@ -488,9 +488,9 @@ public class DevportalServiceImpl implements DevportalService {
 		return new HttpEntity<>(headers);
 	}
 
-	public Object getProductsFromAzure(String connectorName) throws ItorixException {
-		AzureConfigurationVO connector = devportaldao.getConnector(connectorName);
-		String url =String.format("https://%s/subscriptions/%s/resourceGroups/%s/providers/Microsoft.ApiManagement/service/%s/%s?api-version=%s", connector.getManagementHost(), connector.getSubscriptionId(), connector.getResourceGroup(), connector.getServiceName(), "products", connector.getApiVersion());
+	public Object getProductsFromAzure(String serviceName) throws ItorixException {
+		AzureConfigurationVO connector = devportaldao.getConnector(serviceName);
+		String url = String.format("https://%s/subscriptions/%s/resourceGroups/%s/providers/Microsoft.ApiManagement/service/%s/%s?api-version=%s", connector.getManagementHost(), connector.getSubscriptionId(), connector.getResourceGroup(), connector.getServiceName(), "products", connector.getApiVersion());
 		try {
 			ResponseEntity<AzureProductResponse> azureProductResponse = restTemplate.exchange(url, HttpMethod.GET, requestEntity(null, connector.getSharedAccessToken()), AzureProductResponse.class);
 			List<AzureProductValues> response=azureProductResponse.getBody().getValue();

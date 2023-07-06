@@ -215,6 +215,7 @@ public class DevportalDao {
 		mongoTemplate.save(purchaseRecord);
 		return PurchaseResult.SUCCESS;
 	}
+
 	public List<PurchaseRecord> getPurchaseHistoryByAppId(String appId) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("appId").is(appId));
@@ -223,6 +224,7 @@ public class DevportalDao {
 		if(purchaseRecords == null) purchaseRecords = new ArrayList<>();
 		return purchaseRecords;
 	}
+
 	public List<PurchaseRecord> getPurchaseHistory(String appId, String developerEmailId, String organization) {
 		Query query = new Query();
 		if(appId != null && !appId.isEmpty()) query.addCriteria(Criteria.where("appId").is(appId));
@@ -233,6 +235,7 @@ public class DevportalDao {
 		if(purchaseRecords == null) purchaseRecords = new ArrayList<>();
 		return purchaseRecords;
 	}
+
 	public void deletePurchaseById(String appId, String purchaseId) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("appId").is(appId));
@@ -240,6 +243,7 @@ public class DevportalDao {
 
 		mongoTemplate.findAndRemove(query,PurchaseRecord.class);
 	}
+
 	public AppWallet getWalletBalanceByAppId(String appId) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("appId").is(appId));
@@ -257,6 +261,7 @@ public class DevportalDao {
 
 		return wallet;
 	}
+
 	public AppWallet addWalletBalanceForAppId(String appId, double topUp) {
 		AppWallet wallet = getWalletBalanceByAppId(appId);
 		wallet.credit(topUp);
@@ -269,6 +274,7 @@ public class DevportalDao {
 		return mongoTemplate.save(wallet);
 
 	}
+
 	public ComputedBill computeBillForAppId(String appId, double transactions, String startDate, String endDate) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("appId").is(appId));
@@ -447,84 +453,92 @@ public class DevportalDao {
 	}
 
 	public List<String> getAllGateways(){
-			try {
-				final String ApigeeCollection="Connectors.Apigee.Configuration";
-				final String ApigeeXCollection="Connectors.ApigeeX.Configuration";
-				final String KongCollection="Connectors.Kong.Runtime.List";
-				final String AzureCollection="Connectors.Azure.Configuration";
+		try {
+			final String ApigeeCollection="Connectors.Apigee.Configuration";
+			final String ApigeeXCollection="Connectors.ApigeeX.Configuration";
+			final String KongCollection="Connectors.Kong.Runtime.List";
+			final String AzureCollection="Connectors.Azure.Configuration";
 
-				long countApigee = mongoTemplate.count(new Query(), ApigeeCollection);
-				long countApigeeX = mongoTemplate.count(new Query(), ApigeeXCollection);
-				long countKong = mongoTemplate.count(new Query(), KongCollection);
-				long countAzure = mongoTemplate.count(new Query(), AzureCollection);
+			long countApigee = mongoTemplate.count(new Query(), ApigeeCollection);
+			long countApigeeX = mongoTemplate.count(new Query(), ApigeeXCollection);
+			long countKong = mongoTemplate.count(new Query(), KongCollection);
+			long countAzure = mongoTemplate.count(new Query(), AzureCollection);
 
-				List<String> gateways=new ArrayList<>();
+			List<String> gateways=new ArrayList<>();
 
-				if(countApigee>0){
-					gateways.add("Apigee");
-				}
-
-				if(countApigeeX>0){
-					gateways.add("ApigeeX");
-				}
-
-				if(countKong>0){
-					gateways.add("Kong");
-				}
-
-				if(countAzure>0){
-					gateways.add("Azure");
-				}
-
-				return gateways;
-			}catch (Exception e){
-				throw e;
+			if(countApigee>0){
+				gateways.add("Apigee");
 			}
 
-		}
-
-		public List<?> getGatewayInfo(String name){
-
-			try{
-				if(name.equalsIgnoreCase("Apigee")){
-					Query query = new Query();
-					query.fields().include("orgname").exclude("_id");
-					return mongoTemplate.find(query, Document.class,"Connectors.Apigee.Configuration");
-				}
-
-				if(name.equalsIgnoreCase("ApigeeX")){
-					Query query = new Query();
-					query.fields().include("orgname").exclude("_id");
-					return mongoTemplate.find(query, Document.class,"Connectors.ApigeeX.Configuration");
-				}
-
-				if(name.equalsIgnoreCase("Kong")){
-					Query query = new Query();
-					query.fields().include("name").exclude("_id");
-					return mongoTemplate.find(query,Document.class,"Connectors.Kong.Runtime.List");
-				}
-
-				if(name.equalsIgnoreCase("Azure")){
-					Query query = new Query();
-					query.fields().include("serviceName").exclude("_id");
-					return mongoTemplate.find(query,Document.class,"Connectors.Azure.Configuration");
-				}
-
-				return new ArrayList<>();
-			}catch (Exception e){
-				throw e;
+			if(countApigeeX>0){
+				gateways.add("ApigeeX");
 			}
+
+			if(countKong>0){
+				gateways.add("Kong");
+			}
+
+			if(countAzure>0){
+				gateways.add("Azure");
+			}
+
+			return gateways;
+		}catch (Exception e){
+			throw e;
 		}
 
-		public AzureConfigurationVO getConnector(String connectorName){
-			Query query = new Query(Criteria.where("connectorName").is(connectorName));
-			return mongoTemplate.find(query,AzureConfigurationVO.class).get(0);
-		}
+	}
 
-		public KongRuntime getKongRuntime(String runtime){
+	public List<?> getGatewayInfo(String name){
+
+		try{
+			if(name.equalsIgnoreCase("Apigee")){
+				Query query = new Query();
+				query.fields().include("orgname").exclude("_id");
+				return mongoTemplate.find(query, Document.class,"Connectors.Apigee.Configuration");
+			}
+
+			if(name.equalsIgnoreCase("ApigeeX")){
+				Query query = new Query();
+				query.fields().include("orgname").exclude("_id");
+				return mongoTemplate.find(query, Document.class,"Connectors.ApigeeX.Configuration");
+			}
+
+			if(name.equalsIgnoreCase("Kong")){
+				Query query = new Query();
+				query.fields().include("name").exclude("_id");
+				return mongoTemplate.find(query,Document.class,"Connectors.Kong.Runtime.List");
+			}
+
+			if(name.equalsIgnoreCase("Azure")){
+				Query query = new Query();
+				query.fields().include("serviceName").exclude("_id");
+				return mongoTemplate.find(query,Document.class,"Connectors.Azure.Configuration");
+			}
+
+			return new ArrayList<>();
+		}catch (Exception e){
+			throw e;
+		}
+	}
+
+	public AzureConfigurationVO getConnector(String serviceName){
+		try {
+			Query query = new Query(Criteria.where("serviceName").is(serviceName));
+			return mongoTemplate.findOne(query,AzureConfigurationVO.class);
+		}catch (Exception e){
+			throw e;
+		}
+	}
+
+	public KongRuntime getKongRuntime(String runtime){
+		try {
 			Query query = new Query(Criteria.where("name").is(runtime));
-			return mongoTemplate.find(query,KongRuntime.class).get(0);
+			return mongoTemplate.findOne(query,KongRuntime.class);
+		}catch (Exception e) {
+			throw e;
 		}
+	}
 
 
 }
