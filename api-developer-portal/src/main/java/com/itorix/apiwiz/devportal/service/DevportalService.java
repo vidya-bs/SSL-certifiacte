@@ -245,20 +245,18 @@ public interface DevportalService {
 
 	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/gateway/{gateway}")
-	public ResponseEntity<?> getGatewayDetails(@RequestHeader(value = "JSESSIONID") String jsessionId,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
-			@RequestHeader(value = "type", required = false) String type,
-			@PathVariable("gateway") String gateway)
-			throws Exception;
+	public ResponseEntity<?> getGatewayEnvs(@RequestHeader(value = "JSESSIONID") String jsessionId,
+											@RequestHeader(value = "interactionid", required = false) String interactionid,
+											@RequestHeader(value = "x-gwtype", required = false) String gwtype,
+											@RequestHeader(value = "type", required = false) String type,
+											@PathVariable("gateway") String gateway) throws Exception;
 
 	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/gateway/{gateway}/{env}")
-	public ResponseEntity<?> getGatewayDetails(@RequestHeader(value = "JSESSIONID") String jsessionId,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
-			@RequestHeader(value = "type", required = false) String type,
-			@PathVariable("gateway") String gateway,
-			@PathVariable("env") String env)
-			throws Exception;
+	public ResponseEntity<?> getGatewayApps(@RequestHeader(value = "JSESSIONID") String jsessionId,
+											@RequestHeader(value = "interactionid", required = false) String interactionid,
+											@RequestHeader(value = "x-gwtype", required = false) String gwtype,
+											@RequestHeader(value = "type", required = false) String type,
+											@PathVariable("gateway") String gateway,
+											@PathVariable("env") String env) throws Exception;
 }
