@@ -1,15 +1,17 @@
 package com.itorix.apiwiz.marketing.dao;
 
 import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.NoSuchPaddingException;
 
 import com.itorix.apiwiz.identitymanagement.model.TenantContext;
-import com.itorix.apiwiz.marketing.contactus.model.NotificationExecutionEvent;
+import com.itorix.apiwiz.marketing.contactus.model.*;
 import com.itorix.apiwiz.marketing.db.NotificationExecutorEntity;
 import com.itorix.apiwiz.marketing.db.NotificationExecutorSql;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,9 +27,6 @@ import org.springframework.web.client.RestTemplate;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.mail.EmailTemplate;
-import com.itorix.apiwiz.marketing.contactus.model.ContactUsNotification;
-import com.itorix.apiwiz.marketing.contactus.model.NotificatoinEvent;
-import com.itorix.apiwiz.marketing.contactus.model.RequestModel;
 import com.itorix.apiwiz.marketing.contactus.model.RequestModel.Type;
 
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +57,9 @@ public class ContactUsDao {
 	@Value("${itorix.notification.agent.contextPath:null}")
 	private String notificationContextPath;
 
+	@Value("${itorix.notification.bookDemo.email.body:null}")
+	private String bookDemoEmailBody;
+
 	RSAEncryption rsaEncryption;
 
 	@PostConstruct
@@ -77,9 +79,15 @@ public class ContactUsDao {
 			if (notificatoinEvent != null) {
 				RequestModel requestModel = new RequestModel();
 				EmailTemplate emailTemplate = new EmailTemplate();
-				emailTemplate.setBody(contactUsNotification.getEmailContent().getBody().toHTML());
-				emailTemplate.setToMailId(notificatoinEvent.getEmail());
+				if(StringUtils.equalsIgnoreCase(contactUsNotification.getEmailContent().getEvent(),"request-a-demo")){
+					EmailBody emailBody = contactUsNotification.getEmailContent().getBody();
+					String bookDemoTemplateHTML = MessageFormat.format(bookDemoEmailBody,emailBody.getName(),emailBody.getEmail(),emailBody.getCompany(),emailBody.getJobTitle(),emailBody.getMessage());
+					emailTemplate.setBody(bookDemoTemplateHTML);
+				}else{
+					emailTemplate.setBody(contactUsNotification.getEmailContent().getBody().toHTML());
+				}
 				emailTemplate.setSubject(notificatoinEvent.getSubject());
+				emailTemplate.setToMailId(notificatoinEvent.getEmail());
 				requestModel.setEmailContent(emailTemplate);
 				requestModel.setType(Type.email);
 
