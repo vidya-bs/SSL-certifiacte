@@ -15,13 +15,13 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
 
 
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 @Service
 public class OAuth2UserMapper extends DefaultOAuth2UserService  {
+
 
 	@Autowired
 	private RestTemplate restTemplate;

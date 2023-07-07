@@ -21,6 +21,7 @@ public class MappedOAuth2User implements OAuth2User {
 		Map<String,Object> attributeMap = new HashMap<>(oauth2User.getAttributes());
 		//For LinkedIn, we need principal name to not be null
 		if(attributeMap.containsKey("localizedFirstName")){ //Identify if its Linkedin provider using this key
+
 			attributeMap.put("name",attributeMap.get("localizedFirstName") + " " + attributeMap.get("localizedLastName"));
 			attributeMap.put("user_name",attributeMap.get("localizedFirstName") + " " + attributeMap.get("localizedLastName"));
 		}
