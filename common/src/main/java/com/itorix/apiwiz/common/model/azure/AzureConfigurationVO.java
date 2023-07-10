@@ -3,6 +3,7 @@ package com.itorix.apiwiz.common.model.azure;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.NonNull;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;

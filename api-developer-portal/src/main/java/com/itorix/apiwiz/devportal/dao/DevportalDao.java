@@ -487,8 +487,7 @@ public class DevportalDao {
 
     }
 
-    public List<?> getGatewayEnvs(String name) {
-
+    public List<?> getGatewayEnvs(String name,String resourceGroup,String workspace) {
         try {
             if (name.equalsIgnoreCase(StaticFields.APIGEE)) {
                 Query query = new Query();
@@ -503,17 +502,22 @@ public class DevportalDao {
             }
 
             if (name.equalsIgnoreCase(StaticFields.KONG)) {
-                Query query = new Query();
-                query.fields().include("name").exclude("_id");
-                return mongoTemplate.find(query, Document.class, StaticFields.KONG_RUNTIME_COLLECTION);
+                    Query query = new Query();
+                    query.fields().include("name").exclude("_id");
+                    return mongoTemplate.find(query, Document.class, StaticFields.KONG_RUNTIME_COLLECTION);
             }
 
             if (name.equalsIgnoreCase(StaticFields.AZURE)) {
                 Query query = new Query();
-                query.fields().include("serviceName").exclude("_id");
-                return mongoTemplate.find(query, Document.class, StaticFields.AZURE_CONFIG_COLLECTION);
+                if(resourceGroup==null){
+                    query.fields().include("serviceName","resourceGroup").exclude("_id");
+                    return mongoTemplate.find(query, Document.class, StaticFields.AZURE_CONFIG_COLLECTION);
+                }else{
+                    query.addCriteria(Criteria.where("resourceGroup").is(resourceGroup));
+                    query.fields().include("serviceName","resourceGroup").exclude("_id");
+                    return mongoTemplate.find(query, Document.class, StaticFields.AZURE_CONFIG_COLLECTION);
+                }
             }
-
             return new ArrayList<>();
         } catch (Exception e) {
             throw e;
@@ -529,6 +533,14 @@ public class DevportalDao {
         }
     }
 
+    public List<AzureConfigurationVO> getAllConnectors(){
+        try {
+            return mongoTemplate.find(new Query(),AzureConfigurationVO.class);
+        } catch (Exception e) {
+            throw e;
+        }
+
+    }
     public KongRuntime getKongRuntime(String runtime) {
         try {
             Query query = new Query(Criteria.where("name").is(runtime));

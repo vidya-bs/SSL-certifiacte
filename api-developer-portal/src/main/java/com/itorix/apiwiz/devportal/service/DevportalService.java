@@ -249,7 +249,10 @@ public interface DevportalService {
 											@RequestHeader(value = "interactionid", required = false) String interactionid,
 											@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 											@RequestHeader(value = "type", required = false) String type,
-											@PathVariable("gateway") String gateway) throws Exception;
+											@PathVariable("gateway") String gateway,
+											@RequestParam(value = "resourceGroup",required = false) String resourceGroup,
+											@RequestParam(value = "workspace",required = false) String workspace) throws Exception;
+
 
 	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/gateway/{gateway}/{env}")
@@ -258,5 +261,21 @@ public interface DevportalService {
 											@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 											@RequestHeader(value = "type", required = false) String type,
 											@PathVariable("gateway") String gateway,
-											@PathVariable("env") String env) throws Exception;
+											@PathVariable("env") String env,
+											@RequestParam(value = "workspace",required = false) String workspace) throws Exception;
+
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/gateway/kong/{runTime}/workspace")
+	public ResponseEntity<?> getKongWorkspaces(@RequestHeader(value = "JSESSIONID") String jsessionId,
+											   @RequestHeader(value = "interactionid", required = false) String interactionid,
+											@RequestHeader(value = "x-gwtype", required = false) String gwtype,
+											@RequestHeader(value = "type", required = false) String type, @PathVariable("runTime") String runTime) throws Exception;
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/gateway/azure/resourcegroup")
+	public ResponseEntity<?> getAzureResourceGroups(
+			                                   @RequestHeader(value = "JSESSIONID") String jsessionId,
+											   @RequestHeader(value = "interactionid", required = false) String interactionid,
+											   @RequestHeader(value = "x-gwtype", required = false) String gwtype,
+											   @RequestHeader(value = "type", required = false) String type) throws Exception;
+
 }

@@ -9,10 +9,7 @@ import com.itorix.apiwiz.common.model.azure.AzureProductResponseDTO;
 import com.itorix.apiwiz.common.model.azure.AzureProductValues;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.model.kong.Consumer;
-import com.itorix.apiwiz.common.model.kong.ConsumerDTO;
-import com.itorix.apiwiz.common.model.kong.ConsumerResponse;
-import com.itorix.apiwiz.common.model.kong.KongRuntime;
+import com.itorix.apiwiz.common.model.kong.*;
 import com.itorix.apiwiz.common.model.monetization.ProductBundle;
 import com.itorix.apiwiz.common.model.monetization.RatePlan;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
@@ -507,27 +504,42 @@ public class DevportalServiceImpl implements DevportalService {
         }
     }
 
-    public Object getConsumersFromKong(String runtime) {
+    public Object getConsumersFromKong(String runtime,String workspace) {
         try {
             KongRuntime kongRuntime = devportaldao.getKongRuntime(runtime);
-            String url = String.format("%sconsumers/", kongRuntime.getKongAdminHost());
+            String url = String.format("%s%s/consumers", kongRuntime.getKongAdminHost(),workspace);
             HttpHeaders headers = new HttpHeaders();
             headers.set("Kong-Admin-Token", kongRuntime.getKongAdminToken());
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
             ResponseEntity<ConsumerResponse> consumers = restTemplate.exchange(url, HttpMethod.GET,
                     requestEntity, ConsumerResponse.class);
-            ConsumerResponse consumerResponse = consumers.getBody();
-
-            List<ConsumerDTO> requiredConsumerList = new ArrayList<>();
-
-            for (Consumer consumer : consumerResponse.getData()) {
-                requiredConsumerList.add(new ConsumerDTO(consumer.getId(), consumer.getUsername()));
-            }
-            return requiredConsumerList;
+            return consumers.getBody().getData();
         } catch (Exception e) {
             throw e;
         }
+    }
+    public Object getWorkspacesFromKong(String runtime) {
+        try {
+            KongRuntime kongRuntime = devportaldao.getKongRuntime(runtime);
+            String url = String.format("%sworkspaces/", kongRuntime.getKongAdminHost());
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Kong-Admin-Token", kongRuntime.getKongAdminToken());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
+            ResponseEntity<KongWorkspaceResponse> kongWorkspaces = restTemplate.exchange(url, HttpMethod.GET,
+                    requestEntity, KongWorkspaceResponse.class);
+            return kongWorkspaces.getBody().getData();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    public Set<String> getResourceGroupsFromAzure() throws ItorixException {
+        List<AzureConfigurationVO> connectors = devportaldao.getAllConnectors();
+        Set<String> resourceGroups = new HashSet<>();
+        connectors.forEach(e -> resourceGroups.add(e.getResourceGroup()));
+        return resourceGroups;
     }
 
     @Override
@@ -735,16 +747,16 @@ public class DevportalServiceImpl implements DevportalService {
 
     @Override
     public ResponseEntity<?> getGatewayEnvs(String jsessionId, String interactionid, String gwtype,
-                                            String type, String gateway) throws Exception {
+                                            String type, String gateway,String resourceGroup,String workspace) throws Exception {
         try {
-            return new ResponseEntity<>(devportaldao.getGatewayEnvs(gateway), HttpStatus.OK);
+            return new ResponseEntity<>(devportaldao.getGatewayEnvs(gateway,resourceGroup,workspace), HttpStatus.OK);
         } catch (Exception e) {
             throw e;
         }
     }
 
     public ResponseEntity<?> getGatewayApps(String jsessionId, String interactionid, String gwtype,
-                                            String type, String gateway, String env) throws Exception {
+                                            String type, String gateway, String env,String workspace) throws Exception {
         try {
             Object object = new Object();
             if (gateway.equalsIgnoreCase(StaticFields.APIGEE)) {
@@ -757,7 +769,7 @@ public class DevportalServiceImpl implements DevportalService {
             }
             if (gateway.equalsIgnoreCase(StaticFields.KONG)) {
                 //call Kong With The Env
-                object = getConsumersFromKong(env);
+                object = getConsumersFromKong(env,workspace);
             }
             if (gateway.equalsIgnoreCase(StaticFields.AZURE)) {
                 //call Azure With The Env
@@ -769,6 +781,15 @@ public class DevportalServiceImpl implements DevportalService {
         }
     }
 
+    @Override
+    public ResponseEntity<?> getKongWorkspaces(String jsessionId, String interactionid, String gwtype, String type, String runTime) throws Exception {
+        return new ResponseEntity<>(getWorkspacesFromKong(runTime), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> getAzureResourceGroups(String jsessionId, String interactionid, String gwtype, String type) throws Exception {
+        return new ResponseEntity<>(getResourceGroupsFromAzure(), HttpStatus.OK);
+    }
 
     private ResponseEntity<String> getStringResponseEntity(String partner,
                                                            ResponseEntity<String> response) throws JsonProcessingException, ItorixException {
