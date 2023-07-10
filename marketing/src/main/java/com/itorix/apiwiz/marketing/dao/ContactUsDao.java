@@ -64,6 +64,9 @@ public class ContactUsDao {
 	@Value("${itorix.notification.bookDemo.email.body:null}")
 	private String bookDemoEmailBody;
 
+	@Value("${itorix.notification.contactSales.email.body:null}")
+	private String contactSalesEmailBody;
+
 	RSAEncryption rsaEncryption;
 
 	@PostConstruct
@@ -83,10 +86,11 @@ public class ContactUsDao {
 			if (notificatoinEvent != null) {
 				RequestModel requestModel = new RequestModel();
 				EmailTemplate emailTemplate = new EmailTemplate();
-				if(StringUtils.equalsIgnoreCase(contactUsNotification.getEmailContent().getEvent(),StaticFields.EMAIL_SUBJECT_CONTACT_SALES)||StringUtils.equalsIgnoreCase(contactUsNotification.getEmailContent().getEvent(),StaticFields.EMAIL_SUBJECT_REQUEST_A_DEMO)){
-					EmailBody emailBody = contactUsNotification.getEmailContent().getBody();
-					String bookDemoTemplateHTML = MessageFormat.format(bookDemoEmailBody,notificatoinEvent.getSubject(), emailBody.getName(),emailBody.getEmail(),emailBody.getCompany(),emailBody.getJobTitle(),emailBody.getMessage());
-					emailTemplate.setBody(bookDemoTemplateHTML);
+				EmailBody emailBody = contactUsNotification.getEmailContent().getBody();
+				if(StringUtils.equalsIgnoreCase(contactUsNotification.getEmailContent().getEvent(),StaticFields.EMAIL_SUBJECT_CONTACT_SALES)){
+					emailTemplate.setBody(MessageFormat.format(contactSalesEmailBody,notificatoinEvent.getSubject(), emailBody.getName(),emailBody.getEmail(),emailBody.getCompany(),emailBody.getJobTitle(),emailBody.getMessage()));
+				}else if(StringUtils.equalsIgnoreCase(contactUsNotification.getEmailContent().getEvent(),StaticFields.EMAIL_SUBJECT_REQUEST_A_DEMO)){
+					emailTemplate.setBody(MessageFormat.format(bookDemoEmailBody,notificatoinEvent.getSubject(), emailBody.getName(),emailBody.getEmail(),emailBody.getCompany(),emailBody.getJobTitle(),emailBody.getMessage()));
 				}else{
 					emailTemplate.setBody(contactUsNotification.getEmailContent().getBody().toHTML());
 				}
