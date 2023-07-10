@@ -18,7 +18,6 @@ public class Projects implements Serializable {
 
 	private String id;
 
-
 	@JsonProperty("proxies")
 	Proxies proxies;
 }
