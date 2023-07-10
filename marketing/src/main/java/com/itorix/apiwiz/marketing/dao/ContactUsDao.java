@@ -2,7 +2,6 @@ package com.itorix.apiwiz.marketing.dao;
 
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -63,6 +62,7 @@ public class ContactUsDao {
 
 	@Value("${itorix.notification.bookDemo.email.body:null}")
 	private String bookDemoEmailBody;
+
 	RSAEncryption rsaEncryption;
 
 	@PostConstruct
@@ -91,7 +91,6 @@ public class ContactUsDao {
 				}
 				emailTemplate.setSubject(notificatoinEvent.getSubject());
 				emailTemplate.setToMailId(notificatoinEvent.getEmail());
-
 				requestModel.setEmailContent(emailTemplate);
 				requestModel.setType(Type.email);
 
