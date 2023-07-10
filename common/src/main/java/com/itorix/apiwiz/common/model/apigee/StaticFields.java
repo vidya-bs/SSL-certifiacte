@@ -17,4 +17,7 @@ public class StaticFields {
   public static final String IS_SAAS="isSaaS";
   public static final String STATUS_REVIEW="Review";
   public static final String STATUS_APPROVED="Approved";
+
+  public static final String EMAIL_SUBJECT_CONTACT_SALES="contact-sales";
+  public static final String EMAIL_SUBJECT_REQUEST_A_DEMO="request-a-demo";
 }
