@@ -7,6 +7,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.crypto.NoSuchPaddingException;
 
+import com.itorix.apiwiz.common.model.apigee.StaticFields;
 import com.itorix.apiwiz.identitymanagement.model.TenantContext;
 import com.itorix.apiwiz.marketing.careers.model.JobApplication;
 import com.itorix.apiwiz.marketing.contactus.model.*;
@@ -82,9 +83,9 @@ public class ContactUsDao {
 			if (notificatoinEvent != null) {
 				RequestModel requestModel = new RequestModel();
 				EmailTemplate emailTemplate = new EmailTemplate();
-				if(StringUtils.equalsIgnoreCase(contactUsNotification.getEmailContent().getEvent(),"request-a-demo")){
+				if(StringUtils.equalsIgnoreCase(contactUsNotification.getEmailContent().getEvent(),StaticFields.EMAIL_SUBJECT_CONTACT_SALES)||StringUtils.equalsIgnoreCase(contactUsNotification.getEmailContent().getEvent(),StaticFields.EMAIL_SUBJECT_REQUEST_A_DEMO)){
 					EmailBody emailBody = contactUsNotification.getEmailContent().getBody();
-					String bookDemoTemplateHTML = MessageFormat.format(bookDemoEmailBody,emailBody.getName(),emailBody.getEmail(),emailBody.getCompany(),emailBody.getJobTitle(),emailBody.getMessage());
+					String bookDemoTemplateHTML = MessageFormat.format(bookDemoEmailBody,notificatoinEvent.getSubject(), emailBody.getName(),emailBody.getEmail(),emailBody.getCompany(),emailBody.getJobTitle(),emailBody.getMessage());
 					emailTemplate.setBody(bookDemoTemplateHTML);
 				}else{
 					emailTemplate.setBody(contactUsNotification.getEmailContent().getBody().toHTML());
