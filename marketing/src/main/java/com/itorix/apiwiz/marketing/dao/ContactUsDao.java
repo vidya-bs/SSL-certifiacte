@@ -8,6 +8,7 @@ import javax.annotation.PostConstruct;
 import javax.crypto.NoSuchPaddingException;
 
 import com.itorix.apiwiz.identitymanagement.model.TenantContext;
+import com.itorix.apiwiz.marketing.careers.model.JobApplication;
 import com.itorix.apiwiz.marketing.contactus.model.*;
 import com.itorix.apiwiz.marketing.db.NotificationExecutorEntity;
 import com.itorix.apiwiz.marketing.db.NotificationExecutorSql;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -30,6 +32,7 @@ import com.itorix.apiwiz.common.util.mail.EmailTemplate;
 import com.itorix.apiwiz.marketing.contactus.model.RequestModel.Type;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 
 @Component
 @Slf4j

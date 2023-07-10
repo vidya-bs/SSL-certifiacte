@@ -3,6 +3,7 @@ package com.itorix.apiwiz.design.studio.businessimpl;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.design.studio.business.NotificationBusiness;
 import com.itorix.apiwiz.design.studio.model.NotificationDetails;
+import com.itorix.apiwiz.design.studio.model.NotificationType;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import java.util.stream.Collectors;
@@ -38,6 +39,21 @@ public class NotificationBusinessImpl implements NotificationBusiness {
         List<NotificationDetails> notificationDetails = baseRepository.findAll(NotificationDetails.class);
         return notificationDetails;
     }
+
+    @Override
+    public void instantiateNotification(String jsessionid, String name, String createdBy, String notifType, String notificationMessage) throws ItorixException {
+        NotificationDetails notificationDetails = new NotificationDetails();
+        notificationDetails.setNotification(notificationMessage .concat(name));
+        notificationDetails.setUserId(Arrays.asList(createdBy));
+        notificationDetails.setType(NotificationType.fromValue(notifType));
+        createNotification(notificationDetails,jsessionid);
+        log.debug("createNotification:{} {} " , jsessionid , notificationDetails);
+        if (null == notificationDetails.getUserId()) {
+            notificationDetails.setUserId(Arrays.asList(new ObjectId().toString()));
+        }
+        baseRepository.save(notificationDetails);
+    }
+
 
     @Override
     public void createNotification(NotificationDetails notificationDetails, String jsessionid) throws ItorixException {
