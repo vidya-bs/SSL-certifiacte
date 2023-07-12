@@ -488,7 +488,7 @@ public class DevportalServiceImpl implements DevportalService {
         return new HttpEntity<>(headers);
     }
 
-    public Object getProductsFromAzure(String serviceName) throws ItorixException {
+    public Object getProductsFromAzure(String serviceName) {
         AzureConfigurationVO connector = devportaldao.getConnector(serviceName);
         String url = String.format("https://%s/subscriptions/%s/resourceGroups/%s/providers/Microsoft.ApiManagement/service/%s/%s?api-version=%s", connector.getManagementHost(), connector.getSubscriptionId(), connector.getResourceGroup(), connector.getServiceName(), "products", connector.getApiVersion());
         try {
