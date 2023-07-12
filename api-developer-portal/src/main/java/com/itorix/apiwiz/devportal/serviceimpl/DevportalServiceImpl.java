@@ -500,7 +500,7 @@ public class DevportalServiceImpl implements DevportalService {
             }
             return azureProductResponseDTOS;
         } catch (Exception e) {
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Azure-Connector-1022"), "Failed while syncing products."), "Azure-Connector-1022");
+            return List.of();
         }
     }
 
