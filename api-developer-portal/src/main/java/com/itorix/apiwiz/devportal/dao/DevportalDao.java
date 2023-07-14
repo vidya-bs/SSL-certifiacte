@@ -2,6 +2,7 @@ package com.itorix.apiwiz.devportal.dao;
 
 import com.itorix.apiwiz.common.model.apigee.StaticFields;
 import com.itorix.apiwiz.common.model.azure.AzureConfigurationVO;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.kong.KongRuntime;
 import com.itorix.apiwiz.common.model.monetization.*;
@@ -448,7 +449,6 @@ public class DevportalDao {
         List<AppWallet> wallets = mongoTemplate.find(query, AppWallet.class);
         if (wallets == null) wallets = new ArrayList<>();
         return wallets;
-
     }
 
     public DeveloperApp getDeveloperAppWithAppId(String appId) {
@@ -456,99 +456,69 @@ public class DevportalDao {
     }
 
     public List<String> getAllGateways() {
-        try {
-            long countApigee = mongoTemplate.count(new Query(), StaticFields.APIGEE_CONFIG_COLLECTION);
-            long countApigeeX = mongoTemplate.count(new Query(), StaticFields.APIGEEX_CONFIG_COLLECTION);
-            long countKong = mongoTemplate.count(new Query(), StaticFields.KONG_RUNTIME_COLLECTION);
-            long countAzure = mongoTemplate.count(new Query(), StaticFields.AZURE_CONFIG_COLLECTION);
+        long countApigee = mongoTemplate.count(new Query(), StaticFields.APIGEE_CONFIG_COLLECTION);
+        long countApigeeX = mongoTemplate.count(new Query(), StaticFields.APIGEEX_CONFIG_COLLECTION);
+        long countKong = mongoTemplate.count(new Query(), StaticFields.KONG_RUNTIME_COLLECTION);
+        long countAzure = mongoTemplate.count(new Query(), StaticFields.AZURE_CONFIG_COLLECTION);
 
-            List<String> gateways = new ArrayList<>();
+        List<String> gateways = new ArrayList<>();
 
-            if (countApigee > 0) {
-                gateways.add(StaticFields.APIGEE);
-            }
-
-            if (countApigeeX > 0) {
-                gateways.add(StaticFields.APIGEEX);
-            }
-
-            if (countKong > 0) {
-                gateways.add(StaticFields.KONG);
-            }
-
-            if (countAzure > 0) {
-                gateways.add(StaticFields.AZURE);
-            }
-
-            return gateways;
-        } catch (Exception e) {
-            throw e;
+        if (countApigee > 0) {
+            gateways.add(StaticFields.APIGEE);
         }
 
+        if (countApigeeX > 0) {
+            gateways.add(StaticFields.APIGEEX);
+        }
+
+        if (countKong > 0) {
+            gateways.add(StaticFields.KONG);
+        }
+
+        if (countAzure > 0) {
+            gateways.add(StaticFields.AZURE);
+        }
+        return gateways;
     }
 
-    public List<?> getGatewayEnvs(String name,String resourceGroup,String workspace) {
-        try {
-            if (name.equalsIgnoreCase(StaticFields.APIGEE)) {
-                Query query = new Query();
-                query.fields().include("orgname","type").exclude("_id");
-                return mongoTemplate.find(query, Document.class, StaticFields.APIGEE_CONFIG_COLLECTION);
+    public List<?> getGatewayEnvironments(String name, String resourceGroup) throws ItorixException {
+        Query query = new Query();
+        String collection;
+        if (name.equalsIgnoreCase(StaticFields.APIGEE)) {
+            query.fields().include("orgname","type").exclude("_id");
+            collection=StaticFields.APIGEE_CONFIG_COLLECTION;
+        }else if (name.equalsIgnoreCase(StaticFields.APIGEEX)) {
+            query.fields().include("orgName").exclude("_id");
+            collection=StaticFields.APIGEEX_CONFIG_COLLECTION;
+        }else if (name.equalsIgnoreCase(StaticFields.KONG)) {
+            query.fields().include("name").exclude("_id");
+            collection=StaticFields.KONG_RUNTIME_COLLECTION;
+        }else if (name.equalsIgnoreCase(StaticFields.AZURE)) {
+            collection=StaticFields.AZURE_CONFIG_COLLECTION;
+            if(resourceGroup==null){
+                query.fields().include("serviceName","resourceGroup").exclude("_id");
+            }else{
+                query.addCriteria(Criteria.where("resourceGroup").is(resourceGroup));
+                query.fields().include("serviceName","resourceGroup").exclude("_id");
             }
-
-            if (name.equalsIgnoreCase(StaticFields.APIGEEX)) {
-                Query query = new Query();
-                query.fields().include("orgName").exclude("_id");
-                return mongoTemplate.find(query, Document.class, StaticFields.APIGEEX_CONFIG_COLLECTION);
-            }
-
-            if (name.equalsIgnoreCase(StaticFields.KONG)) {
-                    Query query = new Query();
-                    query.fields().include("name").exclude("_id");
-                    return mongoTemplate.find(query, Document.class, StaticFields.KONG_RUNTIME_COLLECTION);
-            }
-
-            if (name.equalsIgnoreCase(StaticFields.AZURE)) {
-                Query query = new Query();
-                if(resourceGroup==null){
-                    query.fields().include("serviceName","resourceGroup").exclude("_id");
-                    return mongoTemplate.find(query, Document.class, StaticFields.AZURE_CONFIG_COLLECTION);
-                }else{
-                    query.addCriteria(Criteria.where("resourceGroup").is(resourceGroup));
-                    query.fields().include("serviceName","resourceGroup").exclude("_id");
-                    return mongoTemplate.find(query, Document.class, StaticFields.AZURE_CONFIG_COLLECTION);
-                }
-            }
-            return new ArrayList<>();
-        } catch (Exception e) {
-            throw e;
+        }else{
+            throw  new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"),"Portal-1001");
         }
+        return mongoTemplate.find(query, Document.class, collection);
     }
 
-    public AzureConfigurationVO getConnector(String serviceName) {
-        try {
-            Query query = new Query(Criteria.where("serviceName").is(serviceName));
-            return mongoTemplate.findOne(query, AzureConfigurationVO.class);
-        } catch (Exception e) {
-            throw e;
-        }
+    public AzureConfigurationVO getAzureConnector(String serviceName) {
+        Query query = new Query(Criteria.where("serviceName").is(serviceName));
+        return mongoTemplate.findOne(query, AzureConfigurationVO.class);
     }
 
-    public List<AzureConfigurationVO> getAllConnectors(){
-        try {
-            return mongoTemplate.find(new Query(),AzureConfigurationVO.class);
-        } catch (Exception e) {
-            throw e;
-        }
-
+    public List<AzureConfigurationVO> getAllAzureConnectors(){
+        Query query= new Query();
+        query.fields().include("resourceGroup");
+        return mongoTemplate.find(query,AzureConfigurationVO.class);
     }
     public KongRuntime getKongRuntime(String runtime) {
-        try {
-            Query query = new Query(Criteria.where("name").is(runtime));
-            return mongoTemplate.findOne(query, KongRuntime.class);
-        } catch (Exception e) {
-            throw e;
-        }
+        Query query = new Query(Criteria.where("name").is(runtime));
+        return mongoTemplate.findOne(query, KongRuntime.class);
     }
-
-
 }

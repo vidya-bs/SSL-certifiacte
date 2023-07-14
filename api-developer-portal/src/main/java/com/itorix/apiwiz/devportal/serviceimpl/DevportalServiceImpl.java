@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -447,7 +448,7 @@ public class DevportalServiceImpl implements DevportalService {
     }
 
     public JSONArray apigeeAppsHelper(String org, String type) throws ItorixException {
-        String URL = apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/" + org
+        String URL = apigeeUtil.getApigeeHost(type, org) + "v1/organizations/" + org
                 + "/apps?expand=true";
 
         HTTPUtil httpConn = new HTTPUtil(URL, getEncodedCredentials(org, type));
@@ -489,7 +490,7 @@ public class DevportalServiceImpl implements DevportalService {
     }
 
     public Object getProductsFromAzure(String serviceName) {
-        AzureConfigurationVO connector = devportaldao.getConnector(serviceName);
+        AzureConfigurationVO connector = devportaldao.getAzureConnector(serviceName);
         String url = String.format("https://%s/subscriptions/%s/resourceGroups/%s/providers/Microsoft.ApiManagement/service/%s/%s?api-version=%s", connector.getManagementHost(), connector.getSubscriptionId(), connector.getResourceGroup(), connector.getServiceName(), "products", connector.getApiVersion());
         try {
             ResponseEntity<AzureProductResponse> azureProductResponse = restTemplate.exchange(url, HttpMethod.GET, requestEntity(null, connector.getSharedAccessToken()), AzureProductResponse.class);
@@ -536,10 +537,10 @@ public class DevportalServiceImpl implements DevportalService {
     }
 
     public Set<String> getResourceGroupsFromAzure() throws ItorixException {
-        List<AzureConfigurationVO> connectors = devportaldao.getAllConnectors();
-        Set<String> resourceGroups = new HashSet<>();
-        connectors.forEach(e -> resourceGroups.add(e.getResourceGroup()));
-        return resourceGroups;
+        List<AzureConfigurationVO> connectors = devportaldao.getAllAzureConnectors();
+        return connectors.stream()
+                .map(AzureConfigurationVO::getResourceGroup)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -736,58 +737,44 @@ public class DevportalServiceImpl implements DevportalService {
     }
 
     @Override
-    public ResponseEntity<?> getAllGateways(String jsessionId, String interactionid,
-                                            String gwtype, String type) throws Exception {
-        try {
-            return new ResponseEntity<>(devportaldao.getAllGateways(), HttpStatus.OK);
-        } catch (Exception e) {
-            throw e;
-        }
+    public ResponseEntity<?> getAllGateways(String jsessionId, String interactionid) {
+        return new ResponseEntity<>(devportaldao.getAllGateways(), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<?> getGatewayEnvs(String jsessionId, String interactionid, String gwtype,
-                                            String type, String gateway,String resourceGroup,String workspace) throws Exception {
-        try {
-            return new ResponseEntity<>(devportaldao.getGatewayEnvs(gateway,resourceGroup,workspace), HttpStatus.OK);
-        } catch (Exception e) {
-            throw e;
-        }
+                                            String type, String gateway,String resourceGroup) throws ItorixException {
+        return new ResponseEntity<>(devportaldao.getGatewayEnvironments(gateway,resourceGroup), HttpStatus.OK);
     }
 
-    public ResponseEntity<?> getGatewayApps(String jsessionId, String interactionid, String gwtype,
+    public ResponseEntity<?> getGatewayApps(String jsessionId, String interactionid,
                                             String type, String gateway, String env,String workspace) throws Exception {
-        try {
             Object object = new Object();
             if (gateway.equalsIgnoreCase(StaticFields.APIGEE)) {
                 //call Apigee With The Env
                 object = apigeeAppsHelper(env, type);
-            }
-            if (gateway.equalsIgnoreCase(StaticFields.APIGEEX)) {
+            }else if (gateway.equalsIgnoreCase(StaticFields.APIGEEX)) {
                 //call ApigeeX With The Env
                 object = apigeeXAppsHelper(env, StaticFields.APIGEEX);
-            }
-            if (gateway.equalsIgnoreCase(StaticFields.KONG)) {
+            }else if (gateway.equalsIgnoreCase(StaticFields.KONG)) {
                 //call Kong With The Env
                 object = getConsumersFromKong(env,workspace);
-            }
-            if (gateway.equalsIgnoreCase(StaticFields.AZURE)) {
+            }else if (gateway.equalsIgnoreCase(StaticFields.AZURE)) {
                 //call Azure With The Env
                 object = getProductsFromAzure(env);
+            }else{
+                throw  new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"),"Portal-1001");
             }
             return new ResponseEntity<>(object, HttpStatus.OK);
-        } catch (Exception e) {
-            throw e;
-        }
     }
 
     @Override
-    public ResponseEntity<?> getKongWorkspaces(String jsessionId, String interactionid, String gwtype, String type, String runTime) throws Exception {
+    public ResponseEntity<?> getKongWorkspaces(String jsessionId, String interactionid,String runTime) throws Exception {
         return new ResponseEntity<>(getWorkspacesFromKong(runTime), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<?> getAzureResourceGroups(String jsessionId, String interactionid, String gwtype, String type) throws Exception {
+    public ResponseEntity<?> getAzureResourceGroups(String jsessionId, String interactionid) throws Exception {
         return new ResponseEntity<>(getResourceGroupsFromAzure(), HttpStatus.OK);
     }
 
