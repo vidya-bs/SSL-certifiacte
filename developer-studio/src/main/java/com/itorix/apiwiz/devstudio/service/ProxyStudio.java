@@ -264,6 +264,12 @@ public interface ProxyStudio {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestParam("file") MultipartFile file, HttpServletRequest request, HttpServletResponse response)
 			throws Exception;
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/template/downloadtemplates/{name}")
+	public ResponseEntity<?> downloadTemplates(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@PathVariable(value = "name",required = false) String fileName, HttpServletRequest request, HttpServletResponse response)
+			throws Exception;
 
 	// @RequestMapping(method = RequestMethod.GET, value =
 	// "/v1/api/template/{sourceType}/{resourceType}/{file:.+}")

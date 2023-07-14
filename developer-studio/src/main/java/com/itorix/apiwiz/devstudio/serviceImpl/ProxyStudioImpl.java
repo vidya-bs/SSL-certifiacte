@@ -358,6 +358,14 @@ public class ProxyStudioImpl implements ProxyStudio {
 			throws Exception {
 		return new ResponseEntity<>(codeGenService.uploadTemplates(file), HttpStatus.OK);
 	}
+	@Override
+	public ResponseEntity<?> downloadTemplates(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@PathVariable(value = "name",required = false) String fileName, HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+
+		return codeGenService.downloadTemplates(fileName);
+	}
 
 	// @SuppressWarnings("deprecation")
 	// @Override
