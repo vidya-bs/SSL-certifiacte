@@ -508,7 +508,12 @@ public class DevportalServiceImpl implements DevportalService {
     public Object getConsumersFromKong(String runtime,String workspace) {
         try {
             KongRuntime kongRuntime = devportaldao.getKongRuntime(runtime);
-            String url = String.format("%s%s/consumers", kongRuntime.getKongAdminHost(),workspace);
+            String url;
+            if(workspace!=null){
+                url = String.format("%s%s/consumers", kongRuntime.getKongAdminHost(),workspace);
+            }else{
+                url = String.format("%s/consumers", kongRuntime.getKongAdminHost());
+            }
             HttpHeaders headers = new HttpHeaders();
             headers.set("Kong-Admin-Token", kongRuntime.getKongAdminToken());
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -749,7 +754,7 @@ public class DevportalServiceImpl implements DevportalService {
 
     public ResponseEntity<?> getGatewayApps(String jsessionId, String interactionid,
                                             String type, String gateway, String env,String workspace) throws Exception {
-            Object object = new Object();
+            Object object;
             if (gateway.equalsIgnoreCase(StaticFields.APIGEE)) {
                 //call Apigee With The Env
                 object = apigeeAppsHelper(env, type);
