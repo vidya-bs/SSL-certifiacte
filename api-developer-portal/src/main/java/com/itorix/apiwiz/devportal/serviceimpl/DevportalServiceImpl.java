@@ -489,7 +489,7 @@ public class DevportalServiceImpl implements DevportalService {
         return new HttpEntity<>(headers);
     }
 
-    public Object getProductsFromAzure(String serviceName) {
+    public Object getProductsFromAzure(String serviceName) throws ItorixException {
         AzureConfigurationVO connector = devportaldao.getAzureConnector(serviceName);
         String url = String.format("https://%s/subscriptions/%s/resourceGroups/%s/providers/Microsoft.ApiManagement/service/%s/%s?api-version=%s", connector.getManagementHost(), connector.getSubscriptionId(), connector.getResourceGroup(), connector.getServiceName(), "products", connector.getApiVersion());
         try {
@@ -501,7 +501,7 @@ public class DevportalServiceImpl implements DevportalService {
             }
             return azureProductResponseDTOS;
         } catch (Exception e) {
-            return List.of();
+            throw  new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"),"Portal-1001");
         }
     }
 
@@ -509,13 +509,20 @@ public class DevportalServiceImpl implements DevportalService {
         try {
             KongRuntime kongRuntime = devportaldao.getKongRuntime(runtime);
             String url;
-            if(workspace!=null){
-                url = String.format("%s%s/consumers", kongRuntime.getKongAdminHost(),workspace);
-            }else{
-                url = String.format("%s/consumers", kongRuntime.getKongAdminHost());
-            }
             HttpHeaders headers = new HttpHeaders();
-            headers.set("Kong-Admin-Token", kongRuntime.getKongAdminToken());
+
+            if(kongRuntime.getType().equalsIgnoreCase("onprem")){
+                headers.set("Kong-Admin-Token", kongRuntime.getKongAdminToken());
+                if(workspace!=null){
+                    url = String.format("%s%s/consumers", kongRuntime.getKongAdminHost(),workspace);
+                }else{
+                    url = String.format("%s/consumers", kongRuntime.getKongAdminHost());
+                }
+            }else{//saas
+                headers.set("Authorization", kongRuntime.getKongAdminToken());
+                url = String.format("%s/konnect-api/api/runtime_groups/%s/consumers",kongRuntime.getKongAdminHost(),workspace);
+            }
+
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
             ResponseEntity<ConsumerResponse> consumers = restTemplate.exchange(url, HttpMethod.GET,
@@ -525,19 +532,27 @@ public class DevportalServiceImpl implements DevportalService {
             throw e;
         }
     }
-    public Object getWorkspacesFromKong(String runtime) {
+    public Object getWorkspacesFromKong(String runtime) throws ItorixException {
         try {
             KongRuntime kongRuntime = devportaldao.getKongRuntime(runtime);
-            String url = String.format("%sworkspaces/", kongRuntime.getKongAdminHost());
+            String url;
             HttpHeaders headers = new HttpHeaders();
-            headers.set("Kong-Admin-Token", kongRuntime.getKongAdminToken());
+
+            if(kongRuntime.getType().equalsIgnoreCase("onprem")){
+                url = String.format("%sworkspaces/", kongRuntime.getKongAdminHost());
+                headers.set("Kong-Admin-Token", kongRuntime.getKongAdminToken());
+            }else{//saas
+                url = String.format("%s/konnect-api/api/runtime_groups", kongRuntime.getKongAdminHost(),runtime);
+                headers.set("Authorization", kongRuntime.getKongAdminToken());
+            }
+
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
             ResponseEntity<KongWorkspaceResponse> kongWorkspaces = restTemplate.exchange(url, HttpMethod.GET,
                     requestEntity, KongWorkspaceResponse.class);
             return kongWorkspaces.getBody().getData();
         } catch (Exception e) {
-            throw e;
+            throw  new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"),"Portal-1001");
         }
     }
 
