@@ -510,19 +510,23 @@ public class DevportalServiceImpl implements DevportalService {
             KongRuntime kongRuntime = devportaldao.getKongRuntime(runtime);
             String url;
             HttpHeaders headers = new HttpHeaders();
-
+            String kongHost;
+            if(kongRuntime.getKongAdminHost().charAt(kongRuntime.getKongAdminHost().length()-1)=='/'){
+                kongHost=kongRuntime.getKongAdminHost().substring(0,kongRuntime.getKongAdminHost().length()-1);
+            }else{
+                kongHost=kongRuntime.getKongAdminHost();
+            }
             if(kongRuntime.getType().equalsIgnoreCase("onprem")){
                 headers.set("Kong-Admin-Token", kongRuntime.getKongAdminToken());
                 if(workspace!=null){
-                    url = String.format("%s%s/consumers", kongRuntime.getKongAdminHost(),workspace);
+                    url = String.format("%s/%s/consumers", kongHost,workspace);
                 }else{
-                    url = String.format("%s/consumers", kongRuntime.getKongAdminHost());
+                    url = String.format("%s/consumers", kongHost);
                 }
             }else{//saas
                 headers.set("Authorization", kongRuntime.getKongAdminToken());
-                url = String.format("%s/konnect-api/api/runtime_groups/%s/consumers",kongRuntime.getKongAdminHost(),workspace);
+                url = String.format("%s/konnect-api/api/runtime_groups/%s/consumers",kongHost,workspace);
             }
-
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
             ResponseEntity<ConsumerResponse> consumers = restTemplate.exchange(url, HttpMethod.GET,
@@ -537,12 +541,17 @@ public class DevportalServiceImpl implements DevportalService {
             KongRuntime kongRuntime = devportaldao.getKongRuntime(runtime);
             String url;
             HttpHeaders headers = new HttpHeaders();
-
+            String kongHost;
+            if(kongRuntime.getKongAdminHost().charAt(kongRuntime.getKongAdminHost().length()-1)=='/'){
+                kongHost=kongRuntime.getKongAdminHost().substring(0,kongRuntime.getKongAdminHost().length()-1);
+            }else{
+                kongHost=kongRuntime.getKongAdminHost();
+            }
             if(kongRuntime.getType().equalsIgnoreCase("onprem")){
-                url = String.format("%sworkspaces/", kongRuntime.getKongAdminHost());
+                url = String.format("%s/workspaces/", kongHost);
                 headers.set("Kong-Admin-Token", kongRuntime.getKongAdminToken());
             }else{//saas
-                url = String.format("%s/konnect-api/api/runtime_groups", kongRuntime.getKongAdminHost(),runtime);
+                url = String.format("%s/konnect-api/api/runtime_groups", kongHost,runtime);
                 headers.set("Authorization", kongRuntime.getKongAdminToken());
             }
 
