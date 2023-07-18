@@ -106,7 +106,7 @@ public interface DevportalService {
 			@PathVariable("email") String email, @RequestParam(value = "expand", required = false) String expand)
 			throws Exception;
 
-	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN','OPERATION','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/organizations/{org}/developers/apps")
 	public org.springframework.http.ResponseEntity<Object> getAppsByOrganisation(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
