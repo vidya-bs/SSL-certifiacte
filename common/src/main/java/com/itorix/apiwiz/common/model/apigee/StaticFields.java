@@ -18,6 +18,17 @@ public class StaticFields {
   public static final String STATUS_REVIEW="Review";
   public static final String STATUS_APPROVED="Approved";
 
+  public static final String APIGEE_CONFIG_COLLECTION="Connectors.Apigee.Configuration";
+  public static final String APIGEEX_CONFIG_COLLECTION="Connectors.ApigeeX.Configuration";
+  public static final String KONG_RUNTIME_COLLECTION="Connectors.Kong.Runtime.List";
+  public static final String AZURE_CONFIG_COLLECTION="Connectors.Azure.Configuration";
+
+  public static final String AZURE="Azure";
+  public static final String KONG="Kong";
+  public static final String APIGEE="apigee";
+  public static final String APIGEEX="apigeex";
+  
   public static final String EMAIL_SUBJECT_CONTACT_SALES="contact-sales";
   public static final String EMAIL_SUBJECT_REQUEST_A_DEMO="request-a-demo";
+
 }
