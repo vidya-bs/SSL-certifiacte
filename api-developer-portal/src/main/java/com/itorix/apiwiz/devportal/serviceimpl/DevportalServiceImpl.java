@@ -421,10 +421,10 @@ public class DevportalServiceImpl implements DevportalService {
 
     public Object apigeeXAppsHelper(String org, String type) throws Exception {
         String URL;
-        URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/apps";
+        URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/apps?expand=true";
         HTTPUtil httpConn = new HTTPUtil(URL, apigeexUtil.getApigeeCredentials(org, type));
         ResponseEntity<String> response = devportaldao.proxyService(httpConn, "GET");
-        List<String> products = new ArrayList<>();
+        JSONArray appResponseList = new JSONArray();
         String apiProductString = response.getBody();
         try {
             JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
@@ -432,8 +432,10 @@ public class DevportalServiceImpl implements DevportalService {
             JSONArray apiProducts = (JSONArray) proxyObject.get("app");
             for (Object apiObj : apiProducts) {
                 JSONObject prodObj = (JSONObject) apiObj;
-                final String apiProduct = (String) prodObj.get("appId");
-                products.add(apiProduct);
+                JSONObject appDetails = new JSONObject();
+                appDetails.put("appId",prodObj.get("appId"));
+                appDetails.put("appName",prodObj.get("name"));
+                appResponseList.add(appDetails);
             }
             }
         } catch (Exception e) {
@@ -443,7 +445,7 @@ public class DevportalServiceImpl implements DevportalService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         ResponseEntity<String> responseEntity = new ResponseEntity<String>(
-                objectMapper.writeValueAsString(products), headers, HttpStatus.OK);
+                objectMapper.writeValueAsString(appResponseList), headers, HttpStatus.OK);
         return responseEntity.getBody();
     }
 
@@ -462,15 +464,16 @@ public class DevportalServiceImpl implements DevportalService {
                 JSONObject appDetails = new JSONObject();
                 JSONObject prodObj = (JSONObject) appsObj;
                 appDetails.put("appId", (String) prodObj.get("appId"));
-                JSONArray json = (JSONArray) prodObj.get("attributes");
-                for (Object obj : json) {
-                    if (obj instanceof JSONObject) {
-                        JSONObject nameObject = (JSONObject) obj;
-                        if (StringUtils.equalsIgnoreCase(nameObject.getString("name"), "DisplayName")) {
-                            appDetails.put("appName", nameObject.getString("value"));
-                        }
-                    }
-                }
+                appDetails.put("appName",(String) prodObj.get("name"));
+//                JSONArray json = (JSONArray) prodObj.get("attributes");
+//                for (Object obj : json) {
+//                    if (obj instanceof JSONObject) {
+//                        JSONObject nameObject = (JSONObject) obj;
+//                        if (StringUtils.equalsIgnoreCase(nameObject.getString("name"), "DisplayName")) {
+//                            appDetails.put("appName", nameObject.getString("value"));
+//                        }
+//                    }
+//                }
                 appResponseList.add(appDetails);
             }
         } catch (Exception e) {
