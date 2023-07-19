@@ -441,10 +441,11 @@ public class DevportalServiceImpl implements DevportalService {
                         JSONObject nameObject = (JSONObject) obj;
                         if (StringUtils.equalsIgnoreCase(nameObject.getString("name"), "DisplayName")) {
                             appDetails.put("appName", nameObject.getString("value"));
-                        }else{
-                            appDetails.put("appName",(String) prodObj.get("name"));
                         }
                     }
+                }
+                if(appDetails.get("appName")==null){
+                    appDetails.put("appName",(String) prodObj.get("name"));
                 }
                 appResponseList.add(appDetails);
             }
@@ -481,10 +482,11 @@ public class DevportalServiceImpl implements DevportalService {
                         JSONObject nameObject = (JSONObject) obj;
                         if (StringUtils.equalsIgnoreCase(nameObject.getString("name"), "DisplayName")) {
                             appDetails.put("appName", nameObject.getString("value"));
-                        }else{
-                            appDetails.put("appName",(String) prodObj.get("name"));
                         }
                     }
+                }
+                if(appDetails.get("appName")==null){
+                    appDetails.put("appName",(String) prodObj.get("name"));
                 }
                 appResponseList.add(appDetails);
             }
