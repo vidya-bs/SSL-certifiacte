@@ -464,16 +464,17 @@ public class DevportalServiceImpl implements DevportalService {
                 JSONObject appDetails = new JSONObject();
                 JSONObject prodObj = (JSONObject) appsObj;
                 appDetails.put("appId", (String) prodObj.get("appId"));
-                appDetails.put("appName",(String) prodObj.get("name"));
-//                JSONArray json = (JSONArray) prodObj.get("attributes");
-//                for (Object obj : json) {
-//                    if (obj instanceof JSONObject) {
-//                        JSONObject nameObject = (JSONObject) obj;
-//                        if (StringUtils.equalsIgnoreCase(nameObject.getString("name"), "DisplayName")) {
-//                            appDetails.put("appName", nameObject.getString("value"));
-//                        }
-//                    }
-//                }
+                JSONArray json = (JSONArray) prodObj.get("attributes");
+                for (Object obj : json) {
+                    if (obj instanceof JSONObject) {
+                        JSONObject nameObject = (JSONObject) obj;
+                        if (StringUtils.equalsIgnoreCase(nameObject.getString("name"), "DisplayName")) {
+                            appDetails.put("appName", nameObject.getString("value"));
+                        }else{
+                            appDetails.put("appName",(String) prodObj.get("name"));
+                        }
+                    }
+                }
                 appResponseList.add(appDetails);
             }
         } catch (Exception e) {
