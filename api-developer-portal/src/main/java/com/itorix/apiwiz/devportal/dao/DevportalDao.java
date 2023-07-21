@@ -1,5 +1,9 @@
 package com.itorix.apiwiz.devportal.dao;
 
+import com.itorix.apiwiz.common.model.apigee.StaticFields;
+import com.itorix.apiwiz.common.model.azure.AzureConfigurationVO;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
+import com.itorix.apiwiz.common.model.kong.KongRuntime;
 import com.itorix.apiwiz.common.model.monetization.*;
 import com.itorix.apiwiz.design.studio.model.Swagger3VO;
 import com.itorix.apiwiz.design.studio.model.SwaggerMetadata;
@@ -19,6 +23,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import org.apache.log4j.Logger;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -443,5 +448,70 @@ public class DevportalDao {
 	public DeveloperApp getDeveloperAppWithAppId(String appId){
 		return mongoTemplate.findOne(Query.query(Criteria.where("appId").is(appId)),DeveloperApp.class);
 	}
+	public List<String> getAllGateways() {
+		long countApigee = mongoTemplate.count(new Query(), StaticFields.APIGEE_CONFIG_COLLECTION);
+		long countApigeeX = mongoTemplate.count(new Query(), StaticFields.APIGEEX_CONFIG_COLLECTION);
+		long countKong = mongoTemplate.count(new Query(), StaticFields.KONG_RUNTIME_COLLECTION);
+		long countAzure = mongoTemplate.count(new Query(), StaticFields.AZURE_CONFIG_COLLECTION);
 
+		List<String> gateways = new ArrayList<>();
+
+		if (countApigee > 0) {
+			gateways.add(StaticFields.APIGEE);
+		}
+
+		if (countApigeeX > 0) {
+			gateways.add(StaticFields.APIGEEX);
+		}
+
+		if (countKong > 0) {
+			gateways.add(StaticFields.KONG);
+		}
+
+		if (countAzure > 0) {
+			gateways.add(StaticFields.AZURE);
+		}
+		return gateways;
+	}
+
+	public List<?> getGatewayEnvironments(String name, String resourceGroup) throws ItorixException {
+		Query query = new Query();
+		String collection;
+		if (name.equalsIgnoreCase(StaticFields.APIGEE)) {
+			query.fields().include("orgname","type").exclude("_id");
+			collection=StaticFields.APIGEE_CONFIG_COLLECTION;
+		}else if (name.equalsIgnoreCase(StaticFields.APIGEEX)) {
+			query.fields().include("orgName").exclude("_id");
+			collection=StaticFields.APIGEEX_CONFIG_COLLECTION;
+		}else if (name.equalsIgnoreCase(StaticFields.KONG)) {
+			query.fields().include("name").exclude("_id");
+			collection=StaticFields.KONG_RUNTIME_COLLECTION;
+		}else if (name.equalsIgnoreCase(StaticFields.AZURE)) {
+			collection=StaticFields.AZURE_CONFIG_COLLECTION;
+			if(resourceGroup==null){
+				query.fields().include("serviceName","resourceGroup").exclude("_id");
+			}else{
+				query.addCriteria(Criteria.where("resourceGroup").is(resourceGroup));
+				query.fields().include("serviceName","resourceGroup").exclude("_id");
+			}
+		}else{
+			throw  new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"),"Portal-1001");
+		}
+		return mongoTemplate.find(query, Document.class, collection);
+	}
+
+	public AzureConfigurationVO getAzureConnector(String serviceName) {
+		Query query = new Query(Criteria.where("serviceName").is(serviceName));
+		return mongoTemplate.findOne(query, AzureConfigurationVO.class);
+	}
+
+	public List<AzureConfigurationVO> getAllAzureConnectors(){
+		Query query= new Query();
+		query.fields().include("resourceGroup");
+		return mongoTemplate.find(query,AzureConfigurationVO.class);
+	}
+	public KongRuntime getKongRuntime(String runtime) {
+		Query query = new Query(Criteria.where("name").is(runtime));
+		return mongoTemplate.findOne(query, KongRuntime.class);
+	}
 }
