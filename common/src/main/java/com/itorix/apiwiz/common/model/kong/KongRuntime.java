@@ -16,7 +16,7 @@ public class KongRuntime implements Serializable {
     private String type;
     private int workspaceCount;
 
-//    private List<KongRuntimeGroup>runtimeGroups;
+    //    private List<KongRuntimeGroup>runtimeGroups;
     public KongRuntime(String name, String kongAdminToken, String kongAdminHost,String type) {
         this.name = name;
         this.kongAdminToken = kongAdminToken;

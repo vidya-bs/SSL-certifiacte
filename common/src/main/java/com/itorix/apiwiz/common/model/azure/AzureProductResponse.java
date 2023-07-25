@@ -6,21 +6,20 @@ import lombok.Setter;
 
 
 public class AzureProductResponse {
-  private List<AzureProductValues> value;
+    private List<AzureProductValues> value;
 
-  public AzureProductResponse(List<AzureProductValues> value) {
-    this.value = value;
-  }
+    public AzureProductResponse(List<AzureProductValues> value) {
+        this.value = value;
+    }
 
-  public AzureProductResponse() {
-  }
+    public AzureProductResponse() {
+    }
 
-  public List<AzureProductValues> getValue() {
-    return value;
-  }
+    public List<AzureProductValues> getValue() {
+        return value;
+    }
 
-  public void setValue(List<AzureProductValues> value) {
-    this.value = value;
-  }
+    public void setValue(List<AzureProductValues> value) {
+        this.value = value;
+    }
 }
-
