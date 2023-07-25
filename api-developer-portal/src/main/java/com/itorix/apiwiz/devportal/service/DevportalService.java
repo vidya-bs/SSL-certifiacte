@@ -238,7 +238,7 @@ public interface DevportalService {
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/gateways")
 	public ResponseEntity<?> getAllGateways(@RequestHeader(value = "JSESSIONID") String jsessionId,
-			@RequestHeader(value = "interactionid", required = false) String interactionid)
+											@RequestHeader(value = "interactionid", required = false) String interactionid)
 			throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
@@ -268,8 +268,7 @@ public interface DevportalService {
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/gateways/azure/resource-groups")
 	public ResponseEntity<?> getAzureResourceGroups(
-			                                   @RequestHeader(value = "JSESSIONID") String jsessionId,
-											   @RequestHeader(value = "interactionid", required = false) String interactionid
-												) throws Exception;
-
+			@RequestHeader(value = "JSESSIONID") String jsessionId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid
+	) throws Exception;
 }

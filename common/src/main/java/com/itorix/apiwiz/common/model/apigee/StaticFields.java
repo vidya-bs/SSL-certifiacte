@@ -27,8 +27,7 @@ public class StaticFields {
   public static final String KONG="Kong";
   public static final String APIGEE="apigee";
   public static final String APIGEEX="apigeex";
-  
+
   public static final String EMAIL_SUBJECT_CONTACT_SALES="contact-sales";
   public static final String EMAIL_SUBJECT_REQUEST_A_DEMO="request-a-demo";
-
 }
