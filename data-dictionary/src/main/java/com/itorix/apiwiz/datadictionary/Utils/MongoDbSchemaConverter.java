@@ -265,22 +265,30 @@ public class MongoDbSchemaConverter {
 
     public boolean keyExists(JSONObject  object, String searchedKey) {
         boolean exists = object.has(searchedKey);
-        if(!exists) {
-            Iterator<?> keys = object.keys();
-            while( keys.hasNext() ) {
-                String key = (String)keys.next();
-                if ( object.get(key) instanceof JSONObject ) {
-                    exists = keyExists((JSONObject) object.get(key), searchedKey);
-                    if(exists){
-                        return true;
-                    }
-                } else if ( object.get(key) instanceof JSONArray ) {
-                    exists = keyExists(((JSONArray) object.get(key)).getJSONObject(0), searchedKey);
-                    if(exists){
-                        return true;
+        try {
+            if (!exists) {
+                Iterator<?> keys = object.keys();
+                while (keys.hasNext()) {
+                    String key = (String) keys.next();
+                    Object obj = object.get(key);
+                    if (object.get(key) instanceof JSONObject) {
+                        exists = keyExists((JSONObject) obj, searchedKey);
+                        if (exists) {
+                            return true;
+                        }
+                    } else if (object.get(key) instanceof JSONArray) {
+                        JSONArray jsonArray = (JSONArray) obj;
+                        if (!jsonArray.isNull(0) && jsonArray.get(0) instanceof JSONObject) {
+                            exists = keyExists((JSONObject) jsonArray.get(0) , searchedKey);
+                            if (exists) {
+                                return true;
+                            }
+                        }
                     }
                 }
             }
+        } catch (Exception ex){
+            logger.error("Exception while parsing the json document - ", ex);
         }
         return exists;
     }
