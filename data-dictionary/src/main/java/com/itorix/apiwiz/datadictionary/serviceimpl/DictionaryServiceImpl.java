@@ -637,7 +637,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 
 	@Override
 	public ResponseEntity<?> deletePortfolioRevision(String interactionid, String jsessionid, String id,
-			Integer revision) throws Exception {
+													 Integer revision) throws Exception {
 		PortfolioVO vo = dictionaryBusiness.getPortfolioByRevision(id, revision);
 		if (vo == null) {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
@@ -656,7 +656,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 
 	@Override
 	public ResponseEntity<?> updatePortfolioStatus(String interactionid, String jsessionid, String id, Integer revision,
-			Revision status) throws Exception {
+												   Revision status) throws Exception {
 		PortfolioVO vo = dictionaryBusiness.getPortfolioByRevision(id, revision);
 		if (vo == null) {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
@@ -731,7 +731,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 	}
 	@Override
 	public ResponseEntity<?> sync2Repo(String interactionid, String jsessionid, String portfolioId,
-			DictionaryScmUpload dictionaryScmUpload) throws Exception {
+									   DictionaryScmUpload dictionaryScmUpload) throws Exception {
 		dictionaryBusiness.sync2Repo(portfolioId, dictionaryScmUpload);
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
@@ -748,7 +748,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 	}
 
 	private void initiateLinting(String jsessionid,
-			String dictionaryId,String modelId,Integer revision,List<String> ruleSetIds) {
+								 String dictionaryId,String modelId,Integer revision,List<String> ruleSetIds) {
 		try {
 			String globalRule=dictionaryBusiness.getGlobalRule();
 			if(globalRule!=null&&ruleSetIds!=null&&!ruleSetIds.contains(globalRule))
@@ -819,4 +819,40 @@ public class DictionaryServiceImpl implements DictionaryService {
 			throws Exception {
 		return new ResponseEntity<>(dictionaryBusiness.getDataModelMap(portfolioId),HttpStatus.OK);
 	}
+
+	@Override
+	public ResponseEntity<?> getAllDatabaseConnections(String interactionid, String jsessionid, String databaseName) throws ItorixException {
+		return new ResponseEntity<>(dictionaryBusiness.getAllDatabaseConnections(databaseName),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getDatabases(String interactionid, String jsessionid,String connectionId)throws ItorixException {
+		return new ResponseEntity<>(dictionaryBusiness.getDatabases(connectionId),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getPostgresSchemas(String interactionid, String jsessionid,String connectionId)throws ItorixException {
+		return new ResponseEntity<>(dictionaryBusiness.getPostgresSchemas(connectionId),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getCollectionNames(String interactionid, String jsessionid,String connectionId,String databaseName, String databaseType)throws ItorixException {
+		return new ResponseEntity<>(dictionaryBusiness.getCollectionNames(connectionId, databaseType, databaseName),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getTableNames(String interactionid, String jsessionid,String connectionId,String databaseType, String schemaName)throws ItorixException {
+		return new ResponseEntity<>(dictionaryBusiness.getTableNames(connectionId,databaseType, schemaName),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getSchemas(String interactionid, String jsessionid,String connectionId,String databaseType, String databaseName,String schemaName, List<String> collections, List<String> tables,boolean deepSearch)throws ItorixException {
+		return new ResponseEntity<>(dictionaryBusiness.getSchemas(databaseType, connectionId, databaseName,schemaName, collections, tables, deepSearch),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> searchKeyFromDB(String interactionid, String jsessionid, String connectionId, String databaseType, String databaseName, String schemaName, String searchKey) throws ItorixException {
+		return new ResponseEntity<>(dictionaryBusiness.searchForKey(databaseType, connectionId, databaseName,schemaName, searchKey),HttpStatus.OK);
+	}
+
 }

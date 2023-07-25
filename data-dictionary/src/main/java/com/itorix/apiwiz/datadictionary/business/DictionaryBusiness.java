@@ -41,7 +41,7 @@ public interface DictionaryBusiness {
 
 	public PortfolioModel updateModelRevision(PortfolioModel model);
 
-	public List<PortfolioModel> findPortfolioModelsByportfolioID(PortfolioModel model);	
+	public List<PortfolioModel> findPortfolioModelsByportfolioID(PortfolioModel model);
 
 	public PortfolioModel findPortfolioModelsByportfolioIDAndModelId(PortfolioModel model);
 
@@ -68,7 +68,7 @@ public interface DictionaryBusiness {
 	public PortfolioModel findPortfolioModelsWithRevisions(String id, String modelId, Integer revision);
 
 	public void updatePortfolioModelStatusWithRevision(String id, String modelId, ModelStatus modelStatus,
-			Integer revision);
+													   Integer revision);
 
 	public DeleteResult deletePortfolioModelByportfolioIDAndModelIdAndRevision(PortfolioModel model);
 
@@ -94,5 +94,17 @@ public interface DictionaryBusiness {
 	public DictionaryScmUpload getGitIntegrations(String jsessionid,String portfolioId) throws Exception;
 
 	public Map<String, Map<String,String>> getDataModelMap(String portfolioId) throws Exception;
+	public List<?> getAllDatabaseConnections(String databaseName) throws ItorixException;
 
+	public List<String> getDatabases(String connectionId) throws ItorixException;
+
+	public List<String> getPostgresSchemas(String connectionId) throws ItorixException;
+
+	public List<String> getCollectionNames(String connectionId, String databaseType, String databaseName) throws ItorixException;
+
+	public List<String> getTableNames(String connectionId,String databaseType, String schemaName) throws ItorixException;
+
+	public Object getSchemas(String databaseType, String connectionId,String databaseName,String schemaName, List<String> collections,List<String> tables,boolean deepSearch) throws ItorixException;
+
+	public List<String> searchForKey(String databaseType, String connectionId, String databaseName, String schemaName, String searchKey) throws ItorixException;
 }

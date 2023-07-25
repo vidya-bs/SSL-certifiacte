@@ -1,6 +1,9 @@
 package com.itorix.apiwiz.devstudio.serviceImpl;
 
 import com.itorix.apiwiz.common.factory.IntegrationHelper;
+import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDBConfiguration;
+import com.itorix.apiwiz.common.model.databaseconfigs.mysql.MySQLConfiguration;
+import com.itorix.apiwiz.common.model.databaseconfigs.postgress.PostgreSQLConfiguration;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.integrations.Integration;
 import com.itorix.apiwiz.common.model.integrations.apic.ApicIntegration;
@@ -61,7 +64,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Override
 	public ResponseEntity<?> createupdateGitIntegraton(String interactionid, String jsessionid,
-			GitIntegration gitIntegration) throws Exception {
+													   GitIntegration gitIntegration) throws Exception {
 		Integration integration = new Integration();
 		integration.setType("GIT");
 		integration.setGitIntegration(gitIntegration);
@@ -82,7 +85,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Override
 	public ResponseEntity<?> updateJfrogIntegraton(String interactionid, String jsessionid,
-			JfrogIntegration jfrogIntegration) throws Exception {
+												   JfrogIntegration jfrogIntegration) throws Exception {
 		Integration integration = new Integration();
 		integration.setType("JFROG");
 		integration.setJfrogIntegration(jfrogIntegration);
@@ -104,7 +107,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Override
 	public ResponseEntity<?> createupdateGitLabIntegraton(String interactionid, String jsessionid,
-			GitIntegration gitIntegration) throws Exception {
+														  GitIntegration gitIntegration) throws Exception {
 		Integration integration = new Integration();
 		integration.setType("GITLAB");
 		integration.setGitIntegration(gitIntegration);
@@ -126,7 +129,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Override
 	public ResponseEntity<?> createupdateBitBucketIntegraton(String interactionid, String jsessionid,
-			GitIntegration gitIntegration) throws Exception {
+															 GitIntegration gitIntegration) throws Exception {
 		Integration integration = new Integration();
 		integration.setType("BITBUCKET");
 		integration.setGitIntegration(gitIntegration);
@@ -152,7 +155,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Override
 	public ResponseEntity<?> updateGocdIntegraton(String interactionid, String jsessionid,
-			GoCDIntegration goCDIntegration) throws Exception {
+												  GoCDIntegration goCDIntegration) throws Exception {
 		Integration integration = new Integration();
 		integration.setType("GOCD");
 		integration.setGoCDIntegration(goCDIntegration);
@@ -180,7 +183,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Override
 	public ResponseEntity<?> createWorkspaceIntegratons(String interactionid, String jsessionid,
-			WorkspaceIntegration workspaceIntegration) throws Exception {
+														WorkspaceIntegration workspaceIntegration) throws Exception {
 		integrationsDao.updateWorkspaceIntegration(workspaceIntegration);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
@@ -202,7 +205,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Override
 	public ResponseEntity<?> createApicIntegratons(String interactionid, String jsessionid,
-			ApicIntegration apicIntegration) throws Exception {
+												   ApicIntegration apicIntegration) throws Exception {
 		Integration integration = new Integration();
 		integration.setType("APIC");
 		integration.setApicIntegration(apicIntegration);
@@ -233,7 +236,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Override
 	public void downloadFile(String interactionid, String jsessionid, String type,
-			HttpServletRequest httpServletRequest, HttpServletResponse response) throws Exception {
+							 HttpServletRequest httpServletRequest, HttpServletResponse response) throws Exception {
 		String uri = httpServletRequest.getRequestURI();
 		uri = uri.replaceAll(context + "/v1/download/", "");
 		StorageIntegration storageIntegration = integrationHelper.getIntegration(type);
@@ -250,7 +253,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Override
 	public ResponseEntity<?> createupdateCodeconnectIntegraton(String interactionid, String jsessionid,
-			GitIntegration gitIntegration) throws Exception {
+															   GitIntegration gitIntegration) throws Exception {
 		Integration integration = new Integration();
 		integration.setType("CODECOMMIT");
 		integration.setGitIntegration(gitIntegration);
@@ -272,7 +275,7 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 
 	@Override
 	public ResponseEntity<?> createupdateAzureIntegraton(String interactionid, String jsessionid,
-			GitIntegration gitIntegration) throws Exception {
+														 GitIntegration gitIntegration) throws Exception {
 		Integration integration = new Integration();
 		integration.setType("AZUREDEVOPS");
 		integration.setGitIntegration(gitIntegration);
@@ -324,6 +327,61 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 		log.debug("Removing GCS connector...");
 		integrationsDao.removeGcsIntegration();
 		log.debug("Removed GCS connector");
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	@Override
+	public ResponseEntity<?> getDatabaseIntegrations(String interactionid, String jsessionid, String databaseType)
+			throws ItorixException {
+		return new ResponseEntity<>(integrationsDao.getDatabaseIntegrations(databaseType), HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getDatabaseIntegration(String interactionid, String jsessionid, String databaseType, String id) throws Exception {
+		return new ResponseEntity<>(integrationsDao.getDatabaseIntegration(databaseType, id), HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> createMongoDbIntegration(String interactionid, String jsessionid, MongoDBConfiguration mongoDBConfiguration) throws Exception {
+		String id = integrationsDao.createMongoDbDatabaseConfig(mongoDBConfiguration);
+		return new ResponseEntity<>(id,HttpStatus.CREATED);
+	}
+
+	@Override
+	public ResponseEntity<?> createMySqlIntegration(String interactionid, String jsessionid, MySQLConfiguration mySQLConfiguration) throws Exception {
+		String id = integrationsDao.createMySqlDatabaseConfig(mySQLConfiguration);
+		return new ResponseEntity<>(id,HttpStatus.CREATED);
+	}
+
+	@Override
+	public ResponseEntity<?> createPostgreSqlIntegration(String interactionid, String jsessionid, PostgreSQLConfiguration postgreSQLConfiguration) throws Exception {
+		String id = integrationsDao.createPostgreSqlDatabaseConfig(postgreSQLConfiguration);
+		return new ResponseEntity<>(id,HttpStatus.CREATED);
+	}
+
+	@Override
+	public ResponseEntity<?> updateMongoDbIntegration(String interactionid, String jsessionid, String id, MongoDBConfiguration mongoDBConfiguration) throws Exception {
+		integrationsDao.updateMongoDbDatabaseIntegration(mongoDBConfiguration,id);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
+	}
+
+	@Override
+	public ResponseEntity<?> updateMySqlIntegration(String interactionid, String jsessionid, String id, MySQLConfiguration mySQLConfiguration) throws Exception {
+		integrationsDao.updateMySqlDatabaseIntegration(mySQLConfiguration,id);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
+	}
+
+	@Override
+	public ResponseEntity<?> updatePostgreSqlIntegration(String interactionid, String jsessionid, String id, PostgreSQLConfiguration postgreSQLConfiguration) throws Exception {
+		integrationsDao.updatePostgreSqlDatabaseIntegration(postgreSQLConfiguration,id);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
+	}
+
+	@Override
+	public ResponseEntity<?> removeDatabaseIntegration(String interactionid, String jsessionid,String databaseType, String id)
+			throws Exception {
+		log.info("Deleting the configuration with id {}", id);
+		integrationsDao.removeDatabaseIntegratoin(databaseType, id);
+		log.info("Deleted successfully!");
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 

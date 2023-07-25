@@ -373,4 +373,71 @@ public interface DictionaryService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("portfolioId") String portfolioId) throws Exception;
 
+
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/database/connections/{databaseType}")
+	public ResponseEntity<?> getAllDatabaseConnections(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable(value = "databaseType", required = false) String databaseType
+	) throws ItorixException;
+
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/database/database-names/{connectionId}")
+	public ResponseEntity<?> getDatabases(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable(value = "connectionId") String connectionId) throws ItorixException;
+
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/database/schemas/{connectionId}")
+	public ResponseEntity<?> getPostgresSchemas(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable(value = "connectionId") String connectionId) throws ItorixException;
+
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/database/collections/{connectionId}")
+	public ResponseEntity<?> getCollectionNames(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable(value = "connectionId") String connectionId,
+			@RequestParam(value = "databaseType")String databaseType,
+			@RequestParam(value = "databaseName", required = false) String databaseName) throws ItorixException;
+
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/database/tables/{connectionId}")
+	public ResponseEntity<?> getTableNames(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable(value = "connectionId") String connectionId,
+			@RequestParam(value = "databaseType")String databaseType,
+			@RequestParam(value = "schemaName", required = false) String schemaName) throws ItorixException;
+
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/database/schema/{connectionId}")
+	public ResponseEntity<?> getSchemas(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable(value = "connectionId") String connectionId,
+			@RequestParam(value = "databaseType",required = false)String databaseType,
+			@RequestParam(value = "databaseName",required = false)String databaseName,
+			@RequestParam(value = "schemaName",required = false) String schemaName,
+			@RequestParam(value = "collections",required = false)List<String> collections,
+			@RequestParam(value = "tables",required = false)List<String> tables,
+			@RequestParam(value = "deepSearch",defaultValue = "false")boolean deepSearch
+	) throws ItorixException;
+
+	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/database/search-key/{connectionId}")
+	public ResponseEntity<?> searchKeyFromDB(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable(value = "connectionId") String connectionId,
+			@RequestParam(value = "databaseType")String databaseType,
+			@RequestParam(value = "databaseName",required = false)String databaseName,
+			@RequestParam(value = "schemaName", required = false) String schemaName,
+			@RequestParam(value = "searchKey") String searchKey
+	) throws ItorixException;
+
 }

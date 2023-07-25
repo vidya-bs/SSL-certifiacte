@@ -5,13 +5,22 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.model.MetaData;
+import com.itorix.apiwiz.common.model.databaseconfigs.DatabaseType;
+import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDBConfiguration;
+import com.itorix.apiwiz.common.model.databaseconfigs.mysql.MySQLConfiguration;
+import com.itorix.apiwiz.common.model.databaseconfigs.postgress.PostgreSQLConfiguration;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.integrations.Integration;
 import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
 import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
+import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.devstudio.model.metricsMetadata.BuildGovernance;
 import com.itorix.apiwiz.devstudio.model.metricsMetadata.MetricMetadata;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
+import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -35,6 +44,7 @@ public class IntegrationsDao {
 
 	@Autowired
 	private BaseRepository baseRepository;
+
 
 	@Qualifier("masterMongoTemplate")
 	@Autowired
@@ -306,6 +316,190 @@ public class IntegrationsDao {
 		Integration integration = getGcsIntegration();
 		if (integration != null) {
 			mongoTemplate.remove(integration);
+		}
+	}
+
+
+	public List<?> getDatabaseIntegrations(String databaseType) throws ItorixException {
+		if(databaseType == null){
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"DataBase Type is required!"), "DatabaseConfiguration-1001");
+		}
+		if(databaseType.equalsIgnoreCase(DatabaseType.MONGODB.getDatabaseType())) {
+			return mongoTemplate.findAll(MongoDBConfiguration.class);
+		} else if(databaseType.equalsIgnoreCase(DatabaseType.MYSQL.getDatabaseType())) {
+			return mongoTemplate.findAll(MySQLConfiguration.class);
+		} else if(databaseType.equalsIgnoreCase(DatabaseType.POSTGRESQL.getDatabaseType())) {
+			return mongoTemplate.findAll(PostgreSQLConfiguration.class);
+		} else {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Invalid database Type"), "DatabaseConfiguration-1000");
+		}
+	}
+
+	public void removeDatabaseIntegratoin(String databaseType, String id) throws ItorixException {
+		if(databaseType == null){
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"DataBase Type is required!"), "DatabaseConfiguration-1001");
+		}
+		Query query = new Query();
+		query.addCriteria(Criteria.where("_id").is(new ObjectId(id)));
+		if(databaseType.equalsIgnoreCase(DatabaseType.MONGODB.getDatabaseType())) {
+			mongoTemplate.remove(query, MongoDBConfiguration.class);
+		} else if(databaseType.equalsIgnoreCase(DatabaseType.MYSQL.getDatabaseType())) {
+			mongoTemplate.remove(query, MySQLConfiguration.class);
+		} else if(databaseType.equalsIgnoreCase(DatabaseType.POSTGRESQL.getDatabaseType())) {
+			mongoTemplate.remove(query, PostgreSQLConfiguration.class);
+		} else {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Invalid database Type"), "DatabaseConfiguration-1000");
+		}
+	}
+
+	public String createMongoDbDatabaseConfig(MongoDBConfiguration mongoDBConfiguration) {
+		updateUserDetails(null, mongoDBConfiguration);
+		mongoDBConfiguration = baseRepository.save(mongoDBConfiguration);
+		log.info("Database Configuration created, id - {}", mongoDBConfiguration.getId());
+		return mongoDBConfiguration.getId();
+	}
+
+	public String createMySqlDatabaseConfig(MySQLConfiguration mySQLConfiguration) {
+		updateUserDetails(null, mySQLConfiguration);
+		mySQLConfiguration = baseRepository.save(mySQLConfiguration);
+		log.info("Database Configuration created, id - {}", mySQLConfiguration.getId());
+		return mySQLConfiguration.getId();
+	}
+
+	public String createPostgreSqlDatabaseConfig(PostgreSQLConfiguration postgreSQLConfiguration) {
+		updateUserDetails(null, postgreSQLConfiguration);
+		postgreSQLConfiguration = baseRepository.save(postgreSQLConfiguration);
+		log.info("Database Configuration created, id - {}", postgreSQLConfiguration.getId());
+		return postgreSQLConfiguration.getId();
+	}
+
+	public void updateMongoDbDatabaseIntegration(MongoDBConfiguration mongoDBConfiguration, String id) {
+		MongoDBConfiguration oldMongoDBConfiguration = baseRepository.findById(id, MongoDBConfiguration.class);
+		updateUserDetails(oldMongoDBConfiguration, mongoDBConfiguration);
+		mongoTemplate.save(mongoDBConfiguration);
+	}
+
+	public void updateMySqlDatabaseIntegration(MySQLConfiguration mySQLConfiguration, String id) {
+		MySQLConfiguration oldMySQLConfiguration = baseRepository.findById(id, MySQLConfiguration.class);
+		updateUserDetails(oldMySQLConfiguration, mySQLConfiguration);
+		mongoTemplate.save(mySQLConfiguration);
+	}
+
+
+	public void updatePostgreSqlDatabaseIntegration(PostgreSQLConfiguration postgreSQLConfiguration, String id) {
+		PostgreSQLConfiguration olddatabaseConfiguration = baseRepository.findById(id, PostgreSQLConfiguration.class);
+		updateUserDetails(olddatabaseConfiguration, postgreSQLConfiguration);
+		mongoTemplate.save(postgreSQLConfiguration);
+	}
+
+
+	private void updateUserDetails(MongoDBConfiguration oldMongoDBConfiguration, MongoDBConfiguration mongoDBConfiguration) {
+
+		String userName = null;
+		String userId = null;
+		try {
+			UserSession userSession = UserSession.getCurrentSessionToken();
+			userName = userSession.getUsername();
+			userId = userSession.getUserId();
+		}catch (Exception e){
+			log.error("Error while getting user");
+		}
+
+		if(oldMongoDBConfiguration == null) {
+			mongoDBConfiguration.setCreatedUserName(userName);
+			mongoDBConfiguration.setCreatedBy(userId);
+			mongoDBConfiguration.setCts(System.currentTimeMillis());
+			return;
+		}
+
+		//copying old database configuration data to new database configuration
+		mongoDBConfiguration.setId(oldMongoDBConfiguration.getId());
+		mongoDBConfiguration.setCreatedUserName(oldMongoDBConfiguration.getCreatedUserName());
+		mongoDBConfiguration.setCreatedBy(oldMongoDBConfiguration.getCreatedBy());
+		mongoDBConfiguration.setCts(oldMongoDBConfiguration.getCts());
+
+		// setting new database configuration
+		mongoDBConfiguration.setModifiedUserName(userName);
+		mongoDBConfiguration.setModifiedBy(userId);
+		mongoDBConfiguration.setMts(System.currentTimeMillis());
+	}
+
+	private void updateUserDetails(MySQLConfiguration oldMySQLConfiguration, MySQLConfiguration mySQLConfiguration) {
+
+		String userName = null;
+		String userId = null;
+		try {
+			UserSession userSession = UserSession.getCurrentSessionToken();
+			userName = userSession.getUsername();
+			userId = userSession.getUserId();
+		}catch (Exception e){
+			log.error("Error while getting user");
+		}
+
+		if(oldMySQLConfiguration == null) {
+			mySQLConfiguration.setCreatedUserName(userName);
+			mySQLConfiguration.setCreatedBy(userId);
+			mySQLConfiguration.setCts(System.currentTimeMillis());
+			return;
+		}
+
+		//copying old database configuration data to new database configuration
+		mySQLConfiguration.setId(oldMySQLConfiguration.getId());
+		mySQLConfiguration.setCreatedUserName(oldMySQLConfiguration.getCreatedUserName());
+		mySQLConfiguration.setCreatedBy(oldMySQLConfiguration.getCreatedBy());
+		mySQLConfiguration.setCts(oldMySQLConfiguration.getCts());
+
+		// setting new database configuration
+		mySQLConfiguration.setModifiedUserName(userName);
+		mySQLConfiguration.setModifiedBy(userId);
+		mySQLConfiguration.setMts(System.currentTimeMillis());
+	}
+
+	private void updateUserDetails(PostgreSQLConfiguration oldPostgreSQLConfiguration, PostgreSQLConfiguration PostgreSQLConfiguration) {
+
+		String userName = null;
+		String userId = null;
+		try {
+			UserSession userSession = UserSession.getCurrentSessionToken();
+			userName = userSession.getUsername();
+			userId = userSession.getUserId();
+		}catch (Exception e){
+			log.error("Error while getting user");
+		}
+
+		if(oldPostgreSQLConfiguration == null) {
+			PostgreSQLConfiguration.setCreatedUserName(userName);
+			PostgreSQLConfiguration.setCreatedBy(userId);
+			PostgreSQLConfiguration.setCts(System.currentTimeMillis());
+			return;
+		}
+
+		//copying old database configuration data to new database configuration
+		PostgreSQLConfiguration.setId(oldPostgreSQLConfiguration.getId());
+		PostgreSQLConfiguration.setCreatedUserName(oldPostgreSQLConfiguration.getCreatedUserName());
+		PostgreSQLConfiguration.setCreatedBy(oldPostgreSQLConfiguration.getCreatedBy());
+		PostgreSQLConfiguration.setCts(oldPostgreSQLConfiguration.getCts());
+
+		// setting new database configuration
+		PostgreSQLConfiguration.setModifiedUserName(userName);
+		PostgreSQLConfiguration.setModifiedBy(userId);
+		PostgreSQLConfiguration.setMts(System.currentTimeMillis());
+	}
+
+	public Object getDatabaseIntegration(String databaseType, String id) throws ItorixException {
+		if(databaseType == null){
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"DataBase Type is required!"), "DatabaseConfiguration-1001");
+		}
+		Query query = new Query();
+		query.addCriteria(Criteria.where("_id").is(new ObjectId(id)));
+		if(databaseType.equalsIgnoreCase(DatabaseType.MONGODB.getDatabaseType())) {
+			return mongoTemplate.find(query, MongoDBConfiguration.class);
+		} else if(databaseType.equalsIgnoreCase(DatabaseType.MYSQL.getDatabaseType())) {
+			return mongoTemplate.find(query, MySQLConfiguration.class);
+		} else if(databaseType.equalsIgnoreCase(DatabaseType.POSTGRESQL.getDatabaseType())) {
+			return mongoTemplate.find(query, PostgreSQLConfiguration.class);
+		} else {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Invalid database Type"), "DatabaseConfiguration-1000");
 		}
 	}
 }
