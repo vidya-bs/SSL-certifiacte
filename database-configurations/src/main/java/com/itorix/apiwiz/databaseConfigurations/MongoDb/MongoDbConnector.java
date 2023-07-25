@@ -11,6 +11,7 @@ import com.itorix.apiwiz.databaseConfigurations.Utils.MongoSOCKS5Connector;
 import com.itorix.apiwiz.databaseConfigurations.Utils.SSLHelperUtility;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
+import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import org.apache.commons.lang.StringUtils;
@@ -139,8 +140,7 @@ public class MongoDbConnector {
 //            }
             //ssh connections
             int allocatedPort = sshConnection.prepareSshTunnel(mongoDBConfiguration);
-            String host = mongoDBConfiguration.getHost();
-            String[] hosts = host.split(":");
+            String[] hosts = getHostAndPort(url);
             url = url.replace(hosts[0], "localhost").replace(hosts[1], String.valueOf(allocatedPort));
             return createMongoClient(url);
         } catch (ItorixException ex){
@@ -216,6 +216,20 @@ public class MongoDbConnector {
     }
     private MongoClient createMongoClient(MongoClientSettings settings) {
         return MongoClients.create(settings);
+    }
+
+    public String[] getHostAndPort(String url) throws ItorixException {
+        try {
+            MongoClientURI mongoClientURI = new MongoClientURI(url);
+            String host = mongoClientURI.getHosts().get(0);
+            String[] hostAndPort = host.split(":");
+            if (hostAndPort.length < 2) {
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "host or port is missing"), "DatabaseConfiguration-1000");
+            }
+            return hostAndPort;
+        } catch (Exception ex){
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "Invalid mongodb host"), "DatabaseConfiguration-1000");
+        }
     }
 
 }

@@ -96,11 +96,15 @@ public class MongoDbSchemaConverter {
         Set<ObjectNode> nodeSet = new HashSet<>();
 
         for (Document doc : documents) {
-            String result = outputAsString(doc.toJson(settings));
-            ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
-            JsonNode propertyNode = OBJECT_MAPPER.readTree(result);
-            jsonNode.set(collectionName, propertyNode);
-            nodeSet.add(jsonNode);
+            try {
+                String result = outputAsString(doc.toJson(settings));
+                ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
+                JsonNode propertyNode = OBJECT_MAPPER.readTree(result);
+                jsonNode.set(collectionName, propertyNode);
+                nodeSet.add(jsonNode);
+            } catch (Exception ex){
+                logger.error("Error while fetching schema from document ", ex);
+            }
         }
         return nodeSet;
     }

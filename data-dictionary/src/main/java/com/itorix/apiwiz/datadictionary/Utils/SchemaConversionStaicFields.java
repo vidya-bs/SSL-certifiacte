@@ -2,9 +2,9 @@ package com.itorix.apiwiz.datadictionary.Utils;
 
 public class SchemaConversionStaicFields {
 
-//    NOSQL COnversion
-    public static String OBJECT_PROPERTY = "\"object\", \"properties\": ";
-    public static String TYPE_OBJECT_PROPERTY = "\"type\": " + OBJECT_PROPERTY;
+//    NOSQL Conversion
+    public static String OBJECT_PROPERTY = "object\", \"properties\": ";
+    public static String TYPE_OBJECT_PROPERTY = "\"type\": \"" + OBJECT_PROPERTY;
     public static String TYPE_BOOLEAN = "boolean\" },";
     public static String CUSTOM_TYPE = "{\"type\": \"%s\"}";
     public static String ARRAY_TYPE = "array\", \"items\":";
