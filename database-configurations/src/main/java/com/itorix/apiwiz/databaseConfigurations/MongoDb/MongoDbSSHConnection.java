@@ -91,6 +91,9 @@ public class MongoDbSSHConnection {
 
     String host = mongoDBConfiguration.getHost();
     String[] hosts = host.split(":");
+    if (hosts.length < 2) {
+      throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"host port is missing"), "DatabaseConfiguration-1000");
+    }
     session.connect(30000);
     int allocatedLocalPort = session.setPortForwardingL(localPort, hosts[0], Integer.parseInt(hosts[1]));
     return allocatedLocalPort;
