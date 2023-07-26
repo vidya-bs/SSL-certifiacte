@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.datadictionary.dao;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
 import com.itorix.apiwiz.common.model.databaseconfigs.DatabaseType;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDBConfiguration;
 import com.itorix.apiwiz.common.model.databaseconfigs.mysql.MySQLConfiguration;
@@ -74,10 +75,10 @@ public class SchemaDAO {
         }
     }
 
-    public Object getMongoSchemas(String databaseName, List<String> collections, MongoDBConfiguration mon, boolean deepSearch) throws ItorixException {
-        try {
-            long start = System.currentTimeMillis();
-            MongoClient client = getConnection.getMongoDbDataBaseConnection(mon);
+    public Object getMongoSchemas(String databaseName, List<String> collections, MongoDBConfiguration mongoDBConf, boolean deepSearch) throws ItorixException {
+        long start = System.currentTimeMillis();
+        try (ClientConnection clientConnection = getConnection.getMongoDbDataBaseConnection(mongoDBConf);){
+            MongoClient client = clientConnection.getMongoClient();
             logger.info("Time took for establishing connection - {}", (System.currentTimeMillis() - start));
             Map<String, Map<String, Set<ObjectNode>>> schema = mongoDbSchemaConverter.generateSchema(client, databaseName, collections, deepSearch);
             client.close();
@@ -92,8 +93,8 @@ public class SchemaDAO {
 
     public Object getMySqlSchemas(MySQLConfiguration mySQLConfiguration, List<String> tables)
             throws ItorixException {
-        try {
-            Connection connection = getConnection.getMySqlDataBaseConnection(mySQLConfiguration);
+        try (ClientConnection clientConnection = getConnection.getMySqlDataBaseConnection(mySQLConfiguration);){
+            Connection connection = clientConnection.getConnection();
             String dataBaseName = mySQLConfiguration.getMysqlDatabaseName();
             Object obj = SQLSchemaConverter.convertMysqlTabletoSchema(connection, dataBaseName, tables);
             connection.close();
@@ -109,8 +110,8 @@ public class SchemaDAO {
 
     public Object getPostgreSQLSchemas(PostgreSQLConfiguration postgreSQLConfiguration, String schemaName, List<String> tables)
             throws ItorixException {
-        try {
-            Connection connection = getConnection.getPostgreSqlDataBaseConnection(postgreSQLConfiguration);
+        try (ClientConnection clientConnection = getConnection.getPostgreSqlDataBaseConnection(postgreSQLConfiguration);){
+            Connection connection = clientConnection.getConnection();
             String databaseName = postgreSQLConfiguration.getPostgresqlDatabase();
             Object obj = SQLSchemaConverter.convertPostgresSqlTabletoSchema(connection, databaseName, schemaName, tables);
             connection.close();
@@ -126,23 +127,31 @@ public class SchemaDAO {
 
     public List<String> getDatabases(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
         long start = System.currentTimeMillis();
-        MongoClient client = getConnection.getMongoDbDataBaseConnection(mongoDBConfiguration);
-        logger.info("Time took for establishing connection - {}", (System.currentTimeMillis() - start));
-        List<String> databaseNames = mongoDbSchemaConverter.getDatabaseNames(client);
-        return databaseNames;
+        try (ClientConnection  clientConnection = getConnection.getMongoDbDataBaseConnection(mongoDBConfiguration);){
+            MongoClient client = clientConnection.getMongoClient();
+            logger.info("Time took for establishing connection - {}", (System.currentTimeMillis() - start));
+            List<String> databaseNames = mongoDbSchemaConverter.getDatabaseNames(client);
+            return databaseNames;
+        } catch (ItorixException ex) {
+            throw ex;
+        }
     }
 
     public List<String> getCollectionNames(MongoDBConfiguration mongoDBConfiguration, String databaseName) throws ItorixException {
         long start = System.currentTimeMillis();
-        MongoClient client = getConnection.getMongoDbDataBaseConnection(mongoDBConfiguration);
-        logger.info("Time took for establishing connection - {}", (System.currentTimeMillis() - start));
-        List<String> collectionNames = mongoDbSchemaConverter.getCollectionNames(client, databaseName);
-        return collectionNames;
+        try (ClientConnection clientConnection = getConnection.getMongoDbDataBaseConnection(mongoDBConfiguration);){
+            MongoClient client = clientConnection.getMongoClient();
+            logger.info("Time took for establishing connection - {}", (System.currentTimeMillis() - start));
+            List<String> collectionNames = mongoDbSchemaConverter.getCollectionNames(client, databaseName);
+            return collectionNames;
+        } catch (ItorixException ex) {
+            throw ex;
+        }
     }
 
     public List<String> getMysqlTableNames(MySQLConfiguration mySQLConfiguration) throws ItorixException {
-        try {
-            Connection connection = getConnection.getMySqlDataBaseConnection(mySQLConfiguration);
+        try (ClientConnection clientConnection = getConnection.getMySqlDataBaseConnection(mySQLConfiguration);){
+            Connection connection = clientConnection.getConnection();
             String databaseName = mySQLConfiguration.getMysqlDatabaseName();
             List<String> tableNames = SQLSchemaConverter.getMySqlTableNames(connection, databaseName);
             connection.close();
@@ -157,8 +166,8 @@ public class SchemaDAO {
     }
 
     public List<String> getPostgresTableNames(PostgreSQLConfiguration postgreSQLConfiguration, String schemaName) throws ItorixException {
-        try {
-            Connection connection = getConnection.getPostgreSqlDataBaseConnection(postgreSQLConfiguration);
+        try (ClientConnection clientConnection = getConnection.getPostgreSqlDataBaseConnection(postgreSQLConfiguration);){
+            Connection connection = clientConnection.getConnection();
             String databaseName = postgreSQLConfiguration.getPostgresqlDatabase();
             List<String> tableNames = SQLSchemaConverter.getPostgresSqlTableNames(connection, databaseName, schemaName);
             connection.close();
@@ -173,8 +182,8 @@ public class SchemaDAO {
     }
 
     public List<String> getPostgresSchemas(PostgreSQLConfiguration postgreSQLConfiguration) throws ItorixException {
-        try {
-            Connection connection = getConnection.getPostgreSqlDataBaseConnection(postgreSQLConfiguration);
+        try (ClientConnection clientConnection = getConnection.getPostgreSqlDataBaseConnection(postgreSQLConfiguration);){
+            Connection connection = clientConnection.getConnection();
             String databaseName = postgreSQLConfiguration.getPostgresqlDatabase();
             List<String> schemaNames = SQLSchemaConverter.getPostgresSchemas(connection, databaseName);
             connection.close();
@@ -189,8 +198,8 @@ public class SchemaDAO {
     }
 
     public List<String> searchInMySqlDB(MySQLConfiguration mySQLConfiguration, String searchKey) throws ItorixException {
-        try {
-            Connection connection = getConnection.getMySqlDataBaseConnection(mySQLConfiguration);
+        try (ClientConnection clientConnection = getConnection.getMySqlDataBaseConnection(mySQLConfiguration);) {
+            Connection connection = clientConnection.getConnection();
             String databaseName = mySQLConfiguration.getMysqlDatabaseName();
             List<String> tableNames = SQLSchemaConverter.searchInMySqlDatabase(connection, databaseName, searchKey);
             connection.close();
@@ -205,8 +214,8 @@ public class SchemaDAO {
     }
 
     public List<String> searchInPostgresDB(PostgreSQLConfiguration postgreSQLConfiguration, String schemaName, String searchKey) throws ItorixException {
-        try {
-            Connection connection = getConnection.getPostgreSqlDataBaseConnection(postgreSQLConfiguration);
+        try (ClientConnection clientConnection = getConnection.getPostgreSqlDataBaseConnection(postgreSQLConfiguration);) {
+            Connection connection = clientConnection.getConnection();
             String databaseName = postgreSQLConfiguration.getPostgresqlDatabase();
             List<String> tableNames = SQLSchemaConverter.searchInPostgresDatabase(connection, databaseName, schemaName, searchKey);
             connection.close();
@@ -222,10 +231,14 @@ public class SchemaDAO {
 
     public List<String> searchInMongoDB(MongoDBConfiguration mongoDBConfiguration, String databaseName, String searchKey) throws ItorixException {
         long start = System.currentTimeMillis();
-        MongoClient client = getConnection.getMongoDbDataBaseConnection(mongoDBConfiguration);
-        logger.info("Time took for establishing connection - {}", (System.currentTimeMillis() - start));
-        List<String> collections = mongoDbSchemaConverter.searchForKey(client, databaseName, searchKey);
-        return collections;
+        try(ClientConnection clientConnection = getConnection.getMongoDbDataBaseConnection(mongoDBConfiguration)) {
+            MongoClient client = clientConnection.getMongoClient();
+            logger.info("Time took for establishing connection - {}", (System.currentTimeMillis() - start));
+            List<String> collections = mongoDbSchemaConverter.searchForKey(client, databaseName, searchKey);
+            return collections;
+        } catch (ItorixException ex) {
+            throw ex;
+        }
     }
 
 }

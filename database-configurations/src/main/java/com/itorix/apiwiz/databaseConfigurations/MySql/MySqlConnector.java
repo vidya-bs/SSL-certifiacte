@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.databaseConfigurations.MySql;
 
+import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
 import com.itorix.apiwiz.common.model.databaseconfigs.mysql.MySQLConfiguration;
 import com.itorix.apiwiz.common.model.databaseconfigs.mysql.SslAuthType;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
@@ -12,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
 
@@ -35,7 +35,7 @@ public class MySqlConnector {
     @Autowired
     private RSAEncryption rsaEncryption;
 
-    public Connection getTcpConnection( MySQLConfiguration sqlConfiguration) throws  ItorixException {
+    public ClientConnection getTcpConnection( MySQLConfiguration sqlConfiguration) throws  ItorixException {
         validateData(sqlConfiguration);
         String hostName = sqlConfiguration.getMysqlHostname();
         String hostport = sqlConfiguration.getMysqlPort();
@@ -51,19 +51,20 @@ public class MySqlConnector {
         properties.put("password", password);
         properties.put("characterEncoding", "UTF-8");
         properties.put("useSSL", "false");
-
+        ClientConnection mysqlConnection = new ClientConnection();
+        mysqlConnection.setHost(hostName);
+        mysqlConnection.setPort(Integer.parseInt(hostport));
         try {
-            int allocatedPort = Integer.parseInt(hostport);
             if(sqlConfiguration.getSsh() != null) {
-                allocatedPort = sshconnection.prepareSshTunnel(sqlConfiguration);
-                hostName = "localhost";
+                sshconnection.prepareSshTunnel(sqlConfiguration, mysqlConnection);
             }
             if(sqlConfiguration.getSsl() != null && sqlConfiguration.getSsl().getSslMode() != SslAuthType.DISABLED ){
                 sslConnection.buildProperties(properties, sqlConfiguration.getSsl());
             }
-            String hostUrl =String.format("jdbc:mysql://%s:%s", hostName, allocatedPort);
+            String hostUrl =String.format("jdbc:mysql://%s:%s", mysqlConnection.getHost(), mysqlConnection.getPort());
             logger.info("postgresql connection url - {}", hostUrl);
-            return DriverManager.getConnection(hostUrl, properties);
+            mysqlConnection.setConnection(DriverManager.getConnection(hostUrl, properties));
+            return mysqlConnection;
         } catch (ItorixException ex){
             throw ex;
         } catch (Exception ex){
@@ -72,7 +73,7 @@ public class MySqlConnector {
         }
     }
 
-    public Connection getLdapConnection( MySQLConfiguration sqlConfiguration) throws ItorixException {
+    public ClientConnection getLdapConnection( MySQLConfiguration sqlConfiguration) throws ItorixException {
         validateData(sqlConfiguration);
         String hostName = sqlConfiguration.getMysqlHostname();
         String hostport = sqlConfiguration.getMysqlPort();
@@ -90,19 +91,20 @@ public class MySqlConnector {
         properties.put("password", password);
         properties.put("characterEncoding", "UTF-8");
         properties.setProperty("enableClearTextPlugin", "true");
-
+        ClientConnection mysqlConnection = new ClientConnection();
+        mysqlConnection.setHost(hostName);
+        mysqlConnection.setPort(Integer.parseInt(hostport));
         try {
-            int allocatedPort = Integer.parseInt(hostport);
-            if(sqlConfiguration.getSsh() != null ){
-                allocatedPort = sshconnection.prepareSshTunnel(sqlConfiguration);
-                hostName = "localhost";
+            if(sqlConfiguration.getSsh() != null) {
+                sshconnection.prepareSshTunnel(sqlConfiguration, mysqlConnection);
             }
-            if(sqlConfiguration.getSsl() != null && sqlConfiguration.getSsl().getSslMode() != SslAuthType.DISABLED) {
+            if(sqlConfiguration.getSsl() != null && sqlConfiguration.getSsl().getSslMode() != SslAuthType.DISABLED ){
                 sslConnection.buildProperties(properties, sqlConfiguration.getSsl());
             }
-            String hostUrl =String.format("jdbc:mysql://%s:%s", hostName, allocatedPort);
-            logger.info("mysql connection url - {}", hostUrl);
-            return DriverManager.getConnection(hostUrl, properties);
+            String hostUrl =String.format("jdbc:mysql://%s:%s", mysqlConnection.getHost(), mysqlConnection.getPort());
+            logger.info("postgresql connection url - {}", hostUrl);
+            mysqlConnection.setConnection(DriverManager.getConnection(hostUrl, properties));
+            return mysqlConnection;
         } catch (ItorixException ex){
             throw ex;
         } catch (Exception ex){
@@ -111,7 +113,7 @@ public class MySqlConnector {
         }
     }
 
-    public Connection getNativeKerberosConnection( MySQLConfiguration sqlConfiguration) throws ItorixException {
+    public ClientConnection getNativeKerberosConnection( MySQLConfiguration sqlConfiguration) throws ItorixException {
         validateData(sqlConfiguration);
         validateDataKerberosData(sqlConfiguration);
         String hostName = sqlConfiguration.getMysqlHostname();
@@ -132,21 +134,25 @@ public class MySqlConnector {
         properties.put("password", password);
         properties.put("characterEncoding", "UTF-8");
         properties.put("useSSL", "false");
+
+        ClientConnection mysqlConnection = new ClientConnection();
+        mysqlConnection.setHost(hostName);
+        mysqlConnection.setPort(Integer.parseInt(hostport));
         try {
-            int allocatedPort = Integer.parseInt(hostport);
-            if(sqlConfiguration.getSsh() != null ){
-                allocatedPort = sshconnection.prepareSshTunnel(sqlConfiguration);
-                hostName = "localhost";
+            if(sqlConfiguration.getSsh() != null) {
+                sshconnection.prepareSshTunnel(sqlConfiguration, mysqlConnection);
             }
             if(sqlConfiguration.getSsl() != null && sqlConfiguration.getSsl().getSslMode() != SslAuthType.DISABLED) {
                 sslConnection.buildProperties(properties, sqlConfiguration.getSsl());
             }
-            String hostUrl =String.format("jdbc:mysql://%s:%s", hostName, allocatedPort);
+            String hostUrl =String.format("jdbc:mysql://%s:%s", mysqlConnection.getHost(), mysqlConnection.getPort());
             logger.info("mysql connection url - {}", hostUrl);
             kerberosConnector.CreateKerberosTicket(username, password, relam, kdcServerhost);
 
             System.setProperty( AUTH_LOGIN_CONFIG, createJassFile());
-            return DriverManager.getConnection(hostUrl, properties);
+            logger.info("postgresql connection url - {}", hostUrl);
+            mysqlConnection.setConnection(DriverManager.getConnection(hostUrl, properties));
+            return mysqlConnection;
         } catch (ItorixException ex){
             throw ex;
         } catch (Exception ex){

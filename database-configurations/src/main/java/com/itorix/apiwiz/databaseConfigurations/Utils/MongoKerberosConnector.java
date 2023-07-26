@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.databaseConfigurations.Utils;
 
+import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.mongodb.ConnectionString;
@@ -20,7 +21,6 @@ import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.security.Principal;
 import java.security.PrivilegedAction;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -32,10 +32,11 @@ public class MongoKerberosConnector {
 
     private static final Logger logger = LoggerFactory.getLogger(MongoKerberosConnector.class);
 
-    public synchronized MongoClient kerberosAuth(final String hostUrl, final String realm, final String kdc, final String userPrincipal, final String password)
+    public synchronized ClientConnection kerberosAuth(final String hostUrl, final String realm, final String kdc, final String userPrincipal, final String password)
             throws LoginException, ItorixException {
 
         try {
+            ClientConnection clientConnection = new ClientConnection();
             System.setProperty(KRB5_REALM, realm);
             System.setProperty(KRB5_KDC, kdc);
 
@@ -104,7 +105,8 @@ public class MongoKerberosConnector {
                 }
             }
             MongoClient mongoClient = Subject.doAsPrivileged(subject, new LogIn(), null);
-            return mongoClient;
+            clientConnection.setMongoClient(mongoClient);
+            return clientConnection;
         } catch (Exception ex) {
             logger.error("Exception Occured - ", ex);
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"Kerberos server!."), "DatabaseConfiguration-1002");

@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.databaseConfigurations.MongoDb;
 
+import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoAuthentication;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDBConfiguration;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoSSH;
@@ -21,11 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.net.ssl.SSLContext;
-import java.io.FileOutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.security.KeyStore;
 
 
 @Component
@@ -48,7 +44,7 @@ public class MongoDbConnector {
     @Autowired
     private MongoKerberosConnector mongoKerberosConnector;
 
-    public MongoClient getConnection(MongoDBConfiguration mongoDBConfiguration)
+    public ClientConnection getConnection(MongoDBConfiguration mongoDBConfiguration)
         throws ItorixException {
         if(mongoDBConfiguration.getAuthentication() == null){
             logger.error("Invalid mongodb Authentication - {}", mongoDBConfiguration.getAuthentication());
@@ -63,14 +59,17 @@ public class MongoDbConnector {
             if(mongoDBConfiguration.getSsh() != null){
                 return getSSHConnection(mongoDBConfiguration);
             }
-            return createMongoClient(url);
+            ClientConnection clientConnection = new ClientConnection();
+            clientConnection.setHost(mongoDBConfiguration.getHost());
+            clientConnection.setMongoClient(createMongoClient(url));
+            return clientConnection;
         } catch (Exception ex){
             logger.error("Exception creating MongoDBClient - ", ex);
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"MongoDb"), "DatabaseConfiguration-1002");
         }
     }
 
-    public MongoClient getConnectionByUsernamePassword(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
+    public ClientConnection getConnectionByUsernamePassword(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
         try {
             if (mongoDBConfiguration.getAuthentication() == null) {
                 logger.error("Invalid mongodb Authentication - {}", mongoDBConfiguration.getAuthentication());
@@ -84,7 +83,10 @@ public class MongoDbConnector {
             if(mongoDBConfiguration.getSsh() != null){
                 return getSSHConnection(mongoDBConfiguration);
             }
-            return createMongoClient(url);
+            ClientConnection clientConnection = new ClientConnection();
+            clientConnection.setHost(mongoDBConfiguration.getHost());
+            clientConnection.setMongoClient(createMongoClient(url));
+            return clientConnection;
         } catch (ItorixException ex){
             throw ex;
         } catch (Exception ex){
@@ -94,7 +96,7 @@ public class MongoDbConnector {
         }
     }
 
-    public MongoClient getSSLConnection(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
+    public ClientConnection getSSLConnection(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
         if(mongoDBConfiguration.getAuthentication() == null){
             logger.error("Invalid mongodb Authentication - {}", mongoDBConfiguration.getAuthentication());
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"MongoDbAuthentication is mandatory parameter but missing"), "DatabaseConfiguration-1000");
@@ -106,7 +108,6 @@ public class MongoDbConnector {
         }
 
         // TODO check x509 otherwise tls/ssl connection
-//        checkAndAppendSSLQuery(url);
         try {
             String caCert = mongoDBConfiguration.getSsl().getCertificateAuthority();
             String clientKey = mongoDBConfiguration.getSsl().getClientKey();
@@ -122,7 +123,10 @@ public class MongoDbConnector {
                     .applyConnectionString(new ConnectionString(url))
                     .applyToSslSettings(builder -> builder.context(sslContext))
                     .build();
-            return createMongoClient(settings);
+            ClientConnection clientConnection = new ClientConnection();
+            clientConnection.setHost(mongoDBConfiguration.getHost());
+            clientConnection.setMongoClient(createMongoClient(settings));
+            return clientConnection;
         } catch (ItorixException ex){
             throw ex;
         }  catch (Exception ex){
@@ -131,7 +135,7 @@ public class MongoDbConnector {
         }
     }
 
-    public MongoClient getSSHConnection(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
+    public ClientConnection getSSHConnection(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
         try {
             String url = mongoDBConfiguration.getUrl();
             MongoSSH mongoSSH = mongoDBConfiguration.getSsh();
@@ -139,10 +143,12 @@ public class MongoDbConnector {
 //                return mongoSOCKS5Connector.connect(mongoDBConfiguration);
 //            }
             //ssh connections
-            int allocatedPort = sshConnection.prepareSshTunnel(mongoDBConfiguration);
+            ClientConnection clientConnection = new ClientConnection();
+            sshConnection.prepareSshTunnel(mongoDBConfiguration, clientConnection);
             String[] hosts = getHostAndPort(url);
-            url = url.replace(hosts[0], "localhost").replace(hosts[1], String.valueOf(allocatedPort));
-            return createMongoClient(url);
+            url = url.replace(hosts[0], clientConnection.getHost()).replace(hosts[1], String.valueOf(clientConnection.getPort()));
+            clientConnection.setMongoClient(createMongoClient(url));
+            return clientConnection;
         } catch (ItorixException ex){
             throw ex;
         } catch (Exception ex){
@@ -151,7 +157,7 @@ public class MongoDbConnector {
         }
     }
 
-    public MongoClient getLdapConnection(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
+    public ClientConnection getLdapConnection(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
         MongoAuthentication mongoAuthentication = mongoDBConfiguration.getAuthentication();
         if(mongoAuthentication == null){
             logger.error("Invalid mongodb Authentication - {}", mongoDBConfiguration.getAuthentication());
@@ -169,7 +175,10 @@ public class MongoDbConnector {
             if(mongoDBConfiguration.getSsh() != null){
                 return getSSHConnection(mongoDBConfiguration);
             }
-            return createMongoClient(url);
+            ClientConnection clientConnection = new ClientConnection();
+            clientConnection.setHost(mongoDBConfiguration.getHost());
+            clientConnection.setMongoClient(createMongoClient(url));
+            return clientConnection;
         } catch (ItorixException ex){
             throw ex;
         } catch (Exception ex){
@@ -178,7 +187,7 @@ public class MongoDbConnector {
         }
     }
 
-    public MongoClient getKerberosConnection(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
+    public ClientConnection getKerberosConnection(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
         MongoAuthentication mongoAuthentication = mongoDBConfiguration.getAuthentication();
         if(mongoAuthentication == null){
             logger.error("Invalid mongodb Authentication - {}", mongoDBConfiguration.getAuthentication());

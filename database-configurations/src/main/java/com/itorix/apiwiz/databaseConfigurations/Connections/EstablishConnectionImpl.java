@@ -1,6 +1,6 @@
 package com.itorix.apiwiz.databaseConfigurations.Connections;
 
-import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoAuthentication;
+import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDBConfiguration;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDbAuthType;
 import com.itorix.apiwiz.common.model.databaseconfigs.mysql.MySQLConfiguration;
@@ -9,18 +9,13 @@ import com.itorix.apiwiz.common.model.databaseconfigs.postgress.PostgreSQLConfig
 import com.itorix.apiwiz.common.model.databaseconfigs.postgress.PostgresAuthType;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.databaseConfigurations.MongoDb.MongoDbConnector;
 import com.itorix.apiwiz.databaseConfigurations.MySql.MySqlConnector;
 import com.itorix.apiwiz.databaseConfigurations.PostgreSql.PostgreSqlConnector;
-import com.mongodb.client.MongoClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 
 @Component
 public class EstablishConnectionImpl implements EstablishConnection {
@@ -37,13 +32,13 @@ public class EstablishConnectionImpl implements EstablishConnection {
     private MongoDbConnector mongoDbConnector;
 
     @Override
-    public Connection getMySqlConnection(MySQLConfiguration sqlConfiguration) throws ItorixException {
+    public ClientConnection getMySqlConnection(MySQLConfiguration sqlConfiguration) throws ItorixException {
         if(sqlConfiguration == null || sqlConfiguration.getMySqlConfigType() == null) {
             logger.error("Invalid Database configuration - {}", sqlConfiguration);
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"MYSQL auth type is necessary but missing"), "DatabaseConfiguration-1000");
         }
 
-        Connection connection = null;
+        ClientConnection connection = null;
         MySqlConfigType connectionType = sqlConfiguration.getMySqlConfigType();
         if(connectionType == MySqlConfigType.TCPIP) {
             connection = mySqlTcpConnector.getTcpConnection(sqlConfiguration);
@@ -61,12 +56,12 @@ public class EstablishConnectionImpl implements EstablishConnection {
     }
 
     @Override
-    public Connection getPostgreSqlConnection(PostgreSQLConfiguration postgreSQLConfiguration) throws ItorixException {
+    public ClientConnection getPostgreSqlConnection(PostgreSQLConfiguration postgreSQLConfiguration) throws ItorixException {
         if(postgreSQLConfiguration == null) {
             logger.error("Invalid Database configuration");
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"Invalid postgres configuration"), "DatabaseConfiguration-1001");
         }
-        Connection connection = null;
+        ClientConnection connection = null;
         PostgresAuthType postgresAuthType = postgreSQLConfiguration.getPostgresAuthType();
         if(postgresAuthType == PostgresAuthType.USERNAMEPASSWORD) {
             connection = postgreSqlConnector.getTcpConnection(postgreSQLConfiguration);
@@ -86,7 +81,7 @@ public class EstablishConnectionImpl implements EstablishConnection {
     }
 
     @Override
-    public MongoClient getMongoDbConnection(MongoDBConfiguration mongoDBConfiguration)
+    public ClientConnection getMongoDbConnection(MongoDBConfiguration mongoDBConfiguration)
         throws ItorixException {
         if(mongoDBConfiguration == null) {
             logger.error("Invalid Database configuration");
@@ -96,22 +91,22 @@ public class EstablishConnectionImpl implements EstablishConnection {
             logger.error("Invalid Mongodb Authentication configuration");
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"Invalid MongoDb Authentication configuration"), "DatabaseConfiguration-1001");
         }
-        MongoClient mongoClient = null;
+        ClientConnection clientConnection = null;
         MongoDbAuthType mongoDbAuthType = mongoDBConfiguration.getAuthentication().getMongoDbAuthType();
         if(mongoDbAuthType == MongoDbAuthType.userNamePassword){
-            mongoClient = mongoDbConnector.getConnectionByUsernamePassword(mongoDBConfiguration);
+            clientConnection = mongoDbConnector.getConnectionByUsernamePassword(mongoDBConfiguration);
         } else if(mongoDbAuthType == MongoDbAuthType.x509){
-            mongoClient = mongoDbConnector.getSSLConnection(mongoDBConfiguration);
+            clientConnection = mongoDbConnector.getSSLConnection(mongoDBConfiguration);
         } else if(mongoDbAuthType == MongoDbAuthType.ldap){
-            mongoClient = mongoDbConnector.getLdapConnection(mongoDBConfiguration);
+            clientConnection = mongoDbConnector.getLdapConnection(mongoDBConfiguration);
         } else if(mongoDbAuthType == MongoDbAuthType.kerberos){
-            mongoClient = mongoDbConnector.getKerberosConnection(mongoDBConfiguration);
+            clientConnection = mongoDbConnector.getKerberosConnection(mongoDBConfiguration);
         } else if(mongoDbAuthType == MongoDbAuthType.awsIAM){
-            mongoClient = mongoDbConnector.getConnection(mongoDBConfiguration);
+            clientConnection = mongoDbConnector.getConnection(mongoDBConfiguration);
         } else {
             logger.error("Invalid Database configuration Type - {}", mongoDbAuthType.getValue());
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Invalid mongodb auth type"), "DatabaseConfiguration-1000");
         }
-        return mongoClient;
+        return clientConnection;
     }
 }

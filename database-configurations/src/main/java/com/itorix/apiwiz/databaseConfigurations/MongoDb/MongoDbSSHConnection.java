@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.databaseConfigurations.MongoDb;
 
+import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDBConfiguration;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDbSshAuthType;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoSSH;
@@ -30,7 +31,7 @@ public class MongoDbSSHConnection {
     @Autowired
     private RSAEncryption rsaEncryption;
 
-    public int prepareSshTunnel(MongoDBConfiguration mongoDBConfiguration) throws Exception {
+    public void prepareSshTunnel(MongoDBConfiguration mongoDBConfiguration, ClientConnection clientConnection) throws Exception {
         Session session;
         JSch jSch = new JSch();
 
@@ -93,7 +94,8 @@ public class MongoDbSSHConnection {
         String[] hosts = getHostAndPort(mongoDBConfiguration.getUrl());
         session.connect(30000);
         int allocatedLocalPort = session.setPortForwardingL(localPort, hosts[0], Integer.parseInt(hosts[1]));
-        return allocatedLocalPort;
+        clientConnection.setHost("127.0.0.1");
+        clientConnection.setPort(allocatedLocalPort);
     }
 
     public String[] getHostAndPort(String url) throws ItorixException {

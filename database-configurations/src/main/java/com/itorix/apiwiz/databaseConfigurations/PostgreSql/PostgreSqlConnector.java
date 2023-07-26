@@ -1,16 +1,15 @@
 package com.itorix.apiwiz.databaseConfigurations.PostgreSql;
 
+import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
 import com.itorix.apiwiz.common.model.databaseconfigs.postgress.PostgreSQLConfiguration;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
-import com.itorix.apiwiz.databaseConfigurations.Connections.EstablishConnectionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
 
@@ -31,7 +30,7 @@ public class PostgreSqlConnector {
     @Autowired
     private RSAEncryption rsaEncryption;
 
-    public Connection getTcpConnection(PostgreSQLConfiguration postgreSQLConfiguration) throws ItorixException {
+    public ClientConnection getTcpConnection(PostgreSQLConfiguration postgreSQLConfiguration) throws ItorixException {
         validateData(postgreSQLConfiguration);
         String hostName = postgreSQLConfiguration.getPostgresqlHostname();
         String hostport = postgreSQLConfiguration.getPostgresqlPort();
@@ -51,18 +50,20 @@ public class PostgreSqlConnector {
         properties.put("characterEncoding", "UTF-8");
         properties.put("useSSL", "false");
 
+        ClientConnection postgresConnection = new ClientConnection();
+        postgresConnection.setHost(hostName);
+        postgresConnection.setPort(Integer.parseInt(hostport));
         try {
-            int allocatedPort = Integer.parseInt(hostport);
             if(postgreSQLConfiguration.getSsh() != null){
-                allocatedPort = sshconnection.prepareSshTunnel(postgreSQLConfiguration);
-                hostName = "localhost";
+                sshconnection.prepareSshTunnel(postgreSQLConfiguration,postgresConnection );
             }
             if(postgreSQLConfiguration.getSsl() != null){
                 sslConnection.buildProperties(properties, postgreSQLConfiguration.getSsl());
             }
-            String hostUrl =String.format("jdbc:postgresql://%s:%s/%s", hostName, allocatedPort, databaseName);
+            String hostUrl =String.format("jdbc:postgresql://%s:%s/%s", postgresConnection.getHost(), postgresConnection.getPort(), databaseName);
             logger.info("postgresql connection url - {}", hostUrl);
-            return DriverManager.getConnection(hostUrl, properties);
+            postgresConnection.setConnection(DriverManager.getConnection(hostUrl, properties));
+            return postgresConnection;
         } catch (ItorixException ex){
             throw ex;
         } catch (Exception ex){
@@ -71,7 +72,7 @@ public class PostgreSqlConnector {
         }
     }
 
-    public Connection getGssApiConnection(PostgreSQLConfiguration postgreSQLConfiguration) throws ItorixException {
+    public ClientConnection getGssApiConnection(PostgreSQLConfiguration postgreSQLConfiguration) throws ItorixException {
         validateData(postgreSQLConfiguration);
         validateKerberosData(postgreSQLConfiguration);
         String hostName = postgreSQLConfiguration.getPostgresqlHostname();
@@ -93,19 +94,20 @@ public class PostgreSqlConnector {
         properties.put("characterEncoding", "UTF-8");
         properties.put("useSSL", "false");
 
+        ClientConnection postgresConnection = new ClientConnection();
+        postgresConnection.setHost(hostName);
+        postgresConnection.setPort(Integer.parseInt(hostport));
         try {
-            int allocatedPort = Integer.parseInt(hostport);
             if(postgreSQLConfiguration.getSsh() != null){
-                allocatedPort = sshconnection.prepareSshTunnel(postgreSQLConfiguration);
-                hostName = "localhost";
+                sshconnection.prepareSshTunnel(postgreSQLConfiguration,postgresConnection);
             }
             if(postgreSQLConfiguration.getSsl() != null){
                 sslConnection.buildProperties(properties, postgreSQLConfiguration.getSsl());
             }
-            String hostUrl =String.format("jdbc:postgresql://%s:%s/%s", hostName, allocatedPort, databaseName);
+            String hostUrl =String.format("jdbc:postgresql://%s:%s/%s", postgresConnection.getHost(), postgresConnection.getPort(), databaseName);
             logger.info("postgresql connection url - {}", hostUrl);
-            Connection connection = postgresSqlKerberos.createConnection(properties, hostUrl, username, kerberosRelam, kerberosKdcServer);
-            return connection;
+            postgresConnection.setConnection(postgresSqlKerberos.createConnection(properties, hostUrl, username, kerberosRelam, kerberosKdcServer));
+            return postgresConnection;
         } catch (ItorixException ex){
             throw ex;
         } catch (Exception ex){

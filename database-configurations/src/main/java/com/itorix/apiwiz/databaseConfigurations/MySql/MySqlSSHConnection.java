@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.databaseConfigurations.MySql;
 
+import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
 import com.itorix.apiwiz.common.model.databaseconfigs.SshAuthType;
 import com.itorix.apiwiz.common.model.databaseconfigs.mysql.MySQLConfiguration;
 import com.itorix.apiwiz.common.model.databaseconfigs.mysql.MySqlSSH;
@@ -29,7 +30,7 @@ public class MySqlSSHConnection {
   @Autowired
   private RSAEncryption rsaEncryption;
 
-  public int prepareSshTunnel(MySQLConfiguration sqlConfiguration) throws Exception {
+  public void prepareSshTunnel(MySQLConfiguration sqlConfiguration, ClientConnection mysqlConnection) throws Exception {
 
     Session session;
     JSch jSch = new JSch();
@@ -98,8 +99,8 @@ public class MySqlSSHConnection {
     session.connect(30000);
     int allocatedLocalPort = session.setPortForwardingL(localPort,
             sqlConfiguration.getMysqlHostname(), Integer.parseInt(sqlConfiguration.getMysqlPort()));
-
-    return allocatedLocalPort;
-
+    mysqlConnection.setSession(session);
+    mysqlConnection.setHost("127.0.0.1");
+    mysqlConnection.setPort(allocatedLocalPort);
   }
 }

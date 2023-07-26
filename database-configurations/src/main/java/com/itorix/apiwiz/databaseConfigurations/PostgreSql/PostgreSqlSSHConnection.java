@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.databaseConfigurations.PostgreSql;
 
+import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
 import com.itorix.apiwiz.common.model.databaseconfigs.SshAuthType;
 import com.itorix.apiwiz.common.model.databaseconfigs.postgress.PostgreSQLConfiguration;
 import com.itorix.apiwiz.common.model.databaseconfigs.postgress.PostgreSQLSSH;
@@ -30,7 +31,7 @@ public class PostgreSqlSSHConnection {
   private RSAEncryption rsaEncryption;
 
 
-  public int prepareSshTunnel(PostgreSQLConfiguration postgreSQLConfiguration) throws Exception {
+  public void prepareSshTunnel(PostgreSQLConfiguration postgreSQLConfiguration, ClientConnection postgresConection) throws Exception {
 
     Session session;
     JSch jSch = new JSch();
@@ -94,8 +95,8 @@ public class PostgreSqlSSHConnection {
     session.connect(30000);
     int allocatedLocalPort = session.setPortForwardingL(localPort,
             postgreSQLConfiguration.getPostgresqlHostname(), Integer.parseInt(postgreSQLConfiguration.getPostgresqlPort()));
-
-    return allocatedLocalPort;
-
+    postgresConection.setSession(session);
+    postgresConection.setPort(allocatedLocalPort);
+    postgresConection.setHost("127.0.0.1");
   }
 }
