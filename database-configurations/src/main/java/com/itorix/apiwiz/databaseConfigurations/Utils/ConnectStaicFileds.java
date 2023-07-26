@@ -40,6 +40,9 @@ public class ConnectStaicFileds {
     public static String KEYSTORE_EXTENSION =  ".jks";
     public static final char[] DEFAULT_PASSWORD = new char[]{};
 
+    public static String POSTGRES_SSLCERT = "sslcert";
+    public static String POSTGRES_SSLKEY = "sslkey";
+    public static String POSTGRES_SSLROOTCRT = "sslrootcert";
 
 
 }

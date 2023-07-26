@@ -43,7 +43,7 @@ public class PostgreSqlSSLConnection {
     long time = System.currentTimeMillis();
 
     if(Files.notExists(Path.of(TEMP_PATH))){
-      Files.createDirectory(Path.of(TEMP_PATH));
+      Files.createDirectories(Path.of(TEMP_PATH));
     }
     String clientCertPath = TEMP_PATH+"/"+CLIENT_CERTIFICATE+"-"+time+".pem";
     String clientKeyPath = TEMP_PATH+"/"+ CLIENT_KEY+"-"+time+".pem";
@@ -57,7 +57,7 @@ public class PostgreSqlSSLConnection {
       throw new RuntimeException(ex);
     }
 
-    String clinetKeyDER = TEMP_PATH+"/client-key-"+time+".der";
+    String clinetKeyDER = TEMP_PATH+"/"+CLIENT_KEY+"-"+time+".der";
     try{
       ProcessBuilder processBuilder = new ProcessBuilder();
       processBuilder.command("openssl", "pkcs8", "-topk8", "-inform", "PEM",
@@ -71,8 +71,8 @@ public class PostgreSqlSSLConnection {
       throw new RuntimeException(ex);
     }
 
-    properties.put("sslcert", clientCertPath);
-    properties.put("sslkey", clinetKeyDER);
-    properties.put("sslrootcert", serverCaPath);
+    properties.put(POSTGRES_SSLCERT, clientCertPath);
+    properties.put(POSTGRES_SSLKEY, clinetKeyDER);
+    properties.put(POSTGRES_SSLROOTCRT, serverCaPath);
   }
 }
