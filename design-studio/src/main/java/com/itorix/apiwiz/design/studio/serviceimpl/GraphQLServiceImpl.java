@@ -2,12 +2,15 @@ package com.itorix.apiwiz.design.studio.serviceimpl;
 
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.design.studio.business.GraphQLBusiness;
-import com.itorix.apiwiz.design.studio.model.GraphQL;
-import com.itorix.apiwiz.design.studio.model.GraphQLData;
-import com.itorix.apiwiz.design.studio.model.GraphQLImport;
+import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
 import com.itorix.apiwiz.design.studio.service.GraphQLService;
+
+import java.util.Arrays;
 import java.util.List;
+
+import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
+import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import com.itorix.apiwiz.design.studio.business.NotificationBusiness;
 
 @CrossOrigin
 @RestController
@@ -27,6 +31,9 @@ public class GraphQLServiceImpl implements GraphQLService {
   @Autowired
   GraphQLBusiness graphQLBusiness;
 
+  @Autowired
+  NotificationBusiness notificationBusiness;
+
   @Override
   public ResponseEntity<?> create(String interactionid, String jsessionid, String name, GraphQLData graphqlSchema)
       throws ItorixException {
@@ -34,14 +41,20 @@ public class GraphQLServiceImpl implements GraphQLService {
     checkGraphQL.setName(name);
     String graphQLData = graphqlSchema.getData()!=null ? graphqlSchema.getData() : "";
     GraphQL graphQL = graphQLBusiness.findGraphQL(checkGraphQL);
+    UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
     if(graphQL!=null){
+      //if already present in db
       logger.info("Creating a new revision for {}",graphQL.getName());
       checkGraphQL.setGraphQLSchema(graphQLData);
       graphQLBusiness.createNewRevisionWithName(checkGraphQL);
+      notificationBusiness.instantiateNotification(jsessionid, graphQL.getName(), graphQL.getCreatedBy(), "GraphQL", "GraphQL Revision has been created for "  );
     }else{
+      //if not present in db
       logger.info("Creating a new GraphQL Schema");
       checkGraphQL.setGraphQLSchema(graphQLData);
       graphQLBusiness.create(checkGraphQL);
+      checkGraphQL.setCreatedBy(userSession.getUserId());
+      notificationBusiness.instantiateNotification(jsessionid, checkGraphQL.getName(), checkGraphQL.getCreatedBy(), "GraphQL", "GraphQL Schema has been created for "  );
     }
     return new ResponseEntity<>(HttpStatus.CREATED);
   }
@@ -49,9 +62,13 @@ public class GraphQLServiceImpl implements GraphQLService {
   @Override
   public ResponseEntity<?> updateWithRevision(String interactionid, String jsessionid, String graphQLId,
       Integer revision, GraphQLData graphqlSchema) throws ItorixException {
+    GraphQL checkGraphQL = new GraphQL();
+    checkGraphQL.setGraphQLId(graphQLId);
+    GraphQL graphQL = graphQLBusiness.getWithRevision(graphQLId, revision);
     logger.info("Updating the GraphQL schema for Id-{} and revision-{}",graphQLId,revision);
     String graphQLData = graphqlSchema.getData()!=null ? graphqlSchema.getData() : "";
     graphQLBusiness.updateWithRevision(graphQLId,revision,graphQLData);
+    notificationBusiness.instantiateNotification(jsessionid, graphQL.getName(), graphQL.getCreatedBy(), "GraphQL", "GraphQL Schema Revision has been updated for "  );
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
@@ -65,8 +82,12 @@ public class GraphQLServiceImpl implements GraphQLService {
   @Override
   public ResponseEntity<?> deleteWithRevision(String interactionid, String jsessionid, String graphQLId,
       Integer revision) throws ItorixException {
+    GraphQL checkGraphQL = new GraphQL();
+    checkGraphQL.setGraphQLId(graphQLId);
+    GraphQL graphQL = graphQLBusiness.findGraphQL(checkGraphQL);
     logger.info("Deleting the GraphQL schema for Id-{} and revision-{}",graphQLId,revision);
     graphQLBusiness.deleteWithRevision(graphQLId,revision);
+    notificationBusiness.instantiateNotification(jsessionid, graphQL.getName(), graphQL.getCreatedBy(), "GraphQL", "GraphQL Schema has been deleted " );
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
@@ -75,18 +96,24 @@ public class GraphQLServiceImpl implements GraphQLService {
       GraphQLData graphqlSchema) throws ItorixException {
     GraphQL checkGraphQL = new GraphQL();
     checkGraphQL.setGraphQLId(graphQLId);
+    GraphQL graphQL = graphQLBusiness.findGraphQL(checkGraphQL);
     String graphQLData = graphqlSchema.getData()!=null ? graphqlSchema.getData() : "";
     checkGraphQL.setGraphQLSchema(graphQLData);
     logger.info("Creating a new revision for Id-{}",graphQLId);
     graphQLBusiness.createNewRevisionWithId(checkGraphQL);
+    notificationBusiness.instantiateNotification(jsessionid, graphQL.getName(), graphQL.getCreatedBy(), "GraphQL", "GraphQL new revision has been created for "  );
     return new ResponseEntity<>(HttpStatus.CREATED);
   }
 
   @Override
   public ResponseEntity<?> changeStatusWithRevision(String interactionid, String jsessionid, String graphQLId,
       Integer revision, StatusHistory statusHistory) throws ItorixException {
+    GraphQL checkGraphQL = new GraphQL();
+    checkGraphQL.setGraphQLId(graphQLId);
+    GraphQL graphQL = graphQLBusiness.findGraphQL(checkGraphQL);
     logger.info("Updating the status of the GraphQL Schema for Id-{} and revision-{}",graphQLId,revision);
     graphQLBusiness.changeStatusWithRevision(graphQLId,revision,statusHistory);
+    notificationBusiness.instantiateNotification(jsessionid, graphQL.getName(), graphQL.getCreatedBy(), "GraphQL", "GraphQL revision status has been updated "  );
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
@@ -100,8 +127,12 @@ public class GraphQLServiceImpl implements GraphQLService {
   @Override
   public ResponseEntity<?> deleteAllRevisionsWithId(String interactionid, String jsessionid, String graphQLId)
       throws ItorixException {
+    GraphQL checkGraphQL = new GraphQL();
+    checkGraphQL.setGraphQLId(graphQLId);
+    GraphQL graphQL = graphQLBusiness.findGraphQL(checkGraphQL);
     logger.info("Deleting all revision of the GraphQL Schema for Id-{}",graphQLId);
     graphQLBusiness.deleteAllRevisionsWithId(graphQLId);
+    notificationBusiness.instantiateNotification(jsessionid, graphQL.getName(), graphQL.getCreatedBy(), "GraphQL", "All GraphQL revisions deleted for "  );
     return ResponseEntity.noContent().build();
   }
 
