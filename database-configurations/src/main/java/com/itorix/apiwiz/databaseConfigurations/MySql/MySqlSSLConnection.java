@@ -10,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.FileOutputStream;
@@ -27,7 +28,8 @@ public class MySqlSSLConnection {
   @Autowired
   private ApplicationProperties applicationProperties;
 
-  private Path KEY_STORE_DIRECTORY_PATH;
+  @Value("${itorix.core.temp.directory}")
+  private String KEY_STORE_DIRECTORY_PATH;
 
   @Autowired
   PEMImporter pemImporter;
@@ -35,17 +37,16 @@ public class MySqlSSLConnection {
   public void buildProperties(Properties properties, MySqlSSL mySqlSsl) throws Exception {
 
     try {
-      KEY_STORE_DIRECTORY_PATH = Path.of(applicationProperties.getTempDir());
       // SSL Mode
       properties.put("sslMode", mySqlSsl.getSslMode());
       properties.put("useSSL", "true");
 
       if (SslAuthType.VERIFY_CA == mySqlSsl.getSslMode()
               || SslAuthType.VERIFY_IDENTITY == mySqlSsl.getSslMode() || SslAuthType.REQUIRED == mySqlSsl.getSslMode()) {
-        FileUtils.forceMkdir(KEY_STORE_DIRECTORY_PATH.toFile());
+        FileUtils.forceMkdir(Path.of(KEY_STORE_DIRECTORY_PATH).toFile());
 
-        Path keyStoreFilePath = KEY_STORE_DIRECTORY_PATH.resolve("KEY_STORE_FILE_NAME" + KEYSTORE_EXTENSION);
-        Path trustStoreFilePath = KEY_STORE_DIRECTORY_PATH.resolve("TRUST_STORE_FILE_NAME" + KEYSTORE_EXTENSION);
+        Path keyStoreFilePath = Path.of(KEY_STORE_DIRECTORY_PATH).resolve("KEY_STORE_FILE_NAME" + KEYSTORE_EXTENSION);
+        Path trustStoreFilePath = Path.of(KEY_STORE_DIRECTORY_PATH).resolve("TRUST_STORE_FILE_NAME" + KEYSTORE_EXTENSION);
 
         createKeyStoreFile(keyStoreFilePath, trustStoreFilePath, mySqlSsl);
 

@@ -7,10 +7,13 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
@@ -23,14 +26,15 @@ public class PostgreSqlSSLConnection {
 
   @Autowired
   private ApplicationProperties applicationProperties;
-  private static Path PATH;
+
+  @Value("${itorix.core.temp.directory}")
+  private String TEMP_PATH;
 
 
 
 
-  public void buildProperties(Properties properties, PostgreSQLSSL postgreSQLSsl)  {
+  public void buildProperties(Properties properties, PostgreSQLSSL postgreSQLSsl) throws IOException {
 
-    PATH = Path.of(applicationProperties.getTempDir()+"/");
     // SSL Mode
     if(postgreSQLSsl.getSslMode() != null) {
       properties.put("sslmode", postgreSQLSsl.getSslMode());
@@ -38,9 +42,12 @@ public class PostgreSqlSSLConnection {
     properties.put("useSSL", "true");
     long time = System.currentTimeMillis();
 
-    String clientCertPath = PATH+CLIENT_CERTIFICATE+"-"+time+".pem";
-    String clientKeyPath = PATH+ CLIENT_KEY+"-"+time+".pem";
-    String serverCaPath = PATH+SERVER_CA+"-"+time+".pem";
+    if(Files.notExists(Path.of(TEMP_PATH))){
+      Files.createDirectory(Path.of(TEMP_PATH));
+    }
+    String clientCertPath = TEMP_PATH+"/"+CLIENT_CERTIFICATE+"-"+time+".pem";
+    String clientKeyPath = TEMP_PATH+"/"+ CLIENT_KEY+"-"+time+".pem";
+    String serverCaPath = TEMP_PATH+"/"+SERVER_CA+"-"+time+".pem";
     try{
       FileUtils.writeStringToFile(new File(clientCertPath), postgreSQLSsl.getSslClientcert());
       FileUtils.writeStringToFile(new File(clientKeyPath), postgreSQLSsl.getSslClientcertkey());
@@ -50,7 +57,7 @@ public class PostgreSqlSSLConnection {
       throw new RuntimeException(ex);
     }
 
-    String clinetKeyDER = PATH+"/client-key-"+time+".der";
+    String clinetKeyDER = TEMP_PATH+"/client-key-"+time+".der";
     try{
       ProcessBuilder processBuilder = new ProcessBuilder();
       processBuilder.command("openssl", "pkcs8", "-topk8", "-inform", "PEM",
