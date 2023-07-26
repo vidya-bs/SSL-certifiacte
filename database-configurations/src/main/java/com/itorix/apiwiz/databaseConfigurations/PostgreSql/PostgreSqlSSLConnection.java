@@ -65,7 +65,6 @@ public class PostgreSqlSSLConnection {
       Process process = processBuilder.start();
       String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
       logger.debug("Process builder output - ", output);
-      Thread.sleep(1000);
     } catch (Exception ex){
       logger.error("Exception Occurred - ", ex);
       throw new RuntimeException(ex);
