@@ -25,9 +25,6 @@ public class MySqlSSLConnection {
 
   private static final Logger logger = LoggerFactory.getLogger(MySqlSSLConnection.class);
 
-  @Autowired
-  private ApplicationProperties applicationProperties;
-
   @Value("${itorix.core.temp.directory}")
   private String KEY_STORE_DIRECTORY_PATH;
 

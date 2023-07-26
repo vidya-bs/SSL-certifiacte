@@ -29,9 +29,6 @@ public class PostgreSqlSSLConnection {
 
     private static final Logger logger = LoggerFactory.getLogger(PostgreSqlSSLConnection.class);
 
-    @Autowired
-    private ApplicationProperties applicationProperties;
-
     @Value("${itorix.core.temp.directory}")
     private String TEMP_PATH;
 
