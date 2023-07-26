@@ -5,16 +5,17 @@ import com.sshtools.common.publickey.SshKeyUtils;
 import com.sshtools.common.publickey.bc.OpenSSHPrivateKeyFileBC;
 import com.sshtools.common.ssh.components.SshKeyPair;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMException;
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
-import java.security.KeyFactory;
-import java.security.KeyStore;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -114,5 +115,14 @@ public class PEMImporter {
       logger.error("Exception occurred while converting openssh to rsa key format - ", ex);
       throw ex;
     }
+    }
+
+    public void convertPEMToDER(String input, String output){
+      try (FileOutputStream outputStream = new FileOutputStream(output)) {
+           byte[] privateKey = createPrivateKey(input).getEncoded();
+        outputStream.write(privateKey, 0, privateKey.length);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     }
 }
