@@ -13,7 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
 import java.util.Properties;
@@ -30,6 +33,17 @@ public class MySqlSSLConnection {
 
   @Autowired
   PEMImporter pemImporter;
+
+  @PostConstruct
+  public void createTempDirectory(){
+    if (Files.notExists(Path.of(KEY_STORE_DIRECTORY_PATH))) {
+      try {
+        Files.createDirectories(Path.of(KEY_STORE_DIRECTORY_PATH));
+      } catch (IOException e) {
+        logger.error("Exception occurred ", e);
+      }
+    }
+  }
 
   public void buildProperties(Properties properties, MySqlSSL mySqlSsl) throws Exception {
 
@@ -63,7 +77,6 @@ public class MySqlSSLConnection {
     String clientKey = mySqlSsl.getSslKeyfile();
     String clientCertificate = mySqlSsl.getSslCertfile();
     String serverCA = mySqlSsl.getSslCafile();
-
 
     KeyStore keyStore = pemImporter.createKeyStore(clientKey, clientCertificate);
     try (FileOutputStream fos = new FileOutputStream(keyStoreFilePath.toFile())) {

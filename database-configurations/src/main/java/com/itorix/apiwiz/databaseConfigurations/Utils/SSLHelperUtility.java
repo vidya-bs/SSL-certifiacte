@@ -7,12 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.net.ssl.*;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -34,7 +37,16 @@ public class SSLHelperUtility {
     private String KEY_STORE_DIRECTORY_PATH;
 
 
-
+    @PostConstruct
+    public void createTempDirectory(){
+        if (Files.notExists(Path.of(KEY_STORE_DIRECTORY_PATH))) {
+            try {
+                Files.createDirectories(Path.of(KEY_STORE_DIRECTORY_PATH));
+            } catch (IOException e) {
+                log.error("Exception occurred ", e);
+            }
+        }
+    }
     public SSLContext CreateKeystoreAndGetSSLContext(String caCert, String clientCert, String clientKey) throws Exception {
         KeyStore keyStore = createKeyStoreFromCerts(caCert, clientCert, clientKey);
         return getSSLContext(keyStore, caCert == null);
@@ -129,7 +141,6 @@ public class SSLHelperUtility {
     }
 
     public File getKeystoreFile() {
-
         return new File(KEY_STORE_DIRECTORY_PATH + "/keystore-" + System.currentTimeMillis() + KEYSTORE_EXTENSION);
     }
 }

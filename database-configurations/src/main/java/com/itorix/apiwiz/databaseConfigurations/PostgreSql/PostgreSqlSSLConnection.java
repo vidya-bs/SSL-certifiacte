@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -35,6 +36,17 @@ public class PostgreSqlSSLConnection {
     @Autowired
     PEMImporter pemImporter;
 
+    @PostConstruct
+    public void createTempDirectory(){
+        if (Files.notExists(Path.of(TEMP_PATH))) {
+            try {
+                Files.createDirectories(Path.of(TEMP_PATH));
+            } catch (IOException e) {
+                logger.error("Exception occurred ", e);
+            }
+        }
+    }
+
 
     public void buildProperties(Properties properties, PostgreSQLSSL postgreSQLSsl) throws IOException, ItorixException {
 
@@ -45,9 +57,6 @@ public class PostgreSqlSSLConnection {
         properties.put("useSSL", "true");
         long time = System.currentTimeMillis();
 
-        if (Files.notExists(Path.of(TEMP_PATH))) {
-            Files.createDirectories(Path.of(TEMP_PATH));
-        }
         String clientCertPath = TEMP_PATH + "/" + CLIENT_CERTIFICATE + "-" + time + ".pem";
         String clientKeyPath = TEMP_PATH + "/" + CLIENT_KEY + "-" + time + ".pem";
         String serverCaPath = TEMP_PATH + "/" + SERVER_CA + "-" + time + ".pem";
