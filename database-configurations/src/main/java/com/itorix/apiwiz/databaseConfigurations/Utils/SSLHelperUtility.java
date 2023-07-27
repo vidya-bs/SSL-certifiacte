@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.databaseConfigurations.Utils;
 
+import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,6 @@ import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,19 +47,19 @@ public class SSLHelperUtility {
             }
         }
     }
-    public SSLContext CreateKeystoreAndGetSSLContext(String caCert, String clientCert, String clientKey) throws Exception {
-        KeyStore keyStore = createKeyStoreFromCerts(caCert, clientCert, clientKey);
+    public SSLContext CreateKeystoreAndGetSSLContext(String caCert, String clientCert, String clientKey, ClientConnection clientConnection) throws Exception {
+        KeyStore keyStore = createKeyStoreFromCerts(caCert, clientCert, clientKey, clientConnection);
         return getSSLContext(keyStore, caCert == null);
     }
 
-    public KeyStore createKeyStoreFromCerts(String caCert, String clientCert, String clientKey) throws Exception {
+    public KeyStore createKeyStoreFromCerts(String caCert, String clientCert, String clientKey, ClientConnection clientConnection) throws Exception {
         byte[] caCertData = readCertificates(caCert);
         byte[] clientCertData = readCertificates(clientCert);
         byte[] clientKeyData = readCertificates(clientKey);
 
         KeyStore keyStore = null;
         if (caCertData != null || clientCertData != null) {
-            keyStore = createKeyStore(caCertData, clientCertData, clientKeyData);
+            keyStore = createKeyStore(caCertData, clientCertData, clientKeyData, clientConnection);
         } else {
             log.error("Exception Occurred while establishing mongodb SSL connection Ca cert cannot be null");
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"MongoDb, ca cert cannot be null"), "DatabaseConfiguration-1002");
@@ -100,7 +100,7 @@ public class SSLHelperUtility {
         return null;
     }
 
-    public KeyStore createKeyStore(byte[] caCertData, byte[] clientCertData, byte[] clientKeyData) throws Exception {
+    public KeyStore createKeyStore(byte[] caCertData, byte[] clientCertData, byte[] clientKeyData, ClientConnection clientConnection) throws Exception {
         KeyStore keyStore = createKeyStore();
         try {
             CertificateFactory clientFactory = CertificateFactory.getInstance("X.509");
@@ -119,7 +119,7 @@ public class SSLHelperUtility {
                 keyStore.setKeyEntry(CLIENT_KEY, privateKey, DEFAULT_PASSWORD, certificates.toArray(new Certificate[certificates.size()]));
             }
 
-            return persistKeystore(keyStore);
+            return persistKeystore(keyStore, clientConnection);
         } catch (Exception e) {
             throw e;
         }
@@ -132,11 +132,14 @@ public class SSLHelperUtility {
         return keyStore;
     }
 
-    private KeyStore persistKeystore(KeyStore keyStore) throws Exception {
+    private KeyStore persistKeystore(KeyStore keyStore, ClientConnection clientConnection) throws Exception {
         File keyStoreFile = getKeystoreFile();
         try (FileOutputStream fos = new FileOutputStream(keyStoreFile)) {
             keyStore.store(fos, DEFAULT_PASSWORD);
         }
+        List<String> certFiles = new ArrayList<>();
+        certFiles.add(keyStoreFile.getAbsolutePath());
+        clientConnection.setFilesToDelete(certFiles);
         return keyStore;
     }
 

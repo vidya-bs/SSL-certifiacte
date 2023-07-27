@@ -1,10 +1,10 @@
 package com.itorix.apiwiz.databaseConfigurations.MySql;
 
+import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
 import com.itorix.apiwiz.common.model.databaseconfigs.mysql.MySqlSSL;
 import com.itorix.apiwiz.common.model.databaseconfigs.mysql.SslAuthType;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.databaseConfigurations.Utils.PEMImporter;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import static com.itorix.apiwiz.databaseConfigurations.Utils.ConnectStaicFileds.*;
@@ -45,7 +47,7 @@ public class MySqlSSLConnection {
     }
   }
 
-  public void buildProperties(Properties properties, MySqlSSL mySqlSsl) throws Exception {
+  public void buildProperties(Properties properties, MySqlSSL mySqlSsl, ClientConnection mysqlConnection) throws Exception {
 
     try {
       // SSL Mode
@@ -60,6 +62,11 @@ public class MySqlSSLConnection {
         Path trustStoreFilePath = Path.of(KEY_STORE_DIRECTORY_PATH).resolve("TRUST_STORE_FILE_NAME" + KEYSTORE_EXTENSION);
 
         createKeyStoreFile(keyStoreFilePath, trustStoreFilePath, mySqlSsl);
+
+        List<String> certFiles = new ArrayList<>();
+        certFiles.add(keyStoreFilePath.toUri().toURL().toString());
+        certFiles.add(trustStoreFilePath.toUri().toURL().toString());
+        mysqlConnection.setFilesToDelete(certFiles);
 
         properties.put("clientCertificateKeyStoreUrl", keyStoreFilePath.toUri().toURL().toString());
         properties.put("trustCertificateKeyStoreUrl", trustStoreFilePath.toUri().toURL().toString());

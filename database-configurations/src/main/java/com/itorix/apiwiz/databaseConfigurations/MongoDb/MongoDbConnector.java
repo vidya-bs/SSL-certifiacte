@@ -113,9 +113,9 @@ public class MongoDbConnector {
             String clientKey = mongoDBConfiguration.getSsl().getClientKey();
             String clientCert = mongoDBConfiguration.getSsl().getClientCertificate();
 
-            SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(caCert,clientCert, clientKey);
-
             ClientConnection clientConnection = new ClientConnection();
+            SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(caCert,clientCert, clientKey, clientConnection);
+
             if(mongoDBConfiguration.getSsh() != null){
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }

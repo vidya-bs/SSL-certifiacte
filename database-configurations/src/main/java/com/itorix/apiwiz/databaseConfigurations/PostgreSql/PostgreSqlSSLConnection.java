@@ -1,12 +1,11 @@
 package com.itorix.apiwiz.databaseConfigurations.PostgreSql;
 
+import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
 import com.itorix.apiwiz.common.model.databaseconfigs.postgress.PostgreSQLSSL;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.databaseConfigurations.Utils.PEMImporter;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +15,10 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.PrivateKey;
-import java.util.Base64;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import static com.itorix.apiwiz.databaseConfigurations.Utils.ConnectStaicFileds.*;
@@ -48,7 +46,7 @@ public class PostgreSqlSSLConnection {
     }
 
 
-    public void buildProperties(Properties properties, PostgreSQLSSL postgreSQLSsl) throws IOException, ItorixException {
+    public void buildProperties(Properties properties, PostgreSQLSSL postgreSQLSsl, ClientConnection postgresConnection) throws IOException, ItorixException {
 
         // SSL Mode
         if (postgreSQLSsl.getSslMode() != null) {
@@ -76,6 +74,13 @@ public class PostgreSqlSSLConnection {
             logger.error("Exception Occurred while converting pem to der format - ", ex);
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "PostgreSql"), "DatabaseConfiguration-1002");
         }
+
+        List<String> certFiles = new ArrayList<>();
+        certFiles.add(clientCertPath);
+        certFiles.add(clientKeyPath);
+        certFiles.add(serverCaPath);
+        certFiles.add(clinetKeyDER);
+        postgresConnection.setFilesToDelete(certFiles);
 
         properties.put(POSTGRES_SSLCERT, clientCertPath);
         properties.put(POSTGRES_SSLKEY, clinetKeyDER);

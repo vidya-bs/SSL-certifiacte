@@ -58,7 +58,7 @@ public class PostgreSqlConnector {
                 sshconnection.prepareSshTunnel(postgreSQLConfiguration,postgresConnection );
             }
             if(postgreSQLConfiguration.getSsl() != null){
-                sslConnection.buildProperties(properties, postgreSQLConfiguration.getSsl());
+                sslConnection.buildProperties(properties, postgreSQLConfiguration.getSsl(), postgresConnection);
             }
             String hostUrl =String.format("jdbc:postgresql://%s:%s/%s", postgresConnection.getHost(), postgresConnection.getPort(), databaseName);
             logger.info("postgresql connection url - {}", hostUrl);
@@ -102,7 +102,7 @@ public class PostgreSqlConnector {
                 sshconnection.prepareSshTunnel(postgreSQLConfiguration,postgresConnection);
             }
             if(postgreSQLConfiguration.getSsl() != null){
-                sslConnection.buildProperties(properties, postgreSQLConfiguration.getSsl());
+                sslConnection.buildProperties(properties, postgreSQLConfiguration.getSsl(), postgresConnection);
             }
             String hostUrl =String.format("jdbc:postgresql://%s:%s/%s", postgresConnection.getHost(), postgresConnection.getPort(), databaseName);
             logger.info("postgresql connection url - {}", hostUrl);
