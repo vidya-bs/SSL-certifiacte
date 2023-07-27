@@ -28,13 +28,17 @@ public class ClientConnection implements AutoCloseable {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        try {
-            for (String file : this.FilesToDelete){
-                FileUtils.forceDelete( new File(file));
+
+        if (this.FilesToDelete != null) {
+            for (String file : this.FilesToDelete) {
+                try {
+                    FileUtils.forceDelete(new File(file));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+
     }
 
 }
