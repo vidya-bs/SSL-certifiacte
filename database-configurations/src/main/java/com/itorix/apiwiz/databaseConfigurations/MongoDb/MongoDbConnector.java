@@ -56,10 +56,10 @@ public class MongoDbConnector {
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Connection url is mandatory parameter but missing"), "DatabaseConfiguration-1000");
         }
         try {
-            if(mongoDBConfiguration.getSsh() != null){
-                return getSSHConnection(mongoDBConfiguration);
-            }
             ClientConnection clientConnection = new ClientConnection();
+            if(mongoDBConfiguration.getSsh() != null){
+                url = getSSHConnection(mongoDBConfiguration, clientConnection);
+            }
             clientConnection.setHost(mongoDBConfiguration.getHost());
             clientConnection.setMongoClient(createMongoClient(url));
             return clientConnection;
@@ -80,10 +80,10 @@ public class MongoDbConnector {
                 logger.error("Invalid mongoDb url - {}", url);
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Connection url is mandatory parameter but missing"), "DatabaseConfiguration-1000");
             }
-            if(mongoDBConfiguration.getSsh() != null){
-                return getSSHConnection(mongoDBConfiguration);
-            }
             ClientConnection clientConnection = new ClientConnection();
+            if(mongoDBConfiguration.getSsh() != null){
+                url = getSSHConnection(mongoDBConfiguration, clientConnection);
+            }
             clientConnection.setHost(mongoDBConfiguration.getHost());
             clientConnection.setMongoClient(createMongoClient(url));
             return clientConnection;
@@ -115,15 +115,15 @@ public class MongoDbConnector {
 
             SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(caCert,clientCert, clientKey);
 
+            ClientConnection clientConnection = new ClientConnection();
             if(mongoDBConfiguration.getSsh() != null){
-                return getSSHConnection(mongoDBConfiguration);
+                url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
 
             MongoClientSettings settings = MongoClientSettings.builder()
                     .applyConnectionString(new ConnectionString(url))
                     .applyToSslSettings(builder -> builder.context(sslContext))
                     .build();
-            ClientConnection clientConnection = new ClientConnection();
             clientConnection.setHost(mongoDBConfiguration.getHost());
             clientConnection.setMongoClient(createMongoClient(settings));
             return clientConnection;
@@ -135,7 +135,7 @@ public class MongoDbConnector {
         }
     }
 
-    public ClientConnection getSSHConnection(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
+    public String getSSHConnection(MongoDBConfiguration mongoDBConfiguration, ClientConnection clientConnection) throws ItorixException {
         try {
             String url = mongoDBConfiguration.getUrl();
             MongoSSH mongoSSH = mongoDBConfiguration.getSsh();
@@ -143,12 +143,10 @@ public class MongoDbConnector {
 //                return mongoSOCKS5Connector.connect(mongoDBConfiguration);
 //            }
             //ssh connections
-            ClientConnection clientConnection = new ClientConnection();
             sshConnection.prepareSshTunnel(mongoDBConfiguration, clientConnection);
             String[] hosts = getHostAndPort(url);
             url = url.replace(hosts[0], clientConnection.getHost()).replace(hosts[1], String.valueOf(clientConnection.getPort()));
-            clientConnection.setMongoClient(createMongoClient(url));
-            return clientConnection;
+            return url;
         } catch (ItorixException ex){
             throw ex;
         } catch (Exception ex){
@@ -172,10 +170,10 @@ public class MongoDbConnector {
 
         String url = mongoDBConfiguration.getUrl();
         try{
-            if(mongoDBConfiguration.getSsh() != null){
-                return getSSHConnection(mongoDBConfiguration);
-            }
             ClientConnection clientConnection = new ClientConnection();
+            if(mongoDBConfiguration.getSsh() != null){
+                url = getSSHConnection(mongoDBConfiguration, clientConnection);
+            }
             clientConnection.setHost(mongoDBConfiguration.getHost());
             clientConnection.setMongoClient(createMongoClient(url));
             return clientConnection;
