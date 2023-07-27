@@ -96,7 +96,7 @@ public class EstablishConnectionImpl implements EstablishConnection {
         if(mongoDbAuthType == MongoDbAuthType.userNamePassword){
             clientConnection = mongoDbConnector.getConnectionByUsernamePassword(mongoDBConfiguration);
         } else if(mongoDbAuthType == MongoDbAuthType.x509){
-            clientConnection = mongoDbConnector.getSSLConnection(mongoDBConfiguration);
+            clientConnection = mongoDbConnector.getX509Connection(mongoDBConfiguration);
         } else if(mongoDbAuthType == MongoDbAuthType.ldap){
             clientConnection = mongoDbConnector.getLdapConnection(mongoDBConfiguration);
         } else if(mongoDbAuthType == MongoDbAuthType.kerberos){

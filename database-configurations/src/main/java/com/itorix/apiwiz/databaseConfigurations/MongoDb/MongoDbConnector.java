@@ -84,6 +84,19 @@ public class MongoDbConnector {
             if(mongoDBConfiguration.getSsh() != null){
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
+            if(mongoDBConfiguration.getSsl() != null){
+                String caCert = mongoDBConfiguration.getSsl().getCertificateAuthority();
+                String clientKey = mongoDBConfiguration.getSsl().getClientKey();
+                String clientCert = mongoDBConfiguration.getSsl().getClientCertificate();
+                SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(caCert,clientCert, clientKey, clientConnection);
+                MongoClientSettings settings = MongoClientSettings.builder()
+                        .applyConnectionString(new ConnectionString(url))
+                        .applyToSslSettings(builder -> builder.context(sslContext))
+                        .build();
+                clientConnection.setHost(mongoDBConfiguration.getHost());
+                clientConnection.setMongoClient(createMongoClient(settings));
+                return clientConnection;
+            }
             clientConnection.setHost(mongoDBConfiguration.getHost());
             clientConnection.setMongoClient(createMongoClient(url));
             return clientConnection;
@@ -96,7 +109,7 @@ public class MongoDbConnector {
         }
     }
 
-    public ClientConnection getSSLConnection(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
+    public ClientConnection getX509Connection(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
         if(mongoDBConfiguration.getAuthentication() == null){
             logger.error("Invalid mongodb Authentication - {}", mongoDBConfiguration.getAuthentication());
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"MongoDbAuthentication is mandatory parameter but missing"), "DatabaseConfiguration-1000");
@@ -173,6 +186,19 @@ public class MongoDbConnector {
             ClientConnection clientConnection = new ClientConnection();
             if(mongoDBConfiguration.getSsh() != null){
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
+            }
+            if(mongoDBConfiguration.getSsl() != null){
+                String caCert = mongoDBConfiguration.getSsl().getCertificateAuthority();
+                String clientKey = mongoDBConfiguration.getSsl().getClientKey();
+                String clientCert = mongoDBConfiguration.getSsl().getClientCertificate();
+                SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(caCert,clientCert, clientKey, clientConnection);
+                MongoClientSettings settings = MongoClientSettings.builder()
+                        .applyConnectionString(new ConnectionString(url))
+                        .applyToSslSettings(builder -> builder.context(sslContext))
+                        .build();
+                clientConnection.setHost(mongoDBConfiguration.getHost());
+                clientConnection.setMongoClient(createMongoClient(settings));
+                return clientConnection;
             }
             clientConnection.setHost(mongoDBConfiguration.getHost());
             clientConnection.setMongoClient(createMongoClient(url));
