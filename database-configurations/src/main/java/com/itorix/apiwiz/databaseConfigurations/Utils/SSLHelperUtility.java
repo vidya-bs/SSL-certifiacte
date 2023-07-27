@@ -1,5 +1,8 @@
 package com.itorix.apiwiz.databaseConfigurations.Utils;
 
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -21,6 +24,7 @@ import java.util.List;
 import static com.itorix.apiwiz.databaseConfigurations.Utils.ConnectStaicFileds.*;
 
 @Component
+@Slf4j
 public class SSLHelperUtility {
 
     @Autowired
@@ -45,7 +49,8 @@ public class SSLHelperUtility {
         if (caCertData != null || clientCertData != null) {
             keyStore = createKeyStore(caCertData, clientCertData, clientKeyData);
         } else {
-            throw new Exception();
+            log.error("Exception Occurred while establishing mongodb SSL connection Ca cert cannot be null");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"MongoDb, ca cert cannot be null"), "DatabaseConfiguration-1002");
         }
         return keyStore;
     }
