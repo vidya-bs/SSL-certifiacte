@@ -645,7 +645,7 @@ public class DevportalServiceImpl implements DevportalService {
 	}
 
 	@Override
-	public ResponseEntity<?> getGatewayApps(String jsessionId, String interactionid, String type, String gateway, String env, String workspace) throws Exception {
+	public ResponseEntity<?> getGatewayApps(String jsessionId, String interactionid, String type, String gateway, String env, String workspace, String resourceGroup) throws Exception {
 		Object object;
 		if (gateway.equalsIgnoreCase(StaticFields.APIGEE)) {
 			//call Apigee With The Env
@@ -658,7 +658,7 @@ public class DevportalServiceImpl implements DevportalService {
 			object = getConsumersFromKong(env,workspace);
 		}else if (gateway.equalsIgnoreCase(StaticFields.AZURE)) {
 			//call Azure With The Env
-			object = getProductsFromAzure(env);
+			object = getAppsFromAzure(env,resourceGroup);
 		}else{
 			throw  new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"),"Portal-1001");
 		}
@@ -789,7 +789,7 @@ public class DevportalServiceImpl implements DevportalService {
 		}
 		return appResponseList;
 	}
-	public Object getConsumersFromKong(String runtime,String workspace) {
+	public Object getConsumersFromKong(String runtime,String workspace) throws ItorixException {
 		try {
 			KongRuntime kongRuntime = devportaldao.getKongRuntime(runtime);
 			String url;
@@ -817,19 +817,24 @@ public class DevportalServiceImpl implements DevportalService {
 					requestEntity, ConsumerResponse.class);
 			return consumers.getBody().getData();
 		} catch (Exception e) {
-			throw e;
+			throw  new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"),"Portal-1001");
 		}
 	}
-	public Object getProductsFromAzure(String serviceName) throws ItorixException {
-		AzureConfigurationVO connector = devportaldao.getAzureConnector(serviceName);
-		String url = String.format("https://%s/subscriptions/%s/resourceGroups/%s/providers/Microsoft.ApiManagement/service/%s/%s?api-version=%s", connector.getManagementHost(), connector.getSubscriptionId(), connector.getResourceGroup(), connector.getServiceName(), "products", connector.getApiVersion());
+	public List<AzureProductResponseDTO> getAppsFromAzure(String serviceName,String resourceGroup) throws ItorixException {
+		AzureConfigurationVO connector = devportaldao.getAzureConnector(serviceName,resourceGroup);
+		String url = String.format(StaticFields.AZURE_SUBSCRIPTIONS_URL, connector.getManagementHost(), connector.getSubscriptionId(), connector.getResourceGroup(), connector.getServiceName(), connector.getApiVersion());
 		try {
-			ResponseEntity<AzureProductResponse> azureProductResponse = restTemplate.exchange(url, HttpMethod.GET, requestEntity(null, connector.getSharedAccessToken()), AzureProductResponse.class);
-			List<AzureProductValues> response = azureProductResponse.getBody().getValue();
 			List<AzureProductResponseDTO> azureProductResponseDTOS = new ArrayList<>();
-			for (AzureProductValues azureProductValues : response) {
-				azureProductResponseDTOS.add(new AzureProductResponseDTO(azureProductValues.getName(), azureProductValues.getProperties().getDisplayName()));
-			}
+			ResponseEntity<AzureProductResponse> azureProductResponse = restTemplate.exchange(url, HttpMethod.GET, requestEntity(null, connector.getSharedAccessToken()), AzureProductResponse.class);
+				List<AzureProductValues> response = azureProductResponse.getBody().getValue();
+				for (AzureProductValues azureProductValues : response) {
+					String[] scopeArray = azureProductValues.getProperties().getScope().split("/");
+					if (scopeArray[scopeArray.length-2].equalsIgnoreCase("products")) {
+						String name = azureProductValues.getName();
+						String displayName=azureProductValues.getProperties().getDisplayName();
+						azureProductResponseDTOS.add(new AzureProductResponseDTO(name,displayName!=null?displayName:name));
+					}
+				}
 			return azureProductResponseDTOS;
 		} catch (Exception e) {
 			throw  new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"),"Portal-1001");
@@ -859,7 +864,7 @@ public class DevportalServiceImpl implements DevportalService {
 				url = String.format("%s/workspaces/", kongHost);
 				headers.set("Kong-Admin-Token", kongRuntime.getKongAdminToken());
 			}else{//saas
-				url = String.format("%s/konnect-api/api/runtime_groups", kongHost,runtime);
+				url = String.format("%s/konnect-api/api/runtime_groups", kongHost);
 				headers.set("Authorization", kongRuntime.getKongAdminToken());
 			}
 
@@ -873,7 +878,7 @@ public class DevportalServiceImpl implements DevportalService {
 		}
 	}
 
-	public Set<String> getResourceGroupsFromAzure() throws ItorixException {
+	public Set<String> getResourceGroupsFromAzure() {
 		List<AzureConfigurationVO> connectors = devportaldao.getAllAzureConnectors();
 		return connectors.stream()
 				.map(AzureConfigurationVO::getResourceGroup)
