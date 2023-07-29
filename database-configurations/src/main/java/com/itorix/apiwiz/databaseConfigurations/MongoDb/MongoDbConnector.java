@@ -44,7 +44,7 @@ public class MongoDbConnector {
     @Autowired
     private MongoKerberosConnector mongoKerberosConnector;
 
-    public ClientConnection getConnection(MongoDBConfiguration mongoDBConfiguration)
+    public ClientConnection getConnectionByAwsIamAuth(MongoDBConfiguration mongoDBConfiguration)
         throws ItorixException {
         if(mongoDBConfiguration.getAuthentication() == null){
             logger.error("Invalid mongodb Authentication - {}", mongoDBConfiguration.getAuthentication());
@@ -59,6 +59,19 @@ public class MongoDbConnector {
             ClientConnection clientConnection = new ClientConnection();
             if(mongoDBConfiguration.getSsh() != null){
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
+            }
+            if(mongoDBConfiguration.getSsl() != null){
+                String caCert = mongoDBConfiguration.getSsl().getCertificateAuthority();
+                String clientKey = mongoDBConfiguration.getSsl().getClientKey();
+                String clientCert = mongoDBConfiguration.getSsl().getClientCertificate();
+                SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(caCert,clientCert, clientKey, clientConnection);
+                MongoClientSettings settings = MongoClientSettings.builder()
+                        .applyConnectionString(new ConnectionString(url))
+                        .applyToSslSettings(builder -> builder.context(sslContext))
+                        .build();
+                clientConnection.setHost(mongoDBConfiguration.getHost());
+                clientConnection.setMongoClient(createMongoClient(settings));
+                return clientConnection;
             }
             clientConnection.setHost(mongoDBConfiguration.getHost());
             clientConnection.setMongoClient(createMongoClient(url));

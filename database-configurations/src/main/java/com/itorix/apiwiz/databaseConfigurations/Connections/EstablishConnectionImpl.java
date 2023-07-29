@@ -102,7 +102,7 @@ public class EstablishConnectionImpl implements EstablishConnection {
         } else if(mongoDbAuthType == MongoDbAuthType.kerberos){
             clientConnection = mongoDbConnector.getKerberosConnection(mongoDBConfiguration);
         } else if(mongoDbAuthType == MongoDbAuthType.awsIAM){
-            clientConnection = mongoDbConnector.getConnection(mongoDBConfiguration);
+            clientConnection = mongoDbConnector.getConnectionByAwsIamAuth(mongoDBConfiguration);
         } else {
             logger.error("Invalid Database configuration Type - {}", mongoDbAuthType.getValue());
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Invalid mongodb auth type"), "DatabaseConfiguration-1000");
