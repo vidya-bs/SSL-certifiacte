@@ -68,8 +68,11 @@ public class PostgreSqlSSLConnection {
         }
 
         String clinetKeyDER = TEMP_PATH + "/" + CLIENT_KEY + "-" + time + ".der";
+        String clientKeyPassword = postgreSQLSsl.getSslClientcertkeyPassWord();
         try {
-            pemImporter.convertPEMToDER(postgreSQLSsl.getSslClientcertkey(), clinetKeyDER);
+            pemImporter.convertPEMToDER(postgreSQLSsl.getSslClientcertkey(), clinetKeyDER, clientKeyPassword);
+        }  catch (ItorixException ex){
+            throw ex;
         } catch (Exception ex) {
             logger.error("Exception Occurred while converting pem to der format - ", ex);
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "PostgreSql"), "DatabaseConfiguration-1002");

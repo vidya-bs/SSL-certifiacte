@@ -9,18 +9,19 @@ public class PostgreSQLSSL {
   private String sslClientcert;
   private String sslClientcertkey;
   private String sslRootcert;
+  private String sslClientcertkeyPassWord;
   private String certRevocationlist;
 
   public PostgreSQLSSL() {
   }
 
-  public PostgreSQLSSL(SslAuthType ssl_mode, String ssl_clientcert, String ssl_clientcertkey,
-                       String ssl_rootcert, String cert_revocationlist) {
-    this.sslMode = ssl_mode;
-    this.sslClientcert = ssl_clientcert;
-    this.sslClientcertkey = ssl_clientcertkey;
-    this.sslRootcert = ssl_rootcert;
-    this.certRevocationlist = cert_revocationlist;
+  public PostgreSQLSSL(SslAuthType sslMode, String sslClientcert, String sslClientcertkey, String sslRootcert, String sslClientcertkeyPassWord, String certRevocationlist) {
+    this.sslMode = sslMode;
+    this.sslClientcert = sslClientcert;
+    this.sslClientcertkey = sslClientcertkey;
+    this.sslRootcert = sslRootcert;
+    this.sslClientcertkeyPassWord = sslClientcertkeyPassWord;
+    this.certRevocationlist = certRevocationlist;
   }
 
   public SslAuthType getSslMode() {
@@ -61,5 +62,13 @@ public class PostgreSQLSSL {
 
   public void setCertRevocationlist(String certRevocationlist) {
     this.certRevocationlist = certRevocationlist;
+  }
+
+  public String getSslClientcertkeyPassWord() {
+    return sslClientcertkeyPassWord;
+  }
+
+  public void setSslClientcertkeyPassWord(String sslClientcertkeyPassWord) {
+    this.sslClientcertkeyPassWord = sslClientcertkeyPassWord;
   }
 }
