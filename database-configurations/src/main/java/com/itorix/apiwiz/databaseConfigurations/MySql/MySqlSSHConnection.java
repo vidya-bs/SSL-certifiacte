@@ -57,7 +57,7 @@ public class MySqlSSHConnection {
       // key file byte data and passphrase
       String ssh = mySqlSSH.getSshKeyfile();
       if(ssh == null){
-        throw new Exception();
+        throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"ssh identityFile is required!"), "DatabaseConfiguration-1000");
       }
       if(ssh.startsWith(BEGIN_OPENSSH_PRIVATE_KEY)) {
         ssh = pemImporter.convertOpenSSHtoRSA(ssh);

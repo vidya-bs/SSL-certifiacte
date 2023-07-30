@@ -1,14 +1,30 @@
 package com.itorix.apiwiz.databaseConfigurations.Utils;
 
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.sshtools.common.publickey.InvalidPassphraseException;
 import com.sshtools.common.publickey.SshKeyUtils;
 import com.sshtools.common.publickey.bc.OpenSSHPrivateKeyFileBC;
 import com.sshtools.common.ssh.components.SshKeyPair;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMEncryptedKeyPair;
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.bc.BcPEMDecryptorProvider;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.operator.InputDecryptorProvider;
+import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
+import org.bouncycastle.pkcs.PKCSException;
+import org.bouncycastle.pkcs.jcajce.JcePKCSPBEInputDecryptorProviderBuilder;
+import org.bouncycastle.util.io.pem.PemReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.EncryptedPrivateKeyInfo;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.security.*;
@@ -36,7 +52,7 @@ public class PEMImporter {
     final KeyStore keystore = KeyStore.getInstance("JKS");
     keystore.load(null);
     // Import private key
-    final PrivateKey key = createPrivateKey(privateKeyPem);
+    final PrivateKey key = createPrivateKey(privateKeyPem, null);
     keystore.setKeyEntry("cert", key, DEFAULT_PASSWORD, cert);
     return keystore;
   }
@@ -52,14 +68,19 @@ public class PEMImporter {
     return trustStore;
   }
 
-  public PrivateKey createPrivateKey(String privateKeyPem) throws Exception {
-    if (privateKeyPem != null && !privateKeyPem.contains(BEGIN_PRIVATE_KEY)) {
+  public PrivateKey createPrivateKey(String privateKeyPem, String clientKeyPassword) throws Exception {
+    if (privateKeyPem != null && privateKeyPem.contains(BEGIN_RSA_PRIVATE_KEY)) {
       PrivateKey privateKey = convertPKCS1ToPKCS8(privateKeyPem);
       return privateKey;
     }
     privateKeyPem = privateKeyPem.replace(BEGIN_PRIVATE_KEY, "")
-            .replace(END_PRIVATE_KEY, "");
+            .replace(END_PRIVATE_KEY, "")
+            .replace(BEGIN_ENCRYPTED_PRIVATE_KEY, "")
+            .replace(END_ENCRYPTED_PRIVATE_KEY, "");
     final byte[] bytes = DatatypeConverter.parseBase64Binary(privateKeyPem);
+    if(clientKeyPassword != null){
+      return generatePrivateKeyFromDER(bytes, clientKeyPassword.toCharArray());
+    }
     return generatePrivateKeyFromDER(bytes);
   }
 
@@ -80,6 +101,16 @@ public class PEMImporter {
     final PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
     final KeyFactory factory = KeyFactory.getInstance("RSA");
     return (RSAPrivateKey) factory.generatePrivate(spec);
+  }
+
+  private RSAPrivateKey generatePrivateKeyFromDER(byte[] keyBytes, char[] password) throws InvalidKeySpecException, NoSuchAlgorithmException, IOException, InvalidKeyException {
+    PBEKeySpec pbeSpec = new PBEKeySpec(password);
+    EncryptedPrivateKeyInfo pkinfo = new EncryptedPrivateKeyInfo(keyBytes);
+    SecretKeyFactory skf = SecretKeyFactory.getInstance(pkinfo.getAlgName());
+    Key secret = skf.generateSecret(pbeSpec);
+    PKCS8EncodedKeySpec keySpec = pkinfo.getKeySpec(secret);
+    final KeyFactory factory = KeyFactory.getInstance("RSA");
+    return (RSAPrivateKey) factory.generatePrivate(keySpec);
   }
 
   private X509Certificate generateCertificateFromDER(byte[] certBytes) throws CertificateException {
@@ -115,10 +146,49 @@ public class PEMImporter {
 
     public void convertPEMToDER(String input, String output){
       try (FileOutputStream outputStream = new FileOutputStream(output)) {
-           byte[] privateKey = createPrivateKey(input).getEncoded();
+           byte[] privateKey = createPrivateKey(input, null).getEncoded();
         outputStream.write(privateKey, 0, privateKey.length);
       } catch (Exception e) {
         e.printStackTrace();
       }
     }
+
+
+
+  public PrivateKey stringToPrivateKey(String s, String password)
+          throws IOException, PKCSException, ItorixException {
+    PrivateKeyInfo pki;
+    try (PEMParser pemParser = new PEMParser(new StringReader(s))) {
+      Object o = pemParser.readObject();
+      if (o instanceof PKCS8EncryptedPrivateKeyInfo) { // encrypted private key in pkcs8-format
+        logger.debug("key in pkcs8 encoding");
+        PKCS8EncryptedPrivateKeyInfo epki = (PKCS8EncryptedPrivateKeyInfo) o;
+        logger.debug("encryption algorithm: " + epki.getEncryptionAlgorithm().getAlgorithm());
+        JcePKCSPBEInputDecryptorProviderBuilder builder =
+                new JcePKCSPBEInputDecryptorProviderBuilder().setProvider("BC");
+        if(password == null){
+          throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"client key is encrypted password is required to decrypt"), "DatabaseConfiguration-1000");
+        }
+        InputDecryptorProvider idp = builder.build(password.toCharArray());
+        pki = epki.decryptPrivateKeyInfo(idp);
+      } else if (o instanceof PEMEncryptedKeyPair) { // encrypted private key in pkcs1-format
+        logger.debug("key in pkcs1 encoding");
+        PEMEncryptedKeyPair epki = (PEMEncryptedKeyPair) o;
+        logger.debug("encryption algorithm: " + epki.getDekAlgName());
+        if(password == null){
+          throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"client key is encrypted password is required to decrypt"), "DatabaseConfiguration-1000");
+        }
+        PEMKeyPair pkp = epki.decryptKeyPair(new BcPEMDecryptorProvider(password.toCharArray()));
+        pki = pkp.getPrivateKeyInfo();
+      } else if (o instanceof PEMKeyPair) { // unencrypted private key
+        logger.debug("key unencrypted");
+        PEMKeyPair pkp = (PEMKeyPair) o;
+        pki = pkp.getPrivateKeyInfo();
+      } else {
+        throw new PKCSException("Invalid encrypted private key class: " + o.getClass().getName());
+      }
+      JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
+      return converter.getPrivateKey(pki);
+    }
+  }
 }

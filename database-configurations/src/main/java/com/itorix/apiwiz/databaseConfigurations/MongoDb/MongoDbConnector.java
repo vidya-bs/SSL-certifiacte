@@ -62,10 +62,7 @@ public class MongoDbConnector {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
             if(mongoDBConfiguration.getSsl() != null &&  mongoDBConfiguration.getSsl().isSslConnection()){
-                String caCert = mongoDBConfiguration.getSsl().getCertificateAuthority();
-                String clientKey = mongoDBConfiguration.getSsl().getClientKey();
-                String clientCert = mongoDBConfiguration.getSsl().getClientCertificate();
-                SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(caCert,clientCert, clientKey, clientConnection);
+                SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(mongoDBConfiguration, clientConnection);
                 MongoClientSettings settings = MongoClientSettings.builder()
                         .applyConnectionString(new ConnectionString(url))
                         .applyToSslSettings(builder -> builder.context(sslContext))
@@ -99,10 +96,7 @@ public class MongoDbConnector {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
             if(mongoDBConfiguration.getSsl() != null &&  mongoDBConfiguration.getSsl().isSslConnection()){
-                String caCert = mongoDBConfiguration.getSsl().getCertificateAuthority();
-                String clientKey = mongoDBConfiguration.getSsl().getClientKey();
-                String clientCert = mongoDBConfiguration.getSsl().getClientCertificate();
-                SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(caCert,clientCert, clientKey, clientConnection);
+                SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(mongoDBConfiguration, clientConnection);
                 MongoClientSettings settings = MongoClientSettings.builder()
                         .applyConnectionString(new ConnectionString(url))
                         .applyToSslSettings(builder -> builder.context(sslContext))
@@ -136,12 +130,8 @@ public class MongoDbConnector {
 
         // TODO check x509 otherwise tls/ssl connection
         try {
-            String caCert = mongoDBConfiguration.getSsl().getCertificateAuthority();
-            String clientKey = mongoDBConfiguration.getSsl().getClientKey();
-            String clientCert = mongoDBConfiguration.getSsl().getClientCertificate();
-
             ClientConnection clientConnection = new ClientConnection();
-            SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(caCert,clientCert, clientKey, clientConnection);
+            SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(mongoDBConfiguration, clientConnection);
 
             if(mongoDBConfiguration.getSsh() != null && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
@@ -202,10 +192,7 @@ public class MongoDbConnector {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
             if(mongoDBConfiguration.getSsl() != null &&  mongoDBConfiguration.getSsl().isSslConnection()){
-                String caCert = mongoDBConfiguration.getSsl().getCertificateAuthority();
-                String clientKey = mongoDBConfiguration.getSsl().getClientKey();
-                String clientCert = mongoDBConfiguration.getSsl().getClientCertificate();
-                SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(caCert,clientCert, clientKey, clientConnection);
+                SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(mongoDBConfiguration, clientConnection);
                 MongoClientSettings settings = MongoClientSettings.builder()
                         .applyConnectionString(new ConnectionString(url))
                         .applyToSslSettings(builder -> builder.context(sslContext))

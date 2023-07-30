@@ -30,6 +30,8 @@ public class ConnectStaicFileds {
     public static String END_PRIVATE_KEY = "-----END PRIVATE KEY-----";
     public static String BEGIN_RSA_PRIVATE_KEY = "-----BEGIN RSA PRIVATE KEY-----";
     public static String END_RSA_PRIVATE_KEY = "-----END RSA PRIVATE KEY-----";
+    public static String BEGIN_ENCRYPTED_PRIVATE_KEY = "-----BEGIN ENCRYPTED PRIVATE KEY-----";
+    public static String END_ENCRYPTED_PRIVATE_KEY = "-----END ENCRYPTED PRIVATE KEY-----";
     public static String BEGIN_OPENSSH_PRIVATE_KEY = "-----BEGIN OPENSSH PRIVATE KEY-----";
     public static String BEGIN_CERTIFICATE = "-----BEGIN CERTIFICATE-----";
     public static String END_CERTIFICATE =  "-----END CERTIFICATE-----";

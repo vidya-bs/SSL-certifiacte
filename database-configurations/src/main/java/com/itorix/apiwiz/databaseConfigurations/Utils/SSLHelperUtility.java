@@ -1,19 +1,27 @@
 package com.itorix.apiwiz.databaseConfigurations.Utils;
 
 import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
+import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDBConfiguration;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.openssl.PEMEncryptedKeyPair;
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.bc.BcPEMDecryptorProvider;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.operator.InputDecryptorProvider;
+import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
+import org.bouncycastle.pkcs.PKCSException;
+import org.bouncycastle.pkcs.jcajce.JcePKCSPBEInputDecryptorProviderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.net.ssl.*;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,29 +55,29 @@ public class SSLHelperUtility {
             }
         }
     }
-    public SSLContext CreateKeystoreAndGetSSLContext(String caCert, String clientCert, String clientKey, ClientConnection clientConnection) throws Exception {
-        KeyStore keyStore = createKeyStoreFromCerts(caCert, clientCert, clientKey, clientConnection);
+    public SSLContext CreateKeystoreAndGetSSLContext(MongoDBConfiguration mongoDBConfiguration, ClientConnection clientConnection) throws Exception {
+        String caCert = mongoDBConfiguration.getSsl().getCertificateAuthority();
+        String clientKey = mongoDBConfiguration.getSsl().getClientKey();
+        String clientCert = mongoDBConfiguration.getSsl().getClientCertificate();
+        String clientKeyPassword = mongoDBConfiguration.getSsl().getClientKeyPassword();
+        KeyStore keyStore = createKeyStoreFromCerts(caCert, clientCert, clientKey,clientKeyPassword, clientConnection);
         return getSSLContext(keyStore, caCert == null);
     }
 
-    public KeyStore createKeyStoreFromCerts(String caCert, String clientCert, String clientKey, ClientConnection clientConnection) throws Exception {
+    public KeyStore createKeyStoreFromCerts(String caCert, String clientCert, String clientKey, String clientKeyPassword, ClientConnection clientConnection) throws Exception {
         byte[] caCertData = readCertificates(caCert);
         byte[] clientCertData = readCertificates(clientCert);
         byte[] clientKeyData = readCertificates(clientKey);
 
-        KeyStore keyStore = null;
         if (caCertData != null || clientCertData != null) {
-            keyStore = createKeyStore(caCertData, clientCertData, clientKeyData, clientConnection);
+            return createKeyStore(caCertData, clientCertData, clientKeyData, clientKeyPassword, clientConnection);
         } else {
             log.error("Exception Occurred while establishing mongodb SSL connection Ca cert cannot be null");
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"MongoDb, ca cert cannot be null"), "DatabaseConfiguration-1002");
         }
-        return keyStore;
     }
 
     private SSLContext getSSLContext(KeyStore keyStore, boolean isSelfSigned) throws Exception {
-
-        SSLContext sslContext;
 
         try {
             // Retrieve Key Managers from the Client certificate Key Store
@@ -84,12 +92,12 @@ public class SSLHelperUtility {
                 tmf.init(keyStore);
                 trustManagers = tmf.getTrustManagers();
             }
-            sslContext = SSLContext.getInstance("TLS");
+            SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(keyManagers, trustManagers, null);
+            return sslContext;
         } catch (Exception ex) {
             throw ex;
         }
-        return sslContext;
     }
 
 
@@ -100,27 +108,28 @@ public class SSLHelperUtility {
         return null;
     }
 
-    public KeyStore createKeyStore(byte[] caCertData, byte[] clientCertData, byte[] clientKeyData, ClientConnection clientConnection) throws Exception {
+    public KeyStore createKeyStore(byte[] caCertData, byte[] clientCertData, byte[] clientKeyData, String clientKeyPassword, ClientConnection clientConnection) throws Exception {
         KeyStore keyStore = createKeyStore();
         try {
             CertificateFactory clientFactory = CertificateFactory.getInstance("X.509");
             List<Certificate> certificates = new ArrayList<>();
             if (caCertData != null) {
-                java.security.cert.Certificate caCert = clientFactory.generateCertificate(new ByteArrayInputStream(caCertData));
+                Certificate caCert = clientFactory.generateCertificate(new ByteArrayInputStream(caCertData));
                 keyStore.setCertificateEntry(CA_CERTIFICATE, caCert);
             }
             if (clientCertData != null) {
-                java.security.cert.Certificate clientCert = clientFactory.generateCertificate(new ByteArrayInputStream(clientCertData));
+                Certificate clientCert = clientFactory.generateCertificate(new ByteArrayInputStream(clientCertData));
                 keyStore.setCertificateEntry(CLIENT_CERTIFICATE, clientCert);
                 certificates.add(clientCert);
             }
             if (clientKeyData != null) {
-                PrivateKey privateKey = pemImporter.createPrivateKey(new String(clientKeyData));
+                PrivateKey privateKey = pemImporter.stringToPrivateKey(new String(clientKeyData), clientKeyPassword);
                 keyStore.setKeyEntry(CLIENT_KEY, privateKey, DEFAULT_PASSWORD, certificates.toArray(new Certificate[certificates.size()]));
             }
 
             return persistKeystore(keyStore, clientConnection);
         } catch (Exception e) {
+            log.error("Exception occurred - ", e);
             throw e;
         }
 
