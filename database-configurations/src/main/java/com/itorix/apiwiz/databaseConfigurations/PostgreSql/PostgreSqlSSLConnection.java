@@ -50,7 +50,7 @@ public class PostgreSqlSSLConnection {
 
         // SSL Mode
         if (postgreSQLSsl.getSslMode() != null) {
-            properties.put("sslmode", postgreSQLSsl.getSslMode());
+            properties.put("sslmode", postgreSQLSsl.getSslMode().getValue());
         }
         properties.put("useSSL", "true");
         long time = System.currentTimeMillis();

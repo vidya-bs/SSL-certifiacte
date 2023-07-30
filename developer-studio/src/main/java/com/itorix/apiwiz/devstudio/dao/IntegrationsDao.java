@@ -319,38 +319,24 @@ public class IntegrationsDao {
 		}
 	}
 
-
-	public List<?> getDatabaseIntegrations(String databaseType) throws ItorixException {
-		if(databaseType == null){
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"DataBase Type is required!"), "DatabaseConfiguration-1001");
-		}
-		if(databaseType.equalsIgnoreCase(DatabaseType.MONGODB.getDatabaseType())) {
-			return mongoTemplate.findAll(MongoDBConfiguration.class);
-		} else if(databaseType.equalsIgnoreCase(DatabaseType.MYSQL.getDatabaseType())) {
-			return mongoTemplate.findAll(MySQLConfiguration.class);
-		} else if(databaseType.equalsIgnoreCase(DatabaseType.POSTGRESQL.getDatabaseType())) {
-			return mongoTemplate.findAll(PostgreSQLConfiguration.class);
-		} else {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Invalid database Type"), "DatabaseConfiguration-1000");
-		}
-	}
-
-	public void removeDatabaseIntegratoin(String databaseType, String id) throws ItorixException {
-		if(databaseType == null){
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"DataBase Type is required!"), "DatabaseConfiguration-1001");
-		}
+	public void deleteMongodbDatabaseIntegratoin(String id) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("_id").is(new ObjectId(id)));
-		if(databaseType.equalsIgnoreCase(DatabaseType.MONGODB.getDatabaseType())) {
-			mongoTemplate.remove(query, MongoDBConfiguration.class);
-		} else if(databaseType.equalsIgnoreCase(DatabaseType.MYSQL.getDatabaseType())) {
-			mongoTemplate.remove(query, MySQLConfiguration.class);
-		} else if(databaseType.equalsIgnoreCase(DatabaseType.POSTGRESQL.getDatabaseType())) {
-			mongoTemplate.remove(query, PostgreSQLConfiguration.class);
-		} else {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Invalid database Type"), "DatabaseConfiguration-1000");
-		}
+		mongoTemplate.remove(query, MongoDBConfiguration.class);
 	}
+
+	public void deleteMysqlDatabaseIntegratoin(String id) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("_id").is(new ObjectId(id)));
+		mongoTemplate.remove(query, MySQLConfiguration.class);
+	}
+
+	public void deletePostgresqlDatabaseIntegratoin(String id) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("_id").is(new ObjectId(id)));
+		mongoTemplate.remove(query, PostgreSQLConfiguration.class);
+	}
+
 
 	public String createMongoDbDatabaseConfig(MongoDBConfiguration mongoDBConfiguration) {
 		updateUserDetails(null, mongoDBConfiguration);
@@ -391,6 +377,34 @@ public class IntegrationsDao {
 		updateUserDetails(olddatabaseConfiguration, postgreSQLConfiguration);
 		mongoTemplate.save(postgreSQLConfiguration);
 	}
+
+    public MongoDBConfiguration getMongoDbDatabaseIntegrationById(String id)  {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(new ObjectId(id)));
+        return mongoTemplate.findOne(query, MongoDBConfiguration.class);
+    }
+
+    public MySQLConfiguration getMysqlDatabaseIntegrationById(String id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(new ObjectId(id)));
+        return mongoTemplate.findOne(query, MySQLConfiguration.class);
+    }
+
+    public PostgreSQLConfiguration getPostgresqlDatabaseIntegrationById(String id)  {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(new ObjectId(id)));
+        return mongoTemplate.findOne(query, PostgreSQLConfiguration.class);
+    }
+
+    public List<MongoDBConfiguration> getAllMongoDbIntegrations() {
+        return mongoTemplate.findAll(MongoDBConfiguration.class);
+    }
+    public List<MySQLConfiguration> getAllMysqlIntegrations() {
+        return mongoTemplate.findAll(MySQLConfiguration.class);
+    }
+    public List<PostgreSQLConfiguration> getAllPostgresqlIntegrations() {
+        return mongoTemplate.findAll(PostgreSQLConfiguration.class);
+    }
 
 
 	private void updateUserDetails(MongoDBConfiguration oldMongoDBConfiguration, MongoDBConfiguration mongoDBConfiguration) {
@@ -484,22 +498,5 @@ public class IntegrationsDao {
 		PostgreSQLConfiguration.setModifiedUserName(userName);
 		PostgreSQLConfiguration.setModifiedBy(userId);
 		PostgreSQLConfiguration.setMts(System.currentTimeMillis());
-	}
-
-	public Object getDatabaseIntegration(String databaseType, String id) throws ItorixException {
-		if(databaseType == null){
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"DataBase Type is required!"), "DatabaseConfiguration-1001");
-		}
-		Query query = new Query();
-		query.addCriteria(Criteria.where("_id").is(new ObjectId(id)));
-		if(databaseType.equalsIgnoreCase(DatabaseType.MONGODB.getDatabaseType())) {
-			return mongoTemplate.find(query, MongoDBConfiguration.class);
-		} else if(databaseType.equalsIgnoreCase(DatabaseType.MYSQL.getDatabaseType())) {
-			return mongoTemplate.find(query, MySQLConfiguration.class);
-		} else if(databaseType.equalsIgnoreCase(DatabaseType.POSTGRESQL.getDatabaseType())) {
-			return mongoTemplate.find(query, PostgreSQLConfiguration.class);
-		} else {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Invalid database Type"), "DatabaseConfiguration-1000");
-		}
 	}
 }

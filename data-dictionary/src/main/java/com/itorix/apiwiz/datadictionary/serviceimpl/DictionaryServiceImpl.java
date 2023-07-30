@@ -826,7 +826,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 	}
 
 	@Override
-	public ResponseEntity<?> getDatabases(String interactionid, String jsessionid,String connectionId)throws ItorixException {
+	public ResponseEntity<?> getMongoDatabases(String interactionid, String jsessionid, String connectionId)throws ItorixException {
 		return new ResponseEntity<>(dictionaryBusiness.getDatabases(connectionId),HttpStatus.OK);
 	}
 

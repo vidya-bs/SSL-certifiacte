@@ -1,7 +1,7 @@
 package com.itorix.apiwiz.common.model.databaseconfigs.mongodb;
 
 public enum MongoDbSshAuthType {
-    PASSWORD("PASSWORD"), IDENTITYFILE("IDENTITYFILE"), SOCKS5("SOCKS5");
+    NONE("NONE"), PASSWORD("PASSWORD"), IDENTITYFILE("IDENTITYFILE"), SOCKS5("SOCKS5");
 
     private String value;
 

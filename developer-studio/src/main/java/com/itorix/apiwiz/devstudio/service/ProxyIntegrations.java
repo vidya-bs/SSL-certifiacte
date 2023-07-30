@@ -214,21 +214,6 @@ public interface ProxyIntegrations {
 			@RequestHeader(value = "JSESSIONID") String jsessionid) throws Exception;
 
 
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/database", produces = {"application/json"})
-	public ResponseEntity<?> getDatabaseIntegrations(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "databaseType", required = false) String databaseType
-	) throws Exception;
-
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/database/{id}", produces = {"application/json"})
-	public ResponseEntity<?> getDatabaseIntegration(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "databaseType", required = false) String databaseType,
-			@PathVariable("id") String id
-	) throws Exception;
-
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/integrations/database/mongodb", produces = {"application/json"})
 	public ResponseEntity<?> createMongoDbIntegration(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -236,18 +221,10 @@ public interface ProxyIntegrations {
 			@RequestBody MongoDBConfiguration mongoDBConfiguration
 	) throws Exception;
 
-	@RequestMapping(method = RequestMethod.POST, value = "/v1/integrations/database/mysql", produces = {"application/json"})
-	public ResponseEntity<?> createMySqlIntegration(
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/database/mongodb", produces = {"application/json"})
+	public ResponseEntity<?> getAllMongoDbIntegration(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody MySQLConfiguration mySQLConfiguration
-	) throws Exception;
-
-	@RequestMapping(method = RequestMethod.POST, value = "/v1/integrations/database/postgresql", produces = {"application/json"})
-	public ResponseEntity<?> createPostgreSqlIntegration(
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestBody PostgreSQLConfiguration postgreSQLConfiguration
+			@RequestHeader(value = "JSESSIONID") String jsessionid
 	) throws Exception;
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/integrations/database/mongodb/{id}", produces = {"application/json"})
@@ -258,12 +235,67 @@ public interface ProxyIntegrations {
 			@RequestBody MongoDBConfiguration mongoDBConfiguration
 	) throws Exception;
 
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/integrations/database/mongodb/{id}", produces = {"application/json"})
+	public ResponseEntity<?> deleteMongoDbIntegration(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("id") String id
+	) throws Exception;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/database/mongodb/{id}", produces = {"application/json"})
+	public ResponseEntity<?> getMongoDbIntegrationById(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("id") String id
+	) throws Exception;
+
+
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/integrations/database/mysql", produces = {"application/json"})
+	public ResponseEntity<?> createMySqlIntegration(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody MySQLConfiguration mySQLConfiguration
+	) throws Exception;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/database/mysql", produces = {"application/json"})
+	public ResponseEntity<?> getAllMySqlIntegration(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid
+	) throws Exception;
+
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/integrations/database/mysql/{id}", produces = {"application/json"})
 	public ResponseEntity<?> updateMySqlIntegration(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("id") String id,
 			@RequestBody MySQLConfiguration mySQLConfiguration
+	) throws Exception;
+
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/integrations/database/mysql/{id}", produces = {"application/json"})
+	public ResponseEntity<?> deleteMySqlIntegration(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("id") String id
+	) throws Exception;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/database/mysql/{id}", produces = {"application/json"})
+	public ResponseEntity<?> getMySqlIntegrationById(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("id") String id
+	) throws Exception;
+
+	@RequestMapping(method = RequestMethod.POST, value = "/v1/integrations/database/postgresql", produces = {"application/json"})
+	public ResponseEntity<?> createPostgreSqlIntegration(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestBody PostgreSQLConfiguration postgreSQLConfiguration
+	) throws Exception;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/database/postgresql", produces = {"application/json"})
+	public ResponseEntity<?> getAllPostgreSqlIntegration(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid
 	) throws Exception;
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/integrations/database/postgresql/{id}", produces = {"application/json"})
@@ -274,11 +306,18 @@ public interface ProxyIntegrations {
 			@RequestBody PostgreSQLConfiguration postgreSQLConfiguration
 	) throws Exception;
 
-	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/integrations/database/{id}", produces = {"application/json"})
-	public ResponseEntity<?> removeDatabaseIntegration(
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/integrations/database/postgresql/{id}", produces = {"application/json"})
+	public ResponseEntity<?> deletePostgreSqlIntegration(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
-			@RequestHeader(value = "databaseType", required = false) String databaseType,
 			@PathVariable("id") String id
 	) throws Exception;
+
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/database/postgresql/{id}", produces = {"application/json"})
+	public ResponseEntity<?> getPostgreSqlIntegrationById(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@PathVariable("id") String id
+	) throws Exception;
+
 }

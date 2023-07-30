@@ -329,16 +329,6 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 		log.debug("Removed GCS connector");
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	@Override
-	public ResponseEntity<?> getDatabaseIntegrations(String interactionid, String jsessionid, String databaseType)
-			throws ItorixException {
-		return new ResponseEntity<>(integrationsDao.getDatabaseIntegrations(databaseType), HttpStatus.OK);
-	}
-
-	@Override
-	public ResponseEntity<?> getDatabaseIntegration(String interactionid, String jsessionid, String databaseType, String id) throws Exception {
-		return new ResponseEntity<>(integrationsDao.getDatabaseIntegration(databaseType, id), HttpStatus.OK);
-	}
 
 	@Override
 	public ResponseEntity<?> createMongoDbIntegration(String interactionid, String jsessionid, MongoDBConfiguration mongoDBConfiguration) throws Exception {
@@ -347,15 +337,8 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	}
 
 	@Override
-	public ResponseEntity<?> createMySqlIntegration(String interactionid, String jsessionid, MySQLConfiguration mySQLConfiguration) throws Exception {
-		String id = integrationsDao.createMySqlDatabaseConfig(mySQLConfiguration);
-		return new ResponseEntity<>(id,HttpStatus.CREATED);
-	}
-
-	@Override
-	public ResponseEntity<?> createPostgreSqlIntegration(String interactionid, String jsessionid, PostgreSQLConfiguration postgreSQLConfiguration) throws Exception {
-		String id = integrationsDao.createPostgreSqlDatabaseConfig(postgreSQLConfiguration);
-		return new ResponseEntity<>(id,HttpStatus.CREATED);
+	public ResponseEntity<?> getAllMongoDbIntegration(String interactionid, String jsessionid) throws Exception {
+		return new ResponseEntity<>(integrationsDao.getAllMongoDbIntegrations(),HttpStatus.CREATED);
 	}
 
 	@Override
@@ -365,9 +348,65 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	}
 
 	@Override
+	public ResponseEntity<?> deleteMongoDbIntegration(String interactionid, String jsessionid, String id) throws Exception {
+		log.info("Deleting the configuration with id {}", id);
+		integrationsDao.deleteMongodbDatabaseIntegratoin(id);
+		log.info("Deleted successfully!");
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	public ResponseEntity<?> getMongoDbIntegrationById(String interactionid, String jsessionid, String id) throws Exception {
+		MongoDBConfiguration mongoDBConfiguration = integrationsDao.getMongoDbDatabaseIntegrationById(id);
+		if (mongoDBConfiguration == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<>(mongoDBConfiguration, HttpStatus.CREATED);
+	}
+
+	@Override
+	public ResponseEntity<?> createMySqlIntegration(String interactionid, String jsessionid, MySQLConfiguration mySQLConfiguration) throws Exception {
+		String id = integrationsDao.createMySqlDatabaseConfig(mySQLConfiguration);
+		return new ResponseEntity<>(id,HttpStatus.CREATED);
+	}
+
+	@Override
+	public ResponseEntity<?> getAllMySqlIntegration(String interactionid, String jsessionid) throws Exception {
+		return new ResponseEntity<>(integrationsDao.getAllMysqlIntegrations(),HttpStatus.OK);
+	}
+
+	@Override
 	public ResponseEntity<?> updateMySqlIntegration(String interactionid, String jsessionid, String id, MySQLConfiguration mySQLConfiguration) throws Exception {
 		integrationsDao.updateMySqlDatabaseIntegration(mySQLConfiguration,id);
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
+	}
+
+	@Override
+	public ResponseEntity<?> deleteMySqlIntegration(String interactionid, String jsessionid, String id) throws Exception {
+		log.info("Deleting the configuration with id {}", id);
+		integrationsDao.deleteMysqlDatabaseIntegratoin(id);
+		log.info("Deleted successfully!");
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	public ResponseEntity<?> getMySqlIntegrationById(String interactionid, String jsessionid, String id) throws Exception {
+		MySQLConfiguration mySQLConfiguration = integrationsDao.getMysqlDatabaseIntegrationById(id);
+		if (mySQLConfiguration == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<>(mySQLConfiguration,HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> createPostgreSqlIntegration(String interactionid, String jsessionid, PostgreSQLConfiguration postgreSQLConfiguration) throws Exception {
+		String id = integrationsDao.createPostgreSqlDatabaseConfig(postgreSQLConfiguration);
+		return new ResponseEntity<>(id,HttpStatus.CREATED);
+	}
+
+	@Override
+	public ResponseEntity<?> getAllPostgreSqlIntegration(String interactionid, String jsessionid) throws Exception {
+		return new ResponseEntity<>(integrationsDao.getAllPostgresqlIntegrations(),HttpStatus.OK);
 	}
 
 	@Override
@@ -377,12 +416,20 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	}
 
 	@Override
-	public ResponseEntity<?> removeDatabaseIntegration(String interactionid, String jsessionid,String databaseType, String id)
-			throws Exception {
+	public ResponseEntity<?> deletePostgreSqlIntegration(String interactionid, String jsessionid, String id) throws Exception {
 		log.info("Deleting the configuration with id {}", id);
-		integrationsDao.removeDatabaseIntegratoin(databaseType, id);
+		integrationsDao.deletePostgresqlDatabaseIntegratoin(id);
 		log.info("Deleted successfully!");
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	public ResponseEntity<?> getPostgreSqlIntegrationById(String interactionid, String jsessionid, String id) throws Exception {
+		PostgreSQLConfiguration postgreSQLConfiguration = integrationsDao.getPostgresqlDatabaseIntegrationById(id);
+		if (postgreSQLConfiguration == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<>(postgreSQLConfiguration, HttpStatus.OK);
 	}
 
 	private String getFileExtension(String file) {

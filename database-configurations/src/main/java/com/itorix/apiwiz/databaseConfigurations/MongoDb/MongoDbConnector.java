@@ -3,6 +3,7 @@ package com.itorix.apiwiz.databaseConfigurations.MongoDb;
 import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoAuthentication;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDBConfiguration;
+import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDbSshAuthType;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoSSH;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
@@ -57,10 +58,10 @@ public class MongoDbConnector {
         }
         try {
             ClientConnection clientConnection = new ClientConnection();
-            if(mongoDBConfiguration.getSsh() != null){
+            if(mongoDBConfiguration.getSsh() != null && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
-            if(mongoDBConfiguration.getSsl() != null){
+            if(mongoDBConfiguration.getSsl() != null &&  mongoDBConfiguration.getSsl().isSslConnection()){
                 String caCert = mongoDBConfiguration.getSsl().getCertificateAuthority();
                 String clientKey = mongoDBConfiguration.getSsl().getClientKey();
                 String clientCert = mongoDBConfiguration.getSsl().getClientCertificate();
@@ -94,10 +95,10 @@ public class MongoDbConnector {
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Connection url is mandatory parameter but missing"), "DatabaseConfiguration-1000");
             }
             ClientConnection clientConnection = new ClientConnection();
-            if(mongoDBConfiguration.getSsh() != null){
+            if(mongoDBConfiguration.getSsh() != null && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
-            if(mongoDBConfiguration.getSsl() != null){
+            if(mongoDBConfiguration.getSsl() != null &&  mongoDBConfiguration.getSsl().isSslConnection()){
                 String caCert = mongoDBConfiguration.getSsl().getCertificateAuthority();
                 String clientKey = mongoDBConfiguration.getSsl().getClientKey();
                 String clientCert = mongoDBConfiguration.getSsl().getClientCertificate();
@@ -142,7 +143,7 @@ public class MongoDbConnector {
             ClientConnection clientConnection = new ClientConnection();
             SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(caCert,clientCert, clientKey, clientConnection);
 
-            if(mongoDBConfiguration.getSsh() != null){
+            if(mongoDBConfiguration.getSsh() != null && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
 
@@ -197,10 +198,10 @@ public class MongoDbConnector {
         String url = mongoDBConfiguration.getUrl();
         try{
             ClientConnection clientConnection = new ClientConnection();
-            if(mongoDBConfiguration.getSsh() != null){
+            if(mongoDBConfiguration.getSsh() != null && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
-            if(mongoDBConfiguration.getSsl() != null){
+            if(mongoDBConfiguration.getSsl() != null &&  mongoDBConfiguration.getSsl().isSslConnection()){
                 String caCert = mongoDBConfiguration.getSsl().getCertificateAuthority();
                 String clientKey = mongoDBConfiguration.getSsl().getClientKey();
                 String clientCert = mongoDBConfiguration.getSsl().getClientCertificate();

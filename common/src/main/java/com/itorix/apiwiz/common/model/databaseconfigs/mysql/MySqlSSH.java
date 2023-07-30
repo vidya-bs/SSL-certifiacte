@@ -13,7 +13,6 @@ public class MySqlSSH {
   private String sshPassPhrase;
   private String sshKeyfile;
   private String sshUsername;
-
   private String sshPort;
   public MySqlSSH() {
   }

@@ -9,10 +9,8 @@ public class MongoAuthentication {
 
   private String username;
   private String password;
-  private String database;
   private String kerberosUserPrincipal;
   private String kerberosUserPassword;
-
   private String kerberosServerUrl;
   private String kerberosServiceName;
   private String kerberosServiceRealm;
@@ -25,11 +23,10 @@ public class MongoAuthentication {
   public MongoAuthentication() {
   }
 
-  public MongoAuthentication(MongoDbAuthType mongoDbAuthType, String username, String password, String database, String kerberosUserPrincipal, String kerberosUserPassword, String kerberosServerUrl, String kerberosServiceName, String kerberosServicerealm, String ldapUsername, String ldapPassword, String awsAccesskey, String awsSecretaccesskey, String awsSessiontoken) {
+  public MongoAuthentication(MongoDbAuthType mongoDbAuthType, String username, String password, String kerberosUserPrincipal, String kerberosUserPassword, String kerberosServerUrl, String kerberosServiceName, String kerberosServicerealm, String ldapUsername, String ldapPassword, String awsAccesskey, String awsSecretaccesskey, String awsSessiontoken) {
     this.mongoDbAuthType = mongoDbAuthType;
     this.username = username;
     this.password = password;
-    this.database = database;
     this.kerberosUserPrincipal = kerberosUserPrincipal;
     this.kerberosUserPassword = kerberosUserPassword;
     this.kerberosServerUrl = kerberosServerUrl;
@@ -40,14 +37,6 @@ public class MongoAuthentication {
     this.awsAccesskey = awsAccesskey;
     this.awsSecretaccesskey = awsSecretaccesskey;
     this.awsSessiontoken = awsSessiontoken;
-  }
-
-  public String getDatabase() {
-    return database;
-  }
-
-  public void setDatabase(String database) {
-    this.database = database;
   }
 
   public MongoDbAuthType getMongoDbAuthType() {

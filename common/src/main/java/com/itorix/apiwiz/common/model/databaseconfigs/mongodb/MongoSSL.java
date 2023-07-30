@@ -6,26 +6,22 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
 public class MongoSSL {
-
+    boolean sslConnection;
     private String certificateAuthority;
     private String clientKey;
     private String clientCertificate;
     private String clientKeyPassword;
-    private boolean tlsInsecure;
     private boolean tlsAllowInvalidHostnames;
-    private boolean tlsAllowInvalidCertificates;
-
     public MongoSSL() {
     }
 
-    public MongoSSL( String certificateAuthority, String clientKey, String clientCertificate, String clientKeyPassword, boolean tlsInsecure, boolean tlsAllowInvalidHostnames, boolean tlsAllowInvalidCertificates) {
+    public MongoSSL(String certificateAuthority, String clientKey, String clientCertificate, String clientKeyPassword, boolean tlsAllowInvalidHostnames, boolean sslConnection) {
         this.certificateAuthority = certificateAuthority;
         this.clientKey = clientKey;
         this.clientCertificate = clientCertificate;
         this.clientKeyPassword = clientKeyPassword;
-        this.tlsInsecure = tlsInsecure;
         this.tlsAllowInvalidHostnames = tlsAllowInvalidHostnames;
-        this.tlsAllowInvalidCertificates = tlsAllowInvalidCertificates;
+        this.sslConnection = sslConnection;
     }
 
     public String getCertificateAuthority() {
@@ -44,14 +40,6 @@ public class MongoSSL {
         this.clientKeyPassword = clientKeyPassword;
     }
 
-    public boolean isTlsInsecure() {
-        return tlsInsecure;
-    }
-
-    public void setTlsInsecure(boolean tlsInsecure) {
-        this.tlsInsecure = tlsInsecure;
-    }
-
     public boolean isTlsAllowInvalidHostnames() {
         return tlsAllowInvalidHostnames;
     }
@@ -59,15 +47,6 @@ public class MongoSSL {
     public void setTlsAllowInvalidHostnames(boolean tlsAllowInvalidHostnames) {
         this.tlsAllowInvalidHostnames = tlsAllowInvalidHostnames;
     }
-
-    public boolean isTlsAllowInvalidCertificates() {
-        return tlsAllowInvalidCertificates;
-    }
-
-    public void setTlsAllowInvalidCertificates(boolean tlsAllowInvalidCertificates) {
-        this.tlsAllowInvalidCertificates = tlsAllowInvalidCertificates;
-    }
-
     public String getClientKey() {
         return clientKey;
     }
@@ -82,5 +61,13 @@ public class MongoSSL {
 
     public void setClientCertificate(String clientCertificate) {
         this.clientCertificate = clientCertificate;
+    }
+
+    public boolean isSslConnection() {
+        return sslConnection;
+    }
+
+    public void setSslConnection(boolean sslConnection) {
+        this.sslConnection = sslConnection;
     }
 }

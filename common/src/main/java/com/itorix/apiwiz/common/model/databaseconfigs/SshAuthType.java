@@ -1,7 +1,7 @@
 package com.itorix.apiwiz.common.model.databaseconfigs;
 
 public enum SshAuthType {
-    PASSWORD("PASSWORD"), IDENTITYFILE("IDENTITYFILE");
+    PASSWORD("PASSWORD"), IDENTITYFILE("IDENTITYFILE"), NONE("NONE");
 
     private String value;
 
