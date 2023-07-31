@@ -2481,4 +2481,22 @@ public class IdentityManagementDao {
         }
         return new HashSet<>();
     }
+
+    public void addCleanUpDocument(List<SchedulerDocumentDTO> schedulerDocumentDTOList) {
+        logger.debug("Adding Document to clean up scheduler list...");
+        for (SchedulerDocumentDTO schedulerDocumentDTO : schedulerDocumentDTOList) {
+            mongoTemplate.save(new SchedulerDocument(schedulerDocumentDTO));
+        }
+    }
+
+    public List<SchedulerDocument> getCleanUpDocument() {
+        logger.debug("Getting Document to clean up scheduler list...");
+        return mongoTemplate.findAll(SchedulerDocument.class);
+    }
+
+    public void deleteCleanUpDocument(String documentName) {
+        logger.debug("Deleting Document {} from clean up scheduler list...", documentName);
+        Query query = new Query().addCriteria(Criteria.where("key").is(documentName.replace(".", "_")));
+        mongoTemplate.remove(query, SchedulerDocument.class);
+    }
 }
