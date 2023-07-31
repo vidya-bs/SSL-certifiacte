@@ -1,21 +1,19 @@
 package com.itorix.apiwiz.common.model.azure;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Getter;
-import lombok.Setter;
 
 
 @JsonInclude
-public class AzureProductValues {
+public class AzureSubscriptionValues {
     private String name;
-    private ProductProperties properties;
+    private SubscriptionProperties properties;
 
-    public AzureProductValues(String name, ProductProperties properties) {
+    public AzureSubscriptionValues(String name, SubscriptionProperties properties) {
         this.name = name;
         this.properties = properties;
     }
 
-    public AzureProductValues() {
+    public AzureSubscriptionValues() {
     }
 
     public String getName() {
@@ -26,11 +24,11 @@ public class AzureProductValues {
         this.name = name;
     }
 
-    public ProductProperties getProperties() {
+    public SubscriptionProperties getProperties() {
         return properties;
     }
 
-    public void setProperties(ProductProperties properties) {
+    public void setProperties(SubscriptionProperties properties) {
         this.properties = properties;
     }
 }

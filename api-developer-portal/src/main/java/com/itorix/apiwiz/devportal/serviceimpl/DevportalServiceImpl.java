@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.model.apigee.StaticFields;
 import com.itorix.apiwiz.common.model.azure.AzureConfigurationVO;
-import com.itorix.apiwiz.common.model.azure.AzureProductResponse;
-import com.itorix.apiwiz.common.model.azure.AzureProductResponseDTO;
-import com.itorix.apiwiz.common.model.azure.AzureProductValues;
+import com.itorix.apiwiz.common.model.azure.AzureSubscriptionResponse;
+import com.itorix.apiwiz.common.model.azure.AzureSubscriptionResponseDTO;
+import com.itorix.apiwiz.common.model.azure.AzureSubscriptionValues;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.kong.*;
@@ -39,28 +39,17 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
 import com.itorix.apiwiz.common.util.http.HTTPUtil;
 import com.itorix.apiwiz.devportal.dao.DevportalDao;
-import com.itorix.apiwiz.devportal.model.DeveloperApp;
-import com.itorix.apiwiz.devportal.model.monetization.PurchaseRecord;
-import com.itorix.apiwiz.devportal.model.monetization.PurchaseResult;
 import com.itorix.apiwiz.devportal.service.DevportalService;
 import org.springframework.web.client.RestTemplate;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
@@ -831,22 +820,22 @@ public class DevportalServiceImpl implements DevportalService {
 		}
 	}
 
-	public List<AzureProductResponseDTO> getAppsFromAzure(String serviceName, String resourceGroup) throws ItorixException {
+	public List<AzureSubscriptionResponseDTO> getAppsFromAzure(String serviceName, String resourceGroup) throws ItorixException {
 		AzureConfigurationVO connector = devportaldao.getAzureConnector(serviceName, resourceGroup);
 		String url = String.format(StaticFields.AZURE_SUBSCRIPTIONS_URL, connector.getManagementHost(), connector.getSubscriptionId(), connector.getResourceGroup(), connector.getServiceName(), connector.getApiVersion());
 		try {
-			List<AzureProductResponseDTO> azureProductResponseDTOS = new ArrayList<>();
-			ResponseEntity<AzureProductResponse> azureProductResponse = restTemplate.exchange(url, HttpMethod.GET, requestEntity(null, connector.getSharedAccessToken()), AzureProductResponse.class);
-			List<AzureProductValues> response = azureProductResponse.getBody().getValue();
-			for (AzureProductValues azureProductValues : response) {
-				String[] scopeArray = azureProductValues.getProperties().getScope().split("/");
+			List<AzureSubscriptionResponseDTO> azureSubscriptionResponseDTOS = new ArrayList<>();
+			ResponseEntity<AzureSubscriptionResponse> azureProductResponse = restTemplate.exchange(url, HttpMethod.GET, requestEntity(null, connector.getSharedAccessToken()), AzureSubscriptionResponse.class);
+			List<AzureSubscriptionValues> response = azureProductResponse.getBody().getValue();
+			for (AzureSubscriptionValues azureSubscriptionValues : response) {
+				String[] scopeArray = azureSubscriptionValues.getProperties().getScope().split("/");
 				if (scopeArray[scopeArray.length - 2].equalsIgnoreCase("products")) {
-					String name = azureProductValues.getName();
-					String displayName = azureProductValues.getProperties().getDisplayName();
-					azureProductResponseDTOS.add(new AzureProductResponseDTO(name, displayName != null ? displayName : name));
+					String name = azureSubscriptionValues.getName();
+					String displayName = azureSubscriptionValues.getProperties().getDisplayName();
+					azureSubscriptionResponseDTOS.add(new AzureSubscriptionResponseDTO(name, displayName != null ? displayName : name));
 				}
 			}
-			return azureProductResponseDTOS;
+			return azureSubscriptionResponseDTOS;
 		} catch (Exception e) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"), "Portal-1001");
 		}
@@ -892,13 +881,13 @@ public class DevportalServiceImpl implements DevportalService {
 	}
 
 	public Set<String> getResourceGroupsFromAzure() throws ItorixException {
-		try {
-			List<AzureConfigurationVO> connectors = devportaldao.getAllAzureConnectors();
-			return connectors.stream()
-					.map(AzureConfigurationVO::getResourceGroup)
-					.collect(Collectors.toSet());
-		} catch (Exception e) {
-			throw new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"), "Portal-1001");
+		Set<String> response = new HashSet<>();
+		List<AzureConfigurationVO> connectors = devportaldao.getAllAzureConnectors();
+		if(connectors!=null && !connectors.isEmpty()){
+			for(AzureConfigurationVO azureConfigurationVO: connectors){
+				response.add(azureConfigurationVO.getResourceGroup());
+			}
 		}
+		return response;
 	}
 }
