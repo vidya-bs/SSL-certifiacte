@@ -47,8 +47,14 @@ public class SchemaDAO {
         }
         try {
             if (databaseType.equalsIgnoreCase(DatabaseType.MONGODB.getDatabaseType())) {
+                if(databaseName == null) {
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "database or tenant name is required"), "DatabaseConfiguration-1000");
+                }
                 if (collections == null || collections.isEmpty()) {
                     throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "collections names is required"), "DatabaseConfiguration-1000");
+                }
+                if (deepSearch && collections.size() > 1) {
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "when the deep search is enabled User not allowed to import more than one schema(collection) from db "), "DatabaseConfiguration-1000");
                 }
                 MongoDBConfiguration databaseConfiguration = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(connectionId)), MongoDBConfiguration.class);
                 return getMongoSchemas(databaseName, collections, databaseConfiguration, deepSearch);

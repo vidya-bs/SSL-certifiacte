@@ -80,12 +80,12 @@ public class MongoDbSchemaConverter {
         if(deepSearch) {
             cursor = collection.find()
                     .sort(new Document("_id", -1))
-                    .limit(10)
+                    .limit(100)
                     .iterator();
-        }else{
+        } else {
             cursor = collection.find()
                     .sort(new Document("_id", -1))
-                    .limit(1)
+                    .limit(10)
                     .iterator();
         }
         List<Document> documents = new ArrayList<>();

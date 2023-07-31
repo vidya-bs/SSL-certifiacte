@@ -391,7 +391,7 @@ public interface DictionaryService {
 
 	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/data-dictionary/database/schemas/{connectionId}")
-	public ResponseEntity<?> getPostgresSchemas(
+	public ResponseEntity<?> getPostgresSchemaNames(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable(value = "connectionId") String connectionId) throws ItorixException;

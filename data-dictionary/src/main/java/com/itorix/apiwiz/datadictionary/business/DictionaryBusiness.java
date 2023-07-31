@@ -98,7 +98,7 @@ public interface DictionaryBusiness {
 
 	public List<String> getDatabases(String connectionId) throws ItorixException;
 
-	public List<String> getPostgresSchemas(String connectionId) throws ItorixException;
+	public List<String> getPostgresSchemaNames(String connectionId) throws ItorixException;
 
 	public List<String> getCollectionNames(String connectionId, String databaseType, String databaseName) throws ItorixException;
 

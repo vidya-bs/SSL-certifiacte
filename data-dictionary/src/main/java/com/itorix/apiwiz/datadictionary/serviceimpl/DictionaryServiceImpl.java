@@ -3,7 +3,6 @@ package com.itorix.apiwiz.datadictionary.serviceimpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.diff.JsonDiff;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.datadictionary.business.DictionaryBusiness;
@@ -831,8 +830,8 @@ public class DictionaryServiceImpl implements DictionaryService {
 	}
 
 	@Override
-	public ResponseEntity<?> getPostgresSchemas(String interactionid, String jsessionid,String connectionId)throws ItorixException {
-		return new ResponseEntity<>(dictionaryBusiness.getPostgresSchemas(connectionId),HttpStatus.OK);
+	public ResponseEntity<?> getPostgresSchemaNames(String interactionid, String jsessionid, String connectionId)throws ItorixException {
+		return new ResponseEntity<>(dictionaryBusiness.getPostgresSchemaNames(connectionId),HttpStatus.OK);
 	}
 
 	@Override

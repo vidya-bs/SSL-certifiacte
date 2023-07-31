@@ -987,7 +987,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		}
 	}
 
-	public List<String> getPostgresSchemas(String connectionId) throws ItorixException {
+	public List<String> getPostgresSchemaNames(String connectionId) throws ItorixException {
 		PostgreSQLConfiguration postgreSQLConfiguration = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(connectionId)), PostgreSQLConfiguration.class);
 		return schemaDAO.getPostgresSchemas(postgreSQLConfiguration);
 	}
