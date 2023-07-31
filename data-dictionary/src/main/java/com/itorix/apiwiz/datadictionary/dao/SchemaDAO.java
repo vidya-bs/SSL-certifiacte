@@ -86,7 +86,7 @@ public class SchemaDAO {
         try (ClientConnection clientConnection = getConnection.getMongoDbDataBaseConnection(mongoDBConf);){
             MongoClient client = clientConnection.getMongoClient();
             logger.info("Time took for establishing connection - {}", (System.currentTimeMillis() - start));
-            Map<String, Map<String, Set<ObjectNode>>> schema = mongoDbSchemaConverter.generateSchema(client, databaseName, collections, deepSearch);
+            List<ObjectNode> schema = mongoDbSchemaConverter.generateSchema(client, databaseName, collections, deepSearch);
             client.close();
             return schema;
         } catch (ItorixException ex) {

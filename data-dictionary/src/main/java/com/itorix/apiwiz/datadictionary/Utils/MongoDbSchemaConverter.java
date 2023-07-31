@@ -6,10 +6,13 @@ import com.fasterxml.jackson.databind.node.*;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.mongodb.client.*;
+import org.bson.BsonRegularExpression;
+import org.bson.BsonSymbol;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecConfigurationException;
 import org.bson.json.JsonMode;
 import org.bson.json.JsonWriterSettings;
+import org.bson.types.*;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONArray;
@@ -21,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.*;
 
 import static com.itorix.apiwiz.datadictionary.Utils.SchemaConversionStaicFields.*;
@@ -40,11 +44,10 @@ public class MongoDbSchemaConverter {
             .decimal128Converter((value, writer) -> writer.writeNumber(String.valueOf(value.bigDecimalValue())))
             .build();
 
-    public Map<String, Map<String, Set<ObjectNode>>> generateSchema(MongoClient client, String databaseName, List<String> collections, boolean deepSearch) {
+    public List<ObjectNode> generateSchema(MongoClient client, String databaseName, List<String> collections, boolean deepSearch) {
         long start = System.currentTimeMillis();
         MongoDatabase database = client.getDatabase(databaseName);
-        Map<String, Map<String, Set<ObjectNode>>> map = new HashMap<>();
-        Map<String, Set<ObjectNode>> collectionSchemas = new HashMap<>();
+        List<ObjectNode> schemas = new ArrayList<>();
         if (collections == null) {
             MongoIterable<String> collectionNames = database.listCollectionNames();
             collections = collectionNames.into(new ArrayList<>());
@@ -54,9 +57,9 @@ public class MongoDbSchemaConverter {
         start = System.currentTimeMillis();
         for (String collection : collections) {
             try {
-                Set<ObjectNode> obj = generateSchemaFromDatabase(database, collection, deepSearch);
+                ObjectNode obj = generateSchemaFromDatabase(database, collection, deepSearch);
                 if (!obj.isEmpty()) {
-                    collectionSchemas.put(collection, obj);
+                    schemas.add(obj);
                 }
             } catch (CodecConfigurationException exception){
                 logger.error("UnSupported Codec datatype for {} collection - {}", collection, exception.getMessage());
@@ -65,15 +68,12 @@ public class MongoDbSchemaConverter {
             }
         }
         logger.info("Time took for conversion - {}", (System.currentTimeMillis() - start));
-        if (!collectionSchemas.isEmpty()) {
-            map.put(databaseName, collectionSchemas);
-        }
-        return map;
+        return schemas;
     }
 
 
 
-    public Set<ObjectNode> generateSchemaFromDatabase(MongoDatabase database, String collectionName,boolean deepSearch)
+    public ObjectNode generateSchemaFromDatabase(MongoDatabase database, String collectionName, boolean deepSearch)
             throws JSONException, IOException {
         MongoCollection<Document> collection = database.getCollection(collectionName);
         MongoCursor<Document> cursor = null;
@@ -93,20 +93,17 @@ public class MongoDbSchemaConverter {
             documents.add(cursor.next());
         }
         cursor.close();
-        Set<ObjectNode> nodeSet = new HashSet<>();
-
+        ObjectNode parentNode = OBJECT_MAPPER.createObjectNode();
+        ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
         for (Document doc : documents) {
             try {
-                String result = outputAsString(doc.toJson(settings));
-                ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
-                JsonNode propertyNode = OBJECT_MAPPER.readTree(result);
-                jsonNode.set(collectionName, propertyNode);
-                nodeSet.add(jsonNode);
+                jsonNode = linearDataType(doc);
             } catch (Exception ex){
                 logger.error("Error while fetching schema from document ", ex);
             }
         }
-        return nodeSet;
+        parentNode.set(collectionName, jsonNode);
+        return parentNode;
     }
 
     public static String outputAsString(String json) throws IOException {
@@ -292,5 +289,84 @@ public class MongoDbSchemaConverter {
         }
         return exists;
     }
+
+    private ObjectNode parseV2(Document doc) {
+        ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
+        for(String key: doc.keySet()){
+            System.out.println(key);
+            Object obj = doc.get(key);
+            if( obj instanceof Document){
+                ObjectNode childNode = parseV2((Document) obj);
+                jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "object").set("properties", childNode));
+            } else {
+                jsonNode.set(key, linearDataType(obj));
+            }
+        }
+        return jsonNode;
+    }
+
+    public ObjectNode linearDataType(Object obj){
+        if(obj instanceof Long){
+            return OBJECT_MAPPER.createObjectNode().put("type", "long");
+        }
+        else if(obj instanceof Integer){
+            return OBJECT_MAPPER.createObjectNode().put("type", "integer");
+        }
+        else if(obj instanceof String){
+            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+        }
+        else if(obj instanceof ObjectId){
+            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+        }
+        else if(obj instanceof Date){
+            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+        }
+        else if(obj instanceof Timestamp){
+            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+        }
+        else if(obj instanceof MinKey){
+            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+        }
+        else if(obj instanceof MaxKey){
+            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+        }
+        else if(obj == null){
+            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+        }
+        else if(obj instanceof Symbol){
+            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+        }
+        else if(obj instanceof BsonRegularExpression){
+            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+        }
+        else if(obj instanceof Double){
+            return OBJECT_MAPPER.createObjectNode().put("type", "double");
+        }
+        else if(obj instanceof Decimal128){
+            return OBJECT_MAPPER.createObjectNode().put("type", "decimal");
+        }
+        else if(obj instanceof CodeWithScope){
+            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+        }
+        else if(obj instanceof ArrayList){
+            ObjectNode childNode = linearDataType(((ArrayList<?>) obj).get(0));
+            return  OBJECT_MAPPER.createObjectNode().put("type", "array").set("items", childNode);
+        } else if( obj instanceof Document){
+            ObjectNode childNode = OBJECT_MAPPER.createObjectNode();
+            for(String key: ((Document) obj).keySet()){
+                System.out.println(key);
+                Object object = ((Document) obj).get(key);
+                if( object instanceof Document){
+                    ObjectNode innerChildNode = linearDataType(object);
+                    childNode.set(key, innerChildNode);
+                } else {
+                    childNode.set(key, linearDataType(object));
+                }
+            }
+            return OBJECT_MAPPER.createObjectNode().put("type", "object").set("properties", childNode);
+        }
+        return OBJECT_MAPPER.createObjectNode().put("type", "string");
+    }
+
 }
 
