@@ -45,15 +45,10 @@ public class MySqlSSHConnection {
 
     MySqlSSH mySqlSSH = sqlConfiguration.getSsh();
 
-    if(mySqlSSH.getSshPassword() == null && mySqlSSH.getSshKeyfile() == null) {
-      logger.error("Invalid mysql ssh connection either sshpassword or sshkeyfile is required");
-      throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"MysqlSSH passowrd or keyfile is missing"), "DatabaseConfiguration-1000");
-    }
-
-
     SshAuthType authType = mySqlSSH.getSshAuthType();
-
-    if (authType == SshAuthType.IDENTITYFILE ) {
+    if(authType == SshAuthType.NONE){
+      return;
+    } else if (authType == SshAuthType.IDENTITYFILE ) {
       // key file byte data and passphrase
       String ssh = mySqlSSH.getSshKeyfile();
       if(ssh == null){

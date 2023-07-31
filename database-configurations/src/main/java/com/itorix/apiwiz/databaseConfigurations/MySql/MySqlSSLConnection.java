@@ -2,7 +2,7 @@ package com.itorix.apiwiz.databaseConfigurations.MySql;
 
 import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
 import com.itorix.apiwiz.common.model.databaseconfigs.mysql.MySqlSSL;
-import com.itorix.apiwiz.common.model.databaseconfigs.mysql.SslAuthType;
+import com.itorix.apiwiz.common.model.databaseconfigs.mysql.MysqlSslAuthType;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.databaseConfigurations.Utils.PEMImporter;
@@ -51,11 +51,14 @@ public class MySqlSSLConnection {
 
     try {
       // SSL Mode
+      if(mySqlSsl.getSslMode() == MysqlSslAuthType.DISABLED){
+        return;
+      }
       properties.put("sslMode", mySqlSsl.getSslMode());
       properties.put("useSSL", "true");
 
-      if (SslAuthType.VERIFY_CA == mySqlSsl.getSslMode()
-              || SslAuthType.VERIFY_IDENTITY == mySqlSsl.getSslMode() || SslAuthType.REQUIRED == mySqlSsl.getSslMode()) {
+      if (MysqlSslAuthType.VERIFY_CA == mySqlSsl.getSslMode()
+              || MysqlSslAuthType.VERIFY_IDENTITY == mySqlSsl.getSslMode() || MysqlSslAuthType.REQUIRED == mySqlSsl.getSslMode()) {
         FileUtils.forceMkdir(Path.of(KEY_STORE_DIRECTORY_PATH).toFile());
 
         Path keyStoreFilePath = Path.of(KEY_STORE_DIRECTORY_PATH).resolve("KEY_STORE_FILE_NAME" + KEYSTORE_EXTENSION);

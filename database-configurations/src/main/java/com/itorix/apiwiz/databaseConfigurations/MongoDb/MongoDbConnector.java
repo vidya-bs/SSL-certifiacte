@@ -243,6 +243,39 @@ public class MongoDbConnector {
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"MongoDb"), "DatabaseConfiguration-1002");
         }
     }
+
+    public ClientConnection getConnection(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
+        try {
+            String url = mongoDBConfiguration.getUrl();
+            if(url ==  null || url.isEmpty()){
+                logger.error("Invalid mongoDb url - {}", url);
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Connection url is mandatory parameter but missing"), "DatabaseConfiguration-1000");
+            }
+            ClientConnection clientConnection = new ClientConnection();
+            if(mongoDBConfiguration.getSsh() != null && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
+                url = getSSHConnection(mongoDBConfiguration, clientConnection);
+            }
+            if(mongoDBConfiguration.getSsl() != null &&  mongoDBConfiguration.getSsl().isSslConnection()){
+                SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(mongoDBConfiguration, clientConnection);
+                MongoClientSettings settings = MongoClientSettings.builder()
+                        .applyConnectionString(new ConnectionString(url))
+                        .applyToSslSettings(builder -> builder.context(sslContext))
+                        .build();
+                clientConnection.setHost(mongoDBConfiguration.getHost());
+                clientConnection.setMongoClient(createMongoClient(settings));
+                return clientConnection;
+            }
+            clientConnection.setHost(mongoDBConfiguration.getHost());
+            clientConnection.setMongoClient(createMongoClient(url));
+            return clientConnection;
+        } catch (ItorixException ex){
+            throw ex;
+        } catch (Exception ex){
+            ex.printStackTrace();
+            logger.error("Exception creating MongoDBClient - ", ex);
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"MongoDb"), "DatabaseConfiguration-1002");
+        }
+    }
     private MongoClient createMongoClient(String url) {
         MongoClientSettings settings = MongoClientSettings.builder()
                 .applyConnectionString(new ConnectionString(url)).build();

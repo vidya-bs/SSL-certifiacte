@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class MySqlSSL {
 
-  private SslAuthType sslMode;
+  private MysqlSslAuthType sslMode;
   private String sslKeyfile;
   private String sslCertfile;
   private String sslCafile;
@@ -15,7 +15,7 @@ public class MySqlSSL {
   public MySqlSSL() {
   }
 
-  public MySqlSSL(SslAuthType sslMode, String sslKeyfile, String sslCertfile, String sslCafile, String sslCipher) {
+  public MySqlSSL(MysqlSslAuthType sslMode, String sslKeyfile, String sslCertfile, String sslCafile, String sslCipher) {
     this.sslMode = sslMode;
     this.sslKeyfile = sslKeyfile;
     this.sslCertfile = sslCertfile;
@@ -23,11 +23,11 @@ public class MySqlSSL {
     this.sslCipher = sslCipher;
   }
 
-  public SslAuthType getSslMode() {
+  public MysqlSslAuthType getSslMode() {
     return sslMode;
   }
 
-  public void setSslMode(SslAuthType sslMode) {
+  public void setSslMode(MysqlSslAuthType sslMode) {
     this.sslMode = sslMode;
   }
 

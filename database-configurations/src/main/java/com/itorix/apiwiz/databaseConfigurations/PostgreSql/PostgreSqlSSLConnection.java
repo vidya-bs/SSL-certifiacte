@@ -2,6 +2,7 @@ package com.itorix.apiwiz.databaseConfigurations.PostgreSql;
 
 import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
 import com.itorix.apiwiz.common.model.databaseconfigs.postgress.PostgreSQLSSL;
+import com.itorix.apiwiz.common.model.databaseconfigs.postgress.PostgresSslAuthType;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.databaseConfigurations.Utils.PEMImporter;
@@ -49,6 +50,9 @@ public class PostgreSqlSSLConnection {
     public void buildProperties(Properties properties, PostgreSQLSSL postgreSQLSsl, ClientConnection postgresConnection) throws IOException, ItorixException {
 
         // SSL Mode
+        if (postgreSQLSsl.getSslMode() == PostgresSslAuthType.disable) {
+            return;
+        }
         if (postgreSQLSsl.getSslMode() != null) {
             properties.put("sslmode", postgreSQLSsl.getSslMode().getValue());
         }

@@ -9,6 +9,8 @@ public class MongoAuthentication {
 
   private String username;
   private String password;
+  private String authenticationDatabase;
+  private MongoDbAuthMechanism authenticationMechanism;
   private String kerberosUserPrincipal;
   private String kerberosUserPassword;
   private String kerberosServerUrl;
@@ -23,15 +25,17 @@ public class MongoAuthentication {
   public MongoAuthentication() {
   }
 
-  public MongoAuthentication(MongoDbAuthType mongoDbAuthType, String username, String password, String kerberosUserPrincipal, String kerberosUserPassword, String kerberosServerUrl, String kerberosServiceName, String kerberosServicerealm, String ldapUsername, String ldapPassword, String awsAccesskey, String awsSecretaccesskey, String awsSessiontoken) {
+  public MongoAuthentication(MongoDbAuthType mongoDbAuthType, String username, String password, String authenticationDatabase, MongoDbAuthMechanism authenticationMechanism, String kerberosUserPrincipal, String kerberosUserPassword, String kerberosServerUrl, String kerberosServiceName, String kerberosServiceRealm, String ldapUsername, String ldapPassword, String awsAccesskey, String awsSecretaccesskey, String awsSessiontoken) {
     this.mongoDbAuthType = mongoDbAuthType;
     this.username = username;
     this.password = password;
+    this.authenticationDatabase = authenticationDatabase;
+    this.authenticationMechanism = authenticationMechanism;
     this.kerberosUserPrincipal = kerberosUserPrincipal;
     this.kerberosUserPassword = kerberosUserPassword;
     this.kerberosServerUrl = kerberosServerUrl;
     this.kerberosServiceName = kerberosServiceName;
-    this.kerberosServiceRealm = kerberosServicerealm;
+    this.kerberosServiceRealm = kerberosServiceRealm;
     this.ldapUsername = ldapUsername;
     this.ldapPassword = ldapPassword;
     this.awsAccesskey = awsAccesskey;
@@ -139,5 +143,21 @@ public class MongoAuthentication {
 
   public void setPassword(String password) {
     this.password = password;
+  }
+
+    public String getAuthenticationDatabase() {
+        return authenticationDatabase;
+    }
+
+    public void setAuthenticationDatabase(String authenticationDatabase) {
+        this.authenticationDatabase = authenticationDatabase;
+    }
+
+  public MongoDbAuthMechanism getAuthenticationMechanism() {
+    return authenticationMechanism;
+  }
+
+  public void setAuthenticationMechanism(MongoDbAuthMechanism authenticationMechanism) {
+    this.authenticationMechanism = authenticationMechanism;
   }
 }

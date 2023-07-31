@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
 public class PostgreSQLSSL {
-  private SslAuthType sslMode;
+  private PostgresSslAuthType sslMode;
   private String sslClientcert;
   private String sslClientcertkey;
   private String sslRootcert;
@@ -15,7 +15,7 @@ public class PostgreSQLSSL {
   public PostgreSQLSSL() {
   }
 
-  public PostgreSQLSSL(SslAuthType sslMode, String sslClientcert, String sslClientcertkey, String sslRootcert, String sslClientcertkeyPassWord, String certRevocationlist) {
+  public PostgreSQLSSL(PostgresSslAuthType sslMode, String sslClientcert, String sslClientcertkey, String sslRootcert, String sslClientcertkeyPassWord, String certRevocationlist) {
     this.sslMode = sslMode;
     this.sslClientcert = sslClientcert;
     this.sslClientcertkey = sslClientcertkey;
@@ -24,11 +24,11 @@ public class PostgreSQLSSL {
     this.certRevocationlist = certRevocationlist;
   }
 
-  public SslAuthType getSslMode() {
+  public PostgresSslAuthType getSslMode() {
     return sslMode;
   }
 
-  public void setSslMode(SslAuthType sslMode) {
+  public void setSslMode(PostgresSslAuthType sslMode) {
     this.sslMode = sslMode;
   }
 

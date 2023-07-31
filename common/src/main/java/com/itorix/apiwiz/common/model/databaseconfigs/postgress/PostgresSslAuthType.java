@@ -1,10 +1,10 @@
 package com.itorix.apiwiz.common.model.databaseconfigs.postgress;
 
-public enum SslAuthType {
+public enum PostgresSslAuthType {
     disable("disable"), allow("allow"), prefer("prefer"), require("require"), verify_ca("verify-ca"), verify_full("verify-full");;
     private String value;
 
-    SslAuthType(String type) {
+    PostgresSslAuthType(String type) {
         this.value = type;
     }
 

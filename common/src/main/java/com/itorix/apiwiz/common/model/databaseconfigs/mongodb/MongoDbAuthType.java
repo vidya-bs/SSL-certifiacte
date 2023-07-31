@@ -2,7 +2,7 @@ package com.itorix.apiwiz.common.model.databaseconfigs.mongodb;
 
 public enum MongoDbAuthType {
 
-    userNamePassword("userNamePassword"),x509("x509"),kerberos("kerberos"),ldap("ldap"),awsIAM("awsIAM");
+    none("none"),userNamePassword("userNamePassword"),x509("x509"),kerberos("kerberos"),ldap("ldap"),awsIAM("awsIAM");
 
     private String value;
     private MongoDbAuthType(String value) {

@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.databaseConfigurations.MongoDb;
 
 import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
+import com.itorix.apiwiz.common.model.databaseconfigs.SshAuthType;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDBConfiguration;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDbSshAuthType;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoSSH;
@@ -40,14 +41,16 @@ public class MongoDbSSHConnection {
         MongoSSH mongoSsh = mongoDBConfiguration.getSsh();
 
         if (mongoSsh == null) {
-            logger.error("Invalid mongodb ssh connection - {}", mongoDBConfiguration.getSsh());
+            logger.error("Invalid mongodb ssh connection - {}", mongoDBConfiguration.getId());
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "MongoDbSsh parameter is missing"), "DatabaseConfiguration-1000");
         }
 
 
         MongoDbSshAuthType authType = mongoSsh.getSshAuthType();
 
-        if (authType == MongoDbSshAuthType.IDENTITYFILE) {
+        if(authType == MongoDbSshAuthType.NONE){
+            return;
+        } else if (authType == MongoDbSshAuthType.IDENTITYFILE) {
             // key file byte data and passphrase
             String ssh = mongoSsh.getSshIdentityFile();
             if (ssh == null) {
@@ -63,7 +66,7 @@ public class MongoDbSSHConnection {
                 try {
                     passphrase = rsaEncryption.decryptText(passphrase);
                 } catch (Exception ex) {
-                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "Mysql! Unable to decrypt the password"), "DatabaseConfiguration-1002");
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "mongodb! Unable to decrypt the password"), "DatabaseConfiguration-1002");
                 }
                 jSch.addIdentity(null, ssh.getBytes(), null, passphrase.getBytes());
             }
@@ -81,7 +84,7 @@ public class MongoDbSSHConnection {
                 try {
                     password = rsaEncryption.decryptText(password);
                 } catch (Exception ex) {
-                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "Mysql! Unable to decrypt the password"), "DatabaseConfiguration-1002");
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "mongodb! Unable to decrypt the password"), "DatabaseConfiguration-1002");
                 }
                 session.setPassword(password.getBytes());
             } else {

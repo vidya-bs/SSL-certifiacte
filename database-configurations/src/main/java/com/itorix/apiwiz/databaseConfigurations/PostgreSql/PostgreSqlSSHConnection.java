@@ -39,15 +39,15 @@ public class PostgreSqlSSHConnection {
     int localPort = SocketUtils.findAvailableTcpPort();
 
     PostgreSQLSSH postgreSQLSsh = postgreSQLConfiguration.getSsh();
-
     if(postgreSQLSsh == null){
-      logger.error("Invalid postgresql ssh connection - {}", postgreSQLConfiguration.getSsh());
-      throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"MongoDbSsh parameter is missing"), "DatabaseConfiguration-1000");
+      logger.error("Invalid postgresq; ssh connection - {}", postgreSQLConfiguration.getId());
+      throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"postgres ssh parameter is missing"), "DatabaseConfiguration-1000");
     }
 
     SshAuthType authType = postgreSQLSsh.getSshAuthenticationType();
-
-    if (authType == SshAuthType.IDENTITYFILE ) {
+    if(authType == SshAuthType.NONE){
+      return;
+    } else if (authType == SshAuthType.IDENTITYFILE ) {
       // key file byte data and passphrase
       String ssh = postgreSQLConfiguration.getSsh().getSshIdentityfile();
       if(ssh == null){
@@ -64,7 +64,7 @@ public class PostgreSqlSSHConnection {
         try {
           passphrase = rsaEncryption.decryptText(passphrase);
         } catch (Exception ex){
-          throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"Mysql! Unable to decrypt the password"), "DatabaseConfiguration-1002");
+          throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"postgres! Unable to decrypt the password"), "DatabaseConfiguration-1002");
         }
         jSch.addIdentity(null, ssh.getBytes(), null, passphrase.getBytes());
       }
@@ -82,7 +82,7 @@ public class PostgreSqlSSHConnection {
         try {
           password = rsaEncryption.decryptText(password);
         } catch (Exception ex){
-          throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"Mysql! Unable to decrypt the password"), "DatabaseConfiguration-1002");
+          throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"postgres! Unable to decrypt the password"), "DatabaseConfiguration-1002");
         }
         session.setPassword(password.getBytes());
       } else {
