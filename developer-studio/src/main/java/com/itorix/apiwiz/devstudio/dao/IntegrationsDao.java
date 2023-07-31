@@ -5,16 +5,12 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.model.MetaData;
-import com.itorix.apiwiz.common.model.databaseconfigs.DatabaseType;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDBConfiguration;
 import com.itorix.apiwiz.common.model.databaseconfigs.mysql.MySQLConfiguration;
 import com.itorix.apiwiz.common.model.databaseconfigs.postgress.PostgreSQLConfiguration;
-import com.itorix.apiwiz.common.model.exception.ErrorCodes;
-import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.integrations.Integration;
 import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
 import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
-import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.devstudio.model.metricsMetadata.BuildGovernance;
 import com.itorix.apiwiz.devstudio.model.metricsMetadata.MetricMetadata;
 import com.itorix.apiwiz.identitymanagement.dao.BaseRepository;
@@ -498,5 +494,23 @@ public class IntegrationsDao {
 		PostgreSQLConfiguration.setModifiedUserName(userName);
 		PostgreSQLConfiguration.setModifiedBy(userId);
 		PostgreSQLConfiguration.setMts(System.currentTimeMillis());
+	}
+
+	public List<MongoDBConfiguration> getMongoDbDatabaseIntegrationsMetadata() {
+		Query query = new Query();
+		query.fields().include("id", "name", "description", "cts", "mts", "createdUserName", "modifiedUserName");
+		return mongoTemplate.find(query, MongoDBConfiguration.class);
+	}
+
+	public List<MySQLConfiguration> getMySqlIntegrationsMetadata() {
+		Query query = new Query();
+		query.fields().include("id", "name", "description", "cts", "mts", "createdUserName", "modifiedUserName");
+		return mongoTemplate.find(query, MySQLConfiguration.class);
+	}
+
+	public List<PostgreSQLConfiguration> getPostgreSqlIntegrationsMetadata() {
+		Query query = new Query();
+		query.fields().include("id", "name", "description", "cts", "mts", "createdUserName", "modifiedUserName");
+		return mongoTemplate.find(query, PostgreSQLConfiguration.class);
 	}
 }

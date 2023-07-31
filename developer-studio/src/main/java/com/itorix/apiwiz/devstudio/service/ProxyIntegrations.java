@@ -249,6 +249,12 @@ public interface ProxyIntegrations {
 			@PathVariable("id") String id
 	) throws Exception;
 
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/database/mongodb/meta-data", produces = {"application/json"})
+	public ResponseEntity<?> getMongoDbIntegrationsMetadata(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid
+	) throws Exception;
+
 
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/integrations/database/mysql", produces = {"application/json"})
 	public ResponseEntity<?> createMySqlIntegration(
@@ -285,6 +291,12 @@ public interface ProxyIntegrations {
 			@PathVariable("id") String id
 	) throws Exception;
 
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/database/mysql/meta-data", produces = {"application/json"})
+	public ResponseEntity<?> getMySqlIntegrationsMetaData(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid
+	) throws Exception;
+
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/integrations/database/postgresql", produces = {"application/json"})
 	public ResponseEntity<?> createPostgreSqlIntegration(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
@@ -318,6 +330,11 @@ public interface ProxyIntegrations {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("id") String id
+	) throws Exception;
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/integrations/database/postgresql/meta-data", produces = {"application/json"})
+	public ResponseEntity<?> getPostgreSqlIntegrationsMetaData(
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestHeader(value = "JSESSIONID") String jsessionid
 	) throws Exception;
 
 }

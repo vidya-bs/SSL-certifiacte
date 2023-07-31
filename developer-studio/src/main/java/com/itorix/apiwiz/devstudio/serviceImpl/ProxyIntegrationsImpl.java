@@ -365,6 +365,15 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	}
 
 	@Override
+	public ResponseEntity<?> getMongoDbIntegrationsMetadata(String interactionid, String jsessionid) throws Exception {
+		List<MongoDBConfiguration> documents = integrationsDao.getMongoDbDatabaseIntegrationsMetadata();
+		if (documents == null || documents.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<>(documents, HttpStatus.CREATED);
+	}
+
+	@Override
 	public ResponseEntity<?> createMySqlIntegration(String interactionid, String jsessionid, MySQLConfiguration mySQLConfiguration) throws Exception {
 		String id = integrationsDao.createMySqlDatabaseConfig(mySQLConfiguration);
 		return new ResponseEntity<>(id,HttpStatus.CREATED);
@@ -399,6 +408,15 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	}
 
 	@Override
+	public ResponseEntity<?> getMySqlIntegrationsMetaData(String interactionid, String jsessionid) throws Exception {
+		List<MySQLConfiguration> documents = integrationsDao.getMySqlIntegrationsMetadata();
+		if (documents == null || documents.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<>(documents, HttpStatus.CREATED);
+	}
+
+	@Override
 	public ResponseEntity<?> createPostgreSqlIntegration(String interactionid, String jsessionid, PostgreSQLConfiguration postgreSQLConfiguration) throws Exception {
 		String id = integrationsDao.createPostgreSqlDatabaseConfig(postgreSQLConfiguration);
 		return new ResponseEntity<>(id,HttpStatus.CREATED);
@@ -430,6 +448,15 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<>(postgreSQLConfiguration, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getPostgreSqlIntegrationsMetaData(String interactionid, String jsessionid) throws Exception {
+		List<PostgreSQLConfiguration> documents = integrationsDao.getPostgreSqlIntegrationsMetadata();
+		if (documents == null || documents.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<>(documents, HttpStatus.CREATED);
 	}
 
 	private String getFileExtension(String file) {
