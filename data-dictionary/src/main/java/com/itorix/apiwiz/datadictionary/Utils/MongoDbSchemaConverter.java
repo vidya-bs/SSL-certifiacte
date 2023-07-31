@@ -93,17 +93,17 @@ public class MongoDbSchemaConverter {
             documents.add(cursor.next());
         }
         cursor.close();
-        ObjectNode parentNode = OBJECT_MAPPER.createObjectNode();
+//        ObjectNode parentNode = OBJECT_MAPPER.createObjectNode();
         ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
         for (Document doc : documents) {
             try {
-                jsonNode = linearDataType(doc);
+                linearDataType(doc, jsonNode, collectionName);
             } catch (Exception ex){
                 logger.error("Error while fetching schema from document ", ex);
             }
         }
-        parentNode.set(collectionName, jsonNode);
-        return parentNode;
+//        parentNode.set(collectionName, jsonNode);
+        return jsonNode;
     }
 
     public static String outputAsString(String json) throws IOException {
@@ -299,73 +299,77 @@ public class MongoDbSchemaConverter {
                 ObjectNode childNode = parseV2((Document) obj);
                 jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "object").set("properties", childNode));
             } else {
-                jsonNode.set(key, linearDataType(obj));
+//                jsonNode.set(key, linearDataType(obj));
             }
         }
         return jsonNode;
     }
 
-    public ObjectNode linearDataType(Object obj){
+    public void linearDataType(Object obj, ObjectNode jsonNode, String key){
         if(obj instanceof Long){
-            return OBJECT_MAPPER.createObjectNode().put("type", "long");
+            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "long"));
         }
         else if(obj instanceof Integer){
-            return OBJECT_MAPPER.createObjectNode().put("type", "integer");
+            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "integer"));
         }
         else if(obj instanceof String){
-            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
         }
         else if(obj instanceof ObjectId){
-            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
         }
         else if(obj instanceof Date){
-            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
         }
         else if(obj instanceof Timestamp){
-            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
         }
         else if(obj instanceof MinKey){
-            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
         }
         else if(obj instanceof MaxKey){
-            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
         }
         else if(obj == null){
-            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
         }
         else if(obj instanceof Symbol){
-            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
         }
         else if(obj instanceof BsonRegularExpression){
-            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
         }
         else if(obj instanceof Double){
-            return OBJECT_MAPPER.createObjectNode().put("type", "double");
+            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "double"));
         }
         else if(obj instanceof Decimal128){
-            return OBJECT_MAPPER.createObjectNode().put("type", "decimal");
+            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "decimal"));
         }
         else if(obj instanceof CodeWithScope){
-            return OBJECT_MAPPER.createObjectNode().put("type", "string");
+            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
         }
         else if(obj instanceof ArrayList){
-            ObjectNode childNode = linearDataType(((ArrayList<?>) obj).get(0));
-            return  OBJECT_MAPPER.createObjectNode().put("type", "array").set("items", childNode);
+            ObjectNode innerJsonNode = OBJECT_MAPPER.createObjectNode();
+            innerJsonNode.put("type", "array");
+            linearDataType(((ArrayList<?>) obj).get(0), innerJsonNode, "items");
+            jsonNode.set(key, innerJsonNode);
         } else if( obj instanceof Document){
             ObjectNode childNode = OBJECT_MAPPER.createObjectNode();
-            for(String key: ((Document) obj).keySet()){
-                System.out.println(key);
-                Object object = ((Document) obj).get(key);
+            childNode.put("type", "object");
+            if(jsonNode.get(key) != null) {
+                if(jsonNode.get(key).get("properties") != null)
+                    childNode = (ObjectNode) jsonNode.get(key).get("properties");
+            }
+            for(String objKey: ((Document) obj).keySet()){
+                Object object = ((Document) obj).get(objKey);
                 if( object instanceof Document){
-                    ObjectNode innerChildNode = linearDataType(object);
-                    childNode.set(key, innerChildNode);
+                    linearDataType(object, childNode, objKey);
                 } else {
-                    childNode.set(key, linearDataType(object));
+                    linearDataType(object, childNode, objKey);
                 }
             }
-            return OBJECT_MAPPER.createObjectNode().put("type", "object").set("properties", childNode);
+            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().set("properties", childNode));
         }
-        return OBJECT_MAPPER.createObjectNode().put("type", "string");
     }
 
 }
