@@ -4764,8 +4764,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Date startDate = null;
 			Date endDate = null;
 			if (dates != null && dates.length > 0) {
-				startDate = dateFormat.parse(dates[0]);
-				endDate = dateFormat.parse(dates[1]);
+				startDate = dateFormat.parse(convertUnixTimeToDateString(dates[0]));
+				endDate = dateFormat.parse(convertUnixTimeToDateString(dates[1]));
 			}
 			Metrics metricsNode = new Metrics();
 			metricsNode.setType(timeunit);
@@ -4832,7 +4832,12 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		log.debug("swaggerObjectResponseV2 : {}", swaggerObjectResponse);
 		return swaggerObjectResponse;
 	}
-
+	public static String convertUnixTimeToDateString(String unixTimeStr) {
+		long unixTime = Long.parseLong(unixTimeStr);
+		Date date = new Date(unixTime * 1000L);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+		return dateFormat.format(date);
+	}
 	public SwaggerObjectResponse getSwagger3Statsv2(String timeunit, String timerange,String jsessionid) throws ParseException, ItorixException {
 		log("getSwagger3StatsV2", timeunit, timerange);
 		SwaggerObjectResponse swaggerObjectResponse = new SwaggerObjectResponse();
@@ -4850,8 +4855,8 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			Date startDate = null;
 			Date endDate = null;
 			if (dates != null && dates.length > 0) {
-				startDate = dateFormat.parse(dates[0]);
-				endDate = dateFormat.parse(dates[1]);
+				startDate = dateFormat.parse(convertUnixTimeToDateString(dates[0]));
+				endDate = dateFormat.parse(convertUnixTimeToDateString(dates[1]));
 			}
 			Metrics metricsNode = new Metrics();
 			metricsNode.setType(timeunit);

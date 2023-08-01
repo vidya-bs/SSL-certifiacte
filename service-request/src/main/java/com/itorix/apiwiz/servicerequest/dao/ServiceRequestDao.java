@@ -1209,7 +1209,12 @@ public class ServiceRequestDao {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
-
+	public static String convertUnixTimeToDateString(String unixTimeStr) {
+		long unixTime = Long.parseLong(unixTimeStr);
+		Date date = new Date(unixTime * 1000L);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+		return dateFormat.format(date);
+	}
 	public ObjectNode getServiceRequestStats(String timeunit, String timerange) throws Exception {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 		String[] dates = timerange != null ? timerange.split("~") : null;
@@ -1218,8 +1223,8 @@ public class ServiceRequestDao {
 		Date orgStartDateinit = null;
 		Date origEnddate = null;
 		if (dates != null && dates.length > 0) {
-			startDate = dateFormat.parse(dates[0]);
-			endDate = dateFormat.parse(dates[1]);
+			startDate = dateFormat.parse(convertUnixTimeToDateString(dates[0]));
+			endDate = dateFormat.parse(convertUnixTimeToDateString(dates[1]));
 			orgStartDateinit = startDate;
 			origEnddate = endDate;
 		}

@@ -243,10 +243,8 @@ public class SwaggerDiffService {
 			if (timeRange != null) {
 				SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
 				String timeRanges[] = timeRange.split("~");
-				Date startDate = format.parse(timeRanges[0]);
-				Date endDate = format.parse(timeRanges[1]);
-				long startTime = DateUtil.getStartOfDay(startDate).getTime();
-				long endDateTime = DateUtil.getEndOfDay(endDate).getTime();
+				long startTime = Long.parseLong(timeRanges[0]);
+				long endDateTime = Long.parseLong(timeRanges[1]);
 				query = new Query(
 						Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas).and("mts").gte(startTime)
 								.lte(endDateTime)).with(Sort.by(Direction.DESC, "mts"))
@@ -264,10 +262,8 @@ public class SwaggerDiffService {
 			if (timeRange != null) {
 				SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
 				String timeRanges[] = timeRange.split("~");
-				Date startDate = format.parse(timeRanges[0]);
-				Date endDate = format.parse(timeRanges[1]);
-				long startTime = DateUtil.getStartOfDay(startDate).getTime();
-				long endDateTime = DateUtil.getEndOfDay(endDate).getTime();
+				long startTime = Long.parseLong(timeRanges[0]);
+				long endDateTime = Long.parseLong(timeRanges[1]);
 				counter = mongoTemplate.count(
 						new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas)
 								.and("mts").gte(startTime).lte(endDateTime)), SwaggerChangeLog.class);
