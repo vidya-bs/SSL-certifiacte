@@ -500,8 +500,8 @@ public class DevportalDao {
 		return mongoTemplate.find(query, Document.class, collection);
 	}
 
-	public AzureConfigurationVO getAzureConnector(String serviceName) {
-		Query query = new Query(Criteria.where("serviceName").is(serviceName));
+	public AzureConfigurationVO getAzureConnector(String serviceName,String resourceGroup) {
+		Query query = new Query(Criteria.where("serviceName").is(serviceName).and("resourceGroup").is(resourceGroup));
 		return mongoTemplate.findOne(query, AzureConfigurationVO.class);
 	}
 
