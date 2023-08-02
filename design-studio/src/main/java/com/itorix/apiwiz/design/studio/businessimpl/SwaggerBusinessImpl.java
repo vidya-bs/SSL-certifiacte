@@ -4784,24 +4784,26 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				startDate = Long.parseLong(dates[0]);
 				endDate = Long.parseLong(dates[1]);
 			}
-			Metrics metricsNode = new Metrics();
-			metricsNode.setType(timeunit);
-			HashMap<String, Object> valuesNode = new HashMap<>();
-			while (startDate<=endDate) {
-				Query query = new Query();
-				query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
-						.gte(convertToStartOfDay(startDate))
-						.lt(convertToEndOfDay(startDate)));
-				List<SwaggerVO> list = baseRepository.find(query, SwaggerVO.class);
-				if (list != null && list.size() > 0) {
-					valuesNode.put("timestamp", convertToStartOfDay(startDate) + "");
-					valuesNode.put("value", list.size());
+			if(startDate!=-1L && endDate!=-1L){
+				Metrics metricsNode = new Metrics();
+				metricsNode.setType(timeunit);
+				HashMap<String, Object> valuesNode = new HashMap<>();
+				while (startDate<=endDate) {
+					Query query = new Query();
+					query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
+							.gte(convertToStartOfDay(startDate))
+							.lt(convertToEndOfDay(startDate)));
+					List<SwaggerVO> list = baseRepository.find(query, SwaggerVO.class);
+					if (list != null && list.size() > 0) {
+						valuesNode.put("timestamp", convertToStartOfDay(startDate) + "");
+						valuesNode.put("value", list.size());
 
+					}
+					startDate += 86400000L;//(24 * 60 * 60 * 1000)
 				}
-				startDate += 86400000L;//(24 * 60 * 60 * 1000)
+				metricsNode.setValues(valuesNode);
+				swaggerObjectResponse.setMetrics(metricsNode);
 			}
-			metricsNode.setValues(valuesNode);
-			swaggerObjectResponse.setMetrics(metricsNode);
 		}
 		if(!isAdmin){
 			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("2.0", user);
@@ -4868,23 +4870,25 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				startDate = Long.parseLong(dates[0]);
 				endDate = Long.parseLong(dates[1]);
 			}
-			Metrics metricsNode = new Metrics();
-			metricsNode.setType(timeunit);
-			HashMap<String, Object> valuesNode = new HashMap<>();
-			while (startDate<=endDate) {
-				Query query = new Query();
-				query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
-						.gte(convertToStartOfDay(startDate))
-						.lt(convertToEndOfDay(startDate)));
-				List<Swagger3VO> list = baseRepository.find(query, Swagger3VO.class);
-				if (list != null && list.size() > 0) {
-					valuesNode.put("timestamp", convertToStartOfDay(startDate) + "");
-					valuesNode.put("value", list.size());
+			if(startDate!=-1L && endDate!=-1L){
+				Metrics metricsNode = new Metrics();
+				metricsNode.setType(timeunit);
+				HashMap<String, Object> valuesNode = new HashMap<>();
+				while (startDate<=endDate) {
+					Query query = new Query();
+					query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
+							.gte(convertToStartOfDay(startDate))
+							.lt(convertToEndOfDay(startDate)));
+					List<Swagger3VO> list = baseRepository.find(query, Swagger3VO.class);
+					if (list != null && list.size() > 0) {
+						valuesNode.put("timestamp", convertToStartOfDay(startDate) + "");
+						valuesNode.put("value", list.size());
+					}
+					startDate += 86400000L;//(24 * 60 * 60 * 1000)
 				}
-				startDate += 86400000L;//(24 * 60 * 60 * 1000)
+				metricsNode.setValues(valuesNode);
+				swaggerObjectResponse.setMetrics(metricsNode);
 			}
-			metricsNode.setValues(valuesNode);
-			swaggerObjectResponse.setMetrics(metricsNode);
 		}
 		if(!isAdmin){
 			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("3.0", user);
