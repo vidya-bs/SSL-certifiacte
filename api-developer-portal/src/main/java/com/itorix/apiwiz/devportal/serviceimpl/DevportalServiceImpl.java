@@ -4,35 +4,52 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.model.apigee.StaticFields;
 import com.itorix.apiwiz.common.model.azure.AzureConfigurationVO;
-import com.itorix.apiwiz.common.model.azure.AzureProductResponse;
-import com.itorix.apiwiz.common.model.azure.AzureProductResponseDTO;
-import com.itorix.apiwiz.common.model.azure.AzureProductValues;
+import com.itorix.apiwiz.common.model.azure.AzureSubscriptionResponse;
+import com.itorix.apiwiz.common.model.azure.AzureSubscriptionResponseDTO;
+import com.itorix.apiwiz.common.model.azure.AzureSubscriptionValues;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
-import com.itorix.apiwiz.common.model.kong.ConsumerResponse;
-import com.itorix.apiwiz.common.model.kong.KongRuntime;
-import com.itorix.apiwiz.common.model.kong.KongWorkspaceResponse;
+import com.itorix.apiwiz.common.model.kong.*;
 import com.itorix.apiwiz.common.model.monetization.ProductBundle;
 import com.itorix.apiwiz.common.model.monetization.RatePlan;
+import com.itorix.apiwiz.devportal.model.DeveloperApp;
+import com.itorix.apiwiz.devportal.model.monetization.PurchaseRecord;
+import com.itorix.apiwiz.devportal.model.monetization.PurchaseResult;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+
+import java.util.Map;
+import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.itorix.apiwiz.common.util.apigee.ApigeeUtil;
 import com.itorix.apiwiz.common.util.apigeeX.ApigeeXUtill;
 import com.itorix.apiwiz.common.util.http.HTTPUtil;
 import com.itorix.apiwiz.devportal.dao.DevportalDao;
-import com.itorix.apiwiz.devportal.model.DeveloperApp;
-import com.itorix.apiwiz.devportal.model.monetization.PurchaseRecord;
-import com.itorix.apiwiz.devportal.model.monetization.PurchaseResult;
 import com.itorix.apiwiz.devportal.service.DevportalService;
+import org.springframework.web.client.RestTemplate;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
@@ -55,9 +72,9 @@ public class DevportalServiceImpl implements DevportalService {
 
 	@Override
 	public ResponseEntity<String> createDeveloper(@RequestHeader(value = "JSESSIONID") String jsessionId,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
-			@RequestHeader(value = "type") String type, @PathVariable("org") String org, @RequestBody String body)
+												  @RequestHeader(value = "interactionid", required = false) String interactionid,
+												  @RequestHeader(value = "x-gwtype", required = false) String gwtype,
+												  @RequestHeader(value = "type") String type, @PathVariable("org") String org, @RequestBody String body)
 			throws Exception {
 		if (body != null) {
 			logger.debug("Returning proxy service for devportaldao");
@@ -80,16 +97,16 @@ public class DevportalServiceImpl implements DevportalService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
-			@PathVariable("email") String email, @RequestBody Map<String,Object> body) throws Exception {
+			@PathVariable("email") String email, @RequestBody Map<String, Object> body) throws Exception {
 		if (body != null) {
 			ObjectMapper mapper = new ObjectMapper();
 			DeveloperApp developerApp = new DeveloperApp();
 			developerApp.setOrganization(org);
 			developerApp.setEmail(email);
-			developerApp.setAppName(body.get("name") != null ? body.get("name").toString():"");
-			developerApp.setDescription(body.get("description") != null ? body.get("description").toString():"");
-			developerApp.setProductBundle(body.get("productBundle") != null ? mapper.convertValue(body.get("productBundle"),ProductBundle.class):null);
-			developerApp.setRatePlan(body.get("ratePlan") != null ? mapper.convertValue(body.get("ratePlan"),RatePlan.class):null);
+			developerApp.setAppName(body.get("name") != null ? body.get("name").toString() : "");
+			developerApp.setDescription(body.get("description") != null ? body.get("description").toString() : "");
+			developerApp.setProductBundle(body.get("productBundle") != null ? mapper.convertValue(body.get("productBundle"), ProductBundle.class) : null);
+			developerApp.setRatePlan(body.get("ratePlan") != null ? mapper.convertValue(body.get("ratePlan"), RatePlan.class) : null);
 			body.remove("description");
 			body.remove("productBundle");
 			body.remove("ratePlan");
@@ -105,7 +122,7 @@ public class DevportalServiceImpl implements DevportalService {
 						+ "/apps";
 				logger.info(String.format("Making a call to Apigee with payload %s", bodyToApigee));
 				HTTPUtil httpConn = new HTTPUtil(bodyToApigee, URL, getEncodedCredentials(org, type));
-				ResponseEntity<String> response =  devportaldao.proxyService(httpConn, "POST");
+				ResponseEntity<String> response = devportaldao.proxyService(httpConn, "POST");
 				JSONObject json = mapper.readValue(response.getBody(), JSONObject.class);
 				developerApp.setAppId(json.getString("appId"));
 				devportaldao.saveDeveloperApp(developerApp);
@@ -118,8 +135,8 @@ public class DevportalServiceImpl implements DevportalService {
 
 	@Override
 	public List<DeveloperApp> getRegisteredApps(String jsessionId, String interactionid, String org,
-			String email, String appId, String appName) throws Exception {
-		return devportaldao.getRegisteredApps(org,email,appId,appName);
+												String email, String appId, String appName) throws Exception {
+		return devportaldao.getRegisteredApps(org, email, appId, appName);
 	}
 
 	@Override
@@ -138,16 +155,16 @@ public class DevportalServiceImpl implements DevportalService {
 			if (type != null && type.equalsIgnoreCase("apigeex")) {
 				String URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/developers/" + email
 						+ "/apps/" + appName;
-				if(status != null){
-					try{
-						String statusUrl = URL+"?action="+status;
-						statusUrl = statusUrl.replace("//v1/organizations","/v1/organizations");
+				if (status != null) {
+					try {
+						String statusUrl = URL + "?action=" + status;
+						statusUrl = statusUrl.replace("//v1/organizations", "/v1/organizations");
 						HttpHeaders headers = new HttpHeaders();
-						headers.set("Authorization",apigeexUtil.getApigeeCredentials(org, type));
+						headers.set("Authorization", apigeexUtil.getApigeeCredentials(org, type));
 						HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
 
-						ResponseEntity<Void> statusResponse = restTemplate.exchange(statusUrl, HttpMethod.POST,requestEntity,Void.class);
-					}catch (Exception ex){
+						ResponseEntity<Void> statusResponse = restTemplate.exchange(statusUrl, HttpMethod.POST, requestEntity, Void.class);
+					} catch (Exception ex) {
 						logger.error("Could Not Update App Status:" + ex.getMessage());
 					}
 				}
@@ -156,16 +173,16 @@ public class DevportalServiceImpl implements DevportalService {
 			} else {
 				String URL = apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/" + org + "/developers/" + email
 						+ "/apps/" + appName;
-				if(status != null){
-					try{
-						String statusUrl = URL+"?action="+status;
-						statusUrl = statusUrl.replace("//v1/organizations","/v1/organizations");
+				if (status != null) {
+					try {
+						String statusUrl = URL + "?action=" + status;
+						statusUrl = statusUrl.replace("//v1/organizations", "/v1/organizations");
 						HttpHeaders headers = new HttpHeaders();
-						headers.set("Authorization",getEncodedCredentials(org, type));
+						headers.set("Authorization", getEncodedCredentials(org, type));
 						HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
 
-						ResponseEntity<Void> statusResponse = restTemplate.exchange(statusUrl, HttpMethod.POST,requestEntity,Void.class);
-					}catch (Exception ex){
+						ResponseEntity<Void> statusResponse = restTemplate.exchange(statusUrl, HttpMethod.POST, requestEntity, Void.class);
+					} catch (Exception ex) {
 						logger.error("Could Not Update App Status:" + ex.getMessage());
 					}
 				}
@@ -340,7 +357,7 @@ public class DevportalServiceImpl implements DevportalService {
 				JSONObject prodObj = (JSONObject) apiObj;
 				String appId = prodObj.get("appId").toString();
 				DeveloperApp developerApp = devportaldao.getDeveloperAppWithAppId(appId);
-				if(developerApp != null) {
+				if (developerApp != null) {
 					prodObj.put("ratePlan", developerApp.getRatePlan());
 					prodObj.put("productBundle", developerApp.getProductBundle());
 					prodObj.put("description", developerApp.getDescription());
@@ -348,14 +365,14 @@ public class DevportalServiceImpl implements DevportalService {
 				responseObject.add(prodObj);
 			}
 			JSONObject finalResponse = new JSONObject();
-			finalResponse.put("app",responseObject);
-			return new ResponseEntity<>(finalResponse.toString(),HttpStatus.OK);
+			finalResponse.put("app", responseObject);
+			return new ResponseEntity<>(finalResponse.toString(), HttpStatus.OK);
 		}
 	}
 
 	@Override
 	public ResponseEntity<Object> getAppsByOrganisation(String jsessionId, String interactionid,
-			String gwtype, String type, String org) throws Exception {
+														String gwtype, String type, String org) throws Exception {
 		if (type != null && type.equalsIgnoreCase("apigeex")) {
 //			String URL;
 //			if (expand != null && expand != "")
@@ -387,7 +404,7 @@ public class DevportalServiceImpl implements DevportalService {
 			return ResponseEntity.ok("{}");
 		} else {
 			String URL = apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/" + org
-						+ "/apps?expand=true";
+					+ "/apps?expand=true";
 
 			HTTPUtil httpConn = new HTTPUtil(URL, getEncodedCredentials(org, type));
 			ResponseEntity<String> response = devportaldao.proxyService(httpConn, "GET");
@@ -399,12 +416,12 @@ public class DevportalServiceImpl implements DevportalService {
 				for (Object appsObj : apps) {
 					JSONObject appDetails = new JSONObject();
 					JSONObject prodObj = (JSONObject) appsObj;
-					appDetails.put("appId",(String) prodObj.get("appId"));
+					appDetails.put("appId", (String) prodObj.get("appId"));
 					JSONArray json = (JSONArray) prodObj.get("attributes");
-					for(Object obj : json){
-						if(obj instanceof  JSONObject){
+					for (Object obj : json) {
+						if (obj instanceof JSONObject) {
 							JSONObject nameObject = (JSONObject) obj;
-							if (StringUtils.equalsIgnoreCase(nameObject.getString("name"), "DisplayName")){
+							if (StringUtils.equalsIgnoreCase(nameObject.getString("name"), "DisplayName")) {
 								appDetails.put("appName", nameObject.getString("value"));
 							}
 
@@ -483,9 +500,10 @@ public class DevportalServiceImpl implements DevportalService {
 			return devportaldao.proxyService(httpConn, "GET");
 		}
 	}
+
 	@Override
 	public ResponseEntity<String> getProductsForPartner(String jsessionId, String interactionid,
-			String partner, String type, String org) throws Exception {
+														String partner, String type, String org) throws Exception {
 		if (type != null && type.equalsIgnoreCase("apigeex")) {
 			String URL;
 			URL =
@@ -509,99 +527,108 @@ public class DevportalServiceImpl implements DevportalService {
 
 	@Override
 	public ResponseEntity<?> getProductBundleCards(String jsessionId, String interactionid,
-			String partnerType,String org, int offset, int pagesize, boolean paginated) throws Exception {
-		return new ResponseEntity<>(devportaldao.getProductBundleCards(partnerType,org,offset,pagesize,paginated),HttpStatus.OK);
+												   String partnerType, String org, int offset, int pagesize, boolean paginated) throws Exception {
+		return new ResponseEntity<>(devportaldao.getProductBundleCards(partnerType, org, offset, pagesize, paginated), HttpStatus.OK);
 	}
+
 	@Override
 	public ResponseEntity<?> purchaseRatePlan(String jsessionId, String interactionid,
-			PurchaseRecord purchaseRecord) throws Exception {
+											  PurchaseRecord purchaseRecord) throws Exception {
 		PurchaseResult purchaseResult = devportaldao.executePurchase(purchaseRecord);
 
-		if(purchaseResult.equals(PurchaseResult.SUCCESS)){
-			return new ResponseEntity<>(purchaseRecord,HttpStatus.CREATED);
-		}else if(purchaseResult.equals(PurchaseResult.INSUFFICIENT_BALANCE)){
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monetization-1010"),"Monetization-1010");
-		}else{
-			throw new ItorixException(ErrorCodes.errorMessage.get("Monetization-1020"),"Monetization-1020");
+		if (purchaseResult.equals(PurchaseResult.SUCCESS)) {
+			return new ResponseEntity<>(purchaseRecord, HttpStatus.CREATED);
+		} else if (purchaseResult.equals(PurchaseResult.INSUFFICIENT_BALANCE)) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monetization-1010"), "Monetization-1010");
+		} else {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Monetization-1020"), "Monetization-1020");
 		}
 	}
+
 	@Override
 	public ResponseEntity<?> getPurchaseHistoryByAppId(String jsessionId, String interactionid, String appId)
 			throws Exception {
-		return new ResponseEntity<>(devportaldao.getPurchaseHistoryByAppId(appId),HttpStatus.OK);
+		return new ResponseEntity<>(devportaldao.getPurchaseHistoryByAppId(appId), HttpStatus.OK);
 	}
+
 	@Override
 	public ResponseEntity<?> getPurchaseHistory(String jsessionId, String interactionid, String appId,
-			String developerEmailId, String organization) throws Exception {
+												String developerEmailId, String organization) throws Exception {
 
-		return new ResponseEntity<>(devportaldao.getPurchaseHistory(appId,developerEmailId,organization),HttpStatus.OK);
+		return new ResponseEntity<>(devportaldao.getPurchaseHistory(appId, developerEmailId, organization), HttpStatus.OK);
 	}
+
 	@Override
 	public ResponseEntity<?> deletePurchaseById(String jsessionId, String interactionid, String appId,
-			String purchaseId) throws Exception {
-		devportaldao.deletePurchaseById(appId,purchaseId);
+												String purchaseId) throws Exception {
+		devportaldao.deletePurchaseById(appId, purchaseId);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
+
 	@Override
 	public ResponseEntity<?> getWalletBalanceByFilter(String jsessionId, String interactionid, String appId,
-			String email) throws Exception {
-		return new ResponseEntity<>(devportaldao.getWalletBalanceByFilter(appId,email),HttpStatus.OK);
+													  String email) throws Exception {
+		return new ResponseEntity<>(devportaldao.getWalletBalanceByFilter(appId, email), HttpStatus.OK);
 	}
+
 	@Override
 	public ResponseEntity<?> getWalletBalanceByAppId(String jsessionId, String interactionid, String appId)
 			throws Exception {
-		return new ResponseEntity<>(devportaldao.getWalletBalanceByAppId(appId),HttpStatus.OK);
+		return new ResponseEntity<>(devportaldao.getWalletBalanceByAppId(appId), HttpStatus.OK);
 	}
+
 	@Override
 	public ResponseEntity<?> addWalletBalanceForAppId(String jsessionId, String interactionid, double topUp,
-			String appId) throws Exception {
-		return new ResponseEntity<>(devportaldao.addWalletBalanceForAppId(appId,topUp),HttpStatus.OK);
+													  String appId) throws Exception {
+		return new ResponseEntity<>(devportaldao.addWalletBalanceForAppId(appId, topUp), HttpStatus.OK);
 	}
+
 	@Override
-	public ResponseEntity<?> computeBillForAppId(String jsessionId, String interactionid, double transactions,String startDate, String endDate,String appId)
+	public ResponseEntity<?> computeBillForAppId(String jsessionId, String interactionid, double transactions, String startDate, String endDate, String appId)
 			throws Exception {
-		return new ResponseEntity<>(devportaldao.computeBillForAppId(appId,transactions,startDate,endDate),HttpStatus.OK);
+		return new ResponseEntity<>(devportaldao.computeBillForAppId(appId, transactions, startDate, endDate), HttpStatus.OK);
 	}
+
 	@Override
 	public ResponseEntity<?> updateProductStatus(String jsessionId, String interactionid, String gwtype,
-			String type, String org, String developerEmailId, String appName, String consumerKey, String productName,
-			String action) throws Exception {
+												 String type, String org, String developerEmailId, String appName, String consumerKey, String productName,
+												 String action) throws Exception {
 		if (type != null && type.equalsIgnoreCase("apigeex")) {
 			String URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/developers/" + developerEmailId
 					+ "/apps/" + appName + "/keys/" + consumerKey + "/apiproducts/" + productName;
-			if(action != null){
-				try{
-					String statusUrl = URL+"?action="+action;
-					statusUrl = statusUrl.replace("//v1/organizations","/v1/organizations");
+			if (action != null) {
+				try {
+					String statusUrl = URL + "?action=" + action;
+					statusUrl = statusUrl.replace("//v1/organizations", "/v1/organizations");
 					HttpHeaders headers = new HttpHeaders();
-					headers.set("Authorization",apigeexUtil.getApigeeCredentials(org, type));
+					headers.set("Authorization", apigeexUtil.getApigeeCredentials(org, type));
 					HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
 
-					ResponseEntity<Void> statusResponse = restTemplate.exchange(statusUrl, HttpMethod.POST,requestEntity,Void.class);
-				}catch (Exception ex){
+					ResponseEntity<Void> statusResponse = restTemplate.exchange(statusUrl, HttpMethod.POST, requestEntity, Void.class);
+				} catch (Exception ex) {
 					logger.error("Could Not Update Product Status:" + ex.getMessage());
-					throw new ItorixException(ErrorCodes.errorMessage.get("Monetization-1050"),"Monetization-1050");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Monetization-1050"), "Monetization-1050");
 				}
 			}
 		} else {
 			String URL = apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/" + org + "/developers/" + developerEmailId
 					+ "/apps/" + appName + "/keys/" + consumerKey + "/apiproducts/" + productName;
-			if(action != null){
-				try{
-					String statusUrl = URL+"?action="+action;
-					statusUrl = statusUrl.replace("//v1/organizations","/v1/organizations");
+			if (action != null) {
+				try {
+					String statusUrl = URL + "?action=" + action;
+					statusUrl = statusUrl.replace("//v1/organizations", "/v1/organizations");
 					HttpHeaders headers = new HttpHeaders();
-					headers.set("Authorization",getEncodedCredentials(org, type));
+					headers.set("Authorization", getEncodedCredentials(org, type));
 					HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
 
-					ResponseEntity<Void> statusResponse = restTemplate.exchange(statusUrl, HttpMethod.POST,requestEntity,Void.class);
-				}catch (Exception ex){
+					ResponseEntity<Void> statusResponse = restTemplate.exchange(statusUrl, HttpMethod.POST, requestEntity, Void.class);
+				} catch (Exception ex) {
 					logger.error("Could Not Update Product Status:" + ex.getMessage());
-					throw new ItorixException(ErrorCodes.errorMessage.get("Monetization-1050"),"Monetization-1050");
+					throw new ItorixException(ErrorCodes.errorMessage.get("Monetization-1050"), "Monetization-1050");
 				}
 			}
 		}
-		return new ResponseEntity<>("Successfully Updated Product Status",HttpStatus.OK);
+		return new ResponseEntity<>("Successfully Updated Product Status", HttpStatus.OK);
 	}
 
 	@Override
@@ -611,26 +638,26 @@ public class DevportalServiceImpl implements DevportalService {
 
 	@Override
 	public ResponseEntity<?> getGatewayEnvs(String jsessionId, String interactionid, String gwtype, String type, String gateway, String resourceGroup) throws Exception {
-		return new ResponseEntity<>(devportaldao.getGatewayEnvironments(gateway,resourceGroup), HttpStatus.OK);
+		return new ResponseEntity<>(devportaldao.getGatewayEnvironments(gateway, resourceGroup), HttpStatus.OK);
 	}
 
 	@Override
-	public ResponseEntity<?> getGatewayApps(String jsessionId, String interactionid, String type, String gateway, String env, String workspace) throws Exception {
+	public ResponseEntity<?> getGatewayApps(String jsessionId, String interactionid, String type, String gateway, String env, String workspace, String resourceGroup) throws Exception {
 		Object object;
 		if (gateway.equalsIgnoreCase(StaticFields.APIGEE)) {
 			//call Apigee With The Env
 			object = apigeeAppsHelper(env, type);
-		}else if (gateway.equalsIgnoreCase(StaticFields.APIGEEX)) {
+		} else if (gateway.equalsIgnoreCase(StaticFields.APIGEEX)) {
 			//call ApigeeX With The Env
 			object = apigeeXAppsHelper(env, StaticFields.APIGEEX);
-		}else if (gateway.equalsIgnoreCase(StaticFields.KONG)) {
+		} else if (gateway.equalsIgnoreCase(StaticFields.KONG)) {
 			//call Kong With The Env
-			object = getConsumersFromKong(env,workspace);
-		}else if (gateway.equalsIgnoreCase(StaticFields.AZURE)) {
+			object = getConsumersFromKong(env, workspace);
+		} else if (gateway.equalsIgnoreCase(StaticFields.AZURE)) {
 			//call Azure With The Env
-			object = getProductsFromAzure(env);
-		}else{
-			throw  new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"),"Portal-1001");
+			object = getAppsFromAzure(env, resourceGroup);
+		} else {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"), "Portal-1001");
 		}
 		return new ResponseEntity<>(object, HttpStatus.OK);
 	}
@@ -646,7 +673,7 @@ public class DevportalServiceImpl implements DevportalService {
 	}
 
 	private ResponseEntity<String> getStringResponseEntity(String partner,
-			ResponseEntity<String> response) throws JsonProcessingException, ItorixException {
+														   ResponseEntity<String> response) throws JsonProcessingException, ItorixException {
 		Set<String> products = new HashSet<>();
 		List<String> partners = StringUtils.isNotBlank(partner) ? Arrays.asList(partner.split(","))
 				: Collections.emptyList();
@@ -683,6 +710,7 @@ public class DevportalServiceImpl implements DevportalService {
 	private String getEncodedCredentials(String org, String type) {
 		return apigeeUtil.getApigeeAuth(org, type);
 	}
+
 	public Object apigeeXAppsHelper(String org, String type) throws Exception {
 		String URL;
 		URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/apps?expand=true";
@@ -692,13 +720,13 @@ public class DevportalServiceImpl implements DevportalService {
 		String apiProductString = response.getBody();
 		try {
 			JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
-			if(!proxyObject.isEmpty()){
+			if (!proxyObject.isEmpty()) {
 				JSONArray apiProducts = (JSONArray) proxyObject.get("app");
 				for (Object apiObj : apiProducts) {
 					JSONObject prodObj = (JSONObject) apiObj;
 					JSONObject appDetails = new JSONObject();
-					appDetails.put("appId",prodObj.get("appId"));
-					appDetails.put("appName",prodObj.get("name"));
+					appDetails.put("appId", prodObj.get("appId"));
+					appDetails.put("appName", prodObj.get("name"));
 					JSONArray json = (JSONArray) prodObj.get("attributes");
 					for (Object obj : json) {
 						if (obj instanceof JSONObject) {
@@ -708,8 +736,8 @@ public class DevportalServiceImpl implements DevportalService {
 							}
 						}
 					}
-					if(appDetails.get("appName")==null){
-						appDetails.put("appName",(String) prodObj.get("name"));
+					if (appDetails.get("appName") == null) {
+						appDetails.put("appName", (String) prodObj.get("name"));
 					}
 					appResponseList.add(appDetails);
 				}
@@ -749,8 +777,8 @@ public class DevportalServiceImpl implements DevportalService {
 						}
 					}
 				}
-				if(appDetails.get("appName")==null){
-					appDetails.put("appName",(String) prodObj.get("name"));
+				if (appDetails.get("appName") == null) {
+					appDetails.put("appName", (String) prodObj.get("name"));
 				}
 				appResponseList.add(appDetails);
 			}
@@ -759,27 +787,28 @@ public class DevportalServiceImpl implements DevportalService {
 		}
 		return appResponseList;
 	}
-	public Object getConsumersFromKong(String runtime,String workspace) {
+
+	public List<Consumer> getConsumersFromKong(String runtime, String workspace) throws ItorixException {
 		try {
 			KongRuntime kongRuntime = devportaldao.getKongRuntime(runtime);
 			String url;
 			HttpHeaders headers = new HttpHeaders();
 			String kongHost;
-			if(kongRuntime.getKongAdminHost().charAt(kongRuntime.getKongAdminHost().length()-1)=='/'){
-				kongHost=kongRuntime.getKongAdminHost().substring(0,kongRuntime.getKongAdminHost().length()-1);
-			}else{
-				kongHost=kongRuntime.getKongAdminHost();
+			if (kongRuntime.getKongAdminHost().charAt(kongRuntime.getKongAdminHost().length() - 1) == '/') {
+				kongHost = kongRuntime.getKongAdminHost().substring(0, kongRuntime.getKongAdminHost().length() - 1);
+			} else {
+				kongHost = kongRuntime.getKongAdminHost();
 			}
-			if(kongRuntime.getType().equalsIgnoreCase("onprem")){
+			if (kongRuntime.getType().equalsIgnoreCase("onprem")) {
 				headers.set("Kong-Admin-Token", kongRuntime.getKongAdminToken());
-				if(workspace!=null){
-					url = String.format("%s/%s/consumers", kongHost,workspace);
-				}else{
+				if (workspace != null) {
+					url = String.format("%s/%s/consumers", kongHost, workspace);
+				} else {
 					url = String.format("%s/consumers", kongHost);
 				}
-			}else{//saas
+			} else {//saas
 				headers.set("Authorization", kongRuntime.getKongAdminToken());
-				url = String.format("%s/konnect-api/api/runtime_groups/%s/consumers",kongHost,workspace);
+				url = String.format("%s/konnect-api/api/runtime_groups/%s/consumers", kongHost, workspace);
 			}
 			headers.setContentType(MediaType.APPLICATION_JSON);
 			HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
@@ -787,24 +816,31 @@ public class DevportalServiceImpl implements DevportalService {
 					requestEntity, ConsumerResponse.class);
 			return consumers.getBody().getData();
 		} catch (Exception e) {
-			throw e;
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"), "Portal-1001");
 		}
 	}
-	public Object getProductsFromAzure(String serviceName) throws ItorixException {
-		AzureConfigurationVO connector = devportaldao.getAzureConnector(serviceName);
-		String url = String.format("https://%s/subscriptions/%s/resourceGroups/%s/providers/Microsoft.ApiManagement/service/%s/%s?api-version=%s", connector.getManagementHost(), connector.getSubscriptionId(), connector.getResourceGroup(), connector.getServiceName(), "products", connector.getApiVersion());
+
+	public List<AzureSubscriptionResponseDTO> getAppsFromAzure(String serviceName, String resourceGroup) throws ItorixException {
+		AzureConfigurationVO connector = devportaldao.getAzureConnector(serviceName, resourceGroup);
+		String url = String.format(StaticFields.AZURE_SUBSCRIPTIONS_URL, connector.getManagementHost(), connector.getSubscriptionId(), connector.getResourceGroup(), connector.getServiceName(), connector.getApiVersion());
 		try {
-			ResponseEntity<AzureProductResponse> azureProductResponse = restTemplate.exchange(url, HttpMethod.GET, requestEntity(null, connector.getSharedAccessToken()), AzureProductResponse.class);
-			List<AzureProductValues> response = azureProductResponse.getBody().getValue();
-			List<AzureProductResponseDTO> azureProductResponseDTOS = new ArrayList<>();
-			for (AzureProductValues azureProductValues : response) {
-				azureProductResponseDTOS.add(new AzureProductResponseDTO(azureProductValues.getName(), azureProductValues.getProperties().getDisplayName()));
+			List<AzureSubscriptionResponseDTO> azureSubscriptionResponseDTOS = new ArrayList<>();
+			ResponseEntity<AzureSubscriptionResponse> azureProductResponse = restTemplate.exchange(url, HttpMethod.GET, requestEntity(null, connector.getSharedAccessToken()), AzureSubscriptionResponse.class);
+			List<AzureSubscriptionValues> response = azureProductResponse.getBody().getValue();
+			for (AzureSubscriptionValues azureSubscriptionValues : response) {
+				String[] scopeArray = azureSubscriptionValues.getProperties().getScope().split("/");
+				if (scopeArray[scopeArray.length - 2].equalsIgnoreCase("products")) {
+					String name = azureSubscriptionValues.getName();
+					String displayName = azureSubscriptionValues.getProperties().getDisplayName();
+					azureSubscriptionResponseDTOS.add(new AzureSubscriptionResponseDTO(name, displayName != null ? displayName : name));
+				}
 			}
-			return azureProductResponseDTOS;
+			return azureSubscriptionResponseDTOS;
 		} catch (Exception e) {
-			throw  new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"),"Portal-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"), "Portal-1001");
 		}
 	}
+
 	public static <T> HttpEntity<T> requestEntity(T body, String azureAccessToken) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Authorization", azureAccessToken);
@@ -814,22 +850,23 @@ public class DevportalServiceImpl implements DevportalService {
 		}
 		return new HttpEntity<>(headers);
 	}
-	public Object getWorkspacesFromKong(String runtime) throws ItorixException {
+
+	public List<KongWorkspace> getWorkspacesFromKong(String runtime) throws ItorixException {
 		try {
 			KongRuntime kongRuntime = devportaldao.getKongRuntime(runtime);
 			String url;
 			HttpHeaders headers = new HttpHeaders();
 			String kongHost;
-			if(kongRuntime.getKongAdminHost().charAt(kongRuntime.getKongAdminHost().length()-1)=='/'){
-				kongHost=kongRuntime.getKongAdminHost().substring(0,kongRuntime.getKongAdminHost().length()-1);
-			}else{
-				kongHost=kongRuntime.getKongAdminHost();
+			if (kongRuntime.getKongAdminHost().charAt(kongRuntime.getKongAdminHost().length() - 1) == '/') {
+				kongHost = kongRuntime.getKongAdminHost().substring(0, kongRuntime.getKongAdminHost().length() - 1);
+			} else {
+				kongHost = kongRuntime.getKongAdminHost();
 			}
-			if(kongRuntime.getType().equalsIgnoreCase("onprem")){
+			if (kongRuntime.getType().equalsIgnoreCase("onprem")) {
 				url = String.format("%s/workspaces/", kongHost);
 				headers.set("Kong-Admin-Token", kongRuntime.getKongAdminToken());
-			}else{//saas
-				url = String.format("%s/konnect-api/api/runtime_groups", kongHost,runtime);
+			} else {//saas
+				url = String.format("%s/konnect-api/api/runtime_groups", kongHost);
 				headers.set("Authorization", kongRuntime.getKongAdminToken());
 			}
 
@@ -839,14 +876,18 @@ public class DevportalServiceImpl implements DevportalService {
 					requestEntity, KongWorkspaceResponse.class);
 			return kongWorkspaces.getBody().getData();
 		} catch (Exception e) {
-			throw  new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"),"Portal-1001");
+			throw new ItorixException(ErrorCodes.errorMessage.get("Portal-1001"), "Portal-1001");
 		}
 	}
 
 	public Set<String> getResourceGroupsFromAzure() throws ItorixException {
+		Set<String> response = new HashSet<>();
 		List<AzureConfigurationVO> connectors = devportaldao.getAllAzureConnectors();
-		return connectors.stream()
-				.map(AzureConfigurationVO::getResourceGroup)
-				.collect(Collectors.toSet());
+		if(connectors!=null && !connectors.isEmpty()){
+			for(AzureConfigurationVO azureConfigurationVO: connectors){
+				response.add(azureConfigurationVO.getResourceGroup());
+			}
+		}
+		return response;
 	}
 }

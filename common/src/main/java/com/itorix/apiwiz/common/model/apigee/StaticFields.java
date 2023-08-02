@@ -25,9 +25,11 @@ public class StaticFields {
 
   public static final String AZURE="Azure";
   public static final String KONG="Kong";
-  public static final String APIGEE="apigee";
-  public static final String APIGEEX="apigeex";
+  public static final String APIGEE="Apigee";
+  public static final String APIGEEX="Apigeex";
 
   public static final String EMAIL_SUBJECT_CONTACT_SALES="contact-sales";
   public static final String EMAIL_SUBJECT_REQUEST_A_DEMO="request-a-demo";
+
+  public static final String AZURE_SUBSCRIPTIONS_URL="https://%s/subscriptions/%s/resourceGroups/%s/providers/Microsoft.ApiManagement/service/%s/subscriptions?api-version=%s";
 }

@@ -8,6 +8,8 @@ import com.itorix.apiwiz.design.studio.model.AsyncApi;
 import com.itorix.apiwiz.design.studio.model.AsyncapiImport;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
 import com.itorix.apiwiz.design.studio.service.AsyncApiService;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.json.JSONObject;
@@ -27,6 +29,7 @@ import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import com.itorix.apiwiz.design.studio.business.NotificationBusiness;
 
 
+import com.itorix.apiwiz.design.studio.business.NotificationBusiness;
 
 @CrossOrigin
 @RestController
@@ -52,6 +55,8 @@ public class AsyncApiServiceImpl implements AsyncApiService {
 		asyncApiObj.setName(info.get("title").toString());
 		asyncApiObj.setAsyncApi(asyncapi);
 		asyncApiDao.createAsyncApiOrPushToDesignStudio(asyncApiObj,jsessionid);
+		UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
+		asyncApiObj.setCreatedBy(userSession.getUserId());
 		notificationBusiness.instantiateNotification(jsessionid, asyncApiObj.getName(), asyncApiObj.getCreatedBy(), "AsyncApi", "AsyncApi has been created for "  );
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
@@ -59,7 +64,7 @@ public class AsyncApiServiceImpl implements AsyncApiService {
 	@Override
 	public ResponseEntity<?> updateAsyncApi(String interactionid, String jsessionid,
 			String id, String asyncapi) throws Exception {
-			AsyncApi existingAsyncApi= asyncApiDao.getExistingAsyncById(id);
+		AsyncApi existingAsyncApi= asyncApiDao.getExistingAsyncById(id);
 		asyncApiDao.updateAsyncApi(id,asyncapi,jsessionid);
 		notificationBusiness.instantiateNotification(jsessionid, existingAsyncApi.getName(), existingAsyncApi.getCreatedBy(), "AsyncApi", "AsyncApi has been updated for "  );
 		return new ResponseEntity<>(HttpStatus.OK);
