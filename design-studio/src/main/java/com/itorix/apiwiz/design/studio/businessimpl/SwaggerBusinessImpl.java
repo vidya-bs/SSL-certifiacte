@@ -4743,7 +4743,25 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		swaggerData.setStatus(doc.getString(STATUS_VALUE));
 		return swaggerData;
 	}
+	public static long convertToStartOfDay(long unixTimestampInMillis) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(unixTimestampInMillis);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		return calendar.getTimeInMillis();
+	}
 
+	public static long convertToEndOfDay(long unixTimestampInMillis) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(unixTimestampInMillis);
+		calendar.set(Calendar.HOUR_OF_DAY, 23);
+		calendar.set(Calendar.MINUTE, 59);
+		calendar.set(Calendar.SECOND, 59);
+		calendar.set(Calendar.MILLISECOND, 999);
+		return calendar.getTimeInMillis();
+	}
 
 	public SwaggerObjectResponse getSwaggerStatsV2(String timeunit, String timerange,String jsessionid)
 			throws ParseException {
@@ -4759,29 +4777,28 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		boolean populateSwaggers = false;
 		if (timeunit != null && timerange != null) {
 			populateSwaggers = true;
-			SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 			String[] dates = timerange.split("~");
-			Date startDate = null;
-			Date endDate = null;
+			long startDate = -1L;
+			long endDate = -1L;
 			if (dates != null && dates.length > 0) {
-				startDate = dateFormat.parse(convertUnixTimeToDateString(dates[0]));
-				endDate = dateFormat.parse(convertUnixTimeToDateString(dates[1]));
+				startDate = Long.parseLong(dates[0]);
+				endDate = Long.parseLong(dates[1]);
 			}
 			Metrics metricsNode = new Metrics();
 			metricsNode.setType(timeunit);
 			HashMap<String, Object> valuesNode = new HashMap<>();
-			while (startDate.compareTo(endDate) <= 0) {
+			while (startDate<=endDate) {
 				Query query = new Query();
 				query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
-						.gte(new Long(getStartOfDay(startDate).getTime() + ""))
-						.lt(new Long(getEndOfDay(startDate).getTime() + "")));
+						.gte(convertToStartOfDay(startDate))
+						.lt(convertToEndOfDay(startDate)));
 				List<SwaggerVO> list = baseRepository.find(query, SwaggerVO.class);
 				if (list != null && list.size() > 0) {
-					valuesNode.put("timestamp", getStartOfDay(startDate).getTime() + "");
+					valuesNode.put("timestamp", convertToStartOfDay(startDate) + "");
 					valuesNode.put("value", list.size());
 
 				}
-				startDate = DateUtil.addDays(startDate, 1);
+				startDate += 86400000L;//(24 * 60 * 60 * 1000)
 			}
 			metricsNode.setValues(valuesNode);
 			swaggerObjectResponse.setMetrics(metricsNode);
@@ -4832,12 +4849,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		log.debug("swaggerObjectResponseV2 : {}", swaggerObjectResponse);
 		return swaggerObjectResponse;
 	}
-	public static String convertUnixTimeToDateString(String unixTimeStr) {
-		long unixTime = Long.parseLong(unixTimeStr);
-		Date date = new Date(unixTime * 1000L);
-		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-		return dateFormat.format(date);
-	}
 	public SwaggerObjectResponse getSwagger3Statsv2(String timeunit, String timerange,String jsessionid) throws ParseException, ItorixException {
 		log("getSwagger3StatsV2", timeunit, timerange);
 		SwaggerObjectResponse swaggerObjectResponse = new SwaggerObjectResponse();
@@ -4849,29 +4860,28 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		boolean populateSwaggers = false;
 		if (timeunit != null && timerange != null) {
 			populateSwaggers = true;
-			SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 			String[] dates = timerange.split("~");
 
-			Date startDate = null;
-			Date endDate = null;
+			long startDate = -1L;
+			long endDate = -1L;
 			if (dates != null && dates.length > 0) {
-				startDate = dateFormat.parse(convertUnixTimeToDateString(dates[0]));
-				endDate = dateFormat.parse(convertUnixTimeToDateString(dates[1]));
+				startDate = Long.parseLong(dates[0]);
+				endDate = Long.parseLong(dates[1]);
 			}
 			Metrics metricsNode = new Metrics();
 			metricsNode.setType(timeunit);
 			HashMap<String, Object> valuesNode = new HashMap<>();
-			while (startDate.compareTo(endDate) <= 0) {
+			while (startDate<=endDate) {
 				Query query = new Query();
 				query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
-						.gte(new Long(getStartOfDay(startDate).getTime() + ""))
-						.lt(new Long(getEndOfDay(startDate).getTime() + "")));
+						.gte(convertToStartOfDay(startDate))
+						.lt(convertToEndOfDay(startDate)));
 				List<Swagger3VO> list = baseRepository.find(query, Swagger3VO.class);
 				if (list != null && list.size() > 0) {
-					valuesNode.put("timestamp", getStartOfDay(startDate).getTime() + "");
+					valuesNode.put("timestamp", convertToStartOfDay(startDate) + "");
 					valuesNode.put("value", list.size());
 				}
-				startDate = DateUtil.addDays(startDate, 1);
+				startDate += 86400000L;//(24 * 60 * 60 * 1000)
 			}
 			metricsNode.setValues(valuesNode);
 			swaggerObjectResponse.setMetrics(metricsNode);
