@@ -9,6 +9,9 @@ import com.itorix.apiwiz.design.studio.model.swagger.sync.StatusHistory;
 import com.itorix.apiwiz.design.studio.service.GraphQLService;
 import java.util.List;
 import java.util.Arrays;
+
+import com.itorix.apiwiz.identitymanagement.model.ServiceRequestContextHolder;
+import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,15 +42,19 @@ public class GraphQLServiceImpl implements GraphQLService {
     checkGraphQL.setName(name);
     String graphQLData = graphqlSchema.getData()!=null ? graphqlSchema.getData() : "";
     GraphQL graphQL = graphQLBusiness.findGraphQL(checkGraphQL);
+    UserSession userSession = ServiceRequestContextHolder.getContext().getUserSessionToken();
     if(graphQL!=null){
+      //if already present in db
       logger.info("Creating a new revision for {}",graphQL.getName());
       checkGraphQL.setGraphQLSchema(graphQLData);
       graphQLBusiness.createNewRevisionWithName(checkGraphQL);
       notificationBusiness.instantiateNotification(jsessionid, graphQL.getName(), graphQL.getCreatedBy(), "GraphQL", "GraphQL Revision has been created for "  );
     }else{
+      //if not present in db
       logger.info("Creating a new GraphQL Schema");
       checkGraphQL.setGraphQLSchema(graphQLData);
       graphQLBusiness.create(checkGraphQL);
+      checkGraphQL.setCreatedBy(userSession.getUserId());
       notificationBusiness.instantiateNotification(jsessionid, checkGraphQL.getName(), checkGraphQL.getCreatedBy(), "GraphQL", "GraphQL Schema has been created for "  );
     }
     return new ResponseEntity<>(HttpStatus.CREATED);
@@ -86,6 +93,7 @@ public class GraphQLServiceImpl implements GraphQLService {
       GraphQLData graphqlSchema) throws ItorixException {
     GraphQL checkGraphQL = new GraphQL();
     checkGraphQL.setGraphQLId(graphQLId);
+    GraphQL graphQL = graphQLBusiness.findGraphQL(checkGraphQL);
     String graphQLData = graphqlSchema.getData()!=null ? graphqlSchema.getData() : "";
     checkGraphQL.setGraphQLSchema(graphQLData);
     logger.info("Creating a new revision for Id-{}",graphQLId);
