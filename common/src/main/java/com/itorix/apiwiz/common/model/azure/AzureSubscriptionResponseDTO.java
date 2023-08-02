@@ -1,6 +1,6 @@
 package com.itorix.apiwiz.common.model.azure;
 
-public class AzureProductResponseDTO {
+public class AzureSubscriptionResponseDTO {
     private String name;
     private String displayName;
 
@@ -8,7 +8,7 @@ public class AzureProductResponseDTO {
         return name;
     }
 
-    public AzureProductResponseDTO(String name, String displayName) {
+    public AzureSubscriptionResponseDTO(String name, String displayName) {
         this.name = name;
         this.displayName = displayName;
     }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
 
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -68,6 +69,7 @@ public class OAuth2UserMapper extends DefaultOAuth2UserService  {
 				userEmailBuilder.append(emailAddress);
 			}
 		}
+
 
 		OAuth2User user =  super.loadUser(userRequest);
 		MappedOAuth2User mappedOAuth2User = new MappedOAuth2User(user);

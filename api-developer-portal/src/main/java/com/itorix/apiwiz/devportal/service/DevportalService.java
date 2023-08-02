@@ -258,7 +258,8 @@ public interface DevportalService {
 											@RequestHeader(value = "type", required = false) String type,
 											@PathVariable("gateway") String gateway,
 											@PathVariable("env") String env,
-											@RequestParam(value = "workspace",required = false) String workspace) throws Exception;
+											@RequestParam(value = "workspace",required = false) String workspace,
+											@RequestParam(value = "resourceGroup",required = false) String resourceGroup) throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/gateways/kong/{runTime}/workspaces")
