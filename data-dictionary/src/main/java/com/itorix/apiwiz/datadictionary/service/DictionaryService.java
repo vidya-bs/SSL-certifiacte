@@ -420,8 +420,8 @@ public interface DictionaryService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable(value = "connectionId") String connectionId,
-			@RequestParam(value = "databaseType")String databaseType,
-			@RequestParam(value = "databaseName")String databaseName,
+			@RequestParam(value = "databaseType") String databaseType,
+			@RequestParam(value = "databaseName", required = false)String databaseName,
 			@RequestParam(value = "schemaName",required = false) String schemaName,
 			@RequestParam(value = "collections",required = false)List<String> collections,
 			@RequestParam(value = "tables",required = false)List<String> tables,
@@ -435,7 +435,7 @@ public interface DictionaryService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable(value = "connectionId") String connectionId,
 			@RequestParam(value = "databaseType") String databaseType,
-			@RequestParam(value = "databaseName") String databaseName,
+			@RequestParam(value = "databaseName", required = false) String databaseName,
 			@RequestParam(value = "schemaName", required = false) String schemaName,
 			@RequestParam(value = "searchKey") String searchKey
 	) throws ItorixException;

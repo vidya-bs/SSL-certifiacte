@@ -121,6 +121,9 @@ public class DataTypeConverter {
     }
   };
   public ObjectNode getDataType(String type){
+    if(!type.isEmpty() && type.charAt(0) == '_'){
+      return OBJECT_MAPPER.createObjectNode().put("type","array").set("items",map.get(type.substring(1)));
+    }
     return map.get(type);
   }
 }

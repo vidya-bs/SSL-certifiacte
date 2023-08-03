@@ -38,23 +38,27 @@ public class SQLSchemaConverter {
             ResultSet dbs = metaData.getCatalogs();
             ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
             for (String tableName : tables) {
-                ResultSet columns = metaData.getColumns(dataBaseName, null, tableName, null);
-                if (!columns.next()) {
-                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1005"), "Mysql", tableName), "DatabaseConfiguration-1005");
+                try {
+                    ResultSet columns = metaData.getColumns(dataBaseName, null, tableName, null);
+                    if (!columns.next()) {
+                        throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1005"), "Mysql", tableName), "DatabaseConfiguration-1005");
+                    }
+                    ObjectNode obj = OBJECT_MAPPER.createObjectNode();
+                    ObjectNode json = OBJECT_MAPPER.createObjectNode();
+                    obj.put("type", "object");
+                    do {
+                        String columnName = columns.getString(COLUMN_NAME);
+                        String columnType = columns.getString(TYPE_NAME);
+                        ObjectNode relevantDataType = dataTypeConverter.getDataType(columnType);
+                        json.set(columnName, relevantDataType);
+                    } while (columns.next());
+                    obj.set("properties", json);
+                    jsonNode.set(tableName, obj);
+                    columns.close();
+                    schemas.put(dataBaseName, jsonNode);
+                } catch (Exception ex){
+                    logger.error("Exception while converting {}", tableName);
                 }
-                ObjectNode obj = OBJECT_MAPPER.createObjectNode();
-                ObjectNode json = OBJECT_MAPPER.createObjectNode();
-                obj.put("type", "object");
-                do {
-                    String columnName = columns.getString(COLUMN_NAME);
-                    String columnType = columns.getString(TYPE_NAME);
-                    ObjectNode relevantDataType = dataTypeConverter.getDataType(columnType);
-                    json.set(columnName, relevantDataType);
-                } while (columns.next());
-                obj.set("properties", json);
-                jsonNode.set(tableName, obj);
-                columns.close();
-                schemas.put(dataBaseName, jsonNode);
             }
             dbs.close();
             connection.close();
