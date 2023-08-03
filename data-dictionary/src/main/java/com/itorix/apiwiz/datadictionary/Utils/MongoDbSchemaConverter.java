@@ -21,6 +21,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -34,6 +35,9 @@ public class MongoDbSchemaConverter {
     private static final Logger logger = LoggerFactory.getLogger(MongoDbSchemaConverter.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    @Autowired
+    private DataTypeConverter dataTypeConverter;
 
     private static JsonWriterSettings settings = JsonWriterSettings.builder()
             .outputMode(JsonMode.STRICT)
@@ -93,7 +97,6 @@ public class MongoDbSchemaConverter {
             documents.add(cursor.next());
         }
         cursor.close();
-//        ObjectNode parentNode = OBJECT_MAPPER.createObjectNode();
         ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
         for (Document doc : documents) {
             try {
@@ -102,7 +105,6 @@ public class MongoDbSchemaConverter {
                 logger.error("Error while fetching schema from document ", ex);
             }
         }
-//        parentNode.set(collectionName, jsonNode);
         return jsonNode;
     }
 
@@ -307,50 +309,50 @@ public class MongoDbSchemaConverter {
 
     public void linearDataType(Object obj, ObjectNode jsonNode, String key){
         if(obj instanceof Long){
-            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "long"));
+            jsonNode.set(key, dataTypeConverter.getDataType("long"));
         }
         else if(obj instanceof Integer){
-            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "integer"));
+            jsonNode.set(key, dataTypeConverter.getDataType("integer"));
         }
         else if(obj instanceof String){
-            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
+            jsonNode.set(key, dataTypeConverter.getDataType("string"));
         }
         else if(obj instanceof ObjectId){
-            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
+            jsonNode.set(key, dataTypeConverter.getDataType("string"));
         }
         else if(obj instanceof Date){
-            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
+            jsonNode.set(key, dataTypeConverter.getDataType("dateTime"));
         }
-        else if(obj instanceof Timestamp){
-            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
+        else if(obj instanceof BSONTimestamp){
+            jsonNode.set(key, dataTypeConverter.getDataType("string"));
         }
         else if(obj instanceof MinKey){
-            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
+            jsonNode.set(key, dataTypeConverter.getDataType("string"));
         }
         else if(obj instanceof MaxKey){
-            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
+            jsonNode.set(key, dataTypeConverter.getDataType("string"));
         }
         else if(obj == null){
-            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
+            jsonNode.set(key, dataTypeConverter.getDataType("string"));
         }
         else if(obj instanceof Symbol){
-            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
+            jsonNode.set(key, dataTypeConverter.getDataType("string"));
         }
         else if(obj instanceof BsonRegularExpression){
-            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
+            jsonNode.set(key, dataTypeConverter.getDataType("string"));
         }
         else if(obj instanceof Double){
-            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "double"));
+            jsonNode.set(key, dataTypeConverter.getDataType("double"));
         }
         else if(obj instanceof Decimal128){
-            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "decimal"));
+            jsonNode.set(key, dataTypeConverter.getDataType("decimal"));
         }
         else if(obj instanceof CodeWithScope){
-            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "string"));
+            jsonNode.set(key, dataTypeConverter.getDataType("string"));
         }
         else if(obj instanceof ArrayList){
             ObjectNode innerJsonNode = OBJECT_MAPPER.createObjectNode();
-            innerJsonNode.put("type", "array");
+            innerJsonNode.put("type", "array");  // check for the properties already exists
             linearDataType(((ArrayList<?>) obj).get(0), innerJsonNode, "items");
             jsonNode.set(key, innerJsonNode);
         } else if( obj instanceof Document){

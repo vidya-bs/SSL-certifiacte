@@ -26,13 +26,13 @@ public class DataTypeConverter {
       put("INT UNSIGNED", OBJECT_MAPPER.createObjectNode().put("type","integer") );
       put("INTEGER", OBJECT_MAPPER.createObjectNode().put("type","integer") );
       put("INTEGER UNSIGNED", OBJECT_MAPPER.createObjectNode().put("type","integer") );
-      put("BIGINT", OBJECT_MAPPER.createObjectNode().put("type","number").put("format", "long") );
+      put("BIGINT", OBJECT_MAPPER.createObjectNode().put("type","integer").put("format", "int64") );
       put("BIGINT UNSIGNED", OBJECT_MAPPER.createObjectNode().put("type","integer") );
       put("FLOAT", OBJECT_MAPPER.createObjectNode().put("type","number").put("format", "float") );
       put("FLOAT UNSIGNED", OBJECT_MAPPER.createObjectNode().put("type","integer") );
       put("DOUBLE", OBJECT_MAPPER.createObjectNode().put("type","number").put("format", "double") );
       put("DOUBLE UNSIGNED", OBJECT_MAPPER.createObjectNode().put("type","integer") );
-      put("DECIMAL", OBJECT_MAPPER.createObjectNode().put("type","number").put("format", "double") );
+      put("DECIMAL", OBJECT_MAPPER.createObjectNode().put("type","number").put("format", "float") );
       put("DECIMAL UNSIGNED", OBJECT_MAPPER.createObjectNode().put("type","integer") );
       put("NUMERIC", OBJECT_MAPPER.createObjectNode().put("type","number").put("format", "double") );
       put("DATE", OBJECT_MAPPER.createObjectNode().put("type","string").put("format", "date") );
@@ -75,9 +75,8 @@ public class DataTypeConverter {
       put("char", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("character", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("date", OBJECT_MAPPER.createObjectNode().put("type", "string").put("format","date"));
-      put("decimal", OBJECT_MAPPER.createObjectNode().put("type", "number").put("format","double"));
+      put("decimal", OBJECT_MAPPER.createObjectNode().put("type", "number").put("format","float"));
       put("double precision", OBJECT_MAPPER.createObjectNode().put("type", "number").put("format","double"));
-      put("integer", OBJECT_MAPPER.createObjectNode().put("type", "integer"));
       put("json", OBJECT_MAPPER.createObjectNode().put("type", "object"));
       put("jsonb", OBJECT_MAPPER.createObjectNode().put("type", "object"));
       put("numeric", OBJECT_MAPPER.createObjectNode().put("type", "number").put("format","double"));
@@ -118,6 +117,14 @@ public class DataTypeConverter {
       put("float8", OBJECT_MAPPER.createObjectNode().put("type","number").put("format", "float") );
       put("bool", OBJECT_MAPPER.createObjectNode().put("type","boolean") );
       put("double", OBJECT_MAPPER.createObjectNode().put("type","number").put("format", "double") );
+
+
+      //MongoDb
+      put("long", OBJECT_MAPPER.createObjectNode().put("type","integer").put("format", "int32") );
+      put("integer", OBJECT_MAPPER.createObjectNode().put("type","integer").put("format", "int64") );
+      put("string", OBJECT_MAPPER.createObjectNode().put("type", "string"));
+      put("dateTime", OBJECT_MAPPER.createObjectNode().put("type", "string").put("format","date-time"));
+
     }
   };
   public ObjectNode getDataType(String type){
