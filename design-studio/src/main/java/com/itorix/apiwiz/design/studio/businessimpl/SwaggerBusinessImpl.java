@@ -4743,25 +4743,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		swaggerData.setStatus(doc.getString(STATUS_VALUE));
 		return swaggerData;
 	}
-	public static long convertToStartOfDay(long unixTimestampInMillis) {
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(unixTimestampInMillis);
-		calendar.set(Calendar.HOUR_OF_DAY, 0);
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.MILLISECOND, 0);
-		return calendar.getTimeInMillis();
-	}
-
-	public static long convertToEndOfDay(long unixTimestampInMillis) {
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(unixTimestampInMillis);
-		calendar.set(Calendar.HOUR_OF_DAY, 23);
-		calendar.set(Calendar.MINUTE, 59);
-		calendar.set(Calendar.SECOND, 59);
-		calendar.set(Calendar.MILLISECOND, 999);
-		return calendar.getTimeInMillis();
-	}
 
 	public SwaggerObjectResponse getSwaggerStatsV2(String timeunit, String timerange,String jsessionid)
 			throws ParseException {
@@ -4791,11 +4772,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				while (startDate<=endDate) {
 					Query query = new Query();
 					query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
-							.gte(convertToStartOfDay(startDate))
-							.lt(convertToEndOfDay(startDate)));
+							.gte(DateUtil.convertToStartOfDay(startDate))
+							.lt(DateUtil.convertToEndOfDay(startDate)));
 					List<SwaggerVO> list = baseRepository.find(query, SwaggerVO.class);
 					if (list != null && list.size() > 0) {
-						valuesNode.put("timestamp", convertToStartOfDay(startDate) + "");
+						valuesNode.put("timestamp", DateUtil.convertToStartOfDay(startDate) + "");
 						valuesNode.put("value", list.size());
 
 					}
@@ -4877,11 +4858,11 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				while (startDate<=endDate) {
 					Query query = new Query();
 					query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
-							.gte(convertToStartOfDay(startDate))
-							.lt(convertToEndOfDay(startDate)));
+							.gte(DateUtil.convertToStartOfDay(startDate))
+							.lt(DateUtil.convertToEndOfDay(startDate)));
 					List<Swagger3VO> list = baseRepository.find(query, Swagger3VO.class);
 					if (list != null && list.size() > 0) {
-						valuesNode.put("timestamp", convertToStartOfDay(startDate) + "");
+						valuesNode.put("timestamp", DateUtil.convertToStartOfDay(startDate) + "");
 						valuesNode.put("value", list.size());
 					}
 					startDate += 86400000L;//(24 * 60 * 60 * 1000)
