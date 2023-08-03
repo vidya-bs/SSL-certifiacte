@@ -1210,25 +1210,6 @@ public class ServiceRequestDao {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
-	public static long convertToStartOfDay(long unixTimestampInMillis) {
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(unixTimestampInMillis);
-		calendar.set(Calendar.HOUR_OF_DAY, 0);
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.MILLISECOND, 0);
-		return calendar.getTimeInMillis();
-	}
-
-	public static long convertToEndOfDay(long unixTimestampInMillis) {
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(unixTimestampInMillis);
-		calendar.set(Calendar.HOUR_OF_DAY, 23);
-		calendar.set(Calendar.MINUTE, 59);
-		calendar.set(Calendar.SECOND, 59);
-		calendar.set(Calendar.MILLISECOND, 999);
-		return calendar.getTimeInMillis();
-	}
 	public ObjectNode getServiceRequestStats(String timeunit, String timerange) throws Exception {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 		String[] dates = timerange != null ? timerange.split("~") : null;
@@ -1265,12 +1246,12 @@ public class ServiceRequestDao {
 				while (startDate<=endDate) {
 					Query query = new Query();
 					query.addCriteria(
-							Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(convertToStartOfDay(startDate))
-									.lt(convertToEndOfDay(endDate)).and("type").is(type));
+							Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(DateUtil.convertToStartOfDay(startDate))
+									.lt(DateUtil.convertToEndOfDay(endDate)).and("type").is(type));
 					List<ServiceRequest> list = baseRepository.find(query, ServiceRequest.class);
 					// if(list!=null && list.size()>0){
 					ObjectNode valueNode = mapper.createObjectNode();
-					valueNode.put("timestamp", convertToStartOfDay(startDate) + "");
+					valueNode.put("timestamp", DateUtil.convertToStartOfDay(startDate) + "");
 					valueNode.put("value", list.size());
 					valuesNode.add(valueNode);
 					// }
@@ -1293,8 +1274,8 @@ public class ServiceRequestDao {
 				query.addCriteria(Criteria.where("status").is(status));
 				if(startDate != -1L && endDate != -1L) {
 					query.addCriteria(
-							Criteria.where("modifiedDate").gte(convertToStartOfDay(startDate))
-									.lt(convertToEndOfDay(endDate)));
+							Criteria.where("modifiedDate").gte(DateUtil.convertToStartOfDay(startDate))
+									.lt(DateUtil.convertToEndOfDay(endDate)));
 				}
 				query.addCriteria((Criteria.where("activeFlag").is(Boolean.TRUE)));
 				List<ServiceRequest> listByStatus = baseRepository.find(query, ServiceRequest.class);
@@ -1306,8 +1287,8 @@ public class ServiceRequestDao {
 					query.addCriteria(Criteria.where("status").is(status).and("type").is(type));
 					if(startDate != -1L && endDate != -1L) {
 						query.addCriteria(
-								Criteria.where("modifiedDate").gte(convertToStartOfDay(startDate))
-										.lt(convertToEndOfDay(endDate)));
+								Criteria.where("modifiedDate").gte(DateUtil.convertToStartOfDay(startDate))
+										.lt(DateUtil.convertToEndOfDay(endDate)));
 					}
 					query.addCriteria((Criteria.where("activeFlag").is(Boolean.TRUE)));
 					List<ServiceRequest> listByStatusType = baseRepository.find(query, ServiceRequest.class);
