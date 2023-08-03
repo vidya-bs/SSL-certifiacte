@@ -108,95 +108,6 @@ public class MongoDbSchemaConverter {
         return jsonNode;
     }
 
-    public static String outputAsString(String json) throws IOException {
-        return cleanup(outputAsString(json, null));
-    }
-
-    private static String outputAsString(String json, JsonNodeType type) throws IOException {
-        JsonNode jsonNode = OBJECT_MAPPER.readTree(json);
-        StringBuilder output = new StringBuilder();
-        output.append("{");
-
-        if (type == null) output.append(TYPE_OBJECT_PROPERTY + "{");
-
-        for (Iterator<String> iterator = jsonNode.fieldNames(); iterator.hasNext();) {
-            String fieldName = iterator.next();
-
-            if((jsonNode.get(fieldName) instanceof ArrayNode && (jsonNode.get(fieldName).isNull() || jsonNode.get(fieldName).isEmpty())) ||
-                    jsonNode.get(fieldName) instanceof NullNode) {
-                continue;
-            }else{
-                JsonNodeType nodeType = jsonNode.get(fieldName).getNodeType();
-                output.append(convertNodeToStringSchemaNode(jsonNode, nodeType, fieldName));
-            }
-        }
-
-        if (type == null) output.append("}");
-
-        output.append("}");
-
-        return output.toString();
-    }
-
-    private static String convertNodeToStringSchemaNode(
-            JsonNode jsonNode, JsonNodeType nodeType, String key) throws IOException {
-
-        StringBuilder result = new StringBuilder("\"" + key + "\": { \"type\": \"");
-
-        JsonNode node;
-        switch (nodeType) {
-            case ARRAY:
-                node = jsonNode.get(key).get(0);
-                result.append(ARRAY_TYPE);
-                JsonNodeType type ;
-                try{
-                    type = jsonNode.get(key).get(0).getNodeType();
-                }catch(Exception ex){
-                    type = JsonNodeType.STRING;
-                }
-                if (type == JsonNodeType.OBJECT) {
-                    result.append("{ "+ TYPE_OBJECT_PROPERTY);
-                    result.append(outputAsString(node.toString(), type));
-                } else if (type == JsonNodeType.ARRAY) {
-                    result.append(outputAsString(node.toString(), type));
-                } else {
-                    result.append(String.format(CUSTOM_TYPE, type.toString().toLowerCase()));
-                }
-                if (type == JsonNodeType.OBJECT) {
-                    result.append("}},");
-                } else {
-                    result.append("},");
-                }
-                break;
-            case BOOLEAN:
-                result.append(TYPE_BOOLEAN);
-                break;
-            case NUMBER:
-                if(jsonNode.get(key) instanceof IntNode){
-                    result.append(INTEGER_TYPE);
-                }else {
-                    result.append(NUMBER_TYPE);
-                }
-                break;
-            case OBJECT:
-                node = jsonNode.get(key);
-                result.append(OBJECT_PROPERTY);
-                result.append(outputAsString(node.toString(), JsonNodeType.OBJECT));
-                result.append("},");
-                break;
-            case STRING:
-                result.append(STRING_TYPE);
-                break;
-        }
-        return result.toString();
-    }
-
-    private static String cleanup(String dirty) {
-        JSONObject rawSchema = new JSONObject(new JSONTokener(dirty));
-        Schema schema = SchemaLoader.load(rawSchema);
-        return schema.toString();
-    }
-
     public List<String> getCollectionNames(MongoClient client, String databaseName) throws ItorixException {
         try {
             MongoDatabase database = client.getDatabase(databaseName);
@@ -292,21 +203,6 @@ public class MongoDbSchemaConverter {
         return exists;
     }
 
-    private ObjectNode parseV2(Document doc) {
-        ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
-        for(String key: doc.keySet()){
-            System.out.println(key);
-            Object obj = doc.get(key);
-            if( obj instanceof Document){
-                ObjectNode childNode = parseV2((Document) obj);
-                jsonNode.set(key, OBJECT_MAPPER.createObjectNode().put("type", "object").set("properties", childNode));
-            } else {
-//                jsonNode.set(key, linearDataType(obj));
-            }
-        }
-        return jsonNode;
-    }
-
     public void linearDataType(Object obj, ObjectNode jsonNode, String key){
         if(obj instanceof Long){
             jsonNode.set(key, dataTypeConverter.getDataType("long"));
@@ -357,7 +253,6 @@ public class MongoDbSchemaConverter {
             jsonNode.set(key, innerJsonNode);
         } else if( obj instanceof Document){
             ObjectNode childNode = OBJECT_MAPPER.createObjectNode();
-            childNode.put("type", "object");
             if(jsonNode.get(key) != null) {
                 if(jsonNode.get(key).get("properties") != null)
                     childNode = (ObjectNode) jsonNode.get(key).get("properties");
@@ -370,7 +265,10 @@ public class MongoDbSchemaConverter {
                     linearDataType(object, childNode, objKey);
                 }
             }
-            jsonNode.set(key, OBJECT_MAPPER.createObjectNode().set("properties", childNode));
+            ObjectNode parentNode = OBJECT_MAPPER.createObjectNode()
+                    .put("type", "object")
+                    .set("properties", childNode);
+            jsonNode.set(key, parentNode);
         }
     }
 

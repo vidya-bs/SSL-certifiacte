@@ -120,8 +120,8 @@ public class DataTypeConverter {
 
 
       //MongoDb
-      put("long", OBJECT_MAPPER.createObjectNode().put("type","integer").put("format", "int32") );
-      put("integer", OBJECT_MAPPER.createObjectNode().put("type","integer").put("format", "int64") );
+      put("long", OBJECT_MAPPER.createObjectNode().put("type","integer").put("format", "int64") );
+      put("integer", OBJECT_MAPPER.createObjectNode().put("type","integer").put("format", "int32") );
       put("string", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("dateTime", OBJECT_MAPPER.createObjectNode().put("type", "string").put("format","date-time"));
 

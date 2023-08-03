@@ -33,7 +33,7 @@ public class SQLSchemaConverter {
             if (dataBaseName == null) {
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1004"), "Mysql", "Invalid database name"), "DatabaseConfiguration-1004");
             }
-            Map<String, ObjectNode> schemas = new HashMap<>();
+            List<ObjectNode> schemas = new ArrayList<>();
             DatabaseMetaData metaData = connection.getMetaData();
             ResultSet dbs = metaData.getCatalogs();
             ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
@@ -55,7 +55,7 @@ public class SQLSchemaConverter {
                     obj.set("properties", json);
                     jsonNode.set(tableName, obj);
                     columns.close();
-                    schemas.put(dataBaseName, jsonNode);
+                    schemas.add(jsonNode);
                 } catch (Exception ex){
                     logger.error("Exception while converting {}", tableName);
                 }
@@ -76,7 +76,7 @@ public class SQLSchemaConverter {
             if (dataBaseName == null) {
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1004"), "postgreSql", "Invalid database name"), "DatabaseConfiguration-1004");
             }
-            Map<String, ObjectNode> schemas = new HashMap<>();
+            List<ObjectNode> schemas = new ArrayList<>();
             DatabaseMetaData metaData = connection.getMetaData();
             ResultSet dbs = metaData.getCatalogs();
             ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
@@ -98,7 +98,7 @@ public class SQLSchemaConverter {
                 obj.set("properties", json);
                 jsonNode.set(tableName, obj);
                 columns.close();
-                schemas.put(dataBaseName, jsonNode);
+                schemas.add(jsonNode);
             }
             dbs.close();
             connection.close();
