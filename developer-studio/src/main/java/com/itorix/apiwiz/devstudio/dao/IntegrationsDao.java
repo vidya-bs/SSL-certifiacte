@@ -8,6 +8,8 @@ import com.itorix.apiwiz.common.model.MetaData;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDBConfiguration;
 import com.itorix.apiwiz.common.model.databaseconfigs.mysql.MySQLConfiguration;
 import com.itorix.apiwiz.common.model.databaseconfigs.postgress.PostgreSQLConfiguration;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
+import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.integrations.Integration;
 import com.itorix.apiwiz.common.model.integrations.gocd.GoCDIntegration;
 import com.itorix.apiwiz.common.model.integrations.workspace.WorkspaceIntegration;
@@ -334,41 +336,59 @@ public class IntegrationsDao {
 	}
 
 
-	public String createMongoDbDatabaseConfig(MongoDBConfiguration mongoDBConfiguration) {
+	public String createMongoDbDatabaseConfig(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
+		if(mongoDBConfiguration.getName() == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Connector name is required!"), "DatabaseConfiguration-1000");
+		}
 		updateUserDetails(null, mongoDBConfiguration);
 		mongoDBConfiguration = baseRepository.save(mongoDBConfiguration);
 		log.info("Database Configuration created, id - {}", mongoDBConfiguration.getId());
 		return mongoDBConfiguration.getId();
 	}
 
-	public String createMySqlDatabaseConfig(MySQLConfiguration mySQLConfiguration) {
+	public String createMySqlDatabaseConfig(MySQLConfiguration mySQLConfiguration) throws ItorixException {
+		if(mySQLConfiguration.getName() == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Connector name is required!"), "DatabaseConfiguration-1000");
+		}
 		updateUserDetails(null, mySQLConfiguration);
 		mySQLConfiguration = baseRepository.save(mySQLConfiguration);
 		log.info("Database Configuration created, id - {}", mySQLConfiguration.getId());
 		return mySQLConfiguration.getId();
 	}
 
-	public String createPostgreSqlDatabaseConfig(PostgreSQLConfiguration postgreSQLConfiguration) {
+	public String createPostgreSqlDatabaseConfig(PostgreSQLConfiguration postgreSQLConfiguration) throws ItorixException {
+		if(postgreSQLConfiguration.getName() == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Connector name is required!"), "DatabaseConfiguration-1000");
+		}
 		updateUserDetails(null, postgreSQLConfiguration);
 		postgreSQLConfiguration = baseRepository.save(postgreSQLConfiguration);
 		log.info("Database Configuration created, id - {}", postgreSQLConfiguration.getId());
 		return postgreSQLConfiguration.getId();
 	}
 
-	public void updateMongoDbDatabaseIntegration(MongoDBConfiguration mongoDBConfiguration, String id) {
+	public void updateMongoDbDatabaseIntegration(MongoDBConfiguration mongoDBConfiguration, String id) throws ItorixException {
+		if(mongoDBConfiguration.getName() == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Connector name cannot be empty!"), "DatabaseConfiguration-1000");
+		}
 		MongoDBConfiguration oldMongoDBConfiguration = baseRepository.findById(id, MongoDBConfiguration.class);
 		updateUserDetails(oldMongoDBConfiguration, mongoDBConfiguration);
 		mongoTemplate.save(mongoDBConfiguration);
 	}
 
-	public void updateMySqlDatabaseIntegration(MySQLConfiguration mySQLConfiguration, String id) {
+	public void updateMySqlDatabaseIntegration(MySQLConfiguration mySQLConfiguration, String id) throws ItorixException {
+		if(mySQLConfiguration.getName() == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Connector name cannot be empty!"), "DatabaseConfiguration-1000");
+		}
 		MySQLConfiguration oldMySQLConfiguration = baseRepository.findById(id, MySQLConfiguration.class);
 		updateUserDetails(oldMySQLConfiguration, mySQLConfiguration);
 		mongoTemplate.save(mySQLConfiguration);
 	}
 
 
-	public void updatePostgreSqlDatabaseIntegration(PostgreSQLConfiguration postgreSQLConfiguration, String id) {
+	public void updatePostgreSqlDatabaseIntegration(PostgreSQLConfiguration postgreSQLConfiguration, String id) throws ItorixException {
+		if(postgreSQLConfiguration.getName() == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Connector name cannot be empty!"), "DatabaseConfiguration-1000");
+		}
 		PostgreSQLConfiguration olddatabaseConfiguration = baseRepository.findById(id, PostgreSQLConfiguration.class);
 		updateUserDetails(olddatabaseConfiguration, postgreSQLConfiguration);
 		mongoTemplate.save(postgreSQLConfiguration);
