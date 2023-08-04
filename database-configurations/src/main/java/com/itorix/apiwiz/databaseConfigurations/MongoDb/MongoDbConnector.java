@@ -58,7 +58,7 @@ public class MongoDbConnector {
         }
         try {
             ClientConnection clientConnection = new ClientConnection();
-            if(mongoDBConfiguration.getSsh() != null && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
+            if(mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
             if(mongoDBConfiguration.getSsl() != null &&  mongoDBConfiguration.getSsl().isSslConnection()){
@@ -92,7 +92,7 @@ public class MongoDbConnector {
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Connection url is mandatory parameter but missing"), "DatabaseConfiguration-1000");
             }
             ClientConnection clientConnection = new ClientConnection();
-            if(mongoDBConfiguration.getSsh() != null && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
+            if(mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
             if(mongoDBConfiguration.getSsl() != null &&  mongoDBConfiguration.getSsl().isSslConnection()){
@@ -133,7 +133,7 @@ public class MongoDbConnector {
             ClientConnection clientConnection = new ClientConnection();
             SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(mongoDBConfiguration, clientConnection);
 
-            if(mongoDBConfiguration.getSsh() != null && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
+            if(mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
 
@@ -188,7 +188,7 @@ public class MongoDbConnector {
         String url = mongoDBConfiguration.getUrl();
         try{
             ClientConnection clientConnection = new ClientConnection();
-            if(mongoDBConfiguration.getSsh() != null && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
+            if(mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
             if(mongoDBConfiguration.getSsl() != null &&  mongoDBConfiguration.getSsl().isSslConnection()){
@@ -252,7 +252,7 @@ public class MongoDbConnector {
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Connection url is mandatory parameter but missing"), "DatabaseConfiguration-1000");
             }
             ClientConnection clientConnection = new ClientConnection();
-            if(mongoDBConfiguration.getSsh() != null && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
+            if(mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
             if(mongoDBConfiguration.getSsl() != null &&  mongoDBConfiguration.getSsl().isSslConnection()){

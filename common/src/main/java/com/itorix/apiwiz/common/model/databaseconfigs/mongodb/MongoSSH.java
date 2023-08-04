@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
 public class MongoSSH {
+
+  private boolean enabled;
   private MongoDbSshAuthType sshAuthType;
   private String sshIdentityFile;
   private String sshPassphrase;
@@ -20,7 +22,8 @@ public class MongoSSH {
   public MongoSSH() {
   }
 
-  public MongoSSH(MongoDbSshAuthType sshAuthType, String sshIdentityFile, String sshPassphrase, String sshHostname, String sshPort, String sshUsername, String sshPassword, String proxyHostname, String proxyTunnelPort, String proxyUserName, String proxypassword) {
+  public MongoSSH(boolean isEnabled, MongoDbSshAuthType sshAuthType, String sshIdentityFile, String sshPassphrase, String sshHostname, String sshPort, String sshUsername, String sshPassword, String proxyHostname, String proxyTunnelPort, String proxyUserName, String proxypassword) {
+    this.enabled = isEnabled;
     this.sshAuthType = sshAuthType;
     this.sshIdentityFile = sshIdentityFile;
     this.sshPassphrase = sshPassphrase;
@@ -33,7 +36,6 @@ public class MongoSSH {
     this.proxyUserName = proxyUserName;
     this.proxypassword = proxypassword;
   }
-
 
   public String getProxyHostname() {
     return proxyHostname;
@@ -121,5 +123,13 @@ public class MongoSSH {
 
   public void setSshPassword(String sshPassword) {
     this.sshPassword = sshPassword;
+  }
+
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
   }
 }
