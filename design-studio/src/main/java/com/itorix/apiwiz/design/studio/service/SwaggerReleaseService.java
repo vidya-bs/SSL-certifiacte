@@ -61,11 +61,12 @@ public interface SwaggerReleaseService {
 //	@PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = {"/v1/swaggers/{swaggerid}/change-log/{id}",
 			"/v1/swaggers/{swaggerid}/change-log"})
-	public ResponseEntity<Object> getSwaggerChangelog(@RequestHeader(value = "JSESSIONID") String jsessionId,
+	public ResponseEntity<?> getSwaggerChangelog(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "timeRange", required = false) String timeRange,
+			@RequestParam(value = "paginated", required = false, defaultValue = "true") boolean paginated,
 			@PathVariable(value = "swaggerid", required = false) String swaggerid,
 			@PathVariable(value = "id", required = false) String id) throws Exception;
 }
