@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class PostgreSqlSSLConnection {
     PEMImporter pemImporter;
 
     @PostConstruct
-    public void createTempDirectory(){
+    public void createTempDirectory() {
         if (Files.notExists(Path.of(TEMP_PATH))) {
             try {
                 Files.createDirectories(Path.of(TEMP_PATH));
@@ -59,38 +60,50 @@ public class PostgreSqlSSLConnection {
         properties.put("useSSL", "true");
         long time = System.currentTimeMillis();
 
-        String clientCertPath = TEMP_PATH + "/" + CLIENT_CERTIFICATE + "-" + time + ".pem";
-        String clientKeyPath = TEMP_PATH + "/" + CLIENT_KEY + "-" + time + ".pem";
-        String serverCaPath = TEMP_PATH + "/" + SERVER_CA + "-" + time + ".pem";
-        try {
-            FileUtils.writeStringToFile(new File(clientCertPath), postgreSQLSsl.getSslClientcert());
-            FileUtils.writeStringToFile(new File(clientKeyPath), postgreSQLSsl.getSslClientcertkey());
-            FileUtils.writeStringToFile(new File(serverCaPath), postgreSQLSsl.getSslRootcert());
-        } catch (Exception ex) {
-            logger.error("Exception Occurred - ", ex);
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "PostgreSql"), "DatabaseConfiguration-1002");
-        }
-
-        String clinetKeyDER = TEMP_PATH + "/" + CLIENT_KEY + "-" + time + ".der";
-        String clientKeyPassword = postgreSQLSsl.getSslClientcertkeyPassWord();
-        try {
-            pemImporter.convertPEMToDER(postgreSQLSsl.getSslClientcertkey(), clinetKeyDER, clientKeyPassword);
-        }  catch (ItorixException ex){
-            throw ex;
-        } catch (Exception ex) {
-            logger.error("Exception Occurred while converting pem to der format - ", ex);
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "PostgreSql"), "DatabaseConfiguration-1002");
-        }
-
         List<String> certFiles = new ArrayList<>();
-        certFiles.add(clientCertPath);
-        certFiles.add(clientKeyPath);
-        certFiles.add(serverCaPath);
-        certFiles.add(clinetKeyDER);
-        postgresConnection.setFilesToDelete(certFiles);
 
-        properties.put(POSTGRES_SSLCERT, clientCertPath);
-        properties.put(POSTGRES_SSLKEY, clinetKeyDER);
-        properties.put(POSTGRES_SSLROOTCRT, serverCaPath);
+        if (postgreSQLSsl.getSslClientcert() != null) {
+            String clientCertPath = TEMP_PATH + File.separatorChar + CLIENT_CERTIFICATE + "-" + time + PEM_FILE_EXTENSION;
+            createTempFile(clientCertPath, postgreSQLSsl.getSslClientcert());
+            properties.put(POSTGRES_SSLCERT, clientCertPath);
+            certFiles.add(clientCertPath);
+        }
+        if (postgreSQLSsl.getSslRootcert() != null) {
+            String serverCaPath = TEMP_PATH + File.separatorChar + SERVER_CA + "-" + time + PEM_FILE_EXTENSION;
+            createTempFile(serverCaPath, postgreSQLSsl.getSslRootcert());
+            properties.put(POSTGRES_SSLROOTCRT, serverCaPath);
+            certFiles.add(serverCaPath);
+        }
+        if (postgreSQLSsl.getCertRevocationlist() != null) {
+            String clientCrlPath = TEMP_PATH + File.separatorChar + CLIENT_CRL + "-" + time + PEM_FILE_EXTENSION;
+            createTempFile(clientCrlPath, postgreSQLSsl.getCertRevocationlist());
+            properties.put(POSTGRES_CLIENTCRL, clientCrlPath);
+            certFiles.add(clientCrlPath);
+        }
+        if (postgreSQLSsl.getSslClientcertkey() != null) {
+            try {
+                String clientKeyDER = TEMP_PATH + File.separatorChar + CLIENT_KEY + "-" + time + DER_FILE_EXTENSION;
+                String clientKeyPassword = postgreSQLSsl.getSslClientcertkeyPassWord();
+                pemImporter.convertPEMToDER(postgreSQLSsl.getSslClientcertkey(), clientKeyDER, clientKeyPassword);
+                properties.put(POSTGRES_SSLKEY, clientKeyDER);
+                certFiles.add(clientKeyDER);
+            } catch (ItorixException ex) {
+                throw ex;
+            } catch (Exception ex) {
+                logger.error("Exception Occurred while converting pem to der format - ", ex);
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "PostgreSql"), "DatabaseConfiguration-1002");
+            }
+        }
+        postgresConnection.setFilesToDelete(certFiles);
+    }
+
+
+    public void createTempFile(String path, String content) throws ItorixException {
+        try {
+            FileUtils.writeStringToFile(new File(path), content, StandardCharsets.UTF_8);
+        } catch (Exception ex) {
+            logger.error("Exception Occurred while creating file {} - \n error message- ", path, ex);
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "PostgreSql"), "DatabaseConfiguration-1002");
+        }
     }
 }

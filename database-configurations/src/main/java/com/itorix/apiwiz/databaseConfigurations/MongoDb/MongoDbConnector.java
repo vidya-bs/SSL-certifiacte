@@ -46,22 +46,22 @@ public class MongoDbConnector {
     private MongoKerberosConnector mongoKerberosConnector;
 
     public ClientConnection getConnectionByAwsIamAuth(MongoDBConfiguration mongoDBConfiguration)
-        throws ItorixException {
-        if(mongoDBConfiguration.getAuthentication() == null){
+            throws ItorixException {
+        if (mongoDBConfiguration.getAuthentication() == null) {
             logger.error("Invalid mongodb Authentication - {}", mongoDBConfiguration.getAuthentication());
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"MongoDbAuthentication is mandatory parameter but missing"), "DatabaseConfiguration-1000");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "MongoDbAuthentication is mandatory parameter but missing"), "DatabaseConfiguration-1000");
         }
         String url = mongoDBConfiguration.getUrl();
-        if(url ==  null || url.isEmpty()){
+        if (url == null || url.isEmpty()) {
             logger.error("Invalid mongoDb url - {}", url);
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Connection url is mandatory parameter but missing"), "DatabaseConfiguration-1000");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "Connection url is mandatory parameter but missing"), "DatabaseConfiguration-1000");
         }
+        ClientConnection clientConnection = new ClientConnection();
         try {
-            ClientConnection clientConnection = new ClientConnection();
-            if(mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
+            if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
-            if(mongoDBConfiguration.getSsl() != null &&  mongoDBConfiguration.getSsl().isSslConnection()){
+            if (mongoDBConfiguration.getSsl() != null && mongoDBConfiguration.getSsl().isSslConnection()) {
                 SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(mongoDBConfiguration, clientConnection);
                 MongoClientSettings settings = MongoClientSettings.builder()
                         .applyConnectionString(new ConnectionString(url))
@@ -74,28 +74,32 @@ public class MongoDbConnector {
             clientConnection.setHost(mongoDBConfiguration.getHost());
             clientConnection.setMongoClient(createMongoClient(url));
             return clientConnection;
-        } catch (Exception ex){
+        } catch (ItorixException e) {
+            clientConnection.close();
+            throw e;
+        } catch (Exception ex) {
+            clientConnection.close();
             logger.error("Exception creating MongoDBClient - ", ex);
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"MongoDb"), "DatabaseConfiguration-1002");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "MongoDb"), "DatabaseConfiguration-1002");
         }
     }
 
     public ClientConnection getConnectionByUsernamePassword(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
+        if (mongoDBConfiguration.getAuthentication() == null) {
+            logger.error("Invalid mongodb Authentication - {}", mongoDBConfiguration.getAuthentication());
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "MongoDbAuthentication is mandatory parameter but missing"), "DatabaseConfiguration-1000");
+        }
+        String url = mongoDBConfiguration.getUrl();
+        if (url == null || url.isEmpty()) {
+            logger.error("Invalid mongoDb url - {}", url);
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "Connection url is mandatory parameter but missing"), "DatabaseConfiguration-1000");
+        }
+        ClientConnection clientConnection = new ClientConnection();
         try {
-            if (mongoDBConfiguration.getAuthentication() == null) {
-                logger.error("Invalid mongodb Authentication - {}", mongoDBConfiguration.getAuthentication());
-                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "MongoDbAuthentication is mandatory parameter but missing"), "DatabaseConfiguration-1000");
-            }
-            String url = mongoDBConfiguration.getUrl();
-            if(url ==  null || url.isEmpty()){
-                logger.error("Invalid mongoDb url - {}", url);
-                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Connection url is mandatory parameter but missing"), "DatabaseConfiguration-1000");
-            }
-            ClientConnection clientConnection = new ClientConnection();
-            if(mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
+            if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
-            if(mongoDBConfiguration.getSsl() != null &&  mongoDBConfiguration.getSsl().isSslConnection()){
+            if (mongoDBConfiguration.getSsl() != null && mongoDBConfiguration.getSsl().isSslConnection()) {
                 SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(mongoDBConfiguration, clientConnection);
                 MongoClientSettings settings = MongoClientSettings.builder()
                         .applyConnectionString(new ConnectionString(url))
@@ -108,32 +112,33 @@ public class MongoDbConnector {
             clientConnection.setHost(mongoDBConfiguration.getHost());
             clientConnection.setMongoClient(createMongoClient(url));
             return clientConnection;
-        } catch (ItorixException ex){
+        } catch (ItorixException ex) {
+            clientConnection.close();
             throw ex;
-        } catch (Exception ex){
+        } catch (Exception ex) {
+            clientConnection.close();
             ex.printStackTrace();
             logger.error("Exception creating MongoDBClient - ", ex);
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"MongoDb"), "DatabaseConfiguration-1002");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "MongoDb"), "DatabaseConfiguration-1002");
         }
     }
 
     public ClientConnection getX509Connection(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
-        if(mongoDBConfiguration.getAuthentication() == null){
+        if (mongoDBConfiguration.getAuthentication() == null) {
             logger.error("Invalid mongodb Authentication - {}", mongoDBConfiguration.getAuthentication());
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"MongoDbAuthentication is mandatory parameter but missing"), "DatabaseConfiguration-1000");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "MongoDbAuthentication is mandatory parameter but missing"), "DatabaseConfiguration-1000");
         }
         String url = mongoDBConfiguration.getUrl();
-        if(url ==  null || url.isEmpty()){
+        if (url == null || url.isEmpty()) {
             logger.error("Invalid mongoDb url - {}", url);
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Connection url is mandatory parameter but missing"), "DatabaseConfiguration-1000");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "Connection url is mandatory parameter but missing"), "DatabaseConfiguration-1000");
         }
 
-        // TODO check x509 otherwise tls/ssl connection
+        ClientConnection clientConnection = new ClientConnection();
         try {
-            ClientConnection clientConnection = new ClientConnection();
             SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(mongoDBConfiguration, clientConnection);
 
-            if(mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
+            if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
 
@@ -144,11 +149,13 @@ public class MongoDbConnector {
             clientConnection.setHost(mongoDBConfiguration.getHost());
             clientConnection.setMongoClient(createMongoClient(settings));
             return clientConnection;
-        } catch (ItorixException ex){
+        } catch (ItorixException ex) {
+            clientConnection.close();
             throw ex;
-        }  catch (Exception ex){
+        } catch (Exception ex) {
+            clientConnection.close();
             logger.error("Exception Occurred while establishing mongodb SSL connection - ", ex);
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"MongoDb"), "DatabaseConfiguration-1002");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "MongoDb"), "DatabaseConfiguration-1002");
         }
     }
 
@@ -164,34 +171,34 @@ public class MongoDbConnector {
             String[] hosts = getHostAndPort(url);
             url = url.replace(hosts[0], clientConnection.getHost()).replace(hosts[1], String.valueOf(clientConnection.getPort()));
             return url;
-        } catch (ItorixException ex){
+        } catch (ItorixException ex) {
             throw ex;
-        } catch (Exception ex){
+        } catch (Exception ex) {
             logger.error("Exception Occurred while establishing mongodb SSH connection - ", ex);
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"MongoDb"), "DatabaseConfiguration-1002");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "MongoDb"), "DatabaseConfiguration-1002");
         }
     }
 
     public ClientConnection getLdapConnection(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
         MongoAuthentication mongoAuthentication = mongoDBConfiguration.getAuthentication();
-        if(mongoAuthentication == null){
+        if (mongoAuthentication == null) {
             logger.error("Invalid mongodb Authentication - {}", mongoDBConfiguration.getAuthentication());
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"MongoDbAuthentication is mandatory parameter but missing"), "DatabaseConfiguration-1000");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "MongoDbAuthentication is mandatory parameter but missing"), "DatabaseConfiguration-1000");
         }
-        if(mongoAuthentication.getLdapUsername() == null && StringUtils.isEmpty(mongoAuthentication.getUsername())){
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Ldap Username is mandatory parameter but missing"), "DatabaseConfiguration-1000");
+        if (mongoAuthentication.getLdapUsername() == null && StringUtils.isEmpty(mongoAuthentication.getUsername())) {
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "Ldap Username is mandatory parameter but missing"), "DatabaseConfiguration-1000");
         }
-        if(mongoAuthentication.getLdapPassword() == null && StringUtils.isEmpty(mongoAuthentication.getLdapPassword())){
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Ldap Password is mandatory parameter but missing"), "DatabaseConfiguration-1000");
+        if (mongoAuthentication.getLdapPassword() == null && StringUtils.isEmpty(mongoAuthentication.getLdapPassword())) {
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "Ldap Password is mandatory parameter but missing"), "DatabaseConfiguration-1000");
         }
 
         String url = mongoDBConfiguration.getUrl();
-        try{
-            ClientConnection clientConnection = new ClientConnection();
-            if(mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
+        ClientConnection clientConnection = new ClientConnection();
+        try {
+            if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
-            if(mongoDBConfiguration.getSsl() != null &&  mongoDBConfiguration.getSsl().isSslConnection()){
+            if (mongoDBConfiguration.getSsl() != null && mongoDBConfiguration.getSsl().isSslConnection()) {
                 SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(mongoDBConfiguration, clientConnection);
                 MongoClientSettings settings = MongoClientSettings.builder()
                         .applyConnectionString(new ConnectionString(url))
@@ -204,28 +211,30 @@ public class MongoDbConnector {
             clientConnection.setHost(mongoDBConfiguration.getHost());
             clientConnection.setMongoClient(createMongoClient(url));
             return clientConnection;
-        } catch (ItorixException ex){
+        } catch (ItorixException ex) {
+            clientConnection.close();
             throw ex;
-        } catch (Exception ex){
+        } catch (Exception ex) {
+            clientConnection.close();
             logger.error("Exception Occurred while establishing mongodb Ldap connection - ", ex);
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"MongoDb"), "DatabaseConfiguration-1002");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "MongoDb"), "DatabaseConfiguration-1002");
         }
     }
 
     public ClientConnection getKerberosConnection(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
         MongoAuthentication mongoAuthentication = mongoDBConfiguration.getAuthentication();
-        if(mongoAuthentication == null){
+        if (mongoAuthentication == null) {
             logger.error("Invalid mongodb Authentication - {}", mongoDBConfiguration.getAuthentication());
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"MongoDbAuthentication is mandatory parameter but missing"), "DatabaseConfiguration-1000");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "MongoDbAuthentication is mandatory parameter but missing"), "DatabaseConfiguration-1000");
         }
-        if(mongoAuthentication.getKerberosUserPrincipal() == null && StringUtils.isEmpty(mongoAuthentication.getKerberosUserPrincipal())){
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Kerberos Username is mandatory parameter but missing"), "DatabaseConfiguration-1000");
+        if (mongoAuthentication.getKerberosUserPrincipal() == null && StringUtils.isEmpty(mongoAuthentication.getKerberosUserPrincipal())) {
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "Kerberos Username is mandatory parameter but missing"), "DatabaseConfiguration-1000");
         }
-        if(mongoAuthentication.getKerberosUserPassword() == null && StringUtils.isEmpty(mongoAuthentication.getKerberosUserPassword())){
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Kerberos Password is mandatory parameter but missing"), "DatabaseConfiguration-1000");
+        if (mongoAuthentication.getKerberosUserPassword() == null && StringUtils.isEmpty(mongoAuthentication.getKerberosUserPassword())) {
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "Kerberos Password is mandatory parameter but missing"), "DatabaseConfiguration-1000");
         }
-        if(mongoAuthentication.getKerberosServerUrl() == null && StringUtils.isEmpty(mongoAuthentication.getKerberosServerUrl())){
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Kerberos Server url is mandatory parameter but missing"), "DatabaseConfiguration-1000");
+        if (mongoAuthentication.getKerberosServerUrl() == null && StringUtils.isEmpty(mongoAuthentication.getKerberosServerUrl())) {
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "Kerberos Server url is mandatory parameter but missing"), "DatabaseConfiguration-1000");
         }
 
         String kerberosUserPrincipal = mongoAuthentication.getKerberosUserPrincipal();
@@ -233,29 +242,29 @@ public class MongoDbConnector {
         String url = mongoDBConfiguration.getUrl();
         String kerberosServer = mongoAuthentication.getKerberosServerUrl();
         String kerberosServiceRealm = mongoAuthentication.getKerberosServiceRealm();
-        try{
+        try {
             //TODO parse url to get host
             return mongoKerberosConnector.kerberosAuth(url, kerberosServiceRealm, kerberosServer, kerberosUserPrincipal, kerberosUserPassword);
-        } catch (ItorixException ex){
+        } catch (ItorixException ex) {
             throw ex;
-        } catch (Exception ex){
+        } catch (Exception ex) {
             logger.error("Exception Occurred while establishing mongodb Ldap connection - ", ex);
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"MongoDb"), "DatabaseConfiguration-1002");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "MongoDb"), "DatabaseConfiguration-1002");
         }
     }
 
     public ClientConnection getConnection(MongoDBConfiguration mongoDBConfiguration) throws ItorixException {
+        String url = mongoDBConfiguration.getUrl();
+        if (url == null || url.isEmpty()) {
+            logger.error("Invalid mongoDb url - {}", url);
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "Connection url is mandatory parameter but missing"), "DatabaseConfiguration-1000");
+        }
+        ClientConnection clientConnection = new ClientConnection();
         try {
-            String url = mongoDBConfiguration.getUrl();
-            if(url ==  null || url.isEmpty()){
-                logger.error("Invalid mongoDb url - {}", url);
-                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Connection url is mandatory parameter but missing"), "DatabaseConfiguration-1000");
-            }
-            ClientConnection clientConnection = new ClientConnection();
-            if(mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()){
+            if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
-            if(mongoDBConfiguration.getSsl() != null &&  mongoDBConfiguration.getSsl().isSslConnection()){
+            if (mongoDBConfiguration.getSsl() != null && mongoDBConfiguration.getSsl().isSslConnection()) {
                 SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(mongoDBConfiguration, clientConnection);
                 MongoClientSettings settings = MongoClientSettings.builder()
                         .applyConnectionString(new ConnectionString(url))
@@ -268,19 +277,23 @@ public class MongoDbConnector {
             clientConnection.setHost(mongoDBConfiguration.getHost());
             clientConnection.setMongoClient(createMongoClient(url));
             return clientConnection;
-        } catch (ItorixException ex){
+        } catch (ItorixException ex) {
+            clientConnection.close();
             throw ex;
-        } catch (Exception ex){
+        } catch (Exception ex) {
+            clientConnection.close();
             ex.printStackTrace();
             logger.error("Exception creating MongoDBClient - ", ex);
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"MongoDb"), "DatabaseConfiguration-1002");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "MongoDb"), "DatabaseConfiguration-1002");
         }
     }
+
     private MongoClient createMongoClient(String url) {
         MongoClientSettings settings = MongoClientSettings.builder()
                 .applyConnectionString(new ConnectionString(url)).build();
         return MongoClients.create(settings);
     }
+
     private MongoClient createMongoClient(MongoClientSettings settings) {
         return MongoClients.create(settings);
     }
@@ -294,7 +307,7 @@ public class MongoDbConnector {
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "host or port is missing"), "DatabaseConfiguration-1000");
             }
             return hostAndPort;
-        } catch (Exception ex){
+        } catch (Exception ex) {
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "Invalid mongodb host"), "DatabaseConfiguration-1000");
         }
     }

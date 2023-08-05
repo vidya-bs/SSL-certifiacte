@@ -65,8 +65,10 @@ public class PostgreSqlConnector {
             postgresConnection.setConnection(DriverManager.getConnection(hostUrl, properties));
             return postgresConnection;
         } catch (ItorixException ex){
+            postgresConnection.close();
             throw ex;
         } catch (Exception ex){
+            postgresConnection.close();
             logger.error("Error Occured while connecting to postgres - ", ex);
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"PostgreSql"), "DatabaseConfiguration-1002");
         }
@@ -109,8 +111,10 @@ public class PostgreSqlConnector {
             postgresConnection.setConnection(postgresSqlKerberos.createConnection(properties, hostUrl, username, kerberosRelam, kerberosKdcServer));
             return postgresConnection;
         } catch (ItorixException ex){
+            postgresConnection.close();
             throw ex;
         } catch (Exception ex){
+            postgresConnection.close();
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"PostgreSql"), "DatabaseConfiguration-1002");
         }
     }

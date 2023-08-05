@@ -70,8 +70,8 @@ public class PostgreSqlSSHConnection {
       }
     }
 
-    int sshport = postgreSQLSsh.getSshTunnelport() == null ? 22 : Integer.parseInt(postgreSQLSsh.getSshTunnelport());
-    session = jSch.getSession(postgreSQLSsh.getSshUsername(), postgreSQLSsh.getSshTunnelhost(), sshport);
+    int sshPort = postgreSQLSsh.getSshTunnelport() == null ? 22 : Integer.parseInt(postgreSQLSsh.getSshTunnelport());
+    session = jSch.getSession(postgreSQLSsh.getSshUsername(), postgreSQLSsh.getSshTunnelhost(), sshPort);
 
     if (authType == SshAuthType.IDENTITYFILE ) {
       session.setConfig("PreferredAuthentications", "publickey");

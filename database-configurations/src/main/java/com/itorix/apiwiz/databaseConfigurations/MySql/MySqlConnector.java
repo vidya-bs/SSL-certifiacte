@@ -66,8 +66,10 @@ public class MySqlConnector {
             mysqlConnection.setConnection(DriverManager.getConnection(hostUrl, properties));
             return mysqlConnection;
         } catch (ItorixException ex){
+            mysqlConnection.close();
             throw ex;
         } catch (Exception ex){
+            mysqlConnection.close();
             logger.error("Exception Occurred while establishing mysql connection - ", ex);
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"Mysql"), "DatabaseConfiguration-1002");
         }
@@ -106,8 +108,10 @@ public class MySqlConnector {
             mysqlConnection.setConnection(DriverManager.getConnection(hostUrl, properties));
             return mysqlConnection;
         } catch (ItorixException ex){
+            mysqlConnection.close();
             throw ex;
         } catch (Exception ex){
+            mysqlConnection.close();
             logger.error("Exception Occurred while establishing mysql ldap connection - ", ex);
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"Mysql"), "DatabaseConfiguration-1002");
         }
@@ -154,9 +158,11 @@ public class MySqlConnector {
             mysqlConnection.setConnection(DriverManager.getConnection(hostUrl, properties));
             return mysqlConnection;
         } catch (ItorixException ex){
+            mysqlConnection.close();
             throw ex;
         } catch (Exception ex){
             ex.printStackTrace();
+            mysqlConnection.close();
             logger.error("Exception Occurred while establishing mysql kerberos connection - ", ex);
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"Mysql"), "DatabaseConfiguration-1002");
         }
