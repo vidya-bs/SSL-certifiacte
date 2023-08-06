@@ -26,10 +26,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+
 import org.springframework.web.client.RestTemplate;
 
 @CrossOrigin
@@ -845,7 +843,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 	}
 
 	@Override
-	public ResponseEntity<?> getSchemas(String interactionid, String jsessionid,String connectionId,String databaseType, String databaseName,String schemaName, List<String> collections, List<String> tables,boolean deepSearch)throws ItorixException {
+	public ResponseEntity<?> getSchemas(String interactionid, String jsessionid, String connectionId, String databaseType, String databaseName, String schemaName, Set<String> collections, Set<String> tables, boolean deepSearch)throws ItorixException {
 		return new ResponseEntity<>(dictionaryBusiness.getSchemas(databaseType, connectionId, databaseName,schemaName, collections, tables, deepSearch),HttpStatus.OK);
 	}
 

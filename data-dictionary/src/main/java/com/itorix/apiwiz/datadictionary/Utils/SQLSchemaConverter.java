@@ -12,10 +12,7 @@ import org.springframework.stereotype.Component;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.itorix.apiwiz.datadictionary.Utils.SchemaConversionStaicFields.*;
 
@@ -28,7 +25,7 @@ public class SQLSchemaConverter {
     @Autowired
     private DataTypeConverter dataTypeConverter;
 
-    public Object convertMysqlTabletoSchema(Connection connection, String dataBaseName, List<String> tables) throws ItorixException {
+    public Object convertMysqlTabletoSchema(Connection connection, String dataBaseName, Set<String> tables) throws ItorixException {
         try {
             if (dataBaseName == null) {
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1004"), "Mysql", "Invalid database name"), "DatabaseConfiguration-1004");
@@ -37,7 +34,7 @@ public class SQLSchemaConverter {
             DatabaseMetaData metaData = connection.getMetaData();
             ResultSet dbs = metaData.getCatalogs();
             ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
-            for (String tableName : tables) {
+            tables.parallelStream().forEach( tableName -> {
                 try {
                     ResultSet columns = metaData.getColumns(dataBaseName, null, tableName, null);
                     if (!columns.next()) {
@@ -57,9 +54,9 @@ public class SQLSchemaConverter {
                     columns.close();
                     schemas.add(jsonNode);
                 } catch (Exception ex){
-                    logger.error("Exception while converting {}", tableName);
+                    logger.error("Exception while converting {} - ", tableName, ex);
                 }
-            }
+            });
             dbs.close();
             connection.close();
             return schemas;
@@ -71,7 +68,7 @@ public class SQLSchemaConverter {
         }
     }
 
-    public Object convertPostgresSqlTabletoSchema(Connection connection, String dataBaseName, String schemaName, List<String> tables) throws ItorixException {
+    public Object convertPostgresSqlTabletoSchema(Connection connection, String dataBaseName, String schemaName, Set<String> tables) throws ItorixException {
         try {
             if (dataBaseName == null) {
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1004"), "postgreSql", "Invalid database name"), "DatabaseConfiguration-1004");
@@ -80,26 +77,30 @@ public class SQLSchemaConverter {
             DatabaseMetaData metaData = connection.getMetaData();
             ResultSet dbs = metaData.getCatalogs();
             ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
-            for (String tableName : tables) {
-                ResultSet columns = metaData.getColumns(dataBaseName, schemaName, tableName, null);
-                if (!columns.next()) {
-                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1005"), "Mysql", tableName), "DatabaseConfiguration-1005");
-                }
-                ObjectNode obj = OBJECT_MAPPER.createObjectNode();
-                ObjectNode json = OBJECT_MAPPER.createObjectNode();
-                obj.put("type", "object");
-                do {
-                    String columnName = columns.getString(COLUMN_NAME);
-                    String columnType = columns.getString(TYPE_NAME);
-                    ObjectNode relevantDataType = dataTypeConverter.getDataType(columnType);
-                    json.set(columnName, relevantDataType);
-                } while (columns.next());
+            tables.parallelStream().forEach( tableName -> {
+                try {
+                    ResultSet columns = metaData.getColumns(dataBaseName, schemaName, tableName, null);
+                    if (!columns.next()) {
+                        throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1005"), "Mysql", tableName), "DatabaseConfiguration-1005");
+                    }
+                    ObjectNode obj = OBJECT_MAPPER.createObjectNode();
+                    ObjectNode json = OBJECT_MAPPER.createObjectNode();
+                    obj.put("type", "object");
+                    do {
+                        String columnName = columns.getString(COLUMN_NAME);
+                        String columnType = columns.getString(TYPE_NAME);
+                        ObjectNode relevantDataType = dataTypeConverter.getDataType(columnType);
+                        json.set(columnName, relevantDataType);
+                    } while (columns.next());
 
-                obj.set("properties", json);
-                jsonNode.set(tableName, obj);
-                columns.close();
-                schemas.add(jsonNode);
-            }
+                    obj.set("properties", json);
+                    jsonNode.set(tableName, obj);
+                    columns.close();
+                    schemas.add(jsonNode);
+                } catch (Exception ex){
+                    logger.error("Exception while converting {} - ", tableName, ex);
+                }
+            });
             dbs.close();
             connection.close();
             return schemas;

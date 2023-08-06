@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @CrossOrigin
 @RestController
@@ -423,8 +424,8 @@ public interface DictionaryService {
 			@RequestParam(value = "databaseType") String databaseType,
 			@RequestParam(value = "databaseName", required = false)String databaseName,
 			@RequestParam(value = "schemaName",required = false) String schemaName,
-			@RequestParam(value = "collections",required = false)List<String> collections,
-			@RequestParam(value = "tables",required = false)List<String> tables,
+			@RequestParam(value = "collections",required = false) Set<String> collections,
+			@RequestParam(value = "tables",required = false) Set<String> tables,
 			@RequestParam(value = "deepSearch",defaultValue = "false")boolean deepSearch
 	) throws ItorixException;
 

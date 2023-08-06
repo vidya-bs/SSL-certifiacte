@@ -992,7 +992,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		return schemaDAO.getPostgresSchemas(postgreSQLConfiguration);
 	}
 	@Override
-	public Object getSchemas(String databaseType, String connectionId,String databaseName, String schemaName, List<String> collections, List<String> tables,boolean deepSearch) throws ItorixException {
+	public Object getSchemas(String databaseType, String connectionId,String databaseName, String schemaName, Set<String> collections, Set<String> tables,boolean deepSearch) throws ItorixException {
 		return schemaDAO.getSchemas(databaseType,connectionId, databaseName,schemaName, collections, tables ,deepSearch );
 	}
 

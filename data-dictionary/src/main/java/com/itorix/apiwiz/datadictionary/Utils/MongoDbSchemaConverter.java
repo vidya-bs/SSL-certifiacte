@@ -48,18 +48,13 @@ public class MongoDbSchemaConverter {
             .decimal128Converter((value, writer) -> writer.writeNumber(String.valueOf(value.bigDecimalValue())))
             .build();
 
-    public List<ObjectNode> generateSchema(MongoClient client, String databaseName, List<String> collections, boolean deepSearch) {
+    public List<ObjectNode> generateSchema(MongoClient client, String databaseName, Set<String> collections, boolean deepSearch) {
         long start = System.currentTimeMillis();
         MongoDatabase database = client.getDatabase(databaseName);
         List<ObjectNode> schemas = new ArrayList<>();
-        if (collections == null) {
-            MongoIterable<String> collectionNames = database.listCollectionNames();
-            collections = collectionNames.into(new ArrayList<>());
-        }
-        Collections.sort(collections);
         logger.info("Time took for getting database connection - {}", (System.currentTimeMillis() - start));
         start = System.currentTimeMillis();
-        for (String collection : collections) {
+        collections.parallelStream().forEach(collection -> {
             try {
                 ObjectNode obj = generateSchemaFromDatabase(database, collection, deepSearch);
                 if (!obj.isEmpty()) {
@@ -70,7 +65,7 @@ public class MongoDbSchemaConverter {
             } catch (Exception ex) {
                 logger.error("Error occurred while converting {} to schema!, because of - ", collection, ex);
             }
-        }
+        });
         logger.info("Time took for conversion - {}", (System.currentTimeMillis() - start));
         return schemas;
     }
@@ -79,6 +74,8 @@ public class MongoDbSchemaConverter {
 
     public ObjectNode generateSchemaFromDatabase(MongoDatabase database, String collectionName, boolean deepSearch)
             throws JSONException, IOException {
+        long start = System.currentTimeMillis();
+        logger.debug("Generating schema for collection - {}", collectionName);
         MongoCollection<Document> collection = database.getCollection(collectionName);
         MongoCursor<Document> cursor = null;
         if(deepSearch) {
@@ -102,6 +99,7 @@ public class MongoDbSchemaConverter {
             }
         }
         cursor.close();
+        logger.debug("Generated schema for collection - {} in {}ms", collectionName, System.currentTimeMillis() - start);
         return jsonNode;
     }
 
@@ -137,18 +135,21 @@ public class MongoDbSchemaConverter {
 
         MongoIterable<String> collectionNames = database.listCollectionNames();
         List<String> collections = collectionNames.into(new ArrayList<>());
-        for (String collectionName : collections) {
+        collections.parallelStream().forEach( collectionName -> {
+            long localStart = System.currentTimeMillis();
+            logger.debug("Searching for key in collection - {}", collectionName);
             try {
                 if(checkCollectionHasKey(database, collectionName, searchKey)){
                     collectionNamesWithKey.add(collectionName);
                 }
-            }
-            catch (CodecConfigurationException exception){
+            } catch (CodecConfigurationException exception){
                 logger.error("UnSupported Codec datatype for {} collection - {}", collectionName, exception.getMessage());
             } catch (Exception ex) {
                 logger.error("Error occurred while converting {} to schema!, because of - ", collectionName, ex);
+            } finally {
+                logger.debug("Search over for key in collection - {} is  {}ms", collectionName, System.currentTimeMillis() - localStart);
             }
-        }
+        });
         logger.info("Time took for searching in mongodb - {}", (System.currentTimeMillis() - start));
         return collectionNamesWithKey;
     }

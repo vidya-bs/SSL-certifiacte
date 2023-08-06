@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public interface DictionaryBusiness {
@@ -104,7 +105,7 @@ public interface DictionaryBusiness {
 
 	public List<String> getTableNames(String connectionId,String databaseType, String schemaName) throws ItorixException;
 
-	public Object getSchemas(String databaseType, String connectionId,String databaseName,String schemaName, List<String> collections,List<String> tables,boolean deepSearch) throws ItorixException;
+	public Object getSchemas(String databaseType, String connectionId, String databaseName, String schemaName, Set<String> collections, Set<String> tables, boolean deepSearch) throws ItorixException;
 
 	public List<String> searchForKey(String databaseType, String connectionId, String databaseName, String schemaName, String searchKey) throws ItorixException;
 }

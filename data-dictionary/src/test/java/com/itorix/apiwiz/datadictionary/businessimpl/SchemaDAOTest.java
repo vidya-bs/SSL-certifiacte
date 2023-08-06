@@ -31,6 +31,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -77,7 +78,7 @@ public class SchemaDAOTest {
         DatabaseMetaData databaseMetaData = Mockito.mock(DatabaseMetaData.class);
         databaseMetaData = (DatabaseMetaData) con.getMetaData();
         Mockito.when(connection.getMetaData()).thenReturn(databaseMetaData);
-        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new ArrayList<>());
+        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new HashSet<>());
         String expected = "{Test={\"Persons\":{\"type\":\"object\",\"properties\":{\"PersonID\":{\"type\":\"integer\"},\"LastName\":{\"type\":\"string\"},\"FirstName\":{\"type\":\"string\"},\"Address\":{\"type\":\"string\"},\"City\":{\"type\":\"string\"}}},\"Student\":{\"type\":\"object\",\"properties\":{\"RollNum\":{\"type\":\"integer\"},\"Name\":{\"type\":\"string\"},\"maths\":{\"type\":\"integer\"},\"avg\":{\"type\":\"number\",\"format\":\"float\"}}},\"Student1\":{\"type\":\"object\",\"properties\":{\"RollNum\":{\"type\":\"integer\"},\"Name\":{\"type\":\"string\"},\"maths\":{\"type\":\"integer\"},\"total\":{\"type\":\"number\",\"format\":\"double\"},\"avg\":{\"type\":\"number\",\"format\":\"float\"}}},\"Student2\":{\"type\":\"object\",\"properties\":{\"RollNum\":{\"type\":\"integer\"},\"Name\":{\"type\":\"string\"},\"maths\":{\"type\":\"integer\"},\"total\":{\"type\":\"number\",\"format\":\"double\"},\"avg\":{\"type\":\"number\",\"format\":\"float\"},\"Grade\":{\"type\":\"string\"}}},\"Student3\":{\"type\":\"object\",\"properties\":{\"RollNum\":{\"type\":\"integer\"},\"Name\":{\"type\":\"string\"},\"maths\":{\"type\":\"integer\"},\"total\":{\"type\":\"number\",\"format\":\"double\"},\"avg\":{\"type\":\"number\",\"format\":\"float\"},\"Grade\":{\"type\":\"string\"},\"subjects\":{\"type\":\"string\"}}}}}";
         assertThat(actual.toString()).isEqualTo(expected);
     }
@@ -86,7 +87,7 @@ public class SchemaDAOTest {
     @Test
     public void generateSchemaTestCase2() throws SQLException, ItorixException {
         connection = DriverManager.getConnection("jdbc:mysql://localhost:3306?useSSL=false", "test2", "123@Bcde");
-        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new ArrayList<>());
+        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new HashSet<>());
         String expected = "{Test2={\"MANAGERS\":{\"type\":\"object\",\"properties\":{\"MANAGER_ID\":{\"type\":\"string\"},\"FIRST_NAME\":{\"type\":\"string\"},\"LAST_NAME\":{\"type\":\"string\"},\"LAST_UPDATE\":{\"type\":\"string\",\"format\":\"date\"}}},\"movies\":{\"type\":\"object\",\"properties\":{\"title\":{\"type\":\"string\"},\"genre\":{\"type\":\"string\"},\"director\":{\"type\":\"string\"},\"release_year\":{\"type\":\"integer\"}}},\"Persons\":{\"type\":\"object\",\"properties\":{\"PersonID\":{\"type\":\"integer\"},\"LastName\":{\"type\":\"string\"},\"FirstName\":{\"type\":\"string\"},\"Address\":{\"type\":\"string\"},\"City\":{\"type\":\"string\"}}},\"pet\":{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"owner\":{\"type\":\"string\"},\"species\":{\"type\":\"string\"},\"sex\":{\"type\":\"string\"},\"birth\":{\"type\":\"string\",\"format\":\"date\"},\"death\":{\"type\":\"string\",\"format\":\"date\"}}}}}";
         assertThat(actual.toString()).isEqualTo(expected);
     }
@@ -95,7 +96,7 @@ public class SchemaDAOTest {
     @DisplayName("Exception when database metadata is null")
     @Test(expected=ItorixException.class)
     public void generateSchemaTestCase3() throws ItorixException {
-        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new ArrayList<>());
+        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new HashSet<>());
     }
 
     @DisplayName("Exception when databases list is null")
@@ -103,7 +104,7 @@ public class SchemaDAOTest {
     public void generateSchemaTestCase7() throws ItorixException, SQLException {
         DatabaseMetaData databaseMetaData = Mockito.mock(DatabaseMetaData.class);
         Mockito.when(connection.getMetaData()).thenReturn(databaseMetaData);
-        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new ArrayList<>());
+        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new HashSet<>());
     }
 
     @DisplayName("Exception when databases name is null")
@@ -117,7 +118,7 @@ public class SchemaDAOTest {
 
         when(resultSet.next()).thenReturn(true, false);
 
-        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new ArrayList<>());
+        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new HashSet<>());
 
     }
 
@@ -133,7 +134,7 @@ public class SchemaDAOTest {
         when(dbs.next()).thenReturn(true, true, false);
 
         Mockito.when(dbs.getString("TABLE_CAT")).thenReturn("mockDatabaseName");
-        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new ArrayList<>());
+        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new HashSet<>());
 
     }
 
@@ -154,7 +155,7 @@ public class SchemaDAOTest {
         when(tables.next()).thenReturn(true, true, false);
         Mockito.when(metaData.getTables(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(tables);
 
-        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test",new ArrayList<>());
+        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test",new HashSet<>());
 
     }
 
@@ -179,7 +180,7 @@ public class SchemaDAOTest {
 
         Mockito.when(metaData.getColumns(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(null);
 
-        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test",new ArrayList<>());
+        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test",new HashSet<>());
 
     }
 
@@ -209,7 +210,7 @@ public class SchemaDAOTest {
         Mockito.when(columns.getString("COLUMN_NAME")).thenReturn(null);
         Mockito.when(columns.getString("TYPE_NAME")).thenReturn("int");
 
-        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test",new ArrayList<>());
+        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test",new HashSet<>());
 
     }
 
@@ -240,7 +241,7 @@ public class SchemaDAOTest {
         Mockito.when(columns.getString("COLUMN_NAME")).thenReturn("mockColumn");
         Mockito.when(columns.getString("TYPE_NAME")).thenReturn(null);
 
-        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new ArrayList<>());
+        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new HashSet<>());
 
     }
 
@@ -270,7 +271,7 @@ public class SchemaDAOTest {
         Mockito.when(columns.getString("COLUMN_NAME")).thenReturn("mockColumn");
         Mockito.when(columns.getString("TYPE_NAME")).thenReturn("INT");
 
-        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new ArrayList<>());
+        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new HashSet<>());
         String expected = "{mockDatabaseName={\"mockTable\":{\"type\":\"object\",\"properties\":{\"mockColumn\":{\"type\":\"integer\"}}}}}";
         assertThat(actual.toString()).isEqualTo(expected);
 
@@ -280,7 +281,7 @@ public class SchemaDAOTest {
     @Test
     public void generateSchemaTestCase4() throws SQLException, ItorixException {
         connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "divakarv03", "123");
-        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new ArrayList<>());
+        Object actual = SQLSchemaConverter.convertMysqlTabletoSchema(connection, "test", new HashSet<>());
         String expected = "{postgres={\"company\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\"},\"name\":{\"type\":\"string\"},\"age\":{\"type\":\"integer\"},\"address\":{\"type\":\"string\"},\"salary\":{\"type\":\"number\",\"format\":\"float\"}}},\"department\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\"},\"dept\":{\"type\":\"string\"},\"emp_id\":{\"type\":\"integer\"}}},\"leads\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\"},\"name\":null}}}}";
         assertThat(actual.toString()).isEqualTo(expected);
     }

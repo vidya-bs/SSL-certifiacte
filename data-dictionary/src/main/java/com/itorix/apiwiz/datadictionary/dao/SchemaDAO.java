@@ -41,7 +41,7 @@ public class SchemaDAO {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public Object getSchemas(String databaseType, String connectionId, String databaseName, String schemaName, List<String> collections, List<String> tables, boolean deepSearch) throws ItorixException {
+    public Object getSchemas(String databaseType, String connectionId, String databaseName, String schemaName, Set<String> collections, Set<String> tables, boolean deepSearch) throws ItorixException {
         if (databaseType == null) {
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"), "DataBase Type is required!"), "DatabaseConfiguration-1001");
         }
@@ -53,9 +53,9 @@ public class SchemaDAO {
                 if (collections == null || collections.isEmpty()) {
                     throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "collections names is required"), "DatabaseConfiguration-1000");
                 }
-                if (deepSearch && collections.size() > 1) {
-                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "when the deep search is enabled User not allowed to import more than one schema(collection) from db "), "DatabaseConfiguration-1000");
-                }
+//                if (deepSearch && collections.size() > 1) {
+//                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "when the deep search is enabled User not allowed to import more than one schema(collection) from db "), "DatabaseConfiguration-1000");
+//                }
                 MongoDBConfiguration databaseConfiguration = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(connectionId)), MongoDBConfiguration.class);
                 return getMongoSchemas(databaseName, collections, databaseConfiguration, deepSearch);
             } else if (databaseType.equalsIgnoreCase(DatabaseType.MYSQL.getDatabaseType())) {
@@ -81,7 +81,7 @@ public class SchemaDAO {
         }
     }
 
-    public Object getMongoSchemas(String databaseName, List<String> collections, MongoDBConfiguration mongoDBConf, boolean deepSearch) throws ItorixException {
+    public Object getMongoSchemas(String databaseName, Set<String> collections, MongoDBConfiguration mongoDBConf, boolean deepSearch) throws ItorixException {
         long start = System.currentTimeMillis();
         try (ClientConnection clientConnection = getConnection.getMongoDbDataBaseConnection(mongoDBConf);){
             MongoClient client = clientConnection.getMongoClient();
@@ -97,7 +97,7 @@ public class SchemaDAO {
         }
     }
 
-    public Object getMySqlSchemas(MySQLConfiguration mySQLConfiguration, List<String> tables)
+    public Object getMySqlSchemas(MySQLConfiguration mySQLConfiguration, Set<String> tables)
             throws ItorixException {
         try (ClientConnection clientConnection = getConnection.getMySqlDataBaseConnection(mySQLConfiguration);){
             Connection connection = clientConnection.getConnection();
@@ -114,7 +114,7 @@ public class SchemaDAO {
         }
     }
 
-    public Object getPostgreSQLSchemas(PostgreSQLConfiguration postgreSQLConfiguration, String schemaName, List<String> tables)
+    public Object getPostgreSQLSchemas(PostgreSQLConfiguration postgreSQLConfiguration, String schemaName, Set<String> tables)
             throws ItorixException {
         try (ClientConnection clientConnection = getConnection.getPostgreSqlDataBaseConnection(postgreSQLConfiguration);){
             Connection connection = clientConnection.getConnection();
