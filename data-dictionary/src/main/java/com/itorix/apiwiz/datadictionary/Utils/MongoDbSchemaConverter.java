@@ -84,7 +84,7 @@ public class MongoDbSchemaConverter {
         if(deepSearch) {
             cursor = collection.find()
                     .sort(new Document("_id", -1))
-                    .limit(100)
+                    .limit(1_000)
                     .iterator();
         } else {
             cursor = collection.find()
@@ -92,19 +92,16 @@ public class MongoDbSchemaConverter {
                     .limit(10)
                     .iterator();
         }
-        List<Document> documents = new ArrayList<>();
-        while (cursor.hasNext()) {
-            documents.add(cursor.next());
-        }
-        cursor.close();
         ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
-        for (Document doc : documents) {
+        while (cursor.hasNext()) {
+            Document doc = cursor.next();
             try {
                 linearDataType(doc, jsonNode, collectionName);
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 logger.error("Error while fetching schema from document ", ex);
             }
         }
+        cursor.close();
         return jsonNode;
     }
 
@@ -249,7 +246,10 @@ public class MongoDbSchemaConverter {
         else if(obj instanceof ArrayList){
             ObjectNode innerJsonNode = OBJECT_MAPPER.createObjectNode();
             innerJsonNode.put("type", "array");  // check for the properties already exists
-            linearDataType(((ArrayList<?>) obj).get(0), innerJsonNode, "items");
+            ArrayList<?> objArray = (ArrayList<?>) obj;
+            if (objArray != null && objArray.size() > 0) {
+                linearDataType(((ArrayList<?>) obj).get(0), innerJsonNode, "items");
+            }
             jsonNode.set(key, innerJsonNode);
         } else if( obj instanceof Document){
             ObjectNode childNode = OBJECT_MAPPER.createObjectNode();
@@ -270,6 +270,7 @@ public class MongoDbSchemaConverter {
                     .set("properties", childNode);
             jsonNode.set(key, parentNode);
         }
+        // DBref not supported for now due to cyclic dependency and dependency tracking overhead
     }
 
 }
