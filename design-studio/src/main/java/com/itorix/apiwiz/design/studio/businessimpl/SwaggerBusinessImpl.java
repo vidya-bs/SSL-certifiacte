@@ -4755,6 +4755,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		Map<String, Object> filterFieldsAndValues = new HashMap<>();
 		boolean isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
 		List<Stat> statsList = new ArrayList<>();
+		/*Commented Due To No Usage
 		boolean populateSwaggers = false;
 		if (timeunit != null && timerange != null) {
 			populateSwaggers = true;
@@ -4785,7 +4786,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				metricsNode.setValues(valuesNode);
 				swaggerObjectResponse.setMetrics(metricsNode);
 			}
-		}
+		}*/
 		if(!isAdmin){
 			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("2.0", user);
 			Set<String> SwaggerNames = new HashSet<>();
@@ -4840,7 +4841,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		Map<String, Object> filterFieldsAndValues = new HashMap<>();
 		boolean isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
 		List<Stat> statsList = new ArrayList<>();
-		boolean populateSwaggers = false;
+		/*boolean populateSwaggers = false;
 		if (timeunit != null && timerange != null) {
 			populateSwaggers = true;
 			String[] dates = timerange.split("~");
@@ -4870,7 +4871,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 				metricsNode.setValues(valuesNode);
 				swaggerObjectResponse.setMetrics(metricsNode);
 			}
-		}
+		}*/
 		if(!isAdmin){
 			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("3.0", user);
 			Set<String> SwaggerNames = new HashSet<>();

@@ -224,7 +224,7 @@ public class SwaggerDiffService {
 	 * @throws ItorixException
 	 */
 	public Map<String, Object> getSwaggerIdReleaseNotes(String timeRange, String oas,
-														String swaggerId, int offset,boolean paginated)
+														String swaggerId, int offset,int pageSize,boolean paginated)
 			throws ParseException, ItorixException {
 		String swaggerName = null;
 		if (oas.equals("2.0")) {
@@ -238,8 +238,7 @@ public class SwaggerDiffService {
 		if (swaggerName != null) {
 			Query query = null;
 			if (timeRange != null) {
-				SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
-				String timeRanges[] = timeRange.split("~");
+				String[] timeRanges = timeRange.split("~");
 				long startTime = Long.parseLong(timeRanges[0]);
 				long endDateTime = Long.parseLong(timeRanges[1]);
 				query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas).and("mts").gte(startTime)
@@ -249,7 +248,7 @@ public class SwaggerDiffService {
 						.with(Sort.by(Direction.DESC, "mts"));
 			}
 			if(paginated){
-				query.skip(offset > 0 ? ((offset - 1) * 10) : 0).limit(10);
+				query.skip(offset > 0 ? ((long) (offset - 1) * pageSize) : 0).limit(pageSize);
 			}
 			List<SwaggerChangeLog> list = baseRepository.find(query, SwaggerChangeLog.class);
 			for (SwaggerChangeLog log : list) {
@@ -259,8 +258,7 @@ public class SwaggerDiffService {
 			if(paginated){
 				long counter;
 				if (timeRange != null) {
-					SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
-					String timeRanges[] = timeRange.split("~");
+					String[] timeRanges = timeRange.split("~");
 					long startTime = Long.parseLong(timeRanges[0]);
 					long endDateTime = Long.parseLong(timeRanges[1]);
 					counter = mongoTemplate.count(
@@ -274,12 +272,8 @@ public class SwaggerDiffService {
 				Pagination pagination = new Pagination();
 				pagination.setOffset(offset);
 				pagination.setTotal(counter);
-				pagination.setPageSize(10);
-				if (list == null) {
-					response.put("data",new ArrayList());
-				} else {
-					response.put("data",list);
-				}
+				pagination.setPageSize(pageSize);
+				response.put("data",list);
 				response.put("pagination",pagination);
 				return response;
 			}

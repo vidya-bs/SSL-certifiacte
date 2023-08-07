@@ -127,6 +127,7 @@ public class SwaggerReleaseServiceImpl implements SwaggerReleaseService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
 			@RequestParam(value = "timeRange", required = false) String timeRange,
 			@RequestParam(value = "paginated", required = false, defaultValue = "true") boolean paginated,
 			@PathVariable(value = "swaggerid", required = false) String swaggerid,
@@ -134,6 +135,6 @@ public class SwaggerReleaseServiceImpl implements SwaggerReleaseService {
 		if (id != null)
 			return new ResponseEntity<>(swaggerDiffService.getSwaggerChangeLog(id), HttpStatus.OK);
 		return new ResponseEntity<>(
-				swaggerDiffService.getSwaggerIdReleaseNotes(timeRange, oas, swaggerid, offset,paginated), HttpStatus.OK);
+				swaggerDiffService.getSwaggerIdReleaseNotes(timeRange, oas, swaggerid, offset,pageSize,paginated), HttpStatus.OK);
 	}
 }
