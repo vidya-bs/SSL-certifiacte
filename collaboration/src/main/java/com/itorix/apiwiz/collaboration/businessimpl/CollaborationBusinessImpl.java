@@ -392,7 +392,7 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 	 * @return
 	 */
 	public Map<String, Object> findSwaggerTeams(String jsessionid, String interactionid, int offset, int pageSize,
-												String name, boolean paginated) {
+							  String name, boolean paginated) {
 		log("findSwaggerTeames", interactionid);
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		User user = getUserDetailsFromSessionID(jsessionid);
