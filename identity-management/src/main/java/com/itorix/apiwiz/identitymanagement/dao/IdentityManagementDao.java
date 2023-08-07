@@ -1934,10 +1934,8 @@ public class IdentityManagementDao {
     public List<ActivityLog> findActivityByTimeRange(String timeRange, int offset, int pageSize) throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
         String timeRanges[] = timeRange.split("~");
-        Date startDate = format.parse(timeRanges[0]);
-        Date endDate = format.parse(timeRanges[1]);
-        long StartTime = DateUtil.getStartOfDay(startDate).getTime();
-        long endDateTime = DateUtil.getEndOfDay(endDate).getTime();
+        Long StartTime = Long.parseLong(timeRanges[0]);
+        Long endDateTime = Long.parseLong(timeRanges[1]);
         Query query = new Query(Criteria.where(ActivityLog.LAST_CHANGED_AT).gte(StartTime).lte(endDateTime))
                 .with(Sort.by(Direction.DESC, "_id")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
         return baseRepository.find(query, ActivityLog.class);
@@ -1947,10 +1945,8 @@ public class IdentityManagementDao {
         SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
         Query query = new Query();
         String timeRanges[] = timeRange.split("~");
-        Date startDate = format.parse(timeRanges[0]);
-        Date endDate = format.parse(timeRanges[1]);
-        long StartTime = DateUtil.getStartOfDay(startDate).getTime();
-        long endDateTime = DateUtil.getEndOfDay(endDate).getTime();
+        Long StartTime = Long.parseLong(timeRanges[0]);
+        Long endDateTime = Long.parseLong(timeRanges[1]);
         query.addCriteria(Criteria.where(ActivityLog.LAST_CHANGED_AT).gte(StartTime).lte(endDateTime));
         return mongoTemplate.count(query, ActivityLog.class);
     }
@@ -1959,10 +1955,8 @@ public class IdentityManagementDao {
             throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
         String timeRanges[] = timeRange.split("~");
-        Date startDate = format.parse(timeRanges[0]);
-        Date endDate = format.parse(timeRanges[1]);
-        long StartTime = DateUtil.getStartOfDay(startDate).getTime();
-        long endDateTime = DateUtil.getEndOfDay(endDate).getTime();
+        Long StartTime = Long.parseLong(timeRanges[0]);
+        Long endDateTime = Long.parseLong(timeRanges[1]);
         long currentDate = DateUtil.getEndOfDay(new Date()).getTime();
         if (endDateTime > currentDate)
             endDateTime = currentDate;
@@ -1976,10 +1970,8 @@ public class IdentityManagementDao {
         SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
         Query query = new Query();
         String timeRanges[] = timeRange.split("~");
-        Date startDate = format.parse(timeRanges[0]);
-        Date endDate = format.parse(timeRanges[1]);
-        long StartTime = DateUtil.getStartOfDay(startDate).getTime();
-        long endDateTime = DateUtil.getEndOfDay(endDate).getTime();
+        Long StartTime = Long.parseLong(timeRanges[0]);
+        Long endDateTime = Long.parseLong(timeRanges[1]);
         query.addCriteria(new Criteria().andOperator(Criteria.where(ActivityLog.USER_ID).is(userId),
                 Criteria.where(ActivityLog.LAST_CHANGED_AT).gte(StartTime).lte(endDateTime)));
         return mongoTemplate.count(query, ActivityLog.class);
