@@ -1243,7 +1243,7 @@ public class ServiceRequestDao {
 				valueNode.put("value", list.size());
 				valuesNode.add(valueNode);
 			} else {
-				while (startDate<=endDate) {
+				while (startDate<endDate) {
 					Query query = new Query();
 					query.addCriteria(
 							Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(new Date(DateUtil.convertToStartOfDay(startDate)))
