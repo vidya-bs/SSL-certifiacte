@@ -1251,7 +1251,7 @@ public class ServiceRequestDao {
 					List<ServiceRequest> list = baseRepository.find(query, ServiceRequest.class);
 					// if(list!=null && list.size()>0){
 					ObjectNode valueNode = mapper.createObjectNode();
-					valueNode.put("timestamp", DateUtil.convertToStartOfDay(startDate) + "");
+					valueNode.put("timestamp", startDate + "");
 					valueNode.put("value", list.size());
 					valuesNode.add(valueNode);
 //					 }
