@@ -1246,15 +1246,15 @@ public class ServiceRequestDao {
 				while (startDate<=endDate) {
 					Query query = new Query();
 					query.addCriteria(
-							Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(DateUtil.convertToStartOfDay(startDate))
-									.lt(DateUtil.convertToEndOfDay(endDate)).and("type").is(type));
+							Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(new Date(DateUtil.convertToStartOfDay(startDate)))
+									.lt(new Date(DateUtil.convertToEndOfDay(endDate))).and("type").is(type));
 					List<ServiceRequest> list = baseRepository.find(query, ServiceRequest.class);
 					// if(list!=null && list.size()>0){
 					ObjectNode valueNode = mapper.createObjectNode();
 					valueNode.put("timestamp", DateUtil.convertToStartOfDay(startDate) + "");
 					valueNode.put("value", list.size());
 					valuesNode.add(valueNode);
-					// }
+//					 }
 					startDate += 86400000L;//(24 * 60 * 60 * 1000)
 				}
 			}
@@ -1274,8 +1274,8 @@ public class ServiceRequestDao {
 				query.addCriteria(Criteria.where("status").is(status));
 				if(startDate != -1L && endDate != -1L) {
 					query.addCriteria(
-							Criteria.where("modifiedDate").gte(DateUtil.convertToStartOfDay(startDate))
-									.lt(DateUtil.convertToEndOfDay(endDate)));
+							Criteria.where("modifiedDate").gte(new Date(DateUtil.convertToStartOfDay(startDate)))
+									.lt(new Date(DateUtil.convertToEndOfDay(endDate))));
 				}
 				query.addCriteria((Criteria.where("activeFlag").is(Boolean.TRUE)));
 				List<ServiceRequest> listByStatus = baseRepository.find(query, ServiceRequest.class);
@@ -1287,8 +1287,8 @@ public class ServiceRequestDao {
 					query.addCriteria(Criteria.where("status").is(status).and("type").is(type));
 					if(startDate != -1L && endDate != -1L) {
 						query.addCriteria(
-								Criteria.where("modifiedDate").gte(DateUtil.convertToStartOfDay(startDate))
-										.lt(DateUtil.convertToEndOfDay(endDate)));
+								Criteria.where("modifiedDate").gte(new Date(DateUtil.convertToStartOfDay(startDate)))
+										.lt(new Date(DateUtil.convertToEndOfDay(endDate))));
 					}
 					query.addCriteria((Criteria.where("activeFlag").is(Boolean.TRUE)));
 					List<ServiceRequest> listByStatusType = baseRepository.find(query, ServiceRequest.class);
