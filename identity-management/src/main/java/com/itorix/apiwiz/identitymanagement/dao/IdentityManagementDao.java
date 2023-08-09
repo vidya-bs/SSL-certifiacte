@@ -1087,7 +1087,7 @@ public class IdentityManagementDao {
 
     public void sendInviteUserEmail(VerificationToken token, User user, String userName) {
         try {
-            String link = applicationProperties.getAppURL() + "/user-invited/" + token.getId();
+            String link = applicationProperties.getAppURL() + "/user-invited/" + token.getId() +"?email="+user.getEmail();
             String bodyText = MessageFormat.format(applicationProperties.getInviteWorkspaceUserBody(),
                     user.getFirstName() + " " + user.getLastName(), userName, token.getWorkspaceId(), link, link);
             ArrayList<String> toRecipients = new ArrayList<String>();
