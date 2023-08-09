@@ -17,6 +17,8 @@ import com.itorix.apiwiz.common.util.mail.EmailTemplate;
 import com.itorix.apiwiz.common.util.mail.MailUtil;
 import com.itorix.apiwiz.identitymanagement.model.*;
 import com.mongodb.client.result.UpdateResult;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -1087,7 +1089,8 @@ public class IdentityManagementDao {
 
     public void sendInviteUserEmail(VerificationToken token, User user, String userName) {
         try {
-            String link = applicationProperties.getAppURL() + "/user-invited/" + token.getId();
+            String encodedEmail= URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8);
+            String link = applicationProperties.getAppURL() + "/user-invited/" + token.getId() +"?email="+encodedEmail;
             String bodyText = MessageFormat.format(applicationProperties.getInviteWorkspaceUserBody(),
                     user.getFirstName() + " " + user.getLastName(), userName, token.getWorkspaceId(), link, link);
             ArrayList<String> toRecipients = new ArrayList<String>();
