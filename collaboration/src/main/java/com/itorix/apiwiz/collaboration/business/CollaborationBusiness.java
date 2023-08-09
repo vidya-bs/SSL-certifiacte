@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.collaboration.business;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -78,8 +79,8 @@ public interface CollaborationBusiness {
 	 * 
 	 * @return
 	 */
-	public TeamsHistoryResponse findSwaggerTeames(String jsessionid, String interactionid, int offset, int pageSize,
-			String name);
+	public Map<String, Object> findSwaggerTeams(String jsessionid, String interactionid, int offset, int pageSize,
+												String name, boolean paginated);
 
 	/**
 	 * findSwaggerTeameNames

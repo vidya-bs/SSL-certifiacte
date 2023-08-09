@@ -1,11 +1,8 @@
 package com.itorix.apiwiz.collaboration.businessimpl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -394,50 +391,38 @@ public class CollaborationBusinessImpl implements CollaborationBusiness {
 	 * 
 	 * @return
 	 */
-	public TeamsHistoryResponse findSwaggerTeames(String jsessionid, String interactionid, int offset, int pageSize,
-			String name) {
+	public Map<String, Object> findSwaggerTeams(String jsessionid, String interactionid, int offset, int pageSize,
+							  String name, boolean paginated) {
 		log("findSwaggerTeames", interactionid);
 		UserSession userSessionToken = ServiceRequestContextHolder.getContext().getUserSessionToken();
 		User user = getUserDetailsFromSessionID(jsessionid);
 		boolean isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
 
-		TeamsHistoryResponse historyResponse = new TeamsHistoryResponse();
-		List<SwaggerTeam> swaggerTeams = new ArrayList<SwaggerTeam>();
-		if (isAdmin) {
-			Query query;
-			if (name != null)
-				query = new Query(Criteria.where("name").is(name)).with(Sort.by(Direction.DESC, "mts"))
-						.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
-			else
-				query = new Query().with(Sort.by(Direction.DESC, "mts"))
-						.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
-			swaggerTeams = baseRepository.find(query, SwaggerTeam.class);
-		} else {
-			Query query;
-			if (name != null)
-				query = new Query(Criteria.where("contacts.email").is(user.getEmail()).and("name").is(name))
-						.with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
-						.limit(pageSize);
-			else
-				query = new Query(Criteria.where("contacts.email").is(user.getEmail()))
-						.with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * pageSize) : 0)
-						.limit(pageSize);
-			swaggerTeams = baseRepository.find(query, SwaggerTeam.class);
+		Map<String, Object> historyResponse = new HashMap<>();
+		List<SwaggerTeam> swaggerTeams;
+		Criteria criteria = new Criteria();
+		if (isAdmin && StringUtils.isNotEmpty(name)) {
+			criteria = Criteria.where("name").is(name);
+		}else if(!isAdmin){
+			criteria=Criteria.where("contacts.email").is(user.getEmail());
+			if(name!=null){
+				criteria.and("name").is(name);
+			}
 		}
-		if (swaggerTeams != null) {
-			Query query;
-			if (isAdmin)
-				query = new Query();
-			else
-				query = new Query(Criteria.where("contacts.email").is(user.getEmail()));
-			Long counter = mongoTemplate.count(query, SwaggerTeam.class);
+		Query query = new Query(criteria).with(Sort.by(Direction.DESC, "mts"));
+		if (paginated) {
+			query.skip(offset > 0 ? ((long) (offset - 1) * pageSize) : 0).limit(pageSize);
+		}
+		swaggerTeams = baseRepository.find(query, SwaggerTeam.class);
+		if (paginated && swaggerTeams != null) {
+			Long counter = mongoTemplate.count(new Query(criteria), SwaggerTeam.class);
 			Pagination pagination = new Pagination();
 			pagination.setOffset(offset);
 			pagination.setTotal(counter);
 			pagination.setPageSize(pageSize);
-			historyResponse.setPagination(pagination);
-			historyResponse.setData(swaggerTeams);
+			historyResponse.put("pagination", pagination);
 		}
+		historyResponse.put("data", swaggerTeams);
 		return historyResponse;
 	}
 

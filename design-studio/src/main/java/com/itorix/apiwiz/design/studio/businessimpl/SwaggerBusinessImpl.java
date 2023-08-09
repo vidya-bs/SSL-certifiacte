@@ -4744,7 +4744,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		return swaggerData;
 	}
 
-
 	public SwaggerObjectResponse getSwaggerStatsV2(String timeunit, String timerange,String jsessionid)
 			throws ParseException {
 		log("getSwaggerStatsV2", timeunit, timerange);
@@ -4756,36 +4755,38 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		Map<String, Object> filterFieldsAndValues = new HashMap<>();
 		boolean isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
 		List<Stat> statsList = new ArrayList<>();
+		/*Commented Due To No Usage
 		boolean populateSwaggers = false;
 		if (timeunit != null && timerange != null) {
 			populateSwaggers = true;
-			SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 			String[] dates = timerange.split("~");
-			Date startDate = null;
-			Date endDate = null;
+			long startDate = -1L;
+			long endDate = -1L;
 			if (dates != null && dates.length > 0) {
-				startDate = dateFormat.parse(dates[0]);
-				endDate = dateFormat.parse(dates[1]);
+				startDate = Long.parseLong(dates[0]);
+				endDate = Long.parseLong(dates[1]);
 			}
-			Metrics metricsNode = new Metrics();
-			metricsNode.setType(timeunit);
-			HashMap<String, Object> valuesNode = new HashMap<>();
-			while (startDate.compareTo(endDate) <= 0) {
-				Query query = new Query();
-				query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
-						.gte(new Long(getStartOfDay(startDate).getTime() + ""))
-						.lt(new Long(getEndOfDay(startDate).getTime() + "")));
-				List<SwaggerVO> list = baseRepository.find(query, SwaggerVO.class);
-				if (list != null && list.size() > 0) {
-					valuesNode.put("timestamp", getStartOfDay(startDate).getTime() + "");
-					valuesNode.put("value", list.size());
+			if(startDate!=-1L && endDate!=-1L){
+				Metrics metricsNode = new Metrics();
+				metricsNode.setType(timeunit);
+				HashMap<String, Object> valuesNode = new HashMap<>();
+				while (startDate<=endDate) {
+					Query query = new Query();
+					query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
+							.gte(DateUtil.convertToStartOfDay(startDate))
+							.lt(DateUtil.convertToEndOfDay(startDate)));
+					List<SwaggerVO> list = baseRepository.find(query, SwaggerVO.class);
+					if (list != null && list.size() > 0) {
+						valuesNode.put("timestamp", DateUtil.convertToStartOfDay(startDate) + "");
+						valuesNode.put("value", list.size());
 
+					}
+					startDate += 86400000L;//(24 * 60 * 60 * 1000)
 				}
-				startDate = DateUtil.addDays(startDate, 1);
+				metricsNode.setValues(valuesNode);
+				swaggerObjectResponse.setMetrics(metricsNode);
 			}
-			metricsNode.setValues(valuesNode);
-			swaggerObjectResponse.setMetrics(metricsNode);
-		}
+		}*/
 		if(!isAdmin){
 			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("2.0", user);
 			Set<String> SwaggerNames = new HashSet<>();
@@ -4832,7 +4833,6 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		log.debug("swaggerObjectResponseV2 : {}", swaggerObjectResponse);
 		return swaggerObjectResponse;
 	}
-
 	public SwaggerObjectResponse getSwagger3Statsv2(String timeunit, String timerange,String jsessionid) throws ParseException, ItorixException {
 		log("getSwagger3StatsV2", timeunit, timerange);
 		SwaggerObjectResponse swaggerObjectResponse = new SwaggerObjectResponse();
@@ -4841,36 +4841,37 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		Map<String, Object> filterFieldsAndValues = new HashMap<>();
 		boolean isAdmin = user.isWorkspaceAdmin(userSessionToken.getWorkspaceId());
 		List<Stat> statsList = new ArrayList<>();
-		boolean populateSwaggers = false;
+		/*boolean populateSwaggers = false;
 		if (timeunit != null && timerange != null) {
 			populateSwaggers = true;
-			SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 			String[] dates = timerange.split("~");
 
-			Date startDate = null;
-			Date endDate = null;
+			long startDate = -1L;
+			long endDate = -1L;
 			if (dates != null && dates.length > 0) {
-				startDate = dateFormat.parse(dates[0]);
-				endDate = dateFormat.parse(dates[1]);
+				startDate = Long.parseLong(dates[0]);
+				endDate = Long.parseLong(dates[1]);
 			}
-			Metrics metricsNode = new Metrics();
-			metricsNode.setType(timeunit);
-			HashMap<String, Object> valuesNode = new HashMap<>();
-			while (startDate.compareTo(endDate) <= 0) {
-				Query query = new Query();
-				query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
-						.gte(new Long(getStartOfDay(startDate).getTime() + ""))
-						.lt(new Long(getEndOfDay(startDate).getTime() + "")));
-				List<Swagger3VO> list = baseRepository.find(query, Swagger3VO.class);
-				if (list != null && list.size() > 0) {
-					valuesNode.put("timestamp", getStartOfDay(startDate).getTime() + "");
-					valuesNode.put("value", list.size());
+			if(startDate!=-1L && endDate!=-1L){
+				Metrics metricsNode = new Metrics();
+				metricsNode.setType(timeunit);
+				HashMap<String, Object> valuesNode = new HashMap<>();
+				while (startDate<=endDate) {
+					Query query = new Query();
+					query.addCriteria(Criteria.where(LABEL_CREATED_TIME)
+							.gte(DateUtil.convertToStartOfDay(startDate))
+							.lt(DateUtil.convertToEndOfDay(startDate)));
+					List<Swagger3VO> list = baseRepository.find(query, Swagger3VO.class);
+					if (list != null && list.size() > 0) {
+						valuesNode.put("timestamp", DateUtil.convertToStartOfDay(startDate) + "");
+						valuesNode.put("value", list.size());
+					}
+					startDate += 86400000L;//(24 * 60 * 60 * 1000)
 				}
-				startDate = DateUtil.addDays(startDate, 1);
+				metricsNode.setValues(valuesNode);
+				swaggerObjectResponse.setMetrics(metricsNode);
 			}
-			metricsNode.setValues(valuesNode);
-			swaggerObjectResponse.setMetrics(metricsNode);
-		}
+		}*/
 		if(!isAdmin){
 			Map<String, Set<String>> swaggerRoles = getSwaggerPermissions("3.0", user);
 			Set<String> SwaggerNames = new HashSet<>();

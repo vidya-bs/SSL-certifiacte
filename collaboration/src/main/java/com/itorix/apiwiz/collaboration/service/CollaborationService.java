@@ -190,12 +190,13 @@ public interface CollaborationService {
 			@ApiResponse(code = 200, message = "Ok", response = SwaggerTeam.class, responseContainer = "List"),
 			@ApiResponse(code = 500, message = "Internal server error. Please contact support for further instructions.", response = ErrorObj.class)})
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/teams")
-	public ResponseEntity<TeamsHistoryResponse> getTeams(
+	public ResponseEntity<?> getTeams(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
 			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
-			@RequestParam(value = "name", required = false) String name) throws Exception;
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "paginated", required = false, defaultValue = "true") boolean paginated) throws Exception;
 
 	/**
 	 * To get the only team names.

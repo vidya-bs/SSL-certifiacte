@@ -1159,6 +1159,8 @@ public class ServiceRequestDao {
 		}
 	}
 
+
+
 	@SuppressWarnings("unchecked")
 	public Object getservicerequests(ServiceRequest serviceRequest) throws ItorixException {
 		try {
@@ -1194,7 +1196,6 @@ public class ServiceRequestDao {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
-
 	@SuppressWarnings("unchecked")
 	public Object getservicerequestsFullDetails(ServiceRequest serviceRequest) throws ItorixException {
 		try {
@@ -1209,17 +1210,16 @@ public class ServiceRequestDao {
 			throw new ItorixException(ex.getMessage(), "Configuration-1000", ex);
 		}
 	}
-
 	public ObjectNode getServiceRequestStats(String timeunit, String timerange) throws Exception {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 		String[] dates = timerange != null ? timerange.split("~") : null;
-		Date startDate = null;
-		Date endDate = null;
-		Date orgStartDateinit = null;
-		Date origEnddate = null;
+		long startDate = -1L;
+		long endDate = -1L;
+		long orgStartDateinit = -1L;
+		long origEnddate =-1L;
 		if (dates != null && dates.length > 0) {
-			startDate = dateFormat.parse(dates[0]);
-			endDate = dateFormat.parse(dates[1]);
+			startDate = Long.parseLong(dates[0]);
+			endDate = Long.parseLong(dates[1]);
 			orgStartDateinit = startDate;
 			origEnddate = endDate;
 		}
@@ -1235,7 +1235,7 @@ public class ServiceRequestDao {
 			ObjectNode typeNode = mapper.createObjectNode();
 			ArrayNode valuesNode = mapper.createArrayNode();
 			typeNode.put("name", type);
-			if(startDate == null ){
+			if(startDate == -1L ){
 				Query query = new Query();
 				query.addCriteria(Criteria.where("type").is(type));
 				List<ServiceRequest> list = baseRepository.find(query, ServiceRequest.class);
@@ -1243,19 +1243,19 @@ public class ServiceRequestDao {
 				valueNode.put("value", list.size());
 				valuesNode.add(valueNode);
 			} else {
-				while (startDate.compareTo(endDate) <= 0) {
+				while (startDate<endDate) {
 					Query query = new Query();
 					query.addCriteria(
-							Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(DateUtil.getStartOfDay(startDate))
-									.lt(DateUtil.getEndOfDay(endDate)).and("type").is(type));
+							Criteria.where(ServiceRequest.LABEL_CREATED_TIME).gte(new Date(DateUtil.convertToStartOfDay(startDate)))
+									.lt(new Date(DateUtil.convertToEndOfDay(endDate))).and("type").is(type));
 					List<ServiceRequest> list = baseRepository.find(query, ServiceRequest.class);
 					// if(list!=null && list.size()>0){
 					ObjectNode valueNode = mapper.createObjectNode();
-					valueNode.put("timestamp", DateUtil.getStartOfDay(startDate).getTime() + "");
+					valueNode.put("timestamp", startDate + "");
 					valueNode.put("value", list.size());
 					valuesNode.add(valueNode);
-					// }
-					startDate = DateUtil.addDays(startDate, 1);
+//					 }
+					startDate += 86400000L;//(24 * 60 * 60 * 1000)
 				}
 			}
 			typeNode.put("values", valuesNode);
@@ -1272,10 +1272,10 @@ public class ServiceRequestDao {
 				ObjectNode dimesionNode = mapper.createObjectNode();
 				Query query = new Query();
 				query.addCriteria(Criteria.where("status").is(status));
-				if(startDate != null && endDate != null) {
+				if(startDate != -1L && endDate != -1L) {
 					query.addCriteria(
-							Criteria.where("modifiedDate").gte(DateUtil.getStartOfDay(startDate))
-									.lt(DateUtil.getEndOfDay(endDate)));
+							Criteria.where("modifiedDate").gte(new Date(DateUtil.convertToStartOfDay(startDate)))
+									.lt(new Date(DateUtil.convertToEndOfDay(endDate))));
 				}
 				query.addCriteria((Criteria.where("activeFlag").is(Boolean.TRUE)));
 				List<ServiceRequest> listByStatus = baseRepository.find(query, ServiceRequest.class);
@@ -1285,10 +1285,10 @@ public class ServiceRequestDao {
 					ArrayNode namesNode = mapper.createArrayNode();
 					query = new Query();
 					query.addCriteria(Criteria.where("status").is(status).and("type").is(type));
-					if(startDate != null && endDate != null) {
+					if(startDate != -1L && endDate != -1L) {
 						query.addCriteria(
-								Criteria.where("modifiedDate").gte(DateUtil.getStartOfDay(startDate))
-										.lt(DateUtil.getEndOfDay(endDate)));
+								Criteria.where("modifiedDate").gte(new Date(DateUtil.convertToStartOfDay(startDate)))
+										.lt(new Date(DateUtil.convertToEndOfDay(endDate))));
 					}
 					query.addCriteria((Criteria.where("activeFlag").is(Boolean.TRUE)));
 					List<ServiceRequest> listByStatusType = baseRepository.find(query, ServiceRequest.class);

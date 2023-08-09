@@ -2,10 +2,7 @@ package com.itorix.apiwiz.design.studio.swaggerdiff.dao;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -226,8 +223,8 @@ public class SwaggerDiffService {
 	 * @throws ParseException
 	 * @throws ItorixException
 	 */
-	public SwaggerChangeLogResponse getSwaggerIdReleaseNotes(String timeRange, String oas,
-			String swaggerId, int offset)
+	public Map<String, Object> getSwaggerIdReleaseNotes(String timeRange, String oas,
+														String swaggerId, int offset,int pageSize,boolean paginated)
 			throws ParseException, ItorixException {
 		String swaggerName = null;
 		if (oas.equals("2.0")) {
@@ -241,53 +238,46 @@ public class SwaggerDiffService {
 		if (swaggerName != null) {
 			Query query = null;
 			if (timeRange != null) {
-				SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
-				String timeRanges[] = timeRange.split("~");
-				Date startDate = format.parse(timeRanges[0]);
-				Date endDate = format.parse(timeRanges[1]);
-				long startTime = DateUtil.getStartOfDay(startDate).getTime();
-				long endDateTime = DateUtil.getEndOfDay(endDate).getTime();
-				query = new Query(
-						Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas).and("mts").gte(startTime)
-								.lte(endDateTime)).with(Sort.by(Direction.DESC, "mts"))
-						.skip(offset > 0 ? ((offset - 1) * 10) : 0).limit(10);
+				String[] timeRanges = timeRange.split("~");
+				long startTime = Long.parseLong(timeRanges[0]);
+				long endDateTime = Long.parseLong(timeRanges[1]);
+				query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas).and("mts").gte(startTime)
+								.lte(endDateTime)).with(Sort.by(Direction.DESC, "mts"));
 			} else {
 				query = new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas))
-						.with(Sort.by(Direction.DESC, "mts")).skip(offset > 0 ? ((offset - 1) * 10) : 0)
-						.limit(10);
+						.with(Sort.by(Direction.DESC, "mts"));
+			}
+			if(paginated){
+				query.skip(offset > 0 ? ((long) (offset - 1) * pageSize) : 0).limit(pageSize);
 			}
 			List<SwaggerChangeLog> list = baseRepository.find(query, SwaggerChangeLog.class);
 			for (SwaggerChangeLog log : list) {
 				log.setNotes(null);
 			}
-			long counter;
-			if (timeRange != null) {
-				SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
-				String timeRanges[] = timeRange.split("~");
-				Date startDate = format.parse(timeRanges[0]);
-				Date endDate = format.parse(timeRanges[1]);
-				long startTime = DateUtil.getStartOfDay(startDate).getTime();
-				long endDateTime = DateUtil.getEndOfDay(endDate).getTime();
-				counter = mongoTemplate.count(
-						new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas)
-								.and("mts").gte(startTime).lte(endDateTime)), SwaggerChangeLog.class);
-			} else {
-				counter = mongoTemplate.count(
-						new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas)),
-						SwaggerChangeLog.class);
+			Map<String, Object> response = new HashMap<>();
+			if(paginated){
+				long counter;
+				if (timeRange != null) {
+					String[] timeRanges = timeRange.split("~");
+					long startTime = Long.parseLong(timeRanges[0]);
+					long endDateTime = Long.parseLong(timeRanges[1]);
+					counter = mongoTemplate.count(
+							new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas)
+									.and("mts").gte(startTime).lte(endDateTime)), SwaggerChangeLog.class);
+				} else {
+					counter = mongoTemplate.count(
+							new Query(Criteria.where("swaggerId").is(swaggerId).and("oas").is(oas)),
+							SwaggerChangeLog.class);
+				}
+				Pagination pagination = new Pagination();
+				pagination.setOffset(offset);
+				pagination.setTotal(counter);
+				pagination.setPageSize(pageSize);
+				response.put("data",list);
+				response.put("pagination",pagination);
+				return response;
 			}
-			Pagination pagination = new Pagination();
-			pagination.setOffset(offset);
-			pagination.setTotal(counter);
-			pagination.setPageSize(10);
-
-			SwaggerChangeLogResponse response = new SwaggerChangeLogResponse();
-			if (list == null) {
-				response.setData(new ArrayList());
-			} else {
-				response.setData(list);
-			}
-			response.setPagination(pagination);
+			response.put("data",list);
 			return response;
 		}
 		throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Swagger-1000")),
