@@ -32,7 +32,7 @@ public class ComplianceScannerSqlDao {
     }
     jdbcTemplate.update(
             "insert into " + ComplicanceScannerExecutorEntity.TABLE_NAME
-                    + " (tenant, complianceScannerExecutionId, operation, status, lockedBy) values(?,?,?,?,?)",
+                    + " (tenant, compliancescannerexecutionid, operation, status, lockedby) values(?,?,?,?,?)",
             tenant, complianceDetectExecutionId, operation, status, lockedBy);
   }
 

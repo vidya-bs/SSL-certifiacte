@@ -27,11 +27,11 @@ public class NotificationExecutorSql {
     }
     notificationJdbcTemplate.update(
             "insert into " + NotificationExecutorEntity.TABLE_NAME
-                    + " (tenant, notificationExecutionId , status, lockedBy) values(?,?,?,?)",
+                    + " (tenant, notificationexecutionid , status, lockedby) values(?,?,?,?)",
             tenant, notificationExecutionId, status, lockedBy);
   }
   public void updateNotificationField(String notificationExecutionId, String field, String value) {
     notificationJdbcTemplate.update(
-            "update " + NotificationExecutorEntity.TABLE_NAME + " set " + field + " = ? where notificationExecutionId = ?", value, notificationExecutionId);
+            "update " + NotificationExecutorEntity.TABLE_NAME + " set " + field + " = ? where notificationexecutionid = ?", value, notificationExecutionId);
   }
 }

@@ -1,6 +1,5 @@
 package com.itorix.apiwiz.design.studio.dto;
 
-import com.itorix.apiwiz.design.studio.dao.ComplianceScannerSqlDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -20,7 +19,7 @@ public class OnApplicationStarts {
     public void onApplicationEvent(ContextRefreshedEvent event) {
 
         String createTable = "CREATE TABLE IF NOT EXISTS " + ComplicanceScannerExecutorEntity.TABLE_NAME
-                + "  (id  INTEGER PRIMARY KEY," + "   tenant            TEXT," + "   complianceScannerExecutionId   TEXT,"
+                + "  (id  SERIAL PRIMARY KEY," + "   tenant            TEXT," + "   complianceScannerExecutionId   TEXT,"
                 +"operation     TEXT," +"   error_description            TEXT,"+ "   status      TEXT,"+ "   errorCode      TEXT,"
                 + "  lockedBy TEXT)";
 
