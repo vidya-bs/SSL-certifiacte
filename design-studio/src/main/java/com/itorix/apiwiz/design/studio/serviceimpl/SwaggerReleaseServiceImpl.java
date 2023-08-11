@@ -123,16 +123,18 @@ public class SwaggerReleaseServiceImpl implements SwaggerReleaseService {
 	}
 
 	@Override
-	public ResponseEntity<Object> getSwaggerChangelog(@RequestHeader(value = "JSESSIONID") String jsessionId,
+	public ResponseEntity<?> getSwaggerChangelog(@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "oas", required = false, defaultValue = "2.0") String oas,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
+			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
 			@RequestParam(value = "timeRange", required = false) String timeRange,
+			@RequestParam(value = "paginated", required = false, defaultValue = "true") boolean paginated,
 			@PathVariable(value = "swaggerid", required = false) String swaggerid,
 			@PathVariable(value = "id", required = false) String id) throws Exception {
 		if (id != null)
-			return new ResponseEntity<Object>(swaggerDiffService.getSwaggerChangeLog(id), HttpStatus.OK);
-		return new ResponseEntity<Object>(
-				swaggerDiffService.getSwaggerIdReleaseNotes(timeRange, oas, swaggerid, offset), HttpStatus.OK);
+			return new ResponseEntity<>(swaggerDiffService.getSwaggerChangeLog(id), HttpStatus.OK);
+		return new ResponseEntity<>(
+				swaggerDiffService.getSwaggerIdReleaseNotes(timeRange, oas, swaggerid, offset,pageSize,paginated), HttpStatus.OK);
 	}
 }
