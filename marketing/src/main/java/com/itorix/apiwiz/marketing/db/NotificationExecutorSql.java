@@ -28,8 +28,4 @@ public class NotificationExecutorSql {
                     + " (tenant, notificationexecutionid , status, lockedby) values(?,?,?,?)",
             tenant, notificationExecutionId, status, lockedBy);
   }
-  public void updateNotificationField(String notificationExecutionId, String field, String value) {
-    jdbcTemplate.update(
-            "update " + NotificationExecutorEntity.TABLE_NAME + " set " + field + " = ? where notificationexecutionid = ?", value, notificationExecutionId);
-  }
 }

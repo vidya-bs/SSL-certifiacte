@@ -103,19 +103,6 @@ public class ContactUsDao {
 				sqlDao.insertIntoNotificationEntity(null,
 								notificationExecutionEventId, NotificationExecutorEntity.STATUSES.SCHEDULED.getValue(), null);
 
-				HttpHeaders headers = new HttpHeaders();
-				headers.set(API_KEY_NAME, rsaEncryption.decryptText(applicationProperties.getApiKey()));
-				headers.setContentType(MediaType.APPLICATION_JSON);
-				HttpEntity<RequestModel> httpEntity = new HttpEntity<>(requestModel, headers);
-				String notifyUrl = notificationAgentPath + notificationContextPath +
-								NOTIFICATION_AGENT_NOTIFY + notificationExecutionEventId;
-				log.debug("Making a call to {}", notifyUrl);
-				ResponseEntity<String> result = restTemplate.postForEntity(notifyUrl, httpEntity, String.class);
-				if (!result.getStatusCode().is2xxSuccessful()) {
-					sqlDao.updateNotificationField(notificationExecutionEventId,
-									"status", NotificationExecutorEntity.STATUSES.FAILED.getValue());
-					log.error("error returned from notification agent", result.getBody());
-				}
 			}
 		} catch (Exception e) {
 			log.error("error returned from notification agent", e);
