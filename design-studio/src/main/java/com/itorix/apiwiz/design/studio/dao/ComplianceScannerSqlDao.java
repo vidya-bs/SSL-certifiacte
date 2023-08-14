@@ -19,13 +19,12 @@ import javax.sql.DataSource;
 public class ComplianceScannerSqlDao {
 
   @Autowired
-  @Qualifier("complianceJdbcTemplate")
   JdbcTemplate jdbcTemplate;
 
 
-  public void insertIntoComplianceExecutorEntity(String tenant, String complianceDetectExecutionId, String status, String lockedBy, String operation)
+  public void insertIntoComplianceExecutorEntity(String tenant, String complianceScannerExecutionId, String status, String lockedBy, String operation)
           throws ItorixException {
-    if (!StringUtils.hasText(tenant) || !StringUtils.hasText(complianceDetectExecutionId) ||
+    if (!StringUtils.hasText(tenant) || !StringUtils.hasText(complianceScannerExecutionId) ||
             !StringUtils.hasText(status) || !StringUtils.hasText(operation)) {
       log.error("mandatory parameters missing");
       throw new ItorixException(ErrorCodes.errorMessage.get("MonitorAgent-7"), "MonitorAgent-7");
@@ -33,7 +32,7 @@ public class ComplianceScannerSqlDao {
     jdbcTemplate.update(
             "insert into " + ComplicanceScannerExecutorEntity.TABLE_NAME
                     + " (tenant, compliancescannerexecutionid, operation, status, lockedby) values(?,?,?,?,?)",
-            tenant, complianceDetectExecutionId, operation, status, lockedBy);
+            tenant, complianceScannerExecutionId, operation, status, lockedBy);
   }
 
 }
