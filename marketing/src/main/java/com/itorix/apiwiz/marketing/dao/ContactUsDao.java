@@ -102,7 +102,7 @@ public class ContactUsDao {
 				String notificationExecutionEventId = createNotificationEvent(requestModel);
 				sqlDao.insertIntoNotificationEntity(null,
 								notificationExecutionEventId, NotificationExecutorEntity.STATUSES.SCHEDULED.getValue(), null);
-
+				log.error("inserted notification event into the postgres - {}", notificationExecutionEventId);
 			}
 		} catch (Exception e) {
 			log.error("error returned from notification agent", e);
