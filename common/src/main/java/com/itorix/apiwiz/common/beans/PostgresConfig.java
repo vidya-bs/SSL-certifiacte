@@ -15,7 +15,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @ConditionalOnProperty(
-        prefix = "postgres",
+        prefix = "coreapi-postgres",
         name = {"enabled"},
         havingValue = "true",
         matchIfMissing = false
