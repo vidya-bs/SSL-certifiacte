@@ -176,7 +176,7 @@ public class UserInfo {
 	}
 
 	public void setWorkspaceId(String workspaceId) {
-		this.workspaceId = workspaceId.toLowerCase();
+		this.workspaceId = workspaceId;
 	}
 
 	public String getPlanId() {

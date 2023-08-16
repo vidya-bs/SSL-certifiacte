@@ -880,13 +880,13 @@ public class IdentityManagementDao {
     public Workspace createWorkspace(UserInfo userInfo, String status) throws ItorixException {
         Query query = new Query();
         query.addCriteria(
-                new Criteria().orOperator(Criteria.where("name").is(userInfo.getWorkspaceId().toLowerCase())));
+                new Criteria().orOperator(Criteria.where("name").is(userInfo.getWorkspaceId())));
         Workspace workspace = mongoTemplate.findOne(query, Workspace.class);
         if (workspace == null) {
             workspace = new Workspace();
-            workspace.setName(userInfo.getWorkspaceId().toLowerCase());
+            workspace.setName(userInfo.getWorkspaceId());
             workspace.setPlanId(userInfo.getPlanId());
-            workspace.setTenant(userInfo.getWorkspaceId().toLowerCase());
+            workspace.setTenant(userInfo.getWorkspaceId());
             workspace.setStatus(status);
             workspace.setKey(UUID.randomUUID().toString());
             workspace.setRegionCode(userInfo.getRegionCode());
@@ -1002,7 +1002,7 @@ public class IdentityManagementDao {
     public Map<String, Object> checkWorkspace(String workspaceId) throws JsonProcessingException {
         Workspace workspace = getWorkspace(workspaceId);
         Map<String, Object> response = new HashMap<>();
-        response.put("isValid", workspace == null && !getRestrictedWorkspaceNames().contains(workspaceId));
+        response.put("isValid",workspaceId.matches("^[a-z]++(?:-[a-z]++)*+$") && workspace == null && !getRestrictedWorkspaceNames().contains(workspaceId));
         return response;
     }
 
@@ -1535,11 +1535,10 @@ public class IdentityManagementDao {
         return users;
     }
 
-    public Workspace getWorkspace(String workapaceId) {
+    public Workspace getWorkspace(String workspaceId) {
         Query query = new Query();
-        query.addCriteria(new Criteria().orOperator(Criteria.where("name").is(workapaceId)));
-        Workspace workspace = masterMongoTemplate.findOne(query, Workspace.class);
-        return workspace;
+        query.addCriteria(new Criteria().orOperator(Criteria.where("name").is(workspaceId)));
+        return masterMongoTemplate.findOne(query, Workspace.class);
     }
 
     public String getHashedValue(String password){
@@ -2334,10 +2333,9 @@ public class IdentityManagementDao {
     }
 
     public void validateUserFields(UserInfo userInfo) throws ItorixException {
-        try{
             String nameRegexPattern = "^[a-zA-Z]+$";
             String loginIdPattern = "^[a-zA-Z\\d.-]+$";
-            String workspaceIdPattern = "^[a-zA-Z-]+$";
+            String workspaceIdPattern = "^[a-z]++(?:-[a-z]++)*+$";
             String emailPattern = "^[A-Za-z\\d+_.@()-]+$";
             //String specialCharacters ="^[&,:;=?#|'<>^*()%!]+$";
 
@@ -2395,7 +2393,7 @@ public class IdentityManagementDao {
                 matcher = pattern.matcher(userInfo.getWorkspaceId());
                 if(!matcher.matches()){
                     throw new ItorixException(String.format(ErrorCodes.errorMessage.get
-                        ("Identity-1052"),"workspaceId. Special characters are not allowed"),"Identity-1052");
+                        ("Identity-1052"),"workspaceId. Only lowercase with hyphens is allowed."),"Identity-1052");
                 }
 
             }
@@ -2445,10 +2443,6 @@ public class IdentityManagementDao {
                     logger.error("Cannot decrypt hashed value");
                 }
             }
-        }
-        catch (Exception e) {
-            logger.error("Exception occurred while validating the user fields : {}",e.getMessage());
-        }
     }
 
     public void restrictedWorkspaceNames(String restrictedNames) {
