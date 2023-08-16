@@ -26,7 +26,7 @@ public enum ErrorCodes {
 	USER_006("Resource not found. User not found"),
 	USER_007("Resource authorization validation failed. User doesn't have privilege"),
 	USER_005("Request validation failed. User already Exists"),
-	USER_010("Request validation failed. workspace Id already in use"),
+	USER_010("Request validation failed. Workspace id already exists."),
 	Swagger1009("Request validation failed. Swagger Team name is already available"),
 	CHECK_MANDATORY_DATA_FIELDS("Request validation failed. Please check the mandatory data fields and retry again."),
 	PROXY_NOT_FOUND("Request validation failed. Resource or proxy name does not exist."),
@@ -131,7 +131,7 @@ public enum ErrorCodes {
 			put("Identity-1032", INVALID_SESSION_TOKEN.message());
 			put("Identity-1033", "Request validation failed. Invalid SAML configurations. Missing SAML metadata URL or metadata file.");
 			put("Identity-1034", "Request validation failed. Invalid SAML configurations.");
-			put("Identity-1035", "Request validation failed. Invalid SAML configurations. Missing SAML metadata URL or metadata file.");
+			put("Identity-1035", USER_010.message());
 			put("Identity-1036", "User account validation failed. Invalid login credentials.");
 			put("Identity-1037", "Request validation failed. Invalid ldap configurations.");
 			put("Identity-1038", GENERIC_INTERNAL_SERVER_ERROR.message());
