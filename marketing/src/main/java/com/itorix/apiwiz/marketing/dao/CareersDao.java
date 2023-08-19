@@ -32,7 +32,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.io.ByteArrayInputStream;
 import java.util.*;
 
@@ -168,8 +169,12 @@ public class CareersDao {
 		return application;
 	}
 
-	public String updateProfileFile(String userId, String filename, byte[] bytes) throws ItorixException {
-		return updateToJfrog(userId + "/" + filename, bytes);
+	public String updateProfileFile(String jobId,String jobName, String filename, byte[] bytes) throws ItorixException {
+		String directory=(jobId+"_"+jobName).replace(" ","_");
+		LocalDate currentDate = LocalDate.now();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+		String subDirectory=currentDate.format(formatter);
+		return updateToJfrog( directory+ "/" +subDirectory+ "/" + filename, bytes);
 	}
 
 	public void deleteProfileFile(String userId, String imagePath) throws ItorixException {
