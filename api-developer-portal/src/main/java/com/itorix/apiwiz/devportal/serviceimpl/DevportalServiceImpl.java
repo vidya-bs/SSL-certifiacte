@@ -2,7 +2,9 @@ package com.itorix.apiwiz.devportal.serviceimpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itorix.apiwiz.common.model.apigee.ApigeeConfigurationVO;
 import com.itorix.apiwiz.common.model.apigee.StaticFields;
+import com.itorix.apiwiz.common.model.apigeeX.ApigeeXConfigurationVO;
 import com.itorix.apiwiz.common.model.azure.AzureConfigurationVO;
 import com.itorix.apiwiz.common.model.azure.AzureSubscriptionResponse;
 import com.itorix.apiwiz.common.model.azure.AzureSubscriptionResponseDTO;
@@ -12,6 +14,7 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.model.kong.*;
 import com.itorix.apiwiz.common.model.monetization.ProductBundle;
 import com.itorix.apiwiz.common.model.monetization.RatePlan;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyData;
 import com.itorix.apiwiz.devportal.model.DeveloperApp;
 import com.itorix.apiwiz.devportal.model.monetization.PurchaseRecord;
 import com.itorix.apiwiz.devportal.model.monetization.PurchaseResult;
@@ -25,7 +28,10 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -50,6 +56,8 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
+import org.springframework.data.mongodb.core.query.Query;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
@@ -69,6 +77,9 @@ public class DevportalServiceImpl implements DevportalService {
 
 	@Autowired
 	private DevportalDao devportaldao;
+
+	@Autowired
+	private MongoTemplate mongoTemplate;
 
 	@Override
 	public ResponseEntity<String> createDeveloper(@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -303,6 +314,366 @@ public class DevportalServiceImpl implements DevportalService {
 			return devportaldao.proxyService(httpConn, "GET");
 		}
 	}
+	private String allAppsWithGivenEmail(String type, String email,String expand,String org) throws Exception {
+		if (type != null && type.equalsIgnoreCase("apigeex")) {
+			String URL;
+			try {
+				if (expand != null && expand != "")
+					URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/developers/" + email
+							+ "/apps?expand=" + expand;
+				else
+					URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/developers/" + email + "/apps";
+				HTTPUtil httpConn = new HTTPUtil(URL, apigeexUtil.getApigeeCredentials(org, type));
+				ResponseEntity<String> response = devportaldao.proxyService(httpConn, "GET");
+				List<String> products = new ArrayList<>();
+				String apiProductString = response.getBody();
+				try {
+					JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
+					JSONArray apiProducts = (JSONArray) proxyObject.get("app");
+					for (Object apiObj : apiProducts) {
+						JSONObject prodObj = (JSONObject) apiObj;
+						final String apiProduct = (String) prodObj.get("appId");
+						products.add(apiProduct);
+					}
+				} catch (Exception e) {
+					logger.error("Exception occurred", e);
+				}
+				ObjectMapper objectMapper = new ObjectMapper();
+				HttpHeaders headers = new HttpHeaders();
+				headers.setContentType(MediaType.APPLICATION_JSON);
+				ResponseEntity<String> responseEntity = new ResponseEntity<String>(objectMapper.writeValueAsString(products), headers, HttpStatus.OK);
+				return responseEntity.toString();
+			}catch (Exception e){
+				return null;
+			}
+		} else {
+			String URL;
+			try{
+				if (expand != null && expand != "")
+					URL = apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/" + org + "/developers/" + email
+							+ "/apps?expand=" + expand;
+				else
+					URL = apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/" + org + "/developers/" + email
+							+ "/apps";
+				HTTPUtil httpConn = new HTTPUtil(URL, getEncodedCredentials(org, type));
+				ResponseEntity<String> response = devportaldao.proxyService(httpConn, "GET");
+				JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(response.getBody());
+				JSONArray apiProducts = (JSONArray) proxyObject.get("app");
+				List<JSONObject> responseObject = new ArrayList<>();
+				for (Object apiObj : apiProducts) {
+					JSONObject prodObj = (JSONObject) apiObj;
+					String appId = prodObj.get("appId").toString();
+					DeveloperApp developerApp = devportaldao.getDeveloperAppWithAppId(appId);
+					if (developerApp != null) {
+						prodObj.put("ratePlan", developerApp.getRatePlan());
+						prodObj.put("productBundle", developerApp.getProductBundle());
+						prodObj.put("description", developerApp.getDescription());
+					}
+					responseObject.add(prodObj);
+				}
+				JSONObject finalResponse = new JSONObject();
+				finalResponse.put("app", responseObject);
+				return finalResponse.toString();
+			}catch (Exception e){
+				return  null;
+			}
+		}
+	}
+
+	private List<JSONObject> convertJSONArrayToListOfJSONObjects(JSONArray jsonArray) {
+		List<JSONObject> jsonObjectList = new ArrayList<>();
+		for (int i = 0; i < jsonArray.size(); i++) {
+			jsonObjectList.add(jsonArray.getJSONObject(i));
+		}
+		return jsonObjectList;
+	}
+	@Override
+	public ResponseEntity<String> getAllOrgApps(String jsessionId, String interactionid,String email,String expand)
+			throws Exception {
+		if(email!=null){
+			List<ApigeeXConfigurationVO> apigeexConnections = devportaldao.getApigeexConnectedOrgs();
+			List<ApigeeConfigurationVO> apigeeConnections = devportaldao.getApigeeConnectedOrgs();
+
+			List<JSONObject> allAppData = new ArrayList<>();
+
+			if (apigeexConnections != null && !apigeexConnections.isEmpty()) {
+				for (ApigeeXConfigurationVO apigeeXConfigurationVO : apigeexConnections) {
+					String orgName = apigeeXConfigurationVO.getOrgName();
+					String apigeexResponse = allAppsWithGivenEmail("apigeex", email, expand, orgName);
+					if (apigeexResponse != null) {
+						JSONObject apigeexData = (JSONObject) JSONSerializer.toJSON(apigeexResponse);
+						JSONArray apigeexApps = apigeexData.getJSONArray("app");
+						for(int i=0;i<apigeexApps.size();i++){
+							JSONObject jsonObject=apigeexApps.getJSONObject(i);
+							jsonObject.put("org",apigeeXConfigurationVO.getOrgName());
+							jsonObject.put("orgType","saas");
+						}
+						allAppData.addAll(convertJSONArrayToListOfJSONObjects(apigeexApps));
+					}
+				}
+			}
+
+			if (apigeeConnections != null && !apigeeConnections.isEmpty()) {
+				for (ApigeeConfigurationVO apigeeConfigurationVO : apigeeConnections) {
+					String orgName = apigeeConfigurationVO.getOrgname();
+					String apigeeResponse = allAppsWithGivenEmail(apigeeConfigurationVO.getType(), email, expand, orgName);
+					if (apigeeResponse != null) {
+						JSONObject apigeeData = (JSONObject) JSONSerializer.toJSON(apigeeResponse);
+						JSONArray apigeeApps = apigeeData.getJSONArray("app");
+						for(int i=0;i<apigeeApps.size();i++){
+							JSONObject jsonObject=apigeeApps.getJSONObject(i);
+							jsonObject.put("org",apigeeConfigurationVO.getOrgname());
+							jsonObject.put("orgType",apigeeConfigurationVO.getType());
+						}
+						allAppData.addAll(convertJSONArrayToListOfJSONObjects(apigeeApps));
+					}
+				}
+			}
+
+			JSONObject finalResponse = new JSONObject();
+			finalResponse.put("app", allAppData);
+
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			ResponseEntity<String> responseEntity = new ResponseEntity<>(finalResponse.toString(), headers, HttpStatus.OK);
+			return responseEntity;
+		}
+		else {
+			List<ApigeeXConfigurationVO> apigeexConnections = devportaldao.getApigeexConnectedOrgs();
+			JSONArray products = new JSONArray();
+			if (apigeexConnections != null && !apigeexConnections.isEmpty()) {
+				for (ApigeeXConfigurationVO apigeeXConfigurationVO : apigeexConnections) {
+					String URL;
+					if (apigeeXConfigurationVO != null) {
+						URL = apigeexUtil.getApigeeHost(apigeeXConfigurationVO.getOrgName()) + "/v1/organizations/" + apigeeXConfigurationVO.getOrgName() + "/apps?expand=true";
+						HTTPUtil httpConn = new HTTPUtil(URL, apigeexUtil.getApigeeCredentials(apigeeXConfigurationVO.getOrgName(), "apigeex"));
+						try {
+							ResponseEntity<String> response = devportaldao.proxyService(httpConn, "GET");
+							if (response.getStatusCode().is2xxSuccessful()) {
+								String apiProductString = response.getBody();
+								try {
+									JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
+									JSONArray apiProducts = (JSONArray) proxyObject.get("app");
+									for(int i=0;i<apiProducts.size();i++){
+										JSONObject jsonObject=apiProducts.getJSONObject(i);
+										jsonObject.put("org",apigeeXConfigurationVO.getOrgName());
+										jsonObject.put("orgType","saas");
+									}
+									products.addAll(apiProducts);
+								} catch (Exception e) {
+									logger.error("Exception occurred", e);
+								}
+							}
+						} catch (Exception e) {
+							logger.error("Exception occurred", e);
+						}
+					}
+				}
+			}
+			List<ApigeeConfigurationVO> apigeeConnections = devportaldao.getApigeeConnectedOrgs();
+
+			if (apigeeConnections != null && !apigeeConnections.isEmpty()) {
+				String URL;
+				for (ApigeeConfigurationVO apigeeConfigurationVO : apigeeConnections) {
+					URL = apigeeUtil.getApigeeHost(apigeeConfigurationVO.getType(), apigeeConfigurationVO.getOrgname())
+							+ "/v1/organizations/" + apigeeConfigurationVO.getOrgname() + "/apps?expand=true";
+					HTTPUtil httpConn = new HTTPUtil(URL,
+							getEncodedCredentials(apigeeConfigurationVO.getOrgname(), apigeeConfigurationVO.getType()));
+					try {
+						ResponseEntity<String> response = devportaldao.proxyService(httpConn, "GET");
+						if (response.getStatusCode().is2xxSuccessful()) {
+							String apiProductString = response.getBody();
+							try {
+								JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
+								JSONArray apiProducts = (JSONArray) proxyObject.get("app");
+								for(int i=0;i<apiProducts.size();i++){
+									JSONObject jsonObject=apiProducts.getJSONObject(i);
+									jsonObject.put("org",apigeeConfigurationVO.getOrgname());
+									jsonObject.put("orgType",apigeeConfigurationVO.getType());
+								}
+								products.addAll(apiProducts);
+							} catch (Exception e) {
+								logger.error("Exception occurred", e);
+							}
+						}
+					} catch (Exception e) {
+						logger.error("Exception occurred", e);
+					}
+				}
+			}
+			JSONObject finalResponse = new JSONObject();
+			finalResponse.put("app", products);
+			return ResponseEntity.ok(finalResponse.toString());
+		}
+	}
+
+	@Override
+	public ResponseEntity<String> getAllOrgProducts(String orgs, String partners, String jsessionId, String interactionid) throws Exception {
+		List<String> orgsList = (orgs!=null)?List.of(orgs.split(",")):new ArrayList<>();
+		List<String> partnersList = (partners!=null)?List.of(partners.split(",")):new ArrayList<>();
+		List<ApigeeXConfigurationVO> apigeexConnections;
+		List<ApigeeConfigurationVO> apigeeConnections;
+		List<String> swaggerPartners = new ArrayList<>();
+		if(orgsList.isEmpty()){
+			apigeexConnections = devportaldao.getApigeexConnectedOrgs();
+			apigeeConnections = devportaldao.getApigeeConnectedOrgs();
+		}else{
+			apigeexConnections = devportaldao.getApigeexConnectedOrgs(orgsList);
+			apigeeConnections = devportaldao.getApigeeConnectedOrgs(orgsList);
+			if(apigeexConnections.isEmpty() && apigeeConnections.isEmpty()) return ResponseEntity.notFound().build();
+		}
+		if(!partnersList.isEmpty()){
+			swaggerPartners = devportaldao.getSwaggerPartners(partnersList);
+			if(swaggerPartners.isEmpty()) return ResponseEntity.notFound().build();
+		}
+		boolean filterPartner=(partners!=null && !swaggerPartners.isEmpty());
+		JSONArray products = new JSONArray();
+
+		if(!apigeexConnections.isEmpty())
+			for (ApigeeXConfigurationVO apigeeXConfigurationVO : apigeexConnections) {
+				String url;
+				if (apigeeXConfigurationVO != null) {
+					url =
+							apigeexUtil.getApigeeHost(apigeeXConfigurationVO.getOrgName()) + StaticFields.V1_ORGANIZATIONS_PATH
+									+ apigeeXConfigurationVO.getOrgName() + StaticFields.PRODUCTS_PATH;
+					HTTPUtil httpConn = new HTTPUtil(url,
+							apigeexUtil.getApigeeCredentials(apigeeXConfigurationVO.getOrgName(), "apigeex"));
+					try {
+						ResponseEntity<String> response = devportaldao.proxyService(httpConn, "GET");
+						if (response.getStatusCode().is2xxSuccessful()) {
+							String apiProductString = response.getBody();
+							try {
+								JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
+								JSONArray apiProducts = (JSONArray) proxyObject.get("apiProduct");
+								if(filterPartner) {
+									for (int i = 0; i < apiProducts.size(); i++) {
+										JSONObject jsonObject = apiProducts.getJSONObject(i);
+										JSONArray attributes = (JSONArray) jsonObject.get("attributes");
+										boolean isPartner = false;
+										for (int j = 0; j < attributes.size(); j++) {
+											JSONObject attribute = attributes.getJSONObject(j);
+											String name=(String)attribute.get("name");
+											if(StringUtils.equalsIgnoreCase(name,"partner")||StringUtils.equalsIgnoreCase(name,"partners")){
+												List<String> values = List.of(((String) attribute.get("value")).split(","));
+												for (String value : values) {
+													if (swaggerPartners.contains(value)) {
+														isPartner = true;
+													}
+												}
+											}
+										}
+										if (isPartner){
+											jsonObject.put("Organization",apigeeXConfigurationVO.getOrgName());
+											products.add(jsonObject);
+										}
+									}
+								}else{
+									for (int i = 0; i < apiProducts.size(); i++){
+										JSONObject jsonObject = apiProducts.getJSONObject(i);
+										jsonObject.put("Organization",apigeeXConfigurationVO.getOrgName());
+									}
+									products.addAll(apiProducts);
+								}
+							} catch (Exception e) {
+								logger.error("Exception occurred", e);
+							}
+						}
+					} catch (Exception e) {
+						logger.error("Exception occurred", e);
+					}
+				}
+			}
+		String url;
+		if(!apigeeConnections.isEmpty())
+			for (ApigeeConfigurationVO apigeeConfigurationVO : apigeeConnections) {
+				url =
+						apigeeUtil.getApigeeHost(apigeeConfigurationVO.getType(),
+								apigeeConfigurationVO.getOrgname()) + StaticFields.V1_ORGANIZATIONS_PATH
+								+ apigeeConfigurationVO.getOrgname() + StaticFields.PRODUCTS_PATH;
+				HTTPUtil httpConn = new HTTPUtil(url,
+						getEncodedCredentials(apigeeConfigurationVO.getOrgname(),
+								apigeeConfigurationVO.getType()));
+				try {
+					ResponseEntity<String> response = devportaldao.proxyService(httpConn, "GET");
+					if (response.getStatusCode().is2xxSuccessful()) {
+						String apiProductString = response.getBody();
+						try {
+							JSONObject proxyObject = (JSONObject) JSONSerializer.toJSON(apiProductString);
+							JSONArray apiProducts = (JSONArray) proxyObject.get("apiProduct");
+							if(filterPartner) {
+								for (int i = 0; i < apiProducts.size(); i++) {
+									JSONObject jsonObject = apiProducts.getJSONObject(i);
+									JSONArray attributes = (JSONArray)jsonObject.get("attributes");
+									boolean isPartner=false;
+									for (int j = 0; j < attributes.size(); j++) {
+										JSONObject attribute = attributes.getJSONObject(j);
+										String name=(String)attribute.get("name");
+										if(StringUtils.equalsIgnoreCase(name,"partner")||StringUtils.equalsIgnoreCase(name,"partners")){
+											List<String> values= List.of(((String) attribute.get("value")).split(","));
+											for(String value:values){
+												if(swaggerPartners.contains(value)){
+													isPartner=true;
+												}
+											}
+										}
+									}
+									if(isPartner){
+										jsonObject.put("Organization",apigeeConfigurationVO.getOrgname());
+										products.add(jsonObject);
+									}
+								}
+							}else {
+								for (int i = 0; i < apiProducts.size(); i++){
+									JSONObject jsonObject = apiProducts.getJSONObject(i);
+									jsonObject.put("Organization",apigeeConfigurationVO.getOrgname());
+								}
+								products.addAll(apiProducts);
+							}
+						} catch (Exception e) {
+							logger.error("Exception occurred", e);
+						}
+					}
+				} catch (Exception e) {
+					logger.error("Exception occurred", e);
+				}
+			}
+
+
+
+		JSONArray filteredProducts = new JSONArray();
+
+		for (int i = 0; i < products.size(); i++) {
+			JSONObject product = products.getJSONObject(i);
+			JSONArray proxiesArray = product.getJSONArray("proxies");
+			List<String> proxiesList = new ArrayList<>();
+			for (int j = 0; j < proxiesArray.size(); j++) {
+				String value = proxiesArray.getString(j);
+				proxiesList.add(value);
+			}
+			for(String k:proxiesList){
+				Query query=new Query().addCriteria(Criteria.where("proxyName").is(k));
+				ProxyData proxyData=mongoTemplate.findOne(query, ProxyData.class);
+				if (proxyData!=null) {
+					product.put("SwaggerId", proxyData.getSwaggerId());
+					product.put("OasVersion", proxyData.getOasVersion());
+					product.put("SwaggerRevision", proxyData.getSwaggerRevision());
+				}
+			}
+			filteredProducts.add(product);
+		}
+
+		JSONObject finalResponse = new JSONObject();
+		finalResponse.put("products", filteredProducts);
+		return ResponseEntity.ok(finalResponse.toString());
+	}
+	@Override
+	public ResponseEntity<List<ProductBundle>> getAllProductBundles(String jsessionId, String interactionid) throws ItorixException {
+		List<String> orgNames = devportaldao.getOrganisationNames();
+		Query query = new Query();
+		query.addCriteria(Criteria.where("status").is("Approved").and
+				("organization").in(orgNames));
+		return new ResponseEntity<>(devportaldao.getAllProductBundles(query), HttpStatus.OK);
+	}
 
 	@Override
 	public org.springframework.http.ResponseEntity<String> getApps(
@@ -472,9 +843,9 @@ public class DevportalServiceImpl implements DevportalService {
 			String URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/environments/" + env
 					+ "/stats/apps/";
 			String query = "";
-			if (select != null && select != "")
+			if (select != null && StringUtils.isNotEmpty(select))
 				query = "?select=" + select;
-			if (timeRange != null && timeRange != "")
+			if (timeRange != null && StringUtils.isNotEmpty(timeRange))
 				query = query + "&timeRange=" + timeRange;
 			if (timeUnit != null && timeUnit != "")
 				query = query + "&timeUnit=" + timeUnit;
@@ -527,13 +898,13 @@ public class DevportalServiceImpl implements DevportalService {
 
 	@Override
 	public ResponseEntity<?> getProductBundleCards(String jsessionId, String interactionid,
-			String partnerType, String org, int offset, int pagesize, boolean paginated,String organizations) throws Exception {
+												   String partnerType, String org, int offset, int pagesize, boolean paginated,String organizations) throws Exception {
 		return new ResponseEntity<>(devportaldao.getProductBundleCards(partnerType, org, offset, pagesize, paginated,organizations), HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseEntity<?> purchaseRatePlan(String jsessionId, String interactionid,
-											  PurchaseRecord purchaseRecord) throws Exception {
+											  PurchaseRecord purchaseRecord) throws ItorixException {
 		PurchaseResult purchaseResult = devportaldao.executePurchase(purchaseRecord);
 
 		if (purchaseResult.equals(PurchaseResult.SUCCESS)) {
@@ -553,7 +924,7 @@ public class DevportalServiceImpl implements DevportalService {
 
 	@Override
 	public ResponseEntity<?> getPurchaseHistory(String jsessionId, String interactionid, String appId,
-												String developerEmailId, String organization) throws Exception {
+												String developerEmailId, String organization) throws ItorixException {
 
 		return new ResponseEntity<>(devportaldao.getPurchaseHistory(appId, developerEmailId, organization), HttpStatus.OK);
 	}

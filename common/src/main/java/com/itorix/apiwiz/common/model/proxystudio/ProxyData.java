@@ -29,7 +29,9 @@ public class ProxyData {
 	private ProxyArtifacts proxyArtifacts = new ProxyArtifacts();
 	private List<ProxyConnection> proxyConnections;
 	private ProxyPortfolio portfolio;
-
+	private String swaggerId;
+	private String oasVersion;
+	private Integer swaggerRevision;
 	public String getId() {
 		return id;
 	}
@@ -143,4 +145,27 @@ public class ProxyData {
 		this.portfolio = portfolio;
 	}
 
+	public String getSwaggerId() {
+		return swaggerId;
+	}
+
+	public void setSwaggerId(String swaggerId) {
+		this.swaggerId = swaggerId;
+	}
+
+	public String getOasVersion() {
+		return oasVersion;
+	}
+
+	public void setOasVersion(String oasVersion) {
+		this.oasVersion = oasVersion;
+	}
+
+	public Integer getSwaggerRevision() {
+		return swaggerRevision;
+	}
+
+	public void setSwaggerRevision(Integer swaggerRevision) {
+		this.swaggerRevision = swaggerRevision;
+	}
 }

@@ -1,5 +1,7 @@
 package com.itorix.apiwiz.devportal.service;
 
+import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.monetization.ProductBundle;
 import com.itorix.apiwiz.devportal.model.DeveloperApp;
 import com.itorix.apiwiz.devportal.model.monetization.PurchaseRecord;
 import java.util.List;
@@ -22,9 +24,9 @@ public interface DevportalService {
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/organizations/{org}/developers")
 	public ResponseEntity<String> createDeveloper(@RequestHeader(value = "JSESSIONID") String jsessionId,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
-			@RequestHeader(value = "type") String type, @PathVariable("org") String org, @RequestBody String body)
+												  @RequestHeader(value = "interactionid", required = false) String interactionid,
+												  @RequestHeader(value = "x-gwtype", required = false) String gwtype,
+												  @RequestHeader(value = "type") String type, @PathVariable("org") String org, @RequestBody String body)
 			throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
@@ -97,6 +99,14 @@ public interface DevportalService {
 			@RequestParam(value = "expand", required = false) String expand) throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/organizations/product-bundles",produces = {"application/json"})
+	public org.springframework.http.ResponseEntity<List<ProductBundle>> getAllProductBundles(
+			@RequestHeader(value = "JSESSIONID") String jsessionId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid
+	) throws ItorixException;
+
+
+	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/organizations/{org}/developers/{email:.+}/apps")
 	public org.springframework.http.ResponseEntity<String> getApps(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
@@ -104,6 +114,15 @@ public interface DevportalService {
 			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
 			@RequestHeader(value = "type", required = false) String type, @PathVariable("org") String org,
 			@PathVariable("email") String email, @RequestParam(value = "expand", required = false) String expand)
+			throws Exception;
+
+	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/developers/apps")
+	public org.springframework.http.ResponseEntity<String> getAllOrgApps(
+			@RequestHeader(value = "JSESSIONID") String jsessionId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid,
+			@RequestParam(value = "email",required = false)String email,
+			@RequestParam(value = "expand",required = false)String expand)
 			throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
@@ -115,7 +134,14 @@ public interface DevportalService {
 			@RequestHeader(value = "type", required = false) String type,
 			@PathVariable("org") String org)
 			throws Exception;
-
+	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/developers/products")
+	public org.springframework.http.ResponseEntity<String> getAllOrgProducts(
+			@RequestParam(value="orgs",required = false) String orgs,
+			@RequestParam(value="partners",required = false) String partners,
+			@RequestHeader(value = "JSESSIONID") String jsessionId,
+			@RequestHeader(value = "interactionid", required = false) String interactionid)
+			throws Exception;
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/organizations/{org}/developers/{email:.+}/apps/{appName}")
 	public org.springframework.http.ResponseEntity<String> getApp(
@@ -163,7 +189,7 @@ public interface DevportalService {
 	public ResponseEntity<?> purchaseRatePlan(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestBody PurchaseRecord purchaseRecord) throws Exception;
+			@RequestBody PurchaseRecord purchaseRecord) throws ItorixException;
 
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.GET, value = "/v1/apps/{app-id}/purchase")
@@ -178,8 +204,8 @@ public interface DevportalService {
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestParam(value = "app-id", required = false) String appId,
-			@RequestParam("email") String developerEmailId,
-			@RequestParam(value = "org", required = false) String organization) throws Exception;
+			@RequestParam(value = "email", required = false) String developerEmailId,
+			@RequestParam(value = "org", required = false) String organization) throws ItorixException;
 
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/apps/{app-id}/purchase/{purchase-id}")
@@ -225,15 +251,15 @@ public interface DevportalService {
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
 	@RequestMapping(method = RequestMethod.PUT, value = "/v1/organizations/{org}/developers/{developerEmailId}/apps/{appName}/keys/{consumerKey}/apiproducts/{productName}")
 	public ResponseEntity<?> updateProductStatus(@RequestHeader(value = "JSESSIONID") String jsessionId,
-			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "x-gwtype", required = false) String gwtype,
-			@RequestHeader(value = "type", required = false) String type,
-			@PathVariable("org") String org,
-			@PathVariable("developerEmailId") String developerEmailId,
-			@PathVariable("appName") String appName,
-			@PathVariable("consumerKey") String consumerKey,
-			@PathVariable("productName") String productName,
-			@RequestParam(value = "action") String action)
+												 @RequestHeader(value = "interactionid", required = false) String interactionid,
+												 @RequestHeader(value = "x-gwtype", required = false) String gwtype,
+												 @RequestHeader(value = "type", required = false) String type,
+												 @PathVariable("org") String org,
+												 @PathVariable("developerEmailId") String developerEmailId,
+												 @PathVariable("appName") String appName,
+												 @PathVariable("consumerKey") String consumerKey,
+												 @PathVariable("productName") String productName,
+												 @RequestParam(value = "action") String action)
 			throws Exception;
 
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")
