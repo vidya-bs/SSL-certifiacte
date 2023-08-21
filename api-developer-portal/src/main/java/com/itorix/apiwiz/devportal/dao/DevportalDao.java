@@ -1,14 +1,13 @@
 package com.itorix.apiwiz.devportal.dao;
 
+import com.itorix.apiwiz.common.model.apigee.ApigeeConfigurationVO;
 import com.itorix.apiwiz.common.model.apigee.StaticFields;
+import com.itorix.apiwiz.common.model.apigeeX.ApigeeXConfigurationVO;
 import com.itorix.apiwiz.common.model.azure.AzureConfigurationVO;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.kong.KongRuntime;
 import com.itorix.apiwiz.common.model.monetization.*;
-import com.itorix.apiwiz.design.studio.model.Swagger3VO;
-import com.itorix.apiwiz.design.studio.model.SwaggerMetadata;
-import com.itorix.apiwiz.design.studio.model.SwaggerProduct;
-import com.itorix.apiwiz.design.studio.model.SwaggerVO;
+import com.itorix.apiwiz.design.studio.model.*;
 import com.itorix.apiwiz.devportal.model.DeveloperApp;
 import com.itorix.apiwiz.devportal.model.ProductBundleCard;
 import com.itorix.apiwiz.devportal.model.ProductBundleCardResponse;
@@ -22,6 +21,8 @@ import com.itorix.apiwiz.identitymanagement.model.Pagination;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
+
 import org.apache.log4j.Logger;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.function.ServerRequest.Headers;
 
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.util.http.HTTPUtil;
@@ -52,9 +52,9 @@ public class DevportalDao {
 	/**
 	 * @param httpConn
 	 * @param method
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @throws ItorixException
 	 */
 	public ResponseEntity<String> proxyService(HTTPUtil httpConn, String method) throws ItorixException {
@@ -95,15 +95,19 @@ public class DevportalDao {
 		}
 	}
 
-	public Object getProductBundleCards(String partnerType,String org, int offset, int pagesize, boolean paginated){
+	public Object getProductBundleCards(String partnerType,String org, int offset, int pagesize, boolean paginated,String organizations){
 		List<ProductBundleCard> productBundleCards = new ArrayList<>();
-		Query query = null;
+		Query query = new Query();
 		if(partnerType != null){
 			String [] types = partnerType.split(",");
-			query = new Query(Criteria.where("status").is("Approved").and("activeFlag").is(Boolean.TRUE).and("partners").in(types));
-		}else{
-			query = new Query(Criteria.where("status").is("Approved").and("activeFlag").is(Boolean.TRUE));
+			query.addCriteria(Criteria.where("partners").in(types));
 		}
+		if(organizations!=null){
+			String [] allOrgs = organizations.split(",");
+			query.addCriteria(Criteria.where("organization").in(allOrgs));
+		}
+		query.addCriteria(Criteria.where("status").is("Approved").and("activeFlag").is(Boolean.TRUE));
+
 		if(paginated) {
 			query.with(Sort.by(Direction.DESC, "modifiedDate"))
 					.skip(offset > 0 ? ((offset - 1) * pagesize) : 0)
@@ -113,6 +117,7 @@ public class DevportalDao {
 			query.addCriteria(Criteria.where("organization").is(org));
 		}
 		List<ProductBundle> productBundles = mongoTemplate.find(query,ProductBundle.class);
+
 		productBundles.forEach(productBundle -> {
 			Map<String, Set<Specs>> specList = new HashMap<>();
 			ProductBundleCard productBundleCard = new ProductBundleCard();
@@ -145,6 +150,7 @@ public class DevportalDao {
 										spec.setSwaggerId(swaggerVO.getSwaggerId());
 										spec.setOasVersion(oas);
 										spec.setSwaggerName(swaggerVO.getName());
+										spec.setSwaggerRevision(swaggerVO.getRevision());
 										specs.add(spec);
 									}
 								} else {
@@ -155,6 +161,7 @@ public class DevportalDao {
 										spec.setSwaggerId(swagger3VO.getSwaggerId());
 										spec.setOasVersion(oas);
 										spec.setSwaggerName(swagger3VO.getName());
+										spec.setSwaggerRevision(swagger3VO.getRevision());
 										specs.add(spec);
 									}
 								}
@@ -186,6 +193,8 @@ public class DevportalDao {
 			return productBundleCards;
 		}
 	}
+
+
 	public PurchaseResult executePurchase(PurchaseRecord purchaseRecord) {
 
 		PurchaseRecord.PaymentMode paymentMode = purchaseRecord.getPaymentMode();
@@ -226,15 +235,17 @@ public class DevportalDao {
 		if(purchaseRecords == null) purchaseRecords = new ArrayList<>();
 		return purchaseRecords;
 	}
-	public List<PurchaseRecord> getPurchaseHistory(String appId, String developerEmailId, String organization) {
+	public List<PurchaseRecord> getPurchaseHistory(String appId, String developerEmailId, String organization) throws ItorixException {
 		Query query = new Query();
 		if(appId != null && !appId.isEmpty()) query.addCriteria(Criteria.where("appId").is(appId));
 		if(developerEmailId != null && !developerEmailId.isEmpty()) query.addCriteria(Criteria.where("developerEmailId").is(developerEmailId));
-		if(organization != null && !organization.isEmpty()) query.addCriteria(Criteria.where("ratePlan.organization").is(organization));
-
-		List<PurchaseRecord> purchaseRecords = mongoTemplate.find(query,PurchaseRecord.class);
-		if(purchaseRecords == null) purchaseRecords = new ArrayList<>();
-		return purchaseRecords;
+		if(organization != null && !organization.isEmpty()) {
+			query.addCriteria(Criteria.where("ratePlan.organization").is(organization));
+		} else {
+			List<String> orgNames = getOrganisationNames();
+			query.addCriteria(Criteria.where("ratePlan.organization").in(orgNames));
+		}
+		return mongoTemplate.find(query,PurchaseRecord.class);
 	}
 	public void deletePurchaseById(String appId, String purchaseId) {
 		Query query = new Query();
@@ -513,5 +524,44 @@ public class DevportalDao {
 	public KongRuntime getKongRuntime(String runtime) {
 		Query query = new Query(Criteria.where("name").is(runtime));
 		return mongoTemplate.findOne(query, KongRuntime.class);
+	}
+	public List<ApigeeXConfigurationVO> getApigeexConnectedOrgs() {
+		return mongoTemplate.findAll(ApigeeXConfigurationVO.class);
+	}
+
+	public List<ApigeeXConfigurationVO> getApigeexConnectedOrgs(List<String> orgsList) {
+		return mongoTemplate.find(new Query(Criteria.where("orgName").in(orgsList)),ApigeeXConfigurationVO.class);
+	}
+
+	public List<ApigeeConfigurationVO> getApigeeConnectedOrgs() {
+		return mongoTemplate.findAll(ApigeeConfigurationVO.class);
+	}
+	public List<ApigeeConfigurationVO> getApigeeConnectedOrgs(List<String> orgsList) {
+		return mongoTemplate.find(new Query(Criteria.where("orgname").in(orgsList)),ApigeeConfigurationVO.class);
+	}
+
+
+	public List<String> getSwaggerPartners(List<String> partnerIds) {
+		Query query = new Query(Criteria.where("id").in(partnerIds));
+		query.fields().include("partnerName");
+		List<SwaggerPartner> swaggerPartners = mongoTemplate.find(query, SwaggerPartner.class);
+		return swaggerPartners.stream()
+				.map(SwaggerPartner::getPartnerName)
+				.collect(Collectors.toList());
+	}
+	public List<ProductBundle> getAllProductBundles(Query query) {
+		return mongoTemplate.find(query, ProductBundle.class);
+	}
+	public List<String> getOrganisationNames() throws ItorixException {
+		List<Document> apigeexOrgNamesList = (List<Document>) getGatewayEnvironments("apigeex",null);
+		List<Document> apigeeOrgNamesList = (List<Document>) getGatewayEnvironments("apigee",null);
+		List<String> orgNames = new ArrayList<>();
+		for (Document orgName: apigeexOrgNamesList){
+			orgNames.add(orgName.get("orgName").toString());
+		}
+		for (Document orgName: apigeeOrgNamesList){
+			orgNames.add(orgName.get("orgname").toString());
+		}
+		return orgNames;
 	}
 }
