@@ -99,7 +99,8 @@ public class IdentityManagementDao {
 
     @Value("${itorix.core.user.management.redirection.user.register:https://{0}/register/{1}/verify}")
     private String registerUserURL;
-
+    private static final String MONGODB = "mongodb";
+    private static final String POSTGRES = "postgres";
     @PostConstruct
     private void initDBProperties() {
         applicationProperties = getDBApplicationProperties();
@@ -2485,7 +2486,14 @@ public class IdentityManagementDao {
     public void addCleanUpDocument(List<SchedulerDocumentDTO> schedulerDocumentDTOList) {
         logger.debug("Adding Document to clean up scheduler list...");
         for (SchedulerDocumentDTO schedulerDocumentDTO : schedulerDocumentDTOList) {
-            mongoTemplate.save(new SchedulerDocument(schedulerDocumentDTO));
+            if ((schedulerDocumentDTO.getDb().equalsIgnoreCase(MONGODB) ||
+                    schedulerDocumentDTO.getDb().equalsIgnoreCase(POSTGRES))) {
+                if (schedulerDocumentDTO.isMasterDb()) {
+                    masterMongoTemplate.save(new SchedulerDocument(schedulerDocumentDTO));
+                } else {
+                    mongoTemplate.save(new SchedulerDocument(schedulerDocumentDTO));
+                }
+            }
         }
     }
 

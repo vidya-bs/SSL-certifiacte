@@ -6,7 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SchedulerDocumentDTO {
-    private String documentName;
+    private String name;
     private String db;
     private long expiryDays;
+    private boolean masterDb;
+    private String field;
 }
