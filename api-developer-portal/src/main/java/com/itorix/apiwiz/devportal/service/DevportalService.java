@@ -150,11 +150,12 @@ public interface DevportalService {
 	public ResponseEntity<?> getProductBundleCards(
 			@RequestHeader(value = "JSESSIONID") String jsessionId,
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestParam(value = "parterType",required = false) String partnerType,
+			@RequestParam(value = "partners",required = false) String partners,
 			@RequestParam(value = "org" , required = false)String org,
 			@RequestParam(value = "offset" ,defaultValue = "1")int offset,
 			@RequestParam(value = "pagesize", defaultValue = "10")int pagesize,
-			@RequestParam(value = "paginated" ,required = false , defaultValue = "true") boolean paginated) throws Exception;
+			@RequestParam(value = "paginated" ,required = false , defaultValue = "true") boolean paginated,
+			@RequestParam(value = "organizations",required = false)String organizations) throws Exception;
 
 
 	@PreAuthorize("hasAnyRole('ADMIN','PORTAL') and hasAnyAuthority('GROWTH','ENTERPRISE')")

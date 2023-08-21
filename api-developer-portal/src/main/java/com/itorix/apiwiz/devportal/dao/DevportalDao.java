@@ -95,15 +95,19 @@ public class DevportalDao {
 		}
 	}
 
-	public Object getProductBundleCards(String partnerType,String org, int offset, int pagesize, boolean paginated){
+	public Object getProductBundleCards(String partnerType,String org, int offset, int pagesize, boolean paginated,String organizations){
 		List<ProductBundleCard> productBundleCards = new ArrayList<>();
-		Query query = null;
+		Query query = new Query();
 		if(partnerType != null){
 			String [] types = partnerType.split(",");
-			query = new Query(Criteria.where("status").is("Approved").and("activeFlag").is(Boolean.TRUE).and("partners").in(types));
-		}else{
-			query = new Query(Criteria.where("status").is("Approved").and("activeFlag").is(Boolean.TRUE));
+			query.addCriteria(Criteria.where("partners").in(types));
 		}
+		if(organizations!=null){
+			String [] allOrgs = organizations.split(",");
+			query.addCriteria(Criteria.where("organization").in(allOrgs));
+		}
+		query.addCriteria(Criteria.where("status").is("Approved").and("activeFlag").is(Boolean.TRUE));
+
 		if(paginated) {
 			query.with(Sort.by(Direction.DESC, "modifiedDate"))
 					.skip(offset > 0 ? ((offset - 1) * pagesize) : 0)
@@ -113,6 +117,7 @@ public class DevportalDao {
 			query.addCriteria(Criteria.where("organization").is(org));
 		}
 		List<ProductBundle> productBundles = mongoTemplate.find(query,ProductBundle.class);
+
 		productBundles.forEach(productBundle -> {
 			Map<String, Set<Specs>> specList = new HashMap<>();
 			ProductBundleCard productBundleCard = new ProductBundleCard();
@@ -145,6 +150,7 @@ public class DevportalDao {
 										spec.setSwaggerId(swaggerVO.getSwaggerId());
 										spec.setOasVersion(oas);
 										spec.setSwaggerName(swaggerVO.getName());
+										spec.setSwaggerRevision(swaggerVO.getRevision());
 										specs.add(spec);
 									}
 								} else {
@@ -155,6 +161,7 @@ public class DevportalDao {
 										spec.setSwaggerId(swagger3VO.getSwaggerId());
 										spec.setOasVersion(oas);
 										spec.setSwaggerName(swagger3VO.getName());
+										spec.setSwaggerRevision(swagger3VO.getRevision());
 										specs.add(spec);
 									}
 								}
@@ -186,6 +193,8 @@ public class DevportalDao {
 			return productBundleCards;
 		}
 	}
+
+
 	public PurchaseResult executePurchase(PurchaseRecord purchaseRecord) {
 
 		PurchaseRecord.PaymentMode paymentMode = purchaseRecord.getPaymentMode();

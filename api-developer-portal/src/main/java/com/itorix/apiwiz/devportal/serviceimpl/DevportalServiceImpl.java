@@ -527,8 +527,8 @@ public class DevportalServiceImpl implements DevportalService {
 
 	@Override
 	public ResponseEntity<?> getProductBundleCards(String jsessionId, String interactionid,
-												   String partnerType, String org, int offset, int pagesize, boolean paginated) throws Exception {
-		return new ResponseEntity<>(devportaldao.getProductBundleCards(partnerType, org, offset, pagesize, paginated), HttpStatus.OK);
+			String partnerType, String org, int offset, int pagesize, boolean paginated,String organizations) throws Exception {
+		return new ResponseEntity<>(devportaldao.getProductBundleCards(partnerType, org, offset, pagesize, paginated,organizations), HttpStatus.OK);
 	}
 
 	@Override
