@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.io.ByteArrayInputStream;
 import java.util.*;
@@ -171,7 +172,8 @@ public class CareersDao {
 
 	public String updateProfileFile(String jobId,String jobName, String filename, byte[] bytes) throws ItorixException {
 		String directory=(jobId+"_"+jobName).replace(" ","_");
-		LocalDate currentDate = LocalDate.now();
+		directory=directory.replace("/","_");
+		LocalDate currentDate = LocalDate.now(ZoneOffset.UTC);
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
 		String subDirectory=currentDate.format(formatter);
 		return updateToJfrog( directory+ "/" +subDirectory+ "/" + filename, bytes);
@@ -192,7 +194,6 @@ public class CareersDao {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1009"), "Marketing-1000");
 		}
 	}
-
 	private void deleteFileJfrogFile(String folderPath) throws ItorixException {
 		try {
 			jfrogUtilImpl.deleteFileIgnore404(folderPath);
