@@ -2491,9 +2491,11 @@ public class IdentityManagementDao {
         return mongoTemplate.findAll(SchedulerDocument.class);
     }
 
-    public void deleteCleanUpDocument(String documentName) {
+    public void deleteCleanUpDocument(String documentName) throws ItorixException {
         logger.debug("Deleting Document {} from clean up scheduler list...", documentName);
         Query query = new Query().addCriteria(Criteria.where("key").is(documentName.replace(".", "_")));
-        mongoTemplate.remove(query, SchedulerDocument.class);
+        if(mongoTemplate.remove(query, SchedulerDocument.class).getDeletedCount() == 0) {
+            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1002"), "Identity-1002");
+        }
     }
 }
