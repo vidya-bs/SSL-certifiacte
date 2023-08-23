@@ -101,7 +101,8 @@ public class IdentityManagementDao {
 
     @Value("${itorix.core.user.management.redirection.user.register:https://{0}/register/{1}/verify}")
     private String registerUserURL;
-
+    private static final String MONGODB = "mongodb";
+    private static final String POSTGRES = "postgres";
     @PostConstruct
     private void initDBProperties() {
         applicationProperties = getDBApplicationProperties();
@@ -2479,6 +2480,33 @@ public class IdentityManagementDao {
         if(existing!=null){
             existing.setIsServiceAccount(userInfo.isServiceAccount());
             masterMongoTemplate.save(existing);
+        }
+    }
+
+    public void addCleanUpDocument(List<SchedulerDocumentDTO> schedulerDocumentDTOList) {
+        logger.debug("Adding Document to clean up scheduler list...");
+        for (SchedulerDocumentDTO schedulerDocumentDTO : schedulerDocumentDTOList) {
+            if ((schedulerDocumentDTO.getDb().equalsIgnoreCase(MONGODB) ||
+                    schedulerDocumentDTO.getDb().equalsIgnoreCase(POSTGRES))) {
+                if (schedulerDocumentDTO.isMasterDb()) {
+                    masterMongoTemplate.save(new SchedulerDocument(schedulerDocumentDTO));
+                } else {
+                    mongoTemplate.save(new SchedulerDocument(schedulerDocumentDTO));
+                }
+            }
+        }
+    }
+
+    public List<SchedulerDocument> getCleanUpDocument() {
+        logger.debug("Getting Document to clean up scheduler list...");
+        return mongoTemplate.findAll(SchedulerDocument.class);
+    }
+
+    public void deleteCleanUpDocument(String documentName) throws ItorixException {
+        logger.debug("Deleting Document {} from clean up scheduler list...", documentName);
+        Query query = new Query().addCriteria(Criteria.where("key").is(documentName.replace(".", "_")));
+        if(mongoTemplate.remove(query, SchedulerDocument.class).getDeletedCount() == 0) {
+            throw new ItorixException(ErrorCodes.errorMessage.get("Identity-1002"), "Identity-1002");
         }
     }
 }

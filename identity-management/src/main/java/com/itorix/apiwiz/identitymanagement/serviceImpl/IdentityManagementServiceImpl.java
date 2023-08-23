@@ -20,11 +20,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -997,6 +997,35 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 	public ResponseEntity<?> syncClientData(String interactionid, String jsessionid)
 			throws JsonProcessingException, ItorixException {
 		return identityManagementDao.syncClientData();
+	}
+
+	@UnSecure(useUpdateKey = true)
+	@Override
+	public ResponseEntity<?> addCleanUpDocument(String apikey, String tenant, List<SchedulerDocumentDTO> schedulerDocumentDTOList) {
+		if (StringUtils.hasText(tenant)) {
+			TenantContext.setCurrentTenant(tenant);
+		}
+		identityManagementDao.addCleanUpDocument(schedulerDocumentDTOList);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@UnSecure
+	@Override
+	public ResponseEntity<?> getCleanUpDocuments(String apikey, String tenant) {
+		if (StringUtils.hasText(tenant)) {
+			TenantContext.setCurrentTenant(tenant);
+		}
+		return new ResponseEntity<>(identityManagementDao.getCleanUpDocument(), HttpStatus.OK);
+	}
+
+	@UnSecure(useUpdateKey = true)
+	@Override
+	public ResponseEntity<?> deleteCleanUpDocument(String apikey, String tenant, String documentName) throws ItorixException {
+		if (StringUtils.hasText(tenant)) {
+			TenantContext.setCurrentTenant(tenant);
+		}
+		identityManagementDao.deleteCleanUpDocument(documentName);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }
 
