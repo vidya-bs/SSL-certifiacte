@@ -16,6 +16,8 @@ public class JobApplication {
 	private String emailId;
 	private String contactNumber;
 	private String profile;
+	private long cts;
+	private long mts;
 
 	public JobApplication() {
 		super();
@@ -85,4 +87,19 @@ public class JobApplication {
 	public void setProfile(String profile) {
 		this.profile = profile;
 	}
-}
+
+	public long getCts() {
+		return cts;
+	}
+
+	public void setCts(long cts) {
+		this.cts = cts;
+	}
+
+	public long getMts() {
+		return mts;
+	}
+
+	public void setMts(long mts) {
+		this.mts = mts;
+	}}

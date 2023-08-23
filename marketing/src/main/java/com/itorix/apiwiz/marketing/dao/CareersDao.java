@@ -32,7 +32,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.io.ByteArrayInputStream;
 import java.util.*;
 
@@ -168,8 +170,13 @@ public class CareersDao {
 		return application;
 	}
 
-	public String updateProfileFile(String userId, String filename, byte[] bytes) throws ItorixException {
-		return updateToJfrog(userId + "/" + filename, bytes);
+	public String updateProfileFile(String jobId,String jobName, String filename, byte[] bytes) throws ItorixException {
+		String directory=(jobId+"_"+jobName).replace(" ","_");
+		directory=directory.replace("/","_");
+		LocalDate currentDate = LocalDate.now(ZoneOffset.UTC);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+		String subDirectory=currentDate.format(formatter);
+		return updateToJfrog( directory+ "/" +subDirectory+ "/" + filename, bytes);
 	}
 
 	public void deleteProfileFile(String userId, String imagePath) throws ItorixException {
@@ -187,7 +194,6 @@ public class CareersDao {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1009"), "Marketing-1000");
 		}
 	}
-
 	private void deleteFileJfrogFile(String folderPath) throws ItorixException {
 		try {
 			jfrogUtilImpl.deleteFileIgnore404(folderPath);
@@ -219,15 +225,7 @@ public class CareersDao {
 				String notificationExecutionEventId = createNotificationEvent(requestModel);
 				sqlDao.insertIntoNotificationEntity(null,
 								notificationExecutionEventId, NotificationExecutorEntity.STATUSES.SCHEDULED.getValue(), null);
-
-				HttpHeaders headers = new HttpHeaders();
-				headers.set(API_KEY_NAME, rsaEncryption.decryptText(applicationProperties.getApiKey()));
-				headers.setContentType(MediaType.APPLICATION_JSON);
-				HttpEntity<RequestModel> httpEntity = new HttpEntity<>(requestModel, headers);
-				String notifiyUrl = notificationAgentPath + notificationContextPath +
-								NOTIFICATION_AGENT_NOTIFY + notificationExecutionEventId;
-				log.debug("Making a call to {}", notifiyUrl);
-				ResponseEntity<String> result = restTemplate.postForEntity(notifiyUrl, httpEntity, String.class);
+				log.error("inserted notification event into the postgres - {}", notificationExecutionEventId);
 			}
 		} catch (Exception e) {
 			log.error("error returned from notification agent", e);
