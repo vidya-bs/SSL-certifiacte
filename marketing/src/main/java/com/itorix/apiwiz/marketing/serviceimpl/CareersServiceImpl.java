@@ -79,21 +79,24 @@ public class CareersServiceImpl implements CareersService {
 	@Override
 	@UnSecure(ignoreValidation = true)
 	public ResponseEntity<?> createJobApplication(String interactionid, String jsessionid, String apikey, String jobId,
-			String firstName, String lastName, String emailId, String contactNumber, MultipartFile profile)
+												  String firstName, String lastName, String emailId, String contactNumber, MultipartFile profile)
 			throws Exception {
 		JobApplication jobApplication = new JobApplication(jobId, firstName, lastName, emailId, contactNumber);
+		JobPosting jobPosting = careersDao.getPosting(jobId);
 		JobApplication dbJobApplication = careersDao.getJobApplication(emailId);
 		if (dbJobApplication != null) {
 			jobApplication.setId(dbJobApplication.getId());
+			jobApplication.setMts(System.currentTimeMillis());
 		} else {
 			String id = UUID.randomUUID().toString();
 			id.replaceAll("-", "");
 			jobApplication.setId(id);
+			jobApplication.setCts(System.currentTimeMillis());
 		}
 		if (profile != null) {
 			byte[] bytes = profile.getBytes();
 			String filename = profile.getOriginalFilename();
-			String profileURL = careersDao.updateProfileFile(jobApplication.getId(), filename, bytes);
+			String profileURL = careersDao.updateProfileFile(jobId,jobPosting.getRole(), filename, bytes);
 			jobApplication.setProfile(profileURL);
 		}
 		careersDao.createUpdateJobApplication(jobApplication);
