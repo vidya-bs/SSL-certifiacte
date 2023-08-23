@@ -1020,7 +1020,7 @@ public class IdentityManagementServiceImpl implements IdentityManagmentService {
 
 	@UnSecure(useUpdateKey = true)
 	@Override
-	public ResponseEntity<?> deleteCleanUpDocument(String apikey, String tenant, String documentName) {
+	public ResponseEntity<?> deleteCleanUpDocument(String apikey, String tenant, String documentName) throws ItorixException {
 		if (StringUtils.hasText(tenant)) {
 			TenantContext.setCurrentTenant(tenant);
 		}

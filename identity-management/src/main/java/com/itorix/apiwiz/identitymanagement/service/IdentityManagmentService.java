@@ -675,5 +675,5 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "x-apikey") String apikey,
 			@RequestHeader(value = "tenant", required = false) String tenant,
 			@RequestParam(value = "documentName", required = true) String documentName
-	);
+	) throws ItorixException;
 }
