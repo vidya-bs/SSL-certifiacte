@@ -2969,27 +2969,13 @@ public class SwaggerServiceImpl implements SwaggerService {
 	}
 
 	private void callScannerAPI(ScannerDTO scannerDTO, String jsessionid) throws ItorixException {
-		List<String> executionIds = new ArrayList<>();
 		for(String swaggerId : scannerDTO.getSwaggerId()){
 			String executionEventId = swaggerBusiness.createExecutionEvent(swaggerId, scannerDTO.getOperation(), scannerDTO.getTenantId());
 			log.info("Compliance Scanner Execution Id - {}", executionEventId);
 			complianceScannerSqlDao.insertIntoComplianceExecutorEntity(scannerDTO.getTenantId(), executionEventId,
 					ComplicanceScannerExecutorEntity.STATUSES.SCHEDULED.getValue(), null, scannerDTO.getOperation());
-			executionIds.add(executionEventId);
 		}
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-		httpHeaders.set("JSESSIONID", jsessionid);
-
-		HttpEntity<List<String>> entity = new HttpEntity<>(executionIds, httpHeaders);
-
-		try {
-			restTemplate.exchange(scannerUri, HttpMethod.POST, entity, String.class).getBody();
-		} catch (Exception e) {
-			log.error(e.getMessage());
-			logger.error(e.getMessage());
-		}
-
+		log.debug("Inserted {} events into postgres successfully", scannerDTO.getSwaggerId().size());
 	}
 
 	private void callLintingAPI(SwaggerLintingInfo swaggerLintingInfo, String jsessionid) {

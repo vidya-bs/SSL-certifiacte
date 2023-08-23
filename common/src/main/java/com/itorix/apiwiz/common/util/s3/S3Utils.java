@@ -56,7 +56,7 @@ public class S3Utils extends StorageIntegration {
 
 	public String uploadFile(String key, String secret, Regions region, String bucketName, String path,
 							 InputStream input) throws IOException {
-		logger.debug("Upload file to S3: {}", path);
+		logger.debug("Upload file to S3: {}, Bucket Name:{}, Access Key {}", path,bucketName,key);
 		AWSCredentials credentials = new BasicAWSCredentials(key, secret);
 		AmazonS3 s3client = AmazonS3ClientBuilder.standard()
 				.withCredentials(new AWSStaticCredentialsProvider(credentials)).withRegion(region).build();

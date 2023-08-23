@@ -656,4 +656,24 @@ public interface IdentityManagmentService {
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid)
 			throws JsonProcessingException, ItorixException;
 
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.PUT, value = "/v1/data/cleanup")
+	public ResponseEntity<?> addCleanUpDocument(
+			@RequestHeader(value = "x-apikey") String apikey,
+			@RequestHeader(value = "tenant", required = false) String tenant,
+			@RequestBody List<SchedulerDocumentDTO> schedulerDocumentDTOList);
+
+	@UnSecure
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/data/cleanup")
+	public ResponseEntity<?> getCleanUpDocuments(
+			@RequestHeader(value = "x-apikey") String apikey,
+			@RequestHeader(value = "tenant", required = false) String tenant);
+
+	@UnSecure(useUpdateKey = true)
+	@RequestMapping(method = RequestMethod.DELETE, value = "/v1/data/cleanup")
+	public ResponseEntity<?> deleteCleanUpDocument(
+			@RequestHeader(value = "x-apikey") String apikey,
+			@RequestHeader(value = "tenant", required = false) String tenant,
+			@RequestParam(value = "documentName", required = true) String documentName
+	);
 }
