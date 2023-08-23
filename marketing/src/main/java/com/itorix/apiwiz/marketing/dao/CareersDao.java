@@ -225,15 +225,7 @@ public class CareersDao {
 				String notificationExecutionEventId = createNotificationEvent(requestModel);
 				sqlDao.insertIntoNotificationEntity(null,
 								notificationExecutionEventId, NotificationExecutorEntity.STATUSES.SCHEDULED.getValue(), null);
-
-				HttpHeaders headers = new HttpHeaders();
-				headers.set(API_KEY_NAME, rsaEncryption.decryptText(applicationProperties.getApiKey()));
-				headers.setContentType(MediaType.APPLICATION_JSON);
-				HttpEntity<RequestModel> httpEntity = new HttpEntity<>(requestModel, headers);
-				String notifiyUrl = notificationAgentPath + notificationContextPath +
-								NOTIFICATION_AGENT_NOTIFY + notificationExecutionEventId;
-				log.debug("Making a call to {}", notifiyUrl);
-				ResponseEntity<String> result = restTemplate.postForEntity(notifiyUrl, httpEntity, String.class);
+				log.error("inserted notification event into the postgres - {}", notificationExecutionEventId);
 			}
 		} catch (Exception e) {
 			log.error("error returned from notification agent", e);
