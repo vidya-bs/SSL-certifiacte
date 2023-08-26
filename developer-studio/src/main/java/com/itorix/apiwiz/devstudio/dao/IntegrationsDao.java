@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -413,12 +414,18 @@ public class IntegrationsDao {
     }
 
     public List<MongoDBConfiguration> getAllMongoDbIntegrations() {
+		Query query = new Query();
+		query.with(Sort.by(Sort.Direction.DESC, "cts"));
         return mongoTemplate.findAll(MongoDBConfiguration.class);
     }
     public List<MySQLConfiguration> getAllMysqlIntegrations() {
+		Query query = new Query();
+		query.with(Sort.by(Sort.Direction.DESC, "cts"));
         return mongoTemplate.findAll(MySQLConfiguration.class);
     }
     public List<PostgreSQLConfiguration> getAllPostgresqlIntegrations() {
+		Query query = new Query();
+		query.with(Sort.by(Sort.Direction.DESC, "cts"));
         return mongoTemplate.findAll(PostgreSQLConfiguration.class);
     }
 
@@ -519,18 +526,21 @@ public class IntegrationsDao {
 	public List<MongoDBConfiguration> getMongoDbDatabaseIntegrationsMetadata() {
 		Query query = new Query();
 		query.fields().include("id", "name", "description", "cts", "mts", "createdUserName", "modifiedUserName");
+		query.with(Sort.by(Sort.Direction.DESC, "cts"));
 		return mongoTemplate.find(query, MongoDBConfiguration.class);
 	}
 
 	public List<MySQLConfiguration> getMySqlIntegrationsMetadata() {
 		Query query = new Query();
 		query.fields().include("id", "name", "description", "cts", "mts", "createdUserName", "modifiedUserName");
+		query.with(Sort.by(Sort.Direction.DESC, "cts"));
 		return mongoTemplate.find(query, MySQLConfiguration.class);
 	}
 
 	public List<PostgreSQLConfiguration> getPostgreSqlIntegrationsMetadata() {
 		Query query = new Query();
 		query.fields().include("id", "name", "description", "cts", "mts", "createdUserName", "modifiedUserName");
+		query.with(Sort.by(Sort.Direction.DESC, "cts"));
 		return mongoTemplate.find(query, PostgreSQLConfiguration.class);
 	}
 }
