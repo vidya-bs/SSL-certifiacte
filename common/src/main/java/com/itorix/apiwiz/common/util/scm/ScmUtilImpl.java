@@ -184,6 +184,90 @@ public class ScmUtilImpl {
 			throw new ItorixException(ErrorCodes.errorMessage.get("SCM-001"), "SCM-001");
 		}
 	}
+	public void pushFilesToSCMBase64Proxy(File directory, String repoName, String authorizationType,
+			String authToken,
+			String hostUrl, String scmSource, String branch, String comments)
+			throws InvalidRemoteException, TransportException, GitAPIException, IOException, ItorixException {
+		String[] urlParts = hostUrl.split("//");
+		try {
+			if (scmSource.equalsIgnoreCase("git") || scmSource.equalsIgnoreCase("bitbucket")
+					|| scmSource.equalsIgnoreCase("gitlab")) {
+				logger.debug("Pushing files to SCMBase64");
+				File SourceDirectory = directory;
+				String separatorChar = String.valueOf(File.separatorChar);
+				File workingDirectory;
+				String time = Long.toString(System.currentTimeMillis());
+				String tempDirectory =
+						applicationProperties.getTempDir() + separatorChar + "CloneDirectory" + time;
+				File cloningDirectory = new File(tempDirectory);
+				Git git;
+				if (branch != null && !branch.isEmpty()) {
+					if (scmSource.equalsIgnoreCase("gitlab")) {
+						git = Git.cloneRepository().setURI(hostUrl)
+								.setCredentialsProvider(
+										new UsernamePasswordCredentialsProvider("PRIVATE-TOKEN", authToken))
+								.setDirectory(cloningDirectory).setBranch(branch).call();
+					} else if(scmSource.equalsIgnoreCase("bitbucket")){
+						String url="";
+						if(urlParts[1].contains("@")) {
+							String[] urlPartsBitBucket = urlParts[1].split("@");
+							url=urlParts[0] + "//"+"x-token-auth:" + authToken + "@" + urlPartsBitBucket[1];
+						}
+						else {
+							url=urlParts[0] + "//"+"x-token-auth:" + authToken + "@" + urlParts[1];
+						}
+						git = Git.cloneRepository().setURI(url)
+								.setCredentialsProvider(new UsernamePasswordCredentialsProvider(authToken, ""))
+								.setDirectory(cloningDirectory).setBranch(branch).call();
+					}else {
+						git = Git.cloneRepository().setURI(urlParts[0] + "//" + authToken + "@" + urlParts[1])
+								.setCredentialsProvider(new UsernamePasswordCredentialsProvider(authToken, ""))
+								.setDirectory(cloningDirectory).setBranch(branch).call();
+					}
+				} else {
+					git = Git.cloneRepository().setURI(urlParts[0] + "//" + authToken + "@" + urlParts[1])
+							.setCredentialsProvider(new UsernamePasswordCredentialsProvider(authToken, ""))
+							.setDirectory(cloningDirectory).call();
+				}
+				FileRepositoryBuilder builder = new FileRepositoryBuilder();
+				try (Repository repository = builder.setGitDir(git.getRepository().getDirectory())
+						.readEnvironment() // scan
+						// environment
+						// GIT_*
+						// variables
+						.findGitDir() // scan up the file system tree
+						.build()) {
+					workingDirectory = new File(repository.getWorkTree().getAbsolutePath());
+					copyFolder(SourceDirectory, workingDirectory);
+				}
+				git.add().addFilepattern(".").call();
+				if (comments != null) {
+					git.commit().setAll(true).setAllowEmpty(true).setMessage(comments).call();
+				} else {
+					git.commit().setMessage("Created Proxy Through Itorix Platform").call();
+				}
+				git.branchCreate().setName(branch).call();
+				PushCommand pc = git.push();
+				if (scmSource.equalsIgnoreCase("gitlab")) {
+					pc.setCredentialsProvider(
+									new UsernamePasswordCredentialsProvider("PRIVATE-TOKEN", authToken))
+							.setForce(true).setPushAll();
+				} else {
+					pc.setCredentialsProvider(new UsernamePasswordCredentialsProvider(authToken, ""))
+							.setForce(true)
+							.setPushAll();
+				}
+				pc.call();
+				git.getRepository().close();
+				FileUtils.cleanDirectory(cloningDirectory);
+				FileUtils.deleteDirectory(cloningDirectory);
+			} else {
+				throw new ItorixException(new Throwable().getMessage(), "USER_005", new Throwable());
+			}
+		} catch (GitAPIException e) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("SCM-001"), "SCM-001");
+		}
+	}
 
 	public void createRepository(String repoName, String description, String hostUrl, String username, String password)
 			throws ItorixException {
