@@ -556,7 +556,7 @@ public class ProxyUtils {
 			log.error("Exception occurred", e);
 			proxySCMDetails.setPassword("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");
 		}
-		createSCMBranch(proxySCMDetails);
+//		createSCMBranch(proxySCMDetails);
 		return proxySCMDetails;
 	}
 
