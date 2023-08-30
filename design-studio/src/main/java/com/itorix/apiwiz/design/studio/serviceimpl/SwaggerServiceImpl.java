@@ -791,7 +791,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 									|| StringUtils.equalsIgnoreCase("Publish", revision.getStatus())))
 					.collect(Collectors.toList());
 		}
-		return new ResponseEntity<List<Revision>>(list, HttpStatus.OK);
+		if(list!=null){
+			list = list.stream().sorted(Comparator.comparing(Revision::getRevision)).collect(Collectors.toList());
+		}
+		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 
 	@Override
