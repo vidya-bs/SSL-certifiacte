@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.devportal.serviceimpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itorix.apiwiz.common.model.apigee.ApigeeConfigurationVO;
 import com.itorix.apiwiz.common.model.apigee.StaticFields;
@@ -32,6 +33,7 @@ import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -163,6 +165,13 @@ public class DevportalServiceImpl implements DevportalService {
 			@RequestBody String body)
 			throws Exception {
 		if (body != null) {
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode rootNode = objectMapper.readTree(body);
+			String description = rootNode.get("description").asText();
+			String appId=rootNode.get("appId").asText();
+			Query query = new Query(Criteria.where("appId").is(appId));
+			Update update = new Update().set("description", description);
+			mongoTemplate.updateFirst(query, update, DeveloperApp.class);
 			if (type != null && type.equalsIgnoreCase("apigeex")) {
 				String URL = apigeexUtil.getApigeeHost(org) + "/v1/organizations/" + org + "/developers/" + email
 						+ "/apps/" + appName;
