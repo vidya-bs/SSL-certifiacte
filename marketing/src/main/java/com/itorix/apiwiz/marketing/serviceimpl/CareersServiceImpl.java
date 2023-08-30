@@ -86,13 +86,14 @@ public class CareersServiceImpl implements CareersService {
 		JobApplication dbJobApplication = careersDao.getJobApplication(emailId);
 		if (dbJobApplication != null) {
 			jobApplication.setId(dbJobApplication.getId());
-			jobApplication.setMts(System.currentTimeMillis());
+			jobApplication.setCts(dbJobApplication.getCts());
 		} else {
 			String id = UUID.randomUUID().toString();
 			id.replaceAll("-", "");
 			jobApplication.setId(id);
 			jobApplication.setCts(System.currentTimeMillis());
 		}
+		jobApplication.setMts(System.currentTimeMillis());
 		if (profile != null) {
 			byte[] bytes = profile.getBytes();
 			String filename = profile.getOriginalFilename();
