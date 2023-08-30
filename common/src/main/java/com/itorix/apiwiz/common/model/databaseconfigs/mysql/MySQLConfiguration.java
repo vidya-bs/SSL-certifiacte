@@ -23,6 +23,7 @@ public class MySQLConfiguration extends AbstractObject {
 
     private String relam;
     private String kdcServerhost;
+    private String url;
 
     public String getRelam() {
         return relam;
@@ -43,7 +44,7 @@ public class MySQLConfiguration extends AbstractObject {
     public MySQLConfiguration() {
     }
 
-    public MySQLConfiguration(String name, String description, MySqlConfigType mySqlConfigType, String mysqlHostname, String mysqlPort, String mysqlUserName, String mysqlPassword, String mysqlDatabaseName, MySqlSSL ssl, MySqlSSH ssh, String relam, String kdcServer) {
+    public MySQLConfiguration(String name, String description, MySqlConfigType mySqlConfigType, String mysqlHostname, String mysqlPort, String mysqlUserName, String mysqlPassword, String mysqlDatabaseName, MySqlSSL ssl, MySqlSSH ssh, String relam, String kdcServer, String url) {
         this.name = name;
         this.description = description;
         this.mySqlConfigType = mySqlConfigType;
@@ -56,6 +57,7 @@ public class MySQLConfiguration extends AbstractObject {
         this.ssh = ssh;
         this.relam = relam;
         this.kdcServerhost = kdcServer;
+        this.url = url;
     }
 
     public String getName() {
@@ -136,5 +138,13 @@ public class MySQLConfiguration extends AbstractObject {
 
     public void setSsh(MySqlSSH ssh) {
         this.ssh = ssh;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

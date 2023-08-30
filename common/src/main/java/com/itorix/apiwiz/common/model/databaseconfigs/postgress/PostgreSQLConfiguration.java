@@ -21,11 +21,12 @@ public class PostgreSQLConfiguration extends AbstractObject {
   private String postgresKerberosKdcServer;
   private PostgreSQLSSH ssh;
   private PostgreSQLSSL ssl;
+  private String url;
 
   public PostgreSQLConfiguration() {
   }
 
-  public PostgreSQLConfiguration(String name, String description, PostgresAuthType postgresAuthType, String postgresqlHostname, String postgresqlPort, String postgresqlDatabase, String postgresqlUsername, String postgresqlPassword, String postgresKerberosRelam, String postgresKerberosKdcServer, PostgreSQLSSH ssh, PostgreSQLSSL ssl) {
+  public PostgreSQLConfiguration(String name, String description, PostgresAuthType postgresAuthType, String postgresqlHostname, String postgresqlPort, String postgresqlDatabase, String postgresqlUsername, String postgresqlPassword, String postgresKerberosRelam, String postgresKerberosKdcServer, PostgreSQLSSH ssh, PostgreSQLSSL ssl, String url) {
     this.name = name;
     this.description = description;
     this.postgresAuthType = postgresAuthType;
@@ -38,6 +39,7 @@ public class PostgreSQLConfiguration extends AbstractObject {
     this.postgresKerberosKdcServer = postgresKerberosKdcServer;
     this.ssh = ssh;
     this.ssl = ssl;
+    this.url = url;
   }
 
   public String getName() {
@@ -134,5 +136,13 @@ public class PostgreSQLConfiguration extends AbstractObject {
 
   public void setSsl(PostgreSQLSSL ssl) {
     this.ssl = ssl;
+  }
+
+  public String getUrl() {
+    return url;
+  }
+
+  public void setUrl(String url) {
+    this.url = url;
   }
 }
