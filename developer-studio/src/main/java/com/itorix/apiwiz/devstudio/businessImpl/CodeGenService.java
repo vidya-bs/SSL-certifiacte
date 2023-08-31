@@ -431,6 +431,9 @@ public class CodeGenService {
 			else
 				data.setProxyName(codeGen.getTarget().get(0).getName());
 			data.addCodeGenHistory(codeGen);
+			data.setSwaggerRevision(codeGen.getSwaggerRevision());
+			data.setSwaggerId(codeGen.getSwaggerId());
+			data.setOasVersion(codeGen.getOasVersion());
 			String modified = Instant.now().toString();
 			data.setDateModified(modified);
 			codeGen.setDateCreated(modified);
