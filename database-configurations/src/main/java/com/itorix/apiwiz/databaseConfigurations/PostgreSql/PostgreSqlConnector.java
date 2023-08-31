@@ -41,7 +41,7 @@ public class PostgreSqlConnector {
         try {
             password = rsaEncryption.decryptText(password);
         } catch (Exception ex){
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"Mysql! Unable to decrypt the password"), "DatabaseConfiguration-1002");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"Postgresql! Unable to decrypt the password"), "DatabaseConfiguration-1002");
         }
 
         Properties properties = new Properties();
@@ -88,7 +88,7 @@ public class PostgreSqlConnector {
         try {
             password = rsaEncryption.decryptText(password);
         } catch (Exception ex){
-            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"Mysql! Unable to decrypt the password"), "DatabaseConfiguration-1002");
+            throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"Postgresql! Unable to decrypt the password"), "DatabaseConfiguration-1002");
         }
         Properties properties = new Properties();
         properties.put("user", username);
