@@ -85,8 +85,8 @@ public class DataTypeConverter {
       put("smallserial", OBJECT_MAPPER.createObjectNode().put("type", "integer"));
       put("smallint", OBJECT_MAPPER.createObjectNode().put("type", "integer"));
       put("text", OBJECT_MAPPER.createObjectNode().put("type", "string"));
-      put("time", OBJECT_MAPPER.createObjectNode().put("type", "date-time"));
-      put("timestamp", OBJECT_MAPPER.createObjectNode().put("type", "date-time"));
+      put("time", OBJECT_MAPPER.createObjectNode().put("type","string").put("format", "date-time"));
+      put("timestamp", OBJECT_MAPPER.createObjectNode().put("type","string").put("format", "date-time"));
       put("uuid", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("xml", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("pg_lsn", OBJECT_MAPPER.createObjectNode().put("type", "integer"));
