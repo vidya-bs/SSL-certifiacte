@@ -64,7 +64,12 @@ public class DataTypeConverter {
       put("MULTILINESTRING", OBJECT_MAPPER.createObjectNode().put("type", "string").put("format","byte"));
       put("MULTIPOLYGON", OBJECT_MAPPER.createObjectNode().put("type", "string").put("format","byte"));
       put("GEOMETRYCOLLECTION", OBJECT_MAPPER.createObjectNode().put("type", "string").put("format","byte"));
-      put("JSON", OBJECT_MAPPER.createObjectNode().put("type", "object"));
+      put("JSON", OBJECT_MAPPER.createObjectNode().put("type", "string"));
+      put("BOOL", OBJECT_MAPPER.createObjectNode().put("type","boolean") );
+      put("DOUBLE PRECISION", OBJECT_MAPPER.createObjectNode().put("type","number").put("format", "double") );
+      put("REAL", OBJECT_MAPPER.createObjectNode().put("type","number").put("format", "double") );
+
+
 
       //postgresql
 
