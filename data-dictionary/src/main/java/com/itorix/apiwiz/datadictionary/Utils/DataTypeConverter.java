@@ -141,7 +141,7 @@ public class DataTypeConverter {
       put("integer", OBJECT_MAPPER.createObjectNode().put("type","integer").put("format", "int32") );
       put("string", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("dateTime", OBJECT_MAPPER.createObjectNode().put("type", "string").put("format","date-time"));
-
+      put("binary", OBJECT_MAPPER.createObjectNode().put("type", "string").put("format","binary"));
     }
   };
   public ObjectNode getDataType(String type){

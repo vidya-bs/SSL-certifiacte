@@ -8,6 +8,7 @@ import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.mongodb.client.*;
 import org.bson.BsonRegularExpression;
 import org.bson.BsonSymbol;
+import org.bson.BsonTimestamp;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecConfigurationException;
 import org.bson.json.JsonMode;
@@ -217,7 +218,7 @@ public class MongoDbSchemaConverter {
         else if(obj instanceof Date){
             jsonNode.set(key, dataTypeConverter.getDataType("dateTime"));
         }
-        else if(obj instanceof BSONTimestamp){
+        else if(obj instanceof BsonTimestamp){
             jsonNode.set(key, dataTypeConverter.getDataType("string"));
         }
         else if(obj instanceof MinKey){
@@ -244,14 +245,30 @@ public class MongoDbSchemaConverter {
         else if(obj instanceof CodeWithScope){
             jsonNode.set(key, dataTypeConverter.getDataType("string"));
         }
+        else if(obj instanceof Binary){
+            jsonNode.set(key, dataTypeConverter.getDataType("binary"));
+        }
+        else if(obj instanceof Boolean){
+            jsonNode.set(key, dataTypeConverter.getDataType("boolean"));
+        }
         else if(obj instanceof ArrayList){
-            ObjectNode innerJsonNode = OBJECT_MAPPER.createObjectNode();
-            innerJsonNode.put("type", "array");  // check for the properties already exists
-            ArrayList<?> objArray = (ArrayList<?>) obj;
-            if (objArray != null && objArray.size() > 0) {
-                linearDataType(((ArrayList<?>) obj).get(0), innerJsonNode, "items");
+            if(jsonNode.get(key) != null){
+                ObjectNode innerJsonNode = (ObjectNode) jsonNode.get(key);
+                ArrayList<?> objArray = (ArrayList<?>) obj;
+                if (objArray != null && objArray.size() > 0) {
+                    linearDataType(((ArrayList<?>) obj).get(0), innerJsonNode, "items");
+                }
+                jsonNode.set(key, innerJsonNode);
+            }else {
+                ObjectNode innerJsonNode = OBJECT_MAPPER.createObjectNode();
+                innerJsonNode.put("type", "array");  // check for the properties already exists
+                ArrayList<?> objArray = (ArrayList<?>) obj;
+                if (objArray != null && objArray.size() > 0) {
+                    linearDataType(((ArrayList<?>) obj).get(0), innerJsonNode, "items");
+                }
+                jsonNode.set(key, innerJsonNode);
             }
-            jsonNode.set(key, innerJsonNode);
+
         } else if( obj instanceof Document){
             ObjectNode childNode = OBJECT_MAPPER.createObjectNode();
             if(jsonNode.get(key) != null) {
@@ -270,6 +287,8 @@ public class MongoDbSchemaConverter {
                     .put("type", "object")
                     .set("properties", childNode);
             jsonNode.set(key, parentNode);
+        } else{
+            logger.debug("Unsupported datatype - {}", obj);
         }
         // DBref not supported for now due to cyclic dependency and dependency tracking overhead
     }
