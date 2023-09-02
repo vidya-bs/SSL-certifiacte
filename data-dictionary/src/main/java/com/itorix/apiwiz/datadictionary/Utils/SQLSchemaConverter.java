@@ -47,6 +47,7 @@ public class SQLSchemaConverter {
                         String columnName = columns.getString(COLUMN_NAME);
                         String columnType = columns.getString(TYPE_NAME);
                         ObjectNode relevantDataType = dataTypeConverter.getDataType(columnType);
+
                         json.set(columnName, relevantDataType);
                     } while (columns.next());
                     obj.set("properties", json);

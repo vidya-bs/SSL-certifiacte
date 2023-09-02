@@ -2,12 +2,14 @@ package com.itorix.apiwiz.datadictionary.Utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class DataTypeConverter {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -76,9 +78,12 @@ public class DataTypeConverter {
       put("bigint", OBJECT_MAPPER.createObjectNode().put("type", "integer"));
       put("bigserial", OBJECT_MAPPER.createObjectNode().put("type", "integer"));
       put("bit", OBJECT_MAPPER.createObjectNode().put("type", "boolean"));
+      put("boolean", OBJECT_MAPPER.createObjectNode().put("type", "boolean"));
+      put("bit varying", OBJECT_MAPPER.createObjectNode().put("type", "boolean"));
       put("bytea", OBJECT_MAPPER.createObjectNode().put("type", "string").put("format","byte"));
       put("char", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("character", OBJECT_MAPPER.createObjectNode().put("type", "string"));
+      put("character varying", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("date", OBJECT_MAPPER.createObjectNode().put("type", "string").put("format","date"));
       put("decimal", OBJECT_MAPPER.createObjectNode().put("type", "number").put("format","float"));
       put("double precision", OBJECT_MAPPER.createObjectNode().put("type", "number").put("format","double"));
@@ -91,7 +96,9 @@ public class DataTypeConverter {
       put("smallint", OBJECT_MAPPER.createObjectNode().put("type", "integer"));
       put("text", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("time", OBJECT_MAPPER.createObjectNode().put("type","string").put("format", "date-time"));
+      put("timetz", OBJECT_MAPPER.createObjectNode().put("type","string").put("format", "date-time"));
       put("timestamp", OBJECT_MAPPER.createObjectNode().put("type","string").put("format", "date-time"));
+      put("timestamptz", OBJECT_MAPPER.createObjectNode().put("type","string").put("format", "date-time"));
       put("uuid", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("xml", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("pg_lsn", OBJECT_MAPPER.createObjectNode().put("type", "integer"));
@@ -110,13 +117,18 @@ public class DataTypeConverter {
       put("cidr", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("inet", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("macaddr", OBJECT_MAPPER.createObjectNode().put("type", "string"));
+      put("macaddr8", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("tsquery", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("tsvector", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("txid_snapshot", OBJECT_MAPPER.createObjectNode().put("type", "string"));
 
+      put("int", OBJECT_MAPPER.createObjectNode().put("type", "integer"));
       put("int2", OBJECT_MAPPER.createObjectNode().put("type", "integer"));
       put("int4", OBJECT_MAPPER.createObjectNode().put("type", "integer"));
       put("int8", OBJECT_MAPPER.createObjectNode().put("type", "integer"));
+      put("serial8", OBJECT_MAPPER.createObjectNode().put("type", "integer"));
+      put("serial2", OBJECT_MAPPER.createObjectNode().put("type", "integer"));
+      put("serial4", OBJECT_MAPPER.createObjectNode().put("type", "integer"));
       put("bpchar", OBJECT_MAPPER.createObjectNode().put("type", "string"));
       put("float4", OBJECT_MAPPER.createObjectNode().put("type","number").put("format", "float") );
       put("float8", OBJECT_MAPPER.createObjectNode().put("type","number").put("format", "float") );
@@ -136,6 +148,11 @@ public class DataTypeConverter {
     if(!type.isEmpty() && type.charAt(0) == '_'){
       return OBJECT_MAPPER.createObjectNode().put("type","array").set("items",map.get(type.substring(1)));
     }
-    return map.get(type);
+    ObjectNode objType = map.get(type);
+    if (objType == null){
+      log.debug("Custom datatype is not available, Falling back to default datatype string");
+      objType = map.get("string");
+    }
+    return objType;
   }
 }

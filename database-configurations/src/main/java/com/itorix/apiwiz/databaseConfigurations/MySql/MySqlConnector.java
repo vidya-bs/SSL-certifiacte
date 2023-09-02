@@ -62,7 +62,7 @@ public class MySqlConnector {
                 sslConnection.buildProperties(properties, sqlConfiguration.getSsl(), mysqlConnection);
             }
             String hostUrl =String.format("jdbc:mysql://%s:%s", mysqlConnection.getHost(), mysqlConnection.getPort());
-            logger.info("postgresql connection url - {}", hostUrl);
+            logger.info("mysql connection url - {}", hostUrl);
             mysqlConnection.setConnection(DriverManager.getConnection(hostUrl, properties));
             return mysqlConnection;
         } catch (ItorixException ex){
@@ -104,7 +104,7 @@ public class MySqlConnector {
                 sslConnection.buildProperties(properties, sqlConfiguration.getSsl(), mysqlConnection);
             }
             String hostUrl =String.format("jdbc:mysql://%s:%s", mysqlConnection.getHost(), mysqlConnection.getPort());
-            logger.info("postgresql connection url - {}", hostUrl);
+            logger.info("mysql connection url - {}", hostUrl);
             mysqlConnection.setConnection(DriverManager.getConnection(hostUrl, properties));
             return mysqlConnection;
         } catch (ItorixException ex){
@@ -154,7 +154,7 @@ public class MySqlConnector {
             kerberosConnector.CreateKerberosTicket(username, password, relam, kdcServerhost);
 
             System.setProperty( AUTH_LOGIN_CONFIG, createJassFile());
-            logger.info("postgresql connection url - {}", hostUrl);
+            logger.info("mysql connection url - {}", hostUrl);
             mysqlConnection.setConnection(DriverManager.getConnection(hostUrl, properties));
             return mysqlConnection;
         } catch (ItorixException ex){
