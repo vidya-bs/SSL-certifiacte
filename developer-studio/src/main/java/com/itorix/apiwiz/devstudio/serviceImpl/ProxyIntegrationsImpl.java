@@ -358,9 +358,9 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	@Override
 	public ResponseEntity<?> getMongoDbIntegrationById(String interactionid, String jsessionid, String id) throws Exception {
 		MongoDBConfiguration mongoDBConfiguration = integrationsDao.getMongoDbDatabaseIntegrationById(id);
-		if (mongoDBConfiguration == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+//		if (mongoDBConfiguration == null) {
+//			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//		}
 		return new ResponseEntity<>(mongoDBConfiguration, HttpStatus.CREATED);
 	}
 
@@ -444,9 +444,9 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	@Override
 	public ResponseEntity<?> getPostgreSqlIntegrationById(String interactionid, String jsessionid, String id) throws Exception {
 		PostgreSQLConfiguration postgreSQLConfiguration = integrationsDao.getPostgresqlDatabaseIntegrationById(id);
-		if (postgreSQLConfiguration == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+//		if (postgreSQLConfiguration == null) {
+//			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//		}
 		return new ResponseEntity<>(postgreSQLConfiguration, HttpStatus.OK);
 	}
 
