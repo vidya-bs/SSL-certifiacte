@@ -367,10 +367,10 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	@Override
 	public ResponseEntity<?> getMongoDbIntegrationsMetadata(String interactionid, String jsessionid) throws Exception {
 		List<MongoDBConfiguration> documents = integrationsDao.getMongoDbDatabaseIntegrationsMetadata();
-		if (documents == null || documents.isEmpty()) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity<>(documents, HttpStatus.CREATED);
+//		if (documents == null || documents.isEmpty()) {
+//			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//		}
+		return new ResponseEntity<>(documents, HttpStatus.OK);
 	}
 
 	@Override
@@ -410,10 +410,10 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	@Override
 	public ResponseEntity<?> getMySqlIntegrationsMetaData(String interactionid, String jsessionid) throws Exception {
 		List<MySQLConfiguration> documents = integrationsDao.getMySqlIntegrationsMetadata();
-		if (documents == null || documents.isEmpty()) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity<>(documents, HttpStatus.CREATED);
+//		if (documents == null || documents.isEmpty()) {
+//			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//		}
+		return new ResponseEntity<>(documents, HttpStatus.OK);
 	}
 
 	@Override
@@ -453,10 +453,10 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	@Override
 	public ResponseEntity<?> getPostgreSqlIntegrationsMetaData(String interactionid, String jsessionid) throws Exception {
 		List<PostgreSQLConfiguration> documents = integrationsDao.getPostgreSqlIntegrationsMetadata();
-		if (documents == null || documents.isEmpty()) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity<>(documents, HttpStatus.CREATED);
+//		if (documents == null || documents.isEmpty()) {
+//			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//		}
+		return new ResponseEntity<>(documents, HttpStatus.OK);
 	}
 
 	private String getFileExtension(String file) {
