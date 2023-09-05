@@ -23,6 +23,7 @@ import org.json.JSONTokener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -36,6 +37,15 @@ public class MongoDbSchemaConverter {
     private static final Logger logger = LoggerFactory.getLogger(MongoDbSchemaConverter.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    @Value("${itorix.schema.import.normalSearchScanCount:10}")
+    private int normalSearchScanCount;
+
+    @Value("${itorix.schema.import.deepSearchScanCount:100}")
+    private int deepSearchScanCount;
+
+    @Value("${itorix.schema.import.keySearchScanCount:10}")
+    private int keySearchScanCount;
 
     @Autowired
     private DataTypeConverter dataTypeConverter;
@@ -82,12 +92,12 @@ public class MongoDbSchemaConverter {
         if(deepSearch) {
             cursor = collection.find()
                     .sort(new Document("_id", -1))
-                    .limit(1_000)
+                    .limit(deepSearchScanCount)
                     .iterator();
         } else {
             cursor = collection.find()
                     .sort(new Document("_id", -1))
-                    .limit(10)
+                    .limit(normalSearchScanCount)
                     .iterator();
         }
         ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
@@ -159,7 +169,7 @@ public class MongoDbSchemaConverter {
         MongoCollection<Document> mongoCollection = database.getCollection(collectionName);
         MongoCursor<Document> cursor = mongoCollection.find()
                 .sort(new Document("_id", -1))
-                .limit(10)
+                .limit(keySearchScanCount)
                 .iterator();
         while (cursor.hasNext()) {
             Document document = cursor.next();
