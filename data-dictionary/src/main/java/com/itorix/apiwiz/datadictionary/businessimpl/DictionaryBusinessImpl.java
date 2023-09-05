@@ -928,7 +928,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		} else if(databaseType.equalsIgnoreCase(DatabaseType.POSTGRESQL.getDatabaseType())) {
 			return mongoTemplate.findAll(PostgreSQLConfiguration.class);
 		} else {
-			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Invalid database Type"), "DatabaseConfiguration-1000");
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"Invalid database Type"), "DatabaseConfiguration-1001");
 		}
 	}
 
@@ -949,12 +949,12 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 				return schemaDAO.getMysqlTableNames(mySQLConfiguration);
 			} else if(databaseType.equalsIgnoreCase(DatabaseType.POSTGRESQL.getDatabaseType())) {
 				if (schemaName == null) {
-					throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Postgres Schema name is required!"), "DatabaseConfiguration-1000");
+					throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"Postgres Schema name is required!"), "DatabaseConfiguration-1001");
 				}
 				PostgreSQLConfiguration postgreSQLConfiguration = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(connectionId)), PostgreSQLConfiguration.class);
 				return schemaDAO.getPostgresTableNames(postgreSQLConfiguration, schemaName);
 			} else{
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Invalid database Type"), "DatabaseConfiguration-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"Invalid database Type"), "DatabaseConfiguration-1001");
 			}
 		} catch (ItorixException ex){
 			throw ex;
@@ -977,7 +977,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 				}
 				return schemaDAO.getCollectionNames(databaseConfiguration,databaseName);
 			} else {
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Invalid Database Type!"), "DatabaseConfiguration-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"Invalid Database Type!"), "DatabaseConfiguration-1001");
 			}
 		} catch (ItorixException ex){
 			throw ex;
@@ -1014,12 +1014,12 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 				return schemaDAO.searchInMySqlDB(mySQLConfiguration, searchKey);
 			} else if(databaseType.equalsIgnoreCase(DatabaseType.POSTGRESQL.getDatabaseType())) {
 				if (schemaName == null) {
-					throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Postgres Schema name is required!"), "DatabaseConfiguration-1000");
+					throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"Postgres Schema name is required!"), "DatabaseConfiguration-1001");
 				}
 				PostgreSQLConfiguration postgreSQLConfiguration = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(connectionId)), PostgreSQLConfiguration.class);
 				return schemaDAO.searchInPostgresDB(postgreSQLConfiguration, schemaName, searchKey);
 			} else{
-				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"Invalid database Type"), "DatabaseConfiguration-1000");
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"Invalid database Type"), "DatabaseConfiguration-1001");
 			}
 		} catch (ItorixException ex){
 			throw ex;
