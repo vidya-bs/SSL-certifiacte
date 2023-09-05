@@ -19,6 +19,7 @@ import static com.itorix.apiwiz.datadictionary.Utils.SchemaConversionStaicFields
 @Component
 public class SQLSchemaConverter {
 
+    Set<String> ignorableSchemaNames = new HashSet<>(Arrays.asList("information_schema", "pg_catalog"));
     private static final Logger logger = LoggerFactory.getLogger(SQLSchemaConverter.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -125,7 +126,9 @@ public class SQLSchemaConverter {
                 ResultSet schemas = metaData.getSchemas(dataBaseName, "%");
                 while (schemas.next()) {
                     String tableName = schemas.getString(TABLE_SCHEM);
-                    schemaNames.add(tableName);
+                    if(!ignorableSchemaNames.contains(tableName)) {
+                        schemaNames.add(tableName);
+                    }
                 }
                 schemas.close();
             } catch (Exception ex) {
