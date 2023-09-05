@@ -90,11 +90,13 @@ public class MongoDbSchemaConverter {
         MongoCollection<Document> collection = database.getCollection(collectionName);
         MongoCursor<Document> cursor = null;
         if(deepSearch) {
+            logger.debug("MongoDB: DeepSearch enabled, Retrieving the latest {} documents from the - {} collection", deepSearchScanCount, collectionName);
             cursor = collection.find()
                     .sort(new Document("_id", -1))
                     .limit(deepSearchScanCount)
                     .iterator();
         } else {
+            logger.debug("MongoDB: Retrieving the latest {} documents from the - {} collection", normalSearchScanCount, collectionName);
             cursor = collection.find()
                     .sort(new Document("_id", -1))
                     .limit(normalSearchScanCount)
@@ -146,6 +148,7 @@ public class MongoDbSchemaConverter {
 
         MongoIterable<String> collectionNames = database.listCollectionNames();
         List<String> collections = collectionNames.into(new ArrayList<>());
+        logger.debug("Search for Key: Retrieving the latest {} documents from {} collections", keySearchScanCount, collections.size());
         collections.parallelStream().forEach( collectionName -> {
             long localStart = System.currentTimeMillis();
             logger.debug("Searching for key in collection - {}", collectionName);
