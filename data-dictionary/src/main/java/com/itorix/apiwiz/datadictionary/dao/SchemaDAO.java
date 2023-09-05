@@ -70,7 +70,7 @@ public class SchemaDAO {
                 if (tables == null || tables.isEmpty()) {
                     throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "tables names is required"), "DatabaseConfiguration-1000");
                 }
-                if (collections.size() > maxSchemaCollection) {
+                if (tables.size() > maxSchemaCollection) {
                     String error = String.format("User not allowed to import more than %s schema(table) from db at single request", maxSchemaCollection);
                     throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), error), "DatabaseConfiguration-1000");
                 }
@@ -80,7 +80,7 @@ public class SchemaDAO {
                 if (tables == null || tables.isEmpty()) {
                     throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "tables names is required"), "DatabaseConfiguration-1000");
                 }
-                if (collections.size() > maxSchemaCollection) {
+                if (tables.size() > maxSchemaCollection) {
                     String error = String.format("User not allowed to import more than %s schema(table) from db at single request", maxSchemaCollection);
                     throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), error), "DatabaseConfiguration-1000");
                 }
