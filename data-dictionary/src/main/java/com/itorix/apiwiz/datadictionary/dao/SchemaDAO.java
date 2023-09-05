@@ -15,6 +15,7 @@ import com.mongodb.client.MongoClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -41,6 +42,9 @@ public class SchemaDAO {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    @Value("${itorix.schema.max.collections:10}")
+    private int maxSchemaCollection;
+
     public Object getSchemas(String databaseType, String connectionId, String databaseName, String schemaName, Set<String> collections, Set<String> tables, boolean deepSearch) throws ItorixException {
         if (databaseType == null) {
             throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"), "DataBase Type is required!"), "DatabaseConfiguration-1001");
@@ -56,17 +60,29 @@ public class SchemaDAO {
                 if (deepSearch && collections.size() > 1) {
                     throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "when the deep search is enabled User not allowed to import more than one schema(collection) from db "), "DatabaseConfiguration-1000");
                 }
+                if (collections.size() > maxSchemaCollection) {
+                    String error = String.format("User not allowed to import more than %s schema(collection) from db at single request", maxSchemaCollection);
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), error), "DatabaseConfiguration-1000");
+                }
                 MongoDBConfiguration databaseConfiguration = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(connectionId)), MongoDBConfiguration.class);
                 return getMongoSchemas(databaseName, collections, databaseConfiguration, deepSearch);
             } else if (databaseType.equalsIgnoreCase(DatabaseType.MYSQL.getDatabaseType())) {
                 if (tables == null || tables.isEmpty()) {
                     throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "tables names is required"), "DatabaseConfiguration-1000");
                 }
+                if (collections.size() > maxSchemaCollection) {
+                    String error = String.format("User not allowed to import more than %s schema(table) from db at single request", maxSchemaCollection);
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), error), "DatabaseConfiguration-1000");
+                }
                 MySQLConfiguration mySQLConfiguration = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(connectionId)), MySQLConfiguration.class);
                 return getMySqlSchemas(mySQLConfiguration, tables);
             } else if (databaseType.equalsIgnoreCase(DatabaseType.POSTGRESQL.getDatabaseType())) {
                 if (tables == null || tables.isEmpty()) {
                     throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), "tables names is required"), "DatabaseConfiguration-1000");
+                }
+                if (collections.size() > maxSchemaCollection) {
+                    String error = String.format("User not allowed to import more than %s schema(table) from db at single request", maxSchemaCollection);
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"), error), "DatabaseConfiguration-1000");
                 }
                 PostgreSQLConfiguration postgreSQLConfiguration = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(connectionId)), PostgreSQLConfiguration.class);
                 return getPostgreSQLSchemas(postgreSQLConfiguration, schemaName, tables);
