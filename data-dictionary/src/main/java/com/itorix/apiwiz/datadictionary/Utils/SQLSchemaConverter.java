@@ -33,9 +33,9 @@ public class SQLSchemaConverter {
             List<ObjectNode> schemas = new ArrayList<>();
             DatabaseMetaData metaData = connection.getMetaData();
             ResultSet dbs = metaData.getCatalogs();
-            ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
             tables.parallelStream().forEach( tableName -> {
                 try {
+                    ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
                     ResultSet columns = metaData.getColumns(dataBaseName, null, tableName, null);
                     if (!columns.next()) {
                         throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1005"), "Mysql", tableName), "DatabaseConfiguration-1005");
@@ -77,9 +77,9 @@ public class SQLSchemaConverter {
             List<ObjectNode> schemas = new ArrayList<>();
             DatabaseMetaData metaData = connection.getMetaData();
             ResultSet dbs = metaData.getCatalogs();
-            ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
             tables.parallelStream().forEach( tableName -> {
                 try {
+                    ObjectNode jsonNode = OBJECT_MAPPER.createObjectNode();
                     ResultSet columns = metaData.getColumns(dataBaseName, schemaName, tableName, null);
                     if (!columns.next()) {
                         throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1005"), "Mysql", tableName), "DatabaseConfiguration-1005");
