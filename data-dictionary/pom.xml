@@ -94,7 +94,7 @@
 		<dependency>
 			<groupId>com.itorix.hyggee.cloud</groupId>
 			<artifactId>database-configurations</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.1-RELEASE</version>
 			<scope>compile</scope>
 		</dependency>
 
