@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.itorix.hyggee.cloud</groupId>
+    <artifactId>database-configurations</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>database-configurations</name>
+    <parent>
+        <artifactId>cloud</artifactId>
+        <groupId>com.itorix.hyggee.cloud</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <java.version>11</java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.itorix.hyggee.cloud</groupId>
+            <artifactId>cloud-hyggee-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver</artifactId>
+            <version>3.4.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.55</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.32</version>
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/com.sshtools/maverick-synergy-client -->
+        <dependency>
+            <groupId>com.sshtools</groupId>
+            <artifactId>maverick-synergy-client</artifactId>
+            <version>3.0.10</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.sshtools/maverick-bc -->
+        <dependency>
+            <groupId>com.sshtools</groupId>
+            <artifactId>maverick-bc</artifactId>
+            <version>3.0.10</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <compilerArgs>
+                        <arg>--add-exports=java.security.jgss/sun.security.krb5=ALL-UNNAMED</arg>
+                        <arg>--add-exports=java.security.jgss/sun.security.krb5.internal=ALL-UNNAMED</arg>
+                        <arg>--add-exports=java.security.jgss/sun.security.krb5.internal.ccache=ALL-UNNAMED</arg>
+                        <arg>--add-exports=java.security.jgss/sun.security.krb5.internal.crypto=ALL-UNNAMED</arg>
+                        <arg>--add-exports=java.security.jgss/sun.security.krb5.internal.ktab=ALL-UNNAMED</arg>
+                        <arg>--add-exports=java.base/sun.security.util=ALL-UNNAMED</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
