@@ -311,6 +311,14 @@ public enum ErrorCodes {
 			put("GraphQL-1000","Invalid Request Data,Data not found for Id - %s and revision - %s");
 			put("GraphQL-1001","Invalid Request Data,Data not found for - %s");
       put("GraphQL-1002","Invalid Request Data.GraphQL is already is same status");
+
+			//schema_changes
+			put("DatabaseConfiguration-1000", "Invalid Database Configuration, %s");
+			put("DatabaseConfiguration-1001", "Resource Validation Failed, %s");
+			put("DatabaseConfiguration-1002", "Error Occurred while connecting to %s");
+			put("DatabaseConfiguration-1003", "Error Occurred while pulling schemas from %s database.");
+			put("DatabaseConfiguration-1004", "Error Occurred while pulling schemas from %s database, %s.");
+			put("DatabaseConfiguration-1005", "Error Occurred while pulling schemas from %s database, %s Table name is invalid.");
 		}
 	};
 
@@ -550,6 +558,13 @@ public enum ErrorCodes {
 			put("GraphQL-1000",400);
 			put("GraphQL-1001",400);
       put("GraphQL-1002",400);
+
+			put("DatabaseConfiguration-1000", 400);
+			put("DatabaseConfiguration-1001", 500);
+			put("DatabaseConfiguration-1002", 500);
+			put("DatabaseConfiguration-1003", 500);
+			put("DatabaseConfiguration-1004", 500);
+			put("DatabaseConfiguration-1005", 400);
 
 		}
 	};
