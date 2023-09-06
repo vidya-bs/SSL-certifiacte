@@ -3,7 +3,6 @@ package com.itorix.apiwiz.datadictionary.serviceimpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.diff.JsonDiff;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.datadictionary.business.DictionaryBusiness;
@@ -27,10 +26,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+
 import org.springframework.web.client.RestTemplate;
 
 @CrossOrigin
@@ -637,7 +634,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 
 	@Override
 	public ResponseEntity<?> deletePortfolioRevision(String interactionid, String jsessionid, String id,
-			Integer revision) throws Exception {
+													 Integer revision) throws Exception {
 		PortfolioVO vo = dictionaryBusiness.getPortfolioByRevision(id, revision);
 		if (vo == null) {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
@@ -656,7 +653,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 
 	@Override
 	public ResponseEntity<?> updatePortfolioStatus(String interactionid, String jsessionid, String id, Integer revision,
-			Revision status) throws Exception {
+												   Revision status) throws Exception {
 		PortfolioVO vo = dictionaryBusiness.getPortfolioByRevision(id, revision);
 		if (vo == null) {
 			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("Portfolio-1002"), id),
@@ -731,7 +728,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 	}
 	@Override
 	public ResponseEntity<?> sync2Repo(String interactionid, String jsessionid, String portfolioId,
-			DictionaryScmUpload dictionaryScmUpload) throws Exception {
+									   DictionaryScmUpload dictionaryScmUpload) throws Exception {
 		dictionaryBusiness.sync2Repo(portfolioId, dictionaryScmUpload);
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
@@ -748,7 +745,7 @@ public class DictionaryServiceImpl implements DictionaryService {
 	}
 
 	private void initiateLinting(String jsessionid,
-			String dictionaryId,String modelId,Integer revision,List<String> ruleSetIds) {
+								 String dictionaryId,String modelId,Integer revision,List<String> ruleSetIds) {
 		try {
 			String globalRule=dictionaryBusiness.getGlobalRule();
 			if(globalRule!=null&&ruleSetIds!=null&&!ruleSetIds.contains(globalRule))
@@ -819,4 +816,40 @@ public class DictionaryServiceImpl implements DictionaryService {
 			throws Exception {
 		return new ResponseEntity<>(dictionaryBusiness.getDataModelMap(portfolioId),HttpStatus.OK);
 	}
+
+	@Override
+	public ResponseEntity<?> getAllDatabaseConnections(String interactionid, String jsessionid, String databaseName) throws ItorixException {
+		return new ResponseEntity<>(dictionaryBusiness.getAllDatabaseConnections(databaseName),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getMongoDatabases(String interactionid, String jsessionid, String connectionId)throws ItorixException {
+		return new ResponseEntity<>(dictionaryBusiness.getDatabases(connectionId),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getPostgresSchemaNames(String interactionid, String jsessionid, String connectionId)throws ItorixException {
+		return new ResponseEntity<>(dictionaryBusiness.getPostgresSchemaNames(connectionId),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getCollectionNames(String interactionid, String jsessionid,String connectionId,String databaseName, String databaseType)throws ItorixException {
+		return new ResponseEntity<>(dictionaryBusiness.getCollectionNames(connectionId, databaseType, databaseName),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getTableNames(String interactionid, String jsessionid,String connectionId,String databaseType, String schemaName)throws ItorixException {
+		return new ResponseEntity<>(dictionaryBusiness.getTableNames(connectionId,databaseType, schemaName),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getSchemas(String interactionid, String jsessionid, String connectionId, String databaseType, String databaseName, String schemaName, Set<String> collections, Set<String> tables, boolean deepSearch)throws ItorixException {
+		return new ResponseEntity<>(dictionaryBusiness.getSchemas(databaseType, connectionId, databaseName,schemaName, collections, tables, deepSearch),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> searchKeyFromDB(String interactionid, String jsessionid, String connectionId, String databaseType, String databaseName, String schemaName, String searchKey) throws ItorixException {
+		return new ResponseEntity<>(dictionaryBusiness.searchForKey(databaseType, connectionId, databaseName,schemaName, searchKey),HttpStatus.OK);
+	}
+
 }

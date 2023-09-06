@@ -15,6 +15,7 @@
 	<modules>
 		<module>common</module>
 		<module>identity-management</module>
+		<module>database-configurations</module>
 		<module>design-studio</module>
 		<module>data-dictionary</module>
 		<module>collaboration</module>

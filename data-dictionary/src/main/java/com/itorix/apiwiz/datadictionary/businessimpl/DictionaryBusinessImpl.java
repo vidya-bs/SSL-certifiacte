@@ -9,6 +9,11 @@ import static org.springframework.data.mongodb.core.aggregation.ArrayOperators.F
 import static org.springframework.data.mongodb.core.aggregation.ComparisonOperators.Eq.valueOf;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 
+import com.itorix.apiwiz.common.model.databaseconfigs.DatabaseType;
+import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDBConfiguration;
+import com.itorix.apiwiz.common.model.databaseconfigs.mysql.MySQLConfiguration;
+import com.itorix.apiwiz.common.model.databaseconfigs.postgress.PostgreSQLConfiguration;
+import com.itorix.apiwiz.datadictionary.dao.SchemaDAO;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
@@ -91,6 +96,9 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 
 	@Autowired
 	private ScmMinifiedUtil scmUtilImpl;
+
+	@Autowired
+	private SchemaDAO schemaDAO;
 
 	/**
 	 * log
@@ -182,7 +190,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		return historyResponse;
 	}
 	public PortfolioHistoryResponse findAllPortfoliosV2(String interactionid, int offset,
-			int pageSize) {
+														int pageSize) {
 		log("findPortfolio", interactionid);
 		PortfolioHistoryResponse historyResponse = new PortfolioHistoryResponse();
 
@@ -523,7 +531,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 	}
 
 	public void updatePortfolioModelStatusWithRevision(String id, String modelId, ModelStatus modelStatus,
-			Integer revision) {
+													   Integer revision) {
 		Update update = new Update();
 		Query query = new Query(
 				Criteria.where("modelId").is(modelId).and("portfolioID").is(id).and("revision").is(revision));
@@ -547,7 +555,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 
 	@Override
 	public PortfolioModel findPortfolioModelByportfolioIDAndModelIdAndRevison(String id, String modelId,
-			Integer revision) {
+																			  Integer revision) {
 		log("findAllPortfolioModels", id);
 		Criteria criteria = Criteria.where("portfolioID").is(id).and("modelId").is(modelId).and("revision").is(revision);
 		Query query = new Query(criteria);
@@ -906,5 +914,118 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 			log.error(String.format("Couldn't fetch DataModels for portfolioId[%s] : ",portfolioId) + ex.getMessage());
 		}
 		return modelMap;
+	}
+
+	@Override
+	public List<?> getAllDatabaseConnections(String databaseType) throws ItorixException {
+		if(databaseType == null){
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"DataBase Type is required!"), "DatabaseConfiguration-1001");
+		}
+		if(databaseType.equalsIgnoreCase(DatabaseType.MONGODB.getDatabaseType())) {
+			return mongoTemplate.findAll(MongoDBConfiguration.class);
+		} else if(databaseType.equalsIgnoreCase(DatabaseType.MYSQL.getDatabaseType())) {
+			return mongoTemplate.findAll(MySQLConfiguration.class);
+		} else if(databaseType.equalsIgnoreCase(DatabaseType.POSTGRESQL.getDatabaseType())) {
+			return mongoTemplate.findAll(PostgreSQLConfiguration.class);
+		} else {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"Invalid database Type"), "DatabaseConfiguration-1001");
+		}
+	}
+
+	@Override
+	public List<String> getDatabases(String connectionId) throws ItorixException {
+		MongoDBConfiguration mongoDBConfiguration = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(connectionId)),MongoDBConfiguration.class);
+		return schemaDAO.getDatabases(mongoDBConfiguration);
+	}
+
+	@Override
+	public List<String> getTableNames(String connectionId, String databaseType, String schemaName) throws ItorixException {
+		if(databaseType == null){
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"DataBase Type is required!"), "DatabaseConfiguration-1001");
+		}
+		try {
+			if(databaseType.equalsIgnoreCase(DatabaseType.MYSQL.getDatabaseType())) {
+				MySQLConfiguration mySQLConfiguration = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(connectionId)), MySQLConfiguration.class);
+				return schemaDAO.getMysqlTableNames(mySQLConfiguration);
+			} else if(databaseType.equalsIgnoreCase(DatabaseType.POSTGRESQL.getDatabaseType())) {
+				if (schemaName == null) {
+					throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"Postgres Schema name is required!"), "DatabaseConfiguration-1001");
+				}
+				PostgreSQLConfiguration postgreSQLConfiguration = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(connectionId)), PostgreSQLConfiguration.class);
+				return schemaDAO.getPostgresTableNames(postgreSQLConfiguration, schemaName);
+			} else{
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"Invalid database Type"), "DatabaseConfiguration-1001");
+			}
+		} catch (ItorixException ex){
+			throw ex;
+		}  catch (Exception ex){
+			logger.error("Exception Occurred - ", ex);
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"Error occurred while connecting to database"), "DatabaseConfiguration-1002");
+		}
+	}
+
+	@Override
+	public List<String> getCollectionNames(String connectionId, String databaseName, String databaseType) throws ItorixException {
+		if (databaseType == null) {
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"), "DataBase Type is required!"), "DatabaseConfiguration-1001");
+		}
+		try{
+			if(databaseType.equalsIgnoreCase(DatabaseType.MONGODB.getDatabaseType())) {
+				MongoDBConfiguration databaseConfiguration = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(connectionId)), MongoDBConfiguration.class);
+				if (databaseName == null) {
+					throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"), "DataBase name is required!"), "DatabaseConfiguration-1001");
+				}
+				return schemaDAO.getCollectionNames(databaseConfiguration,databaseName);
+			} else {
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"Invalid Database Type!"), "DatabaseConfiguration-1001");
+			}
+		} catch (ItorixException ex){
+			throw ex;
+		}  catch (Exception ex){
+			logger.error("Exception Occurred - ", ex);
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"Error occurred while connecting to database"), "DatabaseConfiguration-1002");
+		}
+	}
+
+	public List<String> getPostgresSchemaNames(String connectionId) throws ItorixException {
+		PostgreSQLConfiguration postgreSQLConfiguration = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(connectionId)), PostgreSQLConfiguration.class);
+		return schemaDAO.getPostgresSchemas(postgreSQLConfiguration);
+	}
+	@Override
+	public Object getSchemas(String databaseType, String connectionId,String databaseName, String schemaName, Set<String> collections, Set<String> tables,boolean deepSearch) throws ItorixException {
+		return schemaDAO.getSchemas(databaseType,connectionId, databaseName,schemaName, collections, tables ,deepSearch );
+	}
+
+	@Override
+	public List<String> searchForKey(String databaseType, String connectionId, String databaseName, String schemaName, String searchKey) throws ItorixException {
+		if(databaseType == null){
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"DataBase Type is required!"), "DatabaseConfiguration-1001");
+		}
+		try {
+			if(databaseType.equalsIgnoreCase(DatabaseType.MONGODB.getDatabaseType())) {
+				if (databaseName == null) {
+					throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"), "DataBase name is required!"), "DatabaseConfiguration-1001");
+				}
+				MongoDBConfiguration mongoDBConfiguration = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(connectionId)),MongoDBConfiguration.class);
+				return schemaDAO.searchInMongoDB(mongoDBConfiguration, databaseName, searchKey);
+			}
+			else if(databaseType.equalsIgnoreCase(DatabaseType.MYSQL.getDatabaseType())) {
+				MySQLConfiguration mySQLConfiguration = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(connectionId)), MySQLConfiguration.class);
+				return schemaDAO.searchInMySqlDB(mySQLConfiguration, searchKey);
+			} else if(databaseType.equalsIgnoreCase(DatabaseType.POSTGRESQL.getDatabaseType())) {
+				if (schemaName == null) {
+					throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"Postgres Schema name is required!"), "DatabaseConfiguration-1001");
+				}
+				PostgreSQLConfiguration postgreSQLConfiguration = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(connectionId)), PostgreSQLConfiguration.class);
+				return schemaDAO.searchInPostgresDB(postgreSQLConfiguration, schemaName, searchKey);
+			} else{
+				throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1001"),"Invalid database Type"), "DatabaseConfiguration-1001");
+			}
+		} catch (ItorixException ex){
+			throw ex;
+		}  catch (Exception ex){
+			logger.error("Exception Occurred - ", ex);
+			throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"),"Error occurred while connecting to database"), "DatabaseConfiguration-1002");
+		}
 	}
 }
