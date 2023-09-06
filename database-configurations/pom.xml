@@ -12,7 +12,7 @@
     <parent>
         <artifactId>cloud</artifactId>
         <groupId>com.itorix.hyggee.cloud</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.1-RELEASE</version>
     </parent>
 
     <properties>
