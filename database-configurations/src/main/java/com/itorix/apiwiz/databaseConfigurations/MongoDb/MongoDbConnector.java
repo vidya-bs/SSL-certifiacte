@@ -59,6 +59,11 @@ public class MongoDbConnector {
         }
         ClientConnection clientConnection = new ClientConnection();
         try {
+            try {
+                url = url.replace("authMechanism=DEFAULT","");
+            } catch (Exception ex){
+                logger.error("Exception occurred -", ex);
+            }
             if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
@@ -97,6 +102,11 @@ public class MongoDbConnector {
         }
         ClientConnection clientConnection = new ClientConnection();
         try {
+            try {
+                url = url.replace("authMechanism=DEFAULT","");
+            } catch (Exception ex){
+                logger.error("Exception occurred -", ex);
+            }
             if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
@@ -139,6 +149,11 @@ public class MongoDbConnector {
         try {
             SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(mongoDBConfiguration, clientConnection);
 
+            try {
+                url = url.replace("authMechanism=DEFAULT","");
+            } catch (Exception ex){
+                logger.error("Exception occurred -", ex);
+            }
             if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
@@ -196,6 +211,11 @@ public class MongoDbConnector {
         String url = mongoDBConfiguration.getUrl();
         ClientConnection clientConnection = new ClientConnection();
         try {
+            try {
+                url = url.replace("authMechanism=DEFAULT","");
+            } catch (Exception ex){
+                logger.error("Exception occurred -", ex);
+            }
             if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
@@ -262,6 +282,11 @@ public class MongoDbConnector {
         }
         ClientConnection clientConnection = new ClientConnection();
         try {
+            try {
+                url = url.replace("authMechanism=DEFAULT","");
+            } catch (Exception ex){
+                logger.error("Exception occurred -", ex);
+            }
             if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
