@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.net.ssl.SSLContext;
+import java.net.URI;
 
 
 @Component
@@ -289,8 +290,14 @@ public class MongoDbConnector {
     }
 
     private MongoClient createMongoClient(String url) {
+        try {
+            url = url.replace("authMechanism=DEFAULT","");
+        } catch (Exception ex){
+            logger.error("Exception occurred -", ex);
+        }
+        ConnectionString connectionString = new ConnectionString(url);
         MongoClientSettings settings = MongoClientSettings.builder()
-                .applyConnectionString(new ConnectionString(url)).build();
+                .applyConnectionString(connectionString).build();
         return MongoClients.create(settings);
     }
 
