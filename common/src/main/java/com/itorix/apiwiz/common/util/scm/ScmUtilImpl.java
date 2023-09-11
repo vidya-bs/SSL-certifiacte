@@ -265,7 +265,7 @@ public class ScmUtilImpl {
 				throw new ItorixException(new Throwable().getMessage(), "USER_005", new Throwable());
 			}
 		} catch (GitAPIException e) {
-			logger.error("An exception occured",e);
+			logger.debug("An exception occured",e);
 			throw new ItorixException(ErrorCodes.errorMessage.get("SCM-001"), "SCM-001");
 		}
 	}
