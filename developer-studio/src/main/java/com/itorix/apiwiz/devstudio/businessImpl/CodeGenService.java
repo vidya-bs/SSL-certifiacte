@@ -385,10 +385,18 @@ public class CodeGenService {
 
 				if (scmIntegration.getAuthType().equals("TOKEN")) {
 					String token = rSAEncryption.decryptText(scmIntegration.getToken());
-					scmUtil.pushFilesToSCMBase64Proxy(new File(dir), codeGen.getProxySCMDetails().getReponame(),
-							scmIntegration.getAuthType(), token, codeGen.getProxySCMDetails().getHostUrl(),
-							codeGen.getProxySCMDetails().getScmSource(), codeGen.getProxySCMDetails().getBranch(),
-							codeGen.getProxySCMDetails().getCommitMessage());
+					if(codeGen.getPortfolio()!=null){
+						scmUtil.pushFilesToSCMBase64Proxy(new File(dir), codeGen.getProxySCMDetails().getReponame(),
+								scmIntegration.getAuthType(), token, codeGen.getProxySCMDetails().getHostUrl(),
+								codeGen.getProxySCMDetails().getScmSource(), codeGen.getProxySCMDetails().getBranch(),
+								codeGen.getProxySCMDetails().getCommitMessage());
+					}else {
+						scmUtil.pushFilesToSCMBase64(new File(dir), codeGen.getProxySCMDetails().getReponame(),
+								scmIntegration.getAuthType(), token, codeGen.getProxySCMDetails().getHostUrl(),
+								codeGen.getProxySCMDetails().getScmSource(), codeGen.getProxySCMDetails().getBranch(),
+								codeGen.getProxySCMDetails().getCommitMessage());
+					}
+
 					codeGen.setScmURL(codeGen.getProxySCMDetails().getHostUrl());
 					codeGen.setScmBranch(codeGen.getProxySCMDetails().getBranch());
 				} else {
