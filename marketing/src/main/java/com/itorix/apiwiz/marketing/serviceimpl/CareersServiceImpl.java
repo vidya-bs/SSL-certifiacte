@@ -101,7 +101,7 @@ public class CareersServiceImpl implements CareersService {
 			jobApplication.setProfile(profileURL);
 		}
 		careersDao.createUpdateJobApplication(jobApplication);
-		careersDao.invokeNotificationAgent(jobApplication, profile);
+		careersDao.invokeNotificationAgent(jobApplication, profile,jobPosting.getRole());
 		Map<String, String> response = new HashMap<>();
 		response.put("message",
 				"Thanks for taking time and posting your information. We will review the details and get back to you shortly.");
