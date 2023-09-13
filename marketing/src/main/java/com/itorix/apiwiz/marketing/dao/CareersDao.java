@@ -1,6 +1,7 @@
 package com.itorix.apiwiz.marketing.dao;
 
 import com.itorix.apiwiz.common.factory.IntegrationHelper;
+import com.itorix.apiwiz.common.model.apigee.StaticFields;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
@@ -25,10 +26,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -201,14 +198,14 @@ public class CareersDao {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Portfolio-1016"), "Marketing-3");
 		}
 	}
-	public void invokeNotificationAgent(JobApplication jobApplication, MultipartFile profile) {
+	public void invokeNotificationAgent(JobApplication jobApplication, MultipartFile profile,String jobRole) {
 		try {
 			if (jobApplication != null) {
 				RequestModel requestModel = new RequestModel();
 				EmailTemplate emailTemplate = new EmailTemplate();
 				String[] emailContentToReplace = emailContentParser.getRelevantEmailContent(jobApplication);
 				String mailBody = emailContentParser.getEmailBody(emailContentToReplace);
-				String mailSubject = emailContentParser.getEmailSubject(emailContentToReplace);
+				String mailSubject = String.format(StaticFields.EMAIL_SUBJECT_JOB_APPLICATION,jobRole);
 				emailTemplate.setBody(mailBody);
 				List<String> mailId = new ArrayList<>();
 				mailId.add(hiringMailId);
