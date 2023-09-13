@@ -1,5 +1,18 @@
 package com.itorix.apiwiz.devstudio.businessImpl;
 
+import com.itorix.apiwiz.common.model.proxystudio.CodeGenHistory;
+import com.itorix.apiwiz.common.model.proxystudio.Flow;
+import com.itorix.apiwiz.common.model.proxystudio.Flows;
+import com.itorix.apiwiz.common.model.proxystudio.Folder;
+import com.itorix.apiwiz.common.model.proxystudio.Proxy;
+import com.itorix.apiwiz.common.model.proxystudio.ProxyConfig;
+import com.itorix.apiwiz.common.model.proxystudio.Target;
+import com.itorix.apiwiz.devstudio.dao.MongoConnection;
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
+import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -10,29 +23,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.google.common.io.Files;
-import com.itorix.apiwiz.common.model.proxystudio.CodeGenHistory;
-import com.itorix.apiwiz.common.model.proxystudio.Flow;
-import com.itorix.apiwiz.common.model.proxystudio.Flows;
-import com.itorix.apiwiz.common.model.proxystudio.Folder;
-import com.itorix.apiwiz.common.model.proxystudio.Proxy;
-import com.itorix.apiwiz.common.model.proxystudio.ProxyConfig;
-import com.itorix.apiwiz.common.model.proxystudio.Target;
-import com.itorix.apiwiz.common.properties.ApplicationProperties;
-import com.itorix.apiwiz.devstudio.dao.MongoConnection;
-
-import freemarker.cache.StringTemplateLoader;
-import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 
 @Component
 @SuppressWarnings("rawtypes")
@@ -234,6 +228,9 @@ public class ApigeeProxyGeneration {
 					}
 					apiDtls.put("metadata", metadata);
 				}
+				if(null != cg.getProxyMetadata()){
+					apiDtls.put("proxyMetadata", cg.getProxyMetadata());
+				}
 				boolean canProcess = true;
 				if(fileName.contains("x-gw-cache-resource")){
 					canProcess = false;
@@ -259,8 +256,7 @@ public class ApigeeProxyGeneration {
 											apiDtls.put("cacheTimeout", timeunit);
 										}
 									}
-								}
-								else {
+								} else {
 									for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata1 : flow.getMetadata()){
 										if(proxyMetadata1.getName().equals("x-gw-cache-timeout")) {
 											String count = proxyMetadata1.getValue();
@@ -271,13 +267,23 @@ public class ApigeeProxyGeneration {
 							}
 						}
 					}
-					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "").replace("-x-gw-cache-resource", "")
-							.replace(ProxyConfig.STR_ALL, "");
-				}else{
-					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "").replace(ProxyConfig.STR_GET, "")
+					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "")
+							.replace("-x-gw-cache-resource", "")
 							.replace(ProxyConfig.STR_ALL, "");
 				}
-				if(canProcess){
+				if (fileName.contains("cf-Assign-Metadata-Variables")) {
+					canProcess = false;
+					if (null != cg.getProxyMetadata() && !cg.getProxyMetadata().isEmpty()) {
+						canProcess = true;
+					}
+					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "")
+							.replace(ProxyConfig.STR_ALL, "");
+				} else {
+					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "")
+							.replace(ProxyConfig.STR_GET, "")
+							.replace(ProxyConfig.STR_ALL, "");
+				}
+				if (canProcess) {
 					Writer reqFile = new FileWriter(dstPoliciesFile);
 					template.process(apiDtls, reqFile);
 					reqFile.flush();
