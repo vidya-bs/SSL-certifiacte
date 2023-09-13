@@ -2,6 +2,7 @@ package com.itorix.apiwiz.common.util.scm;
 
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
@@ -12,6 +13,7 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -23,11 +25,14 @@ import java.nio.file.StandardCopyOption;
 @Slf4j
 public class ScmMinifiedUtil {
 
+	@Autowired
+	private ApplicationProperties applicationProperties;
+
 	public void pushFilesToSCMBase64(File directory, String repoName, String authorizationType, String authToken,
 			String hostUrl, String scmSource, String branch, String comments)
 			throws InvalidRemoteException, TransportException, GitAPIException, IOException, ItorixException {
 		String[] urlParts = hostUrl.split("//");
-		String tempDirectory = System.getProperty("java.io.tmpdir") + System.currentTimeMillis();
+		String tempDirectory =  applicationProperties.getTempDir()+ System.currentTimeMillis();
 		File cloningDirectory = new File(tempDirectory);
 		log.info("Creating a clone directory {}" , cloningDirectory);
 		Git git;
