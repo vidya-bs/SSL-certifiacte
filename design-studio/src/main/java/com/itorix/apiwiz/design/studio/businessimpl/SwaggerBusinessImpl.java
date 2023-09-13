@@ -187,6 +187,16 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		swaggerVO.setLock(false);
 		swaggerVO.setId(null);
 		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
+		try {
+			OpenAPI openAPI = new OpenAPIParser().readContents(swaggerVO.getSwagger(), null, null)
+					.getOpenAPI();
+			if (openAPI.getExtensions() != null
+					&& openAPI.getExtensions().get("x-ibm-configuration") != null) {
+				swaggerVO.setSwagger(apicUtil.getPolicyTemplatesForOpenApi(swaggerVO.getSwagger(), openAPI));
+			}
+		} catch (Exception e) {
+			log.error("Exception occurred", e);
+		}
 		Swagger3VO details = baseRepository.save(swaggerVO);
 		log("createSwagger", swaggerVO.getInteractionid(), details);
 		return details;
