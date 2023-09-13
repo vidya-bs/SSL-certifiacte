@@ -1,5 +1,8 @@
 package com.itorix.apiwiz.design.studio.businessimpl;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.jayway.jsonpath.Configuration;
+import io.swagger.v3.oas.models.OpenAPI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,12 +34,14 @@ public class ApicUtil {
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
+	
+	@Autowired
+  private ObjectMapper mapper;
 
 	private String processOAS(String swaggerString, List<Category> categoryList) {
 		SwaggerParser swaggerParser = new SwaggerParser();
 		Swagger swagger = swaggerParser.parse(swaggerString);
 		swagger.setVendorExtension("x-policies", categoryList);
-		ObjectMapper mapper = new ObjectMapper();
 		try {
 			mapper.setSerializationInclusion(Include.NON_NULL);
 			return (mapper.writeValueAsString(swagger));
@@ -46,10 +51,10 @@ public class ApicUtil {
 		return null;
 	}
 
-	private String processMetadata(String swaggerString, Map<String, String> metadata) {
+	private String processMetadata(String swaggerString, Map<String, Object> metadata) {
 		SwaggerParser swaggerParser = new SwaggerParser();
 		Swagger swagger = swaggerParser.parse(swaggerString);
-		swagger.setVendorExtension("x-metadata", metadata);
+		swagger.setVendorExtension("x-proxymetadata", metadata);
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			mapper.setSerializationInclusion(Include.NON_NULL);
@@ -60,32 +65,80 @@ public class ApicUtil {
 		return null;
 	}
 
-	public String getPolicyTemplates(String swaggerString) {
-		ObjectMapper mapper = new ObjectMapper();
+	private void processOpenApi(ObjectNode node, List<Category> categoryList) {
+
+		ArrayNode arrayNode =  mapper.convertValue(categoryList, ArrayNode.class);
+		node.set("x-policies", arrayNode);
+	}
+
+	private String processMetadataOpenAPI(ObjectNode node, Map<String, Object> metadata) {
+		ObjectNode objectNode =  mapper.convertValue(metadata, ObjectNode.class);
+		node.set("x-proxymetadata", objectNode);
 		try {
-			JsonNode data = mapper.readTree(swaggerString);
+			mapper.setSerializationInclusion(Include.NON_NULL);
+			return (mapper.writeValueAsString(node));
+		} catch (JsonProcessingException e) {
+			log.error("Exception occurred", e);
+		}
+		return null;
+	}
+
+
+
+	public String getPolicyTemplates(String swaggerString) {
+		try {
 			List<Category> categoryList = mongoTemplate.findAll(Category.class);
 			Map<String, String> mappings = getApicMapping();
-			Map<String, String> metadataMap = new HashMap<>();
+			Map<String, Object> metadataMap = new HashMap<>();
 			for (String key : mappings.keySet()) {
 				if (key.contains("x-ibm-policy")) {
-					if (null != parseNode(data, key)) {
+					if (null != parseNode(swaggerString, key)) {
 						String value = mappings.get(key);
 						enableTemplate(categoryList, value);
 					}
 				} else if (key.contains("x-ibm-metadata")) {
 					String value = mappings.get(key);
-					JsonNode node = parseNode(data, value);
+					JsonNode node = parseNode(swaggerString, value);
 					if (null != node) {
 						key = key.replaceAll("x-ibm-metadata-", "").replaceAll("#", ".");
-						metadataMap.put(key, node.toPrettyString());
+						metadataMap.put(key, node);
 					}
 				}
 			}
 			String OAS = processOAS(swaggerString, categoryList);
 			OAS = processMetadata(OAS, metadataMap);
 			return removeResponseSchemaTag(OAS);
-		} catch (JsonProcessingException e) {
+		} catch (Exception e) {
+			log.error("Exception occurred", e);
+		}
+		return null;
+	}
+
+	public String getPolicyTemplatesForOpenApi(String swaggerString, OpenAPI openAPI) {
+		try {
+			List<Category> categoryList = mongoTemplate.findAll(Category.class);
+			Map<String, String> mappings = getApicMapping();
+			Map<String, Object> metadataMap = new HashMap<>();
+			for (String key : mappings.keySet()) {
+				if (key.contains("x-ibm-policy")) {
+					if (null != parseNode(swaggerString, key)) {
+						String value = mappings.get(key);
+						enableTemplate(categoryList, value);
+					}
+				} else if (key.contains("x-ibm-metadata")) {
+					String value = mappings.get(key);
+					JsonNode node = parseNode(swaggerString, value);
+					if (null != node) {
+						key = key.replaceAll("x-ibm-metadata-", "").replaceAll("#", ".");
+						metadataMap.put(key, node);
+					}
+				}
+			}
+			ObjectNode node = mapper.readValue(swaggerString, ObjectNode.class);
+			processOpenApi(node, categoryList);
+			String OAS = processMetadataOpenAPI(node, metadataMap);
+			return removeResponseSchemaTag(OAS);
+		} catch (Exception e) {
 			log.error("Exception occurred", e);
 		}
 		return null;
@@ -112,27 +165,13 @@ public class ApicUtil {
 		return mappings;
 	}
 
-	private JsonNode parseNode(JsonNode node, String path) {
+	private JsonNode parseNode(String swaggerString, String path) {
 		path = path.replace("x-ibm-policy/", "");
-		String[] paths = path.split("/");
 		try {
-			JsonNode jsonNode = node;
-			for (int i = 0; i < paths.length; i++) {
-				String pathToken = paths[i];
-				if (pathToken.contains("[")) {
-					String nodeName = pathToken.replaceAll("\\[.*?\\]", "");
-					String elementName = pathToken.substring(pathToken.indexOf("[") + 1, pathToken.indexOf("]"));
-					ArrayNode arrayNode = (ArrayNode) jsonNode.get(nodeName);
-					for (JsonNode elementNode : arrayNode) {
-						if (null != elementNode.get(getFieldName(elementName))) {
-							jsonNode = elementNode.get(getFieldName(elementName));
-						}
-					}
-				} else {
-					jsonNode = jsonNode.get(pathToken);
-				}
-			}
-			return jsonNode;
+			DocumentContext context = JsonPath.parse(swaggerString, Configuration.defaultConfiguration());
+			Object object = context.read(path);
+			JsonNode node = mapper.convertValue(object, JsonNode.class);
+			return node;
 		} catch (Exception e) {
 			log.error("Exception occurred", e);
 		}

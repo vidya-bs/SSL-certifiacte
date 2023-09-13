@@ -3,6 +3,7 @@ package com.itorix.apiwiz.common.model.proxystudio;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class CodeGenHistory {
@@ -24,6 +25,8 @@ public class CodeGenHistory {
 	private String swaggerId;
 	private String oasVersion;
 	private Integer swaggerRevision;
+
+	private Map<String, Object> proxyMetadata;
 
 	public String getScmURL() {
 		return scmURL;
@@ -153,5 +156,14 @@ public class CodeGenHistory {
 
 	public void setSwaggerRevision(Integer swaggerRevision) {
 		this.swaggerRevision = swaggerRevision;
+	}
+
+
+	public Map<String, Object> getProxyMetadata() {
+		return proxyMetadata;
+	}
+
+	public void setProxyMetadata(Map<String, Object> proxyMetadata) {
+		this.proxyMetadata = proxyMetadata;
 	}
 }

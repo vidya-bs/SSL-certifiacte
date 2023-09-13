@@ -1,6 +1,9 @@
 package com.itorix.apiwiz.devstudio.businessImpl;
 
 
+import io.swagger.parser.OpenAPIParser;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -23,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -337,6 +341,41 @@ public class CodeGenService {
 		String time = Long.toString(System.currentTimeMillis());
 		String dir = operations.getDir() + time + File.separatorChar;
 		ProxyArtifacts proxyArtifacts = null;
+
+		String swagger = "";
+
+		if (StringUtils.isNotEmpty(codeGen.getSwaggerId()) && ObjectUtils.isNotEmpty(
+				codeGen.getSwaggerRevision()) && StringUtils.isNotEmpty(codeGen.getOasVersion())) {
+			if (StringUtils.equalsIgnoreCase(codeGen.getOasVersion(), "2.0")) {
+				SwaggerVO swaggerVO = mongoTemplate.findOne(
+						Query.query(Criteria.where("swaggerId").is(codeGen.getSwaggerId()).and("revision")
+								.is(codeGen.getSwaggerRevision())),
+						SwaggerVO.class);
+				swagger =
+						swaggerVO != null ? swaggerVO.getSwagger() != null ? swaggerVO.getSwagger() : "" : "";
+			}
+			if (StringUtils.isEmpty(swagger) && StringUtils.equalsIgnoreCase(codeGen.getOasVersion(),
+					"3.0")) {
+				Swagger3VO swagger3VO = mongoTemplate.findOne(
+						Query.query(Criteria.where("swaggerId").is(codeGen.getSwaggerId()).and("revision")
+								.is(codeGen.getSwaggerRevision())),
+						Swagger3VO.class);
+				swagger= swagger3VO != null ? swagger3VO.getSwagger() != null ? swagger3VO.getSwagger() : "" : "";
+			}
+		}
+
+		if (StringUtils.isNotEmpty(swagger)) {
+			SwaggerParseResult swaggerParseResult = new OpenAPIParser().readContents(swagger, null, null);
+			OpenAPI swaggerSpec = swaggerParseResult.getOpenAPI();
+			Map<String, Object> swaggerExtensions = swaggerSpec.getExtensions();
+			if (swaggerExtensions.containsKey("x-ibm-configuration") && null != swaggerExtensions.get(
+					"x-ibm-configuration")) {
+				Object object = swaggerExtensions.get("x-proxymetadata");
+				if (object instanceof Map) {
+					codeGen.setProxyMetadata((Map<String, Object>) object);
+				}
+			}
+		}
 		// if (true) {
 		if (proxyGeneration != null && proxyGeneration.equalsIgnoreCase("true")) {
 			String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName() + (
@@ -363,16 +402,6 @@ public class CodeGenService {
 		CleanUnused.clean(proxyDir + File.separatorChar);
 		proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
 		ZipUtil.pack(new File(dir), new File(operations.getDir() + time + ".zip"));
-		// } else {
-		// String proxyDir = dir + "src/gateway/" + codeGen.getProxy().getName()
-		// + "/apiproxy";
-		// codeGen.setProjectName(project.getName());
-		// proxyGenerator.generateProxyCode(null, codeGen, proxyDir, project);
-		// CleanUnused.clean(proxyDir + File.separatorChar);
-		// proxyArtifacts = CleanUnused.processArtifacts(proxyDir);
-		// ZipUtil.pack(new File(dir), new File(operations.getDir() + time +
-		// ".zip"));
-		// }
 
 		try {
 			ProxyData data = new ProxyData();
