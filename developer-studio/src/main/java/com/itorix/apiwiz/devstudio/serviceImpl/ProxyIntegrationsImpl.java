@@ -19,6 +19,7 @@ import com.itorix.apiwiz.common.util.s3.S3Connection;
 import com.itorix.apiwiz.common.util.s3.S3Utils;
 import com.itorix.apiwiz.devstudio.dao.IntegrationsDao;
 import com.itorix.apiwiz.devstudio.service.ProxyIntegrations;
+import java.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -198,8 +199,14 @@ public class ProxyIntegrationsImpl implements ProxyIntegrations {
 	public ResponseEntity<?> getApicIntegratons(String interactionid, String jsessionid) throws Exception {
 		List<Integration> dbIntegrationList = integrationsDao.getIntegration("APIC");
 		Integration integration = new Integration();
-		if (dbIntegrationList != null && dbIntegrationList.size() > 0)
+		if (dbIntegrationList != null && dbIntegrationList.size() > 0){
 			integration = dbIntegrationList.get(0);
+		}
+		else{
+			ApicIntegration apicIntegration = new ApicIntegration();
+			apicIntegration.setMappings(new HashMap<>());
+			integration.setApicIntegration(apicIntegration);
+		}
 		return new ResponseEntity<>(integration.getApicIntegration(), HttpStatus.OK);
 	}
 
