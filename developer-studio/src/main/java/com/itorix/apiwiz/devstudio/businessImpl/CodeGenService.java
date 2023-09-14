@@ -1,6 +1,9 @@
 package com.itorix.apiwiz.devstudio.businessImpl;
 
 
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
@@ -601,6 +604,18 @@ public class CodeGenService {
 				}
 			}
 		}
+		if("3.0".equals(oas)){
+			Query query = new Query();
+			query.addCriteria(Criteria.where("name").is(swaggerName));
+			query.addCriteria(Criteria.where("revision").is(Integer.parseInt(revision)));
+			Swagger3VO swagger3VO =  mongoTemplate.findOne(query, Swagger3VO.class);
+			String swaggerString = swagger3VO.getSwagger();
+			OpenAPI openAPI = new OpenAPIParser().readContents(swaggerString, null, null).getOpenAPI();
+			if (openAPI.getExtensions() != null
+					&& openAPI.getExtensions().get("x-EndpointExtension") != null) {
+				return swaggerString;
+			}
+		}
 		return null;
 	}
 
@@ -639,7 +654,7 @@ public class CodeGenService {
 						organization.setEnv(env.getName());
 						organization.setType(orgEnv.getType());
 						if (targeType.equalsIgnoreCase("targetserver")) {
-							String target = getAPICTarget(data, targetPath, environment);
+							String target = getAPICTarget(swaggerString, targetPath, environment);
 							createTargetServiceConfig(organization, targetServers.get(0), target);
 						} else if (targeType.equalsIgnoreCase("kvm")) {
 							createAPICKvm(organization, data, mapping, proxyArtifacts, proxyName);
@@ -719,9 +734,9 @@ public class CodeGenService {
 		return columnMapping;
 	}
 
-	private String getAPICTarget(JsonNode data, String targetPath, String environmet) {
+	private String getAPICTarget(String swaggerString, String targetPath, String environmet) {
 		targetPath = targetPath.replaceAll("\\{environment\\}", environmet);
-		JsonNode node = parseNode(data, targetPath);
+		JsonNode node = parseNode(swaggerString, targetPath);
 		if (null != node) {
 			String target = node.asText();
 			return target;
@@ -750,28 +765,20 @@ public class CodeGenService {
 		return mappings;
 	}
 
-	private JsonNode parseNode(JsonNode node, String path) {
-		log.debug("Parsing node {}", node);
+	private JsonNode parseNode(String swaggerString, String path) {
+		log.debug("Parsing node {}", swaggerString);
+		if(path.contains("x-ibm-policy/")){
+			path = path.replace("[",".");
+			path = path.replace("]","");
+		}
 		path = path.replace("x-ibm-policy/", "");
-		String[] paths = path.split("/");
+		ObjectMapper mapper = new ObjectMapper();
 		try {
-			JsonNode jsonNode = node;
-			for (int i = 0; i < paths.length; i++) {
-				String pathToken = paths[i];
-				if (pathToken.contains("[")) {
-					String nodeName = pathToken.replaceAll("\\[.*?\\]", "");
-					String elementName = pathToken.substring(pathToken.indexOf("[") + 1, pathToken.indexOf("]"));
-					ArrayNode arrayNode = (ArrayNode) jsonNode.get(nodeName);
-					for (JsonNode elementNode : arrayNode) {
-						if (null != elementNode.get(getFieldName(elementName))) {
-							jsonNode = elementNode.get(getFieldName(elementName));
-						}
-					}
-				} else {
-					jsonNode = jsonNode.get(pathToken);
-				}
-			}
-			return jsonNode;
+			DocumentContext context = JsonPath.parse(swaggerString, Configuration
+					.defaultConfiguration());
+			Object object = context.read(path);
+			JsonNode node = mapper.convertValue(object, JsonNode.class);
+			return node;
 		} catch (Exception e) {
 			log.error("Exception occurred", e);
 		}
