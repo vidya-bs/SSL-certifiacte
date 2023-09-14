@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.generator.model.ResponseCode;
 import io.swagger.models.Swagger;
+import org.bson.Document;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -1500,4 +1501,9 @@ public interface SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestBody ScmUpload scmUpload) throws Exception;
 
+  @PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
+  @RequestMapping(method = RequestMethod.GET, value = "/v1/swaggers/build")
+  public ResponseEntity<List<Document>> getListOfSwaggersForConnectors(
+      @RequestHeader(value = "JSESSIONID") String jsessionid,
+      @RequestHeader(value = "oas", required = false , defaultValue = "2.0") String oas);
 }
