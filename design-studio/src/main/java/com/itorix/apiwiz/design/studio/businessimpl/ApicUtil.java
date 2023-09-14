@@ -166,6 +166,10 @@ public class ApicUtil {
 	}
 
 	private JsonNode parseNode(String swaggerString, String path) {
+		if(path.contains("x-ibm-policy/")){
+			path = path.replace("[",".");
+			path = path.replace("]","");
+		}
 		path = path.replace("x-ibm-policy/", "");
 		try {
 			DocumentContext context = JsonPath.parse(swaggerString, Configuration.defaultConfiguration());

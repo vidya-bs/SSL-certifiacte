@@ -10,6 +10,7 @@ import com.itorix.apiwiz.design.studio.model.dto.MetadataErrorDTO;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.DictionarySwagger;
 import com.itorix.apiwiz.design.studio.model.swagger.sync.SwaggerDictionary;
 import com.mongodb.client.result.DeleteResult;
+import org.bson.Document;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.json.JSONException;
 import org.springframework.http.ResponseEntity;
@@ -841,4 +842,6 @@ public interface SwaggerBusiness {
 
 	public void saveScmDetails(String swaggerId, String revisionNo, String interactionid,
 			String oas, String jsessionid, ScmUpload scmUpload) throws Exception;
+
+  public List<Document> getSwaggersForConnectors(String oas);
 }
