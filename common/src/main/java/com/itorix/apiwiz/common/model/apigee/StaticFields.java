@@ -35,4 +35,6 @@ public class StaticFields {
 
   public static final String V1_ORGANIZATIONS_PATH="/v1/organizations/";
   public static final String PRODUCTS_PATH="/apiproducts?expand=true";
+
+  public static final String EMAIL_SUBJECT_JOB_APPLICATION ="New Job Application | %s";
 }

@@ -187,6 +187,16 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		swaggerVO.setLock(false);
 		swaggerVO.setId(null);
 		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
+		try {
+			OpenAPI openAPI = new OpenAPIParser().readContents(swaggerVO.getSwagger(), null, null)
+					.getOpenAPI();
+			if (openAPI.getExtensions() != null
+					&& openAPI.getExtensions().get("x-ibm-configuration") != null) {
+				swaggerVO.setSwagger(apicUtil.getPolicyTemplatesForOpenApi(swaggerVO.getSwagger(), openAPI));
+			}
+		} catch (Exception e) {
+			log.error("Exception occurred", e);
+		}
 		Swagger3VO details = baseRepository.save(swaggerVO);
 		log("createSwagger", swaggerVO.getInteractionid(), details);
 		return details;
@@ -4649,7 +4659,7 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 		om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		File file = createSwaggerFile(scmUpload.getSwaggerName(), om.readTree(scmUpload.getSwagger()).toPrettyString(),
-				scmUpload.getFolderName(),scmUpload.getRevision());
+				scmUpload.getFolderName(),revisionNo);
 		String commitMessage = scmUpload.getCommitMessage();
 		if (commitMessage == null) {
 			commitMessage = "Pushed " + scmUpload.getSwaggerName() + " to " + scmUpload.getFolderName() + " in " + scmUpload.getRepoName();
@@ -4707,10 +4717,10 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		Files.write(Paths.get(fileLocation), swagger.getBytes());
 		return new File(location);
 	}
-	private File createSwaggerFile(String swaggerName, String swagger, String folder, int revision) throws IOException {
+	private File createSwaggerFile(String swaggerName, String swagger, String folder, String revision) throws IOException {
 		String separatorChar = String.valueOf(File.separatorChar);
 		String revStr = separatorChar + "swagger" + separatorChar + swaggerName + separatorChar
-				+ String.valueOf(revision);
+				+ revision;
 		folder = folder != null && !folder.isEmpty() ? folder + revStr : "Swagger" + revStr;
 		String location = applicationProperties.getTempDir() + System.currentTimeMillis();
 		String fileLocation = location + separatorChar + folder + separatorChar + swaggerName + ".json";
