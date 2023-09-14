@@ -462,4 +462,16 @@ public class BaseRepository {
 
 		return sortOperation;
 	}
+
+  public List<Document> getSwaggersForConnectors( Class<?> clazz){
+    ProjectionOperation projectionOperation = project().andExclude("_id").andInclude("name","status","swaggerId","revision");
+    Criteria criteria = new Criteria().orOperator(Criteria.where(STATUS).is("Approved"),
+        Criteria.where("status").is("Publish"));
+    MatchOperation matchOperation = match(criteria);
+    GroupOperation groupOperation = group("name").push("$$ROOT")
+        .as("revisions");
+    AggregationResults<Document> results = mongoTemplate.aggregate(newAggregation(projectionOperation,matchOperation, groupOperation),
+        clazz, Document.class);
+    return results.getMappedResults();
+  }
 }

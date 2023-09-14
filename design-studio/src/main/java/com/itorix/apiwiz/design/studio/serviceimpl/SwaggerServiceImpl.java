@@ -56,6 +56,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -3095,4 +3096,10 @@ public class SwaggerServiceImpl implements SwaggerService {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+  @Override
+  public ResponseEntity<List<Document>> getListOfSwaggersForConnectors(String jsessionid, String oas){
+    log.info("Getting swaggers list for connectors");
+    return new ResponseEntity<>(swaggerBusiness.getSwaggersForConnectors(oas),HttpStatus.OK);
+  }
 }

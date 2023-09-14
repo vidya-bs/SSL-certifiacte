@@ -5325,4 +5325,13 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		executionEvent.setStatus(ComplianceScannerExecutionEvent.STATUSES.SCHEDULED.getValue());
 		return mongoTemplate.save(executionEvent).getId();
 	}
+
+  @Override
+  public List<Document> getSwaggersForConnectors(String oas){
+    if(oas.equals("2.0")) {
+      return baseRepository.getSwaggersForConnectors(SwaggerVO.class);
+    }else{
+      return baseRepository.getSwaggersForConnectors(Swagger3VO.class);
+    }
+  }
 }
