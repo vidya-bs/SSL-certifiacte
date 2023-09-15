@@ -127,7 +127,7 @@ public class ScmMinifiedUtil {
 		// SourceDirectory=new File(directory + separatorChar +"API");
 		File workingDirectory;
 		String time = Long.toString(System.currentTimeMillis());
-		String tempDirectory = System.getProperty("java.io.tmpdir") + System.currentTimeMillis();
+		String tempDirectory = applicationProperties.getTempDir() + System.currentTimeMillis();
 		File cloningDirectory = new File(tempDirectory);
 		Git git;
 		if (branch != null && !branch.isEmpty()) {
