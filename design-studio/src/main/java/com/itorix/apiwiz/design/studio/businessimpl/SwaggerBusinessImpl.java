@@ -220,6 +220,16 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		swaggerVO.setLock(false);
 		swaggerVO.setId(null);
 		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
+		try {
+			Swagger swagger = convertToSwagger(swaggerVO.getSwagger());
+			if (swagger.getVendorExtensions() != null
+					&& swagger.getVendorExtensions().get("x-ibm-configuration") != null) {
+				swaggerVO.setSwagger(apicUtil.getPolicyTemplates(swaggerVO.getSwagger()));
+			}
+
+		} catch (Exception e) {
+			log.error("Exception occurred", e);
+		}
 		baseRepository.save(swaggerVO);
 		return true;
 	}
@@ -242,6 +252,16 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 		swaggerVO.setLock(false);
 		swaggerVO.setId(null);
 		swaggerVO.setSwaggerId(UUID.randomUUID().toString().replaceAll("-", ""));
+		try {
+			OpenAPI openAPI = new OpenAPIParser().readContents(swaggerVO.getSwagger(), null, null)
+					.getOpenAPI();
+			if (openAPI.getExtensions() != null
+					&& openAPI.getExtensions().get("x-ibm-configuration") != null) {
+				swaggerVO.setSwagger(apicUtil.getPolicyTemplatesForOpenApi(swaggerVO.getSwagger(), openAPI));
+			}
+		} catch (Exception e) {
+			log.error("Exception occurred", e);
+		}
 		baseRepository.save(swaggerVO);
 		return true;
 	}
@@ -615,6 +635,16 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			swaggerVO.setId(null);
 			swaggerVO.setSwaggerId(vo.getSwaggerId());
 			SwaggerVO details = baseRepository.save(swaggerVO);
+			try {
+				Swagger swagger = convertToSwagger(swaggerVO.getSwagger());
+				if (swagger.getVendorExtensions() != null
+						&& swagger.getVendorExtensions().get("x-ibm-configuration") != null) {
+					swaggerVO.setSwagger(apicUtil.getPolicyTemplates(swaggerVO.getSwagger()));
+				}
+
+			} catch (Exception e) {
+				log.error("Exception occurred", e);
+			}
 			SwaggerIntegrations swaggerIntegrations=getGitIntegrations(interactionid, jsessionid,
 					vo.getSwaggerId(), "2.0");
 			if(swaggerIntegrations!=null&&swaggerIntegrations.isEnableScm()){
@@ -664,6 +694,16 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 			swaggerVO.setLock(false);
 			swaggerVO.setId(null);
 			swaggerVO.setSwaggerId(vo.getSwaggerId());
+			try {
+				OpenAPI openAPI = new OpenAPIParser().readContents(swaggerVO.getSwagger(), null, null)
+						.getOpenAPI();
+				if (openAPI.getExtensions() != null
+						&& openAPI.getExtensions().get("x-ibm-configuration") != null) {
+					swaggerVO.setSwagger(apicUtil.getPolicyTemplatesForOpenApi(swaggerVO.getSwagger(), openAPI));
+				}
+			} catch (Exception e) {
+				log.error("Exception occurred", e);
+			}
 			Swagger3VO details = baseRepository.save(swaggerVO);
 			SwaggerIntegrations swaggerIntegrations=getGitIntegrations(interactionid, jsessionid,
 					vo.getSwaggerId(), "3.0");
