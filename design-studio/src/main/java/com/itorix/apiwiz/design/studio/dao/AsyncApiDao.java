@@ -101,7 +101,7 @@ public class AsyncApiDao {
 			throws ItorixException {
 		List<AsyncApi> asyncApiList = findAsyncApiWithName(asyncApiObj.getName());
 		if (!asyncApiList.isEmpty()) {
-			createAsyncApiRevision(jsessionId, asyncApiList.get(0).getAsyncApiId(), asyncApiObj.getAsyncApi());
+			createAsyncApiRevision(jsessionId, asyncApiList.get(0).getAsyncApiId(), asyncApiObj.getAsyncApi(),null);
 		} else {
 			asyncApiObj.setRevision(1);
 			asyncApiObj.setAsyncApiId(UUID.randomUUID().toString().replaceAll("-", ""));
@@ -604,9 +604,16 @@ public class AsyncApiDao {
 		}
 	}
 
-	public void createAsyncApiRevision(String jsessionId,String asyncId, String asyncapi)
+	public void createAsyncApiRevision(String jsessionId,String asyncId, String asyncapi,Integer revision)
 			throws ItorixException{
-		AsyncApi existing = getExistingAsyncById(asyncId);
+		AsyncApi existing;
+		if(revision!=null){
+			Query query=new Query();
+			query.addCriteria(Criteria.where("asyncApiId").is(asyncId)).addCriteria(Criteria.where("revision").is(revision));
+			existing=mongoTemplate.findOne(query, AsyncApi.class);
+		}else {
+			existing = getExistingAsyncById(asyncId);
+		}
 		if(existing!=null){
 			AsyncApi asyncApiObj = new AsyncApi();
 			UserSession user = getUser(jsessionId);

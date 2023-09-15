@@ -82,6 +82,7 @@ public interface AsyncApiService {
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@PathVariable("asyncId") String asyncId,
+			@RequestParam(value = "revision",required = false)Integer revision,
 			@RequestBody String asyncapi) throws Exception;
 
   @PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
