@@ -92,10 +92,11 @@ public class GraphQLServiceImpl implements GraphQLService {
   }
 
   @Override
-  public ResponseEntity<?> createNewRevision(String interactionid, String jsessionid, String graphQLId,
+  public ResponseEntity<?> createNewRevision(String interactionid, String jsessionid, String graphQLId, Integer revision,
       GraphQLData graphqlSchema) throws ItorixException {
     GraphQL checkGraphQL = new GraphQL();
     checkGraphQL.setGraphQLId(graphQLId);
+    checkGraphQL.setRevision(revision);
     GraphQL graphQL = graphQLBusiness.findGraphQL(checkGraphQL);
     String graphQLData = graphqlSchema.getData()!=null ? graphqlSchema.getData() : "";
     checkGraphQL.setGraphQLSchema(graphQLData);

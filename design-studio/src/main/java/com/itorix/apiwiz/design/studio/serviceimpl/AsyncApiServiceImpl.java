@@ -102,9 +102,9 @@ public class AsyncApiServiceImpl implements AsyncApiService {
 
 	@Override
 	public ResponseEntity<?> createAsyncApiRevision(String interactionid, String jsessionid,
-			String asyncId, String asyncapi) throws Exception {
+			String asyncId, Integer revision,String asyncapi) throws Exception {
 		AsyncApi existingAsyncApi = asyncApiDao.getExistingAsyncById(asyncId);
-		asyncApiDao.createAsyncApiRevision(jsessionid,asyncId,asyncapi);
+		asyncApiDao.createAsyncApiRevision(jsessionid,asyncId,asyncapi,revision);
 		notificationBusiness.instantiateNotification(jsessionid, existingAsyncApi.getName(), existingAsyncApi.getCreatedBy(), "AsyncApi", "AsyncApi Revision has been created for "  );
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
