@@ -822,7 +822,7 @@ public class DictionaryBusinessImpl implements DictionaryBusiness {
 		String revStr = separatorChar + "datadictionary" + separatorChar + dictionaryName;
 		folder = folder != null && !folder.isEmpty() ? folder + revStr : "DataDictionary" + revStr;
 		String providedFolderName = folder;
-		String location = System.getProperty("java.io.tmpdir") + System.currentTimeMillis();
+		String location = applicationProperties.getTempDir() + System.currentTimeMillis();
 		modelMap.keySet().parallelStream().forEach(modelName ->{
 			modelMap.get(modelName).keySet().parallelStream().forEach(modelRevision ->{
 				String fileLocation = location + separatorChar + providedFolderName + separatorChar + dictionaryRevision + separatorChar + modelName + separatorChar + modelRevision + ".json";

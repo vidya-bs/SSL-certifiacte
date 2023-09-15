@@ -54,6 +54,7 @@ public interface GraphQLService {
   public ResponseEntity<?> createNewRevision(@RequestHeader(value = "interactionid", required = false) String interactionid,
       @RequestHeader(value = "JSESSIONID") String jsessionid,
       @PathVariable(value = "graphqlId")String graphqlId,
+      @RequestParam(value = "revision",required = false)Integer revision,
       @RequestBody GraphQLData graphqlSchema)throws ItorixException;
 
   @PreAuthorize("hasAnyAuthority('STARTER','GROWTH','ENTERPRISE')")
