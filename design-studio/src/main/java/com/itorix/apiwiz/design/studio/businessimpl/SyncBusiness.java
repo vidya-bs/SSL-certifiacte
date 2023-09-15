@@ -2,6 +2,7 @@ package com.itorix.apiwiz.design.studio.businessimpl;
 
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.scm.ScmMinifiedUtil;
 import com.itorix.apiwiz.design.studio.model.AsyncApi;
 import com.itorix.apiwiz.design.studio.model.GraphQL;
@@ -25,6 +26,9 @@ import static com.itorix.apiwiz.design.studio.dao.AsyncApiDao.ASYNC;
 public class SyncBusiness {
     @Autowired
     private ScmMinifiedUtil scmUtilImpl;
+
+    @Autowired
+    private ApplicationProperties applicationProperties;
     public void sync2Repo(AsyncApi asyncApi, GraphQL graphQL, String module) throws Exception {
         if (asyncApi == null && graphQL == null) {
             log.error("Invalid SCM Credentials");
@@ -104,7 +108,7 @@ public class SyncBusiness {
         String revStr = separatorChar + module + separatorChar + name;
         folder = folder != null && !folder.isEmpty() ? folder + revStr : module + revStr;
         String providedFolderName = folder;
-        String location = System.getProperty("java.io.tmpdir") + System.currentTimeMillis();
+        String location = applicationProperties.getTempDir() + System.currentTimeMillis();
         String fileLocation = location + separatorChar + providedFolderName + separatorChar + revision + separatorChar + name + separatorChar + revision + fileExtension;
         File file = new File(fileLocation);
         file.getParentFile().mkdirs();
