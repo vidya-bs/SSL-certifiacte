@@ -146,12 +146,12 @@ public class DataTypeConverter {
   };
   public ObjectNode getDataType(String type){
     if(!type.isEmpty() && type.charAt(0) == '_'){
-      return OBJECT_MAPPER.createObjectNode().put("type","array").set("items",map.get(type.substring(1)));
+      return OBJECT_MAPPER.createObjectNode().put("type","array").set("items",map.get(type.substring(1))).deepCopy();
     }
-    ObjectNode objType = map.get(type);
+    ObjectNode objType = map.get(type).deepCopy();
     if (objType == null){
       log.debug("Custom datatype is not available, Falling back to default datatype string");
-      objType = map.get("string");
+      objType = map.get("string").deepCopy();
     }
     return objType;
   }
