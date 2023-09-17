@@ -64,6 +64,7 @@ public class MongoDbConnector {
             } catch (Exception ex){
                 logger.error("Exception occurred -", ex);
             }
+            mongoDBConfiguration.setUrl(url);
             if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
@@ -107,6 +108,7 @@ public class MongoDbConnector {
             } catch (Exception ex){
                 logger.error("Exception occurred -", ex);
             }
+            mongoDBConfiguration.setUrl(url);
             if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
@@ -154,6 +156,7 @@ public class MongoDbConnector {
             } catch (Exception ex){
                 logger.error("Exception occurred -", ex);
             }
+            mongoDBConfiguration.setUrl(url);
             if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
@@ -216,6 +219,7 @@ public class MongoDbConnector {
             } catch (Exception ex){
                 logger.error("Exception occurred -", ex);
             }
+            mongoDBConfiguration.setUrl(url);
             if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
@@ -287,6 +291,7 @@ public class MongoDbConnector {
             } catch (Exception ex){
                 logger.error("Exception occurred -", ex);
             }
+            mongoDBConfiguration.setUrl(url);
             if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
