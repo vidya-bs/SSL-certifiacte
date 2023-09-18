@@ -46,7 +46,7 @@ public class MySqlSSHConnection {
     MySqlSSH mySqlSSH = sqlConfiguration.getSsh();
 
     SshAuthType authType = mySqlSSH.getSshAuthType();
-    if(authType == SshAuthType.NONE){
+    if(authType == null || authType == SshAuthType.NONE){
       return;
     } else if (authType == SshAuthType.IDENTITYFILE ) {
       // key file byte data and passphrase

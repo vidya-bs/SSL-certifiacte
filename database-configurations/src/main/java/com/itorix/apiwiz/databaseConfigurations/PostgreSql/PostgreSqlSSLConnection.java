@@ -55,7 +55,7 @@ public class PostgreSqlSSLConnection {
     public void buildProperties(Properties properties, PostgreSQLSSL postgreSQLSsl, ClientConnection postgresConnection) throws IOException, ItorixException {
 
         // SSL Mode
-        if (postgreSQLSsl.getSslMode() == PostgresSslAuthType.disable) {
+        if (postgreSQLSsl.getSslMode() == null || postgreSQLSsl.getSslMode() == PostgresSslAuthType.disable) {
             return;
         }
         if (postgreSQLSsl.getSslMode() != null) {

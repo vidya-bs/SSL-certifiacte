@@ -45,7 +45,7 @@ public class PostgreSqlSSHConnection {
     }
 
     SshAuthType authType = postgreSQLSsh.getSshAuthenticationType();
-    if(authType == SshAuthType.NONE){
+    if(authType == null || authType == SshAuthType.NONE){
       return;
     } else if (authType == SshAuthType.IDENTITYFILE ) {
       // key file byte data and passphrase

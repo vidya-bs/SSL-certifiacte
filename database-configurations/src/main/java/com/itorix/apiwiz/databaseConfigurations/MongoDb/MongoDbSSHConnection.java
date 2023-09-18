@@ -48,7 +48,7 @@ public class MongoDbSSHConnection {
 
         MongoDbSshAuthType authType = mongoSsh.getSshAuthType();
 
-        if(authType == MongoDbSshAuthType.NONE){
+        if(authType == null || authType == MongoDbSshAuthType.NONE){
             return;
         } else if (authType == MongoDbSshAuthType.IDENTITYFILE) {
             // key file byte data and passphrase
