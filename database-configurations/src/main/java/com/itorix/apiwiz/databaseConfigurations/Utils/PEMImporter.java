@@ -133,10 +133,13 @@ public class PEMImporter {
         return privateKey;
     }
 
-    public String convertOpenSSHtoRSA(String privateKey) throws InvalidPassphraseException, IOException {
+    public String convertOpenSSHtoRSA(String privateKey, String passphrase) throws InvalidPassphraseException, IOException {
         try {
-            SshKeyPair key = SshKeyUtils.getPrivateKey(privateKey, "");
-            String rsaKey = new String(new OpenSSHPrivateKeyFileBC(key, "").getFormattedKey());
+            if (passphrase==null){
+                passphrase = "";
+            }
+            SshKeyPair key = SshKeyUtils.getPrivateKey(privateKey, passphrase);
+            String rsaKey = new String(new OpenSSHPrivateKeyFileBC(key, passphrase).getFormattedKey());
             return rsaKey;
         } catch (Exception ex) {
             logger.error("Exception occurred while converting openssh to rsa key format - ", ex);
