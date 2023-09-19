@@ -5,6 +5,7 @@ import com.itorix.apiwiz.common.model.databaseconfigs.postgress.PostgreSQLSSL;
 import com.itorix.apiwiz.common.model.databaseconfigs.postgress.PostgresSslAuthType;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.databaseConfigurations.Utils.PEMImporter;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -36,6 +37,9 @@ public class PostgreSqlSSLConnection {
     @Autowired
     PEMImporter pemImporter;
 
+    @Autowired
+    private RSAEncryption rsaEncryption;
+
     @PostConstruct
     public void createTempDirectory() {
         if (Files.notExists(Path.of(TEMP_PATH))) {
@@ -51,7 +55,7 @@ public class PostgreSqlSSLConnection {
     public void buildProperties(Properties properties, PostgreSQLSSL postgreSQLSsl, ClientConnection postgresConnection) throws IOException, ItorixException {
 
         // SSL Mode
-        if (postgreSQLSsl.getSslMode() == PostgresSslAuthType.disable) {
+        if (postgreSQLSsl.getSslMode() == null || postgreSQLSsl.getSslMode() == PostgresSslAuthType.disable) {
             return;
         }
         if (postgreSQLSsl.getSslMode() != null) {
@@ -84,6 +88,13 @@ public class PostgreSqlSSLConnection {
             try {
                 String clientKeyDER = TEMP_PATH + File.separatorChar + CLIENT_KEY + "-" + time + DER_FILE_EXTENSION;
                 String clientKeyPassword = postgreSQLSsl.getSslClientcertkeyPassWord();
+                if(clientKeyPassword != null && !clientKeyPassword.isEmpty() ) {
+                    try {
+                        clientKeyPassword = rsaEncryption.decryptText(clientKeyPassword);
+                    } catch (Exception ex) {
+                        throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "Postgresql! Unable to decrypt the client key password"), "DatabaseConfiguration-1002");
+                    }
+                }
                 pemImporter.convertPEMToDER(postgreSQLSsl.getSslClientcertkey(), clientKeyDER, clientKeyPassword);
                 properties.put(POSTGRES_SSLKEY, clientKeyDER);
                 certFiles.add(clientKeyDER);

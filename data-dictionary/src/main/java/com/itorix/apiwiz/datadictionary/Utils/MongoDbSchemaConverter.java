@@ -268,6 +268,7 @@ public class MongoDbSchemaConverter {
             if(jsonNode.get(key) != null){
                 ObjectNode innerJsonNode = (ObjectNode) jsonNode.get(key);
                 ArrayList<?> objArray = (ArrayList<?>) obj;
+                innerJsonNode.put("type", "array");  // check for the properties already exists
                 if (objArray != null && objArray.size() > 0) {
                     linearDataType(((ArrayList<?>) obj).get(0), innerJsonNode, "items");
                 }
@@ -290,11 +291,7 @@ public class MongoDbSchemaConverter {
             }
             for(String objKey: ((Document) obj).keySet()){
                 Object object = ((Document) obj).get(objKey);
-                if( object instanceof Document){
-                    linearDataType(object, childNode, objKey);
-                } else {
-                    linearDataType(object, childNode, objKey);
-                }
+                linearDataType(object, childNode, objKey);
             }
             ObjectNode parentNode = OBJECT_MAPPER.createObjectNode()
                     .put("type", "object")

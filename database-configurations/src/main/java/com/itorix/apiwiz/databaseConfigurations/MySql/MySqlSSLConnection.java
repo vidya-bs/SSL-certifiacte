@@ -51,7 +51,7 @@ public class MySqlSSLConnection {
 
     try {
       // SSL Mode
-      if(mySqlSsl.getSslMode() == MysqlSslAuthType.DISABLED){
+      if(mySqlSsl.getSslMode() == null || mySqlSsl.getSslMode() == MysqlSslAuthType.DISABLED){
         return;
       }
       properties.put("sslMode", mySqlSsl.getSslMode());

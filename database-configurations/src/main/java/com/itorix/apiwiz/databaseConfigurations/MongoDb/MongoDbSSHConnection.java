@@ -48,7 +48,7 @@ public class MongoDbSSHConnection {
 
         MongoDbSshAuthType authType = mongoSsh.getSshAuthType();
 
-        if(authType == MongoDbSshAuthType.NONE){
+        if(authType == null || authType == MongoDbSshAuthType.NONE){
             return;
         } else if (authType == MongoDbSshAuthType.IDENTITYFILE) {
             // key file byte data and passphrase
@@ -56,18 +56,20 @@ public class MongoDbSSHConnection {
             if (ssh == null) {
                 throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1000"),"ssh identityFile is required!"), "DatabaseConfiguration-1000");
             }
-            if (ssh.startsWith(BEGIN_OPENSSH_PRIVATE_KEY)) {
-                ssh = pemImporter.convertOpenSSHtoRSA(ssh);
-            }
             String passphrase = mongoSsh.getSshPassphrase();
-            if (passphrase == null) {
-                jSch.addIdentity(null, ssh.getBytes(), null, null);
-            } else {
+            if(passphrase != null && !passphrase.isEmpty() ) {
                 try {
                     passphrase = rsaEncryption.decryptText(passphrase);
                 } catch (Exception ex) {
-                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "mongodb! Unable to decrypt the password"), "DatabaseConfiguration-1002");
+                    throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "Mysql! Unable to decrypt the password"), "DatabaseConfiguration-1002");
                 }
+            }
+            if (ssh.startsWith(BEGIN_OPENSSH_PRIVATE_KEY)) {
+                ssh = pemImporter.convertOpenSSHtoRSA(ssh, passphrase);
+            }
+            if(passphrase == null || passphrase.isEmpty() ){
+                jSch.addIdentity(null, ssh.getBytes(), null, null);
+            } else {
                 jSch.addIdentity(null, ssh.getBytes(), null, passphrase.getBytes());
             }
         }
