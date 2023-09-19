@@ -4,6 +4,7 @@ import com.itorix.apiwiz.common.model.databaseconfigs.ClientConnection;
 import com.itorix.apiwiz.common.model.databaseconfigs.mongodb.MongoDBConfiguration;
 import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
@@ -44,6 +45,9 @@ public class SSLHelperUtility {
     @Value("${itorix.core.temp.directory}")
     private String KEY_STORE_DIRECTORY_PATH;
 
+    @Autowired
+    private RSAEncryption rsaEncryption;
+
 
     @PostConstruct
     public void createTempDirectory(){
@@ -60,6 +64,13 @@ public class SSLHelperUtility {
         String clientKey = mongoDBConfiguration.getSsl().getClientKey();
         String clientCert = mongoDBConfiguration.getSsl().getClientCertificate();
         String clientKeyPassword = mongoDBConfiguration.getSsl().getClientKeyPassword();
+        if(clientKeyPassword != null && !clientKeyPassword.isEmpty() ) {
+            try {
+                clientKeyPassword = rsaEncryption.decryptText(clientKeyPassword);
+            } catch (Exception ex) {
+                throw new ItorixException(String.format(ErrorCodes.errorMessage.get("DatabaseConfiguration-1002"), "Postgresql! Unable to decrypt the client key password"), "DatabaseConfiguration-1002");
+            }
+        }
         KeyStore keyStore = createKeyStoreFromCerts(caCert, clientCert, clientKey,clientKeyPassword, clientConnection);
         return getSSLContext(keyStore, caCert == null);
     }

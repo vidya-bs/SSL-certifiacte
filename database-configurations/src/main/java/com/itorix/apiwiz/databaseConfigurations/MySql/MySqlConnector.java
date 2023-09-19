@@ -58,7 +58,7 @@ public class MySqlConnector {
             if(sqlConfiguration.getSsh() != null) {
                 sshconnection.prepareSshTunnel(sqlConfiguration, mysqlConnection);
             }
-            if(sqlConfiguration.getSsl() != null && sqlConfiguration.getSsl().getSslMode() != MysqlSslAuthType.DISABLED ){
+            if(sqlConfiguration.getSsl() != null ){
                 sslConnection.buildProperties(properties, sqlConfiguration.getSsl(), mysqlConnection);
             }
             String hostUrl =String.format("jdbc:mysql://%s:%s", mysqlConnection.getHost(), mysqlConnection.getPort());
@@ -100,7 +100,7 @@ public class MySqlConnector {
             if(sqlConfiguration.getSsh() != null) {
                 sshconnection.prepareSshTunnel(sqlConfiguration, mysqlConnection);
             }
-            if(sqlConfiguration.getSsl() != null && sqlConfiguration.getSsl().getSslMode() != MysqlSslAuthType.DISABLED ){
+            if(sqlConfiguration.getSsl() != null ){
                 sslConnection.buildProperties(properties, sqlConfiguration.getSsl(), mysqlConnection);
             }
             String hostUrl =String.format("jdbc:mysql://%s:%s", mysqlConnection.getHost(), mysqlConnection.getPort());
@@ -146,7 +146,7 @@ public class MySqlConnector {
             if(sqlConfiguration.getSsh() != null) {
                 sshconnection.prepareSshTunnel(sqlConfiguration, mysqlConnection);
             }
-            if(sqlConfiguration.getSsl() != null && sqlConfiguration.getSsl().getSslMode() != MysqlSslAuthType.DISABLED) {
+            if(sqlConfiguration.getSsl() != null) {
                 sslConnection.buildProperties(properties, sqlConfiguration.getSsl(), mysqlConnection);
             }
             String hostUrl =String.format("jdbc:mysql://%s:%s", mysqlConnection.getHost(), mysqlConnection.getPort());

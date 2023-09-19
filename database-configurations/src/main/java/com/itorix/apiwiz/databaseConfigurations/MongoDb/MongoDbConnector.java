@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.net.ssl.SSLContext;
+import java.net.URI;
 
 
 @Component
@@ -58,6 +59,12 @@ public class MongoDbConnector {
         }
         ClientConnection clientConnection = new ClientConnection();
         try {
+            try {
+                url = url.replace("authMechanism=DEFAULT","");
+            } catch (Exception ex){
+                logger.error("Exception occurred -", ex);
+            }
+            mongoDBConfiguration.setUrl(url);
             if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
@@ -96,6 +103,12 @@ public class MongoDbConnector {
         }
         ClientConnection clientConnection = new ClientConnection();
         try {
+            try {
+                url = url.replace("authMechanism=DEFAULT","");
+            } catch (Exception ex){
+                logger.error("Exception occurred -", ex);
+            }
+            mongoDBConfiguration.setUrl(url);
             if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
@@ -138,6 +151,12 @@ public class MongoDbConnector {
         try {
             SSLContext sslContext = sslHelperUtility.CreateKeystoreAndGetSSLContext(mongoDBConfiguration, clientConnection);
 
+            try {
+                url = url.replace("authMechanism=DEFAULT","");
+            } catch (Exception ex){
+                logger.error("Exception occurred -", ex);
+            }
+            mongoDBConfiguration.setUrl(url);
             if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
@@ -195,6 +214,12 @@ public class MongoDbConnector {
         String url = mongoDBConfiguration.getUrl();
         ClientConnection clientConnection = new ClientConnection();
         try {
+            try {
+                url = url.replace("authMechanism=DEFAULT","");
+            } catch (Exception ex){
+                logger.error("Exception occurred -", ex);
+            }
+            mongoDBConfiguration.setUrl(url);
             if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
@@ -261,6 +286,12 @@ public class MongoDbConnector {
         }
         ClientConnection clientConnection = new ClientConnection();
         try {
+            try {
+                url = url.replace("authMechanism=DEFAULT","");
+            } catch (Exception ex){
+                logger.error("Exception occurred -", ex);
+            }
+            mongoDBConfiguration.setUrl(url);
             if (mongoDBConfiguration.getSsh() != null && mongoDBConfiguration.getSsh().isEnabled() && MongoDbSshAuthType.NONE != mongoDBConfiguration.getSsh().getSshAuthType()) {
                 url = getSSHConnection(mongoDBConfiguration, clientConnection);
             }
@@ -289,8 +320,14 @@ public class MongoDbConnector {
     }
 
     private MongoClient createMongoClient(String url) {
+        try {
+            url = url.replace("authMechanism=DEFAULT","");
+        } catch (Exception ex){
+            logger.error("Exception occurred -", ex);
+        }
+        ConnectionString connectionString = new ConnectionString(url);
         MongoClientSettings settings = MongoClientSettings.builder()
-                .applyConnectionString(new ConnectionString(url)).build();
+                .applyConnectionString(connectionString).build();
         return MongoClients.create(settings);
     }
 
