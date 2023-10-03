@@ -8,8 +8,6 @@ import javax.annotation.PostConstruct;
 import javax.crypto.NoSuchPaddingException;
 
 import com.itorix.apiwiz.common.model.apigee.StaticFields;
-import com.itorix.apiwiz.identitymanagement.model.TenantContext;
-import com.itorix.apiwiz.marketing.careers.model.JobApplication;
 import com.itorix.apiwiz.marketing.contactus.model.*;
 import com.itorix.apiwiz.marketing.db.NotificationExecutorEntity;
 import com.itorix.apiwiz.marketing.db.NotificationExecutorSql;
@@ -18,12 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -33,7 +26,6 @@ import com.itorix.apiwiz.common.util.mail.EmailTemplate;
 import com.itorix.apiwiz.marketing.contactus.model.RequestModel.Type;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.multipart.MultipartFile;
 
 @Component
 @Slf4j
@@ -67,6 +59,9 @@ public class ContactUsDao {
 	@Value("${itorix.notification.contactSales.email.body:null}")
 	private String contactSalesEmailBody;
 
+	@Value("${itorix.notification.requestAudit.email.body:null}")
+	private String requestAuditReportEmailBody;
+
 	RSAEncryption rsaEncryption;
 
 	@PostConstruct
@@ -91,6 +86,8 @@ public class ContactUsDao {
 					emailTemplate.setBody(MessageFormat.format(contactSalesEmailBody,notificatoinEvent.getSubject(), emailBody.getName(),emailBody.getEmail(),emailBody.getCompany(),emailBody.getJobTitle(),emailBody.getMessage()));
 				}else if(StringUtils.equalsIgnoreCase(contactUsNotification.getEmailContent().getEvent(),StaticFields.EMAIL_SUBJECT_REQUEST_A_DEMO)){
 					emailTemplate.setBody(MessageFormat.format(bookDemoEmailBody,notificatoinEvent.getSubject(), emailBody.getName(),emailBody.getEmail(),emailBody.getCompany(),emailBody.getJobTitle(),emailBody.getMessage()));
+				}else if(StringUtils.equalsIgnoreCase(contactUsNotification.getEmailContent().getEvent(),StaticFields.REQUEST_AUDIT_REPORT_TAG)){
+					emailTemplate.setBody(MessageFormat.format(requestAuditReportEmailBody,notificatoinEvent.getSubject(), emailBody.getName(),emailBody.getEmail(),emailBody.getCompany(),emailBody.getJobTitle(),emailBody.getMessage()));
 				}else{
 					emailTemplate.setBody(contactUsNotification.getEmailContent().getBody().toHTML());
 				}
