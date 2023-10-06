@@ -41,13 +41,16 @@ https://drive.google.com/file/d/1daxPArY5o_1XDS-laJKS8KuoltH8DMgi/view?ts=628e56
 
  - Double click on the localhost and choose import and select JSON and click finish.
 
+ - If incase your premium trial version has expired then please ask for the mongodump folder export from a fellow developer. Instead of selecting JSON export select the 'BSON - mongodump folder' option.
+Make sure the mongodump folder is in this folder structure - foldername < folder where the exported .bson and .json files are present. Create new database and select it before importing the given mongodump folder. If successful then skip to the last step.
+ 
  - On the JSON import screen select add sources and select all the Json file inside the acme-team-dev folder in the dev folder you just downloaded.
 
  - Do the same for the apiwiz folder.
 
 **CLONING AND INSTALLING REPOSITORIES**
 
- - Clone the repositories (1.apiwiz-core-platform-api and 2.apiwiz-non-prod-config) from the Itorix git repository and import the apiwiz-core-platform-api to you IDE in a new workspace.
+ - Clone the repositories (1.apiwiz-core-platform-api-v2, 2.apiwiz-non-prod-config, 3.apiwiz-ratelimit) from the Itorix git repository and import the apiwiz-core-platform-api to you IDE in a new workspace.
 
  - In the terminal go to apiwiz-core-platform-api and enter `mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true`
 
