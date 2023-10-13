@@ -11,7 +11,9 @@ import com.itorix.apiwiz.common.model.apigee.StaticFields;
 import com.itorix.apiwiz.marketing.contactus.model.*;
 import com.itorix.apiwiz.marketing.db.NotificationExecutorEntity;
 import com.itorix.apiwiz.marketing.db.NotificationExecutorSql;
+import com.itorix.apiwiz.marketing.events.model.UserEvent;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -131,5 +133,10 @@ public class ContactUsDao {
 		notificationExecutionEvent.setStatus(NotificationExecutionEvent.STATUSES.SCHEDULED.getValue());
 		masterMongoTemplate.save(notificationExecutionEvent);
 		return notificationExecutionEvent.getId();
+	}
+
+	public void saveUserEvent(UserEvent userEvent){
+		if(!masterMongoTemplate.exists(new Query(Criteria.where("email").is(userEvent.getEmail()).and("event").is(userEvent.getEvent())), UserEvent.class))
+			masterMongoTemplate.save(userEvent);
 	}
 }

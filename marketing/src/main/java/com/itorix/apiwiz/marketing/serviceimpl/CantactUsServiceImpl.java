@@ -3,6 +3,7 @@ package com.itorix.apiwiz.marketing.serviceimpl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.itorix.apiwiz.marketing.events.model.UserEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,5 +45,12 @@ public class CantactUsServiceImpl implements CantactUsService {
 		List<String> configs = contactUsDao.getNotificationConfigs().stream().filter(o -> !o.getName().isEmpty())
 				.map(o -> o.getName()).collect(Collectors.toList());
 		return new ResponseEntity<>(configs, HttpStatus.OK);
+	}
+
+	@Override
+	@UnSecure(ignoreValidation = true)
+	public ResponseEntity<?> storeUserEvent(String interactionid, String apikey, UserEvent userEvent) {
+		contactUsDao.saveUserEvent(userEvent);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 }
