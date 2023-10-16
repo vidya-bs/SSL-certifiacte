@@ -10,7 +10,6 @@ import java.io.Serializable;
 public class ConnectorCardResponse extends ConnectorCardRequest implements Serializable {
 
 	@Id
-	@JsonProperty("_id")
 	private String id;
 
 	private long cts;

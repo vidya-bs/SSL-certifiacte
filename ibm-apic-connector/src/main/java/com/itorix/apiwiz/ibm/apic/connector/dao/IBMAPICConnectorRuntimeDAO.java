@@ -47,7 +47,7 @@ public class IBMAPICConnectorRuntimeDAO {
 		connectorCardResponse.setCreatedBy(name);
 		connectorCardResponse.setModifiedBy(name);
 
-		return connectorCardResponse;
+		return mongoTemplate.save(connectorCardResponse);
 	}
 	public ConnectorCardResponse updateConnector(ConnectorCardResponse updatedConnectorConfig, String jsessionId)
 			throws Exception {

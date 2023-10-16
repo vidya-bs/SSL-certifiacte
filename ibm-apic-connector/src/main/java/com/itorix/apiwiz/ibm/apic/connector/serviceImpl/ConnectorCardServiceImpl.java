@@ -5,6 +5,7 @@ import com.itorix.apiwiz.ibm.apic.connector.dao.IBMAPICConnectorRuntimeDAO;
 import com.itorix.apiwiz.ibm.apic.connector.model.ConnectorCardRequest;
 import com.itorix.apiwiz.ibm.apic.connector.model.ConnectorCardResponse;
 import com.itorix.apiwiz.ibm.apic.connector.service.ConnectorCardService;
+import com.itorix.apiwiz.ibm.apic.connector.util.IBMAPICSpecUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class ConnectorCardServiceImpl implements ConnectorCardService {
 	@Autowired
 	private IBMAPICConnectorRuntimeDAO ibmapicConnectorRuntimeDAO;
 
+	@Autowired
+	private IBMAPICSpecUtil ibmapicSpecUtil;
+
 	@Override
 	public ResponseEntity<Object> getAllConnectors(String interactionid,
 			String jsessionid) throws ItorixException, Exception {
@@ -43,7 +47,9 @@ public class ConnectorCardServiceImpl implements ConnectorCardService {
 		try{
 			ConnectorCardResponse connectorCardResponse = ibmapicConnectorRuntimeDAO.insertConnector(connectorCardRequest,jsessionid);
 			if(connectorCardResponse != null){
-				return new ResponseEntity<>(connectorCardResponse,HttpStatus.OK);
+				//Move this util function to scheduler - takes 3 seconds for 10 APIs => 150 seconds for 500 APIs
+				ibmapicSpecUtil.importSpecsFromIBMAPIC(connectorCardRequest.getOrgName());
+				return new ResponseEntity<>(connectorCardResponse,HttpStatus.CREATED);
 			}else{
 				logger.error(String.format("%s :: %s", ErrorCodes.errorMessage.get("IBM-APIC-Connector-2"),"connectorCardResponse is null"));
 				return response(ErrorCodes.errorMessage.get("IBM-APIC-Connector-2"),HttpStatus.INTERNAL_SERVER_ERROR);
