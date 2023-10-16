@@ -106,8 +106,8 @@ public class IdentityManagementDao {
     @PostConstruct
     private void initDBProperties() {
         applicationProperties = getDBApplicationProperties();
-//        getRegionData();
-//        getPodHost();
+        getRegionData();
+        getPodHost();
     }
 
 	private void getRegionData() {
