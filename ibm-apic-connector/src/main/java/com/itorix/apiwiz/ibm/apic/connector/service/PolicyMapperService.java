@@ -11,18 +11,18 @@ import java.util.Map;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/v1/ibm-apic")
+@RequestMapping("/v1/ibm-apic/policy-map")
 public interface PolicyMapperService {
 
 	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.GET, value = "/policy-map/api-dropdown")
+	@RequestMapping(method = RequestMethod.GET, value = "/api-dropdown")
 	public ResponseEntity<Object> getAPIDropdownList(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid
 	) throws ItorixException, Exception;
 
 	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.POST, value = "/policy-map")
+	@RequestMapping(method = RequestMethod.POST, value = "/")
 	public ResponseEntity<Object> fetchPolicyMapForSelectedAPIs(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
@@ -32,7 +32,7 @@ public interface PolicyMapperService {
 	) throws ItorixException, Exception;
 
 	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.PUT, value = "/policy-map")
+	@RequestMapping(method = RequestMethod.PUT, value = "/")
 	public ResponseEntity<Object> updatePolicyMap(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
@@ -40,7 +40,7 @@ public interface PolicyMapperService {
 	) throws ItorixException, Exception;
 
 	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.GET, value = "/policy-map/apigee/policies")
+	@RequestMapping(method = RequestMethod.GET, value = "/apigee/policies")
 	public ResponseEntity<Object> getApigeePolicies(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
