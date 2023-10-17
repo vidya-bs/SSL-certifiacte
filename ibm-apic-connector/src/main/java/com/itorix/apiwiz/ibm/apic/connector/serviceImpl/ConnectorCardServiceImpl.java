@@ -47,8 +47,7 @@ public class ConnectorCardServiceImpl implements ConnectorCardService {
 		try{
 			ConnectorCardResponse connectorCardResponse = ibmapicConnectorRuntimeDAO.insertConnector(connectorCardRequest,jsessionid);
 			if(connectorCardResponse != null){
-				//Move this util function to scheduler - takes 3 seconds for 10 APIs => 150 seconds for 500 APIs
-				ibmapicSpecUtil.importSpecsFromIBMAPIC(connectorCardRequest.getOrgName());
+				ibmapicConnectorRuntimeDAO.createOneTimeImportSchedule(connectorCardResponse.getOrgName());
 				return new ResponseEntity<>(connectorCardResponse,HttpStatus.CREATED);
 			}else{
 				logger.error(String.format("%s :: %s", ErrorCodes.errorMessage.get("IBM-APIC-Connector-2"),"connectorCardResponse is null"));

@@ -3,6 +3,7 @@ package com.itorix.apiwiz.ibm.apic.connector.dao;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.ibm.apic.connector.model.ConnectorCardRequest;
 import com.itorix.apiwiz.ibm.apic.connector.model.ConnectorCardResponse;
+import com.itorix.apiwiz.ibm.apic.connector.model.IBMAPICSpecSchedule;
 import com.itorix.apiwiz.identitymanagement.dao.IdentityManagementDao;
 import com.itorix.apiwiz.identitymanagement.model.UserSession;
 import lombok.extern.slf4j.Slf4j;
@@ -75,5 +76,12 @@ public class IBMAPICConnectorRuntimeDAO {
 	public void deleteConnector(String id) {
 		Query query = Query.query(Criteria.where("_id").is(id));
 		mongoTemplate.findAndRemove(query,ConnectorCardResponse.class);
+	}
+
+	public void createOneTimeImportSchedule(String orgName){
+		IBMAPICSpecSchedule schedule = new IBMAPICSpecSchedule();
+		schedule.setOrgName(orgName);
+		schedule.setStatus("READY");
+		mongoTemplate.save(schedule);
 	}
 }
