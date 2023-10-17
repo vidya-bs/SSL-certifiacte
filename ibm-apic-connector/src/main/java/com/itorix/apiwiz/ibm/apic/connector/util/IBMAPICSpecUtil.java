@@ -41,8 +41,8 @@ public class IBMAPICSpecUtil {
 
 
 
-	public List<APIDropdownListItem> getAPIDropdownList(){
-		Query oasWithIbmConfigsQuery = new Query(Criteria.where("swagger").regex("x-ibm-configuration"));
+	public List<APIDropdownListItem> getAPIDropdownList(String connectorId){
+		Query oasWithIbmConfigsQuery = new Query(Criteria.where("swagger").regex(connectorId));
 		List<APIDropdownListItem> oasWithIbmConfigs = new ArrayList<>();
 
 		List<Swagger3VO> oas3IbmSpecs = mongoTemplate.find(oasWithIbmConfigsQuery,Swagger3VO.class);
@@ -69,11 +69,11 @@ public class IBMAPICSpecUtil {
 		Collections.sort(oasWithIbmConfigs, Comparator.comparing(APIDropdownListItem::getName));
 		return oasWithIbmConfigs;
 	}
-	public Object fetchPolicyMapForSelectedAPIs(List<APIDropdownListItem> selectedAPIs,int pageSize, int offset) {
+	public Object fetchPolicyMapForSelectedAPIs(List<APIDropdownListItem> selectedAPIs,int pageSize, int offset,String connectorId) {
 		HashSet<String> policyNameFilter = new HashSet<>();
 		selectedAPIs.forEach(api->{
 			try{
-				List<String> ibmPolicyNames = getIbmPolicyNames(api.getSwaggerId(),api.getRevision(), api.getOasType());
+				List<String> ibmPolicyNames = getIbmPolicyNames(api.getSwaggerId(),api.getRevision(), api.getOasType(),connectorId);
 				policyNameFilter.addAll(ibmPolicyNames);
 			}catch (Exception ex){
 				logger.error("Error fetching policy names:" + ex.getMessage());
@@ -81,11 +81,13 @@ public class IBMAPICSpecUtil {
 		});
 
 		Query query = new Query(Criteria.where("ibmPolicyName").in(policyNameFilter));
+		query.addCriteria(Criteria.where("connectorId").is(connectorId));
 		Long total = mongoTemplate.count(query, PolicyMappingItem.class);
 
 		Query paginatedQuery = new Query().with(Sort.by(Sort.Direction.ASC, "ibmPolicyName"))
 				.skip(offset > 0 ? ((offset - 1) * pageSize) : 0).limit(pageSize);
 		paginatedQuery.addCriteria(Criteria.where("ibmPolicyName").in(policyNameFilter));
+		paginatedQuery.addCriteria(Criteria.where("connectorId").is(connectorId));
 
 		List<PolicyMappingItem> policies = mongoTemplate.find(paginatedQuery,PolicyMappingItem.class);
 		List<Map<String,String>> filteredPolicies = new ArrayList<>();
@@ -107,7 +109,7 @@ public class IBMAPICSpecUtil {
 		return paginatedResponse;
 	}
 
-	public List<String> getIbmPolicyNames(String swaggerId,Integer revision,String oasType)
+	public List<String> getIbmPolicyNames(String swaggerId,Integer revision,String oasType,String connectorId)
 			throws JsonProcessingException {
 		List<String> ibmPolicyNames = new ArrayList<>();
 		if(oasType.equalsIgnoreCase("2.0")){
@@ -118,9 +120,11 @@ public class IBMAPICSpecUtil {
 			ibmPolicyNames.addAll(getIbmPolicyNamesFromJson(vo.getSwagger()));
 			ibmPolicyNames.forEach(ibmPolicyName->{
 				Query policyQuery = new Query(Criteria.where("ibmPolicyName").is(ibmPolicyName));
+				policyQuery.addCriteria(Criteria.where("connectorId").is(connectorId));
 				Long count = mongoTemplate.count(policyQuery,PolicyMappingItem.class);
 				if(count == 0){
 					PolicyMappingItem policyMappingItem = new PolicyMappingItem();
+					policyMappingItem.setConnectorId(connectorId);
 					policyMappingItem.setIbmPolicyName(ibmPolicyName);
 					policyMappingItem.setApigeePolicyName("");
 					mongoTemplate.save(policyMappingItem);
@@ -135,9 +139,11 @@ public class IBMAPICSpecUtil {
 			ibmPolicyNames.addAll(getIbmPolicyNamesFromJson(vo.getSwagger()));
 			ibmPolicyNames.forEach(ibmPolicyName->{
 				Query policyQuery = new Query(Criteria.where("ibmPolicyName").is(ibmPolicyName));
+				policyQuery.addCriteria(Criteria.where("connectorId").is(connectorId));
 				Long count = mongoTemplate.count(policyQuery,PolicyMappingItem.class);
 				if(count == 0){
 					PolicyMappingItem policyMappingItem = new PolicyMappingItem();
+					policyMappingItem.setConnectorId(connectorId);
 					policyMappingItem.setIbmPolicyName(ibmPolicyName);
 					policyMappingItem.setApigeePolicyName("");
 					mongoTemplate.save(policyMappingItem);

@@ -25,10 +25,12 @@ public class PolicyMapDAO {
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
-	public void updatePolicyMap(List<Map<String, String>> updatedPolicyMap) {
+	public void updatePolicyMap(String connectorId,List<Map<String, String>> updatedPolicyMap) {
 		updatedPolicyMap.forEach(policyMapping->{
 			Query query = Query.query(Criteria.where("ibmPolicyName").is(policyMapping.get("ibmPolicyName")));
-			Update update = new Update().set("apigeePolicyName", policyMapping.get("apigeePolicyName"));
+			query.addCriteria(Criteria.where("connectorId").is(connectorId));
+			Update update = new Update()
+					.set("apigeePolicyName", policyMapping.get("apigeePolicyName"));
 			mongoTemplate.upsert(query, update, PolicyMappingItem.class);
 		});
 	}

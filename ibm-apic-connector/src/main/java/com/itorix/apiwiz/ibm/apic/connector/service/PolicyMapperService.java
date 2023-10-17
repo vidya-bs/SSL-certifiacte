@@ -18,24 +18,27 @@ public interface PolicyMapperService {
 	@RequestMapping(method = RequestMethod.GET, value = "/api-dropdown")
 	public ResponseEntity<Object> getAPIDropdownList(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid
+			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "connectorId", required = false) String connectorId
 	) throws ItorixException, Exception;
 
 	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.POST, value = "/")
+	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<Object> fetchPolicyMapForSelectedAPIs(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
 			@RequestBody List<APIDropdownListItem> selectedAPIs,
 			@RequestHeader(value = "pageSize", required = false,defaultValue = "10") int pageSize,
-			@RequestHeader(value = "offset", required = false,defaultValue = "1") int offset
+			@RequestHeader(value = "offset", required = false,defaultValue = "1") int offset,
+			@RequestHeader(value = "connectorId", required = false) String connectorId
 	) throws ItorixException, Exception;
 
 	@PreAuthorize("hasAnyAuthority('GROWTH','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.PUT, value = "/")
+	@RequestMapping(method = RequestMethod.PUT)
 	public ResponseEntity<Object> updatePolicyMap(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "JSESSIONID", required = false) String jsessionid,
+			@RequestHeader(value = "connectorId", required = false) String connectorId,
 			@RequestBody List<Map<String,String>> updatedPolicyMap
 	) throws ItorixException, Exception;
 

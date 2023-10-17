@@ -33,10 +33,10 @@ public class PolicyMapperServiceImpl implements PolicyMapperService {
 	private IBMAPICSpecUtil ibmapicSpecUtil;
 
 	@Override
-	public ResponseEntity<Object> getAPIDropdownList(String interactionid, String jsessionid)
+	public ResponseEntity<Object> getAPIDropdownList(String interactionid, String jsessionid,String connectorId)
 			throws ItorixException, Exception {
 		try{
-			return new ResponseEntity<>(ibmapicSpecUtil.getAPIDropdownList(),HttpStatus.OK);
+			return new ResponseEntity<>(ibmapicSpecUtil.getAPIDropdownList(connectorId),HttpStatus.OK);
 		}catch (Exception ex){
 			logger.error("Could Not Query OAS With IBM Configs:" + ex.getMessage());
 			return response("Could Not Query OAS With IBM Configs",HttpStatus.INTERNAL_SERVER_ERROR);
@@ -45,10 +45,10 @@ public class PolicyMapperServiceImpl implements PolicyMapperService {
 
 	@Override
 	public ResponseEntity<Object> fetchPolicyMapForSelectedAPIs(String interactionid, String jsessionid,
-			List<APIDropdownListItem> selectedAPIs, int pageSize, int offset)
+			List<APIDropdownListItem> selectedAPIs, int pageSize, int offset,String connectorId)
 			throws ItorixException, Exception {
 		try{
-			return new ResponseEntity<>(ibmapicSpecUtil.fetchPolicyMapForSelectedAPIs(selectedAPIs,pageSize,offset),HttpStatus.OK);
+			return new ResponseEntity<>(ibmapicSpecUtil.fetchPolicyMapForSelectedAPIs(selectedAPIs,pageSize,offset,connectorId),HttpStatus.OK);
 		}catch (Exception ex){
 			logger.error("Could Not Fetch Policies For Selected APIs:" + ex.getMessage());
 			return response("Could Not Fetch Policies For Selected APIs",HttpStatus.INTERNAL_SERVER_ERROR);
@@ -56,10 +56,10 @@ public class PolicyMapperServiceImpl implements PolicyMapperService {
 	}
 
 	@Override
-	public ResponseEntity<Object> updatePolicyMap(String interactionid, String jsessionid,
+	public ResponseEntity<Object> updatePolicyMap(String interactionid, String jsessionid, String connectorId,
 			List<Map<String,String>> updatedPolicyMap) throws ItorixException, Exception {
 		try{
-			policyMapDAO.updatePolicyMap(updatedPolicyMap);
+			policyMapDAO.updatePolicyMap(connectorId,updatedPolicyMap);
 			return new ResponseEntity<>(updatedPolicyMap,HttpStatus.OK);
 		}catch (Exception ex){
 			logger.error(String.format("%s :: %s", ErrorCodes.errorMessage.get("IBM-APIC-Connector-3"),ex.getMessage()));

@@ -9,20 +9,29 @@ public class PolicyMappingItem implements Serializable {
 
 	@Id
 	private String id;
+
+	private String connectorId;
 	private String ibmPolicyName;
 	private String apigeePolicyName;
 
 	public PolicyMappingItem() {
 	}
 
-	public PolicyMappingItem(String id,String ibmPolicyName, String apigeePolicyName) {
+	public PolicyMappingItem(String id,String connectorId,String ibmPolicyName, String apigeePolicyName) {
 		this.id = id;
+		this.connectorId = connectorId;
 		this.ibmPolicyName = ibmPolicyName;
 		this.apigeePolicyName = apigeePolicyName;
 	}
 
 	public String getId() {
 		return id;
+	}
+	public String getConnectorId() {
+		return connectorId;
+	}
+	public void setConnectorId(String connectorId) {
+		this.connectorId = connectorId;
 	}
 	public void setId(String id) {
 		this.id = id;
