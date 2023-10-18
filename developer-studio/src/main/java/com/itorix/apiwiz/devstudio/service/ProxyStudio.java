@@ -1,5 +1,6 @@
 package com.itorix.apiwiz.devstudio.service;
 
+import com.itorix.apiwiz.devstudio.model.BuildTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -262,13 +263,19 @@ public interface ProxyStudio {
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/api/template/uploadtemplates")
 	public ResponseEntity<?> uploadTemplates(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestParam("file") MultipartFile file, HttpServletRequest request, HttpServletResponse response)
+			@RequestParam(value = "file",required = true) MultipartFile file,
+			@RequestHeader(value = "type",required = true) String type,
+			@RequestHeader(value = "connectorId",required = true) String connectorId,
+			HttpServletRequest request,
+			HttpServletResponse response)
 			throws Exception;
 	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
-	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/template/downloadtemplates/{name}")
+	@RequestMapping(method = RequestMethod.GET, value = "/v1/api/template/download/zip")
 	public ResponseEntity<?> downloadTemplates(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@PathVariable(value = "name",required = false) String fileName, HttpServletRequest request, HttpServletResponse response)
+			@RequestHeader(value = "connectorId",required = true) String connectorId,
+			HttpServletRequest request,
+			HttpServletResponse response)
 			throws Exception;
 
 	// @RequestMapping(method = RequestMethod.GET, value =
@@ -301,6 +308,18 @@ public interface ProxyStudio {
 			@RequestParam("limit") int limit) throws ItorixException, JsonProcessingException;
 
 	@RequestMapping(value = "/v1/api/template/**", method = RequestMethod.GET)
-	public ResponseEntity<?> locateResouce(@RequestHeader(value = "JSESSIONID") String jsessionid,
+	public ResponseEntity<?> locateResource(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "connectorId") String connectorId,
+			HttpServletRequest httpServletRequest) throws Exception;
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(value = "/v1/api/template/build", method = RequestMethod.GET)
+	public ResponseEntity<List<BuildTemplate>> getConnectorBuildTemplates(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			HttpServletRequest httpServletRequest) throws Exception;
+	@PreAuthorize("hasAnyRole('DEVELOPER','ADMIN','SITE-ADMIN') and hasAnyAuthority('GROWTH','ENTERPRISE')")
+	@RequestMapping(value = "/v1/api/template/build",method = RequestMethod.POST)
+	public ResponseEntity<?> setupBuildTemplates(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			HttpServletRequest httpServletRequest) throws Exception;
 }

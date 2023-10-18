@@ -75,7 +75,7 @@ public class ApigeeTargetGeneration {
 			if (!tmplFile.isFolder()) {
 				// Template template =
 				// getTemplateFromFile("/opt/itorix/temp/ProxyGen/targets/TargetEndpoint.xml.ftl");
-				Template template = getTemplate("TargetEndpoint.xml.ftl");
+				Template template = getTemplate(cg.getConnectorId()+"-"+"TargetEndpoint.xml.ftl");
 				String tgtfilePrefix = targetName;
 				String dstFileName = dstRootFolder + File.separatorChar + "targets" + File.separatorChar + tgtfilePrefix
 						+ ProxyConfig.XML_FILE_EXT;

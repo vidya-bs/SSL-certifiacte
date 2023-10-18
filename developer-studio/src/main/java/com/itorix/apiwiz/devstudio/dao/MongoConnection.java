@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.gridfs.GridFSBucket;
@@ -122,38 +123,45 @@ public class MongoConnection {
 		}
 		return reader;
 	}
-
-	public String updateDocument(String content, String updateContent) {
+	public String getFile(String connectorId,String fileName) {
 		String reader = null;
 		try {
-			MongoDatabase db = getDB();
-			MongoCollection<Document> collection = db.getCollection("Connectors.Apigee.Build.Templates.Folder");
-			Document document = new Document();
-			document.put("content", content);
-			Document updateDocument = new Document();
-			updateDocument.put("content", updateContent);
-			FindIterable<Document> findIterable = collection.find();
-			while (findIterable.cursor().hasNext()) {
-				Document tmp = findIterable.cursor().next();
-				collection.deleteOne(tmp);
+			Query query = new Query(GridFsCriteria.whereFilename().is(connectorId+"-"+fileName));
+			GridFSFile gridfsFile = gridFsTemplate.findOne(query);
+			GridFsResource resource = gfsOperations.getResource(gridfsFile.getFilename());
+			BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream()));
+			StringBuilder stringBuilder = new StringBuilder();
+			String ls = System.getProperty("line.separator");
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				stringBuilder.append(line);
+				stringBuilder.append(ls);
 			}
-			collection.insertOne(updateDocument);
-			
-			
-			BuildTemplate buildTemplate = new BuildTemplate();
-			buildTemplate.setContent(updateContent);
-			mongoTemplate.getCollection("Connectors.Apigee.Build.Templates.Folder").drop();
-			//mongoTemplate.remove(BuildTemplate.class);
-			mongoTemplate.save(buildTemplate);
-			
+			br.close();
+			reader = stringBuilder.toString();
 		} catch (MongoException e) {
 			e.printStackTrace();
-			logger.error("MongoConnection::updateDocument " + e.getMessage());
+			logger.error("MongoConnection::getFile " + fileName + " : " + e.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+			logger.error("MongoConnection::getFile " + fileName + " : " + e.getMessage());
 		} finally {
 			if (mongo != null)
 				mongo.close();
 		}
 		return reader;
+	}
+	public void updateDocument(String connectorId, String updateContent) {
+		try {
+			mongoTemplate.remove(new Query().addCriteria(Criteria.where("connectorId").is(connectorId)), BuildTemplate.class);
+			BuildTemplate buildTemplate = new BuildTemplate(connectorId, updateContent);
+			mongoTemplate.save(buildTemplate);
+		} catch (MongoException e) {
+			e.printStackTrace();
+			logger.error("MongoConnection::updateDocument " + e.getMessage());
+		} finally {
+			if (mongo != null) mongo.close();
+		}
 	}
 
 	private String updateDocument() {
@@ -202,6 +210,14 @@ public class MongoConnection {
 		}
 		return reader;
 	}
+	public String getFolder(String connectorId) throws ItorixException {
+		Query query = new Query().addCriteria(Criteria.where("connectorId").is(connectorId));
+		BuildTemplate buildTemplate = mongoTemplate.findOne(query, BuildTemplate.class);
+		if (buildTemplate == null) {
+			throw new ItorixException(ErrorCodes.errorMessage.get("Connector-1002"),"Connector-1002");
+		}
+		return buildTemplate.getContent();
+	}
 
 	public boolean insertFile(MultipartFile file) throws IOException {
 		try {
@@ -217,7 +233,21 @@ public class MongoConnection {
 				mongo.close();
 		}
 	}
-
+	public void insertFile(InputStream inStream, String fileName, String connectorId) throws IOException {
+		try {
+			String gridFsFileName = getFilename(connectorId, fileName);
+			DBObject metaData = new BasicDBObject();
+			metaData.put("type", "template");
+			metaData.put("fileName", fileName);
+			metaData.put("connectorId", connectorId);
+			gridFsTemplate.store(inStream, gridFsFileName, null, metaData);
+		} catch (MongoException e) {
+			throw e;
+		}
+	}
+	private String getFilename(String id, String fileName) {
+		return String.format("%s-%s", id, fileName);
+	}
 	public boolean insertFile(InputStream inStream, String fileName) throws IOException {
 		try {
 			Query query = new Query(GridFsCriteria.whereFilename().is(fileName));
