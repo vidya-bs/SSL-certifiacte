@@ -130,6 +130,12 @@
 			<version>${project.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.itorix.hyggee.cloud</groupId>
+			<artifactId>ibm-apic-connector</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
 	</dependencies>
 
 

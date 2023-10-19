@@ -62,6 +62,7 @@ import com.itorix.apiwiz.common.model.apigee.VirtualHost;
 import com.itorix.apiwiz.common.model.configmanagement.KVMEntry;
 import com.itorix.apiwiz.common.model.configmanagement.ServiceRequest;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.ibmapic.PolicyMappingItem;
 import com.itorix.apiwiz.common.model.integrations.Integration;
 import com.itorix.apiwiz.common.model.integrations.git.GitIntegration;
 import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
@@ -1561,6 +1562,9 @@ public class CodeGenService {
 
 	public Object getCategories(String swaggerId, int revision, String oas) throws ItorixException {
 		try {
+			if(isImportedIbmAPICSpec(swaggerId,revision)){
+				return includeIbmPolicyMappings(swaggerId,revision);
+			}
 			if (null != swaggerId && "2.0".equals(oas.trim())) {
 				Swagger swagger = getSwaggerbyId(swaggerId, revision, oas);
 				if (null != swagger) {
@@ -1603,6 +1607,79 @@ public class CodeGenService {
 			}
 		}
 		return null;
+	}
+
+	public boolean isImportedIbmAPICSpec(String swaggerId,Integer revision){
+		Query query = Query.query(Criteria.where("swaggerId").is(swaggerId));
+		query.addCriteria(Criteria.where("revision").is(revision));
+		query.addCriteria(Criteria.where("swagger").regex("x-ibm-apic-connector-id"));
+
+		try{
+			Long countOas2 = mongoTemplate.count(query, com.itorix.apiwiz.common.model.designstudio.SwaggerVO.class);
+			Long countOas3 = mongoTemplate.count(query, com.itorix.apiwiz.common.model.designstudio.Swagger3VO.class);
+			return (countOas2 + countOas3) > 0;
+		}catch (Exception ex){
+			return false;
+		}
+	}
+
+	public List<Category> includeIbmPolicyMappings(String swaggerId,Integer revision){
+		List<Category> categories = mongoTemplate.findAll(Category.class);
+
+		Query query = Query.query(Criteria.where("swaggerId").is(swaggerId));
+		query.addCriteria(Criteria.where("revision").is(revision));
+
+		try{
+			com.itorix.apiwiz.common.model.designstudio.SwaggerVO oas2VO = mongoTemplate.findOne(query,
+					com.itorix.apiwiz.common.model.designstudio.SwaggerVO.class);
+			com.itorix.apiwiz.common.model.designstudio.Swagger3VO oas3VO = mongoTemplate.findOne(query,
+					com.itorix.apiwiz.common.model.designstudio.Swagger3VO.class);
+
+			String json = "";
+			String connectorId = "";
+			if(oas2VO != null){
+				json = oas2VO.getSwagger();
+				ObjectMapper objectMapper = new ObjectMapper();
+				ObjectNode oasObject = objectMapper.readValue(json, ObjectNode.class);
+				connectorId += oasObject.get("x-ibm-apic-connector-id").toString().replaceAll("^\"+|\"+$", "");
+			}else if(oas3VO != null){
+				json = oas3VO.getSwagger();
+				ObjectMapper objectMapper = new ObjectMapper();
+				ObjectNode oasObject = objectMapper.readValue(json, ObjectNode.class);
+				connectorId += oasObject.get("x-ibm-apic-connector-id").toString().replaceAll("^\"+|\"+$", "");
+			}else{
+				return categories;
+			}
+
+			Query ibmPolicyMappingsQuery = Query.query(Criteria.where("connectorId").is(connectorId));
+			HashSet<String> apigeePoliciesToEnable = new HashSet<>();
+
+			List<PolicyMappingItem> ibmPolicyMappings = mongoTemplate.find(ibmPolicyMappingsQuery,PolicyMappingItem.class);
+
+			if(!ibmPolicyMappings.isEmpty()){
+				ibmPolicyMappings.forEach(policyMappingItem -> {
+					if(policyMappingItem.getApigeePolicyName().length() > 0){
+						apigeePoliciesToEnable.add(policyMappingItem.getApigeePolicyName());
+					}
+				});
+			}
+
+			if(!apigeePoliciesToEnable.isEmpty()){
+				categories.forEach(category -> {
+					category.getPolicies().forEach(policy -> {
+						if(apigeePoliciesToEnable.contains(policy.getName())){
+							policy.setEnabled(true);
+						}
+					});
+				});
+			}
+
+			return categories;
+
+		}catch (Exception ex){
+			log.error("Could Not Update Ibm Policies in Categories:" + ex.getMessage());
+			return categories;
+		}
 	}
 
 	public Object getCategories(String name) throws ItorixException {
