@@ -38,4 +38,10 @@ public class StaticFields {
   public static final String PRODUCTS_PATH="/apiproducts?expand=true";
 
   public static final String EMAIL_SUBJECT_JOB_APPLICATION ="New Job Application | %s";
+
+  public static final String BUILD_TEMPLATE_ADD_FIELDS="{ $addFields: { connectorObjectId: { $toObjectId: '$connectorId' } } }";
+  public static final String BUILD_TEMPLATE_LOOK_UP_APIGEE="{ $lookup: { from: 'Connectors.Apigee.Configuration', localField: 'connectorObjectId', foreignField: '_id', as: 'apigeeConfig' } }";
+  public static final String BUILD_TEMPLATE_LOOK_UP_APIGEEX="{ $lookup: { from: 'Connectors.ApigeeX.Configuration', localField: 'connectorObjectId', foreignField: '_id', as: 'apigeeXConfig' } }";
+  public static final String BUILD_TEMPLATE_PROJECT="{ $project: { connectorId: 1, orgName: { $cond: { if: { $gt: [{ $size: '$apigeeConfig' }, 0] }, then: { $arrayElemAt: ['$apigeeConfig.orgname', 0] }, else: { $arrayElemAt: ['$apigeeXConfig.orgName', 0] } } }, type: { $cond: { if: { $gt: [{ $size: '$apigeeConfig' }, 0] }, then: 'apigee', else: 'apigeex' } } } }";
+  public static final String BUILD_TEMPLATE_MATCH_CONNECTOR_ID_NON_NULL="{$match: {connectorId: {$ne: null}}}";
 }

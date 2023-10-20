@@ -50,16 +50,16 @@ public class ApigeeProxyGeneration {
 	private String dstResourcesJava = "";
 	private String dstRootFolder = "";
 
-	public void generateCommonCode(Folder commonsFolder) throws IOException, TemplateException {
+	public void generateCommonCode(String connectorId,Folder commonsFolder) throws IOException, TemplateException {
 		Folder templates = commonsFolder.getFile("policies");
 		for (Folder tmplFile : templates.getFiles()) {
-			String content = mongoConnection.getFile(tmplFile.getName());
+			String content = mongoConnection.getFile(connectorId,tmplFile.getName());
 			writeFile(content, dstPolicies + File.separatorChar + tmplFile.getName());
 		}
-		processResources(commonsFolder.getFile("resources"));
+		processResources(connectorId,commonsFolder.getFile("resources"));
 	}
 
-	private void processResources(Folder templates) throws IOException, TemplateException {
+	private void processResources(String connectorId,Folder templates) throws IOException, TemplateException {
 		try {
 			for (Folder tmplFile : templates.getFiles()) {
 				if (tmplFile.isFolder()) {
@@ -74,7 +74,7 @@ public class ApigeeProxyGeneration {
 						filePath = dstResourcesXSL;
 					if (!filePath.equals(""))
 						for (Folder resourceFile : tmplFile.getFiles()) {
-							String content = mongoConnection.getFile(resourceFile.getName());
+							String content = mongoConnection.getFile(connectorId,resourceFile.getName());
 							writeFile(content, filePath + File.separatorChar + resourceFile.getName());
 						}
 				}
@@ -102,7 +102,7 @@ public class ApigeeProxyGeneration {
 		List<Folder> files = proxyFolder.getFiles();
 		for (Folder file : files)
 			if (!file.isFolder())
-				processProxyTemplate(dstRootFolder, file.getName());
+				processProxyTemplate(dstRootFolder, cg.getConnectorId()+"-"+file.getName());
 		Folder proxyFile = proxyFolder.getFile("proxies");
 		files = proxyFile.getFiles();
 		for (Folder file : files)
@@ -111,7 +111,7 @@ public class ApigeeProxyGeneration {
 		if (cg.getProxy().getFlows() != null) {
 			processPolicyTemplates(proxy.getFlows(), proxyFolder.getFile("policies"), cg);
 		}
-		generateCommonCode(commonFolder);
+		generateCommonCode(cg.getConnectorId(), commonFolder);
 	}
 
 	private void processProxyTemplate(String destRootFolder, String fileName) throws IOException, TemplateException {
@@ -136,7 +136,7 @@ public class ApigeeProxyGeneration {
 			throws IOException, TemplateException {
 		// Template template =
 		// getTemplateFromFile("/opt/itorix/temp/ProxyGen/proxies/ProxyEndpoint.xml.ftl");
-		Template template = getTemplate("ProxyEndpoint.xml.ftl");
+		Template template = getTemplate(cg.getConnectorId()+"-"+"ProxyEndpoint.xml.ftl");
 		String dstProxiesFileName =
 				dstProxies + File.separatorChar + proxyName + ProxyConfig.XML_FILE_EXT;
 
@@ -167,7 +167,7 @@ public class ApigeeProxyGeneration {
 					mapApi.put("flowPolicyTemplate", flowMap.get("policyTemplate"));
 					mapApi.put("flowPolicyName", flowMap.get("policyName"));
 				}
-				
+
 				if(null != flow.getMetadata()){
 					Map<String, String> metadata = new HashMap<String, String>();
 					for( com.itorix.apiwiz.common.model.proxystudio.ProxyMetadata proxyMetadata : flow.getMetadata()){
@@ -193,7 +193,7 @@ public class ApigeeProxyGeneration {
 		List<Folder> tmplfiles = templates.getFiles();
 		for (Folder tmplFile : tmplfiles) {
 
-			Template template = getTemplate(tmplFile.getName());
+			Template template = getTemplate(cg.getConnectorId()+"-"+tmplFile.getName());
 			for (Flow flow : apiList.getFlow()) {
 				String apiName = flow.getName();
 				String fileName = removeFileExtension(tmplFile.getName(), true);
@@ -267,23 +267,21 @@ public class ApigeeProxyGeneration {
 							}
 						}
 					}
-					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "")
-							.replace("-x-gw-cache-resource", "")
+					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "").replace("-x-gw-cache-resource", "")
 							.replace(ProxyConfig.STR_ALL, "");
 				}
-				if (fileName.contains("cf-Assign-Metadata-Variables")) {
+				if(fileName.contains("cf-Assign-Metadata-Variables")){
 					canProcess = false;
-					if (null != cg.getProxyMetadata() && !cg.getProxyMetadata().isEmpty()) {
-						canProcess = true;
+					if(null!=cg.getProxyMetadata() && !cg.getProxyMetadata().isEmpty()){
+						canProcess =true;
 					}
 					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "")
 							.replace(ProxyConfig.STR_ALL, "");
-				} else {
-					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "")
-							.replace(ProxyConfig.STR_GET, "")
+				}else{
+					dstPoliciesFile = dstPoliciesFile.replace(ProxyConfig.FTL_FILE_EXT, "").replace(ProxyConfig.STR_GET, "")
 							.replace(ProxyConfig.STR_ALL, "");
 				}
-				if (canProcess) {
+				if(canProcess){
 					Writer reqFile = new FileWriter(dstPoliciesFile);
 					template.process(apiDtls, reqFile);
 					reqFile.flush();

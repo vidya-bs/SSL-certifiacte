@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Component;
 
 import com.itorix.apiwiz.common.model.apigeeX.ApigeeXConfigurationVO;
@@ -25,6 +26,8 @@ public class ApigeeXIntegrationDAO {
 
 	@Autowired
 	private ApigeeXUtill apigeeXUtill;
+	@Autowired
+	private GridFsTemplate gridFsTemplate;
 
 	public void saveJSONKey(ApigeeXConfigurationVO apigeeXConfigurationVO) {
 		ApigeeXConfigurationVO vo = getConfiguration(apigeeXConfigurationVO.getOrgName());
@@ -76,9 +79,9 @@ public class ApigeeXIntegrationDAO {
 	}
 
 	public void deleteConfiguration(String id) {
-		Query query = new Query();
-		query.addCriteria(Criteria.where("id").is(id));
-		mongoTemplate.remove(query, ApigeeXConfigurationVO.class);
+		mongoTemplate.remove(new Query(Criteria.where("connectorId").is(id)),"Connectors.Apigee.Build.Templates.Folder");
+		gridFsTemplate.delete(new Query(Criteria.where("metadata.connectorId").is(id)));
+		mongoTemplate.remove(new Query(Criteria.where("id").is(id)), ApigeeXConfigurationVO.class);
 	}
 
 	public ApigeeXConfigurationVO updateKVM(String org, ApigeeXEnvironment environment) {

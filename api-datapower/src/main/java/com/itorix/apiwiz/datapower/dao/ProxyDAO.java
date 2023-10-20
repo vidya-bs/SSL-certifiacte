@@ -123,9 +123,9 @@ public class ProxyDAO {
 		mongoTemplate.remove(query, Proxy.class);
 	}
 
-	public ProjectProxyResponse generateProxy(String proxyId, String jsessionId)
+	public ProjectProxyResponse generateProxy(String proxyId, String jsessionId, String connectorId)
 			throws ItorixException {
-		return proxyUttils.generateProxy(getProxy(proxyId), jsessionId);
+		return proxyUttils.generateProxy(getProxy(proxyId), jsessionId,connectorId);
 	}
 	
 	
@@ -154,9 +154,9 @@ public class ProxyDAO {
 	}
 
 	public Object generateApigeeProxy(String proxyId,
-      Proxy requests, String jsessionid)
+      Proxy requests, String jsessionid,String connectorId)
 			throws Exception {
-		return proxyUttils.generateApigeeProxy(getProxy(proxyId), requests, jsessionid);
+		return proxyUttils.generateApigeeProxy(getProxy(proxyId), requests, jsessionid,connectorId);
 	}
 }
 

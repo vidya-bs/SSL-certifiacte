@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.itorix.apiwiz.marketing.events.model.UserEvent;
+import com.itorix.apiwiz.marketing.events.model.UserEventDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +50,7 @@ public class CantactUsServiceImpl implements CantactUsService {
 
 	@Override
 	@UnSecure(ignoreValidation = true)
-	public ResponseEntity<?> storeUserEvent(String interactionid, String apikey, UserEvent userEvent) {
+	public ResponseEntity<Void> storeUserEvent(String interactionid, String apikey, UserEventDTO userEvent) {
 		contactUsDao.saveUserEvent(userEvent);
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
