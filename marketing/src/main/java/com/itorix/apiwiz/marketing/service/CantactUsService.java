@@ -2,7 +2,7 @@ package com.itorix.apiwiz.marketing.service;
 
 import java.util.List;
 
-import com.itorix.apiwiz.marketing.events.model.UserEvent;
+import com.itorix.apiwiz.marketing.events.model.UserEventDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,9 +41,9 @@ public interface CantactUsService {
 
 	@UnSecure(ignoreValidation = true)
 	@RequestMapping(method = RequestMethod.POST, value = "/v1/events")
-	public ResponseEntity<?> storeUserEvent(
+	public ResponseEntity<Void> storeUserEvent(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
 			@RequestHeader(value = "x-apikey") String apikey,
-			@RequestBody UserEvent userEvent) throws Exception;
+			@RequestBody UserEventDTO userEvent);
 
 }
