@@ -57,11 +57,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.itorix.apiwiz.common.factory.IntegrationHelper;
+import com.itorix.apiwiz.common.model.CustomAggregationOperation;
 import com.itorix.apiwiz.common.model.SearchItem;
+import com.itorix.apiwiz.common.model.apigee.ApigeeConfigurationVO;
+import com.itorix.apiwiz.common.model.apigee.StaticFields;
 import com.itorix.apiwiz.common.model.apigee.VirtualHost;
+import com.itorix.apiwiz.common.model.apigeeX.ApigeeXConfigurationVO;
 import com.itorix.apiwiz.common.model.configmanagement.KVMEntry;
 import com.itorix.apiwiz.common.model.configmanagement.ServiceRequest;
+import com.itorix.apiwiz.common.model.exception.ErrorCodes;
 import com.itorix.apiwiz.common.model.exception.ItorixException;
+import com.itorix.apiwiz.common.model.ibmapic.PolicyMappingItem;
 import com.itorix.apiwiz.common.model.integrations.Integration;
 import com.itorix.apiwiz.common.model.integrations.git.GitIntegration;
 import com.itorix.apiwiz.common.model.integrations.jfrog.JfrogIntegration;
@@ -103,8 +109,11 @@ import freemarker.template.TemplateException;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
 import io.swagger.util.Yaml;
-
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.util.*;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 
 @Slf4j
 @Component("codeGenService")
@@ -156,49 +165,72 @@ public class CodeGenService {
 	@Autowired
 	private  LoadSwaggerImpl swagger ;
 
+	@Autowired
+	private GridFsTemplate gridFsTemplate;
 
 	@Autowired
 	private IntegrationHelper integrationHelper;
 
-	public String uploadTemplates(MultipartFile file) {
-		String zipLocation = applicationProperties.getTempDir() + "unzip";
-		String zipFile = applicationProperties.getTempDir() + file.getOriginalFilename();
-		ZIPUtil unZip = new ZIPUtil();
+
+	public String uploadTemplates(String type,String connectorId,MultipartFile file) throws ItorixException {
+		//validate type and connector
+		ItorixException itorixException = new ItorixException(ErrorCodes.errorMessage.get("Connector-1002"),"Connector-1002");
+		Query  query=Query.query(Criteria.where("_id").is((connectorId)));
+		if(StaticFields.APIGEE.equalsIgnoreCase(type)){
+			if(!mongoTemplate.exists(query, ApigeeConfigurationVO.class)){
+				throw itorixException;
+			}
+		} else if (StaticFields.APIGEEX.equalsIgnoreCase(type)) {
+			if(!mongoTemplate.exists(query, ApigeeXConfigurationVO.class)){
+				throw itorixException;
+			}
+		} else {
+			throw itorixException;
+		}
+		//Start Uploading
+		String tempDir=applicationProperties.getTempDir();
+		String path = String.format("%s%s/", tempDir , connectorId);
+		File basePath = new File(path);
 		try {
+			String zipLocation = path + "unzip";
+			File unzipLocation = new File(zipLocation);
+			unzipLocation.mkdirs();
+			String zipFile = path + file.getOriginalFilename();
+			ZIPUtil unZip = new ZIPUtil();
 			File targetFile = new File(zipFile);
 			file.transferTo(targetFile);
-			unZip.unzip(zipFile, zipLocation);
+			unZip.unzipV2(zipFile, zipLocation);
 			ObjectMapper mapper = new ObjectMapper();
-			mongoConnection.updateDocument(mongoConnection.getFolder(),
-					mapper.writeValueAsString(getFolder(zipLocation + "/API")));
-			FileUtils.cleanDirectory(new File(zipLocation));
-			FileUtils.deleteDirectory(new File(zipLocation));
+			gridFsTemplate.delete(new Query(Criteria.where("metadata.connectorId").is(connectorId)));
+			mongoConnection.updateDocument(connectorId, mapper.writeValueAsString(getFolder(zipLocation + "/API",connectorId)));
+			FileUtils.cleanDirectory(basePath);
+			FileUtils.deleteDirectory(basePath);
 			File zipfile = new File(zipFile);
 			zipfile.delete();
-			return mongoConnection.getFolder();
+			return mongoConnection.getFolder(connectorId);
 		} catch (Exception e) {
 			log.error("Exception occurred", e);
 		}
 		return null;
 	}
 
-	public void createFoldersAndFiles(Folder folder, String basePath) throws IOException {
+	public void createFoldersAndFiles(Folder folder, String basePath, String connectorId) throws IOException {
 		try {
 
-		if (folder.isFolder()) {
-			String folderPath = basePath + File.separator + folder.getName();
-			createFolder(folderPath);
+			if (folder.isFolder()) {
+				String folderPath = basePath + File.separator + folder.getName();
+				createFolder(folderPath);
 
-			List<Folder> files = folder.getFiles();
-			if (files != null) {
-				for (Folder file : files) {
-					createFoldersAndFiles(file, folderPath);
+				List<Folder> files = folder.getFiles();
+				if (files != null) {
+					for (Folder file : files) {
+						createFoldersAndFiles(file, folderPath, connectorId);
 					}
 				}
 			} else {
-			String filePath = basePath + File.separator + folder.getName();
-			String fileContent= mongoConnection.getFile(folder.getName());
-			createFile(filePath, fileContent);
+				String filePath = basePath + File.separator + folder.getName();
+				String fileContent= mongoConnection.getFile((connectorId==null)?folder.getName():connectorId + "-" + folder.getName());
+				createFile(filePath, fileContent);
 			}
 		}catch (IOException e){
 			throw e;
@@ -215,7 +247,7 @@ public class CodeGenService {
 				log.debug("Failed to create folder: " + folderPath);
 			}
 		} else {
-				log.debug("Folder already exists: " + folderPath);
+			log.debug("Folder already exists: " + folderPath);
 		}
 	}
 
@@ -275,37 +307,37 @@ public class CodeGenService {
 			}
 		}
 
-		public ResponseEntity<?> downloadTemplates(String templateId) throws IOException {
+	public ResponseEntity<?> downloadTemplates(String connectorId) throws IOException, ItorixException {
 
-			log.info("Folder received : {}", "API/"+templateId);
-			String tempDirLocation=applicationProperties.getTempDir();
-			String basePath=tempDirLocation+"TEMP_ZIP_LOCATION";
-			//delete if it already exists
-			FileUtils.deleteDirectory(new File(basePath));
-			try {
-				ObjectMapper mapper = new ObjectMapper();
-				String dbFolder = mongoConnection.getFolder();
-				Folder folderToBeDownloaded = mapper.readValue(dbFolder, Folder.class);
-				createFoldersAndFiles(folderToBeDownloaded, basePath);
-				String zipLocation=basePath+"/"+folderToBeDownloaded.getName();
-				zipFolder(zipLocation,zipLocation+".zip");
-				File file = new File(basePath+"/"+folderToBeDownloaded.getName()+".zip");
+//			log.info("Folder received : {}", "API/"+connectorId);
+		String tempDirLocation=applicationProperties.getTempDir();
+		String basePath=tempDirLocation+connectorId+"-TEMP_ZIP_LOCATION";
+		//delete if it already exists
+		FileUtils.deleteDirectory(new File(basePath));
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			String dbFolder = mongoConnection.getFolder(connectorId);
+			Folder folderToBeDownloaded = mapper.readValue(dbFolder, Folder.class);
+			createFoldersAndFiles(folderToBeDownloaded, basePath,connectorId);
+			String zipLocation=basePath+"/"+folderToBeDownloaded.getName();
+			zipFolder(zipLocation,zipLocation+".zip");
+			File file = new File(basePath+"/"+folderToBeDownloaded.getName()+".zip");
 
-				FileSystemResource resource = new FileSystemResource(file);
+			FileSystemResource resource = new FileSystemResource(file);
 
-				HttpHeaders headers = new HttpHeaders();
-				headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
+			HttpHeaders headers = new HttpHeaders();
+			headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
 
-				return ResponseEntity.ok()
-						.headers(headers)
-						.contentLength(file.length())
-						.contentType(MediaType.APPLICATION_OCTET_STREAM)
-						.body(resource);
-			}catch (Exception e){
-				log.error("Exception occurred", e);
-				throw e;
-			}
+			return ResponseEntity.ok()
+					.headers(headers)
+					.contentLength(file.length())
+					.contentType(MediaType.APPLICATION_OCTET_STREAM)
+					.body(resource);
+		}catch (Exception e){
+			log.error("Exception occurred", e);
+			throw e;
 		}
+	}
 
 	private Folder getFolder(String dirName) {
 		log.debug("Getting folder for {}", dirName);
@@ -335,9 +367,37 @@ public class CodeGenService {
 		return folder;
 	}
 
+	public Folder getFolder(String dirName, String connectorId) {
+		log.debug("Getting folder for {}", dirName);
+		File dir = new File(dirName);
+		Folder folder;
+		if (dir.isDirectory()) {
+			folder = new Folder();
+			folder.setName(dir.getName());
+			folder.setFolder(true);
+			File[] filesList = dir.listFiles();
+			for (File file : filesList)
+				folder.addFile(getFolder(file.getAbsolutePath(), connectorId));
+		} else {
+			folder = new Folder();
+			folder.setName(dir.getName());
+			folder.setFolder(false);
+			try {
+				FileInputStream fileInputStream = new FileInputStream(dir.getAbsolutePath());
+				mongoConnection.insertFile(fileInputStream, dir.getName(), connectorId);
+				fileInputStream.close();
+			} catch (FileNotFoundException e) {
+				log.error("FileNotFoundException occurred", e);
+			} catch (IOException e) {
+				log.error("Exception occurred", e);
+			}
+		}
+		return folder;
+	}
+
 	public ProxyGenResponse processCodeGen(CodeGenHistory codeGen, Operations operations, Project project)
-			throws JsonParseException, JsonMappingException, IOException, TemplateException, ItorixException {
-		Folder api = loadStructure();
+			throws IOException, TemplateException, ItorixException {
+		Folder api = loadStructure(codeGen.getConnectorId());
 		Folder commonFolder = api.getFile("Common");
 		Folder proxyFolder = api.getFile("Proxy");
 		Folder targetFolder = api.getFile("Target");
@@ -476,6 +536,9 @@ public class CodeGenService {
 			data.setOasVersion(codeGen.getOasVersion());
 			String modified = Instant.now().toString();
 			data.setDateModified(modified);
+			data.setSwaggerRevision(codeGen.getSwaggerRevision());
+			data.setSwaggerId(codeGen.getSwaggerId());
+			data.setOasVersion(codeGen.getOasVersion());
 			codeGen.setDateCreated(modified);
 			saveHistory(data);
 			File tempFile = new File(dir);
@@ -636,7 +699,7 @@ public class CodeGenService {
 	}
 
 	private void createAPICTarget(String swaggerString, List<String> targetServers, ProxyArtifacts proxyArtifacts,
-			String proxyName) {
+								  String proxyName) {
 		try {
 			List<OrgEnv> org = mongoConnection.getApigeeOrgs();
 			ObjectMapper mapper = new ObjectMapper();
@@ -668,7 +731,7 @@ public class CodeGenService {
 	}
 
 	private void createAPICKvm(Organization orgEnv, JsonNode data, Map<String, String> mapping,
-			ProxyArtifacts proxyArtifacts, String name) {
+							   ProxyArtifacts proxyArtifacts, String name) {
 		try {
 			List<String> registryColumns = getRegistryColumns();
 			Map<String, String> columnMap = getColumnMap(mapping, registryColumns);
@@ -1479,7 +1542,7 @@ public class CodeGenService {
 
 	public List<String> getFolders(String path) throws JsonParseException, JsonMappingException, IOException {
 		log.debug(" Getting folders from {}", path);
-	  log.info("path received : {}", path);
+		log.info("path received : {}", path);
 		ObjectMapper mapper = new ObjectMapper();
 		String dbFolder = mongoConnection.getFolder();
 		Folder folder = mapper.readValue(dbFolder, Folder.class);
@@ -1497,6 +1560,34 @@ public class CodeGenService {
 		}
 
 		return fileList;
+	}
+
+	public List<String> getFolders(String connectorId, String path) throws JsonProcessingException, ItorixException {
+		ObjectMapper mapper = new ObjectMapper();
+		String dbFolder = null;
+		try {
+			dbFolder = mongoConnection.getFolder(connectorId);
+		}catch (ItorixException itorixException) {
+			log.error("Tempaltes is not found for {} connector", connectorId);
+		}
+		if (dbFolder != null) {
+			Folder folder = mapper.readValue(dbFolder, Folder.class);
+			String[] pathToken = path.split("/");
+			Folder pathFolder = folder;
+			for (int i = 0; i < pathToken.length - 1; i++)
+				pathFolder = pathFolder.getFile(pathToken[i + 1]);
+
+			List<Folder> files = pathFolder.getFiles();
+			List<String> fileList = null;
+			if (files != null) {
+				fileList = new ArrayList<>();
+				for (Folder file : files)
+					fileList.add(file.getName());
+			}
+			return fileList;
+		} else {
+			return Collections.emptyList();
+		}
 	}
 
 	public boolean removeFile(String path, String file) throws JsonParseException, JsonMappingException, IOException {
@@ -1551,6 +1642,10 @@ public class CodeGenService {
 		return mongoConnection.getFile(file);
 	}
 
+	public String getFile(String connectorId,String file) {
+		return mongoConnection.getFile(connectorId,file);
+	}
+
 	public Object getCategories() throws ItorixException {
 		try {
 			return getCategories(null);
@@ -1561,6 +1656,9 @@ public class CodeGenService {
 
 	public Object getCategories(String swaggerId, int revision, String oas) throws ItorixException {
 		try {
+			if(isImportedIbmAPICSpec(swaggerId,revision)){
+				return includeIbmPolicyMappings(swaggerId,revision);
+			}
 			if (null != swaggerId && "2.0".equals(oas.trim())) {
 				Swagger swagger = getSwaggerbyId(swaggerId, revision, oas);
 				if (null != swagger) {
@@ -1605,6 +1703,79 @@ public class CodeGenService {
 		return null;
 	}
 
+	public boolean isImportedIbmAPICSpec(String swaggerId,Integer revision){
+		Query query = Query.query(Criteria.where("swaggerId").is(swaggerId));
+		query.addCriteria(Criteria.where("revision").is(revision));
+		query.addCriteria(Criteria.where("swagger").regex("x-ibm-apic-connector-id"));
+
+		try{
+			Long countOas2 = mongoTemplate.count(query, com.itorix.apiwiz.common.model.designstudio.SwaggerVO.class);
+			Long countOas3 = mongoTemplate.count(query, com.itorix.apiwiz.common.model.designstudio.Swagger3VO.class);
+			return (countOas2 + countOas3) > 0;
+		}catch (Exception ex){
+			return false;
+		}
+	}
+
+	public List<Category> includeIbmPolicyMappings(String swaggerId,Integer revision){
+		List<Category> categories = mongoTemplate.findAll(Category.class);
+
+		Query query = Query.query(Criteria.where("swaggerId").is(swaggerId));
+		query.addCriteria(Criteria.where("revision").is(revision));
+
+		try{
+			com.itorix.apiwiz.common.model.designstudio.SwaggerVO oas2VO = mongoTemplate.findOne(query,
+					com.itorix.apiwiz.common.model.designstudio.SwaggerVO.class);
+			com.itorix.apiwiz.common.model.designstudio.Swagger3VO oas3VO = mongoTemplate.findOne(query,
+					com.itorix.apiwiz.common.model.designstudio.Swagger3VO.class);
+
+			String json = "";
+			String connectorId = "";
+			if(oas2VO != null){
+				json = oas2VO.getSwagger();
+				ObjectMapper objectMapper = new ObjectMapper();
+				ObjectNode oasObject = objectMapper.readValue(json, ObjectNode.class);
+				connectorId += oasObject.get("x-ibm-apic-connector-id").toString().replaceAll("^\"+|\"+$", "");
+			}else if(oas3VO != null){
+				json = oas3VO.getSwagger();
+				ObjectMapper objectMapper = new ObjectMapper();
+				ObjectNode oasObject = objectMapper.readValue(json, ObjectNode.class);
+				connectorId += oasObject.get("x-ibm-apic-connector-id").toString().replaceAll("^\"+|\"+$", "");
+			}else{
+				return categories;
+			}
+
+			Query ibmPolicyMappingsQuery = Query.query(Criteria.where("connectorId").is(connectorId));
+			HashSet<String> apigeePoliciesToEnable = new HashSet<>();
+
+			List<PolicyMappingItem> ibmPolicyMappings = mongoTemplate.find(ibmPolicyMappingsQuery,PolicyMappingItem.class);
+
+			if(!ibmPolicyMappings.isEmpty()){
+				ibmPolicyMappings.forEach(policyMappingItem -> {
+					if(policyMappingItem.getApigeePolicyName().length() > 0){
+						apigeePoliciesToEnable.add(policyMappingItem.getApigeePolicyName());
+					}
+				});
+			}
+
+			if(!apigeePoliciesToEnable.isEmpty()){
+				categories.forEach(category -> {
+					category.getPolicies().forEach(policy -> {
+						if(apigeePoliciesToEnable.contains(policy.getName())){
+							policy.setEnabled(true);
+						}
+					});
+				});
+			}
+
+			return categories;
+
+		}catch (Exception ex){
+			log.error("Could Not Update Ibm Policies in Categories:" + ex.getMessage());
+			return categories;
+		}
+	}
+
 	public Object getCategories(String name) throws ItorixException {
 		log.debug("Getting categories for {}", name);
 		try {
@@ -1618,7 +1789,7 @@ public class CodeGenService {
 			throw new ItorixException(ex.getMessage(), "ProxyGen-1000", ex);
 		}
 	}
-	
+
 	public List<Category> getCategories(boolean applyToFlow) throws ItorixException {
 		try {
 			List<Category> categories = null;
@@ -1633,7 +1804,7 @@ public class CodeGenService {
 					.append("type", "$type")
 					.append("description", "$description")
 					.append("policies",new Document("$filter",new Document("input","$policies").append("as", "policies").append("cond", new Document("$eq",conditions))))
-					);
+			);
 			aggregateQuery.add(matchDoc);
 			aggregateQuery.add(projectDoc);
 
@@ -1655,7 +1826,7 @@ public class CodeGenService {
 			throw new ItorixException(ex.getMessage(), "ProxyGen-1000", ex);
 		}
 	}
-	
+
 
 	public boolean saveCategory(List<Category> categories) throws ItorixException {
 		try {
@@ -1801,11 +1972,10 @@ public class CodeGenService {
 		}
 	}
 
-	private Folder loadStructure() throws JsonParseException, JsonMappingException, IOException {
+	private Folder loadStructure(String connectorId) throws IOException, ItorixException {
 		ObjectMapper mapper = new ObjectMapper();
-		String dbFolder = mongoConnection.getFolder();
-		Folder api = mapper.readValue(dbFolder, Folder.class);
-		return api;
+		String dbFolder = mongoConnection.getFolder(connectorId);
+		return mapper.readValue(dbFolder, Folder.class);
 	}
 
 	/**
@@ -1833,5 +2003,50 @@ public class CodeGenService {
 		}
 		response.set("proxies", responseFields);
 		return response;
+	}
+
+	public List<BuildTemplate> getConnectorBuildTemplates() {
+		Aggregation aggregation = Aggregation.newAggregation(
+				new CustomAggregationOperation(StaticFields.BUILD_TEMPLATE_ADD_FIELDS),
+				new CustomAggregationOperation(StaticFields.BUILD_TEMPLATE_LOOK_UP_APIGEE),
+				new CustomAggregationOperation(StaticFields.BUILD_TEMPLATE_LOOK_UP_APIGEEX),
+				new CustomAggregationOperation(StaticFields.BUILD_TEMPLATE_PROJECT),
+				new CustomAggregationOperation(StaticFields.BUILD_TEMPLATE_MATCH_CONNECTOR_ID_NON_NULL)
+		);
+		return mongoTemplate.aggregate(aggregation, BuildTemplate.class,BuildTemplate.class).getMappedResults();
+	}
+
+	public void setupBuildTemplate() throws IOException {
+		//download the template with connectorId Null and zip it
+		String tempDirLocation = applicationProperties.getTempDir();
+		String basePath = tempDirLocation + "_TEMP_ZIP_LOCATION";
+		//delete if it already exists
+		FileUtils.deleteDirectory(new File(basePath));
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			//download folder having connectorId as null
+			String dbFolder = mongoConnection.getFolder(null);
+			Folder folderToBeDownloaded = mapper.readValue(dbFolder, Folder.class);
+			createFoldersAndFiles(folderToBeDownloaded, basePath, null);
+
+			//upload the same zip file to all the connectors available in apigee and apigeex
+			List<ApigeeConfigurationVO> apigeeConfigurationVOList = mongoTemplate.findAll(ApigeeConfigurationVO.class);
+			List<ApigeeXConfigurationVO> apigeeXConfigurationVOList = mongoTemplate.findAll(ApigeeXConfigurationVO.class);
+			for(ApigeeConfigurationVO apigeeConfigurationVO: apigeeConfigurationVOList){
+				mapper = new ObjectMapper();
+				gridFsTemplate.delete(new Query(Criteria.where("metadata.connectorId").is(apigeeConfigurationVO.getId())));
+				mongoConnection.updateDocument(apigeeConfigurationVO.getId(), mapper.writeValueAsString(getFolder(basePath + "/API", apigeeConfigurationVO.getId())));
+			}
+			for(ApigeeXConfigurationVO apigeeXConfigurationVO: apigeeXConfigurationVOList){
+				mapper = new ObjectMapper();
+				gridFsTemplate.delete(new Query(Criteria.where("metadata.connectorId").is(apigeeXConfigurationVO.getId())));
+				mongoConnection.updateDocument(apigeeXConfigurationVO.getId(), mapper.writeValueAsString(getFolder(basePath + "/API", apigeeXConfigurationVO.getId())));
+			}
+			File baseFile=new File(basePath);
+			FileUtils.cleanDirectory(baseFile);
+			FileUtils.deleteDirectory(baseFile);
+		} catch (ItorixException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

@@ -21,7 +21,9 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.beans.BeanUtils;
+import com.itorix.apiwiz.marketing.events.model.UserEventDTO;
 import com.itorix.apiwiz.common.properties.ApplicationProperties;
 import com.itorix.apiwiz.common.util.encryption.RSAEncryption;
 import com.itorix.apiwiz.common.util.mail.EmailTemplate;
@@ -135,8 +137,33 @@ public class ContactUsDao {
 		return notificationExecutionEvent.getId();
 	}
 
-	public void saveUserEvent(UserEvent userEvent){
-		if(!masterMongoTemplate.exists(new Query(Criteria.where("email").is(userEvent.getEmail()).and("event").is(userEvent.getEvent())), UserEvent.class))
+	public void saveUserEvent(UserEventDTO userEventDTO) {
+		Query query = new Query(Criteria.where("email").is(userEventDTO.getEmail()).and("event").is(userEventDTO.getEvent()));
+		UserEvent userEvent = masterMongoTemplate.findOne(query, UserEvent.class);
+		if (null != userEvent) {
+			Update update = new Update();
+			update.set("email",userEventDTO.getEmail());
+			update.set("event",userEventDTO.getEvent());
+			update.set("name",userEventDTO.getName());
+			update.set("firstName",userEventDTO.getFirstName());
+			update.set("lastName",userEventDTO.getLastName());
+			update.set("company",userEventDTO.getCompany());
+			update.set("role",userEventDTO.getRole());
+			update.set("message",userEventDTO.getMessage());
+			update.set("plan",userEventDTO.getPlan());
+			update.set("interestedFeatures",userEventDTO.getInterestedFeatures());
+			if(userEvent.getCts()==0){
+				update.set("cts",System.currentTimeMillis());
+			}else{
+				update.set("cts",userEvent.getCts());
+			}
+			update.set("mts",System.currentTimeMillis());
+			masterMongoTemplate.upsert(query,update, UserEvent.class);
+		}else{
+			userEvent = new UserEvent();
+			BeanUtils.copyProperties(userEventDTO,userEvent);
+			userEvent.setCts(System.currentTimeMillis());
 			masterMongoTemplate.save(userEvent);
+		}
 	}
 }

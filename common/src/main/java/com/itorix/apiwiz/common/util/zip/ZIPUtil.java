@@ -76,6 +76,34 @@ public class ZIPUtil {
 		is.close();
 	}
 
+	public void unzipV2(String zipFilePath, String destinationFolder) throws IOException {
+		byte[] buffer = new byte[1024];
+
+		try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFilePath))) {
+			ZipEntry zipEntry = zipInputStream.getNextEntry();
+			while (zipEntry != null) {
+				String entryName = zipEntry.getName();
+				String entryPath = destinationFolder + File.separator + entryName;
+
+				File entryFile = new File(entryPath);
+				if (zipEntry.isDirectory()) {
+					entryFile.mkdirs();
+				} else {
+					entryFile.getParentFile().mkdirs();
+
+					try (FileOutputStream outputStream = new FileOutputStream(entryFile)) {
+						int length;
+						while ((length = zipInputStream.read(buffer)) > 0) {
+							outputStream.write(buffer, 0, length);
+						}
+					}
+				}
+
+				zipInputStream.closeEntry();
+				zipEntry = zipInputStream.getNextEntry();
+			}
+		}
+	}
 	public void unZipIt(String zipFile, String outputFolder) {
 
 		byte[] buffer = new byte[1024];
