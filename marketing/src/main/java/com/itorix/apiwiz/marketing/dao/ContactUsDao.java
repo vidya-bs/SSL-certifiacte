@@ -151,6 +151,7 @@ public class ContactUsDao {
 			update.set("role",userEventDTO.getRole());
 			update.set("message",userEventDTO.getMessage());
 			update.set("plan",userEventDTO.getPlan());
+			update.set("interestedFeatures",userEventDTO.getInterestedFeatures());
 			if(userEvent.getCts()==0){
 				update.set("cts",System.currentTimeMillis());
 			}else{
