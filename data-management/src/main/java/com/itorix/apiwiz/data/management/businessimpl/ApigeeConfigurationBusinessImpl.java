@@ -3,12 +3,13 @@ package com.itorix.apiwiz.data.management.businessimpl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Update;
@@ -46,6 +47,8 @@ public class ApigeeConfigurationBusinessImpl implements ApigeeConfigurationBusin
 	@Autowired
 	MongoTemplate mongoTemplate;
 
+	@Autowired
+	private GridFsTemplate gridFsTemplate;
 	/**
 	 * getConfiguration
 	 *
@@ -180,6 +183,7 @@ public class ApigeeConfigurationBusinessImpl implements ApigeeConfigurationBusin
 		if (vo == null) {
 			throw new ItorixException(ErrorCodes.errorMessage.get("Apigee-1005"), "Apigee-1005");
 		}
+		mongoTemplate.remove(new Query(Criteria.where("connectorId").is(apigeeConfigurationVO.getId())),"Connectors.Apigee.Build.Templates.Folder");
 		baseRepository.delete(apigeeConfigurationVO.getId(), ApigeeConfigurationVO.class);
 	}
 
@@ -328,7 +332,8 @@ public class ApigeeConfigurationBusinessImpl implements ApigeeConfigurationBusin
 
 	@Override
 	public void deleteApigeeIntegration(String id) throws ItorixException {
-		Query query = new Query(new Criteria().andOperator(Criteria.where("id").is(id)));
-		mongoTemplate.remove(query, ApigeeConfigurationVO.class);
+		mongoTemplate.remove(new Query(Criteria.where("connectorId").is(id)),"Connectors.Apigee.Build.Templates.Folder");
+		gridFsTemplate.delete(new Query(Criteria.where("metadata.connectorId").is(id)));
+		mongoTemplate.remove(new Query(new Criteria().andOperator(Criteria.where("id").is(id))), ApigeeConfigurationVO.class);
 	}
 }

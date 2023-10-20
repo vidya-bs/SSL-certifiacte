@@ -28,6 +28,16 @@ public class CodeGenHistory {
 
 	private Map<String, Object> proxyMetadata;
 
+	private String connectorId;
+
+	public String getConnectorId() {
+		return connectorId;
+	}
+
+	public void setConnectorId(String connectorId) {
+		this.connectorId = connectorId;
+	}
+
 	public String getScmURL() {
 		return scmURL;
 	}

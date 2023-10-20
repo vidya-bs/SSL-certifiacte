@@ -59,6 +59,7 @@ public interface DatapowerService {
 	ResponseEntity<Object> generateDatapowerProxy(
 			@PathVariable(value = "proxyId") String proxyId,
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "connectorId") String connectorId,
 			@RequestBody(required = false) Proxy requests)
 			throws Exception;
 

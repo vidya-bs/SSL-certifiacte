@@ -1,10 +1,12 @@
 package com.itorix.apiwiz.devstudio.serviceImpl;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.itorix.apiwiz.devstudio.model.BuildTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -354,17 +356,21 @@ public class ProxyStudioImpl implements ProxyStudio {
 	@Override
 	public ResponseEntity<?> uploadTemplates(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@RequestParam("file") MultipartFile file, HttpServletRequest request, HttpServletResponse response)
+			@RequestParam(value = "file",required = true) MultipartFile file,
+			@RequestHeader(value = "type",required = true) String type,
+			@RequestHeader(value = "connectorId",required = true) String connectorId,
+			HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
-		return new ResponseEntity<>(codeGenService.uploadTemplates(file), HttpStatus.OK);
+		return new ResponseEntity<>(codeGenService.uploadTemplates(type,connectorId,file), HttpStatus.OK);
 	}
 	@Override
 	public ResponseEntity<?> downloadTemplates(
 			@RequestHeader(value = "interactionid", required = false) String interactionid,
-			@PathVariable(value = "name",required = false) String fileName, HttpServletRequest request, HttpServletResponse response)
+			@RequestHeader(value = "connectorId",required = true) String connectorId,
+			HttpServletRequest request,
+			HttpServletResponse response)
 			throws Exception {
-
-		return codeGenService.downloadTemplates(fileName);
+		return codeGenService.downloadTemplates(connectorId);
 	}
 
 	// @SuppressWarnings("deprecation")
@@ -402,16 +408,30 @@ public class ProxyStudioImpl implements ProxyStudio {
 	}
 
 	@Override
-	public ResponseEntity<?> locateResouce(@RequestHeader(value = "JSESSIONID") String jsessionid,
+	public ResponseEntity<?> locateResource(
+			@RequestHeader(value = "JSESSIONID") String jsessionid,
+			@RequestHeader(value = "connectorId") String connectorId,
 			HttpServletRequest httpServletRequest) throws Exception {
 		String uri = httpServletRequest.getRequestURI().replaceAll(context, "");
 		uri = uri.replaceAll("/v1/api/template", "");
-		Object returnData = codeGenService.getFolders("API" + uri);
+		Object returnData = codeGenService.getFolders(connectorId,"API" + uri);
 		if (returnData == null) {
 			String[] resources = uri.split("/");
 			int length = resources.length;
-			returnData = codeGenService.getFile(resources[length - 1]);
+			returnData = codeGenService.getFile(connectorId,resources[length - 1]);
 		}
 		return new ResponseEntity<>(returnData, HttpStatus.OK);
 	}
+
+	@Override
+	public ResponseEntity<List<BuildTemplate>> getConnectorBuildTemplates(String jsessionid, HttpServletRequest httpServletRequest) {
+		return new ResponseEntity<>(codeGenService.getConnectorBuildTemplates(), HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> setupBuildTemplates(String jsessionid, HttpServletRequest httpServletRequest) throws IOException {
+		codeGenService.setupBuildTemplate();
+		return new ResponseEntity<>("Build Templates Updated", HttpStatus.OK);
+	}
+
 }

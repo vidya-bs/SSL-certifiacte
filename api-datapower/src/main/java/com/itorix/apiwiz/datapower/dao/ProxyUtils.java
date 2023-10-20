@@ -138,14 +138,14 @@ public class ProxyUtils {
 	private static final String GIT_HOST_URL = "https://github.com/asu2150/";
 	
 	
-	public ProjectProxyResponse generateProxy(com.itorix.apiwiz.datapower.model.proxy.Proxy proxy,String jsessionId) {
+	public ProjectProxyResponse generateProxy(com.itorix.apiwiz.datapower.model.proxy.Proxy proxy,String jsessionId,String connectorId) {
 		ProjectProxyResponse response = new ProjectProxyResponse();
 		try {
 			String projectName = proxy.getName();
 			Project project = populateProject(proxy, projectName);
 			ObjectMapper mapper = new ObjectMapper();
 			CodeGenHistory proxyGen = populateProxyGenerationObj(proxy);
-
+			proxyGen.setConnectorId(connectorId);
 			response.setGitRepoName(proxyGen.getProxySCMDetails().getReponame());
 			response.setGitBranch(proxyGen.getProxySCMDetails().getBranch());
 
@@ -835,7 +835,7 @@ public class ProxyUtils {
 	}
 
 	public Object generateApigeeProxy(com.itorix.apiwiz.datapower.model.proxy.Proxy proxy,
-      com.itorix.apiwiz.datapower.model.proxy.Proxy requests, String jsessionId)
+      com.itorix.apiwiz.datapower.model.proxy.Proxy requests, String jsessionId,String connectorId)
 			throws Exception {
 		proxy.getApigeeConfig().setDesignArtifacts(requests.getApigeeConfig().getDesignArtifacts());
 		ProjectProxyResponse response = new ProjectProxyResponse();
@@ -843,7 +843,7 @@ public class ProxyUtils {
 			String projectName = proxy.getName();
 			Project project = populateProject(proxy, projectName);
 			CodeGenHistory proxyGen = populateProxyGenerationObj(proxy);
-
+			proxyGen.setConnectorId(connectorId);
 			response.setGitRepoName(proxyGen.getProxySCMDetails().getReponame());
 			response.setGitBranch(proxyGen.getProxySCMDetails().getBranch());
 
