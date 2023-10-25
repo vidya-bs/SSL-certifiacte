@@ -177,6 +177,9 @@ public class ApigeeProxyGeneration {
 				}
 			}
 		}
+		if (null != cg.getProxyMetadata() && !cg.getProxyMetadata().isEmpty()) {
+			data.put("proxyMetadata", cg.getProxyMetadata());
+		}
 		Writer file = new FileWriter(dstProxiesFileName);
 		if (cg.getPolicyTemplates() != null) {
 			Map commonMap = commonsGen.createMap(cg);
