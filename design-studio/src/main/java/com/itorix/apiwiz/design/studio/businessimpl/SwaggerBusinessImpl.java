@@ -5099,23 +5099,27 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 						vo.setTeams(swaggerMetadata.getTeams());
 					}
 				}
-				if (vo != null) {
+				if (vo != null && vo.getSwagger() != null) {
 					ObjectMapper mapper = new ObjectMapper();
-					JsonNode swaggerJson = mapper.readTree(vo.getSwagger());
-					if (swaggerJson != null) {
-						JsonNode infoNode = swaggerJson.get("info");
-						if (infoNode != null) {
-							try {
-								vo.setDescription(infoNode.get("description").asText());
-							} catch (Exception e) {
-								vo.setDescription("N/A");
+					try {
+						JsonNode swaggerJson = mapper.readTree(vo.getSwagger());
+						if (swaggerJson != null) {
+							JsonNode infoNode = swaggerJson.get("info");
+							if (infoNode != null) {
+								try {
+									vo.setDescription(infoNode.get("description").asText());
+								} catch (Exception e) {
+									vo.setDescription("N/A");
+								}
 							}
 						}
+						vo.setSwagger(null);
+						roles = Arrays.asList("Admin", "Write", "Read");
+						vo.setRoles(roles);
+						list.add(vo);
+					} catch (IOException e) {
+						log.error("{SwaggerId:"+vo.getSwaggerId()+",OAS: 3} Error Message:"+e.getMessage());
 					}
-					vo.setSwagger(null);
-					roles = Arrays.asList("Admin", "Write", "Read");
-					vo.setRoles(roles);
-					list.add(vo);
 				}
 			}
 			Pagination pagination = new Pagination();
@@ -5278,23 +5282,27 @@ public class SwaggerBusinessImpl implements SwaggerBusiness {
 						vo.setTeams(swaggerMetadata.getTeams());
 					}
 				}
-				if (vo != null) {
+				if (vo != null && vo.getSwagger() != null) {
 					ObjectMapper mapper = new ObjectMapper();
-					JsonNode swaggerJson = mapper.readTree(vo.getSwagger());
-					if (swaggerJson != null) {
-						JsonNode infoNode = swaggerJson.get("info");
-						if (infoNode != null) {
-							try {
-								vo.setDescription(infoNode.get("description").asText());
-							} catch (Exception e) {
-								vo.setDescription("N/A");
+					try {
+						JsonNode swaggerJson = mapper.readTree(vo.getSwagger());
+						if (swaggerJson != null) {
+							JsonNode infoNode = swaggerJson.get("info");
+							if (infoNode != null) {
+								try {
+									vo.setDescription(infoNode.get("description").asText());
+								} catch (Exception e) {
+									vo.setDescription("N/A");
+								}
 							}
 						}
+						vo.setSwagger(null);
+						roles = Arrays.asList("Admin", "Write", "Read");
+						vo.setRoles(roles);
+						list.add(vo);
+					} catch (IOException e) {
+						log.error("{SwaggerId:"+vo.getSwaggerId()+",OAS: 2} Error Message:"+e.getMessage());
 					}
-					vo.setSwagger(null);
-					roles = Arrays.asList("Admin", "Write", "Read");
-					vo.setRoles(roles);
-					list.add(vo);
 				}
 			}
 			Pagination pagination = new Pagination();
