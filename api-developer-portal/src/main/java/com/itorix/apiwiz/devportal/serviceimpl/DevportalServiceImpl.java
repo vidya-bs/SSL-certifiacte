@@ -865,7 +865,7 @@ public class DevportalServiceImpl implements DevportalService {
 			return devportaldao.proxyService(httpConn, "GET");
 		} else {
 			String URL = apigeeUtil.getApigeeHost(type, org) + "/v1/organizations/" + org + "/environments/" + env
-					+ "/stats/apps/";
+					+ "/stats/apps";
 			String query = "";
 			if (select != null && select != "")
 				query = "?select=" + select;
