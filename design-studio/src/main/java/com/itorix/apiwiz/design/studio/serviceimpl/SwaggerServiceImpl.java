@@ -3030,7 +3030,7 @@ public class SwaggerServiceImpl implements SwaggerService {
 			@RequestHeader(value = "JSESSIONID") String jsessionid,
 			@RequestHeader(value = "oas", required = false) String oas,
 			@RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
-			@RequestParam(value = "pagesize", required = false, defaultValue = "10") int pageSize,
+			@RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize,
 			@RequestParam(value = "swagger", required = false) String swagger,
 			@RequestParam(value = "status", required = false) String status,
 			@RequestParam(value = "product", required = false) String product,
