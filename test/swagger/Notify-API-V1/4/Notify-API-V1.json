@@ -1,0 +1,429 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "Notify-API-V1",
+    "description" : "Swagger Documentation for Notify",
+    "version" : "v1.0.0",
+    "contact" : {
+      "name" : "Customer Care",
+      "url" : "https://tonikbank.com/",
+      "email" : "customercare@tonikbank.com"
+    },
+    "x-ibm-name" : "notify-api-v1"
+  },
+  "paths" : {
+    "/notification-status" : {
+      "summary" : "To send Read and delivery acknowledgement",
+      "x-description" : "To send Read and delivery acknowledgement",
+      "post" : {
+        "operationId" : "PostNotifyAckDeliveryAndRead",
+        "summary" : "To send Read and delivery acknowledgement",
+        "description" : "To send Read and delivery acknowledgement",
+        "parameters" : [ {
+          "example" : "deviceos = Ios11 && devicename = tangy && appversion = 1.0 && deviceid = 8 c629fe466014c4ab5a22f72587fb4a3kdZ1F8Xx && ip = 192.168 .0 .10 && geoloc = 1.280894: 103.849252 && channelid = MB && userId = 11 f1bb81381a44449f4d0a5b4be46d98",
+          "name" : "clientinfo",
+          "required" : true,
+          "style" : "simple",
+          "in" : "header",
+          "schema" : {
+            "description" : "",
+            "type" : "string"
+          },
+          "description" : "Client information"
+        }, {
+          "example" : "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5Q1hRY09DNmF4QmZLMDJGWFNJb2p3UlJaeTFoemVZamNlVWRxTzR2VzR3PSIsImV4cCI6MTY1MjI5OTEwNywidXNlcklkIjoiOUNYUWNPQzZheEJmSzAyRlhTSW9qd1JSWnkxaHplWWpjZVVkcU80dlc0dz0iLCJpYXQiOjE2NTIyNjMxMDcsImNoYW5uZWxJZCI6IkJ3RmFBYVJjYmxSMmJudTh1akpYbjRoVSsxMzEwODdNMitKbHgrOVg5VmM9In0.yFYwGCHrd7dynElBbVokpZRLDQrpWedRMkpTR459mPg - oo4 - C74rDFxh44N5MXWXJT17EWRJHNFPznpCUHZLTw",
+          "name" : "tonikusertoken",
+          "required" : true,
+          "style" : "simple",
+          "in" : "header",
+          "schema" : {
+            "description" : "",
+            "type" : "string"
+          },
+          "description" : "Tonik user JWT token"
+        }, {
+          "example" : "Bearer tixEmRm8lSitF5GMssnN4HaaQTZn",
+          "name" : "Authorization",
+          "required" : true,
+          "style" : "simple",
+          "in" : "header",
+          "schema" : {
+            "description" : "",
+            "type" : "string"
+          },
+          "description" : "Bearer access token"
+        }, {
+          "example" : "application / json",
+          "name" : "Content-Type",
+          "required" : false,
+          "style" : "simple",
+          "in" : "header",
+          "description" : "\"Request content type or MIME type\nNOTE : Manadtory for all APIs with request body\"",
+          "schema" : {
+            "description" : "",
+            "type" : "string"
+          }
+        }, {
+          "example" : "application / json",
+          "name" : "Accept",
+          "required" : false,
+          "style" : "form",
+          "in" : "query",
+          "schema" : {
+            "description" : "",
+            "type" : "string"
+          },
+          "description" : "Type of content they expect/prefer as response"
+        }, {
+          "name" : "enumverification",
+          "required" : false,
+          "style" : "form",
+          "in" : "query",
+          "schema" : {
+            "description" : "",
+            "type" : "number"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "description" : "",
+                  "$ref" : "#/components/schemas/PostNotifyAckDeliveryAndReadResp"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "401" : {
+            "description" : "Unauthorized Request"
+          },
+          "403" : {
+            "description" : "Forbidden",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "description" : "",
+                  "$ref" : "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "description" : "",
+                  "$ref" : "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "405" : {
+            "description" : "Method not allowed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "description" : "",
+                  "$ref" : "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "429" : {
+            "description" : "Multiple requests",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "description" : "",
+                  "$ref" : "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal server error",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "description" : "",
+                  "$ref" : "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "501" : {
+            "description" : "Not Implemented",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "description" : "",
+                  "$ref" : "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "502" : {
+            "description" : "Bad Gateway",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "description" : "",
+                  "$ref" : "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          },
+          "504" : {
+            "description" : "Gaeway Timeout",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "description" : "",
+                  "$ref" : "#/components/schemas/ErrorSchema"
+                }
+              }
+            }
+          }
+        },
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "description" : "",
+                "$ref" : "#/components/schemas/PostNotifyAckDeliveryAndReadResp"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers" : [ {
+    "x-name" : "Prod Server",
+    "x-schema" : "https://",
+    "x-hostName" : "stage-mock.apiwiz.io",
+    "url" : "https://stage-mock.apiwiz.io/v1/notify/v2",
+    "x-basePath" : "/v1/notify/v2"
+  } ],
+  "tags" : [ ],
+  "security" : [ ],
+  "components" : {
+    "schemas" : {
+      "PostNotifyAckDeliveryAndReadResp" : {
+        "type" : "object",
+        "required" : [ "data", "meta", "status" ],
+        "properties" : {
+          "data" : {
+            "required" : [ "id", "messageId", "trnsdeviceId", "msgBody", "msgTitle", "msgSendStatus", "msgLanguage", "msgSuccessId", "msgDeliverStatus", "msgReadRecepStatus", "msgTempId", "msgCreatedDate", "msgDeliverDate", "createdBy", "msgUpdateDate", "updatedBy", "multicastId" ],
+            "properties" : {
+              "id" : {
+                "type" : "integer",
+                "example" : 18985,
+                "description" : "Id"
+              },
+              "messageId" : {
+                "type" : "string",
+                "example" : "0: 1653373666677824 % b8956e48b8956e48",
+                "description" : "Message id"
+              },
+              "trnsdeviceId" : {
+                "type" : "string",
+                "example" : "974 cd3d9659741c3a3faac1b60d300edXYBaVuwR",
+                "description" : "Transaction device Id"
+              },
+              "msgBody" : {
+                "type" : "string",
+                "example" : "Let 's volt in! You'\nve got an invite.",
+                "description" : "Message body"
+              },
+              "msgTitle" : {
+                "type" : "string",
+                "example" : "TONIK "
+              },
+              "msgSendStatus" : {
+                "type" : "boolean",
+                "example" : false
+              },
+              "msgLanguage" : {
+                "type" : "string",
+                "example" : "0"
+              },
+              "msgSuccessId" : {
+                "type" : "string",
+                "example" : "1"
+              },
+              "msgDeliverStatus" : {
+                "type" : "string",
+                "example" : "delivered"
+              },
+              "msgReadRecepStatus" : {
+                "type" : "boolean",
+                "example" : false
+              },
+              "msgTempId" : {
+                "type" : "string",
+                "example" : "GRP_STAC_INV"
+              },
+              "msgCreatedDate" : {
+                "type" : "string",
+                "example" : "2022-05-24 06:27:47"
+              },
+              "msgDeliverDate" : {
+                "type" : "string",
+                "example" : "2022-05-24 07:10:10.054"
+              },
+              "createdBy" : {
+                "type" : "string",
+                "example" : "df720616dc6c420a8f61e0e0e2ee8545"
+              },
+              "msgUpdateDate" : {
+                "type" : "string",
+                "example" : "2022-05-24 07:10:10.054"
+              },
+              "updatedBy" : {
+                "type" : "string",
+                "example" : "df720616dc6c420a8f61e0e0e2ee8545"
+              },
+              "multicastId" : {
+                "type" : "string",
+                "example" : "57802689992078485"
+              }
+            },
+            "type" : "object"
+          },
+          "meta" : {
+            "required" : [ "totalPages" ],
+            "properties" : {
+              "totalPages" : {
+                "type" : "number",
+                "example" : 0
+              }
+            },
+            "type" : "object"
+          },
+          "status" : {
+            "required" : [ "code", "message" ],
+            "properties" : {
+              "code" : {
+                "type" : "string",
+                "example" : "00"
+              },
+              "message" : {
+                "type" : "string",
+                "example" : "Success"
+              }
+            },
+            "type" : "object"
+          }
+        }
+      },
+      "ErrorSchema" : {
+        "type" : "object",
+        "required" : [ "errors" ],
+        "properties" : {
+          "errors" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "errorCode" : {
+                  "type" : "string",
+                  "example" : "0099"
+                },
+                "message" : {
+                  "type" : "string",
+                  "example" : "Currently we are facing technical issues ! Please try again"
+                }
+              }
+            }
+          }
+        }
+      },
+      "PostNotifyAckDeliveryAndReadReq" : {
+        "type" : "object",
+        "required" : [ "messageId", "type", "status" ],
+        "properties" : {
+          "messageId" : {
+            "type" : "string",
+            "example" : "0: 1653373666677824 % b8956e48b8956e48",
+            "description" : "Message id"
+          },
+          "type" : {
+            "type" : "string",
+            "example" : "delivered",
+            "description" : "Type of message"
+          },
+          "status" : {
+            "type" : "string",
+            "example" : "success",
+            "description" : "Status"
+          }
+        }
+      }
+    }
+  },
+  "x-mock" : true,
+  "x-metadata" : {
+    "metadata" : {
+      "swaggerName" : "9df8a0ad9dea4379a91f38c36bf37e4f",
+      "revision" : 1,
+      "documentation" : [ ],
+      "category" : [ {
+        "name" : "Notify",
+        "paths" : [ "/notification-status" ]
+      } ]
+    }
+  },
+  "x-ibm-configuration" : {
+    "type" : "rest",
+    "phase" : "realized",
+    "enforced" : true,
+    "testable" : true,
+    "gateway" : "datapower-api-gateway",
+    "cors" : {
+      "enabled" : true
+    },
+    "assembly" : {
+      "execute" : [ {
+        "invoke" : {
+          "title" : "invoke",
+          "version" : "2.0.0",
+          "verb" : "keep",
+          "target-url" : "http://example.com/operation-name",
+          "follow-redirects" : false,
+          "timeout" : 60,
+          "parameter-control" : {
+            "type" : "allowlist",
+            "values" : [ ]
+          },
+          "header-control" : {
+            "type" : "blocklist",
+            "values" : [ ]
+          },
+          "inject-proxy-headers" : true,
+          "chunked-uploads" : true,
+          "persistent-connection" : true
+        }
+      } ]
+    },
+    "properties" : {
+      "target-url" : {
+        "value" : "http://example.com/operation-name",
+        "description" : "The URL of the target service",
+        "encoded" : false
+      }
+    },
+    "activity-log" : {
+      "enabled" : true,
+      "success-content" : "activity",
+      "error-content" : "payload"
+    }
+  },
+  "x-ibm-apic-connector-id" : "656ef5c9a8ca1d0331cc5e64"
+}
